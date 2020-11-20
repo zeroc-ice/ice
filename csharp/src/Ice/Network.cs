@@ -348,12 +348,12 @@ namespace ZeroC.Ice
                 if (size < rcvSize)
                 {
                     // Warn if the size that was set is less than the requested size and we have not already warned.
-                    BufSizeWarnInfo warningInfo = communicator.GetBufSizeWarn(Transport.TCP);
+                    BufWarnSizeInfo warningInfo = communicator.GetBufWarnSize(Transport.TCP);
                     if (!warningInfo.RcvWarn || rcvSize != warningInfo.RcvSize)
                     {
                         communicator.Logger.Warning(
                             $"{transport} receive buffer size: requested size of {rcvSize} adjusted to {size}");
-                        communicator.SetRcvBufSizeWarn(Transport.TCP, rcvSize);
+                        communicator.SetRcvBufWarnSize(Transport.TCP, rcvSize);
                     }
                 }
             }
@@ -368,12 +368,12 @@ namespace ZeroC.Ice
                 if (size < sndSize) // Warn if the size that was set is less than the requested size.
                 {
                     // Warn if the size that was set is less than the requested size and we have not already warned.
-                    BufSizeWarnInfo warningInfo = communicator.GetBufSizeWarn(Transport.TCP);
+                    BufWarnSizeInfo warningInfo = communicator.GetBufWarnSize(Transport.TCP);
                     if (!warningInfo.SndWarn || sndSize != warningInfo.SndSize)
                     {
                         communicator.Logger.Warning(
                             $"{transport} send buffer size: requested size of {sndSize} adjusted to {size}");
-                        communicator.SetSndBufSizeWarn(Transport.TCP, sndSize);
+                        communicator.SetSndBufWarnSize(Transport.TCP, sndSize);
                     }
                 }
             }

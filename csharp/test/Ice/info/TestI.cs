@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Info
             ctx["timeout"] = endpoint["timeout"] ?? "infinite";
             ctx["compress"] = endpoint["compress"] ?? "false";
             ctx["datagram"] = endpoint.IsDatagram ? "true" : "false";
-            ctx["secure"] = endpoint.IsSecure ? "true" : "false";
+            ctx["secure"] = endpoint.IsAlwaysSecure ? "true" : "false";
             ctx["scheme"] = endpoint.Scheme;
 
             ctx["host"] = endpoint.Host;

@@ -43,7 +43,7 @@ class Instance
 {
 public:
 
-    enum SendQueueSizeMaxPolicy
+    enum SendQueueMaxSizePolicy
     {
         RemoveSubscriber,
         DropEvents
@@ -78,8 +78,8 @@ public:
     std::chrono::seconds discardInterval() const;
     std::chrono::milliseconds flushInterval() const;
     std::chrono::milliseconds sendTimeout() const;
-    int sendQueueSizeMax() const;
-    SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
+    int sendQueueMaxSize() const;
+    SendQueueMaxSizePolicy sendQueueMaxSizePolicy() const;
 
     void shutdown();
     virtual void destroy();
@@ -97,8 +97,8 @@ private:
     const std::chrono::seconds _discardInterval;
     const std::chrono::milliseconds _flushInterval;
     const std::chrono::milliseconds _sendTimeout;
-    const int _sendQueueSizeMax;
-    const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
+    const int _sendQueueMaxSize;
+    const SendQueueMaxSizePolicy _sendQueueMaxSizePolicy;
     const std::shared_ptr<Ice::ObjectPrx> _topicReplicaProxy;
     const std::shared_ptr<Ice::ObjectPrx> _publisherReplicaProxy;
     const std::shared_ptr<TopicReaper> _topicReaper;

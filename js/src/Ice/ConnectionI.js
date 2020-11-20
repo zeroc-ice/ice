@@ -97,7 +97,7 @@ class ConnectionI
         this._warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         this._acmLastActivity = this._monitor !== null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
         this._nextRequestId = 1;
-        this._messageSizeMax = adapter ? adapter.messageSizeMax() : instance.messageSizeMax();
+        this._messageMaxSize = adapter ? adapter.messageMaxSize() : instance.messageMaxSize();
         this._batchRequestQueue = new BatchRequestQueue(instance, endpoint.datagram());
 
         this._sendStreams = [];
@@ -791,9 +791,9 @@ class ConnectionI
                         throw new Ice.IllegalMessageSizeException();
                     }
 
-                    if(size > this._messageSizeMax)
+                    if(size > this._messageMaxSize)
                     {
-                        ExUtil.throwMemoryLimitException(size, this._messageSizeMax);
+                        ExUtil.throwMemoryLimitException(size, this._messageMaxSize);
                     }
                     if(size > this._readStream.size)
                     {

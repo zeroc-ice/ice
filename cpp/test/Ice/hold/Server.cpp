@@ -23,16 +23,16 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("TestAdapter1.Endpoints", getTestEndpoint());
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Size", "5");
-    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
-    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.MaxSize", "5");
+    communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.WarnSize", "0");
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
     adapter1->add(std::make_shared<HoldI>(timer, adapter1), Ice::stringToIdentity("hold"));
 
     communicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5");
-    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
-    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.MaxSize", "5");
+    communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.WarnSize", "0");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
     adapter2->add(std::make_shared<HoldI>(timer, adapter2), Ice::stringToIdentity("hold"));

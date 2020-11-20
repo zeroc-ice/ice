@@ -7,7 +7,6 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class RemoteObjectAdapter : IRemoteObjectAdapter
     {
-
         private readonly ObjectAdapter _adapter;
         private readonly ITestIntfPrx _testIntf;
 

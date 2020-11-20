@@ -27,10 +27,10 @@ namespace ZeroC.Ice
         private readonly bool _background;
 
         private readonly ConcurrentDictionary<(Location, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints)> _locationCache =
-            new (_locationComparer);
+            new(_locationComparer);
 
         private readonly Dictionary<(Location, Protocol), Task<EndpointList>> _locationRequests =
-            new (_locationComparer);
+            new(_locationComparer);
 
         private ILocatorRegistryPrx? _locatorRegistry;
 
@@ -38,10 +38,10 @@ namespace ZeroC.Ice
         private readonly object _mutex = new();
 
         private readonly ConcurrentDictionary<(Identity, string, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _wellKnownProxyCache =
-            new ();
+            new();
 
         private readonly Dictionary<(Identity, string, Protocol), Task<(EndpointList, Location)>> _wellKnownProxyRequests =
-            new ();
+            new();
 
         internal LocatorInfo(ILocatorPrx locator, bool background)
         {
@@ -392,7 +392,8 @@ namespace ZeroC.Ice
 
                         Reference? resolved = proxy?.IceReference;
 
-                        if (resolved != null && (resolved.IsIndirect || resolved.Protocol != Protocol.Ice1))
+                        if (resolved != null &&
+                            (resolved.Endpoints.Count == 0 || resolved.Protocol != Protocol.Ice1))
                         {
                             if (communicator.TraceLevels.Locator >= 1)
                             {
@@ -580,16 +581,8 @@ namespace ZeroC.Ice
                 (Location Location, Protocol Protocol) rhs) =>
                 lhs.Location.SequenceEqual(rhs.Location) && lhs.Protocol == rhs.Protocol;
 
-            public int GetHashCode((Location Location, Protocol Protocol) obj)
-            {
-                var hash = new HashCode();
-                foreach (string s in obj.Location)
-                {
-                    hash.Add(s);
-                }
-                hash.Add(obj.Protocol);
-                return hash.ToHashCode();
-            }
+            public int GetHashCode((Location Location, Protocol Protocol) obj) =>
+                HashCode.Combine(obj.Location.GetSequenceHashCode(), obj.Protocol);
         }
     }
 }

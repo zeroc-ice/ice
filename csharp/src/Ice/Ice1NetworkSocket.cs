@@ -4,17 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The legacy transceiver implements a multi-stream transport using the Ice1 protocol. A new incoming
+    /// <summary>The Ice1 network socket implements a multi-stream transport using the Ice1 protocol. A new incoming
     /// stream is created for each incoming Ice1 request and an outgoing stream is created for outgoing requests.
-    /// The streams created by the legacy transceiver are always finished once the request or response frames are
+    /// The streams created by the Ice1 network socket are always finished once the request or response frames are
     /// sent or received. Data streaming is not supported. Initialize or GoAway frames sent over the control streams
     /// are translated to connection validation or close connection Ice1 frames.</summary>
-    internal class LegacyTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
+    internal class Ice1NetworkSocket : MultiStreamOverSingleStreamSocket
     {
         public override TimeSpan IdleTimeout { get; internal set; }
 
@@ -26,9 +27,9 @@ namespace ZeroC.Ice
         private long _nextUnidirectionalId;
         private long _nextPeerUnidirectionalId;
         private Task _sendTask = Task.CompletedTask;
-        private readonly ITransceiver _transceiver;
+        private readonly SingleStreamSocket _socket;
 
-        public override async ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel)
+        public override async ValueTask<SocketStream> AcceptStreamAsync(CancellationToken cancel)
         {
             while (true)
             {
@@ -36,7 +37,7 @@ namespace ZeroC.Ice
                 ArraySegment<byte> buffer;
                 if (Endpoint.IsDatagram)
                 {
-                    buffer = await _transceiver.ReceiveDatagramAsync(cancel).ConfigureAwait(false);
+                    buffer = await _socket.ReceiveDatagramAsync(cancel).ConfigureAwait(false);
                     if (buffer.Count < Ice1Definitions.HeaderSize)
                     {
                         ReceivedInvalidData($"received datagram with {buffer.Count} bytes");
@@ -58,9 +59,9 @@ namespace ZeroC.Ice
                     ReceivedInvalidData($"received ice1 frame with only {size} bytes");
                     continue;
                 }
-                if (size > IncomingFrameSizeMax)
+                if (size > IncomingFrameMaxSize)
                 {
-                    ReceivedInvalidData($"frame with {size} bytes exceeds Ice.IncomingFrameSizeMax value");
+                    ReceivedInvalidData($"frame with {size} bytes exceeds Ice.IncomingFrameMaxSize value");
                     continue;
                 }
 
@@ -89,7 +90,7 @@ namespace ZeroC.Ice
                     await ReceiveAsync(buffer.Slice(Ice1Definitions.HeaderSize), cancel).ConfigureAwait(false);
                 }
 
-                // Make sure the transceiver is marked as validated. This flag is necessary because incoming
+                // Make sure the socket is marked as validated. This flag is necessary because incoming
                 // connection initialization doesn't wait for connection validation message. So the connection
                 // is considered validated on the server side only once the first frame is received. This is
                 // only useful for connection warnings, to prevent a warning from showing up if the server side
@@ -102,7 +103,7 @@ namespace ZeroC.Ice
                 (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
                 if (streamId >= 0)
                 {
-                    if (TryGetStream(streamId, out LegacyStream? stream))
+                    if (TryGetStream(streamId, out Ice1NetworkSocketStream? stream))
                     {
                         // If this is a known stream, pass the data to the stream.
                         if (frameType == Ice1Definitions.FrameType.ValidateConnection)
@@ -128,7 +129,7 @@ namespace ZeroC.Ice
                         // the semaphore first to serialize the dispatching.
                         try
                         {
-                            stream = new LegacyStream(streamId, this);
+                            stream = new Ice1NetworkSocketStream(streamId, this);
                             if (stream.IsBidirectional)
                             {
                                 if (BidirectionalSerializeSemaphore != null)
@@ -153,7 +154,7 @@ namespace ZeroC.Ice
                     {
                         // If we received a connection validation frame and the stream is not known, it's the first
                         // received connection validation message, create the control stream and return it.
-                        stream = new LegacyStream(streamId, this);
+                        stream = new Ice1NetworkSocketStream(streamId, this);
                         Debug.Assert(stream.IsControl);
                         stream.ReceivedFrame(frameType, frame);
                         return stream;
@@ -182,21 +183,21 @@ namespace ZeroC.Ice
         }
 
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
-            _transceiver.CloseAsync(exception, cancel);
+            _socket.CloseAsync(exception, cancel);
 
-        public override TransceiverStream CreateStream(bool bidirectional)
+        public override SocketStream CreateStream(bool bidirectional)
         {
             lock (_mutex)
             {
-                TransceiverStream stream;
+                SocketStream stream;
                 if (bidirectional)
                 {
-                    stream = new LegacyStream(_nextBidirectionalId, this);
+                    stream = new Ice1NetworkSocketStream(_nextBidirectionalId, this);
                     _nextBidirectionalId += 4;
                 }
                 else
                 {
-                    stream = new LegacyStream(_nextUnidirectionalId, this);
+                    stream = new Ice1NetworkSocketStream(_nextUnidirectionalId, this);
                     _nextUnidirectionalId += 4;
                 }
                 return stream;
@@ -204,7 +205,7 @@ namespace ZeroC.Ice
         }
 
         public override ValueTask InitializeAsync(CancellationToken cancel) =>
-            _transceiver.InitializeAsync(cancel);
+            _socket.InitializeAsync(cancel);
 
         public override async Task PingAsync(CancellationToken cancel)
         {
@@ -220,11 +221,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal LegacyTransceiver(ITransceiver transceiver, Endpoint endpoint, ObjectAdapter? adapter)
-            : base(endpoint, adapter, transceiver)
+        internal Ice1NetworkSocket(SingleStreamSocket socket, Endpoint endpoint, ObjectAdapter? adapter)
+            : base(endpoint, adapter, socket)
         {
             IdleTimeout = endpoint.Communicator.IdleTimeout;
-            _transceiver = transceiver;
+            _socket = socket;
 
             // If serialization is enabled on the object adapter, create semaphore to limit the number of concurrent
             // dispatch per connection.
@@ -249,14 +250,14 @@ namespace ZeroC.Ice
             }
         }
 
-        internal override ValueTask<TransceiverStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
+        internal override ValueTask<SocketStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
             // With Ice1, the connection validation message is only sent by the server to the client. So here we
             // only expect the connection validation message for an outgoing connection and just return the
             // control stream immediately for an incoming connection.
             if (IsIncoming)
             {
-                return new ValueTask<TransceiverStream>(new LegacyStream(2, this));
+                return new ValueTask<SocketStream>(new Ice1NetworkSocketStream(2, this));
             }
             else
             {
@@ -289,13 +290,15 @@ namespace ZeroC.Ice
                     // Wait for the previous send to complete
                     await _sendTask.ConfigureAwait(false);
                 }
-                catch (DatagramLimitException)
+                catch (TransportException ex) when (Endpoint.IsDatagram &&
+                                                    ex.InnerException is SocketException socketException &&
+                                                    socketException.SocketErrorCode == SocketError.MessageSize)
                 {
-                    // If the send failed because the datagram was too large, ignore and continue sending.
+                    // If the previous send failed because the datagram was too large, ignore and continue sending.
                 }
                 catch (OperationCanceledException)
                 {
-                    // Ignore if it got canceled.
+                    // Ignore if the previous send got canceled.
                 }
 
                 // If the send got cancelled, throw to notify the connection of the cancellation. This isn't a fatal
@@ -307,7 +310,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal override ValueTask<TransceiverStream> SendInitializeFrameAsync(CancellationToken cancel)
+        internal override ValueTask<SocketStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
             // With Ice1, the connection validation message is only sent by the server to the client. So here
             // we only expect the connection validation message for an incoming connection and just return the
@@ -318,7 +321,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new ValueTask<TransceiverStream>(CreateStream(false));
+                return new ValueTask<SocketStream>(CreateStream(false));
             }
         }
 
@@ -331,7 +334,7 @@ namespace ZeroC.Ice
             {
                 if (BZip2.IsLoaded)
                 {
-                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, IncomingFrameSizeMax);
+                    readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, IncomingFrameMaxSize);
                 }
                 else
                 {
@@ -419,7 +422,7 @@ namespace ZeroC.Ice
             int offset = 0;
             while (offset != buffer.Count)
             {
-                int received = await _transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
+                int received = await _socket.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;
                 Received(received);
             }
@@ -427,7 +430,7 @@ namespace ZeroC.Ice
 
         private async ValueTask SendAsync(IList<ArraySegment<byte>> buffers, CancellationToken cancel = default)
         {
-            int sent = await _transceiver.SendAsync(buffers, cancel).ConfigureAwait(false);
+            int sent = await _socket.SendAsync(buffers, cancel).ConfigureAwait(false);
             Debug.Assert(sent == buffers.GetByteCount());
             Sent(sent);
         }

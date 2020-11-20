@@ -33,7 +33,7 @@ namespace ZeroC.Ice
         public bool IsIdempotent { get; }
 
         /// <summary>The location of the target Ice object. With ice1, it is always empty.</summary>
-        public string[] Location { get; }
+        public IReadOnlyList<string> Location { get; }
 
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
@@ -44,9 +44,9 @@ namespace ZeroC.Ice
         /// <summary>Constructs an incoming request frame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
-        /// <param name="sizeMax">The maximum payload size, checked during decompression.</param>
-        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int sizeMax)
-            : base(data, protocol, sizeMax)
+        /// <param name="maxSize">The maximum payload size, checked during decompression.</param>
+        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data, int maxSize)
+            : base(data, protocol, maxSize)
         {
             var istr = new InputStream(Data, Protocol.GetEncoding());
 
@@ -141,16 +141,16 @@ namespace ZeroC.Ice
 
         /// <summary>Reads the arguments from a request.</summary>
         /// <paramtype name="T">The type of the arguments.</paramtype>
-        /// <param name="communicator">The communicator.</param>
+        /// <param name="connection">The current connection.</param>
         /// <param name="reader">The delegate used to read the arguments.</param>
         /// <returns>The request arguments.</returns>
-        public T ReadArgs<T>(Communicator communicator, InputStreamReader<T> reader)
+        public T ReadArgs<T>(Connection connection, InputStreamReader<T> reader)
         {
             if (HasCompressedPayload)
             {
                 DecompressPayload();
             }
-            return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), communicator, reader);
+            return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), reader, connection: connection);
         }
 
         private protected override ArraySegment<byte> GetEncapsulation() => Payload;

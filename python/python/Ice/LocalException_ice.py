@@ -1552,7 +1552,7 @@ if 'MemoryLimitException' not in _M_Ice.__dict__:
         """
         This exception is raised when Ice receives a request or reply
         message whose size exceeds the limit specified by the
-        Ice.MessageSizeMax property.
+        Ice.MessageMaxSize property.
         """
         def __init__(self, reason=''):
             _M_Ice.MarshalException.__init__(self, reason)

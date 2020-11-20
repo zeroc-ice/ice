@@ -13,11 +13,11 @@ namespace ZeroC.Ice.Test.UDP
             return 42;
         }
 
-        public void Ping(IPingReplyPrx? reply, Current current, CancellationToken cancel)
+        public void Ping(IPingReplyPrx reply, Current current, CancellationToken cancel)
         {
             try
             {
-                reply!.Reply(cancel: cancel);
+                reply.Clone(preferNonSecure: true).Reply(cancel: cancel);
             }
             catch
             {
@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             try
             {
-                reply!.Reply(cancel: cancel);
+                reply?.Clone(preferNonSecure: true).Reply(cancel: cancel);
             }
             catch
             {
@@ -46,18 +46,18 @@ namespace ZeroC.Ice.Test.UDP
                 try
                 {
                     byte[] seq = new byte[64 * 1024];
-                    current.Connection.CreateProxy(id, ITestIntfPrx.Factory).SendByteSeq(seq, null, cancel: cancel);
+                    current.Connection.CreateProxy(id, "", ITestIntfPrx.Factory).SendByteSeq(seq, null, cancel: cancel);
                 }
-                catch (DatagramLimitException)
+                catch (TransportException)
                 {
                     // Expected.
                 }
 
-                current.Connection.CreateProxy(id, IPingReplyPrx.Factory).Reply(cancel: cancel);
+                current.Connection.CreateProxy(id, "", IPingReplyPrx.Factory).Reply(cancel: cancel);
             }
-            catch
+            catch (System.Exception ex)
             {
-                TestHelper.Assert(false);
+                TestHelper.Assert(false, ex.ToString());
             }
         }
 

@@ -12,21 +12,26 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The MultiStreamTransceiver abstract base class to implement multi-stream transports.</summary>
-    public abstract class MultiStreamTransceiver : IDisposable
+    /// <summary>A multi-stream socket represents the local end of a network connection and enables transmitting raw
+    /// binary data over multiple independent streams. The data sent and received over these streams can either be
+    /// transmitted using a datagram oriented transport such as Quic or a stream oriented transport such as TCP
+    /// (data multiplexing is used to transmit the data from multiple concurrent streams over the same TCP socket).
+    /// The Ice core relies on a multi-stream sockets to support the Ice protocol.
+    /// </summary>
+    public abstract class MultiStreamSocket : IDisposable
     {
-        /// <summary>The endpoint from which the transceiver was created.</summary>
+        /// <summary>The endpoint from which the socket was created.</summary>
         public Endpoint Endpoint { get; }
 
         /// <summary>Gets or set the idle timeout.</summary>
         public abstract TimeSpan IdleTimeout { get; internal set; }
 
-        /// <summary><c>true</c> for incoming transceivers <c>false</c> otherwise. An incoming transceiver is created
-        /// by a server-side acceptor while an outgoing transceiver is created from the endpoint by the client-side.
+        /// <summary><c>true</c> for incoming sockets <c>false</c> otherwise. An incoming socket is created
+        /// by a server-side acceptor while an outgoing socket is created from the endpoint by the client-side.
         /// </summary>
         public bool IsIncoming { get; }
 
-        internal int IncomingFrameSizeMax { get; }
+        internal int IncomingFrameMaxSize { get; }
         internal TimeSpan LastActivity { get; private set; }
         // The stream ID of the last received response with the Ice1 protocol. Keeping track of this stream ID is
         // necessary to avoid a race condition with the GoAway frame which could be received and processed before
@@ -60,24 +65,24 @@ namespace ZeroC.Ice
         private protected readonly object _mutex = new();
         private IConnectionObserver? _observer;
         private int _outgoingStreamCount;
-        private readonly ConcurrentDictionary<long, TransceiverStream> _streams = new();
+        private readonly ConcurrentDictionary<long, SocketStream> _streams = new();
         private volatile bool _streamsAborted;
         private volatile TaskCompletionSource? _streamsEmptySource;
 
-        /// <summary>Aborts the transceiver.</summary>
+        /// <summary>Aborts the socket.</summary>
         public abstract void Abort();
 
         /// <summary>Accepts an incoming stream.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The accepted stream.</return>
-        public abstract ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel);
+        public abstract ValueTask<SocketStream> AcceptStreamAsync(CancellationToken cancel);
 
-        /// <summary>Closes the transceiver.</summary>
-        /// <param name="exception">The exception for which the transceiver is closed.</param>
+        /// <summary>Closes the socket.</summary>
+        /// <param name="exception">The exception for which the socket is closed.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public abstract ValueTask CloseAsync(Exception exception, CancellationToken cancel);
 
-        /// <summary>Releases the resources used by the transceiver.</summary>
+        /// <summary>Releases the resources used by the socket.</summary>
         public void Dispose()
         {
             Dispose(true);
@@ -97,28 +102,28 @@ namespace ZeroC.Ice
         /// call on the stream.</summary>
         /// <param name="bidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
         /// <return>The outgoing stream.</return>
-        public abstract TransceiverStream CreateStream(bool bidirectional);
+        public abstract SocketStream CreateStream(bool bidirectional);
 
-        /// <summary>The MultiStreamTransceiver constructor.</summary>
-        /// <param name="endpoint">The endpoint from which the transceiver was created.</param>
-        /// <param name="adapter">The object adapter from which the transceiver was created or null if the transceiver
-        /// is an outgoing transceiver created from the communicator.</param>
-        protected MultiStreamTransceiver(Endpoint endpoint, ObjectAdapter? adapter)
+        /// <summary>The MultiStreamSocket constructor.</summary>
+        /// <param name="endpoint">The endpoint from which the socket was created.</param>
+        /// <param name="adapter">The object adapter from which the socket was created or null if the socket
+        /// is an outgoing socket created from the communicator.</param>
+        protected MultiStreamSocket(Endpoint endpoint, ObjectAdapter? adapter)
         {
             Endpoint = endpoint;
             IsIncoming = adapter != null;
-            IncomingFrameSizeMax = adapter?.IncomingFrameSizeMax ?? Endpoint.Communicator.IncomingFrameSizeMax;
+            IncomingFrameMaxSize = adapter?.IncomingFrameMaxSize ?? Endpoint.Communicator.IncomingFrameMaxSize;
             LastActivity = Time.Elapsed;
         }
 
-        /// <summary>Releases the resources used by the transceiver.</summary>
+        /// <summary>Releases the resources used by the socket.</summary>
         /// <param name="disposing">True to release both managed and unmanaged resources; false to release only
         /// unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // The only streams left at this point should be the control stream. The connection ensures other streams
             // are aborted and disposed when the connection is aborted.
-            foreach (TransceiverStream stream in _streams.Values)
+            foreach (SocketStream stream in _streams.Values)
             {
                 Debug.Assert(stream.IsControl);
                 stream.Dispose();
@@ -193,9 +198,9 @@ namespace ZeroC.Ice
         /// <param name="value">If found, value is assigned to the stream value, null otherwise.</param>
         /// <return>True if the stream was found and value contains a non-null value, False otherwise.</return>
         protected bool TryGetStream<T>(long streamId, [NotNullWhen(returnValue: true)] out T? value)
-            where T : TransceiverStream
+            where T : SocketStream
         {
-            if (_streams.TryGetValue(streamId, out TransceiverStream? stream))
+            if (_streams.TryGetValue(streamId, out SocketStream? stream))
             {
                 value = (T)stream;
                 return true;
@@ -217,6 +222,7 @@ namespace ZeroC.Ice
             {
                 AbortStreams(exception);
             }
+
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
             lock (_mutex)
@@ -243,7 +249,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate = null)
+        internal virtual (long, long) AbortStreams(Exception exception, Func<SocketStream, bool>? predicate = null)
         {
             // Set the _streamsAborted flag to prevent addition of new streams to the _streams collection.
             _streamsAborted = true;
@@ -252,7 +258,7 @@ namespace ZeroC.Ice
             // still needed for sending and receiving GoAway frames.
             long largestBidirectionalStreamId = 0;
             long largestUnidirectionalStreamId = 0;
-            foreach (TransceiverStream stream in _streams.Values)
+            foreach (SocketStream stream in _streams.Values)
             {
                 if (!stream.IsControl && (predicate?.Invoke(stream) ?? true))
                 {
@@ -273,7 +279,7 @@ namespace ZeroC.Ice
             return (largestBidirectionalStreamId, largestUnidirectionalStreamId);
         }
 
-        internal void AddStream(long id, TransceiverStream stream)
+        internal void AddStream(long id, SocketStream stream)
         {
             if (_streamsAborted)
             {
@@ -288,7 +294,7 @@ namespace ZeroC.Ice
 
         internal void CheckStreamsEmpty()
         {
-            if (_streams.Count <= 2)
+            if (_incomingStreamCount == 0 && _outgoingStreamCount == 0)
             {
                 _streamsEmptySource?.TrySetResult();
             }
@@ -324,16 +330,16 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask<TransceiverStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
+        internal virtual async ValueTask<SocketStream> ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
-            TransceiverStream stream = await AcceptStreamAsync(cancel).ConfigureAwait(false);
+            SocketStream stream = await AcceptStreamAsync(cancel).ConfigureAwait(false);
             await stream.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
 
         internal void RemoveStream(long id)
         {
-            if (_streams.TryRemove(id, out TransceiverStream? stream))
+            if (_streams.TryRemove(id, out SocketStream? stream))
             {
                 if (!stream.IsControl)
                 {
@@ -343,9 +349,9 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask<TransceiverStream> SendInitializeFrameAsync(CancellationToken cancel)
+        internal virtual async ValueTask<SocketStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
-            TransceiverStream stream = CreateControlStream();
+            SocketStream stream = CreateControlStream();
             await stream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
@@ -556,7 +562,7 @@ namespace ZeroC.Ice
 
         internal async ValueTask WaitForEmptyStreamsAsync()
         {
-            if (_streams.Count > 2)
+            if (_incomingStreamCount > 0 || _outgoingStreamCount > 0)
             {
                 // Create a task completion source to wait for the streams to complete.
                 _streamsEmptySource ??= new TaskCompletionSource();
@@ -565,6 +571,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected virtual TransceiverStream CreateControlStream() => CreateStream(bidirectional: false);
+        private protected virtual SocketStream CreateControlStream() => CreateStream(bidirectional: false);
     }
 }

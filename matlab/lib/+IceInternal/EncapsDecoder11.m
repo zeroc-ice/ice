@@ -4,9 +4,9 @@
 
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphDepthMax)
+        function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, classResolver, classGraphMaxDepth)
             obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver, ...
-                                                classGraphDepthMax);
+                                                classGraphMaxDepth);
             obj.current = [];
             obj.valueIdIndex = 1;
         end
@@ -426,7 +426,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             end
 
             obj.classGraphDepth = obj.classGraphDepth + 1;
-            if obj.classGraphDepth > obj.classGraphDepthMax
+            if obj.classGraphDepth > obj.classGraphMaxDepth
                 throw(Ice.MarshalException('', '', 'maximum class graph depth reached'))
             end
 

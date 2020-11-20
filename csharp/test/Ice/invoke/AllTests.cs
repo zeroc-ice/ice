@@ -42,7 +42,7 @@ namespace ZeroC.Ice.Test.Invoke
                                                         OutputStream.IceWriterFromString);
 
                 response = cl.InvokeAsync(request).Result;
-                (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
+                (string s1, string s2) = response.ReadReturnValue(cl, istr =>
                     {
                         string s1 = istr.ReadString();
                         string s2 = istr.ReadString();
@@ -58,7 +58,7 @@ namespace ZeroC.Ice.Test.Invoke
 
                 try
                 {
-                    response.ReadVoidReturnValue(communicator);
+                    response.ReadVoidReturnValue(cl);
                     TestHelper.Assert(false);
                 }
                 catch (MyException)

@@ -29,7 +29,7 @@ all:: tests
 # Workaround for carthage sporadic SEGFAULT (https://github.com/Carthage/Carthage/issues/2760).
 # If it SEGFAULT we retry.
 carthage:
-	$(Q)cd .. && ./swift/carthage.sh update --cache-builds
+	$(Q)cd .. && ./swift/carthage.sh bootstrap --cache-builds
 
 tests srcs:: carthage
 

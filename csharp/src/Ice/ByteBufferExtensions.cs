@@ -12,67 +12,53 @@ namespace ZeroC.Ice
     {
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
-        /// <summary>Reads a value from the buffer.</summary>
+        /// <summary>Reads a value from the buffer. This value cannot contain classes or exceptions.</summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="encoding">The encoding of the data in the buffer.</param>
-        /// <param name="communicator">The communicator, which is mandatory only when reading proxies.</param>
         /// <param name="reader">The <see cref="InputStreamReader{T}"/> that reads the value from the buffer using an
         /// <see cref="InputStream"/>.</param>
+        /// <param name="communicator">The communicator (optional).</param>
+        /// <param name="connection">The connection (optional).</param>
+        /// <param name="proxy">The proxy (optional).</param>
         /// <returns>The value read from the buffer.</returns>
         /// <exception name="InvalidDataException">Thrown when <c>reader</c> finds invalid data or <c>reader</c> leaves
         /// unread data in the buffer.</exception>
+        /// <remarks>When reading proxies, communicator, connection or proxy must be non-null.</remarks>
         public static T Read<T>(
             this ReadOnlyMemory<byte> buffer,
             Encoding encoding,
-            Communicator? communicator,
-            InputStreamReader<T> reader)
+            InputStreamReader<T> reader,
+            Communicator? communicator = null,
+            Connection? connection = null,
+            IObjectPrx? proxy = null)
         {
-            var istr = new InputStream(buffer, encoding, communicator);
+            var istr = new InputStream(buffer, encoding, communicator, connection, proxy?.IceReference);
             T result = reader(istr);
             istr.CheckEndOfBuffer(skipTaggedParams: false);
             return result;
         }
 
-        /// <summary>Reads a value from the buffer that uses the Ice 2.0 encoding.</summary>
+        /// <summary>Reads a value from the buffer that uses the Ice 2.0 encoding. This value cannot contain classes or
+        /// exceptions.</summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
-        /// <param name="communicator">The communicator, which is mandatory only when reading proxies.</param>
         /// <param name="reader">The <see cref="InputStreamReader{T}"/> that reads the value from the buffer using an
         /// <see cref="InputStream"/>.</param>
+        /// <param name="communicator">The communicator (optional).</param>
+        /// <param name="connection">The connection (optional).</param>
+        /// <param name="proxy">The proxy (optional).</param>
         /// <returns>The value read from the buffer.</returns>
         /// <exception name="InvalidDataException">Thrown when <c>reader</c> finds invalid data or <c>reader</c> leaves
         /// unread data in the buffer.</exception>
+        /// <remarks>When reading proxies, communicator, connection or proxy must be non-null.</remarks>
         public static T Read<T>(
             this ReadOnlyMemory<byte> buffer,
-            Communicator communicator,
-            InputStreamReader<T> reader) => buffer.Read(Encoding.V20, communicator, reader);
-
-        /// <summary>Reads a value from the buffer. Value cannot contain any proxy.</summary>
-        /// <typeparam name="T">The type of the value.</typeparam>
-        /// <param name="buffer">The byte buffer.</param>
-        /// <param name="encoding">The encoding of the data in the buffer.</param>
-        /// <param name="reader">The <see cref="InputStreamReader{T}"/> that reads the value from the buffer using an
-        /// <see cref="InputStream"/>.</param>
-        /// <returns>The value read from the buffer.</returns>
-        /// <exception name="InvalidDataException">Thrown when <c>reader</c> finds invalid data or <c>reader</c> leaves
-        /// unread data in the buffer.</exception>
-        public static T Read<T>(
-            this ReadOnlyMemory<byte> buffer,
-            Encoding encoding,
-            InputStreamReader<T> reader) => buffer.Read(encoding, null, reader);
-
-        /// <summary>Reads a value from the buffer that uses the 2.0 encoding. Value cannot contain any proxy.
-        /// </summary>
-        /// <typeparam name="T">The type of the value.</typeparam>
-        /// <param name="buffer">The byte buffer.</param>
-        /// <param name="reader">The <see cref="InputStreamReader{T}"/> that reads the value from the buffer using an
-        /// <see cref="InputStream"/>.</param>
-        /// <returns>The value read from the buffer.</returns>
-        /// <exception name="InvalidDataException">Thrown when <c>reader</c> finds invalid data or <c>reader</c> leaves
-        /// unread data in the buffer.</exception>
-        public static T Read<T>(this ReadOnlyMemory<byte> buffer, InputStreamReader<T> reader) =>
-            buffer.Read(Encoding.V20, null, reader);
+            InputStreamReader<T> reader,
+            Communicator? communicator = null,
+            Connection? connection = null,
+            IObjectPrx? proxy = null) =>
+            buffer.Read(Encoding.V20, reader, communicator, connection, proxy);
 
         /// <summary>Reads an empty encapsulation from the buffer.</summary>
         /// <param name="buffer">The byte buffer.</param>
@@ -82,7 +68,6 @@ namespace ZeroC.Ice
         public static void ReadEmptyEncapsulation(this ReadOnlyMemory<byte> buffer, Encoding encoding) =>
             new InputStream(buffer,
                             encoding,
-                            communicator: null,
                             startEncapsulation: true).CheckEndOfBuffer(skipTaggedParams: true);
 
         /// <summary>Reads an empty encapsulation from the buffer, with the encapsulation header encoded using the 2.0
@@ -97,19 +82,30 @@ namespace ZeroC.Ice
         /// <typeparam name="T">The type of the contents.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="encoding">The encoding of encapsulation header in the buffer.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <param name="payloadReader">The <see cref="InputStreamReader{T}"/> that reads the payload of the
         /// encapsulation using an <see cref="InputStream"/>.</param>
+        /// <param name="communicator">The communicator (optional).</param>
+        /// <param name="connection">The connection (optional).</param>
+        /// <param name="proxy">The proxy (optional).</param>
         /// <returns>The contents of the encapsulation read from the buffer.</returns>
         /// <exception name="InvalidDataException">Thrown when <c>buffer</c> is not a valid encapsulation or
         /// <c>payloadReader</c> finds invalid data.</exception>
+        /// <remarks>When reading classes, proxies or exceptions, communicator, connection or proxy must be non-null.
+        /// </remarks>
         public static T ReadEncapsulation<T>(
             this ReadOnlyMemory<byte> buffer,
             Encoding encoding,
-            Communicator communicator,
-            InputStreamReader<T> payloadReader)
+            InputStreamReader<T> payloadReader,
+            Communicator? communicator = null,
+            Connection? connection = null,
+            IObjectPrx? proxy = null)
         {
-            var istr = new InputStream(buffer, encoding, communicator, startEncapsulation: true);
+            var istr = new InputStream(buffer,
+                                       encoding,
+                                       communicator,
+                                       connection,
+                                       proxy?.IceReference,
+                                       startEncapsulation: true);
             T result = payloadReader(istr);
             istr.CheckEndOfBuffer(skipTaggedParams: true);
             return result;
@@ -119,17 +115,23 @@ namespace ZeroC.Ice
         /// using the 2.0 encoding.</summary>
         /// <typeparam name="T">The type of the contents.</typeparam>
         /// <param name="buffer">The byte buffer.</param>
-        /// <param name="communicator">The communicator.</param>
         /// <param name="payloadReader">The <see cref="InputStreamReader{T}"/> that reads the payload of the
         /// encapsulation using an <see cref="InputStream"/>.</param>
+        /// <param name="communicator">The communicator (optional).</param>
+        /// <param name="connection">The connection (optional).</param>
+        /// <param name="proxy">The proxy (optional).</param>
         /// <returns>The contents of the encapsulation read from the buffer.</returns>
         /// <exception name="InvalidDataException">Thrown when <c>buffer</c> is not a valid encapsulation or
         /// <c>payloadReader</c> finds invalid data.</exception>
+        /// <remarks>When reading classes, proxies or exceptions, communicator, connection or proxy must be non-null.
+        /// </remarks>
         public static T ReadEncapsulation<T>(
             this ReadOnlyMemory<byte> buffer,
-            Communicator communicator,
-            InputStreamReader<T> payloadReader) =>
-            buffer.ReadEncapsulation(Encoding.V20, communicator, payloadReader);
+            InputStreamReader<T> payloadReader,
+            Communicator? communicator = null,
+            Connection? connection = null,
+            IObjectPrx? proxy = null) =>
+            buffer.ReadEncapsulation(Encoding.V20, payloadReader, communicator, connection, proxy);
 
         internal static ReadOnlyMemory<T> AsReadOnlyMemory<T>(this ArraySegment<T> segment) => segment;
 

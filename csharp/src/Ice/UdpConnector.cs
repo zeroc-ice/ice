@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Diagnostics;
 using System.Net;
 
 namespace ZeroC.Ice
@@ -9,19 +10,19 @@ namespace ZeroC.Ice
         private readonly UdpEndpoint _endpoint;
         private readonly EndPoint _addr;
         private readonly int _hashCode;
-
-        public Connection Connect(string connectionId)
+        public Connection Connect(string connectionId, bool preferNonSecure)
         {
-            var transceiver = new UdpTransceiver(_endpoint.Communicator,
-                                                 this,
-                                                 _addr,
-                                                 _endpoint.SourceAddress,
-                                                 _endpoint.MulticastInterface,
-                                                 _endpoint.MulticastTtl);
+            Debug.Assert(preferNonSecure == true);
+            var socket = new UdpSocket(_endpoint.Communicator,
+                                       this,
+                                       _addr,
+                                       _endpoint.SourceAddress,
+                                       _endpoint.MulticastInterface,
+                                       _endpoint.MulticastTtl);
 
             return new UdpConnection(_endpoint.Communicator.OutgoingConnectionFactory,
                                      _endpoint,
-                                     new LegacyTransceiver(transceiver, _endpoint, null),
+                                     new Ice1NetworkSocket(socket, _endpoint, null),
                                      this,
                                      connectionId,
                                      null);

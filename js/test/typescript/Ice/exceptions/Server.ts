@@ -18,7 +18,7 @@ export class Server extends TestHelper
         try
         {
             const [properties] = this.createTestProperties(args);
-            properties.setProperty("Ice.MessageSizeMax", "10");
+            properties.setProperty("Ice.MessageMaxSize", "10");
             properties.setProperty("Ice.Warn.Dispatch", "0");
             properties.setProperty("Ice.Warn.Connections", "0");
             [communicator] = this.initialize(properties);

@@ -20,7 +20,7 @@ def allTests(helper, communicator):
     # Set the maximum size of the server-side thread pool in the new communicator to 5.
     #
     props = {}
-    props["Ice.ThreadPool.Server.SizeMax"] = "5"
+    props["Ice.ThreadPool.Server.MaxSize"] = "5"
     com = factory.createCommunicator(props)
 
     obj = com.getObject()

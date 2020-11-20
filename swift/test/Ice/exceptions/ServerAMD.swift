@@ -24,7 +24,7 @@ class ServerAMD: TestHelperI {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-        properties.setProperty(key: "Ice.MessageSizeMax", value: "10") // 10KB max
+        properties.setProperty(key: "Ice.MessageMaxSize", value: "10") // 10KB max
 
         var initData = Ice.InitializationData()
         initData.properties = properties
@@ -37,9 +37,9 @@ class ServerAMD: TestHelperI {
 
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         communicator.getProperties().setProperty(key: "TestAdapter2.Endpoints", value: getTestEndpoint(num: 1))
-        communicator.getProperties().setProperty(key: "TestAdapter2.MessageSizeMax", value: "0")
+        communicator.getProperties().setProperty(key: "TestAdapter2.MessageMaxSize", value: "0")
         communicator.getProperties().setProperty(key: "TestAdapter3.Endpoints", value: getTestEndpoint(num: 2))
-        communicator.getProperties().setProperty(key: "TestAdapter3.MessageSizeMax", value: "1")
+        communicator.getProperties().setProperty(key: "TestAdapter3.MessageMaxSize", value: "1")
 
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let adapter2 = try communicator.createObjectAdapter("TestAdapter2")

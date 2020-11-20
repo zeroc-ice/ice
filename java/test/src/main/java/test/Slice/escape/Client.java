@@ -110,15 +110,15 @@ public class Client extends test.TestHelper
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package._abstract", "test.Slice.escape");
         properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-        properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+        properties.setProperty("Ice.ThreadPool.Client.WarnSize", "0");
         properties.setProperty("TestAdapter.Endpoints", "default");
 
         //
-        // We must set MessageSizeMax to an explicit values,
+        // We must set MessageMaxSize to an explicit values,
         // because we run tests to check whether
         // Ice.MemoryLimitException is raised as expected.
         //
-        properties.setProperty("Ice.MessageSizeMax", "100");
+        properties.setProperty("Ice.MessageMaxSize", "100");
         try(com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

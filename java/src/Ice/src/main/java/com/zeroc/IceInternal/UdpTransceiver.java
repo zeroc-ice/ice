@@ -501,7 +501,7 @@ final class UdpTransceiver implements Transceiver
                 //
                 if(sizeSet < sizeRequested)
                 {
-                    BufSizeWarnInfo winfo = _instance.getBufSizeWarn(com.zeroc.Ice.UDPEndpointType.value);
+                    BufWarnSizeInfo winfo = _instance.getBufWarnSize(com.zeroc.Ice.UDPEndpointType.value);
                     if((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
                        (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
                     {
@@ -510,11 +510,11 @@ final class UdpTransceiver implements Transceiver
 
                         if(isSnd)
                         {
-                            _instance.setSndBufSizeWarn(com.zeroc.Ice.UDPEndpointType.value, sizeRequested);
+                            _instance.setSndBufWarnSize(com.zeroc.Ice.UDPEndpointType.value, sizeRequested);
                         }
                         else
                         {
-                            _instance.setRcvBufSizeWarn(com.zeroc.Ice.UDPEndpointType.value, sizeRequested);
+                            _instance.setRcvBufWarnSize(com.zeroc.Ice.UDPEndpointType.value, sizeRequested);
                         }
                     }
                 }

@@ -1461,7 +1461,7 @@ Ice.UnexpectedObjectException = class extends Ice.MarshalException
 /**
  * This exception is raised when Ice receives a request or reply
  * message whose size exceeds the limit specified by the
- * <code>Ice.MessageSizeMax</code> property.
+ * <code>Ice.MessageMaxSize</code> property.
  *
  **/
 Ice.MemoryLimitException = class extends Ice.MarshalException

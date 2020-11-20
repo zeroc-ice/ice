@@ -11,9 +11,9 @@ using ZeroC.Ice.Slic;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The Slic transceiver implements a multi-stream transport on top of a single-stream transport such
+    /// <summary>The Slic socket implements a multi-stream transport on top of a single-stream transport such
     /// as TCP. It supports the same set of features as Quic.</summary>
-    internal class SlicTransceiver : MultiStreamTransceiverWithUnderlyingTransceiver
+    internal class SlicSocket : MultiStreamOverSingleStreamSocket
     {
         public override TimeSpan IdleTimeout
         {
@@ -35,9 +35,9 @@ namespace ZeroC.Ice
         private long _nextUnidirectionalId;
         private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource = new();
         private Task _sendTask = Task.CompletedTask;
-        private readonly BufferedReadTransceiver _transceiver;
+        private readonly BufferedReceiveOverSingleStreamSocket _socket;
 
-        public override async ValueTask<TransceiverStream> AcceptStreamAsync(CancellationToken cancel)
+        public override async ValueTask<SocketStream> AcceptStreamAsync(CancellationToken cancel)
         {
             // Eventually wait for the stream data receive to complete if stream data is being received.
             await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
@@ -139,7 +139,7 @@ namespace ZeroC.Ice
                             }
                             catch
                             {
-                                // Ignore, the transceiver no longer accepts new streams because it's being
+                                // Ignore, the socket no longer accepts new streams because it's being
                                 // closed or the stream has been disposed shortly after being constructed.
                                 stream?.Dispose();
                             }
@@ -212,14 +212,14 @@ namespace ZeroC.Ice
         }
 
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
-            _transceiver.CloseAsync(exception, cancel);
+            _socket.CloseAsync(exception, cancel);
 
-        public override TransceiverStream CreateStream(bool bidirectional) => new SlicStream(bidirectional, this);
+        public override SocketStream CreateStream(bool bidirectional) => new SlicStream(bidirectional, this);
 
         public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
             // Initialize the underlying transport
-            await _transceiver.InitializeAsync(cancel).ConfigureAwait(false);
+            await _socket.InitializeAsync(cancel).ConfigureAwait(false);
 
             TimeSpan peerIdleTimeout;
             if (IsIncoming)
@@ -357,14 +357,14 @@ namespace ZeroC.Ice
             // TODO: shall we set a timer for expecting the Pong frame?
             PrepareAndSendFrameAsync(SlicDefinitions.FrameType.Ping, cancel: cancel);
 
-        internal SlicTransceiver(
-            ITransceiver transceiver,
+        internal SlicSocket(
+            SingleStreamSocket socket,
             Endpoint endpoint,
             ObjectAdapter? adapter)
-            : base(endpoint, adapter, transceiver)
+            : base(endpoint, adapter, socket)
         {
             _idleTimeout = endpoint.Communicator.IdleTimeout;
-            _transceiver = new BufferedReadTransceiver(transceiver);
+            _socket = new BufferedReceiveOverSingleStreamSocket(socket);
             _receiveStreamCompletionTaskSource.RunContinuationAsynchronously = true;
             _receiveStreamCompletionTaskSource.SetResult(0);
 
@@ -391,7 +391,7 @@ namespace ZeroC.Ice
             _lastUnidirectionalId = -1;
         }
 
-        internal override (long, long) AbortStreams(Exception exception, Func<TransceiverStream, bool>? predicate)
+        internal override (long, long) AbortStreams(Exception exception, Func<SocketStream, bool>? predicate)
         {
             (long, long) streamIds = base.AbortStreams(exception, predicate);
 
@@ -465,7 +465,7 @@ namespace ZeroC.Ice
         {
             for (int offset = 0; offset != buffer.Count;)
             {
-                int received = await _transceiver.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
+                int received = await _socket.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;
                 Received(received);
             }
@@ -500,7 +500,7 @@ namespace ZeroC.Ice
                 cancel.ThrowIfCancellationRequested();
 
                 // Perform the write
-                int sent = await _transceiver.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+                int sent = await _socket.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
                 Debug.Assert(sent == buffer.GetByteCount());
                 Sent(sent);
             }
@@ -569,14 +569,14 @@ namespace ZeroC.Ice
         {
             // Receive at most 2 bytes for the Slic header (the minimum size of a Slic header). The first byte
             // will be the frame type and the second is the first byte of the Slic frame size.
-            ReadOnlyMemory<byte> buffer = await _transceiver.ReceiveAsync(2, cancel).ConfigureAwait(false);
+            ReadOnlyMemory<byte> buffer = await _socket.ReceiveAsync(2, cancel).ConfigureAwait(false);
             var type = (SlicDefinitions.FrameType)buffer.Span[0];
             int sizeLength = buffer.Span[1].ReadSizeLength20();
             int size;
             if (sizeLength > 1)
             {
-                _transceiver.Rewind(1);
-                buffer = await _transceiver.ReceiveAsync(sizeLength, cancel).ConfigureAwait(false);
+                _socket.Rewind(1);
+                buffer = await _socket.ReceiveAsync(sizeLength, cancel).ConfigureAwait(false);
                 size = buffer.Span.ReadSize20().Size;
             }
             else
@@ -585,21 +585,21 @@ namespace ZeroC.Ice
             }
 
             // Receive the stream ID if the frame includes a stream ID. We receive at most 8 or size bytes and rewind
-            // the transceiver buffered position if we read too much data.
+            // the socket buffered position if we read too much data.
             (ulong? streamId, int streamIdLength) = (null, 0);
             if (type >= SlicDefinitions.FrameType.Stream && type <= SlicDefinitions.FrameType.StreamReset)
             {
                 int receiveSize = Math.Min(size, 8);
-                buffer = await _transceiver.ReceiveAsync(receiveSize, cancel).ConfigureAwait(false);
+                buffer = await _socket.ReceiveAsync(receiveSize, cancel).ConfigureAwait(false);
                 (streamId, streamIdLength) = buffer.Span.ReadVarULong();
-                _transceiver.Rewind(receiveSize - streamIdLength);
+                _socket.Rewind(receiveSize - streamIdLength);
             }
 
             Received(1 + sizeLength + streamIdLength);
             return (type, size - streamIdLength, (long?)streamId);
         }
 
-        private protected override TransceiverStream CreateControlStream() =>
+        private protected override SocketStream CreateControlStream() =>
             // We make sure to allocate the ID for the control stream right away. Otherwise, it would be considered
             // like a regular stream and if serialization is enabled, it would acquire the semaphore.
             new SlicStream(AllocateId(false), this);

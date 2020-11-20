@@ -8,7 +8,6 @@ namespace ZeroC.Ice.Test.Location
 {
     public class ServerManager : IServerManager
     {
-
         private readonly ServerLocatorRegistry _registry;
         private readonly List<Communicator> _communicators = new();
         private readonly TestHelper _helper;

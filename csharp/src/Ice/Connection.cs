@@ -41,11 +41,14 @@ namespace ZeroC.Ice
             set => _adapter = value;
         }
 
-        /// <summary>Get the connection ID which was used to create the connection.</summary>
+        /// <summary>Gets the communicator.</summary>
+        public Communicator Communicator { get; }
+
+        /// <summary>Gets the connection ID which was used to create the connection.</summary>
         /// <value>The connection ID used to create the connection.</value>
         public string ConnectionId { get; }
 
-        /// <summary>Get the endpoint from which the connection was created.</summary>
+        /// <summary>Gets the endpoint from which the connection was created.</summary>
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
 
@@ -56,7 +59,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return Transceiver.IdleTimeout;
+                    return Socket.IdleTimeout;
                 }
             }
             set
@@ -72,7 +75,7 @@ namespace ZeroC.Ice
                         {
                             throw new InvalidConfigurationException("0 is not a valid value for IdleTimeout");
                         }
-                        Transceiver.IdleTimeout = value;
+                        Socket.IdleTimeout = value;
 
                         _timer?.Dispose();
                         _timer = null;
@@ -107,17 +110,16 @@ namespace ZeroC.Ice
         // the same connection).
         internal List<Endpoint> Endpoints { get; }
 
-        private protected MultiStreamTransceiver Transceiver { get; }
+        private protected MultiStreamSocket Socket { get; }
         // The accept stream task is assigned each time a new accept stream async operation is started.
         private volatile Task _acceptStreamTask = Task.CompletedTask;
         private volatile ObjectAdapter? _adapter;
         // The control stream is assigned on the connection initialization and is immutable once the connection
         // reaches the Active state.
-        private TransceiverStream? _controlStream;
+        private SocketStream? _controlStream;
         private EventHandler? _closed;
         // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
-        private readonly Communicator _communicator;
         private readonly IConnector? _connector;
         // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
@@ -141,11 +143,12 @@ namespace ZeroC.Ice
         /// for example because of firewalls. In this case, the server would create a proxy using an already
         /// established connection from the client.</summary>
         /// <param name="identity">The identity for which a proxy is to be created.</param>
+        /// <param name="facet">The facet.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
         /// </param>
-        /// <returns>A proxy that matches the given identity and uses this connection.</returns>
-        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            factory(new Reference(_communicator, this, identity));
+        /// <returns>A proxy that matches the given identity and facet, and uses this connection.</returns>
+        public T CreateProxy<T>(Identity identity, string facet, ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            factory(new Reference(this, identity, facet));
 
         /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
         /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender
@@ -180,8 +183,8 @@ namespace ZeroC.Ice
         /// passed as the event sender argument.</summary>
         public event EventHandler? PingReceived
         {
-            add => Transceiver.Ping += value;
-            remove => Transceiver.Ping -= value;
+            add => Socket.Ping += value;
+            remove => Socket.Ping -= value;
         }
 
         /// <summary>Returns <c>true</c> if the connection is active. Outgoing streams can be created and incoming
@@ -211,38 +214,38 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public async Task PingAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
         {
-            await Transceiver.PingAsync(cancel).ConfigureAwait(false);
+            await Socket.PingAsync(cancel).ConfigureAwait(false);
             progress?.Report(true);
         }
 
         /// <summary>Returns a description of the connection as human readable text, suitable for logging or error
         /// messages.</summary>
         /// <returns>The description of the connection as human readable text.</returns>
-        public override string ToString() => Transceiver.ToString()!;
+        public override string ToString() => Socket.ToString()!;
 
         internal Connection(
             IConnectionManager? manager,
             Endpoint endpoint,
-            MultiStreamTransceiver transceiver,
+            MultiStreamSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
         {
-            _communicator = endpoint.Communicator;
+            Communicator = endpoint.Communicator;
             _manager = manager;
-            Transceiver = transceiver;
+            Socket = socket;
             _connector = connector;
             ConnectionId = connectionId;
             Endpoint = endpoint;
             Endpoints = new List<Endpoint>() { endpoint };
-            KeepAlive = _communicator.KeepAlive;
+            KeepAlive = Communicator.KeepAlive;
             _adapter = adapter;
             _state = ConnectionState.Initializing;
         }
 
         internal void ClearAdapter(ObjectAdapter adapter) => Interlocked.CompareExchange(ref _adapter, null, adapter);
 
-        internal TransceiverStream CreateStream(bool bidirectional)
+        internal SocketStream CreateStream(bool bidirectional)
         {
             // Ensure the stream is created in the active state only, no new streams should be created if the
             // connection is closing or closed.
@@ -254,7 +257,7 @@ namespace ZeroC.Ice
                                                         RetryPolicy.AfterDelay(TimeSpan.Zero),
                                                         Connector);
                 }
-                return Transceiver.CreateStream(bidirectional);
+                return Socket.CreateStream(bidirectional);
             }
         }
 
@@ -286,7 +289,7 @@ namespace ZeroC.Ice
                 // the incoming streams to complete before sending the GoAway frame but instead provide the ID
                 // of the latest incoming stream ID to the peer. The peer will close the connection once it
                 // received the response for this stream ID.
-                _lastIncomingStreamIds = Transceiver.AbortStreams(exception, stream => !stream.IsIncoming);
+                _lastIncomingStreamIds = Socket.AbortStreams(exception, stream => !stream.IsIncoming);
 
                 // Yield to ensure the code below is executed without the mutex locked.
                 await Task.Yield();
@@ -294,13 +297,13 @@ namespace ZeroC.Ice
                 // With Ice1, we first wait for all incoming streams to complete before sending the GoAway frame.
                 if (Endpoint.Protocol == Protocol.Ice1)
                 {
-                    await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
+                    await Socket.WaitForEmptyStreamsAsync().ConfigureAwait(false);
                 }
 
                 try
                 {
-                    Debug.Assert(_communicator.CloseTimeout != TimeSpan.Zero);
-                    using var source = new CancellationTokenSource(_communicator.CloseTimeout);
+                    Debug.Assert(Communicator.CloseTimeout != TimeSpan.Zero);
+                    using var source = new CancellationTokenSource(Communicator.CloseTimeout);
                     CancellationToken cancel = source.Token;
 
                     // Write the close frame
@@ -341,9 +344,9 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                TimeSpan idleTime = Time.Elapsed - Transceiver.LastActivity;
+                TimeSpan idleTime = Time.Elapsed - Socket.LastActivity;
 
-                if (idleTime > IdleTimeout / 4 && (KeepAlive || Transceiver.IncomingStreamCount > 0))
+                if (idleTime > IdleTimeout / 4 && (KeepAlive || Socket.IncomingStreamCount > 0))
                 {
                     // We send a ping if there was no activity in the last (IdleTimeout / 4) period. Sending a ping
                     // sooner than really needed is safer to ensure that the receiver will receive the ping in
@@ -353,12 +356,12 @@ namespace ZeroC.Ice
                     //
                     // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because
                     // Monitor is still only called every (IdleTimeout / 2) period.
-                    _ = Transceiver.PingAsync(CancellationToken.None);
+                    _ = Socket.PingAsync(CancellationToken.None);
                 }
 
                 if (idleTime > IdleTimeout)
                 {
-                    if (Transceiver.OutgoingStreamCount > 0)
+                    if (Socket.OutgoingStreamCount > 0)
                     {
                         // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
                         // ACM activity in the last period.
@@ -383,27 +386,27 @@ namespace ZeroC.Ice
         {
             try
             {
-                Debug.Assert(_communicator.ConnectTimeout > TimeSpan.Zero);
-                using var source = new CancellationTokenSource(_communicator.ConnectTimeout);
+                Debug.Assert(Communicator.ConnectTimeout > TimeSpan.Zero);
+                using var source = new CancellationTokenSource(Communicator.ConnectTimeout);
                 CancellationToken cancel = source.Token;
 
                 // Initialize the transport.
-                await Transceiver.InitializeAsync(cancel).ConfigureAwait(false);
+                await Socket.InitializeAsync(cancel).ConfigureAwait(false);
 
                 if (!Endpoint.IsDatagram)
                 {
                     // Create the control stream and send the initialize frame
-                    _controlStream = await Transceiver.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
+                    _controlStream = await Socket.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
 
                     // Wait for the peer control stream to be accepted and read the initialize frame
-                    TransceiverStream peerControlStream =
-                        await Transceiver.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
+                    SocketStream peerControlStream =
+                        await Socket.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
 
                     // Setup a task to wait for the close frame on the peer's control stream.
                     _ = Task.Run(async () => await WaitForGoAwayAsync(peerControlStream).ConfigureAwait(false));
                 }
 
-                Transceiver.Initialized();
+                Socket.Initialized();
 
                 lock (_mutex)
                 {
@@ -445,9 +448,9 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                Transceiver.Observer = _communicator.Observer?.GetConnectionObserver(this,
+                Socket.Observer = Communicator.Observer?.GetConnectionObserver(this,
                                                                                      _state,
-                                                                                     Transceiver.Observer);
+                                                                                     Socket.Observer);
             }
         }
 
@@ -465,14 +468,14 @@ namespace ZeroC.Ice
 
             async Task PerformAbortAsync()
             {
-                await Transceiver.AbortAsync(exception).ConfigureAwait(false);
+                await Socket.AbortAsync(exception).ConfigureAwait(false);
 
                 // Yield to ensure the code below is executed without the mutex locked (PerformAbortAsync is called
                 // with the mutex locked).
                 await Task.Yield();
 
-                // Dispose of the transceiver.
-                Transceiver.Dispose();
+                // Dispose of the socket.
+                Socket.Dispose();
 
                 _timer?.Dispose();
 
@@ -483,7 +486,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                    Communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
                 }
 
                 // Remove the connection from the factory, must be called without the connection mutex locked
@@ -493,13 +496,13 @@ namespace ZeroC.Ice
 
         private async ValueTask AcceptStreamAsync()
         {
-            TransceiverStream? stream = null;
+            SocketStream? stream = null;
             try
             {
                 while (true)
                 {
                     // Accept a new stream.
-                    stream = await Transceiver.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
+                    stream = await Socket.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
 
                     // Ignore the stream if the connection is being closed and the stream ID superior to the last
                     // incoming stream ID to be processed. The loop will eventually terminate when the peer closes
@@ -615,41 +618,41 @@ namespace ZeroC.Ice
             if (_state == ConnectionState.Active &&
                 state == ConnectionState.Closed &&
                 !Endpoint.IsDatagram &&
-                ((Transceiver as LegacyTransceiver)?.IsValidated ?? true) &&
-                _communicator.WarnConnections)
+                ((Socket as Ice1NetworkSocket)?.IsValidated ?? true) &&
+                Communicator.WarnConnections)
             {
                 Debug.Assert(exception != null);
-                _communicator.Logger.Warning($"connection exception:\n{exception}\n{this}");
+                Communicator.Logger.Warning($"connection exception:\n{exception}\n{this}");
             }
 
             if (state == ConnectionState.Active)
             {
                 // Setup a timer to check for the connection idle time every IdleTimeout / 2 period. If the transport
                 // doesn't support idle timeout (e.g.: the colocated transport), IdleTimeout will be infinite.
-                if (Transceiver.IdleTimeout != Timeout.InfiniteTimeSpan)
+                if (Socket.IdleTimeout != Timeout.InfiniteTimeSpan)
                 {
-                    TimeSpan period = Transceiver.IdleTimeout / 2;
+                    TimeSpan period = Socket.IdleTimeout / 2;
                     _timer = new Timer(value => Monitor(), null, period, period);
                 }
             }
 
-            if (_communicator.Observer != null)
+            if (Communicator.Observer != null)
             {
-                Transceiver.Observer = _communicator.Observer.GetConnectionObserver(this, state, Transceiver.Observer);
+                Socket.Observer = Communicator.Observer.GetConnectionObserver(this, state, Socket.Observer);
 
-                if (Transceiver.Observer != null && state == ConnectionState.Closed)
+                if (Socket.Observer != null && state == ConnectionState.Closed)
                 {
                     Debug.Assert(exception != null);
                     if (_state != ConnectionState.Closing)
                     {
-                        Transceiver.Observer.Failed(exception.GetType().FullName!);
+                        Socket.Observer.Failed(exception.GetType().FullName!);
                     }
                 }
             }
             _state = state;
         }
 
-        private async Task WaitForGoAwayAsync(TransceiverStream peerControlStream)
+        private async Task WaitForGoAwayAsync(SocketStream peerControlStream)
         {
             try
             {
@@ -695,7 +698,7 @@ namespace ZeroC.Ice
             async Task PerformGoAwayAsync((long Bidirectional, long Unidirectional) lastStreamIds, Exception exception)
             {
                 // Abort non-processed outgoing streams and all incoming streams.
-                Transceiver.AbortStreams(exception,
+                Socket.AbortStreams(exception,
                                          stream => stream.IsIncoming ||
                                                    stream.IsBidirectional ?
                                                        stream.Id > lastStreamIds.Bidirectional :
@@ -706,12 +709,12 @@ namespace ZeroC.Ice
                 await Task.Yield();
 
                 // Wait for all the streams to complete.
-                await Transceiver.WaitForEmptyStreamsAsync().ConfigureAwait(false);
+                await Socket.WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
                 try
                 {
                     // Close the transport
-                    await Transceiver.CloseAsync(exception, CancellationToken.None).ConfigureAwait(false);
+                    await Socket.CloseAsync(exception, CancellationToken.None).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -728,11 +731,11 @@ namespace ZeroC.Ice
         internal ColocatedConnection(
             IConnectionManager? manager,
             Endpoint endpoint,
-            ColocatedTransceiver transceiver,
+            ColocatedSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, socket, connector, connectionId, adapter)
         {
         }
     }
@@ -740,7 +743,7 @@ namespace ZeroC.Ice
     /// <summary>Represents a connection to an IP-endpoint.</summary>
     public abstract class IPConnection : Connection
     {
-        private protected readonly MultiStreamTransceiverWithUnderlyingTransceiver _transceiver;
+        private protected readonly MultiStreamOverSingleStreamSocket _socket;
 
         /// <summary>The socket local IP-endpoint or null if it is not available.</summary>
         public System.Net.IPEndPoint? LocalEndpoint
@@ -749,7 +752,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return _transceiver.Underlying.Socket?.LocalEndPoint as System.Net.IPEndPoint;
+                    return _socket.Underlying.Socket?.LocalEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {
@@ -765,7 +768,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return _transceiver.Underlying.Socket?.RemoteEndPoint as System.Net.IPEndPoint;
+                    return _socket.Underlying.Socket?.RemoteEndPoint as System.Net.IPEndPoint;
                 }
                 catch
                 {
@@ -777,11 +780,11 @@ namespace ZeroC.Ice
         internal IPConnection(
             IConnectionManager? manager,
             Endpoint endpoint,
-            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            MultiStreamOverSingleStreamSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter) => _transceiver = transceiver;
+            : base(manager, endpoint, socket, connector, connectionId, adapter) => _socket = socket;
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -815,16 +818,16 @@ namespace ZeroC.Ice
         /// null if the connection is not secure.</summary>
         public SslProtocols? SslProtocol => SslStream?.SslProtocol;
 
-        private SslStream? SslStream => _transceiver.Underlying.SslStream;
+        private SslStream? SslStream => _socket.Underlying.SslStream;
 
         internal TcpConnection(
             IConnectionManager manager,
             Endpoint endpoint,
-            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            MultiStreamOverSingleStreamSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, socket, connector, connectionId, adapter)
         {
         }
     }
@@ -833,37 +836,37 @@ namespace ZeroC.Ice
     public class UdpConnection : IPConnection
     {
         /// <summary>The multicast IP-endpoint for a multicast connection otherwise null.</summary>
-        public System.Net.IPEndPoint? MulticastEndpoint => _udpTransceiver.MulticastAddress;
+        public System.Net.IPEndPoint? MulticastEndpoint => _udpSocket.MulticastAddress;
 
-        private readonly UdpTransceiver _udpTransceiver;
+        private readonly UdpSocket _udpSocket;
 
         internal UdpConnection(
             IConnectionManager? manager,
             Endpoint endpoint,
-            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            MultiStreamOverSingleStreamSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter) =>
-            _udpTransceiver = (UdpTransceiver)_transceiver.Underlying;
+            : base(manager, endpoint, socket, connector, connectionId, adapter) =>
+            _udpSocket = (UdpSocket)_socket.Underlying;
     }
 
     /// <summary>Represents a connection to a WS-endpoint.</summary>
     public class WSConnection : TcpConnection
     {
         /// <summary>The HTTP headers in the WebSocket upgrade request.</summary>
-        public IReadOnlyDictionary<string, string> Headers => _wsTransceiver.Headers;
+        public IReadOnlyDictionary<string, string> Headers => _wsSocket.Headers;
 
-        private readonly WSTransceiver _wsTransceiver;
+        private readonly WSSocket _wsSocket;
 
         internal WSConnection(
             IConnectionManager manager,
             Endpoint endpoint,
-            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            MultiStreamOverSingleStreamSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, transceiver, connector, connectionId, adapter) =>
-            _wsTransceiver = (WSTransceiver)_transceiver.Underlying;
+            : base(manager, endpoint, socket, connector, connectionId, adapter) =>
+            _wsSocket = (WSSocket)_socket.Underlying;
     }
 }

@@ -13,15 +13,31 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapterForwarder.Endpoints", GetTestEndpoint(0));
 
+            // TestHelper.Transport value may not be the same as the Test.Transport property when we
+            // are using ice2 and TLS
+            var ice1Transport = TestHelper.GetTestTransport(
+                new Dictionary<string, string>
+                {
+                    {"Test.Protocol",  "ice1"},
+                    {"Test.Transport", communicator.GetProperty("Test.Transport")!}
+                });
+
+            var ice2Transport = TestHelper.GetTestTransport(
+                new Dictionary<string, string>
+                {
+                    {"Test.Protocol",  "ice2"},
+                    {"Test.Transport", communicator.GetProperty("Test.Transport")!}
+                });
+
             if (Protocol == Protocol.Ice1)
             {
-                communicator.SetProperty("TestAdapterSame.Endpoints", $"{Transport} -h localhost");
-                communicator.SetProperty("TestAdapterOther.Endpoints", $"ice+{Transport}://localhost:0");
+                communicator.SetProperty("TestAdapterSame.Endpoints", $"{ice1Transport} -h localhost");
+                communicator.SetProperty("TestAdapterOther.Endpoints", $"ice+{ice2Transport}://localhost:0");
             }
             else
             {
-                communicator.SetProperty("TestAdapterSame.Endpoints", $"ice+{Transport}://localhost:0");
-                communicator.SetProperty("TestAdapterOther.Endpoints", $"{Transport} -h localhost");
+                communicator.SetProperty("TestAdapterSame.Endpoints", $"ice+{ice2Transport}://localhost:0");
+                communicator.SetProperty("TestAdapterOther.Endpoints", $"{ice1Transport} -h localhost");
             }
 
             ObjectAdapter adapterForwarder = communicator.CreateObjectAdapter("TestAdapterForwarder");

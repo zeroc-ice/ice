@@ -216,7 +216,7 @@
         {
         }
 
-        supportsClassGraphDepthMax(current)
+        supportsClassGraphMaxDepth(current)
         {
             return false;
         }

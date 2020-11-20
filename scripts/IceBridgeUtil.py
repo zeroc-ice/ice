@@ -23,6 +23,6 @@ class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
         })
         props['Ice.ThreadPool.Server.Size'] = None
-        props['Ice.ThreadPool.Server.SizeMax'] = None
-        props['Ice.ThreadPool.Server.SizeWarn'] = None
+        props['Ice.ThreadPool.Server.MaxSize'] = None
+        props['Ice.ThreadPool.Server.WarnSize'] = None
         return props

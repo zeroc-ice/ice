@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
-using Test;
 using System.Threading;
+using Test;
 
 namespace ZeroC.Ice.Test.Discovery
 {
@@ -19,9 +19,12 @@ namespace ZeroC.Ice.Test.Discovery
         {
             Communicator communicator = current.Adapter.Communicator;
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
+            string transport = TestHelper.GetTestTransport(communicator.GetProperties());
+
             communicator.SetProperty($"{name}.AdapterId", adapterId);
             communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
-            communicator.SetProperty($"{name}.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0");
+            communicator.SetProperty($"{name}.Endpoints", ice1 ? $"{transport} -h 127.0.0.1" :
+                $"ice+{transport}://127.0.0.1:0");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();

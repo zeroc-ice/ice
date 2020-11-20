@@ -300,7 +300,7 @@ public class AllTests
                     initial.setRecursive(top);
                 }
             }
-            test(!initial.supportsClassGraphDepthMax());
+            test(!initial.supportsClassGraphMaxDepth());
         }
         catch(com.zeroc.Ice.UnknownLocalException ex)
         {

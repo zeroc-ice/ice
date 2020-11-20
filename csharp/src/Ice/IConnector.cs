@@ -2,14 +2,15 @@
 
 namespace ZeroC.Ice
 {
-    /// <summary>A connector holds all the information needed to establish a connection to a remote peer. It creates
-    /// a transceiver that can be used to exchange data with the remote peer once the connection is established.
-    /// </summary>
+    /// <summary>A connector holds all the information needed to establish a connection to a remote peer.</summary>
     public interface IConnector
     {
-        /// <summary>Creates a transceiver. The transceiver may not be fully connected until its
-        /// <see cref="ITransceiver.InitializeAsync"/> method is called.</summary>
-        /// <return>The transceiver.</return>
-        Connection Connect(string connectionId);
+        /// <summary>Creates a connection. The connection may not be fully connected until its
+        /// <see cref="Connection.InitializeAsync"/> method is called.</summary>
+        /// <param name="connectionId">The connection ID for the new connection.</param>
+        /// <param name="preferNonSecure">Indicates whether the connector should prefer creating a non-secure
+        /// over secure connection.</param>
+        /// <return>The connection.</return>
+        Connection Connect(string connectionId, bool preferNonSecure);
     }
 }

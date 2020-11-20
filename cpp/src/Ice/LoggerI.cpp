@@ -48,11 +48,11 @@ const IceUtil::Time retryTimeout = IceUtil::Time::seconds(5 * 60);
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file,
-                      bool convert, size_t sizeMax) :
+                      bool convert, size_t maxSize) :
     _prefix(prefix),
     _convert(convert),
     _converter(getProcessStringConverter()),
-    _sizeMax(sizeMax)
+    _maxSize(maxSize)
 {
     if(!prefix.empty())
     {
@@ -68,7 +68,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
             throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);
         }
 
-        if(_sizeMax > 0)
+        if(_maxSize > 0)
         {
             _out.seekp(0, _out.end);
         }
@@ -123,8 +123,8 @@ Ice::LoggerI::getPrefix()
 LoggerPtr
 Ice::LoggerI::cloneWithPrefix(const std::string& prefix)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(outputMutex); // for _sizeMax
-    return std::make_shared<LoggerI>(prefix, _file, _convert, _sizeMax);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(outputMutex); // for _maxSize
+    return std::make_shared<LoggerI>(prefix, _file, _convert, _maxSize);
 }
 
 void
@@ -146,14 +146,14 @@ Ice::LoggerI::write(const string& message, bool indent)
 
     if(_out.is_open())
     {
-        if(_sizeMax > 0)
+        if(_maxSize > 0)
         {
             //
             // If file size + message size exceeds max size we archive the log file,
             // but we do not archive empty files or truncate messages.
             //
             size_t sz = static_cast<size_t>(_out.tellp());
-            if(sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= IceUtil::Time::now())
+            if(sz > 0 && sz + message.size() >= _maxSize && _nextRetry <= IceUtil::Time::now())
             {
                 string basename = _file;
                 string ext;
@@ -202,12 +202,12 @@ Ice::LoggerI::write(const string& message, bool indent)
                     // We temporarily set the maximum size to 0 to ensure there isn't more rename attempts
                     // in the nested error call.
                     //
-                    size_t sizeMax = _sizeMax;
-                    _sizeMax = 0;
+                    size_t maxSize = _maxSize;
+                    _maxSize = 0;
                     sync.release();
                     error("FileLogger: cannot rename `" + _file + "'\n" + IceUtilInternal::lastErrorToString());
                     sync.acquire();
-                    _sizeMax = sizeMax;
+                    _maxSize = maxSize;
                 }
                 else
                 {

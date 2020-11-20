@@ -11,20 +11,29 @@
 
 module ZeroC::Ice::Test::Proxy
 {
+    interface RelativeTest
+    {
+        int doIt();
+    }
 
-interface MyClass
-{
-    void shutdown();
+    interface Callback
+    {
+        int op(RelativeTest relativeTest);
+    }
 
-    Ice::Context getContext();
-}
+    interface MyClass
+    {
+        void shutdown();
+        Ice::Context getContext();
 
-interface MyDerivedClass : MyClass
-{
-    Object* echo(Object* obj);
+        RelativeTest opRelative(Callback callback);
+    }
 
-    // Gets the location carried by this ice2 request.
-    Ice::StringSeq getLocation();
-}
+    interface MyDerivedClass : MyClass
+    {
+        Object* echo(Object* obj);
 
+        // Gets the location carried by this ice2 request.
+        Ice::StringSeq getLocation();
+    }
 }

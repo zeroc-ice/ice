@@ -93,9 +93,9 @@ public class ProtocolInstance
         return _instance.networkProxy();
     }
 
-    public int messageSizeMax()
+    public int messageMaxSize()
     {
-        return _instance.messageSizeMax();
+        return _instance.messageMaxSize();
     }
 
     public void resolve(String host, int port, com.zeroc.Ice.EndpointSelectionType type, IPEndpointI endpt,
@@ -104,19 +104,19 @@ public class ProtocolInstance
         _instance.endpointHostResolver().resolve(host, port, type, endpt, callback);
     }
 
-    public BufSizeWarnInfo getBufSizeWarn(short type)
+    public BufWarnSizeInfo getBufWarnSize(short type)
     {
-        return _instance.getBufSizeWarn(type);
+        return _instance.getBufWarnSize(type);
     }
 
-    public void setSndBufSizeWarn(short type, int size)
+    public void setSndBufWarnSize(short type, int size)
     {
-        _instance.setSndBufSizeWarn(type, size);
+        _instance.setSndBufWarnSize(type, size);
     }
 
-    public void setRcvBufSizeWarn(short type, int size)
+    public void setRcvBufWarnSize(short type, int size)
     {
-        _instance.setRcvBufSizeWarn(type, size);
+        _instance.setRcvBufWarnSize(type, size);
     }
 
     ProtocolInstance(Instance instance, short type, String protocol, boolean secure)

@@ -38,21 +38,21 @@ namespace ZeroC.Ice
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
         {
-            var transceiver = new UdpTransceiver(this, Communicator);
+            var socket = new UdpSocket(this, Communicator);
             try
             {
                 if (Communicator.TraceLevels.Transport >= 2)
                 {
                     Communicator.Logger.Trace(TraceLevels.TransportCategory,
-                        $"attempting to bind to {TransportName} socket\n{transceiver}");
+                        $"attempting to bind to {TransportName} socket\n{socket}");
                 }
-                Endpoint endpoint = transceiver.Bind(this);
-                var multiStreamTransceiver = new LegacyTransceiver(transceiver, endpoint, adapter);
-                return new UdpConnection(null, endpoint, multiStreamTransceiver, null, "", adapter);
+                Endpoint endpoint = socket.Bind(this);
+                var multiStreamSocket = new Ice1NetworkSocket(socket, endpoint, adapter);
+                return new UdpConnection(null, endpoint, multiStreamSocket, null, "", adapter);
             }
             catch (Exception)
             {
-                transceiver.Dispose();
+                socket.Dispose();
                 throw;
             }
         }

@@ -73,9 +73,9 @@ class ProtocolInstance
         return this._instance.defaultsAndOverrides().defaultTimeout;
     }
 
-    messageSizeMax()
+    messageMaxSize()
     {
-        return this._instance.messageSizeMax();
+        return this._instance.messageMaxSize();
     }
 }
 

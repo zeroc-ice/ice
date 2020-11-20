@@ -25,7 +25,7 @@ Ice.ExUtil =
     throwMemoryLimitException: function(requested, maximum)
     {
         throw new MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
-                                       " bytes (see Ice.MessageSizeMax)");
+                                       " bytes (see Ice.MessageMaxSize)");
     }
 };
 module.exports.Ice = Ice;

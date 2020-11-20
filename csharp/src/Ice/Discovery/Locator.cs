@@ -74,7 +74,7 @@ namespace ZeroC.Ice.Discovery
         }
 
         public ValueTask<ILocatorRegistryPrx?> GetRegistryAsync(Current current, CancellationToken cancel) =>
-            new (_registry);
+            new(_registry);
 
         public async ValueTask<IEnumerable<EndpointData>> ResolveLocationAsync(
             string[] location,
@@ -148,6 +148,7 @@ namespace ZeroC.Ice.Discovery
                 communicator.SetProperty("Ice.Discovery.Multicast.Endpoints",
                                           $"{defaultIPv4Endpoint}:{defaultIPv6Endpoint}");
             }
+            communicator.SetProperty("Ice.Discovery.Multicast.AcceptNonSecure", "True");
 
             string? lookupEndpoints = communicator.GetProperty("Ice.Discovery.Lookup");
             if (lookupEndpoints == null)
@@ -166,7 +167,10 @@ namespace ZeroC.Ice.Discovery
             {
                 communicator.SetProperty("Ice.Discovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
-            communicator.SetProperty("Ice.Discovery.Reply.ProxyOptions", "-d"); // create datagram proxies
+            // create datagram proxies
+            communicator.SetProperty("Ice.Discovery.Reply.ProxyOptions", "-d");
+            // datagram connection are nonsecure
+            communicator.SetProperty("Ice.Discovery.Reply.AcceptNonSecure", "True");
 
             _multicastAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Multicast");
             _replyAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Reply");
@@ -189,9 +193,11 @@ namespace ZeroC.Ice.Discovery
 
             _domainId = communicator.GetProperty("Ice.Discovery.DomainId") ?? "";
 
+            // Datagram proxies do not support SSL/TLS so they can only be used with PreferNonSecure set to true
             _lookup = ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
                 clearRouter: true,
-                invocationTimeout: _timeout);
+                invocationTimeout: _timeout,
+                preferNonSecure: true);
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
             // of the lookup proxy.
@@ -439,7 +445,7 @@ namespace ZeroC.Ice.Discovery
     internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IResolveAdapterIdReply
     {
         private readonly object _mutex = new();
-        private readonly HashSet<EndpointData> _endpointDataSet = new(EndpointDataComparer.Instance);
+        private readonly HashSet<EndpointData> _endpointDataSet = new();
 
         public void FoundAdapterId(
             EndpointData[] endpoints,
@@ -490,31 +496,6 @@ namespace ZeroC.Ice.Discovery
         internal ResolveWellKnownProxyReply(ObjectAdapter replyAdapter)
             : base(emptyResult: "", replyAdapter)
         {
-        }
-    }
-
-    // Temporary helper class
-    internal sealed class EndpointDataComparer : IEqualityComparer<EndpointData>
-    {
-        internal static readonly EndpointDataComparer Instance = new();
-
-        public bool Equals(EndpointData x, EndpointData y) =>
-            x.Transport == y.Transport &&
-            x.Host == y.Host &&
-            x.Port == y.Port &&
-            x.Options.SequenceEqual(y.Options);
-
-        public int GetHashCode(EndpointData obj)
-        {
-            var hash = new HashCode();
-            hash.Add(obj.Transport);
-            hash.Add(obj.Host);
-            hash.Add(obj.Port);
-            foreach (string s in obj.Options)
-            {
-                hash.Add(s);
-            }
-            return hash.ToHashCode();
         }
     }
 }

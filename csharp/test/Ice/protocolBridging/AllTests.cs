@@ -70,7 +70,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             }
             catch (MyError ex)
             {
-                 TestHelper.Assert(ex.Number == 42);
+                TestHelper.Assert(ex.Number == 42);
             }
 
             try

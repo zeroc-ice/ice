@@ -111,7 +111,7 @@ namespace ZeroC.Ice.Test.Operations
                 r[i] = p1[^(i + 1)];
             }
 
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IEnumerable<bool>>, IEnumerable<IEnumerable<bool>>)> OpBoolSSAsync(
@@ -130,7 +130,7 @@ namespace ZeroC.Ice.Test.Operations
                 r[i] = p1[^(i + 1)];
             }
 
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(byte, byte)> OpByteAsync(byte p1, byte p2, Current current, CancellationToken cancel) =>
@@ -140,7 +140,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<byte, bool> p1,
             Dictionary<byte, bool> p2,
             Current current,
-            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
+            CancellationToken cancel) => new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> OpByteSAsync(
             byte[] p1,
@@ -158,7 +158,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p1, r, p1.Length);
             Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IEnumerable<byte>>, IEnumerable<IEnumerable<byte>>)> OpByteSSAsync(
@@ -177,7 +177,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p1, r, p1.Length);
             Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(double, float, double)> OpFloatDoubleAsync(
@@ -208,7 +208,7 @@ namespace ZeroC.Ice.Test.Operations
                 r[p2.Length + i] = p1[i];
             }
 
-            return new ((r, p3, p4));
+            return new((r, p3, p4));
         }
 
         public ValueTask<(IEnumerable<IEnumerable<double>>, IEnumerable<IEnumerable<float>>, IEnumerable<IEnumerable<double>>)> OpFloatDoubleSSAsync(
@@ -236,20 +236,20 @@ namespace ZeroC.Ice.Test.Operations
                 }
             }
 
-            return new ((r, p3, p4));
+            return new((r, p3, p4));
         }
 
         public ValueTask<(IReadOnlyDictionary<long, float>, IReadOnlyDictionary<long, float>)> OpLongFloatDAsync(
             Dictionary<long, float> p1,
             Dictionary<long, float> p2,
             Current current,
-            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
+            CancellationToken cancel) => new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<ulong, float>, IReadOnlyDictionary<ulong, float>)> OpULongFloatDAsync(
             Dictionary<ulong, float> p1,
             Dictionary<ulong, float> p2,
             Current current,
-            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
+            CancellationToken cancel) => new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IMyClassPrx?, IMyClassPrx?, IMyClassPrx?)> OpMyClassAsync(
             IMyClassPrx? p1,
@@ -267,13 +267,13 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<short, int> p1,
             Dictionary<short, int> p2,
             Current current,
-            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
+            CancellationToken cancel) => new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<ushort, uint>, IReadOnlyDictionary<ushort, uint>)> OpUShortUIntDAsync(
             Dictionary<ushort, uint> p1,
             Dictionary<ushort, uint> p2,
             Current current,
-            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
+            CancellationToken cancel) => new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(long, short, int, long)> OpShortIntLongAsync(
             short p1,
@@ -317,7 +317,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
 
-            return new ((p3, p4, p5, p6));
+            return new((p3, p4, p5, p6));
         }
 
         public ValueTask<(ReadOnlyMemory<ulong>, ReadOnlyMemory<ushort>, ReadOnlyMemory<uint>, ReadOnlyMemory<ulong>)>
@@ -333,7 +333,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
 
-            return new ((p3, p4, p5, p6));
+            return new((p3, p4, p5, p6));
         }
 
         public ValueTask<(IEnumerable<long>, IEnumerable<int>, IEnumerable<long>)>
@@ -349,7 +349,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p2, p5, p2.Length);
             Array.Copy(p2, 0, p5, p2.Length, p2.Length);
 
-            return new ((p2, p4, p5));
+            return new((p2, p4, p5));
         }
 
         public ValueTask<(IEnumerable<ulong>, IEnumerable<uint>, IEnumerable<ulong>)>
@@ -365,7 +365,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p2, p5, p2.Length);
             Array.Copy(p2, 0, p5, p2.Length, p2.Length);
 
-            return new ((p2, p4, p5));
+            return new((p2, p4, p5));
         }
 
         public ValueTask<(IEnumerable<IEnumerable<long>>, IEnumerable<IEnumerable<short>>, IEnumerable<IEnumerable<int>>, IEnumerable<IEnumerable<long>>)>
@@ -382,7 +382,7 @@ namespace ZeroC.Ice.Test.Operations
             long[][] p6 = new long[p3.Length + p3.Length][];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-            return new ((p3, p4, p5, p6));
+            return new((p3, p4, p5, p6));
         }
 
         public ValueTask<(IEnumerable<IEnumerable<ulong>>, IEnumerable<IEnumerable<ushort>>, IEnumerable<IEnumerable<uint>>, IEnumerable<IEnumerable<ulong>>)>
@@ -400,7 +400,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
 
-            return new ((p3, p4, p5, p6));
+            return new((p3, p4, p5, p6));
         }
 
         public ValueTask<(string, string)>
@@ -413,7 +413,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<string, MyEnum> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p1));
+            new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<MyEnum, string>, IReadOnlyDictionary<MyEnum, string>)>
         OpMyEnumStringDAsync(
@@ -421,14 +421,14 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<MyEnum, string> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p1));
+            new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IReadOnlyDictionary<MyStruct, MyEnum>, IReadOnlyDictionary<MyStruct, MyEnum>)>
         OpMyStructMyEnumDAsync(
             Dictionary<MyStruct, MyEnum> p1,
             Dictionary<MyStruct, MyEnum> p2,
             Current current,
-            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p1));
+            CancellationToken cancel) => new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<byte, bool>>, IEnumerable<IReadOnlyDictionary<byte, bool>>)>
         OpByteBoolDSAsync(
@@ -446,7 +446,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<short, int>>, IEnumerable<IReadOnlyDictionary<short, int>>)>
@@ -465,7 +465,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<ushort, uint>>, IEnumerable<IReadOnlyDictionary<ushort, uint>>)>
@@ -484,7 +484,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<long, float>>, IEnumerable<IReadOnlyDictionary<long, float>>)>
@@ -503,7 +503,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<ulong, float>>, IEnumerable<IReadOnlyDictionary<ulong, float>>)>
@@ -522,7 +522,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<string, string>>, IEnumerable<IReadOnlyDictionary<string, string>>)>
@@ -541,7 +541,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<string, MyEnum>>, IEnumerable<IReadOnlyDictionary<string, MyEnum>>)>
@@ -560,7 +560,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<MyEnum, string>>, IEnumerable<IReadOnlyDictionary<MyEnum, string>>)>
@@ -579,7 +579,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IReadOnlyDictionary<MyStruct, MyEnum>>, IEnumerable<IReadOnlyDictionary<MyStruct, MyEnum>>)>
@@ -598,7 +598,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IReadOnlyDictionary<byte, byte[]>, IReadOnlyDictionary<byte, byte[]>)>
@@ -607,7 +607,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<byte, byte[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<bool, bool[]>, IReadOnlyDictionary<bool, bool[]>)>
         OpBoolBoolSDAsync(
@@ -615,7 +615,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<bool, bool[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<short, short[]>, IReadOnlyDictionary<short, short[]>)>
         OpShortShortSDAsync(
@@ -623,7 +623,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<short, short[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<ushort, ushort[]>, IReadOnlyDictionary<ushort, ushort[]>)>
         OpUShortUShortSDAsync(
@@ -631,7 +631,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<ushort, ushort[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<int, int[]>, IReadOnlyDictionary<int, int[]>)>
         OpIntIntSDAsync(
@@ -639,7 +639,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<int, int[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<uint, uint[]>, IReadOnlyDictionary<uint, uint[]>)>
         OpUIntUIntSDAsync(
@@ -647,7 +647,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<uint, uint[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<long, long[]>, IReadOnlyDictionary<long, long[]>)>
         OpLongLongSDAsync(
@@ -655,7 +655,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<long, long[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<ulong, ulong[]>, IReadOnlyDictionary<ulong, ulong[]>)>
         OpULongULongSDAsync(
@@ -663,7 +663,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<ulong, ulong[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<string, float[]>, IReadOnlyDictionary<string, float[]>)>
         OpStringFloatSDAsync(
@@ -671,7 +671,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<string, float[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<string, double[]>, IReadOnlyDictionary<string, double[]>)>
         OpStringDoubleSDAsync(
@@ -679,7 +679,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<string, double[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<string, string[]>, IReadOnlyDictionary<string, string[]>)>
         OpStringStringSDAsync(
@@ -687,14 +687,14 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<string, string[]> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p2));
+            new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<(IReadOnlyDictionary<MyEnum, MyEnum[]>, IReadOnlyDictionary<MyEnum, MyEnum[]>)>
         OpMyEnumMyEnumSDAsync(
             Dictionary<MyEnum, MyEnum[]> p1,
             Dictionary<MyEnum, MyEnum[]> p2,
             Current current,
-            CancellationToken cancel) => new ((MergeDictionaries(p1, p2), p2));
+            CancellationToken cancel) => new((MergeDictionaries(p1, p2), p2));
 
         public ValueTask<ReadOnlyMemory<int>> OpIntSAsync(int[] s, Current current, CancellationToken cancel)
         {
@@ -704,7 +704,7 @@ namespace ZeroC.Ice.Test.Operations
                 r[i] = -s[i];
             }
 
-            return new (r);
+            return new(r);
         }
 
         public ValueTask<IReadOnlyDictionary<string, string>> OpContextAsync(
@@ -727,7 +727,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 int count = _opByteSOnewayCallCount;
                 _opByteSOnewayCallCount = 0;
-                return new (count);
+                return new(count);
             }
         }
 
@@ -757,7 +757,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p1[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IEnumerable<string>>, IEnumerable<IEnumerable<string>>)> OpStringSSAsync(
@@ -774,7 +774,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p2[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IEnumerable<IEnumerable<IEnumerable<string>>>, IEnumerable<IEnumerable<IEnumerable<string>>>)>
@@ -789,7 +789,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = p2[^(i + 1)];
             }
-            return new ((r, p3));
+            return new((r, p3));
         }
 
         public ValueTask<(IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)>
@@ -798,7 +798,7 @@ namespace ZeroC.Ice.Test.Operations
             Dictionary<string, string> p2,
             Current current,
             CancellationToken cancel) =>
-            new ((MergeDictionaries(p1, p2), p1));
+            new((MergeDictionaries(p1, p2), p1));
 
         public ValueTask<(Structure, Structure)> OpStructAsync(
             Structure p1,
@@ -808,7 +808,7 @@ namespace ZeroC.Ice.Test.Operations
         {
             Structure p3 = p1;
             p3.S.S = "a new string";
-            return new ((p2, p3));
+            return new((p2, p3));
         }
 
         public ValueTask OpIdempotentAsync(Current current, CancellationToken cancel)

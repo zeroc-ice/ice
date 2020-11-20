@@ -1442,8 +1442,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     if (!hasBaseClass)
     {
-        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
-            << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
+        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(";
+        _out.inc();
+        _out << nl << "\"Microsoft.Performance\","
+            << nl << "\"CA1801: Review unused parameters\","
+            << nl << "Justification=\"Special constructor used for Ice unmarshaling\")]";
+        _out.dec();
     }
     _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream? istr)";
     if (hasBaseClass)
@@ -1781,7 +1785,9 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         _out << "readonly ";
     }
-    _out << "partial struct " << name <<  " : global::System.IEquatable<" << name << ">, ZeroC.Ice.IStreamableStruct";
+
+    _out << "partial struct " << name << " : global::System.IEquatable<" << name << ">, ZeroC.Ice.IStreamableStruct";
+
     _out << sb;
 
     _out << sp;
@@ -1811,10 +1817,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     MemberList dataMembers = p->dataMembers();
 
     emitEqualityOperators(name);
-    _out << sp;
 
     bool partialInitialize = !hasDataMemberWithName(dataMembers, "Initialize");
 
+    _out << sp;
     _out << nl << "/// <summary>Constructs a new instance of <see cref=\"" << name << "\"/>.</summary>";
     for (const auto& member : dataMembers)
     {
@@ -1859,55 +1865,117 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << eb;
 
-    // Equals implementation
-    _out << sp;
-    _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public readonly bool Equals(" << fixId(p->name()) << " other)";
-
-    _out << " =>";
-    _out.inc();
-    _out << nl;
-    for (auto q = dataMembers.begin(); q != dataMembers.end();)
-    {
-        string mName = fixId(fieldName(*q));
-        TypePtr mType = (*q)->type();
-
-        if (mType->isInterfaceType())
-        {
-            _out << "ZeroC.Ice.IObjectPrx.Equals(this." << mName << ", other." << mName << ")";
-        }
-        else
-        {
-            _out << "this." << mName << " == other." << mName;
-        }
-
-        if(++q != dataMembers.end())
-        {
-            _out << " &&" << nl;
-        }
-        else
-        {
-            _out << ";";
-        }
-    }
-    _out.dec();
-
     _out << sp;
     _out << nl << "/// <inheritdoc/>";
     _out << nl << "public readonly override bool Equals(object? other) => other is " << name
-        << " value && this.Equals(value);";
+         << " value && this.Equals(value);";
 
-    _out << sp;
-    _out << nl << "/// <inheritdoc/>";
-    _out << nl << "public readonly override int GetHashCode()";
-    _out << sb;
-    _out << nl << "var hash = new global::System.HashCode();";
-    for(const auto& i : dataMembers)
+    if (!p->hasMetadata("cs:custom-equals"))
     {
-        _out << nl << "hash.Add(this." << fixId(fieldName(i), Slice::ObjectType) << ");";
+        // Default implementation for Equals and GetHashCode
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public readonly bool Equals(" << name << " other)";
+
+        _out << " =>";
+        _out.inc();
+        _out << nl;
+        for (auto q = dataMembers.begin(); q != dataMembers.end();)
+        {
+            string mName = fixId(fieldName(*q), Slice::ObjectType);
+            string lhs = "this." + mName;
+            string rhs = "other." + mName;
+
+            TypePtr mType = unwrapIfOptional((*q)->type());
+
+            if (mType->isInterfaceType())
+            {
+                _out << "ZeroC.Ice.IObjectPrx.Equals(" << lhs << ", " << rhs << ")";
+            }
+            else if (SequencePtr::dynamicCast(mType))
+            {
+                // We always check for null values because a default-initialized struct will have null fields even for
+                // non nullable fields.
+
+                if (dataMembers.size() > 1)
+                {
+                    _out << "(";
+                }
+                _out << lhs << " == " << rhs << " ||";
+                _out.inc();
+                _out << nl << "(" << lhs << " != null && " << rhs << " != null && ";
+                _out << "global::System.Linq.Enumerable.SequenceEqual(" << lhs << ", " << rhs << ")";
+                _out << ")";
+                if (dataMembers.size() > 1)
+                {
+                    _out << ")";
+                }
+                _out.dec();
+            }
+            else if (DictionaryPtr::dynamicCast(mType))
+            {
+                if (dataMembers.size() > 1)
+                {
+                    _out << "(";
+                }
+                _out << lhs << " == " << rhs << " ||";
+                _out.inc();
+                _out << nl << "(" << lhs << " != null && " << rhs << " != null && ";
+                _out << "ZeroC.Ice.DictionaryExtensions.DictionaryEqual(" << lhs << ", " << rhs << ")";
+                _out << ")";
+                if (dataMembers.size() > 1)
+                {
+                    _out << ")";
+                }
+                _out.dec();
+            }
+            else
+            {
+                _out << lhs << " == " << rhs;
+            }
+
+            if (++q != dataMembers.end())
+            {
+                _out << " &&" << nl;
+            }
+            else
+            {
+                _out << ";";
+            }
+        }
+        _out.dec();
+
+        _out << sp;
+        _out << nl << "/// <inheritdoc/>";
+        _out << nl << "public readonly override int GetHashCode()";
+        _out << sb;
+        _out << nl << "var hash = new global::System.HashCode();";
+        for (const auto& dataMember : dataMembers)
+        {
+            string obj = "this." + fixId(fieldName(dataMember), Slice::ObjectType);
+            TypePtr mType = unwrapIfOptional(dataMember->type());
+            if (SequencePtr::dynamicCast(mType))
+            {
+                _out << nl << "if (" << obj << " != null)";
+                _out << sb;
+                _out << nl << "hash.Add(ZeroC.Ice.EnumerableExtensions.GetSequenceHashCode(" << obj << "));";
+                _out << eb;
+            }
+            else if (DictionaryPtr::dynamicCast(mType))
+            {
+                _out << nl << "if (" << obj << " != null)";
+                _out << sb;
+                _out << nl << "hash.Add(ZeroC.Ice.DictionaryExtensions.GetDictionaryHashCode(" << obj << "));";
+                _out << eb;
+            }
+            else
+            {
+                _out << nl << "hash.Add(" << obj << ");";
+            }
+        }
+        _out << nl << "return hash.ToHashCode();";
+        _out << eb;
     }
-    _out << nl << "return hash.ToHashCode();";
-    _out << eb;
 
     _out << sp;
     _out << nl << "/// <summary>Marshals the struct by writing its fields to the "
@@ -2702,6 +2770,9 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << "/// <summary>The frame holding the marshaled response.</summary>";
         _out << nl << "public ZeroC.Ice.OutgoingResponseFrame Response { get; }";
 
+        emitEqualityOperators(name);
+        _out << sp;
+
         _out << nl << "/// <summary>Constructs a new <see cref=\"" << name  << "\"/> instance that";
         _out << nl << "/// immediately marshals the return value of operation " << opName << ".</summary>";
         _out << nl << "public " << name << spar
@@ -2747,8 +2818,6 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sp;
         _out << nl << "/// <inheritdoc/>";
         _out << nl << "public override int GetHashCode() => Response.GetHashCode();";
-
-        emitEqualityOperators(name);
 
         _out << eb;
     }
@@ -2827,7 +2896,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     else
     {
         _out << nl << "var " << (params.size() == 1 ? paramName(params.front(), "iceP_") : "args")
-            << " = request.ReadArgs(current.Communicator, Request." << fixId(opName) << ");";
+            << " = request.ReadArgs(current.Connection, Request." << fixId(opName) << ");";
     }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)

@@ -21,7 +21,7 @@ using namespace IceStormElection;
 namespace
 {
 
-struct SendQueueSizeMaxReached : std::exception
+struct SendQueueMaxSizeReached : std::exception
 {
     const char* what() const noexcept override
     {
@@ -566,11 +566,11 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
     {
         for(EventDataSeq::const_iterator p = events.begin(); p != events.end(); ++p)
         {
-            if(static_cast<int>(_events.size()) == _instance->sendQueueSizeMax())
+            if(static_cast<int>(_events.size()) == _instance->sendQueueMaxSize())
             {
-                if(_instance->sendQueueSizeMaxPolicy() == Instance::RemoveSubscriber)
+                if(_instance->sendQueueMaxSizePolicy() == Instance::RemoveSubscriber)
                 {
-                    error(false, make_exception_ptr(SendQueueSizeMaxReached()));
+                    error(false, make_exception_ptr(SendQueueMaxSizeReached()));
                     return false;
                 }
                 else // DropEvents
@@ -710,7 +710,7 @@ Subscriber::error(bool dec, exception_ptr e)
         return;
     }
 
-    // A hard error is an ObjectNotExistException, NotRegisteredException, or SendQueueSizeMaxReached
+    // A hard error is an ObjectNotExistException, NotRegisteredException, or SendQueueMaxSizeReached
     bool hardError;
     string what;
     try
@@ -727,7 +727,7 @@ Subscriber::error(bool dec, exception_ptr e)
         hardError = true;
         what = ex.what();
     }
-    catch(const SendQueueSizeMaxReached& ex)
+    catch(const SendQueueMaxSizeReached& ex)
     {
         hardError = true;
         what = ex.what();

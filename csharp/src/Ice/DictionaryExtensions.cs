@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ZeroC.Ice
 {
-    internal static class DictionaryExtensions
+    public static class DictionaryExtensions
     {
         /// <summary>Compares two dictionaries for equality. Enumerable.SequenceEqual provides the equivalent
         /// functionality for sequences.</summary>
@@ -12,7 +12,7 @@ namespace ZeroC.Ice
         /// <param name="rhs">The second dictionary to compare.</param>
         /// <returns>True if the two dictionaries have the exact same entries using the value's default equality
         /// comparison; otherwise, false.</returns>
-        internal static bool DictionaryEqual<TKey, TValue>(
+        public static bool DictionaryEqual<TKey, TValue>(
             this IReadOnlyDictionary<TKey, TValue>? lhs,
             IReadOnlyDictionary<TKey, TValue>? rhs) where TKey : notnull
         {
@@ -40,7 +40,7 @@ namespace ZeroC.Ice
         /// <summary>Computes the hash code for a dictionary.</summary>
         /// <param name="dict">The dictionary.</param>
         /// <returns>A hash code computed using the dictionary's entries.</returns>
-        internal static int GetDictionaryHashCode<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict)
+        public static int GetDictionaryHashCode<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict)
             where TKey : notnull
         {
             var hash = new System.HashCode();

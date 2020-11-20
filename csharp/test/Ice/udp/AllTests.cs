@@ -63,18 +63,18 @@ namespace ZeroC.Ice.Test.UDP
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             communicator.SetProperty("ReplyAdapter.Endpoints", helper.GetTestEndpoint(0, "udp", true));
+            communicator.SetProperty("ReplyAdapter.AcceptNonSecure", "True");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
             var replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
-                .Clone(invocationMode: InvocationMode.Datagram);
+                .Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: true);
             adapter.Activate();
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();
             ITestIntfPrx obj = ITestIntfPrx.Parse(
                 helper.GetTestProxy("test", 0, "udp"),
-                communicator).Clone(invocationMode: InvocationMode.Datagram);
-
+                communicator).Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: true);
             try
             {
                 int val = obj.GetValue();
@@ -103,7 +103,8 @@ namespace ZeroC.Ice.Test.UDP
                 // receive 3 new datagrams using a new object. We give up after 5 retries.
                 replyI = new PingReplyI();
                 reply = adapter.AddWithUUID(
-                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram,
+                                                         preferNonSecure: true);
             }
             TestHelper.Assert(ret == true);
 
@@ -118,10 +119,10 @@ namespace ZeroC.Ice.Test.UDP
                     replyI.WaitReply(1, TimeSpan.FromSeconds(10));
                 }
             }
-            catch (DatagramLimitException)
+            catch (TransportException)
             {
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means that
-                // DatagramLimitException will be throw when try to send a packet bigger than that.
+                // TransportException will be thrown when we try to send a larger packet.
                 TestHelper.Assert(seq.Length > 16384);
             }
             obj.GetConnection().GoAwayAsync();
@@ -137,7 +138,7 @@ namespace ZeroC.Ice.Test.UDP
                 // delivered.
                 TestHelper.Assert(!b);
             }
-            catch (DatagramLimitException)
+            catch (TransportException)
             {
             }
             catch (Exception ex)
@@ -169,7 +170,7 @@ namespace ZeroC.Ice.Test.UDP
                 string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
                 sb.Append($" --interface {intf}");
             }
-            var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator);
+            var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator).Clone(preferNonSecure: true);
 
             nRetry = 5;
             while (nRetry-- > 0)
@@ -183,7 +184,8 @@ namespace ZeroC.Ice.Test.UDP
                 }
                 replyI = new PingReplyI();
                 reply = adapter.AddWithUUID(
-                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+                    replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram,
+                                                         preferNonSecure: true);
             }
             if (!ret)
             {
@@ -214,7 +216,8 @@ namespace ZeroC.Ice.Test.UDP
                     }
                     replyI = new PingReplyI();
                     reply = adapter.AddWithUUID(
-                        replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+                        replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram,
+                                                             preferNonSecure: true);
                 }
                 TestHelper.Assert(ret);
                 Console.Out.WriteLine("ok");

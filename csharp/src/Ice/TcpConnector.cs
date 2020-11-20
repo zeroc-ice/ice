@@ -6,18 +6,18 @@ namespace ZeroC.Ice
 {
     internal sealed class TcpConnector : IConnector
     {
-        public Connection Connect(string connectionId)
+        public Connection Connect(string connectionId, bool preferNonSecure)
         {
-            ITransceiver transceiver = _endpoint.CreateTransceiver(this, _addr, _proxy);
+            SingleStreamSocket socket = _endpoint.CreateSocket(this, _addr, _proxy, preferNonSecure);
 
-            MultiStreamTransceiverWithUnderlyingTransceiver multiStreamTranceiver = _endpoint.Protocol switch
+            MultiStreamOverSingleStreamSocket multiStreamSocket = _endpoint.Protocol switch
             {
-                Protocol.Ice1 => new LegacyTransceiver(transceiver, _endpoint, null),
-                _ => new SlicTransceiver(transceiver, _endpoint, null)
+                Protocol.Ice1 => new Ice1NetworkSocket(socket, _endpoint, null),
+                _ => new SlicSocket(socket, _endpoint, null)
             };
 
             return _endpoint.CreateConnection(_endpoint.Communicator.OutgoingConnectionFactory,
-                                              multiStreamTranceiver,
+                                              multiStreamSocket,
                                               this,
                                               connectionId,
                                               null);

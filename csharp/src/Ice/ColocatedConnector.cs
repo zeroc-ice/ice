@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         private readonly ChannelWriter<(long, ColocatedChannelWriter, ColocatedChannelReader)> _writer;
         private long _nextId;
 
-        public Connection Connect(string connectionId)
+        public Connection Connect(string connectionId, bool preferNonSecure)
         {
             var readerOptions = new UnboundedChannelOptions
             {
@@ -42,7 +42,7 @@ namespace ZeroC.Ice
 
             return new ColocatedConnection(_endpoint.Communicator.OutgoingConnectionFactory,
                                            _endpoint,
-                                           new ColocatedTransceiver(_endpoint, id, reader.Writer, writer.Reader, false),
+                                           new ColocatedSocket(_endpoint, id, reader.Writer, writer.Reader, false),
                                            this,
                                            connectionId,
                                            null);

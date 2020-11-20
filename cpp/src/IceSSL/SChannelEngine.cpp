@@ -652,13 +652,9 @@ SChannel::SSLEngine::initialize()
     }
 
     //
-    // Create trusted CA store with contents of CertAuthFile
+    // Create trusted CA store with contents of CAs file
     //
     string caFile = properties->getProperty(prefix + "CAs");
-    if(caFile.empty())
-    {
-        caFile = properties->getProperty(prefix + "CertAuthFile");
-    }
     if(!caFile.empty() || properties->getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
     {
         _rootStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);

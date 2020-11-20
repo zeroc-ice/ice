@@ -265,7 +265,7 @@ namespace ZeroC.Ice.Test.Retry
                     output.Flush();
                     {
                         Dictionary<string, string>? properties = communicator.GetProperties();
-                        properties["Ice.RetryRequestSizeMax"] = "1024";
+                        properties["Ice.RetryRequestMaxSize"] = "1024";
                         using var communicator2 = new Communicator(properties);
                         var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
 
@@ -290,7 +290,7 @@ namespace ZeroC.Ice.Test.Retry
                     output.Flush();
                     {
                         Dictionary<string, string>? properties = communicator.GetProperties();
-                        properties["Ice.RetryBufferSizeMax"] = "2048";
+                        properties["Ice.RetryBufferMaxSize"] = "2048";
                         using var communicator2 = new Communicator(properties);
                         var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
 

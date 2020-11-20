@@ -296,21 +296,6 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>This exception reports that a datagram exceeds the configured send or receive buffer size, or exceeds
-    /// the maximum payload size of a UDP packet (65507 bytes).</summary>
-    // TODO: eliminate this exception
-    public class DatagramLimitException : TransportException
-    {
-        /// <summary>Constructs a new instance of the <see cref="DatagramLimitException"/> class with a specified
-        /// error message.</summary>
-        /// <param name="message">The message that describes the error.</param>
-        /// <param name="retryPolicy">The exception retry policy.</param>
-        public DatagramLimitException(string message, RetryPolicy retryPolicy = default)
-            : base(message, retryPolicy, null)
-        {
-        }
-    }
-
     /// <summary>This exception reports that data (bytes) received by Ice are not in an expected format.</summary>
     public class InvalidDataException : Exception
     {

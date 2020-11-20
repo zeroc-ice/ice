@@ -37,7 +37,7 @@ Server::run(int argc, char** argv)
     // The client sends large messages to cause the transport
     // buffers to fill up.
     //
-    properties->setProperty("Ice.MessageSizeMax", "20000");
+    properties->setProperty("Ice.MessageMaxSize", "20000");
 
     //
     // Limit the recv buffer size, this test relies on the socket

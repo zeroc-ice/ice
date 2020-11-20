@@ -45,7 +45,7 @@ namespace ZeroC.Ice
         public bool IsOneway { get; }
 
         /// <summary>The location of the target Ice object.</summary>
-        public string[] Location => IncomingRequestFrame.Location;
+        public IReadOnlyList<string> Location => IncomingRequestFrame.Location;
 
         /// <summary>The operation name.</summary>
         public string Operation => IncomingRequestFrame.Operation;
@@ -56,12 +56,12 @@ namespace ZeroC.Ice
         public long StreamId => Stream.Id;
         internal bool EndOfStream { get; }
         internal IncomingRequestFrame IncomingRequestFrame { get; }
-        internal TransceiverStream Stream { get; }
+        internal SocketStream Stream { get; }
 
         internal Current(
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
-            TransceiverStream stream,
+            SocketStream stream,
             bool endOfStream,
             Connection connection)
         {

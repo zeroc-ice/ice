@@ -25,5 +25,5 @@ TestSuite(__name__, [
     ],
     libDirs=["testservice"],
     runOnMainThread=True,
-    options={ "ipv6" : [False], "mx" : [False], "protocol" : ["ice1"] },
+    options={ "ipv6" : [False], "mx" : [False], "protocol" : ["ice1"], "transport" : ["tcp", "ws"] },
     multihost=False)

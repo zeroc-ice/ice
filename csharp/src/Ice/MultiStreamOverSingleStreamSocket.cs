@@ -2,10 +2,11 @@
 
 namespace ZeroC.Ice
 {
-    /// <summary>An abstract multi-stream transceiver based on a single stream transceiver.</summary>
-    internal abstract class MultiStreamTransceiverWithUnderlyingTransceiver : MultiStreamTransceiver
+    /// <summary>An abstract multi-stream socket which is using a single stream socket for receiving and sending
+    /// data.</summary>
+    internal abstract class MultiStreamOverSingleStreamSocket : MultiStreamSocket
     {
-        internal ITransceiver Underlying { get; }
+        internal SingleStreamSocket Underlying { get; }
 
         public override string ToString() => Underlying.ToString()!;
 
@@ -20,10 +21,10 @@ namespace ZeroC.Ice
             }
         }
 
-        protected MultiStreamTransceiverWithUnderlyingTransceiver(
+        protected MultiStreamOverSingleStreamSocket(
             Endpoint endpoint,
             ObjectAdapter? adapter,
-            ITransceiver transceiver)
-            : base(endpoint, adapter) => Underlying = transceiver;
+            SingleStreamSocket socket)
+            : base(endpoint, adapter) => Underlying = socket;
     }
 }

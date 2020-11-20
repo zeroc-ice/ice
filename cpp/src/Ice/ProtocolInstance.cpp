@@ -57,22 +57,22 @@ IceInternal::ProtocolInstance::getEndpointFactory(Ice::Short type) const
     return _instance->endpointFactoryManager()->get(type);
 }
 
-BufSizeWarnInfo
-IceInternal::ProtocolInstance::getBufSizeWarn(Short type)
+BufWarnSizeInfo
+IceInternal::ProtocolInstance::getBufWarnSize(Short type)
 {
-    return _instance->getBufSizeWarn(type);
+    return _instance->getBufWarnSize(type);
 }
 
 void
-IceInternal::ProtocolInstance::setSndBufSizeWarn(Short type, int size)
+IceInternal::ProtocolInstance::setSndBufWarnSize(Short type, int size)
 {
-    _instance->setSndBufSizeWarn(type, size);
+    _instance->setSndBufWarnSize(type, size);
 }
 
 void
-IceInternal::ProtocolInstance::setRcvBufSizeWarn(Short type, int size)
+IceInternal::ProtocolInstance::setRcvBufWarnSize(Short type, int size)
 {
-    _instance->setRcvBufSizeWarn(type, size);
+    _instance->setRcvBufWarnSize(type, size);
 }
 
 bool
@@ -118,9 +118,9 @@ IceInternal::ProtocolInstance::networkProxy() const
 }
 
 size_t
-IceInternal::ProtocolInstance::messageSizeMax() const
+IceInternal::ProtocolInstance::messageMaxSize() const
 {
-    return _instance->messageSizeMax();
+    return _instance->messageMaxSize();
 }
 
 void

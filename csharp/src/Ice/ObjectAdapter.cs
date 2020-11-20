@@ -18,6 +18,12 @@ namespace ZeroC.Ice
     /// servants, identities, and proxies.</summary>
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
+        /// <summary>Indicates whether or not the object adapter accepts non-secure incoming connections. When false, it
+        /// only accepts secure connections; when true, it accepts both secure and non-secure connections. This property
+        /// corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
+        /// <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
+        public bool AcceptNonSecure { get; }
+
         /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not
         /// have an adapter ID.</summary>
         public string AdapterId { get; }
@@ -70,13 +76,14 @@ namespace ZeroC.Ice
         /// <summary>Returns the TaskScheduler used to dispatch requests.</summary>
         public TaskScheduler? TaskScheduler { get; }
 
-        internal int IncomingFrameSizeMax { get; }
+        internal int IncomingFrameMaxSize { get; }
 
         private static readonly string[] _suffixes =
         {
+            "AcceptNonSecure",
             "AdapterId",
             "Endpoints",
-            "IncomingFrameSizeMax",
+            "IncomingFrameMaxSize",
             "Locator",
             "Locator.Encoding",
             "Locator.EndpointSelection",
@@ -476,9 +483,9 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Creates a proxy for the object with the given identity and facet. If this object adapter is
-        /// configured with an adapter id, creates an indirect proxy that refers to the adapter id. If a replica group
-        /// id is also defined, creates an indirect proxy that refers to the replica group id. Otherwise, if no adapter
-        /// id is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
+        /// configured with an adapter ID, creates an indirect proxy that refers to the adapter ID. If a replica group
+        /// ID is also defined, creates an indirect proxy that refers to the replica group ID. Otherwise, if no adapter
+        /// ID is defined, creates a direct proxy containing this object adapter's published endpoints.</summary>
         /// <param name="identity">The object's identity.</param>
         /// <param name="facet">The facet.</param>
         /// <param name="factory">The proxy factory. Use INamePrx.Factory for this parameter, where INamePrx is the
@@ -672,6 +679,8 @@ namespace ZeroC.Ice
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
 
+            AcceptNonSecure = communicator.AcceptNonSecure;
+
             _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
 
@@ -723,9 +732,11 @@ namespace ZeroC.Ice
             AdapterId = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
             ReplicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
-            int frameSizeMax =
-                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameSizeMax") ?? Communicator.IncomingFrameSizeMax;
-            IncomingFrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
+            int frameMaxSize =
+                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameMaxSize") ?? Communicator.IncomingFrameMaxSize;
+            IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
+
+            AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
 
             try
             {
@@ -775,6 +786,16 @@ namespace ZeroC.Ice
                             Protocol = Protocol.Ice1;
                             endpoints = Ice1Parser.ParseEndpoints(value, communicator);
                             _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
+
+                            // When the adapter is configured to only accept secure connections ensure that all
+                            // configured endpoints only accept secure connections.
+                            if (!AcceptNonSecure &&
+                                endpoints.FirstOrDefault(endpoint => !endpoint.IsAlwaysSecure) is Endpoint endpoint)
+                            {
+                                throw new InvalidConfigurationException($@"object adapter `{Name
+                                    }' is configured to only accept secure connections but endpoint: `{endpoint
+                                    }' accepts non-secure connections");
+                            }
                         }
 
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
@@ -956,7 +977,7 @@ namespace ZeroC.Ice
             }
             else if (reference.IsIndirect)
             {
-                // Proxy is local if the reference's location matches this adapter id or replica group id.
+                // Reference is local if the reference's location matches this adapter ID or replica group ID.
                 return reference.Location.Count == 1 &&
                     (reference.Location[0] == AdapterId || reference.Location[0] == ReplicaGroupId);
             }

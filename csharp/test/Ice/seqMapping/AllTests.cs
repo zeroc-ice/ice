@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using Test;
 using System.IO;
+using Test;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {

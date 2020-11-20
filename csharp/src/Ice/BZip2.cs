@@ -190,11 +190,6 @@ namespace ZeroC.Ice
                 compressedHeader[9] = 2;
                 compressedHeader.AsSpan(10, 4).WriteInt(compressedSize);
 
-                // Write the compression status and size of the compressed stream into the header of the decompressed
-                // stream -- we need this to trace requests correctly.
-                headerSegment[9] = 2;
-                headerSegment.AsSpan(10, 4).WriteInt(compressedSize);
-
                 // Add the size of the decompressed stream before the frame body.
                 compressedHeader.AsSpan(headerSize, 4).WriteInt(size);
 
@@ -214,7 +209,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int frameSizeMax)
+        internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int frameMaxSize)
         {
             Debug.Assert(IsLoaded);
             int decompressedSize = compressed.AsReadOnlySpan(headerSize, 4).ReadInt();
@@ -223,10 +218,10 @@ namespace ZeroC.Ice
                 throw new InvalidDataException(
                     $"received compressed ice1 frame with a decompressed size of only {decompressedSize} bytes");
             }
-            if (decompressedSize > frameSizeMax)
+            if (decompressedSize > frameMaxSize)
             {
                 throw new InvalidDataException(
-                    $"decompressed size of {decompressedSize} bytes is greater than Ice.IncomingFrameSizeMax value");
+                    $"decompressed size of {decompressedSize} bytes is greater than Ice.IncomingFrameMaxSize value");
             }
 
             byte[] decompressed = new byte[decompressedSize];

@@ -11,7 +11,7 @@ namespace ZeroC.Ice
 {
     internal sealed class WSEndpoint : TcpEndpoint
     {
-        public override bool IsSecure => Transport == Transport.WSS;
+        public override bool IsAlwaysSecure => Transport == Transport.WSS;
 
         public override string? this[string option] => option == "resource" ? Resource : base[option];
 
@@ -165,7 +165,7 @@ namespace ZeroC.Ice
             return new WSEndpoint(data, options, communicator, oaEndpoint);
         }
 
-         // Constructor for ice1 unmarshaling
+        // Constructor for ice1 unmarshaling
         private WSEndpoint(EndpointData data, TimeSpan timeout, bool compress, Communicator communicator)
             : base(data, timeout, compress, communicator)
         {
@@ -202,11 +202,11 @@ namespace ZeroC.Ice
 
         internal override Connection CreateConnection(
             IConnectionManager manager,
-            MultiStreamTransceiverWithUnderlyingTransceiver transceiver,
+            MultiStreamOverSingleStreamSocket socket,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
-            new WSConnection(manager, this, transceiver, connector, connectionId, adapter);
+            new WSConnection(manager, this, socket, connector, connectionId, adapter);
 
         // Clone constructor
         private WSEndpoint(WSEndpoint endpoint, string host, ushort port)
@@ -217,10 +217,18 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(this, host, port);
 
-        internal override ITransceiver CreateTransceiver(IConnector connector, EndPoint addr, INetworkProxy? proxy) =>
-            new WSTransceiver(Communicator, base.CreateTransceiver(connector, addr, proxy), Host, Resource, connector);
+        internal override SingleStreamSocket CreateSocket(
+            IConnector connector,
+            EndPoint addr,
+            INetworkProxy? proxy,
+            bool preferNonSecure) =>
+            new WSSocket(Communicator,
+                         base.CreateSocket(connector, addr, proxy, preferNonSecure),
+                         Host,
+                         Resource,
+                         connector);
 
-        internal override ITransceiver CreateTransceiver(Socket socket, string adapterName) =>
-            new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName));
+        internal override SingleStreamSocket CreateSocket(Socket socket, string adapterName, bool preferNonSecure) =>
+            new WSSocket(Communicator, base.CreateSocket(socket, adapterName, preferNonSecure));
     }
 }

@@ -10,7 +10,7 @@ class Collocated: TestHelperI {
         let properties = try createTestProperties(args)
 
         properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")
-        properties.setProperty(key: "Ice.ThreadPool.Client.SizeWarn", value: "0")
+        properties.setProperty(key: "Ice.ThreadPool.Client.WarnSize", value: "0")
         properties.setProperty(key: "Ice.BatchAutoFlushSize", value: "100")
 
         //

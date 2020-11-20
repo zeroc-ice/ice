@@ -60,16 +60,16 @@ public:
     }
 
     IceInternal::EndpointFactoryPtr getEndpointFactory(Ice::Short) const;
-    BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
-    void setSndBufSizeWarn(Ice::Short type, int size);
-    void setRcvBufSizeWarn(Ice::Short type, int size);
+    BufWarnSizeInfo getBufWarnSize(Ice::Short type);
+    void setSndBufWarnSize(Ice::Short type, int size);
+    void setRcvBufWarnSize(Ice::Short type, int size);
     bool preferIPv6() const;
     ProtocolSupport protocolSupport() const;
     const std::string& defaultHost() const;
     const Address& defaultSourceAddress() const;
     const Ice::EncodingVersion& defaultEncoding() const;
     NetworkProxyPtr networkProxy() const;
-    size_t messageSizeMax() const;
+    size_t messageMaxSize() const;
     int defaultTimeout() const;
 
     void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&,

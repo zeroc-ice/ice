@@ -35,9 +35,10 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
     def getProps(self, current):
         props = Server.getProps(self, current)
+
         props.update({
             "Glacier2.Client.Endpoints" : current.getTestEndpoint(self.portnum),
-            "Glacier2.Server.Endpoints" : "tcp",
+            "Glacier2.Server.Endpoints" : current.config.transport,
             "Ice.Admin.Endpoints" : current.getTestEndpoint(self.portnum + 1),
             "Ice.Admin.InstanceName" : "Glacier2",
         })

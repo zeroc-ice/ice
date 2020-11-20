@@ -3,10 +3,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-serverProps = {
-    "TestAdapter.Endpoints" : "default -h 127.0.0.1",
-    "TestAdapter.AdapterId" : "TestAdapter"
-}
+def serverProps(process, current):
+    return {
+        "TestAdapter.Endpoints" : f"{current.config.transport} -h 127.0.0.1",
+        "TestAdapter.AdapterId" : "TestAdapter"
+    }
 
 registryProps = {
     "IceGrid.Registry.DynamicRegistration" : 1

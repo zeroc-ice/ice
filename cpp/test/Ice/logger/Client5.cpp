@@ -57,7 +57,7 @@ Client5::run(int, char**)
         id.properties->setProperty("Client.Iterations", "4");
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-0.log");
-        id.properties->setProperty("Ice.LogFile.SizeMax", "512");
+        id.properties->setProperty("Ice.LogFile.MaxSize", "512");
 
         Ice::CommunicatorHolder ich = Ice::initialize(id);
         runTest(ich.communicator());
@@ -75,7 +75,7 @@ Client5::run(int, char**)
         id.properties->setProperty("Client.Iterations", "8");
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-1.log");
-        id.properties->setProperty("Ice.LogFile.SizeMax", "0");
+        id.properties->setProperty("Ice.LogFile.MaxSize", "0");
 
         Ice::CommunicatorHolder ich = Ice::initialize(id);
         runTest(ich.communicator());
@@ -93,7 +93,7 @@ Client5::run(int, char**)
         id.properties->setProperty("Client.Iterations", "8");
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-2.log");
-        id.properties->setProperty("Ice.LogFile.SizeMax", "128");
+        id.properties->setProperty("Ice.LogFile.MaxSize", "128");
 
         Ice::CommunicatorHolder ich = Ice::initialize(id);
         runTest(ich.communicator());
@@ -110,7 +110,7 @@ Client5::run(int, char**)
         id.properties->setProperty("Client.Iterations", "8");
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-3.log");
-        id.properties->setProperty("Ice.LogFile.SizeMax", "64");
+        id.properties->setProperty("Ice.LogFile.MaxSize", "64");
 
         Ice::CommunicatorHolder ich = Ice::initialize(id);
         runTest(ich.communicator());
@@ -129,7 +129,7 @@ Client5::run(int, char**)
         id.properties->setProperty("Client.Iterations", "8");
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "log/client5-4.log");
-        id.properties->setProperty("Ice.LogFile.SizeMax", "512");
+        id.properties->setProperty("Ice.LogFile.MaxSize", "512");
 
         Ice::CommunicatorHolder ich = Ice::initialize(id);
         runTest(ich.communicator());

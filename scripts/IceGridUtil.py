@@ -97,7 +97,7 @@ class IceGridNode(ProcessFromBinDir, Server):
             'IceGrid.Node.Trace.Activator' : 0,
             'IceGrid.Node.Trace.Adapter' : 0,
             'IceGrid.Node.Trace.Server' : 0,
-            'IceGrid.Node.ThreadPool.SizeWarn' : 0,
+            'IceGrid.Node.ThreadPool.WarnSize' : 0,
             'IceGrid.Node.PrintServersReady' : 'node',
             'IceGrid.Node.Name' : self.name,
             'IceGrid.Node.Data' : '{testdir}/node-{process.name}',
@@ -166,10 +166,10 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             'Ice.ProgramName' : self.name,
             'Ice.PrintAdapterReady' : 1,
             'Ice.Warn.Connections' : 0,
-            'Ice.ThreadPool.Client.SizeWarn' : 0,
+            'Ice.ThreadPool.Client.WarnSize' : 0,
             'IceGrid.Registry.LMDB.MapSize' : 1,
             'IceGrid.Registry.LMDB.Path' : '{testdir}/registry-{process.name}',
-            'IceGrid.Registry.Client.ThreadPool.SizeWarn' : 0,
+            'IceGrid.Registry.Client.ThreadPool.WarnSize' : 0,
             'IceGrid.Registry.DefaultTemplates' :
                 '"' + os.path.abspath(os.path.join(toplevel, "cpp", "config", "templates.xml")) + '"'
         }
