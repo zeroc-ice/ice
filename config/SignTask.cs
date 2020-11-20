@@ -110,7 +110,7 @@ public class SignTask : Task
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.WorkingDirectory = workingDir;
 
-        var streamReader = new();
+        StreamReader streamReader = new();
         process.OutputDataReceived += new DataReceivedEventHandler(streamReader.ouput);
         process.ErrorDataReceived += new DataReceivedEventHandler(streamReader.error);
 
