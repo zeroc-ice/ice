@@ -483,7 +483,7 @@ namespace ZeroC.Ice
 
         internal abstract void Activate();
 
-        internal bool IsLocal(Endpoint endpoint) => endpoint.IsLocal(Endpoint); // TODO: eliminate
+        internal bool IsLocal(Endpoint endpoint) => endpoint.IsLocal(Endpoint);
 
         internal abstract void UpdateConnectionObservers();
 

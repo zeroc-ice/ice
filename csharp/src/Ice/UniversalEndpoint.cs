@@ -80,6 +80,7 @@ namespace ZeroC.Ice
                 sb.Append(string.Join(",", Data.Options.Select(s => Uri.EscapeDataString(s))));
             }
         }
+
         protected internal override Endpoint Clone(string host) =>
             host == Host ? this :
                 new UniversalEndpoint(new EndpointData(Data.Transport, host, Data.Port, Data.Options),

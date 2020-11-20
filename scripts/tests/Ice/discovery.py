@@ -28,7 +28,6 @@ def props(process, current):
 traceProps = {
     "Ice.Trace.Locator" : 2,
     "Ice.Trace.Protocol" : 1,
-    "Ice.Trace.Transport" : 3
 }
 
 # Suppress the warning lines

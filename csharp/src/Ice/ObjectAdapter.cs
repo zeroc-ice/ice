@@ -54,7 +54,16 @@ namespace ZeroC.Ice
         /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.
         /// <seealso cref="SetPublishedEndpoints"/>
         /// <seealso cref="SetPublishedEndpointsAsync"/></summary>
-        public IReadOnlyList<Endpoint> PublishedEndpoints { get; private set; }
+        public IReadOnlyList<Endpoint> PublishedEndpoints
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _publishedEndpoints;
+                }
+            }
+        }
 
         /// <summary>Returns the replica group ID of this object adapter, or the empty string if this object adapter
         /// does not belong to a replica group.</summary>
@@ -115,6 +124,7 @@ namespace ZeroC.Ice
 
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new();
+        private IReadOnlyList<Endpoint> _publishedEndpoints;
 
         private readonly RouterInfo? _routerInfo;
 
@@ -165,7 +175,7 @@ namespace ZeroC.Ice
                 }
 
                 // In the event _publishedEndpoints is empty, RegisterEndpointsAsync does nothing.
-                _activateTask ??= RegisterEndpointsAsync(PublishedEndpoints, default);
+                _activateTask ??= RegisterEndpointsAsync(_publishedEndpoints, default);
             }
             await _activateTask.ConfigureAwait(false);
 
@@ -497,12 +507,12 @@ namespace ZeroC.Ice
                 ImmutableArray<string> location = ReplicaGroupId.Length > 0 ? ImmutableArray.Create(ReplicaGroupId) :
                     AdapterId.Length > 0 ? ImmutableArray.Create(AdapterId) : ImmutableArray<string>.Empty;
 
-                Protocol protocol = PublishedEndpoints.Count > 0 ? PublishedEndpoints[0].Protocol : Protocol;
+                Protocol protocol = _publishedEndpoints.Count > 0 ? _publishedEndpoints[0].Protocol : Protocol;
 
                 return factory(new Reference(Communicator,
                                              protocol.GetEncoding(),
                                              endpoints: AdapterId.Length == 0 ?
-                                                PublishedEndpoints : ImmutableArray<Endpoint>.Empty,
+                                                _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                              facet,
                                              identity,
                                              invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
@@ -594,7 +604,7 @@ namespace ZeroC.Ice
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
 
-                PublishedEndpoints = publishedEndpoints;
+                _publishedEndpoints = publishedEndpoints;
             }
         }
 
@@ -655,7 +665,7 @@ namespace ZeroC.Ice
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
 
-                PublishedEndpoints = publishedEndpoints;
+                _publishedEndpoints = publishedEndpoints;
             }
         }
 
@@ -673,7 +683,7 @@ namespace ZeroC.Ice
 
             AcceptNonSecure = communicator.AcceptNonSecure;
 
-            PublishedEndpoints = Array.Empty<Endpoint>();
+            _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
 
             AdapterId = "";
@@ -696,7 +706,7 @@ namespace ZeroC.Ice
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
 
-            PublishedEndpoints = Array.Empty<Endpoint>();
+            _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
@@ -758,7 +768,7 @@ namespace ZeroC.Ice
                     Communicator.OutgoingConnectionFactory.SetRouterInfo(_routerInfo);
 
                     // Synchronous remote call!
-                    PublishedEndpoints = router.GetServerEndpoints();
+                    _publishedEndpoints = router.GetServerEndpoints();
                 }
                 else
                 {
@@ -830,7 +840,7 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    PublishedEndpoints = ComputePublishedEndpoints();
+                    _publishedEndpoints = ComputePublishedEndpoints();
                 }
 
                 Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
@@ -1001,7 +1011,7 @@ namespace ZeroC.Ice
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
                     return reference.Endpoints.Any(endpoint =>
-                        PublishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
+                        _publishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
                         _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
             }
