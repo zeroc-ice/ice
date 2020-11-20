@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Discovery
 {
     public sealed class Controller : IController
     {
-        private readonly Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
+        private readonly Dictionary<string, ObjectAdapter> _adapters = new();
 
         public void ActivateObjectAdapter(
             string name,
@@ -25,6 +25,8 @@ namespace ZeroC.Ice.Test.Discovery
             communicator.SetProperty($"{name}.ReplicaGroupId", replicaGroupId);
             communicator.SetProperty($"{name}.Endpoints", ice1 ? $"{transport} -h 127.0.0.1" :
                 $"ice+{transport}://127.0.0.1:0");
+
+            communicator.SetProperty($"{name}.ServerName", "localhost");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();

@@ -8,6 +8,11 @@ namespace ZeroC.Ice.Test.Inheritance
 {
     public sealed class InitialI : IInitial
     {
+        private readonly IAPrx _ia;
+        private readonly IB1Prx _ib1;
+        private readonly IB2Prx _ib2;
+        private readonly ICPrx _ic;
+
         public InitialI(ObjectAdapter adapter)
         {
             _ia = adapter.AddWithUUID(new A(), IAPrx.Factory);
@@ -25,10 +30,5 @@ namespace ZeroC.Ice.Test.Inheritance
 
         public void Shutdown(Current current, CancellationToken cancel) =>
             current.Adapter.Communicator.ShutdownAsync();
-
-        private readonly IAPrx _ia;
-        private readonly IB1Prx _ib1;
-        private readonly IB2Prx _ib2;
-        private readonly ICPrx _ic;
     }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -181,19 +182,18 @@ namespace ZeroC.Ice
         /// <returns>The datagram server side connection.</returns>
         public abstract Connection CreateDatagramServerConnection(ObjectAdapter adapter);
 
-        /// <summary>Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on
-        /// server side or if no host was specified on client side.</summary>
-        /// <returns>The collection containing the expanded endpoints.</returns>
-        public abstract IEnumerable<Endpoint> ExpandIfWildcard();
-
-        /// <summary>Expands endpoint out into separate endpoints for each IP address returned by the DNS resolver.
-        /// Also returns the endpoint which can be used to connect to the returned endpoints or null if no specific
-        /// endpoint can be used to connect to these endpoints (e.g.: with the IP endpoint, it returns this endpoint if
-        /// it uses a fixed port, null otherwise).
+        /// <summary>Expands endpoint into separate endpoints for each IP address returned by the DNS resolver.
         /// </summary>
-        /// <param name="publishedEndpoint">TODO.</param>
-        /// <returns>The collection containing the expanded endpoints.</returns>
-        public abstract IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
+        /// <returns>The expanded endpoints if Host is a DNS name or IP address and an empty collection if this
+        /// endpoint is not usable as an object adapter endpoint.</returns>
+        // TODO: should this be ExpandHostAsync?
+        protected internal virtual IEnumerable<Endpoint> ExpandHost() => ImmutableArray<Endpoint>.Empty;
+
+        /// <summary>Returns the published endpoint for this object adapter endpoint.</summary>
+        /// <param name="serverName">The server name, to be used as the host of the published endpoint when the
+        /// endpoint's type supports DNS resolution of its hosts. Otherwise, <c>serverName</c> is not used.</param>
+        /// <returns>The published endpoint.</returns>
+        protected internal abstract Endpoint GetPublishedEndpoint(string serverName);
 
         /// <summary>Constructs a new endpoint</summary>
         /// <param name="data">The <see cref="EndpointData"/> struct.</param>

@@ -7,6 +7,8 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {
+        private int _nextPort = 10;
+
         public IRemoteObjectAdapterPrx CreateObjectAdapter(
             string name,
             string transport,
@@ -59,7 +61,5 @@ namespace ZeroC.Ice.Test.Binding
 
         public void Shutdown(Current current, CancellationToken cancel) =>
             current.Adapter.Communicator.ShutdownAsync();
-
-        private int _nextPort = 10;
     }
 }

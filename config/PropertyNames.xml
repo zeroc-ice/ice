@@ -269,10 +269,11 @@ generated from the section label.
         <suffix name="Endpoints" />
         <suffix name="IncomingFrameMaxSize" />
         <suffix name="Locator" class="proxy"/>
+        <suffix name="ProxyOptions" />
         <suffix name="PublishedEndpoints" />
         <suffix name="ReplicaGroupId" />
         <suffix name="Router" class="proxy"/>
-        <suffix name="ProxyOptions" />
+        <suffix name="ServerName" />
         <suffix name="ThreadPool" class="threadpool" />
         <!-- TODO: Remove replaced by IncomingFrameMaxSize -->
         <suffix name="MessageMaxSize" />
@@ -399,6 +400,7 @@ generated from the section label.
         <property name="RetryRequestMaxSize" />
         <property name="RetryIntervals" /> <!-- TODO remove -->
         <property name="ServerIdleTime" />
+        <property name="ServerName" />
         <property name="Slic.PacketMaxSize" />
         <property name="SOCKSProxyHost" />
         <property name="SOCKSProxyPort" />

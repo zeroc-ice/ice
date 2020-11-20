@@ -134,6 +134,7 @@ namespace ZeroC.Ice.Test.Admin
                 var properties = new Dictionary<string, string>
                 {
                     ["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0",
+                    ["Ice.ServerName"] = "127.0.0.1",
                     ["Ice.Admin.InstanceName"] = "Test"
                 };
                 using var com = new Communicator(properties);
@@ -144,6 +145,7 @@ namespace ZeroC.Ice.Test.Admin
                 var properties = new Dictionary<string, string>
                 {
                     ["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0",
+                    ["Ice.ServerName"] = "127.0.0.1",
                     ["Ice.Admin.InstanceName"] = "Test",
                     ["Ice.Admin.Facets"] = "Properties"
                 };
@@ -184,6 +186,7 @@ namespace ZeroC.Ice.Test.Admin
                 var properties = new Dictionary<string, string>()
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.DelayCreation", "1" }
                 };
@@ -204,6 +207,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1" },
                     { "Ice.Admin.InstanceName", "Test" }
                 };
                 IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
@@ -223,6 +227,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Prop1", "1" },
                     { "Prop2", "2" },
@@ -240,7 +245,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 // Test: PropertiesAdmin.GetProperties()
                 Dictionary<string, string> pd = pa.GetPropertiesForPrefix("");
-                TestHelper.Assert(pd.Count == 6);
+                TestHelper.Assert(pd.Count == 7);
                 TestHelper.Assert(pd["Ice.ProgramName"] == "server");
                 TestHelper.Assert(pd["Ice.Admin.Endpoints"] == (ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0"));
                 TestHelper.Assert(pd["Ice.Admin.InstanceName"] == "Test");
@@ -286,6 +291,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1" },
                     { "Ice.Admin.InstanceName", "Test" },
                     { "NullLogger", "1" }
                 };
@@ -358,7 +364,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 // Now, test RemoteLogger
                 ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter",
-                    ice1 ? "tcp -h localhost" : "ice+tcp://localhost:0", serializeDispatch: true);
+                    ice1 ? "tcp -h \"::0\"" : "ice+tcp://[::0]:0", serializeDispatch: true);
 
                 var remoteLogger = new RemoteLogger();
 
@@ -437,6 +443,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1"},
                     { "Ice.Admin.InstanceName", "Test" }
                 };
                 IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
@@ -456,6 +463,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1"},
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Properties" }
                 };
@@ -487,6 +495,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1"},
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Process" }
                 };
@@ -518,6 +527,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1"},
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "TestFacet" }
                 };
@@ -549,6 +559,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1"},
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Properties TestFacet" }
                 };
@@ -576,6 +587,7 @@ namespace ZeroC.Ice.Test.Admin
                 var props = new Dictionary<string, string>
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
+                    { "Ice.ServerName", "127.0.0.1"},
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "TestFacet, Process" }
                 };

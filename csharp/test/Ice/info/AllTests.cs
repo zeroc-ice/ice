@@ -75,42 +75,30 @@ namespace ZeroC.Ice.Test.Info
             output.Write("test object adapter endpoint information... ");
             output.Flush();
             {
-                communicator.SetProperty("TestAdapter.Endpoints", "tcp -h \"" + helper.Host +
-                    "\" -t 15000:udp -h \"" + helper.Host + "\"");
+                string serverName = "testhost";
+
+                communicator.SetProperty("TestAdapter.Endpoints",
+                    $"tcp -h \"{helper.Host}\" -p 0 -t 15000");
                 communicator.SetProperty("TestAdapter.AcceptNonSecure", "True");
+                communicator.SetProperty("TestAdapter.ServerName", serverName);
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 IReadOnlyList<Endpoint> endpoints = adapter.GetEndpoints();
-                TestHelper.Assert(endpoints.Count == 2);
+                TestHelper.Assert(endpoints.Count == 1);
                 IReadOnlyList<Endpoint> publishedEndpoints = adapter.PublishedEndpoints;
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
                 Endpoint tcpEndpoint = endpoints[0];
                 TestHelper.Assert(tcpEndpoint != null);
-                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP ||
-                                  tcpEndpoint.Transport == Transport.SSL ||
-                                  tcpEndpoint.Transport == Transport.WS ||
-                                  tcpEndpoint.Transport == Transport.WSS);
+                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP);
 
-                TestHelper.Assert(tcpEndpoint.Host == helper.Host);
+                TestHelper.Assert(tcpEndpoint.Host == serverName);
                 TestHelper.Assert(tcpEndpoint.Port > 0);
                 TestHelper.Assert(tcpEndpoint["timeout"] is string value && int.Parse(value) == 15000);
-
-                Endpoint udpEndpoint = endpoints[1];
-                TestHelper.Assert(udpEndpoint.Host == helper.Host);
-                TestHelper.Assert(udpEndpoint.IsDatagram);
-                TestHelper.Assert(udpEndpoint.Port > 0);
-                TestHelper.Assert(!udpEndpoint.IsAlwaysSecure);
-
-                endpoints = new List<Endpoint> { endpoints[0] };
-
-                adapter.SetPublishedEndpoints(endpoints);
-                publishedEndpoints = adapter.PublishedEndpoints;
-                TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
-
                 adapter.Dispose();
 
                 int port = helper.BasePort + 1;
+
                 communicator.SetProperty("TestAdapter.Endpoints",
                     ice1 ? $"{transport} -h 0.0.0.0 -p {port}" : $"ice+{transport}://0.0.0.0:{port}");
                 communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.GetTestEndpoint(1));

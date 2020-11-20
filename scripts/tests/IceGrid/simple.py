@@ -24,7 +24,6 @@ def clientProps(process, current):
             "Ice.LocatorDiscovery.RetryCount": 5,
             "Ice.LocatorDiscovery.Lookup":
                 f"udp -h 239.255.0.1 -p {port} --interface 127.0.0.1:udp -h \"ff15::1\" -p {port} --interface \"::1\"",
-            "Ice.LocatorDiscovery.Reply.Endpoints": "udp -h 127.0.0.1 -p 0:udp -h \"::1\" -p 0",
         }
     else:
         return {

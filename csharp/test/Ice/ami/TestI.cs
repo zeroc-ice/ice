@@ -8,7 +8,10 @@ namespace ZeroC.Ice.Test.AMI
 {
     public class TestIntf : ITestIntf
     {
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
+        private bool _shutdown;
+        private TaskCompletionSource<object?>? _pending;
+        private int _value;
 
         public void Op(Current current, CancellationToken cancel)
         {
@@ -148,10 +151,6 @@ namespace ZeroC.Ice.Test.AMI
             TestHelper.Assert(_value == previousValue);
             _value = newValue;
         }
-
-        private bool _shutdown;
-        private TaskCompletionSource<object?>? _pending;
-        private int _value;
     }
 
     public class TestIntf2 : Outer.Inner.ITestIntf

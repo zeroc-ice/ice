@@ -957,8 +957,8 @@ namespace ZeroC.Ice.Test.Proxy
                 ICallbackPrx callback = oa.AddWithUUID(
                     new Callback((relativeTest, current, cancel) =>
                                  {
-                                    TestHelper.Assert(relativeTest.IsFixed);
-                                    return relativeTest.DoIt(cancel: cancel);
+                                     TestHelper.Assert(relativeTest.IsFixed);
+                                     return relativeTest.DoIt(cancel: cancel);
                                  }),
                     ICallbackPrx.Factory).Clone(encoding: Encoding.V20, relative: true);
                 TestHelper.Assert(callback.IsRelative);

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,6 +91,7 @@ namespace ZeroC.Ice
             "Locator.ConnectionCached",
             "Locator.PreferNonSecure",
             "Locator.Router",
+            "ProxyOptions",
             "PublishedEndpoints",
             "ReplicaGroupId",
             "Router",
@@ -105,7 +107,7 @@ namespace ZeroC.Ice
             "Router.Locator.InvocationTimeout",
             "Router.LocatorCacheTimeout",
             "Router.InvocationTimeout",
-            "ProxyOptions"
+            "ServerName"
         };
 
         private Task? _activateTask;
@@ -798,18 +800,35 @@ namespace ZeroC.Ice
                             }
                         }
 
+                        if (endpoints.Any(endpoint => endpoint is IPEndpoint ipEndpoint && ipEndpoint.Port == 0))
+                        {
+                            if (endpoints.Count > 1)
+                            {
+                                throw new InvalidConfigurationException(@$"object adapter `{Name
+                                    }': only one endpoint is allowed when a dynamic IP port (:0) is configured");
+                            }
+
+                            if (endpoints[0] is IPEndpoint ipEndpoint && ipEndpoint.Address == IPAddress.None)
+                            {
+                                throw new InvalidConfigurationException(@$"object adapter `{Name
+                                    }': use an IP address to configure an endpoint with a dynamic port (:0)");
+                            }
+                        }
+
+                        string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
+
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
-                            endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
+                            endpoint.ExpandHost().Select(expanded =>
                                 expanded.IsDatagram ?
                                     (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(
                                         this,
                                         expanded,
-                                        publishedEndpoint) :
-                                    new AcceptorIncomingConnectionFactory(this, expanded, publishedEndpoint))));
+                                        serverName) :
+                                    new AcceptorIncomingConnectionFactory(this, expanded, serverName))));
                     }
                     else
                     {
-                        // This OA is mostly likely used for colocation, unless a router is set.
+                        // This OA is most likely used for colocation, unless a router is set.
                         Protocol = router != null ? router.Protocol : Protocol.Ice2;
                     }
 
@@ -953,7 +972,7 @@ namespace ZeroC.Ice
                 {
                     _colocatedConnectionFactory = new AcceptorIncomingConnectionFactory(this,
                                                                                         new ColocatedEndpoint(this),
-                                                                                        null);
+                                                                                        "");
 
                     // It's safe to start the connection within the synchronization, this isn't supposed to block for
                     // colocated connections.
@@ -1037,14 +1056,10 @@ namespace ZeroC.Ice
             if (endpoints.Count == 0)
             {
                 // If the PublishedEndpoints property isn't set, we compute the published endpoints from the OA
-                // endpoints, expanding any endpoint that may be listening on INADDR_ANY to include actual addresses
-                // in the published endpoints.
-                // We also filter out duplicate endpoints, this might occur if an endpoint with a DNS name
-                // expands to multiple addresses. In this case, multiple incoming connection factories can point to
-                // the same published endpoint.
+                // endpoints and eliminate duplicates.
 
-                endpoints = _incomingConnectionFactories.SelectMany(factory =>
-                    factory.PublishedEndpoint.ExpandIfWildcard()).Distinct().ToImmutableArray();
+                endpoints = _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).Distinct().
+                    ToImmutableArray();
             }
 
             if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)

@@ -550,19 +550,19 @@ namespace ZeroC.Ice
 
             if (BidirectionalStreamSemaphore == null)
             {
-                throw new InvalidDataException("missing MaxBidirectionalStreams Slic transport parameter");
+                throw new InvalidDataException("missing MaxBidirectionalStreams Slic connection parameter");
             }
 
             if (UnidirectionalStreamSemaphore == null)
             {
-                throw new InvalidDataException("missing MaxUnidirectionalStreams Slic transport parameter");
+                throw new InvalidDataException("missing MaxUnidirectionalStreams Slic connection parameter");
             }
 
             if (IsIncoming && peerIdleTimeout == null)
             {
                 // The client must send its idle timeout parameter. A server can however omit the idle timeout if its
                 // configured idle timeout is larger than the client's idle timeout.
-                throw new InvalidDataException("missing IdleTimeout Slic transport parameter");
+                throw new InvalidDataException("missing IdleTimeout Slic connection parameter");
             }
         }
 
@@ -641,14 +641,12 @@ namespace ZeroC.Ice
             bool writeIdleTimeout = !IsIncoming || Endpoint.Communicator.IdleTimeout < _idleTimeout;
 
             ostr.WriteSize(writeIdleTimeout ? 3 : 2);
-
             ostr.WriteBinaryContextEntry((int)ParameterKey.MaxBidirectionalStreams,
                                          (ulong)MaxBidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
             ostr.WriteBinaryContextEntry((int)ParameterKey.MaxUnidirectionalStreams,
                                          (ulong)MaxUnidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
-
             if (writeIdleTimeout)
             {
                 ostr.WriteBinaryContextEntry((int)ParameterKey.IdleTimeout,
