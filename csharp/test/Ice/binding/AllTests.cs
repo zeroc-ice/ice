@@ -502,19 +502,12 @@ namespace ZeroC.Ice.Test.Binding
                     }
                 }
 
-                // Test IPv6 only socket
+                // Test IPv6 only endpoints
                 {
                     using Communicator serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6Only" : "?ipv6-only=true");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     oa.Activate();
-
-                    // Returned endpoints must be IPv6
-                    {
-                        IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
-                        TestHelper.Assert(prx.Endpoints.Count > 0);
-                        TestHelper.Assert(prx.Endpoints.All(e => e.Host.Contains(":")));
-                    }
 
                     // 0.0.0.0 can still be bound if ::0 is IPv6 only
                     {
@@ -553,13 +546,6 @@ namespace ZeroC.Ice.Test.Binding
                     catch (TransportException)
                     {
                         // Expected. 127.0.0.1 is already in use
-                    }
-
-                    // Returned endpoint must be IPv6
-                    {
-                        IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
-                        TestHelper.Assert(prx.Endpoints.Count == 1);
-                        TestHelper.Assert(prx.Endpoints.All(e => e.Host.Contains(":")));
                     }
 
                     try

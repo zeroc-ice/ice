@@ -138,6 +138,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
+
                     try
                     {
                         server.IcePing();
@@ -553,7 +554,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // Test using localhost as target host.
                         var props = new Dictionary<string, string>(defaultProperties)
                         {
-                            ["Test.Host"] = "localhost"
+                            ["Test.Host"] = "localhost",
+                            ["Ice.ServerName"] = "localhost",
                         };
 
                         // This must succeed, the target host matches the certificate DNS altName.

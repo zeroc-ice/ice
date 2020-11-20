@@ -66,14 +66,6 @@ namespace ZeroC.Ice
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
-        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
-        {
-            publishedEndpoint = null;
-            return new Endpoint[] { this };
-        }
-
-        public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
-
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
             sb.Append("transport=");
@@ -86,6 +78,9 @@ namespace ZeroC.Ice
                 sb.Append(string.Join(",", Data.Options.Select(s => Uri.EscapeDataString(s))));
             }
         }
+
+        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
+            throw new NotSupportedException("cannot create published endpoint for universal endpoint");
 
         protected internal override void WriteOptions(OutputStream ostr) =>
             Debug.Assert(false); // WriteOptions is only for ice1.

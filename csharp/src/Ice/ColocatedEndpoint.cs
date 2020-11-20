@@ -39,14 +39,11 @@ namespace ZeroC.Ice
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
-        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish) =>
-            throw new NotSupportedException("colocated endpoint can't be used for object adapter endpoints");
-
-        public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
-
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
         {
         }
+
+        protected internal override Endpoint GetPublishedEndpoint(string serverName) => this;
 
         internal ColocatedEndpoint(ObjectAdapter adapter)
             : base(new EndpointData(Transport.Colocated, host: adapter.Name, port: 0, Array.Empty<string>()),

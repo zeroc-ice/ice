@@ -93,20 +93,6 @@ namespace ZeroC.Ice
             return socket;
         }
 
-        internal static IEnumerable<IPEndPoint> GetAddresses(string host, int port, int ipVersion)
-        {
-            try
-            {
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
-                return task.IsCompleted ? task.Result : task.AsTask().Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
         internal static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(
             string host,
             int port,
