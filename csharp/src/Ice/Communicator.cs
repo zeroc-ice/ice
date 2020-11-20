@@ -166,6 +166,7 @@ namespace ZeroC.Ice
         internal int RetryMaxAttempts { get; }
         internal int RetryBufferMaxSize { get; }
         internal int RetryRequestMaxSize { get; }
+        internal string ServerName { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
         internal bool WarnConnections { get; }
@@ -500,6 +501,8 @@ namespace ZeroC.Ice
                 }
 
                 KeepAlive = GetPropertyAsBool("Ice.KeepAlive") ?? false;
+
+                ServerName = GetProperty("Ice.ServerName") ?? Dns.GetHostName();
 
                 MaxBidirectionalStreams = GetPropertyAsInt("Ice.MaxBidirectionalStreams") ?? 100;
                 if (MaxBidirectionalStreams < 1)
