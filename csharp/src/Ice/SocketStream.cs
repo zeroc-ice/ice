@@ -178,24 +178,25 @@ namespace ZeroC.Ice
                 // Read the protocol parameters which are encoded with the binary context encoding.
                 var istr = new InputStream(data, Ice2Definitions.Encoding);
                 int dictionarySize = istr.ReadSize();
-                var parameters = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
                 for (int i = 0; i < dictionarySize; ++i)
                 {
-                    int key = istr.ReadVarInt();
-                    int entrySize = istr.ReadSize();
-                    if (!parameters.TryAdd(key, data.Slice(istr.Pos, entrySize)))
+                    (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
+                    if (key == (int)Ice2ParameterKey.OutgoingFrameMaxSize)
                     {
-                        throw new InvalidDataException($"duplicate Ice2 protocol parameter `{key}");
+                        checked
+                        {
+                            _socket.OutgoingFrameMaxSize = (int)value.Span.ReadVarULong().Value;
+                        }
                     }
-                    istr.Skip(entrySize);
+                    else
+                    {
+                        // Ignore unsupported parameters.
+                    }
                 }
 
-                if (parameters.TryGetValue((int)Ice2ParameterKey.OutgoingFrameMaxSize, out ReadOnlyMemory<byte> value))
+                if (_socket.OutgoingFrameMaxSize == null)
                 {
-                    checked
-                    {
-                        _socket.OutgoingFrameMaxSize = (int)value.Span.ReadVarULong().Value;
-                    }
+                    throw new InvalidDataException("missing OutgoingFrameMaxSize Ice2 connection parameter");
                 }
             }
         }

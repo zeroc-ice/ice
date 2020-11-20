@@ -33,10 +33,8 @@ namespace ZeroC.Ice
                         var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
                         for (int i = 0; i < dictionarySize; ++i)
                         {
-                            int key = istr.ReadVarInt();
-                            int entrySize = istr.ReadSize();
-                            binaryContext[key] = buffer.AsReadOnlyMemory(istr.Pos, entrySize);
-                            istr.Skip(entrySize);
+                            (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
+                            binaryContext[key] = value;
                         }
 
                         _binaryContext = binaryContext;
