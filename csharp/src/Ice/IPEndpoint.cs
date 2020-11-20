@@ -219,19 +219,57 @@ namespace ZeroC.Ice
 
         protected internal override IEnumerable<Endpoint> ExpandHost()
         {
-            IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host, Port, Network.EnableBoth);
-
-            if (addresses.Count() == 1)
+            if (Address == IPAddress.None) // DNS name
             {
-                return ImmutableArray.Create(this);
+                try
+                {
+                    return ExpandDnsHostAsync().Result;
+                }
+                catch (AggregateException ex)
+                {
+                    throw ExceptionUtil.Throw(ex.InnerException!);
+                }
             }
             else
             {
-                return addresses.Select(address => Clone(address.Address.ToString(), (ushort)address.Port));
+                return ImmutableArray.Create(this);
+            }
+
+            async Task<IEnumerable<Endpoint>> ExpandDnsHostAsync(CancellationToken cancel = default)
+            {
+                try
+                {
+                    IPAddress[] addresses =
+                        await Dns.GetHostAddressesAsync(Host).WaitAsync(cancel).ConfigureAwait(false);
+
+                    return addresses.Select(
+                        address =>
+                        {
+                            IPEndpoint expanded = Clone(address.ToString(), Port);
+                            expanded._address = address;
+                            return expanded;
+                        });
+                }
+                catch (Exception ex)
+                {
+                    throw new DNSException(Host, ex);
+                }
             }
         }
 
-        internal IPEndpoint Clone(ushort port) => port == Port ? this : Clone(Host, port);
+        internal IPEndpoint Clone(ushort port)
+        {
+            if (port == Port)
+            {
+                return this;
+            }
+            else
+            {
+                IPEndpoint clone = Clone(Host, port);
+                clone._address = _address;
+                return clone;
+            }
+        }
 
         private protected static bool ParseCompress(Dictionary<string, string?> options, string endpointString)
         {
