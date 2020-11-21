@@ -33,6 +33,10 @@ namespace ZeroC.Ice
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
 
+        /// <summary>Returns the endpoints this object adapter is listening on.</summary>
+        /// <returns>The endpoints. All IP endpoints have IP addresses, not DNS names.</returns>
+        public IReadOnlyList<Endpoint> Endpoints { get; } = ImmutableArray<Endpoint>.Empty;
+
         /// <summary>The Ice Locator associated with this object adapter, if any. The object adapter registers itself
         /// with this locator during <see cref="ActivateAsync"/>.</summary>
         /// <value>The locator proxy.</value>
@@ -115,7 +119,7 @@ namespace ZeroC.Ice
 
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new();
-        private volatile IReadOnlyList<Endpoint> _publishedEndpoints;
+        private volatile IReadOnlyList<Endpoint> _publishedEndpoints = ImmutableArray<Endpoint>.Empty;
 
         private readonly RouterInfo? _routerInfo;
 
@@ -538,17 +542,6 @@ namespace ZeroC.Ice
             return CreateProxy(identity, facet, factory);
         }
 
-        /// <summary>Retrieves the endpoints configured with this object adapter.</summary>
-        /// <returns>The endpoints.</returns>
-        // TODO: do we need this method? If yes, provide better documentation.
-        public IReadOnlyList<Endpoint> GetEndpoints()
-        {
-            lock (_mutex)
-            {
-                return _incomingConnectionFactories.Select(factory => factory.Endpoint).ToImmutableArray();
-            }
-        }
-
         /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
         /// </summary>
         /// <param name="newEndpoints">The new published endpoints.</param>
@@ -616,7 +609,6 @@ namespace ZeroC.Ice
 
             AcceptNonSecure = communicator.AcceptNonSecure;
 
-            _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
 
             AdapterId = "";
@@ -639,7 +631,6 @@ namespace ZeroC.Ice
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
 
-            _publishedEndpoints = Array.Empty<Endpoint>();
             _routerInfo = null;
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
@@ -755,6 +746,8 @@ namespace ZeroC.Ice
                                         this,
                                         expanded) :
                                     new AcceptorIncomingConnectionFactory(this, expanded))));
+
+                        Endpoints = _incomingConnectionFactories.Select(factory => factory.Endpoint).ToImmutableArray();
                     }
                     else
                     {
@@ -771,7 +764,31 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    _publishedEndpoints = ComputePublishedEndpoints();
+                    if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string publishedEndpointsValue)
+                    {
+                        _publishedEndpoints = UriParser.IsEndpointUri(publishedEndpointsValue) ?
+                            UriParser.ParseEndpoints(publishedEndpointsValue, Communicator) :
+                            Ice1Parser.ParseEndpoints(publishedEndpointsValue, Communicator, oaEndpoints: false);
+                    }
+
+                    if (_publishedEndpoints.Count == 0)
+                    {
+                        // If the PublishedEndpoints config property isn't set, we compute the published endpoints.
+
+                        string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
+
+                        _publishedEndpoints = Endpoints.Select(endpoint => endpoint.GetPublishedEndpoint(serverName)).
+                            Distinct().ToImmutableArray();
+                    }
+
+                    if (Communicator.TraceLevels.Transport >= 1 && _publishedEndpoints.Count > 0)
+                    {
+                        var sb = new StringBuilder("published endpoints for object adapter `");
+                        sb.Append(Name);
+                        sb.Append("':\n");
+                        sb.AppendEndpointList(_publishedEndpoints);
+                        Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
+                    }
                 }
 
                 Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
@@ -961,43 +978,6 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException("identity name cannot be empty", nameof(identity));
             }
-        }
-
-        private IReadOnlyList<Endpoint> ComputePublishedEndpoints()
-        {
-            Debug.Assert(_routerInfo == null);
-            IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
-
-            if (Name.Length > 0)
-            {
-                if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
-                {
-                    endpoints = UriParser.IsEndpointUri(value) ? UriParser.ParseEndpoints(value, Communicator) :
-                        Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
-                }
-
-                if (endpoints.Count == 0)
-                {
-                    // If the PublishedEndpoints config property isn't set, we compute the published endpoints.
-                    // We use the factory endpoint(s) in case an endpoint of this object adapter uses a dynamic IP port:
-                    // the factory's endpoint provides the actual assigned port.
-
-                    string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
-
-                    endpoints = _incomingConnectionFactories.Select(
-                        factory => factory.Endpoint.GetPublishedEndpoint(serverName)).Distinct().ToImmutableArray();
-                }
-
-                if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)
-                {
-                    var sb = new StringBuilder("published endpoints for object adapter `");
-                    sb.Append(Name);
-                    sb.Append("':\n");
-                    sb.AppendEndpointList(endpoints);
-                    Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
-                }
-            }
-            return endpoints;
         }
 
         private async Task RegisterEndpointsAsync(IReadOnlyList<Endpoint> endpoints, CancellationToken cancel)

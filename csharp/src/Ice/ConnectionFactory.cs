@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -548,6 +549,9 @@ namespace ZeroC.Ice
             _adapter = adapter;
             _acceptor = endpoint.Acceptor(this, _adapter);
             Endpoint = _acceptor.Endpoint;
+
+            // If Endpoint is an IP endpoint, it must have an IP address, not a DNS name.
+            Debug.Assert((Endpoint as IPEndpoint)?.Address != IPAddress.None);
 
             if (_communicator.TraceLevels.Transport >= 1)
             {
