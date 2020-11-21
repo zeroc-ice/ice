@@ -75,7 +75,7 @@ namespace ZeroC.Ice.Test.Info
             output.Write("test object adapter endpoint information... ");
             output.Flush();
             {
-                string serverName = "testhost";
+                string serverName = helper.Host;
 
                 communicator.SetProperty("TestAdapter.Endpoints",
                     $"tcp -h \"{helper.Host}\" -p 0 -t 15000");

@@ -54,16 +54,7 @@ namespace ZeroC.Ice
         /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.
         /// <seealso cref="SetPublishedEndpoints"/>
         /// <seealso cref="SetPublishedEndpointsAsync"/></summary>
-        public IReadOnlyList<Endpoint> PublishedEndpoints
-        {
-            get
-            {
-                lock (_mutex)
-                {
-                    return _publishedEndpoints;
-                }
-            }
-        }
+        public IReadOnlyList<Endpoint> PublishedEndpoints => _publishedEndpoints;
 
         /// <summary>Returns the replica group ID of this object adapter, or the empty string if this object adapter
         /// does not belong to a replica group.</summary>
@@ -124,7 +115,7 @@ namespace ZeroC.Ice
 
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new();
-        private IReadOnlyList<Endpoint> _publishedEndpoints;
+        private volatile IReadOnlyList<Endpoint> _publishedEndpoints;
 
         private readonly RouterInfo? _routerInfo;
 
@@ -554,57 +545,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                return _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).ToImmutableArray();
-            }
-        }
-
-        /// <summary>Refreshes the set of published endpoints. The runtime rereads the PublishedEndpoints property
-        /// (if set) and rereads the list of local interfaces if the adapter is configured to listen on all endpoints.
-        /// This method is useful when the network interfaces of the host changes: it allows you to refresh the
-        /// endpoint information published in the proxies created by this object adapter.</summary>
-        /// <param name="cancel">The cancellation token.</param>
-        public void RefreshPublishedEndpoints(CancellationToken cancel = default)
-        {
-            try
-            {
-                RefreshPublishedEndpointsAsync(cancel).Wait(cancel);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        /// <summary>Refreshes the set of published endpoints. The Ice runtime rereads the PublishedEndpoints property
-        /// (if set) and rereads the list of local interfaces if the adapter is configured to listen on all endpoints.
-        /// This method is useful when the network interfaces of the host changes: it allows you to refresh the
-        /// endpoint information published in the proxies created by this object adapter.</summary>
-        /// <param name="cancel">The cancellation token.</param>
-        public async Task RefreshPublishedEndpointsAsync(CancellationToken cancel = default)
-        {
-            IReadOnlyList<Endpoint> publishedEndpoints = _routerInfo == null ? ComputePublishedEndpoints() :
-                await _routerInfo.Router.GetServerEndpointsAsync(cancel).ConfigureAwait(false);
-
-            // We always call the LocatorRegistry, even nothing changed.
-            if (publishedEndpoints.Count > 0)
-            {
-                await RegisterEndpointsAsync(publishedEndpoints, cancel).ConfigureAwait(false);
-            }
-            else
-            {
-                // This means the object adapter lost all its published endpoints, which should be very unusual.
-                await UnregisterEndpointsAsync(cancel).ConfigureAwait(false);
-            }
-
-            lock (_mutex)
-            {
-                if (_disposeTask != null)
-                {
-                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
-                }
-
-                _publishedEndpoints = publishedEndpoints;
+                return _incomingConnectionFactories.Select(factory => factory.Endpoint).ToImmutableArray();
             }
         }
 
@@ -658,15 +599,7 @@ namespace ZeroC.Ice
 
             await RegisterEndpointsAsync(publishedEndpoints, cancel).ConfigureAwait(false);
 
-            lock (_mutex)
-            {
-                if (_disposeTask != null)
-                {
-                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
-                }
-
-                _publishedEndpoints = publishedEndpoints;
-            }
+            _publishedEndpoints = publishedEndpoints;
         }
 
         // Called by Communicator to create a nameless ObjectAdapter
@@ -815,16 +748,13 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
-
                         _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
                             endpoint.ExpandHost().Select(expanded =>
                                 expanded.IsDatagram ?
                                     (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(
                                         this,
-                                        expanded,
-                                        serverName) :
-                                    new AcceptorIncomingConnectionFactory(this, expanded, serverName))));
+                                        expanded) :
+                                    new AcceptorIncomingConnectionFactory(this, expanded))));
                     }
                     else
                     {
@@ -971,15 +901,14 @@ namespace ZeroC.Ice
                 if (_colocatedConnectionFactory == null)
                 {
                     _colocatedConnectionFactory = new AcceptorIncomingConnectionFactory(this,
-                                                                                        new ColocatedEndpoint(this),
-                                                                                        "");
+                                                                                        new ColocatedEndpoint(this));
 
                     // It's safe to start the connection within the synchronization, this isn't supposed to block for
                     // colocated connections.
                     _colocatedConnectionFactory.Activate();
                 }
             }
-            return _colocatedConnectionFactory.PublishedEndpoint;
+            return _colocatedConnectionFactory.Endpoint;
         }
 
         internal bool IsLocal(Reference reference)
@@ -1039,38 +968,35 @@ namespace ZeroC.Ice
             Debug.Assert(_routerInfo == null);
             IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
 
-            // Parse published endpoints. If set, these are used in proxies instead of the connection factory
-            // endpoints.
-            if (Name.Length > 0 && Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
+            if (Name.Length > 0)
             {
-                if (UriParser.IsEndpointUri(value))
+                if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
                 {
-                    endpoints = UriParser.ParseEndpoints(value, Communicator);
+                    endpoints = UriParser.IsEndpointUri(value) ? UriParser.ParseEndpoints(value, Communicator) :
+                        Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
                 }
-                else
+
+                if (endpoints.Count == 0)
                 {
-                    endpoints = Ice1Parser.ParseEndpoints(value, Communicator, oaEndpoints: false);
+                    // If the PublishedEndpoints config property isn't set, we compute the published endpoints.
+                    // We use the factory endpoint(s) in case an endpoint of this object adapter uses a dynamic IP port:
+                    // the factory's endpoint provides the actual assigned port.
+
+                    string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
+
+                    endpoints = _incomingConnectionFactories.Select(
+                        factory => factory.Endpoint.GetPublishedEndpoint(serverName)).Distinct().ToImmutableArray();
+                }
+
+                if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)
+                {
+                    var sb = new StringBuilder("published endpoints for object adapter `");
+                    sb.Append(Name);
+                    sb.Append("':\n");
+                    sb.AppendEndpointList(endpoints);
+                    Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
                 }
             }
-
-            if (endpoints.Count == 0)
-            {
-                // If the PublishedEndpoints property isn't set, we compute the published endpoints from the OA
-                // endpoints and eliminate duplicates.
-
-                endpoints = _incomingConnectionFactories.Select(factory => factory.PublishedEndpoint).Distinct().
-                    ToImmutableArray();
-            }
-
-            if (Communicator.TraceLevels.Transport >= 1 && endpoints.Count > 0)
-            {
-                var sb = new StringBuilder("published endpoints for object adapter `");
-                sb.Append(Name);
-                sb.Append("':\n");
-                sb.AppendEndpointList(endpoints);
-                Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
-            }
-
             return endpoints;
         }
 

@@ -475,9 +475,7 @@ namespace ZeroC.Ice
 
     internal abstract class IncomingConnectionFactory : IAsyncDisposable
     {
-        internal abstract Endpoint PublishedEndpoint { get; }
-
-        private protected abstract Endpoint Endpoint { get; }
+        internal abstract Endpoint Endpoint { get; }
 
         public abstract ValueTask DisposeAsync();
 
@@ -491,8 +489,7 @@ namespace ZeroC.Ice
     // IncomingConnectionFactory for acceptor based transports.
     internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
     {
-        internal override Endpoint PublishedEndpoint { get; }
-        private protected override Endpoint Endpoint { get; }
+        internal override Endpoint Endpoint { get; }
 
         private readonly IAcceptor _acceptor;
         private Task? _acceptTask;
@@ -545,14 +542,12 @@ namespace ZeroC.Ice
 
         public override string ToString() => _acceptor.ToString()!;
 
-        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, string serverName)
+        internal AcceptorIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint)
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
             _acceptor = endpoint.Acceptor(this, _adapter);
-
             Endpoint = _acceptor.Endpoint;
-            PublishedEndpoint = Endpoint.GetPublishedEndpoint(serverName);
 
             if (_communicator.TraceLevels.Transport >= 1)
             {
@@ -651,8 +646,7 @@ namespace ZeroC.Ice
     // IncomingConnectionFactory for datagram based transports
     internal sealed class DatagramIncomingConnectionFactory : IncomingConnectionFactory
     {
-        internal override Endpoint PublishedEndpoint { get; }
-        private protected override Endpoint Endpoint { get; }
+        internal override Endpoint Endpoint { get; }
 
         private readonly Connection _connection;
 
@@ -665,11 +659,10 @@ namespace ZeroC.Ice
 
         public override string ToString() => _connection.ToString()!;
 
-        internal DatagramIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, string serverName)
+        internal DatagramIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint)
         {
             _connection = endpoint.CreateDatagramServerConnection(adapter);
             Endpoint = _connection.Endpoint;
-            PublishedEndpoint = Endpoint.GetPublishedEndpoint(serverName);
             _ = _connection.InitializeAsync();
         }
 
