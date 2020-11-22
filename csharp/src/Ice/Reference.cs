@@ -202,6 +202,16 @@ namespace ZeroC.Ice
                 property = $"{propertyPrefix}.Router";
                 if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
                 {
+                    if (protocol != Protocol.Ice1)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"`{property}={communicator.GetProperty(property)}': only an ice1 proxy can have a router");
+                    }
+                    if (router.Protocol != Protocol.Ice1)
+                    {
+                        throw new InvalidConfigurationException(@$"`{property}={communicator.GetProperty(property)
+                            }': a router proxy must use the ice1 protocol");
+                    }
                     if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
                     {
                         throw new InvalidConfigurationException(
@@ -229,7 +239,7 @@ namespace ZeroC.Ice
                                  preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
                                  protocol: protocol,
                                  relative: relative,
-                                 routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
+                                 routerInfo: communicator.GetRouterInfo(communicator.DefaultRouter));
         }
 
         /// <inheritdoc/>
@@ -1319,11 +1329,18 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException($"cannot set both {nameof(locator)} and {nameof(clearLocator)}");
                 }
+                if (Protocol != Protocol.Ice1 && router != null)
+                {
+                    throw new ArgumentException("only an ice1 proxy can have a router", nameof(router));
+                }
                 if (router != null && clearRouter)
                 {
                     throw new ArgumentException($"cannot set both {nameof(router)} and {nameof(clearRouter)}");
                 }
-
+                if (router != null && router.Protocol != Protocol.Ice1)
+                {
+                    throw new ArgumentException($"{nameof(router)} must be an ice1 proxy", nameof(router));
+                }
                 if (locatorCacheTimeout != null &&
                     locatorCacheTimeout < TimeSpan.Zero && locatorCacheTimeout != Timeout.InfiniteTimeSpan)
                 {

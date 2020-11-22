@@ -1296,7 +1296,7 @@ namespace ZeroC.Ice
         internal RouterInfo? GetRouterInfo(IRouterPrx? router)
         {
             // Returns router info for a given router. Automatically creates the router info if it doesn't exist yet.
-            if (router != null)
+            if (router?.Protocol == Protocol.Ice1)
             {
                 // The router cannot be routed.
                 return _routerInfoTable.GetOrAdd(router.Clone(clearRouter: true), key => new RouterInfo(key));
