@@ -100,13 +100,11 @@ namespace ZeroC.Ice
 
         internal TcpAcceptor(TcpEndpoint endpoint, IConnectionManager manager, ObjectAdapter adapter)
         {
+            Debug.Assert(endpoint.Address != IPAddress.None); // not a DNS name
+
             _manager = manager;
             _adapter = adapter;
-
-            _addr = Network.GetAddressForServerEndpoint(endpoint.Host,
-                                                        endpoint.Port,
-                                                        Network.EnableBoth);
-
+            _addr = new IPEndPoint(endpoint.Address, endpoint.Port);
             _socket = Network.CreateServerSocket(endpoint, _addr.AddressFamily);
 
             try

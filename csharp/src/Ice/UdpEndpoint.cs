@@ -38,6 +38,8 @@ namespace ZeroC.Ice
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
         {
+            Debug.Assert(Address != IPAddress.None); // i.e. not a DNS name
+
             var socket = new UdpSocket(this, Communicator);
             try
             {

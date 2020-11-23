@@ -162,25 +162,6 @@ namespace ZeroC.Ice
             return await GetAddressesAsync(host, port, ipVersion, cancel).ConfigureAwait(false);
         }
 
-        internal static IPEndPoint GetAddressForServerEndpoint(string host, int port, int ipVersion)
-        {
-            // TODO: Fix this method to be asynchronous.
-
-            Debug.Assert(host.Length > 0);
-
-            try
-            {
-                // Get the addresses for the given host and return the first one
-                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(host, port, ipVersion);
-                return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
         internal static List<string> GetHostsForEndpointExpand(string host, int ipVersion, bool includeLoopback)
         {
             var hosts = new List<string>();
