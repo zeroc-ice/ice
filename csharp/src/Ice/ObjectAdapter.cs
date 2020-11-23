@@ -608,9 +608,6 @@ namespace ZeroC.Ice
             TaskScheduler = scheduler;
 
             AcceptNonSecure = communicator.AcceptNonSecure;
-
-            _routerInfo = null;
-
             AdapterId = "";
             ReplicaGroupId = "";
             Protocol = protocol;
@@ -630,8 +627,6 @@ namespace ZeroC.Ice
             Name = name;
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
-
-            _routerInfo = null;
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
 
@@ -666,18 +661,27 @@ namespace ZeroC.Ice
 
             try
             {
+                if (router != null && router.Protocol != Protocol.Ice1)
+                {
+                    throw new ArgumentException($"{nameof(router)} must be an ice1 proxy", nameof(router));
+                }
+
                 router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
 
                 if (router != null)
                 {
                     Protocol = router.Protocol;
+                    if (Protocol != Protocol.Ice1)
+                    {
+                        throw new InvalidConfigurationException($"{Name}.Router must be an ice1 proxy");
+                    }
                     _routerInfo = Communicator.GetRouterInfo(router);
                     Debug.Assert(_routerInfo != null);
 
                     // Make sure this router is not already registered with another adapter.
                     if (_routerInfo.Adapter != null)
                     {
-                        throw new ArgumentException($"router `{router}' already registered with an object adapter",
+                        throw new ArgumentException($"router `{router}' is already registered with an object adapter",
                             nameof(router));
                     }
 

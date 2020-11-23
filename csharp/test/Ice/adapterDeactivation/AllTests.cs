@@ -175,6 +175,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 
             output.Write("testing object adapter with router... ");
             output.Flush();
+            if (ice1)
             {
                 var routerId = new Identity("router", "");
                 IRouterPrx router = obj.Clone(IRouterPrx.Factory, connectionId: "rc", identity: routerId);
@@ -182,14 +183,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                     using var adapter = communicator.CreateObjectAdapterWithRouter(router);
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
                     string endpointsStr = adapter.PublishedEndpoints[0].ToString();
-                    if (ice1)
-                    {
-                        TestHelper.Assert(endpointsStr == "tcp -h localhost -p 23456 -t 60000");
-                    }
-                    else
-                    {
-                        TestHelper.Assert(endpointsStr == "ice+tcp://localhost:23456");
-                    }
+                    TestHelper.Assert(endpointsStr == "tcp -h localhost -p 23456 -t 60000");
 
                     try
                     {
@@ -222,6 +216,19 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 }
                 catch (ConnectFailedException)
                 {
+                }
+            }
+            else
+            {
+                try
+                {
+                    using var adapter = communicator.CreateObjectAdapterWithRouter(
+                        obj.Clone(IRouterPrx.Factory, connectionId: "rc", identity: new Identity("router", "")));
+                    TestHelper.Assert(false);
+                }
+                catch (ArgumentException)
+                {
+                    // expected.
                 }
             }
             output.WriteLine("ok");
