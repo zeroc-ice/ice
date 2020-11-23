@@ -1710,14 +1710,26 @@ type_alias_def
     StringListTokPtr metadata = StringListTokPtr::dynamicCast($4);
     TypePtr type = TypePtr::dynamicCast($5);
 
-    if (auto alias = TypeAliasPtr::dynamicCast(type))
+    if (type)
     {
-        mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        type = alias->underlying();
-    }
+        if (auto alias = TypeAliasPtr::dynamicCast(type))
+        {
+            mergeMetadataInPlace(metadata->v, alias->typeMetadata());
+            type = alias->underlying();
+        }
 
-    ModulePtr cont = unit->currentModule();
-    $$ = cont->createTypeAlias(ident->v, type, metadata->v);
+        ModulePtr cont = unit->currentModule();
+        $$ = cont->createTypeAlias(ident->v, type, metadata->v);
+    }
+    else
+    {
+        $$ = nullptr;
+    }
+}
+| ICE_USING ICE_IDENTIFIER '=' local_metadata error
+{
+    unit->error("unable to resolve underlying type");
+    $$ = nullptr;
 }
 | ICE_USING ICE_IDENTIFIER
 {
