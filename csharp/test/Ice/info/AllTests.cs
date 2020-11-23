@@ -75,7 +75,7 @@ namespace ZeroC.Ice.Test.Info
             output.Write("test object adapter endpoint information... ");
             output.Flush();
             {
-                string serverName = "testhost";
+                string serverName = helper.Host;
 
                 communicator.SetProperty("TestAdapter.Endpoints",
                     $"tcp -h \"{helper.Host}\" -p 0 -t 15000");
@@ -83,7 +83,7 @@ namespace ZeroC.Ice.Test.Info
                 communicator.SetProperty("TestAdapter.ServerName", serverName);
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
-                IReadOnlyList<Endpoint> endpoints = adapter.GetEndpoints();
+                IReadOnlyList<Endpoint> endpoints = adapter.Endpoints;
                 TestHelper.Assert(endpoints.Count == 1);
                 IReadOnlyList<Endpoint> publishedEndpoints = adapter.PublishedEndpoints;
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
@@ -104,7 +104,7 @@ namespace ZeroC.Ice.Test.Info
                 communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.GetTestEndpoint(1));
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
-                endpoints = adapter.GetEndpoints();
+                endpoints = adapter.Endpoints;
                 TestHelper.Assert(endpoints.Count >= 1);
                 publishedEndpoints = adapter.PublishedEndpoints;
                 TestHelper.Assert(publishedEndpoints.Count == 1);
