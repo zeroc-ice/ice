@@ -230,15 +230,25 @@ namespace ZeroC.Ice
                     }
 
                     locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
+
                     if (locatorCacheTimeout != null && endpoints.Count > 0)
                     {
                         throw new InvalidConfigurationException(
-                            $"{propertyPrefix}.LocatorCacheTimeout: proxy is not indirect");
+                            $"{propertyPrefix}.LocatorCacheTimeout: proxy has endpoints");
                     }
 
                     preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
                 }
                 // TODO: else, what do we do if these properties are set for other ice2+ proxies?
+            }
+
+            if (locatorCacheTimeout != null)
+            {
+                Debug.Assert(endpoints.Count == 0);
+                if (locatorInfo == null && communicator.DefaultLocator == null)
+                {
+                    throw new InvalidConfigurationException("cannot set locator cache timeout without a Locator");
+                }
             }
 
             return new Reference(cacheConnection: cacheConnection ?? true,
@@ -254,8 +264,9 @@ namespace ZeroC.Ice
                                  invocationTimeout: invocationTimeout,
                                  location: location,
                                  locatorCacheTimeout: locatorCacheTimeout,
-                                 locatorInfo:
-                                    locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator),
+                                 locatorInfo: locatorInfo ??
+                                    (endpoints.Count == 0 ?
+                                        communicator.GetLocatorInfo(communicator.DefaultLocator) : null),
                                  preferNonSecure: preferNonSecure,
                                  protocol: protocol,
                                  relative: relative,
@@ -597,7 +608,7 @@ namespace ZeroC.Ice
                 {
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("prefer-non-secure=");
-                    sb.Append(preferNonSecure);
+                    sb.Append(preferNonSecure ? "true" : "false");
                 }
 
                 if (IsRelative)
@@ -1317,7 +1328,7 @@ namespace ZeroC.Ice
                 }
                 if (locatorCacheTimeout != null)
                 {
-                    throw new ArgumentException("cannot change the locator cache timeout of a fixed proxy",
+                    throw new ArgumentException("cannot set locator cache timeout on a fixed proxy",
                         nameof(locatorCacheTimeout));
                 }
                 if (preferNonSecure != null)
@@ -1435,20 +1446,29 @@ namespace ZeroC.Ice
                 {
                     if (newEndpoints.Count > 0)
                     {
-                        throw new ArgumentException("a direct proxy cannot have a locator", nameof(locator));
+                        throw new ArgumentException($"cannot set {nameof(locator)} on a direct proxy",
+                                                    nameof(locator));
                     }
 
                     locatorInfo = Communicator.GetLocatorInfo(locator);
                 }
-                else if (clearLocator || newEndpoints.Count == 0)
+                else if (clearLocator || newEndpoints.Count > 0)
                 {
                     locatorInfo = null;
                 }
 
-                if (locatorCacheTimeout != null && newEndpoints.Count > 0)
+                if (locatorCacheTimeout != null)
                 {
-                    throw new ArgumentException("a direct proxy cannot have a locator cache timeout",
-                                                nameof(locatorCacheTimeout));
+                    if (newEndpoints.Count > 0)
+                    {
+                        throw new ArgumentException($"cannot set {nameof(locatorCacheTimeout)} on a direct proxy",
+                                                    nameof(locatorCacheTimeout));
+                    }
+                    if (locatorInfo == null)
+                    {
+                        throw new ArgumentException($"cannot set {nameof(locatorCacheTimeout)} without a locator",
+                                                    nameof(locatorCacheTimeout));
+                    }
                 }
 
                 RouterInfo? routerInfo = RouterInfo;
@@ -1473,8 +1493,7 @@ namespace ZeroC.Ice
                                           invocationMode ?? InvocationMode,
                                           invocationTimeout ?? _invocationTimeout,
                                           newLocation ?? Location,
-                                          locatorCacheTimeout ??
-                                            (newEndpoints.Count == 0 ? _locatorCacheTimeout : null),
+                                          locatorCacheTimeout ?? (locatorInfo != null ? _locatorCacheTimeout : null),
                                           locatorInfo, // no fallback otherwise breaks clearLocator
                                           preferNonSecure ?? _preferNonSecure,
                                           Protocol,
@@ -1684,7 +1703,7 @@ namespace ZeroC.Ice
             var properties = new Dictionary<string, string>
             {
                 [prefix] = ToString(),
-                [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "1" : "0",
+                [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "true" : "false"
             };
 
             if (Protocol == Protocol.Ice1)
