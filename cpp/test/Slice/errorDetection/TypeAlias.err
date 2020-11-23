@@ -1,0 +1,15 @@
+TypeAlias.ice:33: `foo' is not defined
+TypeAlias.ice:33: unable to resolve underlying type
+TypeAlias.ice:34: `OptintAlias': optional types cannot be type-aliased
+TypeAlias.ice:35: missing underlying type for typealias `dummyIdentifier'
+TypeAlias.ice:38: `;' missing after type-alias
+TypeAlias.ice:39: `C1' is not defined
+TypeAlias.ice:39: unable to resolve underlying type
+TypeAlias.ice:47: `C1' is not defined
+TypeAlias.ice:47: unable to resolve underlying type
+TypeAlias.ice:56: redefinition of typealias `C0Alias'
+TypeAlias.ice:38: note: typealias `C0Alias' was originally defined here
+TypeAlias.ice:59: illegal metadata: typealias metadata `protected' cannot be used in inheritance declarations
+TypeAlias.ice:64: illegal metadata: typealias metadata `amd' cannot be used in inheritance declarations
+TypeAlias.ice:66: `E0' is an exception, which cannot be used as a type
+TypeAlias.ice:66: unable to resolve underlying type
