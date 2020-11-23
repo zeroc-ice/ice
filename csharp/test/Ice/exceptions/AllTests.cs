@@ -262,7 +262,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     thrower.ThrowMemoryLimitException(Array.Empty<byte>());
                     TestHelper.Assert(false);
                 }
-                catch (MarshalException ex)
+                catch (LimitExceededException ex)
                 {
                     TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1,
                                       $"unexpected exception:\n{ex}");
@@ -284,7 +284,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     thrower.ThrowMemoryLimitException(new byte[20 * 1024]); // 20KB
                     TestHelper.Assert(false);
                 }
-                catch (MarshalException)
+                catch (ArgumentOutOfRangeException)
                 {
                     TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1);
                     TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
@@ -311,7 +311,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     {
                         thrower2.ThrowMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
                     }
-                    catch (MarshalException)
+                    catch (LimitExceededException)
                     {
                         TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1);
                     }
@@ -326,7 +326,7 @@ namespace ZeroC.Ice.Test.Exceptions
                         thrower3.ThrowMemoryLimitException(new byte[1024]); // 1KB limit
                         TestHelper.Assert(false);
                     }
-                    catch (MarshalException)
+                    catch (ArgumentOutOfRangeException)
                     {
                         TestHelper.Assert(thrower.GetCachedConnection()!.Protocol != Protocol.Ice1);
                     }

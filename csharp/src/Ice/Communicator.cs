@@ -507,26 +507,29 @@ namespace ZeroC.Ice
                 MaxBidirectionalStreams = GetPropertyAsInt("Ice.MaxBidirectionalStreams") ?? 100;
                 if (MaxBidirectionalStreams < 1)
                 {
-                    throw new InvalidConfigurationException($"{MaxBidirectionalStreams} is not a valid " +
-                        "value for Ice.MaxBidirectionalStreams");
+                    throw new InvalidConfigurationException(
+                        $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxBidirectionalStreams");
                 }
 
                 MaxUnidirectionalStreams = GetPropertyAsInt("Ice.MaxUnidirectionalStreams") ?? 100;
                 if (MaxUnidirectionalStreams < 1)
                 {
-                    throw new InvalidConfigurationException($"{MaxBidirectionalStreams} is not a valid " +
-                        "value for Ice.MaxUnidirectionalStreams");
+                    throw new InvalidConfigurationException(
+                        $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxUnidirectionalStreams");
                 }
 
-                SlicPacketMaxSize = GetPropertyAsInt("Ice.Slic.PacketMaxSize") ?? 32 * 1024;
+                SlicPacketMaxSize = GetPropertyAsByteSize("Ice.Slic.PacketMaxSize") ?? 32 * 1024;
                 if (SlicPacketMaxSize < 1024)
                 {
-                    throw new InvalidConfigurationException($"{SlicPacketMaxSize} is not a valid " +
-                        "value for Ice.Slic.PacketMaxSize");
+                    throw new InvalidConfigurationException("Ice.Slic.PacketMaxSize can't be inferior to 1KB");
                 }
 
                 int frameMaxSize = GetPropertyAsByteSize("Ice.IncomingFrameMaxSize") ?? 1024 * 1024;
                 IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
+                if (IncomingFrameMaxSize < 1024)
+                {
+                    throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
+                }
 
                 RetryMaxAttempts = GetPropertyAsInt("Ice.RetryMaxAttempts") ?? 5;
 

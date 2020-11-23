@@ -64,9 +64,9 @@ module Ice
         string paramName;
     }
 
-    /// A marshal exception is thrown when a request or response can't be encoded. This can occur if the
-    /// request or response exceeds the frame maximum size for example.
-    exception MarshalException
+    /// A limit exceeded exception is thrown when a limit is exceeded on the server side. This can occur for exampple
+    /// if the response exceeds the peer's incoming frame maximum size.
+    exception LimitExceededException
     {
     }
 }
