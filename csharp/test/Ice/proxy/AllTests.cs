@@ -604,7 +604,7 @@ namespace ZeroC.Ice.Test.Proxy
             }
             catch (InvalidConfigurationException)
             {
-                // expected
+                // expected: a router must be an ice1 proxy
             }
             communicator.RemoveProperty(property);
 
