@@ -2496,8 +2496,8 @@ Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
 
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
-    Contained(container, name)
+    Contained(container, name),
+    Type(container->unit())
 {
 }
 
@@ -2763,8 +2763,8 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
 
 Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
-    Contained(container, name)
+    Contained(container, name),
+    Type(container->unit())
 {
 }
 
@@ -3477,8 +3477,8 @@ Slice::Sequence::visit(ParserVisitor* visitor, bool)
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type,
                           const StringList& typeMetadata) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
+    Type(container->unit()),
     _type(type),
     _typeMetadata(typeMetadata)
 {
@@ -3643,8 +3643,8 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
                               const StringList& keyMetadata, const TypePtr& valueType,
                               const StringList& valueMetadata) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
+    Type(container->unit()),
     _keyType(keyType),
     _valueType(valueType),
     _keyMetadata(keyMetadata),
@@ -3794,8 +3794,8 @@ Slice::Enum::initUnderlying(const TypePtr& type)
 Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool unchecked) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
+    Type(container->unit()),
     _unchecked(unchecked),
     _underlying(nullptr),
     _explicitValue(false),
