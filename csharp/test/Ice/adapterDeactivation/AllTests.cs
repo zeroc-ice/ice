@@ -156,23 +156,6 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 TestHelper.Assert(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints.
                     SequenceEqual(prx.Endpoints));
                 TestHelper.Assert(adapter.PublishedEndpoints.SequenceEqual(prx.Endpoints));
-                adapter.RefreshPublishedEndpoints();
-                TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
-                TestHelper.Assert(adapter.PublishedEndpoints[0] == endpt);
-                communicator.SetProperty("PAdapter.PublishedEndpoints",
-                    ice1 ? "tcp -h localhost -p 12345 -t 20000" : "ice+tcp://localhost:12345");
-                adapter.RefreshPublishedEndpoints();
-                TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
-
-                if (ice1)
-                {
-                    TestHelper.Assert(
-                        adapter.PublishedEndpoints[0].ToString() == "tcp -h localhost -p 12345 -t 20000");
-                }
-                else
-                {
-                    TestHelper.Assert(adapter.PublishedEndpoints[0].ToString() == "ice+tcp://localhost:12345");
-                }
             }
             output.WriteLine("ok");
 
@@ -207,18 +190,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                     {
                         TestHelper.Assert(endpointsStr == "ice+tcp://localhost:23456");
                     }
-                    adapter.RefreshPublishedEndpoints();
-                    TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
 
-                    if (ice1)
-                    {
-                        TestHelper.Assert(
-                            adapter.PublishedEndpoints[0].ToString() == "tcp -h localhost -p 23457 -t 60000");
-                    }
-                    else
-                    {
-                        TestHelper.Assert(adapter.PublishedEndpoints[0].ToString() == "ice+tcp://localhost:23457");
-                    }
                     try
                     {
                         adapter.SetPublishedEndpoints(router.Endpoints);

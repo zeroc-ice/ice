@@ -33,8 +33,12 @@ namespace ZeroC.Ice
 
         private int _hashCode;
 
-        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
-            new TcpAcceptor(this, manager, adapter);
+        // TODO: should not be public
+        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter)
+        {
+            Debug.Assert(Address != IPAddress.None); // i.e. not a DNS name
+            return new TcpAcceptor(this, manager, adapter);
+        }
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
