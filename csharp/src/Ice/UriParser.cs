@@ -14,6 +14,7 @@ namespace ZeroC.Ice
         /// <summary>The proxy options parsed by the UriParser.</summary>
         internal struct ProxyOptions
         {
+            internal bool? CacheConnection;
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
             internal TimeSpan? LocatorCacheTimeout; // only for the ice URI scheme
@@ -255,7 +256,12 @@ namespace ZeroC.Ice
                 string name = p.Substring(0, equalPos);
                 string value = p.Substring(equalPos + 1);
 
-                if (name == "encoding")
+                if (name == "cache-connection")
+                {
+                    CheckProxyOption(name, proxyOptions.CacheConnection != null);
+                    proxyOptions.CacheConnection = bool.Parse(value);
+                }
+                else if (name == "encoding")
                 {
                     CheckProxyOption(name, proxyOptions.Encoding != null);
                     proxyOptions.Encoding = Encoding.Parse(value);

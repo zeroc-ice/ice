@@ -234,15 +234,16 @@ generated from the section label.
 -->
 <properties>
     <class name="proxy" prefix-only="false">
-        <suffix name="CollocationOptimized" />
-        <suffix name="ConnectionCached" />
+        <suffix name="CacheConnection" />
+        <suffix name="CollocationOptimized" /> <!-- TODO: remove -->
+        <suffix name="ConnectionCached" /> <!-- TODO: remove: replaced by CacheConnection -->
         <suffix name="Context.[any]" />
-        <suffix name="EndpointSelection" />
+        <suffix name="EndpointSelection" /> <!-- TODO: remove -->
         <suffix name="InvocationTimeout" />
         <suffix name="Locator" />
         <suffix name="LocatorCacheTimeout" />
         <suffix name="PreferNonSecure" />
-        <suffix name="PreferSecure" />
+        <suffix name="PreferSecure" /> <!-- TODO: remove -->
         <suffix name="Router" />
     </class>
 

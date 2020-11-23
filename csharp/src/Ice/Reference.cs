@@ -20,6 +20,8 @@ namespace ZeroC.Ice
     public sealed class Reference : IEquatable<Reference>
     {
         internal string AdapterId => Location.Count == 0 ? "" : Location[0];
+
+        internal bool CacheConnection { get; } = true;
         internal Communicator Communicator { get; }
         internal string ConnectionId { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
@@ -33,8 +35,6 @@ namespace ZeroC.Ice
         internal InvocationMode InvocationMode { get; }
 
         internal TimeSpan InvocationTimeout => _invocationTimeout ?? Communicator.DefaultInvocationTimeout;
-        internal bool IsConnectionCached { get; }
-
         internal bool IsFixed { get; }
         internal bool IsIndirect => Endpoints.Count == 0 && !IsFixed;
 
@@ -95,6 +95,7 @@ namespace ZeroC.Ice
                 throw new FormatException("empty string is invalid");
             }
 
+            bool? cacheConnection = null;
             Encoding encoding;
             IReadOnlyList<Endpoint> endpoints;
             string facet;
@@ -105,7 +106,7 @@ namespace ZeroC.Ice
             TimeSpan? locatorCacheTimeout = null;
             bool? preferNonSecure = null;
             Protocol protocol;
-            bool relative = false;
+            bool? relative = null;
 
             if (UriParser.IsProxyUri(proxyString))
             {
@@ -147,10 +148,12 @@ namespace ZeroC.Ice
                     throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
                 }
 
+                // TODO: add deconstructor to ProxyOptions
+                cacheConnection = proxyOptions.CacheConnection;
                 invocationTimeout = proxyOptions.InvocationTimeout;
                 locatorCacheTimeout = proxyOptions.LocatorCacheTimeout;
                 preferNonSecure = proxyOptions.PreferNonSecure;
-                relative = proxyOptions.Relative ?? false;
+                relative = proxyOptions.Relative;
             }
             else
             {
@@ -164,7 +167,6 @@ namespace ZeroC.Ice
                 location = location0.Length > 0 ? ImmutableArray.Create(location0) : ImmutableArray<string>.Empty;
             }
 
-            bool? cacheConnection = null;
             IReadOnlyDictionary<string, string>? context = null;
             LocatorInfo? locatorInfo = null;
             RouterInfo? routerInfo = null;
@@ -177,8 +179,6 @@ namespace ZeroC.Ice
                 {
                     communicator.CheckForUnknownProperties(propertyPrefix);
                 }
-
-                cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.ConnectionCached");
 
                 string property = $"{propertyPrefix}.Context.";
                 context = communicator.GetProperties(forPrefix: property).
@@ -222,6 +222,8 @@ namespace ZeroC.Ice
                 // ice1-only properties
                 if (protocol == Protocol.Ice1)
                 {
+                    cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.CacheConnection");
+
                     property = $"{propertyPrefix}.InvocationTimeout";
                     invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
                     if (invocationTimeout == TimeSpan.Zero)
@@ -269,7 +271,7 @@ namespace ZeroC.Ice
                                         communicator.GetLocatorInfo(communicator.DefaultLocator) : null),
                                  preferNonSecure: preferNonSecure,
                                  protocol: protocol,
-                                 relative: relative,
+                                 relative: relative ?? false,
                                  routerInfo: protocol == Protocol.Ice1 ?
                                     routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter) : null);
         }
@@ -305,15 +307,15 @@ namespace ZeroC.Ice
             else
             {
                 // Compare properties specific to other kinds of references
+                if (CacheConnection != other.CacheConnection)
+                {
+                    return false;
+                }
                 if (ConnectionId != other.ConnectionId)
                 {
                     return false;
                 }
                 if (!Endpoints.SequenceEqual(other.Endpoints))
-                {
-                    return false;
-                }
-                if (IsConnectionCached != other.IsConnectionCached)
                 {
                     return false;
                 }
@@ -415,9 +417,9 @@ namespace ZeroC.Ice
                 }
                 else
                 {
+                    hash.Add(CacheConnection);
                     hash.Add(ConnectionId);
                     hash.Add(Endpoints.GetSequenceHashCode());
-                    hash.Add(IsConnectionCached);
                     hash.Add(Location.GetSequenceHashCode());
                     hash.Add(_locatorCacheTimeout);
                     hash.Add(LocatorInfo);
@@ -570,11 +572,10 @@ namespace ZeroC.Ice
                     sb.Append(path);
                 }
 
-                if (Protocol != Protocol.Ice2) // i.e. > ice2
+                if (!CacheConnection)
                 {
                     StartQueryOption(sb, ref firstOption);
-                    sb.Append("protocol=");
-                    sb.Append(Protocol.GetName());
+                    sb.Append("cache-connection=false");
                 }
 
                 if (Encoding != Ice2Definitions.Encoding) // possible but quite unlikely
@@ -609,6 +610,13 @@ namespace ZeroC.Ice
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("prefer-non-secure=");
                     sb.Append(preferNonSecure ? "true" : "false");
+                }
+
+                if (Protocol != Protocol.Ice2) // i.e. > ice2
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("protocol=");
+                    sb.Append(Protocol.GetName());
                 }
 
                 if (IsRelative)
@@ -921,7 +929,7 @@ namespace ZeroC.Ice
                                 }
                             }
 
-                            if (reference.IsConnectionCached && connection != null)
+                            if (reference.CacheConnection && connection != null)
                             {
                                 reference.ClearConnection(connection);
                             }
@@ -1481,7 +1489,7 @@ namespace ZeroC.Ice
                     routerInfo = null;
                 }
 
-                var clone = new Reference(cacheConnection ?? IsConnectionCached,
+                var clone = new Reference(cacheConnection ?? CacheConnection,
                                           Communicator,
                                           connectionId ?? ConnectionId,
                                           context?.ToImmutableDictionary() ?? Context,
@@ -1612,7 +1620,7 @@ namespace ZeroC.Ice
                 try
                 {
                     OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
-                    if (IsConnectionCached)
+                    if (CacheConnection)
                     {
                         // Get an existing connection or create one if there's no existing connection to one of
                         // the given endpoints.
@@ -1685,7 +1693,7 @@ namespace ZeroC.Ice
                     throw;
                 }
 
-                if (IsConnectionCached)
+                if (CacheConnection)
                 {
                     _connection = connection;
                 }
@@ -1702,15 +1710,18 @@ namespace ZeroC.Ice
 
             var properties = new Dictionary<string, string>
             {
-                [prefix] = ToString(),
-                [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "true" : "false"
+                [prefix] = ToString()
             };
 
             if (Protocol == Protocol.Ice1)
             {
+                if (!CacheConnection)
+                {
+                    properties[$"{prefix}.CacheConnection"] = "false";
+                }
                 if (_invocationTimeout is TimeSpan invocationTimeout)
                 {
-                    // For Ice2 the invocation timeout is included in the URI
+                    // For ice2 the invocation timeout is included in the URI
                     properties[$"{prefix}.InvocationTimeout"] = invocationTimeout.ToPropertyString();
                 }
                 if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
@@ -1723,18 +1734,19 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (RouterInfo != null)
-            {
-                Dictionary<string, string> routerProperties = RouterInfo.Router.ToProperty(prefix + ".Router");
-                foreach (KeyValuePair<string, string> entry in routerProperties)
-                {
-                    properties[entry.Key] = entry.Value;
-                }
-            }
             if (LocatorInfo != null)
             {
                 Dictionary<string, string> locatorProperties = LocatorInfo.Locator.ToProperty(prefix + ".Locator");
                 foreach (KeyValuePair<string, string> entry in locatorProperties)
+                {
+                    properties[entry.Key] = entry.Value;
+                }
+            }
+
+            if (RouterInfo != null)
+            {
+                Dictionary<string, string> routerProperties = RouterInfo.Router.ToProperty(prefix + ".Router");
+                foreach (KeyValuePair<string, string> entry in routerProperties)
                 {
                     properties[entry.Key] = entry.Value;
                 }
@@ -1812,6 +1824,7 @@ namespace ZeroC.Ice
             bool relative,
             RouterInfo? routerInfo)
         {
+            CacheConnection = cacheConnection;
             Communicator = communicator;
             ConnectionId = connectionId;
             Context = context;
@@ -1822,7 +1835,6 @@ namespace ZeroC.Ice
             _invocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
             _invocationTimeout = invocationTimeout;
-            IsConnectionCached = cacheConnection;
             IsRelative = relative;
             Location = location;
             _locatorCacheTimeout = locatorCacheTimeout;
@@ -1869,7 +1881,6 @@ namespace ZeroC.Ice
             _invocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
             _invocationTimeout = invocationTimeout;
-            IsConnectionCached = false;
             IsFixed = true;
             IsRelative = false;
             Location = ImmutableArray<string>.Empty;

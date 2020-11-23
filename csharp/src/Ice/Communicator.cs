@@ -176,7 +176,7 @@ namespace ZeroC.Ice
         private static readonly string[] _suffixes =
         {
             "EndpointSelection",
-            "ConnectionCached",
+            "CacheConnection",
             "InvocationTimeout",
             "LocatorCacheTimeout",
             "Locator",

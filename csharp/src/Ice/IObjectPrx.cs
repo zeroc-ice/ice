@@ -148,7 +148,7 @@ namespace ZeroC.Ice
 
         /// <summary>Indicates whether or not this proxy caches its connection.</summary>
         /// <value>True when the proxy caches its connection; otherwise, false.</value>
-        public bool IsConnectionCached => IceReference.IsConnectionCached;
+        public bool CacheConnection => IceReference.CacheConnection;
 
         /// <summary>Indicates whether or not this proxy is bound to a connection.</summary>
         /// <value>True when this proxy is bound to a connection. Such a proxy has no endpoint. Otherwise, false.
