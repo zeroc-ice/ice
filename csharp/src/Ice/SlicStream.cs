@@ -181,17 +181,9 @@ namespace ZeroC.Ice
                     Debug.Assert(!IsIncoming);
 
                     // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
-                    // control credit to ensure we don't open more streams than the peer allows. The wait on the
-                    // semaphore provides FIFO guarantee to ensure that the sending of requests is serialized.
-                    Debug.Assert(!IsIncoming);
-                    if (IsBidirectional)
-                    {
-                        await _socket.BidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await _socket.UnidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
-                    }
+                    // control credit to ensure we don't open more streams than the peer allows. The acquisition
+                    // provides FIFO guarantee to ensure that the sending of requests is serialized.
+                    await _socket.AcquireFlowControlCreditAsync(this, cancel).ConfigureAwait(false);
 
                     // Ensure we allocate and queue the first stream frame atomically to ensure the receiver won't
                     // receive stream frames with out-of-order stream IDs. The ID assignment will throw if the
@@ -202,7 +194,6 @@ namespace ZeroC.Ice
                         Id = _socket.AllocateId(IsBidirectional);
                         task = PerformSendFrameAsync(frameSize, fin, buffer);
                     }
-                    Debug.Assert(!IsControl);
                     await task.ConfigureAwait(false);
                     return;
                 }
@@ -210,8 +201,8 @@ namespace ZeroC.Ice
                 // The incoming bidirectional stream is considered completed once no more data will be written on
                 // the stream. It's important to release the flow control credit here before the peer receives the
                 // last stream frame to prevent a race where the peer could start a new stream before the credit
-                // counter is released. If the credit is already released, this indicates that got reset. In this
-                // case, we return since an empty stream last frame has been sent already.
+                // counter is released. If the credit is already released, this indicates that the stream got reset.
+                // In this case, we return since an empty stream last frame has been sent already.
                 if (IsIncoming && fin && !ReleaseFlowControlCredit())
                 {
                     return;
@@ -259,35 +250,7 @@ namespace ZeroC.Ice
         }
 
         internal SlicStream(long streamId, SlicSocket socket)
-            : base(streamId, socket)
-        {
-            _socket = socket;
-
-            if (IsIncoming && !IsControl)
-            {
-                // Increment the counter to ensure the peer doesn't open more streams than allowed. This can't be
-                // called concurrently for a given connection so if it's fine to check the counter and increment
-                // it after.
-                if (IsBidirectional)
-                {
-                    if (_socket.BidirectionalStreamCount == _socket.MaxBidirectionalStreams)
-                    {
-                        throw new InvalidDataException(
-                            $"maximum bidirectional stream count {_socket.MaxBidirectionalStreams} reached");
-                    }
-                    Interlocked.Increment(ref _socket.BidirectionalStreamCount);
-                }
-                else
-                {
-                    if (_socket.UnidirectionalStreamCount == _socket.MaxUnidirectionalStreams)
-                    {
-                        throw new InvalidDataException(
-                            $"maximum unidirectional stream count {_socket.MaxUnidirectionalStreams} reached");
-                    }
-                    Interlocked.Increment(ref _socket.UnidirectionalStreamCount);
-                }
-            }
-        }
+            : base(streamId, socket) => _socket = socket;
 
         internal SlicStream(bool bidirectional, SlicSocket socket)
             : base(bidirectional, socket) => _socket = socket;
@@ -318,42 +281,19 @@ namespace ZeroC.Ice
 
         private bool ReleaseFlowControlCredit(bool notifyPeer = false)
         {
-            if (IsControl)
-            {
-                return true;
-            }
-
             // If the flow control credit is not already released, decreases the bidirectional or unidirectional
             // semaphore (for outgoing streams) / count (for incoming streams).
             if (Interlocked.CompareExchange(ref _flowControlCreditReleased, 1, 0) == 0)
             {
+                _socket.ReleaseFlowControlCredit(this);
+
                 if (IsIncoming)
                 {
-                    if (IsBidirectional)
-                    {
-                        Interlocked.Decrement(ref _socket.BidirectionalStreamCount);
-                    }
-                    else
-                    {
-                        Interlocked.Decrement(ref _socket.UnidirectionalStreamCount);
-                    }
-
                     if (notifyPeer)
                     {
                         // It's important to decrement the stream count before sending the StreamLast frame to prevent
                         // a race where the peer could start a new stream before the counter is decremented.
                         _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
-                    }
-                }
-                else if (IsStarted)
-                {
-                    if (IsBidirectional)
-                    {
-                        _socket.BidirectionalStreamSemaphore!.Release();
-                    }
-                    else
-                    {
-                        _socket.UnidirectionalStreamSemaphore!.Release();
                     }
                 }
                 return true;
