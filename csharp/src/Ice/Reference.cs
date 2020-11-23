@@ -239,7 +239,8 @@ namespace ZeroC.Ice
                                  preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
                                  protocol: protocol,
                                  relative: relative,
-                                 routerInfo: communicator.GetRouterInfo(communicator.DefaultRouter));
+                                 routerInfo: protocol == Protocol.Ice1 ?
+                                    routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter) : null);
         }
 
         /// <inheritdoc/>
@@ -1150,7 +1151,8 @@ namespace ZeroC.Ice
                    preferNonSecure: communicator.DefaultPreferNonSecure,
                    protocol: protocol,
                    relative: false,
-                   routerInfo: communicator.GetRouterInfo(communicator.DefaultRouter))
+                   routerInfo: protocol == Protocol.Ice1 ?
+                    communicator.GetRouterInfo(communicator.DefaultRouter) : null)
         {
         }
 
