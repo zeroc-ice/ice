@@ -88,6 +88,17 @@ namespace ZeroC.Ice
         /// print. Always true for ice1 endpoints.</summary>
         protected internal abstract bool HasOptions { get; }
 
+        /// <summary>Establish a connection to this endpoint.</summary>
+        /// <param name="preferNonSecure">Indicates under what conditions establishing a non-secure connection should
+        /// be preferred.</param>
+        /// <param name="cookie">A cookie object that can contain transport specific data.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The new established connection.</returns>
+        protected internal abstract Task<Connection> ConnectAsync(
+            NonSecure preferNonSecure,
+            object cookie,
+            CancellationToken cancel);
+
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
         /// <param name="lhs">The left hand side operand.</param>
         /// <param name="rhs">The right hand side operand.</param>
@@ -156,6 +167,14 @@ namespace ZeroC.Ice
         /// ice1 endpoints.</param>
         protected internal abstract void AppendOptions(StringBuilder sb, char optionSeparator);
 
+        /// <summary>Provides the same hash code for two equivalent endpoints. See <see cref="IsEquivalent"/>.</summary>
+        protected internal virtual int GetEquivalentHashCode() => GetHashCode();
+
+        /// <summary>Two endpoints are considered equivalent if they are equal or their differences should not trigger
+        /// the establishment of separate connections to those endpoints. For example, two tcp endpoints that are
+        /// identical except for their ice1 HashCompressedFlag property are equivalent but are not equal.</summary>
+        protected internal virtual bool IsEquivalent(Endpoint other) => Equals(other);
+
         /// <summary>Writes the options of this endpoint to the output stream. ice1-only.</summary>
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
@@ -168,12 +187,6 @@ namespace ZeroC.Ice
         /// <param name="adapter">The object adapter associated to the acceptor.</param>
         /// <returns>An acceptor for this endpoint.</returns>
         public abstract IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter);
-
-        /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>A collector of connectors for this endpoint.</returns>
-        public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            CancellationToken cancel);
 
         /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.
         /// Unlike stream-based transports, datagram endpoints don't support an acceptor responsible for accepting new

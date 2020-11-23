@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             try
             {
-                reply.Clone(preferNonSecure: true).Reply(cancel: cancel);
+                reply.Clone(preferNonSecure: NonSecure.Always).Reply(cancel: cancel);
             }
             catch
             {
@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             try
             {
-                reply?.Clone(preferNonSecure: true).Reply(cancel: cancel);
+                reply?.Clone(preferNonSecure: NonSecure.Always).Reply(cancel: cancel);
             }
             catch
             {

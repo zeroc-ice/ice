@@ -177,11 +177,8 @@ namespace ZeroC.Ice
         /// <summary>The locator cache timeout of this proxy.</summary>
         public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
-        /// <summary>Indicates whether or not this proxy prefers non-secure connections.</summary>
-        /// <value>When true, the proxy attempts to establish a non-secure connection if such a connection is available;
-        /// when false, the proxy attempts first to establish a secure connection and falls back to a non-secure
-        /// connection. The fallback to a non-secure connection applies only when using the ice1 protocol.</value>
-        public bool PreferNonSecure => IceReference.PreferNonSecure;
+        /// <summary>Indicates the proxy preferences for establishing non-secure connections.</summary>
+        public NonSecure PreferNonSecure => IceReference.PreferNonSecure;
 
         /// <summary>The Ice protocol of this proxy. Requests sent with this proxy use only this Ice protocol.</summary>
         public Protocol Protocol => IceReference.Protocol;

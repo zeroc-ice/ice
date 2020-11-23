@@ -30,7 +30,7 @@ namespace ZeroC.Ice.LocatorDiscovery
 
         private readonly string _lookupTraceCategory;
         private readonly int _lookupTraceLevel;
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
         private TimeSpan _nextRetry;
 
         private readonly ILocatorPrx _proxy;
@@ -237,14 +237,14 @@ namespace ZeroC.Ice.LocatorDiscovery
             _lookup = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
                     clearRouter: true,
                     invocationTimeout: _timeout,
-                    preferNonSecure: true);
+                    preferNonSecure: NonSecure.Always);
 
             if (communicator.GetProperty("Ice.LocatorDiscovery.Reply.Endpoints") == null)
             {
                 communicator.SetProperty("Ice.LocatorDiscovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
             }
             communicator.SetProperty("Ice.LocatorDiscovery.Reply.ProxyOptions", "-d");
-            communicator.SetProperty("Ice.LocatorDiscovery.Reply.AcceptNonSecure", "True");
+            communicator.SetProperty("Ice.LocatorDiscovery.Reply.AcceptNonSecure", "Always");
 
             _replyAdapter = communicator.CreateObjectAdapter("Ice.LocatorDiscovery.Reply");
             _locatorAdapter = communicator.CreateObjectAdapter();

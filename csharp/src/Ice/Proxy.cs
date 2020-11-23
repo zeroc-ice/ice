@@ -86,7 +86,7 @@ namespace ZeroC.Ice
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
-            bool? preferNonSecure = null,
+            NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null) where T : class, IObjectPrx =>
             factory(prx.IceReference.Clone(cacheConnection,
@@ -157,7 +157,7 @@ namespace ZeroC.Ice
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
-            bool? preferNonSecure = null,
+            NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null) where T : IObjectPrx
         {
@@ -195,7 +195,7 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
-        /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
+        /// <returns>The Connection for this proxy.</returns>
         public static Connection GetConnection(this IObjectPrx prx)
         {
             try
@@ -212,11 +212,11 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
-        /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
+        /// <returns>The Connection for this proxy.</returns>
         public static ValueTask<Connection> GetConnectionAsync(
             this IObjectPrx prx,
             CancellationToken cancel = default) =>
-            prx.IceReference.GetConnectionAsync(ImmutableList<IConnector>.Empty, cancel);
+            prx.IceReference.GetConnectionAsync(cancel);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>

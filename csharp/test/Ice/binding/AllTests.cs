@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -188,25 +188,30 @@ namespace ZeroC.Ice.Test.Binding
                 }
 
                 IReadOnlyList<Endpoint> endpoints = obj.Endpoints;
-
                 adapters.Clear();
 
                 // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
                 if (helper.Protocol == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
+                    // Wait 5 seconds to let recent connector failures expire
+                    Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter66", endpoints[2].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter66");
                     }
 
+                    // Wait 5 seconds to let recent connector failures expire
+                    Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter65", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter65");
                     }
 
+                    // Wait 5 seconds to let recent connector failures expire
+                    Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter64", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)
                     {
@@ -292,7 +297,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(obj.GetAdapterName().Equals("Adapter71"));
 
                     // test that datagram proxies fail if PreferNonSecure is false
-                    ITestIntfPrx testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: false);
+                    ITestIntfPrx testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: NonSecure.Never);
                     try
                     {
                         testUDP.GetConnection();
@@ -303,7 +308,7 @@ namespace ZeroC.Ice.Test.Binding
                         // expected
                     }
 
-                    testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: true);
+                    testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: NonSecure.Always);
                     TestHelper.Assert(obj.GetConnection() != testUDP.GetConnection());
                     try
                     {
@@ -336,9 +341,9 @@ namespace ZeroC.Ice.Test.Binding
                         obj.GetConnection().GoAwayAsync();
                     }
 
-                    ITestIntfPrx testNonSecure = obj.Clone(preferNonSecure: true);
+                    ITestIntfPrx testNonSecure = obj.Clone(preferNonSecure: NonSecure.Always);
                     // TODO: update when PreferNonSecure default is updated
-                    ITestIntfPrx testSecure = obj.Clone(preferNonSecure: false);
+                    ITestIntfPrx testSecure = obj.Clone(preferNonSecure: NonSecure.Never);
                     TestHelper.Assert(obj.GetConnection() != testSecure.GetConnection());
                     TestHelper.Assert(obj.GetConnection() == testNonSecure.GetConnection());
 

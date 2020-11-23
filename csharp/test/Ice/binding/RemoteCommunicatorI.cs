@@ -25,8 +25,8 @@ namespace ZeroC.Ice.Test.Binding
 
                     if (transport == "udp")
                     {
-                        // udp endpoints are always non-secure. Set name.AcceptNonSecure = true
-                        current.Communicator.SetProperty($"{name}.AcceptNonSecure", "true");
+                        // udp endpoints are always non-secure. Set name.AcceptNonSecure = Always
+                        current.Communicator.SetProperty($"{name}.AcceptNonSecure", "Always");
                     }
                     ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
                     return current.Adapter.AddWithUUID(

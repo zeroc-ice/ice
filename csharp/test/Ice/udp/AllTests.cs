@@ -63,18 +63,18 @@ namespace ZeroC.Ice.Test.UDP
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
             communicator.SetProperty("ReplyAdapter.Endpoints", helper.GetTestEndpoint(0, "udp", true));
-            communicator.SetProperty("ReplyAdapter.AcceptNonSecure", "True");
+            communicator.SetProperty("ReplyAdapter.AcceptNonSecure", "Always");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
             var replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
-                .Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: true);
+                .Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: NonSecure.Always);
             adapter.Activate();
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();
             ITestIntfPrx obj = ITestIntfPrx.Parse(
                 helper.GetTestProxy("test", 0, "udp"),
-                communicator).Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: true);
+                communicator).Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: NonSecure.Always);
             try
             {
                 int val = obj.GetValue();
@@ -104,7 +104,7 @@ namespace ZeroC.Ice.Test.UDP
                 replyI = new PingReplyI();
                 reply = adapter.AddWithUUID(
                     replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram,
-                                                         preferNonSecure: true);
+                                                         preferNonSecure: NonSecure.Always);
             }
             TestHelper.Assert(ret == true);
 
@@ -170,7 +170,7 @@ namespace ZeroC.Ice.Test.UDP
                 string intf = helper.Host.Contains(":") ? $"\"{helper.Host}\"" : helper.Host;
                 sb.Append($" --interface {intf}");
             }
-            var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator).Clone(preferNonSecure: true);
+            var objMcast = ITestIntfPrx.Parse(sb.ToString(), communicator).Clone(preferNonSecure: NonSecure.Always);
 
             nRetry = 5;
             while (nRetry-- > 0)
@@ -185,7 +185,7 @@ namespace ZeroC.Ice.Test.UDP
                 replyI = new PingReplyI();
                 reply = adapter.AddWithUUID(
                     replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram,
-                                                         preferNonSecure: true);
+                                                         preferNonSecure: NonSecure.Always);
             }
             if (!ret)
             {
@@ -217,7 +217,7 @@ namespace ZeroC.Ice.Test.UDP
                     replyI = new PingReplyI();
                     reply = adapter.AddWithUUID(
                         replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram,
-                                                             preferNonSecure: true);
+                                                             preferNonSecure: NonSecure.Always);
                 }
                 TestHelper.Assert(ret);
                 Console.Out.WriteLine("ok");

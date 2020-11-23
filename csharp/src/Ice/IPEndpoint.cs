@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
@@ -101,41 +102,93 @@ namespace ZeroC.Ice
             }
         }
 
-        protected internal override void WriteOptions(OutputStream ostr)
+        protected internal override async Task<Connection> ConnectAsync(
+            NonSecure preferNonSecure,
+            object cookie,
+            CancellationToken cancel)
         {
-            Debug.Assert(Protocol == Protocol.Ice1);
-            ostr.WriteString(Host);
-            ostr.WriteInt(Port);
-        }
-
-        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel)
-        {
-            Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
-            observer?.Attach();
+            INetworkProxy? networkProxy;
+            IReadOnlyList<IPEndPoint> addresses;
+            IObserver? endpointLookupObserver = Communicator.Observer?.GetEndpointLookupObserver(this);
+            endpointLookupObserver?.Attach();
             try
             {
-                INetworkProxy? networkProxy = Communicator.NetworkProxy;
+                networkProxy = Communicator.NetworkProxy;
                 if (networkProxy != null)
                 {
                     networkProxy = await networkProxy.ResolveHostAsync(cancel).ConfigureAwait(false);
                 }
 
-                IEnumerable<IPEndPoint> addrs =
-                    await Network.GetAddressesForClientEndpointAsync(Host,
-                                                                     Port,
-                                                                     networkProxy?.IPVersion ?? Network.EnableBoth,
-                                                                     cancel).ConfigureAwait(false);
-                return addrs.Select(item => CreateConnector(item, networkProxy));
+                addresses = await Network.GetAddressesForClientEndpointAsync(
+                    Host,
+                    Port,
+                    networkProxy?.IPVersion ?? Network.EnableBoth,
+                    cancel).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                endpointLookupObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                 throw;
             }
             finally
             {
-                observer?.Detach();
+                endpointLookupObserver?.Detach();
             }
+
+            IPEndPoint lastAddress = addresses[^1];
+            Connection? connection = null;
+            foreach (IPEndPoint address in addresses)
+            {
+                IObserver? connectionEstablishmentObserver =
+                    Communicator.Observer?.GetConnectionEstablishmentObserver(this, address.ToString());
+                connectionEstablishmentObserver?.Attach();
+                try
+                {
+                    bool secureOnly = preferNonSecure switch
+                    {
+                        NonSecure.SameHost => !address.IsSameHost(),
+                        NonSecure.TrustedHost => true, // TODO check if address is a trusted host
+                        NonSecure.Always => false,
+                        _ => true
+                    };
+                    connection = CreateConnection(preferNonSecure, secureOnly, address, networkProxy, cookie);
+                    await connection.InitializeAsync().ConfigureAwait(false);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    connectionEstablishmentObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    connectionEstablishmentObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    // Ignore the exception unless this is the last address
+                    if (ReferenceEquals(lastAddress, address))
+                    {
+                        throw;
+                    }
+                }
+                finally
+                {
+                    connectionEstablishmentObserver?.Detach();
+                }
+            }
+            Debug.Assert(connection != null);
+            return connection;
+        }
+
+        protected internal abstract Connection CreateConnection(
+            NonSecure preferNonSecure,
+            bool secureOnly,
+            IPEndPoint address,
+            INetworkProxy? proxy,
+            object cookie);
+
+        protected internal override void WriteOptions(OutputStream ostr)
+        {
+            Debug.Assert(Protocol == Protocol.Ice1);
+            ostr.WriteString(Host);
+            ostr.WriteInt(Port);
         }
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
@@ -440,7 +493,5 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a clone with the specified host and port.</summary>
         private protected abstract IPEndpoint Clone(string host, ushort port);
-
-        private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
     }
 }

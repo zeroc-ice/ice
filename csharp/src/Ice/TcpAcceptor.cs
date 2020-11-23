@@ -27,9 +27,9 @@ namespace ZeroC.Ice
         {
             Socket fd = await _socket.AcceptAsync().ConfigureAwait(false);
 
-            bool secure = Endpoint.IsAlwaysSecure || !_adapter.AcceptNonSecure;
-
-            if (_adapter.Protocol == Protocol.Ice2 && _adapter.AcceptNonSecure)
+            bool secure = Endpoint.IsAlwaysSecure || _adapter.AcceptNonSecure == NonSecure.Never;
+            // TODO run checks for SameHost, TrustedHost according to AcceptNonSeucre settings.
+            if (_adapter.Protocol == Protocol.Ice2 && _adapter.AcceptNonSecure != NonSecure.Never)
             {
                 Debug.Assert(_adapter.Communicator.ConnectTimeout != TimeSpan.Zero);
                 // TODO: we are using reusing ConnectTimeout here so that peeking cannot block forever.
@@ -76,7 +76,11 @@ namespace ZeroC.Ice
                 _ => new SlicSocket(socket, Endpoint, _adapter)
             };
 
-            return ((TcpEndpoint)Endpoint).CreateConnection(_manager, multiStreamSocket, null, "", _adapter);
+            return ((TcpEndpoint)Endpoint).CreateConnection(_manager,
+                                                            multiStreamSocket,
+                                                            _adapter.AcceptNonSecure,
+                                                            cookie: "",
+                                                            _adapter);
         }
 
         public void Dispose() => _socket.CloseNoThrow();

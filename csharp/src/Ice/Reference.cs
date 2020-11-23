@@ -49,7 +49,7 @@ namespace ZeroC.Ice
 
         internal LocatorInfo? LocatorInfo { get; }
 
-        internal bool PreferNonSecure { get; }
+        internal NonSecure PreferNonSecure { get; }
         internal Protocol Protocol { get; }
 
         internal RouterInfo? RouterInfo { get; }
@@ -99,6 +99,7 @@ namespace ZeroC.Ice
             InvocationMode invocationMode = InvocationMode.Twoway;
             TimeSpan? invocationTimeout = null;
             IReadOnlyList<string> location;
+            NonSecure? preferNonSecure = null;
             Protocol protocol;
             bool relative = false;
 
@@ -144,6 +145,7 @@ namespace ZeroC.Ice
 
                 invocationTimeout = proxyOptions.InvocationTimeout;
                 relative = proxyOptions.Relative ?? false;
+                preferNonSecure = proxyOptions.PreferNonSecure;
             }
             else
             {
@@ -161,7 +163,6 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string>? context = null;
             TimeSpan? locatorCacheTimeout = null;
             LocatorInfo? locatorInfo = null;
-            bool? preferNonSecure = null;
             RouterInfo? routerInfo = null;
 
             // Override the defaults with the proxy properties if a property prefix is defined.
@@ -197,7 +198,11 @@ namespace ZeroC.Ice
                     communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory));
 
                 locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
-                preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
+
+                if (preferNonSecure == null)
+                {
+                    preferNonSecure = communicator.GetPropertyAsEnum<NonSecure>($"{propertyPrefix}.PreferNonSecure");
+                }
 
                 property = $"{propertyPrefix}.Router";
                 if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
@@ -563,6 +568,10 @@ namespace ZeroC.Ice
                 sb.Append("invocation-timeout=");
                 sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
 
+                StartQueryOption(sb, ref firstOption);
+                sb.Append("prefer-non-secure=");
+                sb.Append(PreferNonSecure.ToString());
+
                 if (IsRelative)
                 {
                     StartQueryOption(sb, ref firstOption);
@@ -633,7 +642,7 @@ namespace ZeroC.Ice
                                                        request.CancellationToken);
             }
 
-            Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
+            async Task<IncomingResponseFrame> InvokeWithInterceptorsAsync(
                 IObjectPrx proxy,
                 OutgoingRequestFrame request,
                 bool oneway,
@@ -655,303 +664,51 @@ namespace ZeroC.Ice
                 if (interceptor != null)
                 {
                     // Call the next interceptor in the chain
-                    return interceptor(
+                    return await interceptor(
                         proxy,
                         request,
                         (target, request, cancel) =>
                             InvokeWithInterceptorsAsync(target, request, oneway, i + 1, progress, cancel),
-                        cancel);
+                        cancel).ConfigureAwait(false);
                 }
                 else
                 {
                     // After we went down the interceptor chain make the invocation.
-                    return PerformInvokeAsync(request, oneway, progress, cancel);
-                }
-            }
+                    request.Finish();
+                    Reference reference = proxy.IceReference;
+                    Communicator communicator = reference.Communicator;
+                    // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
+                    // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
+                    // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
+                    int requestSize = request.Size;
+                    bool releaseRequestAfterSent =
+                        requestSize > communicator.RetryRequestMaxSize ||
+                        !communicator.IncRetryBufferSize(requestSize);
 
-            async Task<IncomingResponseFrame> PerformInvokeAsync(
-                OutgoingRequestFrame request,
-                bool oneway,
-                IProgress<bool>? progress,
-                CancellationToken cancel)
-            {
-                request.Finish();
-                Reference reference = proxy.IceReference;
-
-                IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
-                                                                                     request.Operation,
-                                                                                     request.Context);
-                int attempt = 1;
-                // If the request size is greater than Ice.RetryRequestMaxSize or the size of the request
-                // would increase the buffer retry size beyond Ice.RetryBufferMaxSize we release the request
-                // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
-                int requestSize = request.Size;
-                bool releaseRequestAfterSent =
-                    requestSize > reference.Communicator.RetryRequestMaxSize ||
-                    !reference.Communicator.IncRetryBufferSize(requestSize);
-                try
-                {
-                    IncomingResponseFrame? response = null;
-                    Exception? lastException = null;
-                    List<IConnector>? excludedConnectors = null;
-                    IConnector? connector = null;
-                    while (true)
+                    IInvocationObserver? observer = communicator.Observer?.GetInvocationObserver(proxy,
+                                                                                                 request.Operation,
+                                                                                                 request.Context);
+                    observer?.Attach();
+                    try
                     {
-                        Connection? connection = null;
-                        bool sent = false;
-                        RetryPolicy retryPolicy = RetryPolicy.NoRetry;
-                        IChildInvocationObserver? childObserver = null;
-                        try
-                        {
-                            // Get the connection, this will eventually establish a connection if needed.
-                            connection = await reference.GetConnectionAsync(
-                                excludedConnectors ?? (IReadOnlyList<IConnector>)ImmutableList<IConnector>.Empty,
-                                cancel).ConfigureAwait(false);
-                            connector = connection.Connector;
-                            cancel.ThrowIfCancellationRequested();
-
-                            // Create the outgoing stream.
-                            using SocketStream stream = connection.CreateStream(!oneway);
-
-                            childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
-                            childObserver?.Attach();
-
-                            // TODO: support for streaming data, fin should be false if there's data to stream.
-                            bool fin = true;
-
-                            // Send the request and wait for the sending to complete.
-                            await stream.SendRequestFrameAsync(request, fin, cancel).ConfigureAwait(false);
-
-                            // The request is sent, notify the progress callback.
-                            // TODO: Get rid of the sentSynchronously parameter which is always false now?
-                            if (progress != null)
-                            {
-                                progress.Report(false);
-                                progress = null; // Only call the progress callback once (TODO: revisit this?)
-                            }
-                            if (releaseRequestAfterSent)
-                            {
-                                // TODO release the request
-                            }
-                            sent = true;
-                            lastException = null;
-
-                            if (oneway)
-                            {
-                                return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
-                            }
-
-                            // TODO: the synchronous boolean is no longer used. It was used to allow the reception
-                            // of the response frame to be ran synchronously from the IO thread. Supporting this
-                            // might still be possible depending on the underlying transport but it would be quite
-                            // complex. So get rid of the synchronous boolean and simplify the proxy generated code?
-
-                            // Wait for the reception of the response.
-                            (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
-
-                            if (childObserver != null)
-                            {
-                                // Detach now to not count as a remote failure the 1.1 system exception which might
-                                // be raised below.
-                                childObserver.Reply(response.Size);
-                                childObserver.Detach();
-                                childObserver = null;
-                            }
-
-                            if (!fin)
-                            {
-                                // TODO: handle received stream data.
-                            }
-
-                            // If success, just return the response!
-                            if (response.ResultType == ResultType.Success)
-                            {
-                                return response;
-                            }
-
-                            // Get the retry policy.
-                            observer?.RemoteException();
-                            if (response.Encoding == Encoding.V11)
-                            {
-                                retryPolicy = Ice1Definitions.GetRetryPolicy(response, reference);
-                            }
-                            else if (response.BinaryContext.TryGetValue((int)BinaryContext.RetryPolicy,
-                                                                        out ReadOnlyMemory<byte> value))
-                            {
-                                retryPolicy = value.Read(istr => new RetryPolicy(istr));
-                            }
-                        }
-                        catch (NoEndpointException ex)
-                        {
-                            // The reference has no endpoints or the previous retry policy asked to retry on a
-                            // different replica but no more replicas are available (in this case, we throw
-                            // the previous exception instead of the NoEndpointException).
-                            if (response == null && (excludedConnectors == null || lastException == null))
-                            {
-                                lastException = ex;
-                            }
-                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                        }
-                        catch (TransportException ex)
-                        {
-                            var closedException = ex as ConnectionClosedException;
-                            connector ??= ex.Connector;
-                            if (connector != null && closedException == null)
-                            {
-                                reference.Communicator.OutgoingConnectionFactory.AddTransportFailure(connector);
-                            }
-
-                            lastException = ex;
-                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-
-                            // Retry transport exceptions if the request is idempotent, was not sent or if the
-                            // connection was gracefully closed by the peer (in which case it's safe to retry).
-                            if ((closedException?.IsClosedByPeer ?? false) || request.IsIdempotent || !sent)
-                            {
-                                retryPolicy = ex.RetryPolicy;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            lastException = ex;
-                            childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                        }
-                        finally
-                        {
-                            childObserver?.Detach();
-                        }
-
-                        if (sent && releaseRequestAfterSent)
-                        {
-                            if (reference.Communicator.TraceLevels.Retry >= 1)
-                            {
-                                TraceRetry("request failed with retryable exception but the request is not retryable " +
-                                           "because\n" + (requestSize > reference.Communicator.RetryRequestMaxSize ?
-                                           "the request size exceeds Ice.RetryRequestMaxSize, " :
-                                           "the retry buffer size would exceed Ice.RetryBufferMaxSize, ") +
-                                           "passing exception through to the application",
-                                           attempt,
-                                           retryPolicy,
-                                           lastException);
-                            }
-                            break; // We cannot retry, get out of the loop
-                        }
-                        else if (retryPolicy == RetryPolicy.NoRetry)
-                        {
-                            break; // We cannot retry, get out of the loop
-                        }
-                        else if (++attempt > reference.Communicator.RetryMaxAttempts)
-                        {
-                            if (reference.Communicator.TraceLevels.Retry >= 1)
-                            {
-                                TraceRetry("request failed with retryable exception but it was the final attempt,\n" +
-                                           "passing exception through to the application",
-                                           attempt,
-                                           retryPolicy,
-                                           lastException);
-                            }
-                            break; // We cannot retry, get out of the loop
-                        }
-                        else
-                        {
-                            Debug.Assert(attempt <= reference.Communicator.RetryMaxAttempts &&
-                                         retryPolicy != RetryPolicy.NoRetry);
-                            if (retryPolicy == RetryPolicy.OtherReplica)
-                            {
-                                if (reference.IsFixed)
-                                {
-                                    // A fixed reference implies there are no more replicas
-                                    break;
-                                }
-                                Debug.Assert(connector != null);
-                                excludedConnectors ??= new List<IConnector>();
-                                excludedConnectors.Add(connector);
-                                if (reference.Communicator.TraceLevels.Retry >= 1)
-                                {
-                                    reference.Communicator.Logger.Trace(TraceLevels.RetryCategory,
-                                                                        $"excluding connector\n{connector}");
-                                }
-                            }
-
-                            if (reference.IsConnectionCached && connection != null)
-                            {
-                                reference.ClearConnection(connection);
-                            }
-
-                            if (reference.Communicator.TraceLevels.Retry >= 1)
-                            {
-                                TraceRetry("retrying request because of retryable exception",
-                                           attempt,
-                                           retryPolicy,
-                                           lastException);
-                            }
-
-                            if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)
-                            {
-                                // The delay task can be canceled either by the user code using the provided
-                                // cancellation token or if the communicator is destroyed.
-                                using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                                    cancel,
-                                    proxy.Communicator.CancellationToken);
-                                await Task.Delay(retryPolicy.Delay, tokenSource.Token).ConfigureAwait(false);
-                            }
-
-                            observer?.Retried();
-                        }
+                        return await reference.PerformInvokeAsync(request,
+                                                                  oneway,
+                                                                  progress,
+                                                                  releaseRequestAfterSent,
+                                                                  observer,
+                                                                  cancel).ConfigureAwait(false);
                     }
-
-                    // No more retries or can't retry, throw the exception and return the remote exception
-                    if (lastException != null)
+                    finally
                     {
-                        observer?.Failed(lastException.GetType().FullName ?? "System.Exception");
-                        throw ExceptionUtil.Throw(lastException);
-                    }
-                    else
-                    {
-                        observer?.Failed("System.Exception"); // TODO cleanup observer logic
-                        Debug.Assert(response != null && response.ResultType == ResultType.Failure);
-                        return response;
+                        if (!releaseRequestAfterSent)
+                        {
+                            communicator.DecRetryBufferSize(requestSize);
+                        }
+                        // TODO release the request memory if not already done after sent.
+                        // TODO: Use IDisposable for observers, this will allow using "using".
+                        observer?.Detach();
                     }
                 }
-                finally
-                {
-                    if (!releaseRequestAfterSent)
-                    {
-                        reference.Communicator.DecRetryBufferSize(requestSize);
-                    }
-                    // TODO release the request memory if not already done after sent.
-                    // TODO: Use IDisposable for observers, this will allow using "using".
-                    observer?.Detach();
-                }
-            }
-
-            void TraceRetry(string message, int attempt, RetryPolicy policy, Exception? exception = null)
-            {
-                var sb = new StringBuilder();
-                sb.Append(message);
-                sb.Append("\nproxy = ");
-                sb.Append(proxy);
-                sb.Append("\noperation = ");
-                sb.Append(request.Operation);
-                if (attempt <= proxy.Communicator.RetryMaxAttempts)
-                {
-                    sb.Append("\nrequest attempt = ");
-                    sb.Append(attempt);
-                    sb.Append('/');
-                    sb.Append(proxy.Communicator.RetryMaxAttempts);
-                }
-                sb.Append("\nretry policy = ");
-                sb.Append(policy);
-                if (exception != null)
-                {
-                    sb.Append("\nexception = ");
-                    sb.Append(exception);
-                }
-                else
-                {
-                    sb.Append("\nexception = remote exception");
-                }
-                proxy.Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
             }
         }
 
@@ -1195,7 +952,7 @@ namespace ZeroC.Ice
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
-            bool? preferNonSecure = null,
+            NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null)
         {
@@ -1434,192 +1191,136 @@ namespace ZeroC.Ice
             }
         }
 
-        internal Connection? GetCachedConnection() => _connection;
-
-        internal async ValueTask<Connection> GetConnectionAsync(
-            IReadOnlyList<IConnector> excludedConnectors,
+        private async ValueTask<(List<Endpoint> Endpoints, bool Cached)> ComputeEndpointsAsync(
             CancellationToken cancel)
         {
-            Connection? connection = _connection;
-
-            // If the cached connection is no longer active, clear it and get a new connection.
-            if (!IsFixed && connection != null && !connection.IsActive)
+            Debug.Assert(!IsFixed);
+            // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
+            // case we use the colocated endpoint.
+            if (InvocationMode != InvocationMode.Datagram &&
+                Communicator.GetColocatedEndpoint(this) is Endpoint colocatedEndpoint)
             {
-                ClearConnection(connection);
-                connection = null;
+                return (new List<Endpoint>() { colocatedEndpoint }, false);
             }
 
-            if (connection == null)
+            IReadOnlyList<Endpoint>? endpoints = ImmutableArray<Endpoint>.Empty;
+            if (RouterInfo != null)
             {
-                Debug.Assert(!IsFixed);
+                // Get the router client endpoints if a router is configured
+                endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
+            }
 
-                IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
-
-                // If the invocation mode is not datagram, we first check if the target is colocated and if that's the
-                // case we use the colocated endpoint.
-                if (InvocationMode != InvocationMode.Datagram &&
-                    Communicator.GetColocatedEndpoint(this) is Endpoint colocatedEndpoint)
+            bool cached = false;
+            if (endpoints.Count == 0)
+            {
+                // Get the proxy's endpoint or query the locator to get endpoints
+                if (Endpoints.Count > 0)
                 {
-                    endpoints = ImmutableArray.Create(colocatedEndpoint);
+                    endpoints = Endpoints.ToList();
+                }
+                else if (LocatorInfo != null)
+                {
+                    (endpoints, cached) =
+                        await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
+                }
+            }
+
+            // Apply overrides and filter endpoints
+            IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
+            {
+                // Filter out opaque and universal endpoints
+                if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
+                {
+                    return false;
                 }
 
-                if (endpoints.Count == 0 && RouterInfo != null)
+                // With ice1 when secure endpoint is required filter out all non-secure endpoints.
+                if (Protocol == Protocol.Ice1 && PreferNonSecure == NonSecure.Never && !endpoint.IsAlwaysSecure)
                 {
-                    // Get the router client endpoints if a router is configured
-                    endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
+                    return false;
                 }
 
-                bool cached = false;
-                if (endpoints.Count == 0)
+                // Check if the endpoint is compatible with the proxy invocation mode, Twoway and Oneway invocation
+                // modes require a non datagram endpoint, Datagram invocation mode requires a datagram endpoint, the
+                // other invocation modes (BatchOneway and BatchDagram) are not supported.
+                return InvocationMode switch
                 {
-                    // Get the proxy's endpoint or query the locator to get endpoints
-                    if (Endpoints.Count > 0)
-                    {
-                        endpoints = Endpoints;
-                    }
-                    else if (LocatorInfo != null)
-                    {
-                        (endpoints, cached) =
-                            await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
-                    }
-                }
+                    InvocationMode.Twoway or InvocationMode.Oneway => !endpoint.IsDatagram,
+                    InvocationMode.Datagram => endpoint.IsDatagram,
+                    _ => false
+                };
+            });
 
-                if (endpoints.Count == 0)
+            var orderedEndpoints = Communicator.OrderEndpointsByTransportFailures(filteredEndpoints).ToList();
+            if (orderedEndpoints.Count == 0)
+            {
+                throw new NoEndpointException(ToString());
+            }
+            return (orderedEndpoints, cached);
+        }
+        internal Connection? GetCachedConnection() => _connection;
+
+        internal async ValueTask<Connection> GetConnectionAsync(CancellationToken cancel)
+        {
+            var linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+                cancel,
+                Communicator.CancellationToken);
+            cancel = linkedCancellationSource.Token;
+            Connection? connection = _connection;
+            try
+            {
+                bool cached;
+                List<Endpoint>? endpoints = null;
+                // TODO replace IsConnectionCached with PreferExistingConnection
+                if ((connection == null || (!IsFixed && !connection.IsActive)) && IsConnectionCached)
                 {
-                    throw new NoEndpointException(ToString());
-                }
-
-                // Apply overrides and filter endpoints
-                IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
-                {
-                    // Filter out opaque endpoints
-                    if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
-                    {
-                        return false;
-                    }
-
-                    // Filter out based on InvocationMode and IsDatagram
-                    switch (InvocationMode)
-                    {
-                        case InvocationMode.Twoway:
-                        case InvocationMode.Oneway:
-                        case InvocationMode.BatchOneway:
-                            if (endpoint.IsDatagram)
-                            {
-                                return false;
-                            }
-                            break;
-
-                        case InvocationMode.Datagram:
-                        case InvocationMode.BatchDatagram:
-                            if (!endpoint.IsDatagram)
-                            {
-                                return false;
-                            }
-                            break;
-
-                        default:
-                            Debug.Assert(false);
-                            return false;
-                    }
-
-                    // With ice1 when PreferNonSecure is false filter out all non-secure endpoints.
-                    return Protocol == Protocol.Ice2 || PreferNonSecure || endpoint.IsAlwaysSecure;
-                });
-
-                if (Protocol == Protocol.Ice1 && PreferNonSecure)
-                {
-                    filteredEndpoints = filteredEndpoints.OrderBy(endpoint => !endpoint.IsAlwaysSecure);
-                }
-
-                endpoints = filteredEndpoints.ToArray();
-                if (endpoints.Count == 0)
-                {
-                    throw new NoEndpointException(ToString());
-                }
-
-                // Finally, create the connection.
-                try
-                {
-                    OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
-                    if (IsConnectionCached)
-                    {
-                        // Get an existing connection or create one if there's no existing connection to one of
-                        // the given endpoints.
-                        connection = await factory.CreateAsync(endpoints,
-                                                               false,
-                                                               ConnectionId,
-                                                               excludedConnectors,
-                                                               PreferNonSecure,
-                                                               cancel).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        // Go through the list of endpoints and try to create the connection until it succeeds. This
-                        // is different from just calling create() with all the endpoints since this might create a
-                        // new connection even if there's an existing connection for one of the endpoints.
-                        Endpoint lastEndpoint = endpoints[endpoints.Count - 1];
-                        foreach (Endpoint endpoint in endpoints)
-                        {
-                            try
-                            {
-                                connection = await factory.CreateAsync(ImmutableArray.Create(endpoint),
-                                                                       endpoint != lastEndpoint,
-                                                                       ConnectionId,
-                                                                       excludedConnectors,
-                                                                       PreferNonSecure,
-                                                                       cancel).ConfigureAwait(false);
-                                break;
-                            }
-                            catch (Exception)
-                            {
-                                if (endpoint == lastEndpoint)
-                                {
-                                    throw;
-                                }
-                            }
-                        }
-                    }
-                    Debug.Assert(connection != null);
-
-                    if (RouterInfo != null)
-                    {
-                        await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this)).ConfigureAwait(false);
-
-                        // Set the object adapter for this router (if any) on the new connection, so that callbacks from
-                        // the router can be received over this new connection.
-                        if (RouterInfo.Adapter != null)
-                        {
-                            connection.Adapter = RouterInfo.Adapter;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (LocatorInfo != null && IsIndirect)
-                    {
-                        LocatorInfo.ClearCache(this);
-                    }
-
-                    if (cached)
-                    {
-                        TraceLevels traceLevels = Communicator.TraceLevels;
-                        if (traceLevels.Retry >= 2)
-                        {
-                            Communicator.Logger.Trace(TraceLevels.RetryCategory,
-                                                      "connection to cached endpoints failed\n" +
-                                                      $"removing endpoints from cache and trying again\n{ex}");
-                        }
-                        return await GetConnectionAsync(excludedConnectors, cancel).ConfigureAwait(false);
-                    }
-                    throw;
-                }
-
-                if (IsConnectionCached)
-                {
+                    // No cached connection, so now check if the connection factory has an existing connection that we
+                    // can reuse, the connection factory will compute the reference endpoints and the endpoint
+                    // connectors if required.
+                    (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                    connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
                     _connection = connection;
                 }
+
+                if (connection == null)
+                {
+                    if (endpoints == null)
+                    {
+                        (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                    }
+
+                    Endpoint last = endpoints[^1];
+                    foreach (Endpoint endpoint in endpoints)
+                    {
+                        try
+                        {
+                            connection = await Communicator.ConnectAsync(endpoint,
+                                                                         PreferNonSecure,
+                                                                         ConnectionId,
+                                                                         cancel).ConfigureAwait(false);
+                            if (IsConnectionCached)
+                            {
+                                _connection = connection;
+                            }
+                            break;
+                        }
+                        catch
+                        {
+                            // Ignore the exception unless this is the last connector.
+                            // TODO retry with non cached endpoints
+                            if (ReferenceEquals(endpoint, last))
+                            {
+                                throw;
+                            }
+                        }
+                    }
+                }
             }
+            finally
+            {
+                linkedCancellationSource.Dispose();
+            }
+            Debug.Assert(connection != null);
             return connection;
         }
 
@@ -1635,13 +1336,13 @@ namespace ZeroC.Ice
                 [prefix] = ToString(),
                 [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "1" : "0",
                 [$"{prefix}.LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
-                [$"{prefix}.PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
 
             if (Protocol == Protocol.Ice1)
             {
-                // For Ice2 the invocation timeout is included in the URI
+                // For Ice2 these are URI options
                 properties[$"{prefix}.InvocationTimeout"] = InvocationTimeout.ToPropertyString();
+                properties[$"{prefix}.PreferNonSecure"] = PreferNonSecure.ToString();
             }
 
             if (RouterInfo != null)
@@ -1730,7 +1431,7 @@ namespace ZeroC.Ice
             IReadOnlyList<string> location, // already a copy provided by Ice
             TimeSpan locatorCacheTimeout,
             LocatorInfo? locatorInfo,
-            bool preferNonSecure,
+            NonSecure preferNonSecure,
             Protocol protocol,
             bool relative,
             RouterInfo? routerInfo)
@@ -1797,7 +1498,7 @@ namespace ZeroC.Ice
             Location = ImmutableArray<string>.Empty;
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
-            PreferNonSecure = false;
+            PreferNonSecure = fixedConnection.IsSecure ? NonSecure.Never : NonSecure.Always;
             Protocol = fixedConnection.Protocol;
             RouterInfo = null;
 
@@ -1824,6 +1525,295 @@ namespace ZeroC.Ice
                 Debug.Assert((byte)InvocationMode <= (byte)InvocationMode.Oneway);
             }
             Debug.Assert(invocationTimeout != TimeSpan.Zero);
+        }
+
+        private async Task<IncomingResponseFrame> PerformInvokeAsync(
+            OutgoingRequestFrame request,
+            bool oneway,
+            IProgress<bool>? progress,
+            bool releaseRequestAfterSent,
+            IInvocationObserver? observer,
+            CancellationToken cancel)
+        {
+            Connection? connection = _connection;
+            bool cached = false;
+            List<Endpoint>? endpoints = null;
+
+            // TODO replace IsConnectionCached with PreferExistingConnection
+            if ((connection == null || (!IsFixed && !connection.IsActive)) && IsConnectionCached)
+            {
+                // No cached connection, so now check if there is an existing connection that we can reuse.
+                (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
+                _connection = connection;
+            }
+
+            int nextEndpoint = 0;
+            int attempt = 1;
+            bool triedAllEndpoints = false;
+            List<Endpoint>? excludedEndpoints = null;
+            IncomingResponseFrame? response = null;
+            Exception? exception = null;
+
+            bool tryAgain;
+            do
+            {
+                bool sent = false;
+                IChildInvocationObserver? childObserver = null;
+                try
+                {
+                    if (connection == null)
+                    {
+                        if (endpoints == null)
+                        {
+                            // ComputeEndpointsAsync throws if it can't figure out the endpoints
+                            // TODO ComputeEndpointsAsync should return a integer indicating the locator cache version,
+                            // -1 indicates the locator was not contacted.
+                            (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                            if (excludedEndpoints != null)
+                            {
+                                endpoints = endpoints.Except(excludedEndpoints).ToList();
+                                if (endpoints.Count == 0)
+                                {
+                                    throw new NoEndpointException();
+                                }
+                            }
+                        }
+
+                        connection = await Communicator.ConnectAsync(endpoints[nextEndpoint],
+                                                                     PreferNonSecure,
+                                                                     ConnectionId,
+                                                                     cancel).ConfigureAwait(false);
+                        if (IsConnectionCached)
+                        {
+                            _connection = connection;
+                        }
+                    }
+
+                    cancel.ThrowIfCancellationRequested();
+
+                    // Create the outgoing stream.
+                    using SocketStream stream = connection.CreateStream(!oneway);
+
+                    childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
+                    childObserver?.Attach();
+
+                    // TODO: support for streaming data, fin should be false if there's data to stream.
+                    bool fin = true;
+
+                    // Send the request and wait for the sending to complete.
+                    await stream.SendRequestFrameAsync(request, fin, cancel).ConfigureAwait(false);
+
+                    // The request is sent, notify the progress callback.
+                    // TODO: Get rid of the sentSynchronously parameter which is always false now?
+                    if (progress != null)
+                    {
+                        progress.Report(false);
+                        progress = null; // Only call the progress callback once (TODO: revisit this?)
+                    }
+                    if (releaseRequestAfterSent)
+                    {
+                        // TODO release the request
+                    }
+                    sent = true;
+                    exception = null;
+
+                    if (oneway)
+                    {
+                        return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
+                    }
+
+                    // TODO: the synchronous boolean is no longer used. It was used to allow the reception
+                    // of the response frame to be ran synchronously from the IO thread. Supporting this
+                    // might still be possible depending on the underlying transport but it would be quite
+                    // complex. So get rid of the synchronous boolean and simplify the proxy generated code?
+
+                    // Wait for the reception of the response.
+                    (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+
+                    childObserver?.Reply(response.Size);
+
+                    if (!fin)
+                    {
+                        // TODO: handle received stream data.
+                    }
+
+                    // If success, just return the response!
+                    if (response.ResultType == ResultType.Success)
+                    {
+                        return response;
+                    }
+                    observer?.RemoteException();
+                }
+                catch (NoEndpointException ex) when (!cached)
+                {
+                    // If we get NoEndpointException while using non cached endpoints, either all endpoints
+                    // have been excluded or the proxy has no endpoints. we cannot retry, return here to
+                    // preserve any previous exceptions that might have been throw.
+                    childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    observer?.Failed(ex.GetType().FullName ?? "System.Exception"); // TODO cleanup observer logic
+                    return response ?? throw exception ?? ex;
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                    childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                }
+                finally
+                {
+                    childObserver?.Detach();
+                }
+
+                // Compute retry policy based on the exception or response retry policy, whether or not the connection
+                // is established or the request sent and idempotent
+                Debug.Assert(response != null || exception != null);
+                RetryPolicy retryPolicy =
+                    response?.GetRetryPolicy(this) ?? exception!.GetRetryPolicy(request.IsIdempotent, sent);
+
+                // With the retry-policy OtherReplica we add the current connector to the list of excluded
+                // connectors and remove if from the list of connectors, this prevents the connector to be
+                // tried again during the current retry sequence.
+                if (retryPolicy == RetryPolicy.OtherReplica)
+                {
+                    if ((endpoints?[nextEndpoint] ?? connection?.Endpoint) is Endpoint endpoint)
+                    {
+                        excludedEndpoints ??= new();
+                        excludedEndpoints.Add(endpoint);
+                    }
+                    endpoints?.RemoveAt(nextEndpoint);
+                }
+
+                if (endpoints != null)
+                {
+                    if (connection == null && retryPolicy != RetryPolicy.OtherReplica)
+                    {
+                        // If connection establishment failed and the endpoint was not excluded, try the next
+                        // endpoint
+                        nextEndpoint = ++nextEndpoint % endpoints.Count;
+                    }
+
+                    if (endpoints.Count == 0 || nextEndpoint == 0)
+                    {
+                        // If the connector set is empty because all connectors has been excluded, or
+                        // nextConnector == 0, it indicates that we already tried all the connectors.
+                        if (cached)
+                        {
+                            // If the connectors were computed from cached endpoints, we clear the connectors to
+                            // trigger a new endpoint lookup.
+                            endpoints = null;
+                            nextEndpoint = 0;
+                        }
+                        else
+                        {
+                            // Otherwise we set triedAllConnectors to true to ensure further connection establishment
+                            // failures will now count as attempts (to prevent indefinitely looping if connection
+                            // establishment failure results in a retryable exception).
+                            triedAllEndpoints = true;
+                        }
+                    }
+                }
+
+                // Check if we can retry, we cannot retry if we have consumed all attempts, the current retry
+                // policy doesn't allow retries, the request was already released, there are no more endpoints
+                // or a fixed reference receives an exception with OtherReplica retry.
+
+                if (attempt == Communicator.InvocationMaxAttempts ||
+                    retryPolicy == RetryPolicy.NoRetry ||
+                    (sent && releaseRequestAfterSent) ||
+                    (triedAllEndpoints && endpoints != null && endpoints.Count == 0) ||
+                    (IsFixed && retryPolicy == RetryPolicy.OtherReplica))
+                {
+                    tryAgain = false;
+                }
+                else
+                {
+                    tryAgain = true;
+                    if (Communicator.TraceLevels.Retry >= 1)
+                    {
+                        if (connection != null)
+                        {
+                            TraceRetry("retrying request because of retryable exception", attempt, retryPolicy, exception);
+                        }
+                        else if (triedAllEndpoints)
+                        {
+                            TraceRetry("retrying connection establishment because of retryable exception",
+                                       attempt,
+                                       retryPolicy,
+                                       exception);
+                        }
+                        else
+                        {
+                            TraceRetry("retrying connection establishment because of retryable exception",
+                                       0,
+                                       policy: null,
+                                       exception);
+                        }
+                    }
+
+                    if (connection != null || triedAllEndpoints)
+                    {
+                        // Only count an attempt if the connection was established or if all the endpoints were
+                        // tried at least once. This ensures that we don't end up into an infinite loop for connection
+                        // establishment failures which don't result in endpoint exclusion.
+                        attempt++;
+                    }
+
+                    if (retryPolicy.Retryable == Retryable.AfterDelay && retryPolicy.Delay != TimeSpan.Zero)
+                    {
+                        // The delay task can be canceled either by the user code using the provided cancellation
+                        // token or if the communicator is destroyed.
+                        await Task.Delay(retryPolicy.Delay, cancel).ConfigureAwait(false);
+                    }
+
+                    observer?.Retried();
+
+                    // TODO remove this when we implement the locator cache serial, that will retrieve a fresh endpoint
+                    // based on the previous serial.
+                    if (cached && IsIndirect)
+                    {
+                        LocatorInfo?.ClearCache(this);
+                    }
+
+                    if (!IsFixed && connection != null)
+                    {
+                        // Retry with a new connection!
+                        connection = null;
+                    }
+                }
+            }
+            while (tryAgain);
+
+            // TODO cleanup observer logic we report "System.Exception" for all remote exceptions
+            observer?.Failed(exception?.GetType().FullName ?? "System.Exception");
+            Debug.Assert(response != null || exception != null);
+            Debug.Assert(response == null || response.ResultType == ResultType.Failure);
+            return response ?? throw exception!;
+
+            void TraceRetry(string message, int attempt = 0, RetryPolicy? policy = null, Exception? exception = null)
+            {
+                Debug.Assert(attempt >= 0 && attempt <= Communicator.InvocationMaxAttempts);
+                var sb = new StringBuilder();
+                sb.Append(message);
+                sb.Append("\nproxy = ");
+                sb.Append(this);
+                sb.Append("\noperation = ");
+                sb.Append(request.Operation);
+                if (attempt > 0)
+                {
+                    sb.Append("\nrequest attempt = ");
+                    sb.Append(attempt);
+                    sb.Append('/');
+                    sb.Append(Communicator.InvocationMaxAttempts);
+                }
+                if (policy != null)
+                {
+                    sb.Append("\nretry policy = ");
+                    sb.Append(policy);
+                }
+                sb.Append("\nexception = ");
+                sb.Append(exception?.ToString() ?? "\nexception = remote exception");
+                Communicator.Logger.Trace(TraceLevels.RetryCategory, sb.ToString());
+            }
         }
     }
 }

@@ -26,8 +26,8 @@ namespace ZeroC.Ice
             return new ColocatedConnection(_manager,
                                            _endpoint,
                                            new ColocatedSocket(_endpoint, id, writer, reader, true),
-                                           null,
-                                           "",
+                                           _adapter.AcceptNonSecure,
+                                           connectionId: "",
                                            _adapter);
         }
 

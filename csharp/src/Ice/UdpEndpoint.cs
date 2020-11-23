@@ -50,7 +50,7 @@ namespace ZeroC.Ice
                 }
                 Endpoint endpoint = socket.Bind(this);
                 var multiStreamSocket = new Ice1NetworkSocket(socket, endpoint, adapter);
-                return new UdpConnection(null, endpoint, multiStreamSocket, null, "", adapter);
+                return new UdpConnection(null, endpoint, multiStreamSocket, adapter.AcceptNonSecure, "", adapter);
             }
             catch (Exception)
             {
@@ -128,6 +128,23 @@ namespace ZeroC.Ice
             {
                 sb.Append(" -z");
             }
+        }
+
+        protected internal override Connection CreateConnection(
+            NonSecure preferNonSecure,
+            bool secureOnly,
+            IPEndPoint address,
+            INetworkProxy? proxy,
+            object cookie)
+        {
+            Debug.Assert(secureOnly == false);
+            var socket = new UdpSocket(Communicator, address, SourceAddress, MulticastInterface, MulticastTtl);
+            return new UdpConnection(Communicator,
+                                     this,
+                                     new Ice1NetworkSocket(socket, this, null),
+                                     preferNonSecure,
+                                     (string)cookie,
+                                     null);
         }
 
         protected internal override void WriteOptions(OutputStream ostr)
@@ -213,8 +230,6 @@ namespace ZeroC.Ice
                                    oaEndpoint,
                                    endpointString);
         }
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(this, addr);
 
         // Constructor for ice1 unmarshaling
         private UdpEndpoint(EndpointData data, bool compress, Communicator communicator)

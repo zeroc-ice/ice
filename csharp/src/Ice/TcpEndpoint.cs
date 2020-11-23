@@ -31,6 +31,7 @@ namespace ZeroC.Ice
         /// <summary>The default timeout for ice1 endpoints.</summary>
         protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
+        private int _equivalentHashCode;
         private int _hashCode;
 
         // TODO: should not be public
@@ -53,6 +54,7 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1)
             {
                 return other is TcpEndpoint tcpEndpoint &&
+                    HasCompressionFlag == tcpEndpoint.HasCompressionFlag &&
                     Timeout == tcpEndpoint.Timeout &&
                     base.Equals(tcpEndpoint);
             }
@@ -75,7 +77,7 @@ namespace ZeroC.Ice
                 int hashCode;
                 if (Protocol == Protocol.Ice1)
                 {
-                    hashCode = HashCode.Combine(base.GetHashCode(), Timeout);
+                    hashCode = HashCode.Combine(base.GetHashCode(), HasCompressionFlag, Timeout);
                 }
                 else
                 {
@@ -106,6 +108,29 @@ namespace ZeroC.Ice
                 }
             }
         }
+
+        protected internal override int GetEquivalentHashCode()
+        {
+            // This code is thread safe because reading/writing _hashCode (an int) is atomic.
+            if (_equivalentHashCode != 0)
+            {
+                // Return cached value
+                return _equivalentHashCode;
+            }
+            else
+            {
+                int hashCode = base.GetHashCode();
+                if (hashCode == 0) // 0 is not a valid value as it means "not initialized".
+                {
+                    hashCode = 1;
+                }
+                _equivalentHashCode = hashCode;
+                return _equivalentHashCode;
+            }
+        }
+
+        protected internal override bool IsEquivalent(Endpoint? other) =>
+            ReferenceEquals(this, other) || base.Equals(other);
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
@@ -172,13 +197,34 @@ namespace ZeroC.Ice
                                    oaEndpoint);
         }
 
-        internal virtual Connection CreateConnection(
-            IConnectionManager manager,
+        protected internal override Connection CreateConnection(
+            NonSecure preferNonSecure,
+            bool secureOnly,
+            IPEndPoint address,
+            INetworkProxy? proxy,
+            object cookie)
+        {
+            SingleStreamSocket socket = CreateSocket(address, proxy, preferNonSecure: !secureOnly);
+            MultiStreamOverSingleStreamSocket multiStreamSocket = Protocol switch
+            {
+                Protocol.Ice1 => new Ice1NetworkSocket(socket, this, null),
+                _ => new SlicSocket(socket, this, null)
+            };
+            return CreateConnection(Communicator, multiStreamSocket, preferNonSecure, cookie, adapter: null);
+        }
+
+        protected internal virtual Connection CreateConnection(
+            IConnectionManager connectionManager,
             MultiStreamOverSingleStreamSocket socket,
-            IConnector? connector,
-            string connectionId,
+            NonSecure preferNonSecure,
+            object cookie,
             ObjectAdapter? adapter) =>
-            new TcpConnection(manager, this, socket, connector, connectionId, adapter);
+            new TcpConnection(connectionManager,
+                              this,
+                              socket,
+                              preferNonSecure,
+                              connectionId: (string)cookie,
+                              adapter);
 
         private protected static TimeSpan ParseTimeout(Dictionary<string, string?> options, string endpointString)
         {
@@ -266,19 +312,15 @@ namespace ZeroC.Ice
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new TcpEndpoint(this, host, port);
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(this, addr, proxy);
-
         internal virtual SingleStreamSocket CreateSocket(
-            IConnector connector,
             EndPoint addr,
             INetworkProxy? proxy,
             bool preferNonSecure)
         {
-            SingleStreamSocket singleStreamSocket = new TcpSocket(Communicator, connector, addr, proxy, SourceAddress);
+            SingleStreamSocket singleStreamSocket = new TcpSocket(Communicator, addr, proxy, SourceAddress);
             if (IsAlwaysSecure || !preferNonSecure)
             {
-                singleStreamSocket = new SslSocket(Communicator, singleStreamSocket, Host, false, connector);
+                singleStreamSocket = new SslSocket(Communicator, singleStreamSocket, Host, false);
             }
             return singleStreamSocket;
         }

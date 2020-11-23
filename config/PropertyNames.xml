@@ -356,6 +356,7 @@ generated from the section label.
         <property name="ImplicitContext" />
         <property name="IncomingFrameMaxSize" />
         <property name="InitPlugins" />
+        <property name="InvocationMaxAttempts" />
         <!-- TODO: Remove IPv4 -->
         <property name="IPv4" />
         <!-- TODO: Remove IPv6 -->

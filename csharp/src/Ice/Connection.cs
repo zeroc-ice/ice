@@ -91,7 +91,10 @@ namespace ZeroC.Ice
         }
 
         /// <summary><c>true</c> for incoming connections <c>false</c> otherwise.</summary>
-        public bool IsIncoming => _connector == null;
+        public bool IsIncoming { get; }
+
+        /// <summary><c>true</c> if the connection uses encryption <c>false</c> otherwise.</summary>
+        public virtual bool IsSecure => false;
 
         /// <summary>Enables or disables the keep alive. When enabled, the connection is kept alive by sending ping
         /// frames at regular time intervals when the connection is idle.</summary>
@@ -100,15 +103,7 @@ namespace ZeroC.Ice
         /// <summary>The protocol used by the connection.</summary>
         public Protocol Protocol => Endpoint.Protocol;
 
-        // The connector from which the connection was created. This is used by the outgoing connection factory.
-        internal IConnector? Connector => _connector;
-
-        // The endpoints which are associated with this connection. This is populated by the outgoing connection
-        // factory when an endpoint resolves to the same connector as this connection's connector. Two endpoints
-        // can be different but resolve to the same connector (e.g.: endpoints with the IPs "::1", "0:0:0:0:0:0:0:1"
-        // or "localhost" are different endpoints but they all end up resolving to the same connector and can use
-        // the same connection).
-        internal List<Endpoint> Endpoints { get; }
+        internal NonSecure PreferNonSecure { get; }
 
         private protected MultiStreamSocket Socket { get; }
         // The accept stream task is assigned each time a new accept stream async operation is started.
@@ -120,7 +115,6 @@ namespace ZeroC.Ice
         private EventHandler? _closed;
         // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
-        private readonly IConnector? _connector;
         // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         private readonly IConnectionManager? _manager;
@@ -135,8 +129,7 @@ namespace ZeroC.Ice
         public Task AbortAsync(string? message = null) =>
             AbortAsync(new ConnectionClosedException(message ?? "connection closed forcefully",
                                                      isClosedByPeer: false,
-                                                     RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                     Connector));
+                                                     RetryPolicy.AfterDelay(TimeSpan.Zero)));
 
         /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
         /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
@@ -175,8 +168,7 @@ namespace ZeroC.Ice
         public Task GoAwayAsync(string? message = null, CancellationToken cancel = default) =>
             GoAwayAsync(new ConnectionClosedException(message ?? "connection closed gracefully",
                                                       isClosedByPeer: false,
-                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                      Connector),
+                                                      RetryPolicy.AfterDelay(TimeSpan.Zero)),
                         cancel);
 
         /// <summary>This event is raised when the connection receives a ping frame. The connection object is
@@ -227,18 +219,18 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamSocket socket,
-            IConnector? connector,
+            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
         {
             Communicator = endpoint.Communicator;
             _manager = manager;
             Socket = socket;
-            _connector = connector;
             ConnectionId = connectionId;
             Endpoint = endpoint;
-            Endpoints = new List<Endpoint>() { endpoint };
             KeepAlive = Communicator.KeepAlive;
+            IsIncoming = adapter != null;
+            PreferNonSecure = preferNonSecure;
             _adapter = adapter;
             _state = ConnectionState.Initializing;
         }
@@ -254,8 +246,7 @@ namespace ZeroC.Ice
                 if (_state != ConnectionState.Active)
                 {
                     throw new ConnectionClosedException(isClosedByPeer: false,
-                                                        RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                        Connector);
+                                                        RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
                 return Socket.CreateStream(bidirectional);
             }
@@ -367,16 +358,14 @@ namespace ZeroC.Ice
                         // ACM activity in the last period.
                         _ = AbortAsync(new ConnectionClosedException("connection timed out",
                                                                      isClosedByPeer: false,
-                                                                     RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                     Connector));
+                                                                     RetryPolicy.AfterDelay(TimeSpan.Zero)));
                     }
                     else
                     {
                         // The connection is idle, close it.
                         _ = GoAwayAsync(new ConnectionClosedException("connection idle",
                                                                       isClosedByPeer: false,
-                                                                      RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                      Connector));
+                                                                      RetryPolicy.AfterDelay(TimeSpan.Zero)));
                     }
                 }
             }
@@ -415,8 +404,7 @@ namespace ZeroC.Ice
                         // This can occur if the communicator or object adapter is disposed while the connection
                         // initializes.
                         throw new ConnectionClosedException(isClosedByPeer: false,
-                                                            RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                            Connector);
+                                                            RetryPolicy.AfterDelay(TimeSpan.Zero));
                     }
                     SetState(ConnectionState.Active);
 
@@ -427,7 +415,7 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
-                var ex = new ConnectTimeoutException(RetryPolicy.AfterDelay(TimeSpan.Zero), Connector);
+                var ex = new ConnectTimeoutException(RetryPolicy.AfterDelay(TimeSpan.Zero));
                 _ = AbortAsync(ex);
                 throw ex;
             }
@@ -448,9 +436,7 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                Socket.Observer = Communicator.Observer?.GetConnectionObserver(this,
-                                                                                     _state,
-                                                                                     Socket.Observer);
+                Socket.Observer = Communicator.Observer?.GetConnectionObserver(this, _state, Socket.Observer);
             }
         }
 
@@ -665,8 +651,7 @@ namespace ZeroC.Ice
                 {
                     var exception = new ConnectionClosedException(message,
                                                                   isClosedByPeer: true,
-                                                                  RetryPolicy.AfterDelay(TimeSpan.Zero),
-                                                                  Connector);
+                                                                  RetryPolicy.AfterDelay(TimeSpan.Zero));
                     if (_state == ConnectionState.Active)
                     {
                         SetState(ConnectionState.Closing, exception);
@@ -732,10 +717,10 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             ColocatedSocket socket,
-            IConnector? connector,
+            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, connector, connectionId, adapter)
+            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter)
         {
         }
     }
@@ -781,10 +766,10 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            IConnector? connector,
+            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, connector, connectionId, adapter) => _socket = socket;
+            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter) => _socket = socket;
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -798,6 +783,8 @@ namespace ZeroC.Ice
         /// <summary>Gets a Boolean value that indicates whether both server and client have been authenticated.
         /// </summary>
         public bool IsMutuallyAuthenticated => SslStream?.IsMutuallyAuthenticated ?? false;
+        /// <inheritdoc/>
+        public override bool IsSecure => SslStream != null;
         /// <summary>Gets a Boolean value that indicates whether the data sent using this stream is signed.</summary>
         public bool IsSigned => SslStream?.IsSigned ?? false;
 
@@ -824,10 +811,10 @@ namespace ZeroC.Ice
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            IConnector? connector,
+            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, connector, connectionId, adapter)
+            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter)
         {
         }
     }
@@ -844,10 +831,10 @@ namespace ZeroC.Ice
             IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            IConnector? connector,
+            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, connector, connectionId, adapter) =>
+            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter) =>
             _udpSocket = (UdpSocket)_socket.Underlying;
     }
 
@@ -863,10 +850,10 @@ namespace ZeroC.Ice
             IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            IConnector? connector,
+            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, connector, connectionId, adapter) =>
+            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter) =>
             _wsSocket = (WSSocket)_socket.Underlying;
     }
 }

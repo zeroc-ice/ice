@@ -16,6 +16,7 @@ namespace ZeroC.Ice
         {
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
+            internal NonSecure? PreferNonSecure;
             internal Protocol? Protocol;
             internal bool? Relative;
         }
@@ -298,6 +299,22 @@ namespace ZeroC.Ice
                     {
                         throw new FormatException("the URI format does not support protocol ice1");
                     }
+                }
+                else if (name == "prefer-non-secure")
+                {
+                    if (pureEndpoints)
+                    {
+                        throw new FormatException($"prefer-non-secure is not a valid option for endpoint `{uriString}'");
+                    }
+                    else if (proxyOptions.PreferNonSecure != null)
+                    {
+                        throw new FormatException($"multiple prefer-non-secure options in `{uriString}'");
+                    }
+                    else if (int.TryParse(value, out int _))
+                    {
+                        throw new FormatException($"{value} is not a valid option for prefer-non-secure");
+                    }
+                    proxyOptions.PreferNonSecure = Enum.Parse<NonSecure>(value, ignoreCase: true);
                 }
                 else if (endpointOptions == null && name == "relative")
                 {

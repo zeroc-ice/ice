@@ -23,7 +23,7 @@ namespace ZeroC.Ice
         /// only accepts secure connections; when true, it accepts both secure and non-secure connections. This property
         /// corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
         /// <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
-        public bool AcceptNonSecure { get; }
+        public NonSecure AcceptNonSecure { get; }
 
         /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not
         /// have an adapter ID.</summary>
@@ -232,7 +232,7 @@ namespace ZeroC.Ice
                 // Wait for the incoming connection factories to be disposed.
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
-                Communicator.OutgoingConnectionFactory.RemoveAdapter(this);
+                // TODO jose: Clear the outgoing connections adapter?
                 Communicator.EraseRouterInfo(_routerInfo?.Router);
                 Communicator.RemoveObjectAdapter(this);
             }
@@ -657,7 +657,8 @@ namespace ZeroC.Ice
                 Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameMaxSize") ?? Communicator.IncomingFrameMaxSize;
             IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
 
-            AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
+            AcceptNonSecure =
+                Communicator.GetPropertyAsEnum<NonSecure>($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
 
             try
             {
@@ -693,7 +694,7 @@ namespace ZeroC.Ice
                     // adapter for callbacks.
 
                     // Often makes a synchronous remote call.
-                    Communicator.OutgoingConnectionFactory.SetRouterInfo(_routerInfo);
+                    Communicator.SetRouterInfo(_routerInfo);
 
                     // Synchronous remote call!
                     _publishedEndpoints = router.GetServerEndpoints();
@@ -719,7 +720,7 @@ namespace ZeroC.Ice
 
                             // When the adapter is configured to only accept secure connections ensure that all
                             // configured endpoints only accept secure connections.
-                            if (!AcceptNonSecure &&
+                            if (AcceptNonSecure == NonSecure.Never &&
                                 endpoints.FirstOrDefault(endpoint => !endpoint.IsAlwaysSecure) is Endpoint endpoint)
                             {
                                 throw new InvalidConfigurationException($@"object adapter `{Name

@@ -60,9 +60,6 @@ namespace ZeroC.Ice
 
         public override bool IsLocal(Endpoint endpoint) => false;
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel) =>
-            new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
-
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
@@ -78,6 +75,12 @@ namespace ZeroC.Ice
                 sb.Append(string.Join(",", Data.Options.Select(s => Uri.EscapeDataString(s))));
             }
         }
+
+        protected internal override Task<Connection> ConnectAsync(
+            NonSecure preferNonSecure,
+            object cookie,
+            CancellationToken cancel) =>
+            throw new NotSupportedException("cannot create a connection to an universal endpoint");
 
         protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
             throw new NotSupportedException("cannot create published endpoint for universal endpoint");

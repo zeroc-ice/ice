@@ -83,9 +83,6 @@ namespace ZeroC.Ice
             throw new NotImplementedException("cannot write the options of an opaque endpoint");
         }
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel) =>
-            new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
-
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
@@ -102,6 +99,12 @@ namespace ZeroC.Ice
                 sb.Append(Convert.ToBase64String(Value.Span));
             }
         }
+
+        protected internal override Task<Connection> ConnectAsync(
+            NonSecure preferNonSecure,
+            object cookie,
+            CancellationToken cancel) =>
+            throw new NotSupportedException("cannot create a connection to an opaque endpoint");
 
         protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
             throw new NotSupportedException("cannot create published endpoint for opaque endpoint");

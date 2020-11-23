@@ -42,13 +42,11 @@ namespace ZeroC.Ice
             private readonly Communicator _communicator;
         }
 
-        /// <summary>Indicates whether or not object adapters created by this communicator accept non-secure incoming
-        /// connections. When false, they accept only secure connections; when true, they accept both secure and
-        /// non-secure connections. This property corresponds to the Ice.AcceptNonSecure configuration
-        /// property. It can be overridden for each object adapter by the object adapter property with the same name.
-        /// </summary>
-        // TODO: update doc with default value for AcceptNonSecure - it's currently true but should be false
-        public bool AcceptNonSecure { get; }
+        /// <summary>Indicates under what conditions the object adapters created by this communicator accept non-secure
+        /// incoming connections. This property corresponds to the Ice.AcceptNonSecure configuration property. It can
+        /// be overridden for each object adapter by the object adapter property with the same name.</summary>
+        // TODO: update doc with default value for AcceptNonSecure - it's currently Always but should be Never
+        public NonSecure AcceptNonSecure { get; }
 
         /// <summary>The connection close timeout.</summary>
         public TimeSpan CloseTimeout { get; }
@@ -109,9 +107,8 @@ namespace ZeroC.Ice
             set => _defaultLocator = value;
         }
 
-        /// <summary>Gets whether or not non-secure endpoints should have preference over secure endpoints.
-        /// </summary>
-        public bool DefaultPreferNonSecure { get; }
+        /// <summary>Gets the communicator preferences for establishing non-secure connections.</summary>
+        public NonSecure DefaultPreferNonSecure { get; }
 
         /// <summary>Gets the default source address value used by proxies created with this communicator.</summary>
         public IPAddress? DefaultSourceAddress { get; }
@@ -145,7 +142,21 @@ namespace ZeroC.Ice
         public ToStringMode ToStringMode { get; }
 
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
-        internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        internal CancellationToken CancellationToken
+        {
+            get
+            {
+                try
+                {
+                    return _cancellationTokenSource.Token;
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw new CommunicatorDisposedException(ex);
+                }
+            }
+        }
+
         internal int ClassGraphMaxDepth { get; }
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
@@ -160,7 +171,7 @@ namespace ZeroC.Ice
 
         /// <summary>Gets the maximum number of invocation attempts made to send a request including the original
         /// invocation. It must be a number greater than 0.</summary>
-        internal int RetryMaxAttempts { get; }
+        internal int InvocationMaxAttempts { get; }
         internal int RetryBufferMaxSize { get; }
         internal int RetryRequestMaxSize { get; }
         internal string ServerName { get; }
@@ -460,8 +471,9 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
 
-                // TODO: switch to 0/false default
-                DefaultPreferNonSecure = GetPropertyAsBool("Ice.Default.PreferNonSecure") ?? true;
+                // TODO: switch to NonSecure.Never default
+                DefaultPreferNonSecure =
+                    GetPropertyAsEnum<NonSecure>("Ice.Default.PreferNonSecure") ?? NonSecure.Always;
 
                 if (GetProperty("Ice.Default.SourceAddress") is string address)
                 {
@@ -527,13 +539,13 @@ namespace ZeroC.Ice
                 int frameMaxSize = GetPropertyAsByteSize("Ice.IncomingFrameMaxSize") ?? 1024 * 1024;
                 IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
 
-                RetryMaxAttempts = GetPropertyAsInt("Ice.RetryMaxAttempts") ?? 5;
+                InvocationMaxAttempts = GetPropertyAsInt("Ice.InvocationMaxAttempts") ?? 5;
 
-                if (RetryMaxAttempts <= 0)
+                if (InvocationMaxAttempts <= 0)
                 {
                     throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
                 }
-                RetryMaxAttempts = Math.Min(RetryMaxAttempts, 5);
+                InvocationMaxAttempts = Math.Min(InvocationMaxAttempts, 5);
                 RetryBufferMaxSize = GetPropertyAsByteSize("Ice.RetryBufferMaxSize") ?? 1024 * 1024 * 100;
                 RetryRequestMaxSize = GetPropertyAsByteSize("Ice.RetryRequestMaxSize") ?? 1024 * 1024;
 
@@ -546,8 +558,8 @@ namespace ZeroC.Ice
                     GetPropertyAsEnum<CompressionLevel>("Ice.CompressionLevel") ?? CompressionLevel.Fastest;
                 CompressionMinSize = GetPropertyAsByteSize("Ice.CompressionMinSize") ?? 100;
 
-                // TODO: switch to false default (see ObjectAdapter also)
-                AcceptNonSecure = GetPropertyAsBool("Ice.AcceptNonSecure") ?? true;
+                // TODO: switch to NonSecure.Never default (see ObjectAdapter also)
+                AcceptNonSecure = GetPropertyAsEnum<NonSecure>("Ice.AcceptNonSecure") ?? NonSecure.Always;
                 int classGraphMaxDepth = GetPropertyAsInt("Ice.ClassGraphMaxDepth") ?? 100;
                 ClassGraphMaxDepth = classGraphMaxDepth < 1 ? int.MaxValue : classGraphMaxDepth;
 
@@ -595,8 +607,6 @@ namespace ZeroC.Ice
                                       WSEndpoint.CreateIce2Endpoint,
                                       WSEndpoint.ParseIce2Endpoint,
                                       IPEndpoint.DefaultIPPort);
-
-                OutgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
                 if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
@@ -890,8 +900,15 @@ namespace ZeroC.Ice
 
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
-                await Task.WhenAll(OutgoingConnectionFactory?.DisposeAsync().AsTask() ?? Task.CompletedTask,
-                                   ShutdownAsync()).ConfigureAwait(false);
+                IEnumerable<Task> tasks =
+                    _activeConnectionMap.Values.SelectMany(connections => connections).Select(connection =>
+                        connection.GoAwayAsync(new CommunicatorDisposedException())).Append(ShutdownAsync());
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+#if DEBUG
+                // Ensure all the outgoing connections were removed
+                Debug.Assert(_activeConnectionMap.Count == 0);
+#endif
 
                 // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
                 // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.
@@ -1319,9 +1336,6 @@ namespace ZeroC.Ice
             }
             return false;
         }
-
-        internal OutgoingConnectionFactory OutgoingConnectionFactory { get; }
-
         internal void SetRcvBufWarnSize(Transport transport, int size)
         {
             lock (_setBufWarnSize)
@@ -1380,12 +1394,18 @@ namespace ZeroC.Ice
         {
             try
             {
-                OutgoingConnectionFactory.UpdateConnectionObservers();
-
                 ObjectAdapter[] adapters;
                 lock (_mutex)
                 {
                     adapters = _adapters.ToArray();
+
+                    foreach (ICollection<Connection> connections in _activeConnectionMap.Values)
+                    {
+                        foreach (Connection c in connections)
+                        {
+                            c.UpdateObserver();
+                        }
+                    }
                 }
 
                 foreach (ObjectAdapter adapter in adapters)

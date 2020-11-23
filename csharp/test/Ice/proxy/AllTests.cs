@@ -538,7 +538,9 @@ namespace ZeroC.Ice.Test.Proxy
             }
             else
             {
-                TestHelper.Assert(b2.ToString() == "ice:fixed?fixed=true&invocation-timeout=1m");
+                TestHelper.Assert(b2.ToString() ==
+                    "ice:fixed?fixed=true&invocation-timeout=1m&prefer-non-secure=" +
+                    (connection.IsSecure ? "Never" : "Always"));
             }
             output.WriteLine("ok");
 
@@ -610,7 +612,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             property = propertyPrefix + ".PreferNonSecure";
             TestHelper.Assert(b1.PreferNonSecure == communicator.DefaultPreferNonSecure);
-            communicator.SetProperty(property, (!communicator.DefaultPreferNonSecure).ToString());
+            communicator.SetProperty(property, "SameHost");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
             TestHelper.Assert(b1.PreferNonSecure != communicator.DefaultPreferNonSecure);
             communicator.RemoveProperty(property);
@@ -643,25 +645,24 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
 
             IRouterPrx? router = null;
-
             if (ice1)
             {
                 router = IRouterPrx.Parse("router", communicator).Clone(
                     cacheConnection: true,
-                    preferNonSecure: true,
+                    preferNonSecure: NonSecure.Always,
                     locatorCacheTimeout: TimeSpan.FromSeconds(200));
             }
 
             ILocatorPrx? locator = ILocatorPrx.Parse(ice1 ? "locator" : "ice:locator", communicator).Clone(
                 cacheConnection: false,
-                preferNonSecure: true,
+                preferNonSecure: NonSecure.Always,
                 locatorCacheTimeout: TimeSpan.FromSeconds(300),
                 router: router);
 
             b1 = IObjectPrx.Parse(
                 ice1 ? " test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" : "ice+tcp://127.0.0.1/test",
                 communicator).Clone(cacheConnection: true,
-                                    preferNonSecure: false,
+                                    preferNonSecure: NonSecure.Never,
                                     invocationTimeout: TimeSpan.FromSeconds(10),
                                     locatorCacheTimeout: TimeSpan.FromSeconds(100),
                                     locator: locator);
@@ -672,13 +673,13 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps.Count == (ice1 ? 15 : 8));
             TestHelper.Assert(proxyProps["Test"] ==
                               (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
-                                      "ice+tcp://127.0.0.1/test?invocation-timeout=10s"));
+                                      "ice+tcp://127.0.0.1/test?invocation-timeout=10s&prefer-non-secure=Never"));
             TestHelper.Assert(proxyProps["Test.ConnectionCached"] == "1");
             if (ice1)
             {
                 TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "10s");
+                TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "Never");
             }
-            TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "0");
             TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"] == "100s");
 
             if (ice1)
@@ -687,10 +688,9 @@ namespace ZeroC.Ice.Test.Proxy
             }
             else
             {
-                TestHelper.Assert(proxyProps["Test.Locator"] == "ice:locator?invocation-timeout=1m");
+                TestHelper.Assert(proxyProps["Test.Locator"] == "ice:locator?invocation-timeout=1m&prefer-non-secure=Always");
             }
             TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"] == "0");
-            TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"] == "5m");
 
             if (ice1)
@@ -704,7 +704,6 @@ namespace ZeroC.Ice.Test.Proxy
                 TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200s");
                 TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1m");
             }
-
             output.WriteLine("ok");
 
             output.Write("testing IObjectPrx.Communicator... ");
@@ -751,8 +750,8 @@ namespace ZeroC.Ice.Test.Proxy
                 TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
                     InvocationMode.BatchDatagram);
             }
-            TestHelper.Assert(baseProxy.Clone(preferNonSecure: true).PreferNonSecure);
-            TestHelper.Assert(!baseProxy.Clone(preferNonSecure: false).PreferNonSecure);
+            TestHelper.Assert(baseProxy.Clone(preferNonSecure: NonSecure.Always).PreferNonSecure == NonSecure.Always);
+            TestHelper.Assert(baseProxy.Clone(preferNonSecure: NonSecure.Never).PreferNonSecure == NonSecure.Never);
 
             try
             {
@@ -843,8 +842,10 @@ namespace ZeroC.Ice.Test.Proxy
                               compObj.Clone(context: ctx2)));
             TestHelper.Assert(!compObj.Clone(context: ctx1).Equals(compObj.Clone(context: ctx2)));
 
-            TestHelper.Assert(compObj.Clone(preferNonSecure: true).Equals(compObj.Clone(preferNonSecure: true)));
-            TestHelper.Assert(!compObj.Clone(preferNonSecure: true).Equals(compObj.Clone(preferNonSecure: false)));
+            TestHelper.Assert(compObj.Clone(preferNonSecure: NonSecure.Always).Equals(
+                compObj.Clone(preferNonSecure: NonSecure.Always)));
+            TestHelper.Assert(!compObj.Clone(preferNonSecure: NonSecure.Never).Equals(
+                compObj.Clone(preferNonSecure: NonSecure.Always)));
 
             var compObj1 = IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator);
             var compObj2 = IObjectPrx.Parse("ice+tcp://127.0.0.1:10001/foo", communicator);
@@ -1078,19 +1079,23 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
 
             var p1 = IObjectPrx.Parse("ice+universal://127.0.0.1:4062/test?transport=tcp", communicator);
-            TestHelper.Assert(p1.ToString() == "ice+tcp://127.0.0.1/test?invocation-timeout=1m"); // uses default port
+            TestHelper.Assert(p1.ToString() == "ice+tcp://127.0.0.1/test?invocation-timeout=1m&prefer-non-secure=" +
+                              communicator.DefaultPreferNonSecure.ToString()); // uses default port
 
             p1 = IObjectPrx.Parse(
                 "ice+universal://127.0.0.1:4062/test?transport=tcp&alt-endpoint=host2:10000?transport=tcp",
                 communicator);
-            TestHelper.Assert(p1.ToString() == "ice+tcp://127.0.0.1/test?invocation-timeout=1m&alt-endpoint=host2:10000");
+            TestHelper.Assert(p1.ToString() ==
+                "ice+tcp://127.0.0.1/test?invocation-timeout=1m&prefer-non-secure=" +
+                communicator.DefaultPreferNonSecure.ToString() +
+                "&alt-endpoint=host2:10000");
 
             p1 = IObjectPrx.Parse(
-                "ice+universal://127.0.0.1:4062/test?transport=tcp&invocation-timeout=1m&alt-endpoint=host2:10000?transport=99$option=a",
+                "ice+universal://127.0.0.1:4062/test?transport=tcp&invocation-timeout=1m&prefer-non-secure=Always&alt-endpoint=host2:10000?transport=99$option=a",
                 communicator);
 
             TestHelper.Assert(p1.ToString() ==
-                "ice+tcp://127.0.0.1/test?invocation-timeout=1m&alt-endpoint=ice+universal://host2:10000?transport=99$option=a");
+                "ice+tcp://127.0.0.1/test?invocation-timeout=1m&prefer-non-secure=Always&alt-endpoint=ice+universal://host2:10000?transport=99$option=a");
 
             output.WriteLine("ok");
 

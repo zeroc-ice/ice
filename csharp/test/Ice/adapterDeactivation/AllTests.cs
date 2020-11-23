@@ -100,7 +100,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 communicator.SetProperty("DAdapter.ServerName", testHost);
                 if (ice1)
                 {
-                    communicator.SetProperty("DAdapter.AcceptNonSecure", "true");
+                    communicator.SetProperty("DAdapter.AcceptNonSecure", "Always");
                 }
                 {
                     communicator.SetProperty(
