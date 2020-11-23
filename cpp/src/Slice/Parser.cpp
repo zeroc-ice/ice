@@ -2396,12 +2396,14 @@ Slice::Module::hasNonClassTypes() const
                 return true;
             }
         }
-        else
+        else if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content) &&
+                 TypePtr::dynamicCast(content))
+         {
+            return true;
+        }
+        else if(ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
         {
-            if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content))
-            {
-                return true;
-            }
+            return true;
         }
     }
     return false;
