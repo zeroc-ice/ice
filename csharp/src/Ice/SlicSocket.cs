@@ -21,22 +21,23 @@ namespace ZeroC.Ice
             internal set => throw new NotSupportedException("setting IdleTimeout is not supported with Slic");
         }
 
-        internal int BidirectionalStreamCount;
-        internal AsyncSemaphore? BidirectionalStreamSemaphore;
-        internal int MaxBidirectionalStreams;
-        internal int MaxUnidirectionalStreams;
-        internal readonly object Mutex = new();
-        internal int UnidirectionalStreamCount;
-        internal AsyncSemaphore? UnidirectionalStreamSemaphore;
-
+        private int _bidirectionalStreamCount;
+        private AsyncSemaphore? _bidirectionalStreamSemaphore;
         private TimeSpan _idleTimeout;
         private long _lastBidirectionalId;
         private long _lastUnidirectionalId;
+        private readonly int _maxBidirectionalStreams;
+        private readonly int _maxUnidirectionalStreams;
+        // The mutex is used to protect the next stream IDs and the send queue. It's also used to ensure the
+        // stream ID assignment and the sending of the first packet are atomic.
+        private readonly object _mutex = new();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
         private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource = new();
         private Task _sendTask = Task.CompletedTask;
         private readonly BufferedReceiveOverSingleStreamSocket _socket;
+        private int _unidirectionalStreamCount;
+        private AsyncSemaphore? _unidirectionalStreamSemaphore;
 
         public override async ValueTask<SocketStream> AcceptStreamAsync(CancellationToken cancel)
         {
@@ -135,6 +136,28 @@ namespace ZeroC.Ice
                             try
                             {
                                 stream = new SlicStream(streamId.Value, this);
+                                if (stream.IsControl)
+                                {
+                                    // We don't acquire flow control credit for the control stream.
+                                }
+                                else if (isBidirectional)
+                                {
+                                    if (_bidirectionalStreamCount == _maxBidirectionalStreams)
+                                    {
+                                        throw new InvalidDataException(
+                                            $"maximum bidirectional stream count {_maxBidirectionalStreams} reached");
+                                    }
+                                    Interlocked.Increment(ref _bidirectionalStreamCount);
+                                }
+                                else
+                                {
+                                    if (_unidirectionalStreamCount == _maxUnidirectionalStreams)
+                                    {
+                                        throw new InvalidDataException(
+                                            $"maximum unidirectional stream count {_maxUnidirectionalStreams} reached");
+                                    }
+                                    Interlocked.Increment(ref _unidirectionalStreamCount);
+                                }
                                 stream.ReceivedFrame(size, fin);
                                 return stream;
                             }
@@ -155,11 +178,11 @@ namespace ZeroC.Ice
                                 // Release flow control credit for the disposed stream.
                                 if (isBidirectional)
                                 {
-                                    BidirectionalStreamSemaphore!.Release();
+                                    _bidirectionalStreamSemaphore!.Release();
                                 }
                                 else
                                 {
-                                    UnidirectionalStreamSemaphore!.Release();
+                                    _unidirectionalStreamSemaphore!.Release();
                                 }
                             }
 
@@ -341,8 +364,8 @@ namespace ZeroC.Ice
             // If serialization is enabled on the adapter, we configure the maximum stream counts to 1 to ensure
             // the peer won't open more than one stream.
             bool serializeDispatch = adapter?.SerializeDispatch ?? false;
-            MaxBidirectionalStreams = serializeDispatch ? 1 : endpoint.Communicator.MaxBidirectionalStreams;
-            MaxUnidirectionalStreams = serializeDispatch ? 1 : endpoint.Communicator.MaxUnidirectionalStreams;
+            _maxBidirectionalStreams = serializeDispatch ? 1 : endpoint.Communicator.MaxBidirectionalStreams;
+            _maxUnidirectionalStreams = serializeDispatch ? 1 : endpoint.Communicator.MaxUnidirectionalStreams;
 
             // We use the same stream ID numbering scheme as Quic
             if (IsIncoming)
@@ -364,15 +387,15 @@ namespace ZeroC.Ice
             (long, long) streamIds = base.AbortStreams(exception, predicate);
 
             // Unblock requests waiting on the semaphores.
-            BidirectionalStreamSemaphore?.CancelAwaiters(exception);
-            UnidirectionalStreamSemaphore?.CancelAwaiters(exception);
+            _bidirectionalStreamSemaphore?.CancelAwaiters(exception);
+            _unidirectionalStreamSemaphore?.CancelAwaiters(exception);
 
             return streamIds;
         }
 
         internal long AllocateId(bool bidirectional)
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 long id;
                 if (bidirectional)
@@ -439,12 +462,42 @@ namespace ZeroC.Ice
             }
         }
 
+        internal void ReleaseFlowControlCredit(SlicStream stream)
+        {
+            if (stream.IsControl)
+            {
+                // Credit isn't acquired for control streams.
+            }
+            else if (stream.IsIncoming)
+            {
+                if (stream.IsBidirectional)
+                {
+                    Interlocked.Decrement(ref _bidirectionalStreamCount);
+                }
+                else
+                {
+                    Interlocked.Decrement(ref _unidirectionalStreamCount);
+                }
+            }
+            else if (stream.IsStarted)
+            {
+                if (stream.IsBidirectional)
+                {
+                    _bidirectionalStreamSemaphore!.Release();
+                }
+                else
+                {
+                    _unidirectionalStreamSemaphore!.Release();
+                }
+            }
+        }
+
         internal Task SendFrameAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
 
             // Synchronization is required here because this might be called concurrently by the connection code
-            lock (Mutex)
+            lock (_mutex)
             {
                 ValueTask sendTask = QueueAsync(buffer, cancel);
                 _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
@@ -471,6 +524,46 @@ namespace ZeroC.Ice
                 int sent = await _socket.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
                 Debug.Assert(sent == buffer.GetByteCount());
                 Sent(sent);
+            }
+        }
+
+        internal async Task SendStreamPacketAsync(
+            SlicStream stream,
+            int packetSize,
+            bool fin,
+            IList<ArraySegment<byte>> buffer,
+            CancellationToken cancel)
+        {
+            if (stream.IsStarted)
+            {
+                await stream.SendPacketAsync(packetSize, fin, buffer, cancel).ConfigureAwait(false);
+            }
+            else
+            {
+                Debug.Assert(!stream.IsIncoming && !stream.IsControl);
+
+                // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
+                // control credit to ensure we don't open more streams than the peer allows. The semaphore
+                // provides FIFO guarantee to ensure that the sending of requests is serialized.
+                if (stream.IsBidirectional)
+                {
+                    await _bidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    await _unidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                }
+
+                // Ensure we allocate and queue for sending the first packet atomically to ensure the receiver
+                // won't receive stream frames with out-of-order stream IDs. The ID assignment will throw if
+                // the connection is being closed and no new streams can be created.
+                Task task;
+                lock (_mutex)
+                {
+                    stream.Id = AllocateId(stream.IsBidirectional);
+                    task = stream.SendPacketAsync(packetSize, fin, buffer, cancel);
+                }
+                await task.ConfigureAwait(false);
             }
         }
 
@@ -525,11 +618,11 @@ namespace ZeroC.Ice
                 (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
                 if (key == (int)ParameterKey.MaxBidirectionalStreams)
                 {
-                    BidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
+                    _bidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
                 }
                 else if (key == (int)ParameterKey.MaxUnidirectionalStreams)
                 {
-                    UnidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
+                    _unidirectionalStreamSemaphore = new AsyncSemaphore((int)value.Span.ReadVarULong().Value);
                 }
                 else if (key == (int)ParameterKey.IdleTimeout)
                 {
@@ -548,12 +641,12 @@ namespace ZeroC.Ice
 
             // Now, ensure required parameters are set.
 
-            if (BidirectionalStreamSemaphore == null)
+            if (_bidirectionalStreamSemaphore == null)
             {
                 throw new InvalidDataException("missing MaxBidirectionalStreams Slic connection parameter");
             }
 
-            if (UnidirectionalStreamSemaphore == null)
+            if (_unidirectionalStreamSemaphore == null)
             {
                 throw new InvalidDataException("missing MaxUnidirectionalStreams Slic connection parameter");
             }
@@ -642,10 +735,10 @@ namespace ZeroC.Ice
 
             ostr.WriteSize(writeIdleTimeout ? 3 : 2);
             ostr.WriteBinaryContextEntry((int)ParameterKey.MaxBidirectionalStreams,
-                                         (ulong)MaxBidirectionalStreams,
+                                         (ulong)_maxBidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
             ostr.WriteBinaryContextEntry((int)ParameterKey.MaxUnidirectionalStreams,
-                                         (ulong)MaxUnidirectionalStreams,
+                                         (ulong)_maxUnidirectionalStreams,
                                          OutputStream.IceWriterFromVarULong);
             if (writeIdleTimeout)
             {

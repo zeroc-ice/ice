@@ -52,7 +52,12 @@ namespace ZeroC.Ice
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>
         internal event Action<long>? Reset;
 
-        private protected bool IsStarted => _id != -1;
+        /// <summary>Returns true if the stream ID is assigned</summary>
+        internal bool IsStarted => _id != -1;
+
+        // Depending on the stream implementation, the _id can be assigned on construction or only once SendAsync
+        // is called. Once it's assigned, it's immutable. The specialization of the stream is responsible for not
+        // accessing this data member concurrently when it's not safe.
         private long _id = -1;
         private readonly MultiStreamSocket _socket;
 
@@ -324,6 +329,7 @@ namespace ZeroC.Ice
                 ostr.WriteSize(1);
 
                 // Transmit out local incoming frame maximum size
+                Debug.Assert(_socket.IncomingFrameMaxSize > 0);
                 ostr.WriteBinaryContextEntry((int)Ice2ParameterKey.IncomingFrameMaxSize,
                                              (ulong)_socket.IncomingFrameMaxSize,
                                              OutputStream.IceWriterFromVarULong);
