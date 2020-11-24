@@ -96,6 +96,7 @@ namespace ZeroC.Ice
             }
 
             bool? cacheConnection = null;
+            IReadOnlyDictionary<string, string>? context = null;
             Encoding encoding;
             IReadOnlyList<Endpoint> endpoints;
             string facet;
@@ -148,12 +149,8 @@ namespace ZeroC.Ice
                     throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
                 }
 
-                // TODO: add deconstructor to ProxyOptions
-                cacheConnection = proxyOptions.CacheConnection;
-                invocationTimeout = proxyOptions.InvocationTimeout;
-                locatorCacheTimeout = proxyOptions.LocatorCacheTimeout;
-                preferNonSecure = proxyOptions.PreferNonSecure;
-                relative = proxyOptions.Relative;
+                (cacheConnection, context, invocationTimeout, locatorCacheTimeout, preferNonSecure, relative) =
+                    proxyOptions;
             }
             else
             {
@@ -167,7 +164,6 @@ namespace ZeroC.Ice
                 location = location0.Length > 0 ? ImmutableArray.Create(location0) : ImmutableArray<string>.Empty;
             }
 
-            IReadOnlyDictionary<string, string>? context = null;
             LocatorInfo? locatorInfo = null;
             RouterInfo? routerInfo = null;
 
@@ -180,15 +176,7 @@ namespace ZeroC.Ice
                     communicator.CheckForUnknownProperties(propertyPrefix);
                 }
 
-                string property = $"{propertyPrefix}.Context.";
-                context = communicator.GetProperties(forPrefix: property).
-                    ToDictionary(e => e.Key.Substring(property.Length), e => e.Value);
-                if (context.Count == 0)
-                {
-                    context = null;
-                }
-
-                property = $"{propertyPrefix}.Locator";
+                string property = $"{propertyPrefix}.Locator";
                 locatorInfo = communicator.GetLocatorInfo(
                         communicator.GetPropertyAsProxy(property, ILocatorPrx.Factory));
 
@@ -223,6 +211,10 @@ namespace ZeroC.Ice
                 if (protocol == Protocol.Ice1)
                 {
                     cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.CacheConnection");
+
+                    property = $"{propertyPrefix}.Context.";
+                    context = communicator.GetProperties(forPrefix: property).
+                        ToImmutableDictionary(e => e.Key.Substring(property.Length), e => e.Value);
 
                     property = $"{propertyPrefix}.InvocationTimeout";
                     invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
@@ -576,6 +568,23 @@ namespace ZeroC.Ice
                 {
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("cache-connection=false");
+                }
+
+                if (Context.Count > 0)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("context=");
+                    int index = 0;
+                    foreach ((string key, string value) in Context)
+                    {
+                        sb.Append(Uri.EscapeDataString(key));
+                        sb.Append('=');
+                        sb.Append(Uri.EscapeDataString(value));
+                        if (++index != Context.Count)
+                        {
+                            sb.Append(',');
+                        }
+                    }
                 }
 
                 if (Encoding != Ice2Definitions.Encoding) // possible but quite unlikely

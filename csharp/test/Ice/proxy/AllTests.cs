@@ -656,20 +656,37 @@ namespace ZeroC.Ice.Test.Proxy
             }
             TestHelper.Assert(!b1.CacheConnection);
 
-            property = propertyPrefix + ".Context.c1";
-            TestHelper.Assert(!b1.Context.ContainsKey("c1"));
-            communicator.SetProperty(property, "TEST");
-            b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
-            TestHelper.Assert(b1.Context["c1"].Equals("TEST"));
+            if (ice1)
+            {
+                property = propertyPrefix + ".Context.c1";
+                TestHelper.Assert(!b1.Context.ContainsKey("c1"));
+                communicator.SetProperty(property, "TEST1");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
+                TestHelper.Assert(b1.Context["c1"] == "TEST1");
 
-            property = propertyPrefix + ".Context.c2";
-            TestHelper.Assert(!b1.Context.ContainsKey("c2"));
-            communicator.SetProperty(property, "TEST");
-            b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
-            TestHelper.Assert(b1.Context["c2"].Equals("TEST"));
+                property = propertyPrefix + ".Context.c2";
+                TestHelper.Assert(!b1.Context.ContainsKey("c2"));
+                communicator.SetProperty(property, "TEST2");
+                b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
+                TestHelper.Assert(b1.Context["c2"] == "TEST2");
 
-            communicator.SetProperty(propertyPrefix + ".Context.c1", "");
-            communicator.SetProperty(propertyPrefix + ".Context.c2", "");
+                communicator.SetProperty(propertyPrefix + ".Context.c1", "");
+                communicator.SetProperty(propertyPrefix + ".Context.c2", "");
+            }
+            else
+            {
+                b1 = IObjectPrx.Parse(
+                    $"{propertyPrefixValue}?context=c1=TEST1,c2=TEST&context=c2=TEST2,c3=TEST3,c%204=TEST%204",
+                    communicator);
+
+                TestHelper.Assert(b1.Context.Count == 4);
+                TestHelper.Assert(b1.Context["c1"] == "TEST1");
+                TestHelper.Assert(b1.Context["c2"] == "TEST2");
+                TestHelper.Assert(b1.Context["c3"] == "TEST3");
+                TestHelper.Assert(b1.Context["c 4"] == "TEST 4");
+
+                TestHelper.Assert(IObjectPrx.Parse(b1.ToString()!, communicator).Equals(b1));
+            }
 
             output.WriteLine("ok");
 

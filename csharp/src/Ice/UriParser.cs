@@ -15,12 +15,31 @@ namespace ZeroC.Ice
         internal struct ProxyOptions
         {
             internal bool? CacheConnection;
+
+            internal Dictionary<string, string>? Context;
+
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
             internal TimeSpan? LocatorCacheTimeout; // only for the ice URI scheme
             internal bool? PreferNonSecure;
             internal Protocol? Protocol;
             internal bool? Relative; // only for the ice URI scheme
+
+            internal void Deconstruct(
+                out bool? cacheConnection,
+                out IReadOnlyDictionary<string, string>? context,
+                out TimeSpan? invocationTimeout,
+                out TimeSpan? locatorCacheTimeout,
+                out bool? preferNonSecure,
+                out bool? relative)
+            {
+                cacheConnection = CacheConnection;
+                context = Context?.ToImmutableDictionary();
+                invocationTimeout = InvocationTimeout;
+                locatorCacheTimeout = LocatorCacheTimeout;
+                preferNonSecure = PreferNonSecure;
+                relative = Relative;
+            }
         }
 
         // Common options for the generic URI parsers registered for the ice and ice+transport schemes.
@@ -253,10 +272,33 @@ namespace ZeroC.Ice
                 {
                     throw new FormatException($"invalid option `{p}'");
                 }
-                string name = p.Substring(0, equalPos);
-                string value = p.Substring(equalPos + 1);
+                string name = p[..equalPos];
+                string value = p[(equalPos + 1)..];
 
-                if (name == "cache-connection")
+                if (name == "context")
+                {
+                    if (pureEndpoints)
+                    {
+                        throw new FormatException($"{name} is not a valid option for endpoint `{uriString}'");
+                    }
+
+                    // We can have multiple context options: context=key1=value1,key2=value2 etc.
+                    foreach (string e in value.Split(','))
+                    {
+                        equalPos = e.IndexOf('=');
+                        if (equalPos <= 0)
+                        {
+                            throw new FormatException($"invalid option `{p}'");
+                        }
+                        string contextKey = Uri.UnescapeDataString(e[..equalPos]);
+                        string contextValue =
+                            equalPos == e.Length - 1 ? "" : Uri.UnescapeDataString(e[(equalPos + 1)..]);
+
+                        proxyOptions.Context ??= new Dictionary<string, string>();
+                        proxyOptions.Context[contextKey] = contextValue;
+                    }
+                }
+                else if (name == "cache-connection")
                 {
                     CheckProxyOption(name, proxyOptions.CacheConnection != null);
                     proxyOptions.CacheConnection = bool.Parse(value);
