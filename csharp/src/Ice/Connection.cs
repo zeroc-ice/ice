@@ -97,6 +97,10 @@ namespace ZeroC.Ice
         /// frames at regular time intervals when the connection is idle.</summary>
         public bool KeepAlive { get; set; }
 
+        /// <summary>The peer's incoming frame maximum size. This is only supported with ice2 connections. For
+        /// ice1 connections, the value is always -1.</summary>
+        public int PeerIncomingFrameMaxSize => Protocol == Protocol.Ice1 ? -1 : Socket.PeerIncomingFrameMaxSize!.Value;
+
         /// <summary>The protocol used by the connection.</summary>
         public Protocol Protocol => Endpoint.Protocol;
 

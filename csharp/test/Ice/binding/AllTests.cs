@@ -427,17 +427,20 @@ namespace ZeroC.Ice.Test.Binding
 
                 var localipv4 = new Dictionary<string, string>()
                 {
-                    ["Adapter.Endpoints"] = getEndpoint("127.0.0.1")
+                    ["Adapter.Endpoints"] = getEndpoint("127.0.0.1"),
+                    ["Adapter.ServerName"] = "127.0.0.1"
                 };
 
                 var localipv6 = new Dictionary<string, string>()
                 {
-                    ["Adapter.Endpoints"] = getEndpoint("::1")
+                    ["Adapter.Endpoints"] = getEndpoint("::1"),
+                    ["Adapter.ServerName"] = "::1"
                 };
 
                 var localhost = new Dictionary<string, string>()
                 {
-                    ["Adapter.Endpoints"] = getEndpoint("localhost")
+                    ["Adapter.Endpoints"] = getEndpoint("localhost"),
+                    ["Adapter.ServerName"] = "localhost"
                 };
 
                 var serverProps = new Dictionary<string, string>[]

@@ -63,18 +63,22 @@ namespace ZeroC.Ice.Test.Location
             base1 = IObjectPrx.Parse(ice1 ? "test @ TestAdapter" : "ice:TestAdapter//test", communicator);
             TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, communicator.DefaultLocator!));
 
-            // TODO: We also test ice_router/ice_getRouter(perhaps we should add a test/Ice/router test?)
-            TestHelper.Assert(base1.Router == null);
-            var anotherRouter = IRouterPrx.Parse(ice1 ? "anotherRouter" : "ice:anotherRouter", communicator);
-            base1 = base1.Clone(router: anotherRouter);
-            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Router!, anotherRouter));
-            var router = IRouterPrx.Parse(ice1 ? "dummyrouter" : "ice:dummyrouter", communicator);
-            communicator.DefaultRouter = router;
-            base1 = IObjectPrx.Parse(ice1 ? "test @ TestAdapter" : "ice:TestAdapter//test", communicator);
-            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Router!, communicator.DefaultRouter!));
-            communicator.DefaultRouter = null;
-            base1 = IObjectPrx.Parse(ice1 ? "test @ TestAdapter" : "ice:TestAdapter//test", communicator);
-            TestHelper.Assert(base1.Router == null);
+            if (ice1)
+            {
+                // TODO: We also test ice_router/ice_getRouter(perhaps we should add a test/Ice/router test?)
+                TestHelper.Assert(base1.Router == null);
+                var anotherRouter = IRouterPrx.Parse("anotherRouter", communicator);
+                base1 = base1.Clone(router: anotherRouter);
+                TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Router!, anotherRouter));
+                var router = IRouterPrx.Parse("dummyrouter", communicator);
+                communicator.DefaultRouter = router;
+                base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Router!, communicator.DefaultRouter!));
+                communicator.DefaultRouter = null;
+                base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
+                TestHelper.Assert(base1.Router == null);
+            }
+
             output.WriteLine("ok");
 
             output.Write("starting server... ");

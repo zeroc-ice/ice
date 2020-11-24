@@ -10,13 +10,11 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public sealed class Router : IRouter
     {
-        private int _nextPort = 23456;
-
         public (IObjectPrx?, bool?) GetClientProxy(Current current, CancellationToken cancel) => (null, false);
 
         public IObjectPrx GetServerProxy(Current current, CancellationToken cancel) =>
             IObjectPrx.Parse(TestHelper.GetTestProtocol(current.Communicator.GetProperties()) == Protocol.Ice1 ?
-                $"dummy:tcp -h localhost -p {_nextPort++}" : $"ice+tcp://localhost:{_nextPort++}/dummy",
+                $"dummy:tcp -h localhost -p 23456" : $"ice+tcp://localhost:23456/dummy",
                 current.Communicator);
 
         public IEnumerable<IObjectPrx?> AddProxies(IObjectPrx?[] proxies, Current current, CancellationToken cancel) =>
