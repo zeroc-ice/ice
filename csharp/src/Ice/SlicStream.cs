@@ -267,20 +267,16 @@ namespace ZeroC.Ice
 
         private bool ReleaseFlowControlCredit(bool notifyPeer = false)
         {
-            // If the flow control credit is not already released, decreases the bidirectional or unidirectional
-            // semaphore (for outgoing streams) / count (for incoming streams).
+            // If the flow control credit is not already released, releases it now.
             if (Interlocked.CompareExchange(ref _flowControlCreditReleased, 1, 0) == 0)
             {
                 _socket.ReleaseFlowControlCredit(this);
 
-                if (IsIncoming)
+                if (IsIncoming && notifyPeer)
                 {
-                    if (notifyPeer)
-                    {
-                        // It's important to decrement the stream count before sending the StreamLast frame to prevent
-                        // a race where the peer could start a new stream before the counter is decremented.
-                        _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
-                    }
+                    // It's important to decrement the stream count before sending the StreamLast frame to prevent
+                    // a race where the peer could start a new stream before the counter is decremented.
+                    _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
                 }
                 return true;
             }
