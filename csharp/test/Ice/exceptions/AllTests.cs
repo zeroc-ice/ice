@@ -255,64 +255,143 @@ namespace ZeroC.Ice.Test.Exceptions
 
             if (thrower.GetConnection() is not ColocatedConnection)
             {
-                output.Write("testing memory limit marshal exception...");
+                output.Write("testing incoming frame max size...");
                 output.Flush();
-                try
+                if (thrower.Protocol == Protocol.Ice1)
                 {
-                    thrower.ThrowMemoryLimitException(Array.Empty<byte>());
-                    TestHelper.Assert(false);
-                }
-                catch (InvalidDataException)
-                {
-                }
-                catch
-                {
-                    TestHelper.Assert(false);
-                }
-
-                try
-                {
-                    thrower.ThrowMemoryLimitException(new byte[20 * 1024]); // 20KB
-                    TestHelper.Assert(false);
-                }
-                catch (ConnectionLostException)
-                {
-                }
-                catch (UnhandledException)
-                {
-                    // Expected with JS bidir server
-                }
-                catch (Exception ex)
-                {
-                    TestHelper.Assert(false, $"unexpected exception:\n{ex}");
-                }
-
-                try
-                {
-                    var thrower2 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 1), communicator);
+                    TestHelper.Assert(thrower.GetConnection().PeerIncomingFrameMaxSize == -1);
                     try
                     {
-                        thrower2.ThrowMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
+                        thrower.SendAndReceive(Array.Empty<byte>());
+                        TestHelper.Assert(false);
                     }
                     catch (InvalidDataException)
                     {
+                        TestHelper.Assert(!thrower.GetCachedConnection()!.IsActive);
+                    }
+                    catch (Exception ex)
+                    {
+                        TestHelper.Assert(false, $"unexpected exception:\n{ex}");
                     }
 
-                    var thrower3 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 2), communicator);
                     try
                     {
-                        thrower3.ThrowMemoryLimitException(new byte[1024]); // 1KB limit
+                        thrower.SendAndReceive(new byte[20 * 1024]); // 20KB
                         TestHelper.Assert(false);
                     }
                     catch (ConnectionLostException)
                     {
+                        TestHelper.Assert(!thrower.GetCachedConnection()!.IsActive);
+                    }
+                    catch (UnhandledException)
+                    {
+                        // Expected with JS bidir server
+                    }
+                    catch (Exception ex)
+                    {
+                        TestHelper.Assert(false, $"unexpected exception:\n{ex}");
+                    }
+
+                    try
+                    {
+                        var thrower2 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 1), communicator);
+                        try
+                        {
+                            thrower2.SendAndReceive(new byte[2 * 1024 * 1024]); // 2MB(no limits)
+                            TestHelper.Assert(false);
+                        }
+                        catch (InvalidDataException)
+                        {
+                        }
+
+                        var thrower3 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 2), communicator);
+                        try
+                        {
+                            thrower3.SendAndReceive(new byte[1024]); // 1KB limit
+                            TestHelper.Assert(false);
+                        }
+                        catch (ConnectionLostException)
+                        {
+                            TestHelper.Assert(thrower.GetCachedConnection()!.Protocol == Protocol.Ice1);
+                        }
+                    }
+                    catch (ConnectionRefusedException)
+                    {
+                        // Expected with JS bidir server
                     }
                 }
-                catch (ConnectionRefusedException)
+                else
                 {
-                    // Expected with JS bidir server
-                }
+                    TestHelper.Assert(thrower.GetConnection().PeerIncomingFrameMaxSize == 10 * 1024);
+                    try
+                    {
+                        // The response is too large
+                        thrower.SendAndReceive(Array.Empty<byte>());
+                        TestHelper.Assert(false);
+                    }
+                    catch (ServerException)
+                    {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
+                    }
 
+                    try
+                    {
+                        // The request is too large
+                        thrower.SendAndReceive(new byte[20 * 1024]); // 20KB
+                        TestHelper.Assert(false);
+                    }
+                    catch (LimitExceededException)
+                    {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
+                    }
+
+                    var thrower2 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 1), communicator);
+                    TestHelper.Assert(thrower2.GetConnection().PeerIncomingFrameMaxSize == int.MaxValue);
+                    try
+                    {
+                        // The response is too large
+                        thrower2.SendAndReceive(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                        TestHelper.Assert(false);
+                    }
+                    catch (ServerException)
+                    {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
+                    }
+
+                    var thrower3 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 2), communicator);
+                    TestHelper.Assert(thrower3.GetConnection().PeerIncomingFrameMaxSize == 1024);
+                    try
+                    {
+                        // The request is too large
+                        thrower3.SendAndReceive(new byte[1024]); // 1KB limit
+                        TestHelper.Assert(false);
+                    }
+                    catch (LimitExceededException)
+                    {
+                    }
+
+                    var forwarder = IThrowerPrx.Parse(helper.GetTestProxy("forwarder", 3), communicator);
+                    TestHelper.Assert(forwarder.GetConnection().PeerIncomingFrameMaxSize == int.MaxValue);
+                    try
+                    {
+                        forwarder.SendAndReceive(new byte[20 * 1024]);
+                        TestHelper.Assert(false);
+                    }
+                    catch (ServerException)
+                    {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
+                    }
+
+                    try
+                    {
+                        forwarder.SendAndReceive(Array.Empty<byte>());
+                        TestHelper.Assert(false);
+                    }
+                    catch (ServerException)
+                    {
+                        TestHelper.Assert(thrower.GetCachedConnection()!.IsActive);
+                    }
+                }
                 output.WriteLine("ok");
             }
 

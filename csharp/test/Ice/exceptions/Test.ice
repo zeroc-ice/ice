@@ -53,7 +53,7 @@ interface Thrower
     void throwLocalException();
     void throwNonIceException();
     void throwAssertException();
-    Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
+    Ice::ByteSeq sendAndReceive(Ice::ByteSeq seq);
 
     idempotent void throwLocalExceptionIdempotent();
 

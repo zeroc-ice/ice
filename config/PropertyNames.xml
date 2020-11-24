@@ -376,6 +376,8 @@ generated from the section label.
         <property name="LogFile" />
         <property name="LogFile.MaxSize" />
         <property name="LogStdErr.Convert"/>
+        <property name="MaxBidirectionalStreams" />
+        <property name="MaxUnidirectionalStreams" />
         <!-- TODO: remove replaced by IncomingFrameMaxSize -->
         <property name="MessageMaxSize" />
         <property name="Nohup" />
@@ -401,8 +403,6 @@ generated from the section label.
         <property name="RetryIntervals" /> <!-- TODO remove -->
         <property name="ServerIdleTime" />
         <property name="ServerName" />
-        <property name="Slic.MaxBidirectionalStreams" />
-        <property name="Slic.MaxUnidirectionalStreams" />
         <property name="Slic.PacketMaxSize" />
         <property name="SOCKSProxyHost" />
         <property name="SOCKSProxyPort" />

@@ -246,9 +246,16 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy, request, cancel: cancel);
-            IncomingResponseFrame response =
-                await Reference.InvokeAsync(proxy, forwardedRequest, oneway, progress).ConfigureAwait(false);
-            return new OutgoingResponseFrame(request, response);
+            try
+            {
+                IncomingResponseFrame response =
+                    await Reference.InvokeAsync(proxy, forwardedRequest, oneway, progress).ConfigureAwait(false);
+                return new OutgoingResponseFrame(request, response);
+            }
+            catch (LimitExceededException exception)
+            {
+                return new OutgoingResponseFrame(request, new ServerException(exception.Message, exception));
+            }
         }
 
         /// <summary>Invokes a request on a proxy.</summary>

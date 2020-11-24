@@ -180,8 +180,29 @@ namespace ZeroC.Ice
                 int dictionarySize = istr.ReadSize();
                 for (int i = 0; i < dictionarySize; ++i)
                 {
-                    _ = istr.ReadBinaryContextEntry();
-                    // TODO: support some parameters?
+                    (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
+                    if (key == (int)Ice2ParameterKey.IncomingFrameMaxSize)
+                    {
+                        checked
+                        {
+                            _socket.PeerIncomingFrameMaxSize = (int)value.Span.ReadVarULong().Value;
+                        }
+
+                        if (_socket.PeerIncomingFrameMaxSize < 1024)
+                        {
+                            throw new InvalidDataException($@"the peer's IncomingFrameMaxSize ({
+                                _socket.PeerIncomingFrameMaxSize} bytes) value is inferior to 1KB");
+                        }
+                    }
+                    else
+                    {
+                        // Ignore unsupported parameters.
+                    }
+                }
+
+                if (_socket.PeerIncomingFrameMaxSize == null)
+                {
+                    throw new InvalidDataException("missing IncomingFrameMaxSize Ice2 connection parameter");
                 }
             }
         }
@@ -300,9 +321,12 @@ namespace ZeroC.Ice
                 OutputStream.Position pos = ostr.Tail;
 
                 // Encode the transport parameters with the binary context encoding.
-                ostr.WriteSize(0);
+                ostr.WriteSize(1);
 
-                // TODO: send protocol specific parameters from the frame?
+                // Transmit out local incoming frame maximum size
+                ostr.WriteBinaryContextEntry((int)Ice2ParameterKey.IncomingFrameMaxSize,
+                                             (ulong)_socket.IncomingFrameMaxSize,
+                                             OutputStream.IceWriterFromVarULong);
 
                 ostr.EndFixedLengthSize(sizePos);
                 data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
@@ -382,6 +406,24 @@ namespace ZeroC.Ice
         {
             // The default implementation only supports the Ice2 protocol
             Debug.Assert(_socket.Endpoint.Protocol == Protocol.Ice2);
+
+            if (frame.Size > _socket.PeerIncomingFrameMaxSize)
+            {
+                if (frame is OutgoingRequestFrame)
+                {
+                    throw new LimitExceededException(
+                        $@"the request size is larger than the peer's IncomingFrameSizeMax ({
+                        _socket.PeerIncomingFrameMaxSize} bytes)");
+                }
+                else
+                {
+                    // Throw a remote exception instead of this response, the Ice connection will catch it and send it
+                    // as the response instead of sending this response which is too large.
+                    throw new ServerException(
+                        $@"the response size is larger than the peer's IncomingFrameSizeMax ({
+                        _socket.PeerIncomingFrameMaxSize} bytes)");
+                }
+            }
 
             var data = new List<ArraySegment<byte>>(frame.Data.Count + 1);
             int headerLength = Header.Length;
