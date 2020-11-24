@@ -314,7 +314,7 @@ namespace ZeroC.Ice
                     proxyOptions.InvocationTimeout = TimeSpanExtensions.Parse(value);
                     if (proxyOptions.InvocationTimeout.Value == TimeSpan.Zero)
                     {
-                        throw new FormatException($"0 is not a valid value for {name} option in `{uriString}'");
+                        throw new FormatException($"0 is not a valid value for the {name} option in `{uriString}'");
                     }
                 }
                 else if (endpointOptions == null && name == "locator-cache-timeout")

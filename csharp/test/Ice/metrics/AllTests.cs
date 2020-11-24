@@ -1164,8 +1164,7 @@ namespace ZeroC.Ice.Test.Metrics
                 update,
                 "Invocation",
                 "proxy",
-                ice1 ? $"metrics -t -e {defaultEncoding}:{endpoint} -t {defaultTimeout}" :
-                       $"{endpoint}/metrics",
+                ice1 ? $"metrics -t -e {defaultEncoding}:{endpoint} -t {defaultTimeout}" : $"{endpoint}/metrics",
                 op,
                 output);
 

@@ -20,7 +20,6 @@ namespace ZeroC.Ice
     public sealed class Reference : IEquatable<Reference>
     {
         internal string AdapterId => Location.Count == 0 ? "" : Location[0];
-
         internal bool CacheConnection { get; } = true;
         internal Communicator Communicator { get; }
         internal string ConnectionId { get; }
@@ -1731,7 +1730,7 @@ namespace ZeroC.Ice
                 }
                 // TODO: add connection ID
 
-                // We don't output context as it would need hard-to-generate escapes.
+                // We don't output context as this would require hard-to-generate escapes.
 
                 if (_invocationTimeout is TimeSpan invocationTimeout)
                 {
