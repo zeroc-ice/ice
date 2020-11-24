@@ -111,6 +111,10 @@ namespace ZeroC.Ice
         public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
             (ostr, value) => ostr.WriteNullableProxy(value);
 
+        /// <summary>Indicates whether or not this proxy caches its connection.</summary>
+        /// <value>True when the proxy caches its connection; otherwise, false.</value>
+        public bool CacheConnection => IceReference.CacheConnection;
+
         /// <summary>Returns the communicator that created this proxy.</summary>
         /// <returns>The communicator that created this proxy.</returns>
         public Communicator Communicator => IceReference.Communicator;
@@ -145,10 +149,6 @@ namespace ZeroC.Ice
 
         /// <summary>The invocation timeout of this proxy.</summary>
         public TimeSpan InvocationTimeout => IceReference.InvocationTimeout;
-
-        /// <summary>Indicates whether or not this proxy caches its connection.</summary>
-        /// <value>True when the proxy caches its connection; otherwise, false.</value>
-        public bool CacheConnection => IceReference.CacheConnection;
 
         /// <summary>Indicates whether or not this proxy is bound to a connection.</summary>
         /// <value>True when this proxy is bound to a connection. Such a proxy has no endpoint. Otherwise, false.

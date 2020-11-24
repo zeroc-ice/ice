@@ -173,14 +173,16 @@ namespace ZeroC.Ice
         internal bool WarnUnknownProperties { get; }
 
         private static string[] _emptyArgs = Array.Empty<string>();
+
+        // Sub-properties for ice1 proxies
         private static readonly string[] _suffixes =
         {
-            "EndpointSelection",
             "CacheConnection",
             "InvocationTimeout",
             "LocatorCacheTimeout",
             "Locator",
             "PreferNonSecure",
+            "Relative",
             "Router",
             "Context\\..*"
         };

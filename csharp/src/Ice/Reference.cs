@@ -105,9 +105,11 @@ namespace ZeroC.Ice
             TimeSpan? invocationTimeout = null;
             IReadOnlyList<string> location;
             TimeSpan? locatorCacheTimeout = null;
+            LocatorInfo? locatorInfo = null;
             bool? preferNonSecure = null;
             Protocol protocol;
             bool? relative = null;
+            RouterInfo? routerInfo = null;
 
             if (UriParser.IsProxyUri(proxyString))
             {
@@ -151,6 +153,11 @@ namespace ZeroC.Ice
 
                 (cacheConnection, context, invocationTimeout, locatorCacheTimeout, preferNonSecure, relative) =
                     proxyOptions;
+
+                if (locatorCacheTimeout != null && communicator.DefaultLocator == null)
+                {
+                    throw new FormatException("cannot set locator-cache-timeout without a Locator");
+                }
             }
             else
             {
@@ -162,57 +169,19 @@ namespace ZeroC.Ice
 
                 // 0 or 1 segment
                 location = location0.Length > 0 ? ImmutableArray.Create(location0) : ImmutableArray<string>.Empty;
-            }
 
-            LocatorInfo? locatorInfo = null;
-            RouterInfo? routerInfo = null;
-
-            // Override the defaults with the proxy properties if a property prefix is defined.
-            if (propertyPrefix != null && propertyPrefix.Length > 0)
-            {
-                // Warn about unknown properties.
-                if (communicator.WarnUnknownProperties)
+                // Override the defaults with the proxy properties if a property prefix is defined.
+                if (propertyPrefix != null && propertyPrefix.Length > 0)
                 {
-                    communicator.CheckForUnknownProperties(propertyPrefix);
-                }
-
-                string property = $"{propertyPrefix}.Locator";
-                locatorInfo = communicator.GetLocatorInfo(
-                        communicator.GetPropertyAsProxy(property, ILocatorPrx.Factory));
-
-                if (locatorInfo != null && endpoints.Count > 0)
-                {
-                    throw new InvalidConfigurationException(
-                        $"`{property}={communicator.GetProperty(property)}': cannot set a locator on a direct proxy");
-                }
-
-                property = $"{propertyPrefix}.Router";
-                if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
-                {
-                    if (protocol != Protocol.Ice1)
+                    // Warn about unknown properties.
+                    if (communicator.WarnUnknownProperties)
                     {
-                        throw new InvalidConfigurationException(
-                            $"`{property}={communicator.GetProperty(property)}': only an ice1 proxy can have a router");
+                        communicator.CheckForUnknownProperties(propertyPrefix);
                     }
-                    if (router.Protocol != Protocol.Ice1)
-                    {
-                        throw new InvalidConfigurationException(@$"`{property}={communicator.GetProperty(property)
-                            }': a router proxy must use the ice1 protocol");
-                    }
-                    if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
-                    {
-                        throw new InvalidConfigurationException(
-                            $"`{property}={communicator.GetProperty(property)}': cannot set a router on a router");
-                    }
-                    routerInfo = communicator.GetRouterInfo(router);
-                }
 
-                // ice1-only properties
-                if (protocol == Protocol.Ice1)
-                {
                     cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.CacheConnection");
 
-                    property = $"{propertyPrefix}.Context.";
+                    string property = $"{propertyPrefix}.Context.";
                     context = communicator.GetProperties(forPrefix: property).
                         ToImmutableDictionary(e => e.Key.Substring(property.Length), e => e.Value);
 
@@ -220,28 +189,61 @@ namespace ZeroC.Ice
                     invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
                     if (invocationTimeout == TimeSpan.Zero)
                     {
-                        throw new InvalidConfigurationException($"0 is not a valid value for property `{property}'");
+                        throw new InvalidConfigurationException($"{property}: 0 is not a valid value");
                     }
 
-                    locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
+                    property = $"{propertyPrefix}.Locator";
+                    locatorInfo = communicator.GetLocatorInfo(
+                        communicator.GetPropertyAsProxy(property, ILocatorPrx.Factory));
 
-                    if (locatorCacheTimeout != null && endpoints.Count > 0)
+                    if (locatorInfo != null && endpoints.Count > 0)
                     {
-                        throw new InvalidConfigurationException(
-                            $"{propertyPrefix}.LocatorCacheTimeout: proxy has endpoints");
+                        throw new InvalidConfigurationException($"{property}: cannot set a locator on a direct proxy");
+                    }
+
+                    property = $"{propertyPrefix}.LocatorCacheTimeout";
+                    locatorCacheTimeout = communicator.GetPropertyAsTimeSpan(property);
+
+                    if (locatorCacheTimeout != null)
+                    {
+                        if (endpoints.Count > 0)
+                        {
+                            throw new InvalidConfigurationException($"{property}: proxy has endpoints");
+                        }
+                        if (locatorInfo == null && communicator.DefaultLocator == null)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{property}: cannot set locator cache timeout without a Locator");
+                        }
                     }
 
                     preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
-                }
-                // TODO: else, what do we do if these properties are set for an ice2+ proxy?
-            }
+                    relative = communicator.GetPropertyAsBool($"{propertyPrefix}.Relative");
 
-            if (locatorCacheTimeout != null)
-            {
-                Debug.Assert(endpoints.Count == 0);
-                if (locatorInfo == null && communicator.DefaultLocator == null)
-                {
-                    throw new InvalidConfigurationException("cannot set locator cache timeout without a Locator");
+                    if (relative == true && endpoints.Count > 0)
+                    {
+                        throw new InvalidConfigurationException($"{property}: a direct proxy cannot be relative");
+                    }
+
+                    property = $"{propertyPrefix}.Router";
+                    if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
+                    {
+                        if (protocol != Protocol.Ice1)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{property}: only an ice1 proxy can have a router");
+                        }
+                        if (router.Protocol != Protocol.Ice1)
+                        {
+                            throw new InvalidConfigurationException(@$"{property}={communicator.GetProperty(property)
+                                }: a router proxy must use the ice1 protocol");
+                        }
+                        if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
+                        {
+                            throw new InvalidConfigurationException($"{property}: cannot set a router on a router");
+                        }
+                        routerInfo = communicator.GetRouterInfo(router);
+                    }
                 }
             }
 
@@ -604,14 +606,14 @@ namespace ZeroC.Ice
                 {
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("invocation-timeout=");
-                    sb.Append(TimeSpanExtensions.ToPropertyString(invocationTimeout));
+                    sb.Append(TimeSpanExtensions.ToPropertyValue(invocationTimeout));
                 }
 
                 if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
                 {
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("locator-cache-timeout=");
-                    sb.Append(TimeSpanExtensions.ToPropertyString(locatorCacheTimeout));
+                    sb.Append(TimeSpanExtensions.ToPropertyValue(locatorCacheTimeout));
                 }
 
                 if (_preferNonSecure is bool preferNonSecure)
@@ -633,6 +635,8 @@ namespace ZeroC.Ice
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("relative=true");
                 }
+
+                // TODO: add missing connection-id / label
 
                 if (Endpoints.Count > 1)
                 {
@@ -1717,10 +1721,7 @@ namespace ZeroC.Ice
                 throw new NotSupportedException("cannot convert a fixed proxy to a property dictionary");
             }
 
-            var properties = new Dictionary<string, string>
-            {
-                [prefix] = ToString()
-            };
+            var properties = new Dictionary<string, string> { [prefix] = ToString() };
 
             if (Protocol == Protocol.Ice1)
             {
@@ -1728,38 +1729,45 @@ namespace ZeroC.Ice
                 {
                     properties[$"{prefix}.CacheConnection"] = "false";
                 }
+                // TODO: add connection ID
+
+                // We don't output context as it would need hard-to-generate escapes.
+
                 if (_invocationTimeout is TimeSpan invocationTimeout)
                 {
                     // For ice2 the invocation timeout is included in the URI
-                    properties[$"{prefix}.InvocationTimeout"] = invocationTimeout.ToPropertyString();
+                    properties[$"{prefix}.InvocationTimeout"] = invocationTimeout.ToPropertyValue();
+                }
+                if (LocatorInfo != null)
+                {
+                    Dictionary<string, string> locatorProperties = LocatorInfo.Locator.ToProperty(prefix + ".Locator");
+                    foreach (KeyValuePair<string, string> entry in locatorProperties)
+                    {
+                        properties[entry.Key] = entry.Value;
+                    }
                 }
                 if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
                 {
-                    properties[$"{prefix}.LocatorCacheTimeout"] = locatorCacheTimeout.ToPropertyString();
+                    properties[$"{prefix}.LocatorCacheTimeout"] = locatorCacheTimeout.ToPropertyValue();
                 }
                 if (_preferNonSecure is bool preferNonSecure)
                 {
                     properties[$"{prefix}.PreferNonSecure"] = preferNonSecure ? "true" : "false";
                 }
-            }
-
-            if (LocatorInfo != null)
-            {
-                Dictionary<string, string> locatorProperties = LocatorInfo.Locator.ToProperty(prefix + ".Locator");
-                foreach (KeyValuePair<string, string> entry in locatorProperties)
+                if (IsRelative)
                 {
-                    properties[entry.Key] = entry.Value;
+                    properties[$"{prefix}.Relative"] = "true";
+                }
+                if (RouterInfo != null)
+                {
+                    Dictionary<string, string> routerProperties = RouterInfo.Router.ToProperty(prefix + ".Router");
+                    foreach (KeyValuePair<string, string> entry in routerProperties)
+                    {
+                        properties[entry.Key] = entry.Value;
+                    }
                 }
             }
-
-            if (RouterInfo != null)
-            {
-                Dictionary<string, string> routerProperties = RouterInfo.Router.ToProperty(prefix + ".Router");
-                foreach (KeyValuePair<string, string> entry in routerProperties)
-                {
-                    properties[entry.Key] = entry.Value;
-                }
-            }
+            // else, only a single property in the dictionary
 
             return properties;
         }
@@ -1869,7 +1877,6 @@ namespace ZeroC.Ice
         }
 
         // Constructor for fixed references.
-        // TODO: add preferNonSecure?
         private Reference(
             IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
             Encoding encoding,

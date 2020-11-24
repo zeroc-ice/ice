@@ -155,44 +155,44 @@ namespace ZeroC.Ice.Test.Properties
                 {
                     var duration = communicator.GetPropertyAsTimeSpan("Duration.Milliseconds");
                     Assert(duration == TimeSpan.FromMilliseconds(100));
-                    Assert(duration.HasValue && duration.Value.ToPropertyString() == "100ms");
+                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "100ms");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Seconds");
                     Assert(duration == TimeSpan.FromSeconds(5));
-                    Assert(duration.HasValue && duration.Value.ToPropertyString() == "5s");
+                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "5s");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Minutes");
                     Assert(duration == TimeSpan.FromMinutes(9));
-                    Assert(duration.HasValue && duration.Value.ToPropertyString() == "9m");
+                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "9m");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Hours");
                     Assert(duration == TimeSpan.FromHours(64));
-                    Assert(duration.HasValue && duration.Value.ToPropertyString() == "64h");
+                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "64h");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Days");
                     Assert(duration == TimeSpan.FromDays(7));
-                    Assert(duration.HasValue && duration.Value.ToPropertyString() == "7d");
+                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "7d");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Infinite");
                     Assert(duration == TimeSpan.FromMilliseconds(-1));
-                    Assert(duration.HasValue && duration.Value.ToPropertyString() == "infinite");
+                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "infinite");
                 }
 
                 {
                     var duration = TimeSpan.Zero;
-                    Assert(duration.ToPropertyString() == "0ms");
+                    Assert(duration.ToPropertyValue() == "0ms");
 
                     duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromMilliseconds(1));
-                    Assert(duration.ToPropertyString() == "60001ms");
+                    Assert(duration.ToPropertyValue() == "60001ms");
 
                     duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromSeconds(1));
-                    Assert(duration.ToPropertyString() == "61s");
+                    Assert(duration.ToPropertyValue() == "61s");
 
                     duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromSeconds(60));
-                    Assert(duration.ToPropertyString() == "2m");
+                    Assert(duration.ToPropertyValue() == "2m");
 
                     duration = TimeSpan.FromDays(1).Add(TimeSpan.FromMilliseconds(10));
-                    Assert(duration.ToPropertyString() == "86400010ms");
+                    Assert(duration.ToPropertyValue() == "86400010ms");
                 }
 
                 foreach (string property in communicator.GetProperties("Duration.Bad").Keys)

@@ -244,6 +244,7 @@ generated from the section label.
         <suffix name="LocatorCacheTimeout" />
         <suffix name="PreferNonSecure" />
         <suffix name="PreferSecure" /> <!-- TODO: remove -->
+        <suffix name="Relative" />
         <suffix name="Router" />
     </class>
 
