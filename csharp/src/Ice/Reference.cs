@@ -233,7 +233,7 @@ namespace ZeroC.Ice
 
                     preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
                 }
-                // TODO: else, what do we do if these properties are set for other ice2+ proxies?
+                // TODO: else, what do we do if these properties are set for an ice2+ proxy?
             }
 
             if (locatorCacheTimeout != null)
@@ -938,7 +938,7 @@ namespace ZeroC.Ice
                                 }
                             }
 
-                            if (reference.CacheConnection && connection != null)
+                            if (!reference.IsFixed && reference.CacheConnection && connection != null)
                             {
                                 reference.ClearConnection(connection);
                             }
@@ -1367,7 +1367,7 @@ namespace ZeroC.Ice
                 }
 
                 var clone = new Reference(
-                    context?.ToImmutableDictionary() ?? Context,
+                    context?.ToImmutableSortedDictionary() ?? Context,
                     encoding ?? Encoding,
                     facet ?? Facet,
                     (fixedConnection ?? _connection)!,
@@ -1501,7 +1501,7 @@ namespace ZeroC.Ice
                 var clone = new Reference(cacheConnection ?? CacheConnection,
                                           Communicator,
                                           connectionId ?? ConnectionId,
-                                          context?.ToImmutableDictionary() ?? Context,
+                                          context?.ToImmutableSortedDictionary() ?? Context,
                                           encoding ?? Encoding,
                                           newEndpoints,
                                           facet ?? Facet,

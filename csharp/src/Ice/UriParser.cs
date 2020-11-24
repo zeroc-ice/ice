@@ -16,7 +16,7 @@ namespace ZeroC.Ice
         {
             internal bool? CacheConnection;
 
-            internal Dictionary<string, string>? Context;
+            internal SortedDictionary<string, string>? Context;
 
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
@@ -34,7 +34,7 @@ namespace ZeroC.Ice
                 out bool? relative)
             {
                 cacheConnection = CacheConnection;
-                context = Context?.ToImmutableDictionary();
+                context = Context?.ToImmutableSortedDictionary();
                 invocationTimeout = InvocationTimeout;
                 locatorCacheTimeout = LocatorCacheTimeout;
                 preferNonSecure = PreferNonSecure;
@@ -294,7 +294,7 @@ namespace ZeroC.Ice
                         string contextValue =
                             equalPos == e.Length - 1 ? "" : Uri.UnescapeDataString(e[(equalPos + 1)..]);
 
-                        proxyOptions.Context ??= new Dictionary<string, string>();
+                        proxyOptions.Context ??= new SortedDictionary<string, string>();
                         proxyOptions.Context[contextKey] = contextValue;
                     }
                 }

@@ -676,16 +676,18 @@ namespace ZeroC.Ice.Test.Proxy
             else
             {
                 b1 = IObjectPrx.Parse(
-                    $"{propertyPrefixValue}?context=c1=TEST1,c2=TEST&context=c2=TEST2,c3=TEST3,c%204=TEST%204",
+                    $"{propertyPrefixValue}?context=c1=TEST1,c2=TEST&context=c2=TEST2,d%204=TEST%204,c3=TEST3",
                     communicator);
 
                 TestHelper.Assert(b1.Context.Count == 4);
                 TestHelper.Assert(b1.Context["c1"] == "TEST1");
                 TestHelper.Assert(b1.Context["c2"] == "TEST2");
                 TestHelper.Assert(b1.Context["c3"] == "TEST3");
-                TestHelper.Assert(b1.Context["c 4"] == "TEST 4");
+                TestHelper.Assert(b1.Context["d 4"] == "TEST 4");
 
-                TestHelper.Assert(IObjectPrx.Parse(b1.ToString()!, communicator).Equals(b1));
+                // This works because Context is a sorted dictionary
+                TestHelper.Assert(b1.ToString() ==
+                    $"{propertyPrefixValue}?context=c1=TEST1,c2=TEST2,c3=TEST3,d%204=TEST%204");
             }
 
             output.WriteLine("ok");
@@ -702,8 +704,7 @@ namespace ZeroC.Ice.Test.Proxy
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             // InvocationTimeout is a property with ice1 and an URI option with ice2 so the extra property with ice1.
             // Also no router properties with ice2.
-            TestHelper.Assert(proxyProps.Count == 1);
-            // System.Console.WriteLine($"props count is {proxyProps.Count}");
+            TestHelper.Assert(proxyProps.Count == (ice1 ? 3 : 1));
 
             TestHelper.Assert(proxyProps["Test"] ==
                                 (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
@@ -735,8 +736,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             proxyProps = b1.ToProperty("Test");
 
-            TestHelper.Assert(proxyProps.Count == 2);
-            // System.Console.WriteLine($"new props count is {proxyProps.Count}");
+            TestHelper.Assert(proxyProps.Count == (ice1 ? 9 : 2));
             TestHelper.Assert(proxyProps["Test"] == (ice1 ? "test -t -e 1.1" :
                 "ice:test?invocation-timeout=10s&locator-cache-timeout=100s&prefer-non-secure=false"));
 
@@ -745,6 +745,8 @@ namespace ZeroC.Ice.Test.Proxy
 
             if (ice1)
             {
+                TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "10s");
+                TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "false");
                 TestHelper.Assert(proxyProps["Test.Locator.CacheConnection"] == "false");
                 TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"] == "100s");
                 TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"] == "true");

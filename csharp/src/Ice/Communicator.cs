@@ -57,7 +57,7 @@ namespace ZeroC.Ice
 
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
         /// per-thread CurrentContext combined with the proxy's context.</summary>
-        public Dictionary<string, string> CurrentContext
+        public SortedDictionary<string, string> CurrentContext
         {
             get
             {
@@ -70,13 +70,13 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        _currentContext.Value = new Dictionary<string, string>();
+                        _currentContext.Value = new SortedDictionary<string, string>();
                         return _currentContext.Value;
                     }
                 }
                 catch (ObjectDisposedException)
                 {
-                    return new Dictionary<string, string>(ImmutableDictionary<string, string>.Empty);
+                    return new SortedDictionary<string, string>();
                 }
             }
             set
@@ -97,7 +97,7 @@ namespace ZeroC.Ice
         public IReadOnlyDictionary<string, string> DefaultContext
         {
             get => _defaultContext;
-            set => _defaultContext = value.ToImmutableDictionary();
+            set => _defaultContext = value.ToImmutableSortedDictionary();
         }
 
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
@@ -199,10 +199,10 @@ namespace ZeroC.Ice
             new ConcurrentDictionary<string, Func<AnyClass>?>();
         private readonly ConcurrentDictionary<int, Func<AnyClass>?> _compactIdCache =
             new ConcurrentDictionary<int, Func<AnyClass>?>();
-        private readonly ThreadLocal<Dictionary<string, string>> _currentContext
-            = new ThreadLocal<Dictionary<string, string>>();
+        private readonly ThreadLocal<SortedDictionary<string, string>> _currentContext
+            = new ThreadLocal<SortedDictionary<string, string>>();
         private volatile IReadOnlyDictionary<string, string> _defaultContext =
-            ImmutableDictionary<string, string>.Empty;
+            ImmutableSortedDictionary<string, string>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
         private readonly List<DispatchInterceptor> _dispatchInterceptors = new List<DispatchInterceptor>();
