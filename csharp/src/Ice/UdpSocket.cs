@@ -297,8 +297,10 @@ namespace ZeroC.Ice
         // Only for use by UdpEndpoint.
         internal UdpSocket(UdpEndpoint endpoint, Communicator communicator)
         {
+            Debug.Assert(endpoint.Address != IPAddress.None); // not a DNS name
+
             _communicator = communicator;
-            _addr = Network.GetAddressForServerEndpoint(endpoint.Host, endpoint.Port, Network.EnableBoth);
+            _addr = new IPEndPoint(endpoint.Address, endpoint.Port);
             _multicastInterface = endpoint.MulticastInterface;
             _incoming = true;
 

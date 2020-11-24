@@ -43,7 +43,8 @@ namespace ZeroC.Ice
         {
         }
 
-        protected internal override Endpoint GetPublishedEndpoint(string serverName) => this;
+        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
+            throw new NotSupportedException("cannot create published endpoint for colocated endpoint");
 
         internal ColocatedEndpoint(ObjectAdapter adapter)
             : base(new EndpointData(Transport.Colocated, host: adapter.Name, port: 0, Array.Empty<string>()),
