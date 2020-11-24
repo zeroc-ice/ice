@@ -107,6 +107,9 @@ namespace ZeroC.Ice
             set => _defaultLocator = value;
         }
 
+        /// <summary>Gets the communicator preferences for reusing existing connections.</summary>
+        public bool DefaultPreferExistingConnection { get; }
+
         /// <summary>Gets the communicator preferences for establishing non-secure connections.</summary>
         public NonSecure DefaultPreferNonSecure { get; }
 
@@ -470,6 +473,8 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
+
+                DefaultPreferExistingConnection = GetPropertyAsBool("Ice.Default.PreferExistingConnection") ?? true;
 
                 // TODO: switch to NonSecure.Never default
                 DefaultPreferNonSecure =
@@ -1532,7 +1537,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
             }
-            return typeId.Substring(2).Replace("::", ".");
+            return typeId[2..].Replace("::", ".");
         }
     }
 }

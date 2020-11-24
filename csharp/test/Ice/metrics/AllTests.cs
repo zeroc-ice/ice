@@ -1149,7 +1149,8 @@ namespace ZeroC.Ice.Test.Metrics
                 "Invocation",
                 "id",
                 ice1 ? $"metrics -t -e {defaultEncoding} [op]" :
-                       $"ice:metrics?invocation-timeout=1m&prefer-non-secure={communicator.DefaultPreferNonSecure} [op]",
+                       @$"ice:metrics?invocation-timeout=1m&prefer-existing-connection=true&prefer-non-secure={
+                           communicator.DefaultPreferNonSecure} [op]",
                 op,
                 output);
 
@@ -1166,7 +1167,8 @@ namespace ZeroC.Ice.Test.Metrics
                 "Invocation",
                 "proxy",
                 ice1 ? $"metrics -t -e {defaultEncoding}:{endpoint} -t {defaultTimeout}" :
-                       $"{endpoint}/metrics?invocation-timeout=1m&prefer-non-secure={communicator.DefaultPreferNonSecure}",
+                       @$"{endpoint}/metrics?invocation-timeout=1m&prefer-existing-connection=true&prefer-non-secure={
+                           communicator.DefaultPreferNonSecure}",
                 op,
                 output);
 

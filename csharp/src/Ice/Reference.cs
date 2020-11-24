@@ -48,7 +48,7 @@ namespace ZeroC.Ice
         internal TimeSpan LocatorCacheTimeout { get; }
 
         internal LocatorInfo? LocatorInfo { get; }
-
+        internal bool PreferExistingConnection { get; }
         internal NonSecure PreferNonSecure { get; }
         internal Protocol Protocol { get; }
 
@@ -99,6 +99,7 @@ namespace ZeroC.Ice
             InvocationMode invocationMode = InvocationMode.Twoway;
             TimeSpan? invocationTimeout = null;
             IReadOnlyList<string> location;
+            bool? preferExistingConnection = null;
             NonSecure? preferNonSecure = null;
             Protocol protocol;
             bool relative = false;
@@ -146,6 +147,7 @@ namespace ZeroC.Ice
                 invocationTimeout = proxyOptions.InvocationTimeout;
                 relative = proxyOptions.Relative ?? false;
                 preferNonSecure = proxyOptions.PreferNonSecure;
+                preferExistingConnection = proxyOptions.PreferExistingConnection;
             }
             else
             {
@@ -241,6 +243,8 @@ namespace ZeroC.Ice
                                  locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
                                  locatorInfo:
                                     locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator),
+                                 preferExistingConnection:
+                                    preferExistingConnection ?? communicator.DefaultPreferExistingConnection,
                                  preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
                                  protocol: protocol,
                                  relative: relative,
@@ -300,6 +304,10 @@ namespace ZeroC.Ice
                     return false;
                 }
                 if (LocatorInfo != other.LocatorInfo)
+                {
+                    return false;
+                }
+                if (PreferExistingConnection != other.PreferExistingConnection)
                 {
                     return false;
                 }
@@ -395,6 +403,7 @@ namespace ZeroC.Ice
                     hash.Add(Location.GetSequenceHashCode());
                     hash.Add(LocatorCacheTimeout);
                     hash.Add(LocatorInfo);
+                    hash.Add(PreferExistingConnection);
                     hash.Add(PreferNonSecure);
                     hash.Add(RouterInfo);
                 }
@@ -567,6 +576,12 @@ namespace ZeroC.Ice
                 StartQueryOption(sb, ref firstOption);
                 sb.Append("invocation-timeout=");
                 sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
+
+                if (PreferExistingConnection)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("prefer-existing-connection=true");
+                }
 
                 StartQueryOption(sb, ref firstOption);
                 sb.Append("prefer-non-secure=");
@@ -905,6 +920,7 @@ namespace ZeroC.Ice
                    location: location,
                    locatorCacheTimeout: communicator.DefaultLocatorCacheTimeout,
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator),
+                   preferExistingConnection: communicator.DefaultPreferExistingConnection,
                    preferNonSecure: communicator.DefaultPreferNonSecure,
                    protocol: protocol,
                    relative: false,
@@ -952,6 +968,7 @@ namespace ZeroC.Ice
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
+            bool? preferExistingConnection = null,
             NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null)
@@ -1039,6 +1056,11 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException("cannot change the locator cache timeout of a fixed proxy",
                         nameof(locatorCacheTimeout));
+                }
+                if (preferExistingConnection != null)
+                {
+                    throw new ArgumentException("cannot change the prefer-existing-connection configuration of a fixed proxy",
+                        nameof(preferNonSecure));
                 }
                 if (preferNonSecure != null)
                 {
@@ -1182,6 +1204,7 @@ namespace ZeroC.Ice
                                           newLocation ?? Location,
                                           locatorCacheTimeout ?? LocatorCacheTimeout,
                                           locatorInfo, // no fallback otherwise breaks clearLocator
+                                          preferExistingConnection ?? PreferExistingConnection,
                                           preferNonSecure ?? PreferNonSecure,
                                           Protocol,
                                           relative ?? IsRelative,
@@ -1271,15 +1294,17 @@ namespace ZeroC.Ice
             {
                 bool cached;
                 List<Endpoint>? endpoints = null;
-                // TODO replace IsConnectionCached with PreferExistingConnection
-                if ((connection == null || (!IsFixed && !connection.IsActive)) && IsConnectionCached)
+                if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
                 {
                     // No cached connection, so now check if the connection factory has an existing connection that we
                     // can reuse, the connection factory will compute the reference endpoints and the endpoint
                     // connectors if required.
                     (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
                     connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
-                    _connection = connection;
+                    if (IsConnectionCached)
+                    {
+                        _connection = connection;
+                    }
                 }
 
                 if (connection == null)
@@ -1342,6 +1367,7 @@ namespace ZeroC.Ice
             {
                 // For Ice2 these are URI options
                 properties[$"{prefix}.InvocationTimeout"] = InvocationTimeout.ToPropertyString();
+                properties[$"{prefix}.PreferExistingConnection"] = PreferExistingConnection ? "1" : "0";
                 properties[$"{prefix}.PreferNonSecure"] = PreferNonSecure.ToString();
             }
 
@@ -1431,6 +1457,7 @@ namespace ZeroC.Ice
             IReadOnlyList<string> location, // already a copy provided by Ice
             TimeSpan locatorCacheTimeout,
             LocatorInfo? locatorInfo,
+            bool preferExistingConnection,
             NonSecure preferNonSecure,
             Protocol protocol,
             bool relative,
@@ -1451,6 +1478,7 @@ namespace ZeroC.Ice
             Location = location;
             LocatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
+            PreferExistingConnection = preferExistingConnection;
             PreferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
@@ -1498,6 +1526,7 @@ namespace ZeroC.Ice
             Location = ImmutableArray<string>.Empty;
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
+            PreferExistingConnection = false;
             PreferNonSecure = fixedConnection.IsSecure ? NonSecure.Never : NonSecure.Always;
             Protocol = fixedConnection.Protocol;
             RouterInfo = null;
@@ -1539,13 +1568,15 @@ namespace ZeroC.Ice
             bool cached = false;
             List<Endpoint>? endpoints = null;
 
-            // TODO replace IsConnectionCached with PreferExistingConnection
-            if ((connection == null || (!IsFixed && !connection.IsActive)) && IsConnectionCached)
+            if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
             {
                 // No cached connection, so now check if there is an existing connection that we can reuse.
                 (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
                 connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
-                _connection = connection;
+                if (IsConnectionCached)
+                {
+                    _connection = connection;
+                }
             }
 
             int nextEndpoint = 0;

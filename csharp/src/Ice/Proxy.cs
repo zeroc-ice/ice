@@ -60,6 +60,8 @@ namespace ZeroC.Ice
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
+        /// <param name="preferExistingConnection">Determines whether or not the clone prefer using an existing
+        /// connection.</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="relative">When true, the new proxy is a relative proxy (optional).</param>
@@ -86,6 +88,7 @@ namespace ZeroC.Ice
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
+            bool? preferExistingConnection = null,
             NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null) where T : class, IObjectPrx =>
@@ -107,6 +110,7 @@ namespace ZeroC.Ice
                                            locator,
                                            locatorCacheTimeout,
                                            oneway,
+                                           preferExistingConnection,
                                            preferNonSecure,
                                            relative,
                                            router));
@@ -135,6 +139,8 @@ namespace ZeroC.Ice
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
+        /// <param name="preferExistingConnection">Determines whether or not the clone prefer using an existing
+        /// connection.</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="relative">When true, the new proxy is a relative proxy (optional).</param>
@@ -157,6 +163,7 @@ namespace ZeroC.Ice
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
+            bool? preferExistingConnection = null,
             NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null) where T : IObjectPrx
@@ -179,6 +186,7 @@ namespace ZeroC.Ice
                                                      locator,
                                                      locatorCacheTimeout,
                                                      oneway,
+                                                     preferExistingConnection,
                                                      preferNonSecure,
                                                      relative,
                                                      router);

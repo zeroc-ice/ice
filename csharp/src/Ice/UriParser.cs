@@ -16,6 +16,7 @@ namespace ZeroC.Ice
         {
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
+            internal bool? PreferExistingConnection;
             internal NonSecure? PreferNonSecure;
             internal Protocol? Protocol;
             internal bool? Relative;
@@ -299,6 +300,19 @@ namespace ZeroC.Ice
                     {
                         throw new FormatException("the URI format does not support protocol ice1");
                     }
+                }
+                else if (name == "prefer-existing-connection")
+                {
+                    if (pureEndpoints)
+                    {
+                        throw new FormatException(
+                            $"prefer-existing-connection is not a valid option for endpoint `{uriString}'");
+                    }
+                    if (proxyOptions.PreferExistingConnection != null)
+                    {
+                        throw new FormatException($"multiple prefer-existing-connection options in `{uriString}'");
+                    }
+                    proxyOptions.PreferExistingConnection = bool.Parse(value);
                 }
                 else if (name == "prefer-non-secure")
                 {
