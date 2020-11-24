@@ -2,12 +2,30 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
+    public sealed class Forwarder : IObject
+    {
+        private IObjectPrx _target;
+
+        ValueTask<OutgoingResponseFrame> IObject.DispatchAsync(
+            IncomingRequestFrame request,
+            Current current,
+            CancellationToken cancel)
+            => _target.ForwardAsync(request, current.IsOneway, cancel: cancel);
+
+        internal Forwarder(IObjectPrx target) => _target = target;
+    }
+
     public sealed class Thrower : IThrower
     {
+        // 20KB is over the configured 10KB message size max.
+        public ReadOnlyMemory<byte> SendAndReceive(byte[] seq, Current current, CancellationToken cancel) =>
+            new byte[1024 * 20];
+
         public void Shutdown(Current current, CancellationToken cancel) =>
             current.Adapter.Communicator.ShutdownAsync();
 
@@ -45,10 +63,6 @@ namespace ZeroC.Ice.Test.Exceptions
         public void ThrowNonIceException(Current current, CancellationToken cancel) => throw new Exception();
 
         public void ThrowAssertException(Current current, CancellationToken cancel) => TestHelper.Assert(false);
-
-        // 20KB is over the configured 10KB message size max.
-        public ReadOnlyMemory<byte> ThrowMemoryLimitException(byte[] seq, Current current, CancellationToken cancel) =>
-            new byte[1024 * 20];
 
         public void ThrowLocalExceptionIdempotent(Current current, CancellationToken cancel) =>
             throw new ConnectionClosedException();

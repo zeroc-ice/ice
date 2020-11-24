@@ -64,9 +64,9 @@ module Ice
         string paramName;
     }
 
-    /// A limit exceeded exception is thrown when a limit is exceeded on the server side. This can occur for exampple
-    /// if the response exceeds the peer's incoming frame maximum size.
-    exception LimitExceededException
+    /// A server exception is thrown when an implementation error occured. This can occur for example if the
+    /// response can't be sent because it's larger than the peer's incoming frame maximum size.
+    exception ServerException
     {
     }
 }

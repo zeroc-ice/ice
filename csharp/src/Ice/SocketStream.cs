@@ -411,7 +411,7 @@ namespace ZeroC.Ice
             {
                 if (frame is OutgoingRequestFrame)
                 {
-                    throw new ArgumentOutOfRangeException(
+                    throw new LimitExceededException(
                         $@"the request size is larger than the peer's IncomingFrameSizeMax ({
                         _socket.PeerIncomingFrameMaxSize} bytes)");
                 }
@@ -419,7 +419,7 @@ namespace ZeroC.Ice
                 {
                     // Throw a remote exception instead of this response, the Ice connection will catch it and send it
                     // as the response instead of sending this response which is too large.
-                    throw new LimitExceededException(
+                    throw new ServerException(
                         $@"the response size is larger than the peer's IncomingFrameSizeMax ({
                         _socket.PeerIncomingFrameMaxSize} bytes)");
                 }
