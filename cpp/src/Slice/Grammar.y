@@ -828,7 +828,7 @@ struct_def
     }
     else
     {
-        st = cont->createStruct(IceUtil::generateUUID()); // Dummy
+        st = cont->createStruct(IceUtil::generateUUID(), Dummy);
         assert(st);
         unit->pushContainer(st);
     }
