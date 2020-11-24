@@ -21,10 +21,6 @@ namespace ZeroC.Ice
             internal set => throw new NotSupportedException("setting IdleTimeout is not supported with Slic");
         }
 
-        // The mutex here needs to be internal because it's used by the SlicStream implementation to ensure
-        // assignment of the stream ID for outgoing streams and the queuing of the first frame is atomic.
-        internal readonly object Mutex = new();
-
         private int _bidirectionalStreamCount;
         private AsyncSemaphore? _bidirectionalStreamSemaphore;
         private TimeSpan _idleTimeout;
@@ -32,6 +28,9 @@ namespace ZeroC.Ice
         private long _lastUnidirectionalId;
         private readonly int _maxBidirectionalStreams;
         private readonly int _maxUnidirectionalStreams;
+        // The mutex is used to protect the next stream IDs and the send queue. It's also used to ensure the
+        // stream ID assignment and the sending of the first packet are atomic.
+        private readonly object _mutex = new();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
         private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource = new();
@@ -394,26 +393,9 @@ namespace ZeroC.Ice
             return streamIds;
         }
 
-        internal ValueTask AcquireFlowControlCreditAsync(SlicStream stream, CancellationToken cancel)
-        {
-            // Flow control credit for incoming stream is acquired in AcceptStreamAsync directly. This should
-            // only be called for outgoing streams.
-            Debug.Assert(!stream.IsIncoming && !stream.IsControl);
-
-            // The semaphore WaitAsync provides FIFO guarantees.
-            if (stream.IsBidirectional)
-            {
-                return _bidirectionalStreamSemaphore!.WaitAsync(cancel);
-            }
-            else
-            {
-                return _unidirectionalStreamSemaphore!.WaitAsync(cancel);
-            }
-        }
-
         internal long AllocateId(bool bidirectional)
         {
-            lock (Mutex)
+            lock (_mutex)
             {
                 long id;
                 if (bidirectional)
@@ -515,7 +497,7 @@ namespace ZeroC.Ice
             cancel.ThrowIfCancellationRequested();
 
             // Synchronization is required here because this might be called concurrently by the connection code
-            lock (Mutex)
+            lock (_mutex)
             {
                 ValueTask sendTask = QueueAsync(buffer, cancel);
                 _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
@@ -542,6 +524,46 @@ namespace ZeroC.Ice
                 int sent = await _socket.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
                 Debug.Assert(sent == buffer.GetByteCount());
                 Sent(sent);
+            }
+        }
+
+        internal async Task SendStreamPacketAsync(
+            SlicStream stream,
+            int packetSize,
+            bool fin,
+            IList<ArraySegment<byte>> buffer,
+            CancellationToken cancel)
+        {
+            if (stream.IsStarted)
+            {
+                await stream.SendPacketAsync(packetSize, fin, buffer, cancel).ConfigureAwait(false);
+            }
+            else
+            {
+                Debug.Assert(!stream.IsIncoming && !stream.IsControl);
+
+                // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
+                // control credit to ensure we don't open more streams than the peer allows. The semaphore
+                // provides FIFO guarantee to ensure that the sending of requests is serialized.
+                if (stream.IsBidirectional)
+                {
+                    await _bidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    await _unidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                }
+
+                // Ensure we allocate and queue for sending the first packet atomically to ensure the receiver
+                // won't receive stream frames with out-of-order stream IDs. The ID assignment will throw if
+                // the connection is being closed and no new streams can be created.
+                Task task;
+                lock (_mutex)
+                {
+                    stream.Id = AllocateId(stream.IsBidirectional);
+                    task = stream.SendPacketAsync(packetSize, fin, buffer, cancel);
+                }
+                await task.ConfigureAwait(false);
             }
         }
 
