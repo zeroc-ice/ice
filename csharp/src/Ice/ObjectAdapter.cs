@@ -55,10 +55,8 @@ namespace ZeroC.Ice
         /// determines this protocol.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.
-        /// <seealso cref="SetPublishedEndpoints"/>
-        /// <seealso cref="SetPublishedEndpointsAsync"/></summary>
-        public IReadOnlyList<Endpoint> PublishedEndpoints => _publishedEndpoints;
+        /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.</summary>
+        public IReadOnlyList<Endpoint> PublishedEndpoints { get; } = ImmutableArray<Endpoint>.Empty;
 
         /// <summary>Returns the replica group ID of this object adapter, or the empty string if this object adapter
         /// does not belong to a replica group.</summary>
@@ -119,7 +117,6 @@ namespace ZeroC.Ice
 
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new();
-        private volatile IReadOnlyList<Endpoint> _publishedEndpoints = ImmutableArray<Endpoint>.Empty;
 
         private readonly RouterInfo? _routerInfo;
 
@@ -170,7 +167,7 @@ namespace ZeroC.Ice
                 }
 
                 // In the event _publishedEndpoints is empty, RegisterEndpointsAsync does nothing.
-                _activateTask ??= RegisterEndpointsAsync(_publishedEndpoints, default);
+                _activateTask ??= RegisterEndpointsAsync(PublishedEndpoints, default);
             }
             await _activateTask.ConfigureAwait(false);
 
@@ -502,12 +499,12 @@ namespace ZeroC.Ice
                 ImmutableArray<string> location = ReplicaGroupId.Length > 0 ? ImmutableArray.Create(ReplicaGroupId) :
                     AdapterId.Length > 0 ? ImmutableArray.Create(AdapterId) : ImmutableArray<string>.Empty;
 
-                Protocol protocol = _publishedEndpoints.Count > 0 ? _publishedEndpoints[0].Protocol : Protocol;
+                Protocol protocol = PublishedEndpoints.Count > 0 ? PublishedEndpoints[0].Protocol : Protocol;
 
                 return factory(new Reference(Communicator,
                                              protocol.GetEncoding(),
                                              endpoints: AdapterId.Length == 0 ?
-                                                _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
+                                                PublishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                              facet,
                                              identity,
                                              invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
@@ -540,59 +537,6 @@ namespace ZeroC.Ice
         {
             (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return CreateProxy(identity, facet, factory);
-        }
-
-        /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
-        /// </summary>
-        /// <param name="newEndpoints">The new published endpoints.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints, CancellationToken cancel = default)
-        {
-            try
-            {
-                SetPublishedEndpointsAsync(newEndpoints, cancel).Wait(cancel);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
-        /// </summary>
-        /// <param name="newEndpoints">The new published endpoints.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        public async Task SetPublishedEndpointsAsync(
-            IEnumerable<Endpoint> newEndpoints,
-            CancellationToken cancel = default)
-        {
-            if (Name.Length == 0)
-            {
-                throw new InvalidOperationException("cannot set published endpoints on a nameless object adapter");
-            }
-
-            IReadOnlyList<Endpoint> publishedEndpoints = newEndpoints.ToImmutableArray();
-
-            if (publishedEndpoints.Count == 0)
-            {
-                throw new ArgumentException("the new endpoints cannot be empty", nameof(newEndpoints));
-            }
-
-            if (publishedEndpoints.Select(endpoint => endpoint.Protocol).Distinct().Count() > 1)
-            {
-                throw new ArgumentException("all endpoints must use the same protocol", nameof(newEndpoints));
-            }
-
-            if (_routerInfo != null)
-            {
-                throw new InvalidOperationException(
-                    "cannot set published endpoints on an object adapter associated with a router");
-            }
-
-            await RegisterEndpointsAsync(publishedEndpoints, cancel).ConfigureAwait(false);
-
-            _publishedEndpoints = publishedEndpoints;
         }
 
         // Called by Communicator to create a nameless ObjectAdapter
@@ -701,7 +645,7 @@ namespace ZeroC.Ice
                     Communicator.OutgoingConnectionFactory.SetRouterInfo(_routerInfo);
 
                     // Synchronous remote call!
-                    _publishedEndpoints = router.GetServerEndpoints();
+                    PublishedEndpoints = router.GetServerEndpoints();
                 }
                 else
                 {
@@ -775,27 +719,27 @@ namespace ZeroC.Ice
 
                     if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string publishedEndpointsValue)
                     {
-                        _publishedEndpoints = UriParser.IsEndpointUri(publishedEndpointsValue) ?
+                        PublishedEndpoints = UriParser.IsEndpointUri(publishedEndpointsValue) ?
                             UriParser.ParseEndpoints(publishedEndpointsValue, Communicator) :
                             Ice1Parser.ParseEndpoints(publishedEndpointsValue, Communicator, oaEndpoints: false);
                     }
 
-                    if (_publishedEndpoints.Count == 0)
+                    if (PublishedEndpoints.Count == 0)
                     {
                         // If the PublishedEndpoints config property isn't set, we compute the published endpoints.
 
                         string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
 
-                        _publishedEndpoints = Endpoints.Select(endpoint => endpoint.GetPublishedEndpoint(serverName)).
+                        PublishedEndpoints = Endpoints.Select(endpoint => endpoint.GetPublishedEndpoint(serverName)).
                             Distinct().ToImmutableArray();
                     }
 
-                    if (Communicator.TraceLevels.Transport >= 1 && _publishedEndpoints.Count > 0)
+                    if (Communicator.TraceLevels.Transport >= 1 && PublishedEndpoints.Count > 0)
                     {
                         var sb = new StringBuilder("published endpoints for object adapter `");
                         sb.Append(Name);
                         sb.Append("':\n");
-                        sb.AppendEndpointList(_publishedEndpoints);
+                        sb.AppendEndpointList(PublishedEndpoints);
                         Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
                     }
                 }
@@ -967,7 +911,7 @@ namespace ZeroC.Ice
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
                     return reference.Endpoints.Any(endpoint =>
-                        _publishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
+                        PublishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
                         _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
             }
