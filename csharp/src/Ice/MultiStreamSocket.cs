@@ -32,6 +32,7 @@ namespace ZeroC.Ice
         public bool IsIncoming { get; }
 
         internal int IncomingFrameMaxSize { get; }
+        internal int? PeerIncomingFrameMaxSize { get; set; }
         internal TimeSpan LastActivity { get; private set; }
         // The stream ID of the last received response with the Ice1 protocol. Keeping track of this stream ID is
         // necessary to avoid a race condition with the GoAway frame which could be received and processed before

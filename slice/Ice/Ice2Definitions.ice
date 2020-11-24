@@ -28,6 +28,12 @@ module Ice
     {
     }
 
+    /// The keys for supported Ice2 connection parameters.
+    unchecked enum Ice2ParameterKey : int
+    {
+        IncomingFrameMaxSize = 0
+    }
+
     /// The body of an ice2 request header. A request header consists of two parts: the frame prologue which contains
     /// the frame type and frame size, and the request header body that contains the identity, the operation name and
     /// other optional information.

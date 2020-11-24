@@ -116,8 +116,8 @@ namespace ZeroC.Ice
             int size = buffer.GetByteCount();
 
             // If the protocol buffer is larger than the configure Slic packet size, send it over multiple Slic packets.
-            int maxFrameSize = _socket.Options.PacketMaxSize;
-            if (size > maxFrameSize)
+            int packetMaxSize = _socket.Endpoint.Communicator.SlicPacketMaxSize;
+            if (size > packetMaxSize)
             {
                 // The send buffer for the Slic packet.
                 var sendBuffer = new List<ArraySegment<byte>>(buffer.Count);
@@ -146,9 +146,9 @@ namespace ZeroC.Ice
                     for (int i = start.Segment; i < buffer.Count; ++i)
                     {
                         int segmentOffset = i == start.Segment ? start.Offset : 0;
-                        if (sendSize + buffer[i].Slice(segmentOffset).Count > maxFrameSize)
+                        if (sendSize + buffer[i].Slice(segmentOffset).Count > packetMaxSize)
                         {
-                            sendBuffer.Add(buffer[i].Slice(segmentOffset, maxFrameSize - sendSize));
+                            sendBuffer.Add(buffer[i].Slice(segmentOffset, packetMaxSize - sendSize));
                             start = new OutputStream.Position(i, segmentOffset + sendBuffer[^1].Count);
                             sendSize += sendBuffer[^1].Count;
                             break;
@@ -270,19 +270,19 @@ namespace ZeroC.Ice
                 // it after.
                 if (IsBidirectional)
                 {
-                    if (_socket.BidirectionalStreamCount == _socket.Options.MaxBidirectionalStreams)
+                    if (_socket.BidirectionalStreamCount == _socket.MaxBidirectionalStreams)
                     {
                         throw new InvalidDataException(
-                            $"maximum bidirectional stream count {_socket.Options.MaxBidirectionalStreams} reached");
+                            $"maximum bidirectional stream count {_socket.MaxBidirectionalStreams} reached");
                     }
                     Interlocked.Increment(ref _socket.BidirectionalStreamCount);
                 }
                 else
                 {
-                    if (_socket.UnidirectionalStreamCount == _socket.Options.MaxUnidirectionalStreams)
+                    if (_socket.UnidirectionalStreamCount == _socket.MaxUnidirectionalStreams)
                     {
                         throw new InvalidDataException(
-                            $"maximum unidirectional stream count {_socket.Options.MaxUnidirectionalStreams} reached");
+                            $"maximum unidirectional stream count {_socket.MaxUnidirectionalStreams} reached");
                     }
                     Interlocked.Increment(ref _socket.UnidirectionalStreamCount);
                 }
