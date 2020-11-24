@@ -670,7 +670,7 @@ namespace ZeroC.Ice.Test.Proxy
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             // InvocationTimeout is a property with ice1 and an URI option with ice2 so the extra property with ice1.
             // Also no router properties with ice2.
-            TestHelper.Assert(proxyProps.Count == (ice1 ? 15 : 8));
+            TestHelper.Assert(proxyProps.Count == (ice1 ? 15 : 6));
             TestHelper.Assert(proxyProps["Test"] ==
                               (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
                                       "ice+tcp://127.0.0.1/test?invocation-timeout=10s&prefer-non-secure=Never"));
@@ -700,7 +700,7 @@ namespace ZeroC.Ice.Test.Proxy
                 // also very strange
                 TestHelper.Assert(proxyProps["Test.Locator.Router"] == "router -t -e 1.1");
                 TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
-                TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"] == "1");
+                TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"] == "Always");
                 TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200s");
                 TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1m");
             }
