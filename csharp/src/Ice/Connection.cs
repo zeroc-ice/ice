@@ -97,6 +97,10 @@ namespace ZeroC.Ice
         /// frames at regular time intervals when the connection is idle.</summary>
         public bool KeepAlive { get; set; }
 
+        /// <summary>The peer's incoming frame maximum size. This is only supported with ice2 connections. For
+        /// ice1 connections, the value is always -1.</summary>
+        public int PeerIncomingFrameMaxSize => Protocol == Protocol.Ice1 ? -1 : Socket.PeerIncomingFrameMaxSize!.Value;
+
         /// <summary>The protocol used by the connection.</summary>
         public Protocol Protocol => Endpoint.Protocol;
 
@@ -572,8 +576,19 @@ namespace ZeroC.Ice
 
                 if (stream.IsBidirectional)
                 {
-                    // Send the response over the stream
-                    await stream.SendResponseFrameAsync(response, fin, cancel).ConfigureAwait(false);
+                    try
+                    {
+                        // Send the response over the stream
+                        await stream.SendResponseFrameAsync(response, fin, cancel).ConfigureAwait(false);
+                    }
+                    catch (RemoteException ex)
+                    {
+                        // Send the exception as the response instead of sending the response from the dispatch
+                        // if sending raises a remote exception.
+                        response = new OutgoingResponseFrame(request, ex);
+                        response.Finish();
+                        await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
+                    }
                 }
             }
             catch (OperationCanceledException)

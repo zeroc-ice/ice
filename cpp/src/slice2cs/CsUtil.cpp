@@ -873,9 +873,9 @@ Slice::CsGenerator::writeUnmarshalCode(
     }
     else
     {
-        auto constructed = ConstructedPtr::dynamicCast(underlying);
-        assert(constructed);
-        out << helperName(underlying, scope) << ".Read" << constructed->name() << "(istr)";
+        auto contained = ContainedPtr::dynamicCast(underlying);
+        assert(contained);
+        out << helperName(underlying, scope) << ".Read" << contained->name() << "(istr)";
     }
 
     if (optional)

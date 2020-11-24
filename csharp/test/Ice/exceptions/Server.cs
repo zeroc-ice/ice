@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Exceptions
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.IncomingFrameMaxSize"] = "10K";
-            await using Communicator communicator = Initialize(properties);
+            using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
             communicator.SetProperty("TestAdapter2.IncomingFrameMaxSize", "0");
@@ -25,12 +25,20 @@ namespace ZeroC.Ice.Test.Exceptions
             ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2");
             ObjectAdapter adapter3 = communicator.CreateObjectAdapter("TestAdapter3");
             var obj = new Thrower();
-            adapter.Add("thrower", obj);
+            ZeroC.Ice.IObjectPrx prx = adapter.Add("thrower", obj, ZeroC.Ice.IObjectPrx.Factory);
             adapter2.Add("thrower", obj);
             adapter3.Add("thrower", obj);
             await adapter.ActivateAsync();
             await adapter2.ActivateAsync();
             await adapter3.ActivateAsync();
+
+            using var communicator2 = new Communicator(properties);
+            communicator2.SetProperty("ForwarderAdapter.Endpoints", GetTestEndpoint(3));
+            communicator2.SetProperty("ForwarderAdapter.IncomingFrameMaxSize", "0");
+            ObjectAdapter forwarderAdapter = communicator2.CreateObjectAdapter("ForwarderAdapter");
+            forwarderAdapter.Add("forwarder", new Forwarder(IObjectPrx.Parse(GetTestProxy("thrower"), communicator2)));
+            await forwarderAdapter.ActivateAsync();
+
             ServerReady();
             await communicator.WaitForShutdownAsync();
         }

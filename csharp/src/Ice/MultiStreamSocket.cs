@@ -32,6 +32,7 @@ namespace ZeroC.Ice
         public bool IsIncoming { get; }
 
         internal int IncomingFrameMaxSize { get; }
+        internal int? PeerIncomingFrameMaxSize { get; set; }
         internal TimeSpan LastActivity { get; private set; }
         // The stream ID of the last received response with the Ice1 protocol. Keeping track of this stream ID is
         // necessary to avoid a race condition with the GoAway frame which could be received and processed before
@@ -60,9 +61,8 @@ namespace ZeroC.Ice
         internal int OutgoingStreamCount => Thread.VolatileRead(ref _outgoingStreamCount);
 
         private int _incomingStreamCount;
-        // The mutex provides thread-safety for the _observer and LastActivity data members. It can also be used
-        // by specializations to provide data member thread-safety.
-        private protected readonly object _mutex = new();
+        // The mutex provides thread-safety for the _observer and LastActivity data members.
+        private readonly object _mutex = new();
         private IConnectionObserver? _observer;
         private int _outgoingStreamCount;
         private readonly ConcurrentDictionary<long, SocketStream> _streams = new();

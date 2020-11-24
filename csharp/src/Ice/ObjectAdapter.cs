@@ -607,10 +607,11 @@ namespace ZeroC.Ice
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
 
-            AcceptNonSecure = communicator.AcceptNonSecure;
             AdapterId = "";
             ReplicaGroupId = "";
             Protocol = protocol;
+            IncomingFrameMaxSize = communicator.IncomingFrameMaxSize;
+            AcceptNonSecure = communicator.AcceptNonSecure;
         }
 
         // Called by Communicator.
@@ -656,6 +657,10 @@ namespace ZeroC.Ice
             int frameMaxSize =
                 Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameMaxSize") ?? Communicator.IncomingFrameMaxSize;
             IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
+            if (IncomingFrameMaxSize < 1024)
+            {
+                throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
+            }
 
             AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
 
