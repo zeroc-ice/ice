@@ -1148,7 +1148,7 @@ namespace ZeroC.Ice.Test.Metrics
                 update,
                 "Invocation",
                 "id",
-                ice1 ? $"metrics -t -e {defaultEncoding} [op]" : "ice:metrics?invocation-timeout=1m [op]",
+                ice1 ? $"metrics -t -e {defaultEncoding} [op]" : "ice:metrics [op]",
                 op,
                 output);
 
@@ -1164,8 +1164,7 @@ namespace ZeroC.Ice.Test.Metrics
                 update,
                 "Invocation",
                 "proxy",
-                ice1 ? $"metrics -t -e {defaultEncoding}:{endpoint} -t {defaultTimeout}" :
-                       $"{endpoint}/metrics?invocation-timeout=1m",
+                ice1 ? $"metrics -t -e {defaultEncoding}:{endpoint} -t {defaultTimeout}" : $"{endpoint}/metrics",
                 op,
                 output);
 

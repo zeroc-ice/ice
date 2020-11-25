@@ -1752,7 +1752,7 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<string, string> ctx = new Dictionary<string, string>();
+                var ctx = new SortedDictionary<string, string>();
                 ctx["one"] = "ONE";
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
@@ -1808,7 +1808,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(communicator.DefaultContext.DictionaryEquals(prxContext));
 
                 p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-                var ctx = new Dictionary<string, string>(communicator.CurrentContext);
+                var ctx = new SortedDictionary<string, string>(communicator.CurrentContext);
 
                 communicator.CurrentContext.Clear();
                 TestHelper.Assert(p3.OpContext().DictionaryEquals(prxContext));
@@ -1818,7 +1818,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
-                communicator.DefaultContext = new Dictionary<string, string>();
+                communicator.DefaultContext = new SortedDictionary<string, string>();
             }
 
             p.OpIdempotent();

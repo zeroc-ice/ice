@@ -235,8 +235,11 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Gets the value of a property as a proxy. If the property is not set, returns null.</summary>
-        /// <param name="name">The property name. The property name is also used as the prefix for proxy options.</param>
+        /// <summary>Gets the value of a property as a proxy. If the property is not set, returns null. For ice1
+        /// proxies, this method uses the property name to lookup sub-properties such as Name.InvocationTimeout and
+        /// fill-in the corresponding property of new proxy. For ice2 proxies, this method is equivalent to parsing the
+        /// property's value.</summary>
+        /// <param name="name">The property name.</param>
         /// <param name="factory">The proxy factory. Use IAPrx.Factory to create IAPrx proxies.</param>
         /// <returns>The property value parsed into a proxy or null.</returns>
         public T? GetPropertyAsProxy<T>(string name, ProxyFactory<T> factory) where T : class, IObjectPrx
@@ -259,10 +262,9 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Gets the value of a property as a TimeSpan. If the property is not set, returns null.
-        /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', 'h', or 'd'.
-        /// These correspond to milliseconds, seconds, minutes, hours, and days, respectively.
-        /// A value of "infinite" can be used to specify an infinite duration.
-        /// e.g. 50ms, 3m.</summary>
+        /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', 'h', or 'd'. These
+        /// correspond to milliseconds, seconds, minutes, hours, and days, respectively. A value of "infinite" can be
+        /// used to specify an infinite duration. </summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into a TimeSpan or null.</returns>
         public TimeSpan? GetPropertyAsTimeSpan(string name)
@@ -287,8 +289,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Insert a new property or change the value of an existing property. Setting the value of a property
-        /// to the empty string removes this property if it was present, and does nothing otherwise.</summary>
+        /// <summary>Inserts a new property or changes the value of an existing property. Setting the value of a
+        /// property to the empty string removes this property if it was present, and does nothing otherwise.</summary>
         /// <param name="name">The property name.</param>
         /// <param name="value">The property value.</param>
         public void SetProperty(string name, string value)
@@ -301,7 +303,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Insert new properties or change the value of existing properties. Setting the value of a property
+        /// <summary>Inserts new properties or changes the value of existing properties. Setting the value of a property
         /// to the empty string removes this property if it was present, and does nothing otherwise.</summary>
         /// <param name="updates">A dictionary of properties. This methods removes properties that did not change
         /// anything from this dictionary.</param>
@@ -325,7 +327,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Remove a property.</summary>
+        /// <summary>Removes a property.</summary>
         /// <param name="name">The property name.</param>
         /// <returns>true if the property is successfully found and removed; otherwise false.</returns>
         public bool RemoveProperty(string name)
@@ -336,7 +338,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Get all properties that were not read.</summary>
+        /// <summary>Gets all properties that were not read.</summary>
         /// <returns>The properties that were not read as a list of keys.</returns>
         public List<string> GetUnusedProperties()
         {

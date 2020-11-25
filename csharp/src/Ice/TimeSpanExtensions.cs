@@ -10,11 +10,11 @@ namespace ZeroC.Ice
     /// <summary>Provides public extension methods for <see cref="TimeSpan"/> values.</summary>
     public static class TimeSpanExtensions
     {
-        /// <summary>Gets the TimeSpan as an Ice property string. The largest possible unit which fully represents the
+        /// <summary>Gets the TimeSpan as an Ice property value. The largest possible unit which fully represents the
         /// TimeSpan will be used. e.g. A TimeSpan of 00:01:30 will be returned as "75s".</summary>
         /// <param name="ts">The TimeSpan.</param>
         /// <returns>The stringified TimeSpan.</returns>
-        public static string ToPropertyString(this TimeSpan ts)
+        public static string ToPropertyValue(this TimeSpan ts)
         {
             FormattableString message;
             if (ts == TimeSpan.Zero)
