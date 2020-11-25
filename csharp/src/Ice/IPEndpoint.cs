@@ -152,18 +152,13 @@ namespace ZeroC.Ice
                         _ => true
                     };
                     connection = CreateConnection(preferNonSecure, secureOnly, address, networkProxy, cookie);
-                    await connection.InitializeAsync().ConfigureAwait(false);
-                }
-                catch (OperationCanceledException ex)
-                {
-                    connectionEstablishmentObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    throw;
+                    await connection.InitializeAsync(cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     connectionEstablishmentObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                     // Ignore the exception unless this is the last address
-                    if (ReferenceEquals(lastAddress, address))
+                    if (ex is OperationCanceledException || ReferenceEquals(lastAddress, address))
                     {
                         throw;
                     }

@@ -8,11 +8,6 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public interface IConnectionManager
-    {
-        void Remove(Connection connection);
-    }
-
     internal abstract class IncomingConnectionFactory : IAsyncDisposable
     {
         internal abstract Endpoint Endpoint { get; }
@@ -27,7 +22,7 @@ namespace ZeroC.Ice
     }
 
     // IncomingConnectionFactory for acceptor based transports.
-    internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory, IConnectionManager
+    internal sealed class AcceptorIncomingConnectionFactory : IncomingConnectionFactory
     {
         internal override Endpoint Endpoint { get; }
 
@@ -86,7 +81,7 @@ namespace ZeroC.Ice
         {
             _communicator = adapter.Communicator;
             _adapter = adapter;
-            _acceptor = endpoint.Acceptor(this, _adapter);
+            _acceptor = endpoint.Acceptor(_adapter);
             Endpoint = _acceptor.Endpoint;
 
             if (_communicator.TraceLevels.Transport >= 1)
@@ -158,8 +153,10 @@ namespace ZeroC.Ice
                         // We don't wait for the connection to be activated. This could take a while for some transports
                         // such as TLS based transports where the handshake requires few round trips between the client
                         // and server.
-                        _ = connection.InitializeAsync();
+                        _ = connection.InitializeAsync(default);
                     }
+                    // Set the callback used to remove the connection from the factory.
+                    connection.Remove = connection => Remove(connection);
                 }
                 catch (Exception exception)
                 {
@@ -203,7 +200,7 @@ namespace ZeroC.Ice
         {
             _connection = endpoint.CreateDatagramServerConnection(adapter);
             Endpoint = _connection.Endpoint;
-            _ = _connection.InitializeAsync();
+            _ = _connection.InitializeAsync(default);
         }
 
         internal override void Activate()

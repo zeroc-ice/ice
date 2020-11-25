@@ -201,10 +201,7 @@ namespace ZeroC.Ice
 
                 locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
 
-                if (preferNonSecure == null)
-                {
-                    preferNonSecure = communicator.GetPropertyAsEnum<NonSecure>($"{propertyPrefix}.PreferNonSecure");
-                }
+                preferNonSecure ??= communicator.GetPropertyAsEnum<NonSecure>($"{propertyPrefix}.PreferNonSecure");
 
                 property = $"{propertyPrefix}.Router";
                 if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
@@ -1654,11 +1651,6 @@ namespace ZeroC.Ice
                         return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
                     }
 
-                    // TODO: the synchronous boolean is no longer used. It was used to allow the reception
-                    // of the response frame to be ran synchronously from the IO thread. Supporting this
-                    // might still be possible depending on the underlying transport but it would be quite
-                    // complex. So get rid of the synchronous boolean and simplify the proxy generated code?
-
                     // Wait for the reception of the response.
                     (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
 
@@ -1763,7 +1755,10 @@ namespace ZeroC.Ice
                     {
                         if (connection != null)
                         {
-                            TraceRetry("retrying request because of retryable exception", attempt, retryPolicy, exception);
+                            TraceRetry("retrying request because of retryable exception",
+                                       attempt,
+                                       retryPolicy,
+                                       exception);
                         }
                         else if (triedAllEndpoints)
                         {

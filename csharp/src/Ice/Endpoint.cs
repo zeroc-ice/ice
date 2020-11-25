@@ -88,7 +88,7 @@ namespace ZeroC.Ice
         /// print. Always true for ice1 endpoints.</summary>
         protected internal abstract bool HasOptions { get; }
 
-        /// <summary>Establish a connection to this endpoint.</summary>
+        /// <summary>Creates a connection to this endpoint.</summary>
         /// <param name="preferNonSecure">Indicates under what conditions establishing a non-secure connection should
         /// be preferred.</param>
         /// <param name="cookie">A cookie object that can contain transport specific data.</param>
@@ -183,10 +183,9 @@ namespace ZeroC.Ice
         /// from clients and creates a new connection for each client. This is typically used to implement a
         /// stream-based transport. Datagram transports don't implement this method but instead implement the
         /// <see cref="CreateDatagramServerConnection"/> method.</summary>
-        /// <param name="manager">The connection manager to manage connections created by the acceptor.</param>
         /// <param name="adapter">The object adapter associated to the acceptor.</param>
         /// <returns>An acceptor for this endpoint.</returns>
-        public abstract IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter);
+        public abstract IAcceptor Acceptor(ObjectAdapter adapter);
 
         /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.
         /// Unlike stream-based transports, datagram endpoints don't support an acceptor responsible for accepting new

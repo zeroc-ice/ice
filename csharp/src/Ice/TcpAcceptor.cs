@@ -16,7 +16,6 @@ namespace ZeroC.Ice
         public Endpoint Endpoint { get; }
 
         private readonly ObjectAdapter _adapter;
-        private readonly IConnectionManager _manager;
         private readonly Socket _socket;
         private readonly IPEndPoint _addr;
 
@@ -76,8 +75,7 @@ namespace ZeroC.Ice
                 _ => new SlicSocket(socket, Endpoint, _adapter)
             };
 
-            return ((TcpEndpoint)Endpoint).CreateConnection(_manager,
-                                                            multiStreamSocket,
+            return ((TcpEndpoint)Endpoint).CreateConnection(multiStreamSocket,
                                                             _adapter.AcceptNonSecure,
                                                             cookie: "",
                                                             _adapter);
@@ -102,11 +100,10 @@ namespace ZeroC.Ice
 
         public override string ToString() => _addr.ToString();
 
-        internal TcpAcceptor(TcpEndpoint endpoint, IConnectionManager manager, ObjectAdapter adapter)
+        internal TcpAcceptor(TcpEndpoint endpoint, ObjectAdapter adapter)
         {
             Debug.Assert(endpoint.Address != IPAddress.None); // not a DNS name
 
-            _manager = manager;
             _adapter = adapter;
             _addr = new IPEndPoint(endpoint.Address, endpoint.Port);
             _socket = Network.CreateServerSocket(endpoint, _addr.AddressFamily);

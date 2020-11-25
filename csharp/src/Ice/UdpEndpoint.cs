@@ -33,7 +33,7 @@ namespace ZeroC.Ice
 
         private int _hashCode;
 
-        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+        public override IAcceptor Acceptor(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
@@ -50,7 +50,7 @@ namespace ZeroC.Ice
                 }
                 Endpoint endpoint = socket.Bind(this);
                 var multiStreamSocket = new Ice1NetworkSocket(socket, endpoint, adapter);
-                return new UdpConnection(null, endpoint, multiStreamSocket, adapter.AcceptNonSecure, "", adapter);
+                return new UdpConnection(endpoint, multiStreamSocket, adapter.AcceptNonSecure, "", adapter);
             }
             catch (Exception)
             {
@@ -139,12 +139,11 @@ namespace ZeroC.Ice
         {
             Debug.Assert(secureOnly == false);
             var socket = new UdpSocket(Communicator, address, SourceAddress, MulticastInterface, MulticastTtl);
-            return new UdpConnection(Communicator,
-                                     this,
-                                     new Ice1NetworkSocket(socket, this, null),
+            return new UdpConnection(this,
+                                     new Ice1NetworkSocket(socket, this, adapter: null),
                                      preferNonSecure,
                                      (string)cookie,
-                                     null);
+                                     adapter: null);
         }
 
         protected internal override void WriteOptions(OutputStream ostr)

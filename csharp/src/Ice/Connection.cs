@@ -109,6 +109,27 @@ namespace ZeroC.Ice
 
         internal NonSecure PreferNonSecure { get; }
 
+        // Delegate used to remove the connection once it has been closed.
+        internal Action<Connection>? Remove
+        {
+            set
+            {
+                lock (_mutex)
+                {
+                    // If the connection was closed before the delegate was set execute it immediately otherwise
+                    // it will be called once the connection is close
+                    if (_state == ConnectionState.Closed)
+                    {
+                        Task.Run(() => value?.Invoke(this));
+                    }
+                    else
+                    {
+                        _remove = value;
+                    }
+                }
+            }
+        }
+
         private protected MultiStreamSocket Socket { get; }
         // The accept stream task is assigned each time a new accept stream async operation is started.
         private volatile Task _acceptStreamTask = Task.CompletedTask;
@@ -121,10 +142,10 @@ namespace ZeroC.Ice
         private Task? _closeTask;
         // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
         private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
-        private readonly IConnectionManager? _manager;
         // The mutex protects mutable non-volatile data members and ensures the logic for some operations is
         // performed atomically.
         private readonly object _mutex = new();
+        private Action<Connection>? _remove;
         private volatile ConnectionState _state; // The current state.
         private Timer? _timer;
 
@@ -220,7 +241,6 @@ namespace ZeroC.Ice
         public override string ToString() => Socket.ToString()!;
 
         internal Connection(
-            IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamSocket socket,
             NonSecure preferNonSecure,
@@ -228,7 +248,6 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter)
         {
             Communicator = endpoint.Communicator;
-            _manager = manager;
             Socket = socket;
             ConnectionId = connectionId;
             Endpoint = endpoint;
@@ -238,6 +257,8 @@ namespace ZeroC.Ice
             _adapter = adapter;
             _state = ConnectionState.Initializing;
         }
+
+        internal abstract bool CanTrust(NonSecure preferNonSecure);
 
         internal void ClearAdapter(ObjectAdapter adapter) => Interlocked.CompareExchange(ref _adapter, null, adapter);
 
@@ -375,14 +396,10 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async Task InitializeAsync()
+        internal async Task InitializeAsync(CancellationToken cancel)
         {
             try
             {
-                Debug.Assert(Communicator.ConnectTimeout > TimeSpan.Zero);
-                using var source = new CancellationTokenSource(Communicator.ConnectTimeout);
-                CancellationToken cancel = source.Token;
-
                 // Initialize the transport.
                 await Socket.InitializeAsync(cancel).ConfigureAwait(false);
 
@@ -396,7 +413,8 @@ namespace ZeroC.Ice
                         await Socket.ReceiveInitializeFrameAsync(cancel).ConfigureAwait(false);
 
                     // Setup a task to wait for the close frame on the peer's control stream.
-                    _ = Task.Run(async () => await WaitForGoAwayAsync(peerControlStream).ConfigureAwait(false));
+                    _ = Task.Run(async () => await WaitForGoAwayAsync(peerControlStream).ConfigureAwait(false),
+                                 default);
                 }
 
                 Socket.Initialized();
@@ -414,7 +432,7 @@ namespace ZeroC.Ice
 
                     // Start the asynchronous AcceptStream operation from the thread pool to prevent eventually reading
                     // synchronously new frames from this thread.
-                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false));
+                    _acceptStreamTask = Task.Run(async () => await AcceptStreamAsync().ConfigureAwait(false), default);
                 }
             }
             catch (OperationCanceledException)
@@ -478,9 +496,7 @@ namespace ZeroC.Ice
                 {
                     Communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
                 }
-
-                // Remove the connection from the factory, must be called without the connection mutex locked
-                _manager?.Remove(this);
+                _remove?.Invoke(this);
             }
         }
 
@@ -729,15 +745,16 @@ namespace ZeroC.Ice
     public class ColocatedConnection : Connection
     {
         internal ColocatedConnection(
-            IConnectionManager? manager,
             Endpoint endpoint,
             ColocatedSocket socket,
             NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter)
+            : base(endpoint, socket, preferNonSecure, connectionId, adapter)
         {
         }
+
+        internal override bool CanTrust(NonSecure preferNonSecure) => true;
     }
 
     /// <summary>Represents a connection to an IP-endpoint.</summary>
@@ -778,13 +795,12 @@ namespace ZeroC.Ice
         }
 
         internal IPConnection(
-            IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
             NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter) => _socket = socket;
+            : base(endpoint, socket, preferNonSecure, connectionId, adapter) => _socket = socket;
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -823,14 +839,35 @@ namespace ZeroC.Ice
         private SslStream? SslStream => _socket.Underlying.SslStream;
 
         internal TcpConnection(
-            IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
             NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter)
+            : base(endpoint, socket, preferNonSecure, connectionId, adapter)
         {
+        }
+
+        internal override bool CanTrust(NonSecure preferNonSecure)
+        {
+            // If the connection uses ice1 endpoint, the connection is secure, or non-secure connections are always
+            // allowed we can trust the connection.
+            if (Endpoint.Protocol == Protocol.Ice1 || IsSecure || preferNonSecure == NonSecure.Always)
+            {
+                return true;
+            }
+
+            if (preferNonSecure == NonSecure.SameHost)
+            {
+                return RemoteEndpoint?.IsSameHost() ?? false;
+            }
+
+            if (preferNonSecure == NonSecure.TrustedHost)
+            {
+                // TODO implement trusted host
+                return false;
+            }
+            return false;
         }
     }
 
@@ -843,14 +880,15 @@ namespace ZeroC.Ice
         private readonly UdpSocket _udpSocket;
 
         internal UdpConnection(
-            IConnectionManager? manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
             NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter) =>
+            : base(endpoint, socket, preferNonSecure, connectionId, adapter) =>
             _udpSocket = (UdpSocket)_socket.Underlying;
+
+        internal override bool CanTrust(NonSecure preferNonSecure) => true;
     }
 
     /// <summary>Represents a connection to a WS-endpoint.</summary>
@@ -862,13 +900,12 @@ namespace ZeroC.Ice
         private readonly WSSocket _wsSocket;
 
         internal WSConnection(
-            IConnectionManager manager,
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
             NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(manager, endpoint, socket, preferNonSecure, connectionId, adapter) =>
+            : base(endpoint, socket, preferNonSecure, connectionId, adapter) =>
             _wsSocket = (WSSocket)_socket.Underlying;
     }
 }

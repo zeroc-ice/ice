@@ -303,8 +303,17 @@ namespace ZeroC.Ice
         /// if its address matches any of the host local addresses.</summary>
         /// <param name="peer">The peer endpoint to check.</param>
         /// <returns><c>True</c> if the peer is on the same host otherwise <c>false</c>.</returns>
-        internal static bool IsSameHost(this IPEndPoint peer) =>
-            GetLocalAddresses(EnableBoth, true, false).Any(address => address.Equals(peer.Address));
+        internal static bool IsSameHost(this IPEndPoint peer)
+        {
+            try
+            {
+                return GetLocalAddresses(EnableBoth, true, false).Any(address => address.Equals(peer.Address));
+            }
+            catch
+            {
+            }
+            return false;
+        }
 
         internal static string LocalAddrToString(EndPoint? endpoint) => endpoint?.ToString() ?? "<not bound>";
 

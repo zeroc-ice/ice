@@ -35,10 +35,10 @@ namespace ZeroC.Ice
         private int _hashCode;
 
         // TODO: should not be public
-        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter)
+        public override IAcceptor Acceptor(ObjectAdapter adapter)
         {
             Debug.Assert(Address != IPAddress.None); // i.e. not a DNS name
-            return new TcpAcceptor(this, manager, adapter);
+            return new TcpAcceptor(this, adapter);
         }
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter) =>
@@ -129,6 +129,7 @@ namespace ZeroC.Ice
             }
         }
 
+        // We ignore the Timeout and HasCompressionFlag properties when checking if two TCP endpoints are equivalent.
         protected internal override bool IsEquivalent(Endpoint? other) =>
             ReferenceEquals(this, other) || base.Equals(other);
 
@@ -210,17 +211,18 @@ namespace ZeroC.Ice
                 Protocol.Ice1 => new Ice1NetworkSocket(socket, this, null),
                 _ => new SlicSocket(socket, this, null)
             };
-            return CreateConnection(Communicator, multiStreamSocket, preferNonSecure, cookie, adapter: null);
+            return CreateConnection(multiStreamSocket,
+                                    preferNonSecure,
+                                    cookie,
+                                    adapter: null);
         }
 
         protected internal virtual Connection CreateConnection(
-            IConnectionManager connectionManager,
             MultiStreamOverSingleStreamSocket socket,
             NonSecure preferNonSecure,
             object cookie,
             ObjectAdapter? adapter) =>
-            new TcpConnection(connectionManager,
-                              this,
+            new TcpConnection(this,
                               socket,
                               preferNonSecure,
                               connectionId: (string)cookie,

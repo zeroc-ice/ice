@@ -758,7 +758,7 @@ namespace ZeroC.Ice.Test.Metrics
 
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 1);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][0];
-                TestHelper.Assert(m1 != null && m1.Current <= 1 && m1.Total == 1);
+                TestHelper.Assert(m1 != null && m1.Current <= 1 && m1.Total == 1, $"current: {m1.Current} total: {m1.Total}");
 
                 bool dnsException = false;
                 try

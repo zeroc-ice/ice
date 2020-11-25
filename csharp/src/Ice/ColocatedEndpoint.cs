@@ -23,8 +23,8 @@ namespace ZeroC.Ice
 
         private readonly Channel<(long, ColocatedChannelWriter, ColocatedChannelReader)> _channel;
 
-        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
-            new ColocatedAcceptor(this, manager, adapter, _channel.Writer, _channel.Reader);
+        public override IAcceptor Acceptor(ObjectAdapter adapter) =>
+            new ColocatedAcceptor(this, adapter, _channel.Writer, _channel.Reader);
 
         public override bool IsLocal(Endpoint endpoint) =>
             endpoint is ColocatedEndpoint colocatedEndpoint && colocatedEndpoint.Adapter == Adapter;
@@ -76,13 +76,12 @@ namespace ZeroC.Ice
                 }
 
                 var connection = new ColocatedConnection(
-                    Communicator,
                     this,
                     new ColocatedSocket(this, id, reader.Writer, writer.Reader, false),
                     preferNonSecure,
                     connectionId: (string)cookie,
                     adapter: null);
-                await connection.InitializeAsync().ConfigureAwait(false);
+                await connection.InitializeAsync(cancel).ConfigureAwait(false);
                 return connection;
             }
             catch (Exception ex)

@@ -175,12 +175,11 @@ namespace ZeroC.Ice
             new WSSocket(Communicator, base.CreateSocket(socket, adapterName, preferNonSecure));
 
         protected internal override Connection CreateConnection(
-            IConnectionManager connectionManager,
             MultiStreamOverSingleStreamSocket socket,
             NonSecure preferNonSecure,
             object cookie,
             ObjectAdapter? adapter) =>
-            new WSConnection(connectionManager, this, socket, preferNonSecure, (string)cookie, adapter);
+            new WSConnection(this, socket, preferNonSecure, (string)cookie, adapter);
 
         // Constructor used for ice2 parsing.
         private WSEndpoint(

@@ -107,10 +107,10 @@ namespace ZeroC.Ice
             set => _defaultLocator = value;
         }
 
-        /// <summary>Gets the communicator preferences for reusing existing connections.</summary>
+        /// <summary>Gets the communicator's preference for reusing existing connections.</summary>
         public bool DefaultPreferExistingConnection { get; }
 
-        /// <summary>Gets the communicator preferences for establishing non-secure connections.</summary>
+        /// <summary>Gets the communicator's preference for establishing non-secure connections.</summary>
         public NonSecure DefaultPreferNonSecure { get; }
 
         /// <summary>Gets the default source address value used by proxies created with this communicator.</summary>
@@ -910,13 +910,15 @@ namespace ZeroC.Ice
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
                 IEnumerable<Task> tasks =
-                    _activeConnectionMap.Values.SelectMany(connections => connections).Select(connection =>
-                        connection.GoAwayAsync(new CommunicatorDisposedException())).Append(ShutdownAsync());
+                    _outgoingConnections.Values.SelectMany(connections => connections).Select(connection =>
+                        connection.GoAwayAsync(new CommunicatorDisposedException())).Append(
+                        ShutdownAsync()).Concat(_pendingOutgoingConnections.Values);
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
 #if DEBUG
                 // Ensure all the outgoing connections were removed
-                Debug.Assert(_activeConnectionMap.Count == 0);
+                Debug.Assert(_outgoingConnections.Count == 0);
+                Debug.Assert(_pendingOutgoingConnections.Count == 0);
 #endif
 
                 // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
@@ -1408,7 +1410,7 @@ namespace ZeroC.Ice
                 {
                     adapters = _adapters.ToArray();
 
-                    foreach (ICollection<Connection> connections in _activeConnectionMap.Values)
+                    foreach (ICollection<Connection> connections in _outgoingConnections.Values)
                     {
                         foreach (Connection c in connections)
                         {

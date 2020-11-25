@@ -38,7 +38,7 @@ namespace ZeroC.Ice
 
         private int _hashCode; // 0 is a special value that means not initialized.
 
-        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+        public override IAcceptor Acceptor(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
         public override bool Equals(Endpoint? other)
