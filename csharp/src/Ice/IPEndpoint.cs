@@ -42,7 +42,7 @@ namespace ZeroC.Ice
                 {
                     if (!IPAddress.TryParse(Host, out _address))
                     {
-                         // Assume it's a DNS name
+                        // Assume it's a DNS name
                         _address = IPAddress.None;
                     }
                 }
