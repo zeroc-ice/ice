@@ -47,7 +47,7 @@ namespace ZeroC.Ice
         internal TimeSpan LocatorCacheTimeout => _locatorCacheTimeout ?? Communicator.DefaultLocatorCacheTimeout;
 
         internal LocatorInfo? LocatorInfo { get; }
-        internal bool PreferExistingConnection { get; }
+        internal bool PreferExistingConnection { get; } = true;
         internal NonSecure PreferNonSecure => _preferNonSecure ?? Communicator.DefaultPreferNonSecure;
         internal Protocol Protocol { get; }
 
@@ -331,6 +331,10 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
+                if (PreferExistingConnection != other.PreferExistingConnection)
+                {
+                    return false;
+                }
                 if (_preferNonSecure != other._preferNonSecure)
                 {
                     return false;
@@ -423,6 +427,7 @@ namespace ZeroC.Ice
                     hash.Add(Location.GetSequenceHashCode());
                     hash.Add(_locatorCacheTimeout);
                     hash.Add(LocatorInfo);
+                    hash.Add(PreferExistingConnection);
                     hash.Add(_preferNonSecure);
                     hash.Add(RouterInfo);
                 }
@@ -622,6 +627,12 @@ namespace ZeroC.Ice
                     sb.Append(TimeSpanExtensions.ToPropertyValue(locatorCacheTimeout));
                 }
 
+                if (!PreferExistingConnection)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("prefer-existing-connection=false");
+                }
+
                 if (_preferNonSecure is NonSecure preferNonSecure)
                 {
                     StartQueryOption(sb, ref firstOption);
@@ -635,16 +646,6 @@ namespace ZeroC.Ice
                     sb.Append("protocol=");
                     sb.Append(Protocol.GetName());
                 }
-
-                if (PreferExistingConnection)
-                {
-                    StartQueryOption(sb, ref firstOption);
-                    sb.Append("prefer-existing-connection=true");
-                }
-
-                StartQueryOption(sb, ref firstOption);
-                sb.Append("prefer-non-secure=");
-                sb.Append(PreferNonSecure.ToString());
 
                 if (IsRelative)
                 {
@@ -1622,7 +1623,6 @@ namespace ZeroC.Ice
             Location = ImmutableArray<string>.Empty;
             _locatorCacheTimeout = null;
             LocatorInfo = null;
-            PreferExistingConnection = false;
             Protocol = fixedConnection.Protocol;
             RouterInfo = null;
 
@@ -1632,7 +1632,7 @@ namespace ZeroC.Ice
             {
                 if (InvocationMode == InvocationMode.Datagram)
                 {
-                    if (!(_connection.Endpoint as Endpoint)!.IsDatagram)
+                    if (!_connection.Endpoint.IsDatagram)
                     {
                         throw new ArgumentException(
                             "a fixed datagram proxy requires a datagram connection",

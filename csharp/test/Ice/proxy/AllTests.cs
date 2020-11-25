@@ -665,13 +665,13 @@ namespace ZeroC.Ice.Test.Proxy
             if (ice1)
             {
                 string property = propertyPrefix + ".PreferNonSecure";
-                communicator.SetProperty(property, (!communicator.DefaultPreferNonSecure).ToString());
+                communicator.SetProperty(property, "SameHost");
                 b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory)!;
                 communicator.RemoveProperty(property);
             }
             else
             {
-                b1 = IObjectPrx.Parse($"{proxyString}?prefer-non-secure={!communicator.DefaultPreferNonSecure}",
+                b1 = IObjectPrx.Parse($"{proxyString}?prefer-non-secure=SameHost",
                                       communicator);
             }
             TestHelper.Assert(b1.PreferNonSecure != communicator.DefaultPreferNonSecure);
@@ -739,7 +739,8 @@ namespace ZeroC.Ice.Test.Proxy
             b1 = IObjectPrx.Parse(
                 ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" : "ice+tcp://127.0.0.1/test",
                 communicator).Clone(cacheConnection: true,
-                                    preferNonSecure: false,
+                                    preferExistingConnection: true,
+                                    preferNonSecure: NonSecure.Never,
                                     invocationTimeout: TimeSpan.FromSeconds(10));
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
@@ -749,7 +750,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             TestHelper.Assert(proxyProps["Test"] ==
                                 (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
-                                    "ice+tcp://127.0.0.1/test?invocation-timeout=10s&prefer-non-secure=false"));
+                                    "ice+tcp://127.0.0.1/test?invocation-timeout=10s&prefer-non-secure=never"));
 
             if (ice1)
             {
@@ -763,12 +764,14 @@ namespace ZeroC.Ice.Test.Proxy
             {
                 router = IRouterPrx.Parse("router", communicator).Clone(
                     cacheConnection: true,
-                    preferNonSecure: true);
+                    preferExistingConnection: true,
+                    preferNonSecure: NonSecure.Always);
             }
 
             ILocatorPrx? locator = ILocatorPrx.Parse(ice1 ? "locator" : "ice:locator", communicator).Clone(
                 cacheConnection: false,
-                preferNonSecure: true,
+                preferExistingConnection: false,
+                preferNonSecure: NonSecure.Always,
                 router: router);
 
             b1 = b1.Clone(endpoints: ImmutableArray<Endpoint>.Empty,
@@ -779,7 +782,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             TestHelper.Assert(proxyProps.Count == (ice1 ? 9 : 1));
             TestHelper.Assert(proxyProps["Test"] == (ice1 ? "test -t -e 1.1" :
-                "ice:test?invocation-timeout=10s&locator-cache-timeout=100s&prefer-non-secure=false"));
+                "ice:test?invocation-timeout=10s&locator-cache-timeout=100s&prefer-non-secure=never"));
 
             if (ice1)
             {
@@ -840,8 +843,8 @@ namespace ZeroC.Ice.Test.Proxy
                 TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
                     InvocationMode.BatchDatagram);
             }
-            TestHelper.Assert(baseProxy.Clone(preferNonSecure: true).PreferNonSecure);
-            TestHelper.Assert(!baseProxy.Clone(preferNonSecure: false).PreferNonSecure);
+            TestHelper.Assert(baseProxy.Clone(preferNonSecure: NonSecure.Always).PreferNonSecure == NonSecure.Always);
+            TestHelper.Assert(baseProxy.Clone(preferNonSecure: NonSecure.Never).PreferNonSecure == NonSecure.Never);
 
             try
             {
@@ -938,8 +941,10 @@ namespace ZeroC.Ice.Test.Proxy
                               compObj.Clone(context: ctx2)));
             TestHelper.Assert(!compObj.Clone(context: ctx1).Equals(compObj.Clone(context: ctx2)));
 
-            TestHelper.Assert(compObj.Clone(preferNonSecure: true).Equals(compObj.Clone(preferNonSecure: true)));
-            TestHelper.Assert(!compObj.Clone(preferNonSecure: true).Equals(compObj.Clone(preferNonSecure: false)));
+            TestHelper.Assert(compObj.Clone(preferNonSecure: NonSecure.Always).Equals(
+                              compObj.Clone(preferNonSecure: NonSecure.Always)));
+            TestHelper.Assert(!compObj.Clone(preferNonSecure: NonSecure.Always).Equals(
+                              compObj.Clone(preferNonSecure: NonSecure.Never)));
 
             var compObj1 = IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator);
             var compObj2 = IObjectPrx.Parse("ice+tcp://127.0.0.1:10001/foo", communicator);
