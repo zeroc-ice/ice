@@ -184,10 +184,10 @@ namespace ZeroC.Ice
 
         /// <summary>Expands endpoint into separate endpoints for each IP address returned by the DNS resolver.
         /// </summary>
-        /// <returns>The expanded endpoints if Host is a DNS name or IP address and an empty collection if this
-        /// endpoint is not usable as an object adapter endpoint.</returns>
-        // TODO: should this be ExpandHostAsync?
-        protected internal virtual IEnumerable<Endpoint> ExpandHost() => ImmutableArray<Endpoint>.Empty;
+        /// <returns>A value task holding the expanded endpoints if Host is a DNS name or IP address; otherwise, a value
+        /// task holding an empty collection.</returns>
+        protected internal virtual ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel) =>
+            new(ImmutableArray<Endpoint>.Empty);
 
         /// <summary>Returns the published endpoint for this object adapter endpoint.</summary>
         /// <param name="serverName">The server name, to be used as the host of the published endpoint when the
