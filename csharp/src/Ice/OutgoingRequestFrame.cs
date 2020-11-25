@@ -20,7 +20,7 @@ namespace ZeroC.Ice
 
         /// <summary>ContextOverride is a writable version of Context, available only for ice2. Its entries are always
         /// the same as Context's entries.</summary>
-        public Dictionary<string, string> ContextOverride
+        public SortedDictionary<string, string> ContextOverride
         {
             get
             {
@@ -31,7 +31,8 @@ namespace ZeroC.Ice
                         throw new InvalidOperationException("cannot change the context of an ice1 request frame");
                     }
                     // lazy initialization
-                    _contextOverride = new Dictionary<string, string>(_initialContext);
+                    _contextOverride =
+                        new SortedDictionary<string, string>((IDictionary<string, string>)_initialContext);
                 }
                 return _contextOverride;
             }
@@ -63,7 +64,7 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        private Dictionary<string, string>? _contextOverride;
+        private SortedDictionary<string, string>? _contextOverride;
         private readonly ArraySegment<byte> _defaultBinaryContext;
         private readonly IReadOnlyDictionary<string, string> _initialContext;
         private readonly CancellationTokenSource? _invocationTimeoutCancellationSource;
@@ -329,7 +330,7 @@ namespace ZeroC.Ice
             if (context != null)
             {
                 // This makes a copy if context is not immutable.
-                _initialContext = context.ToImmutableDictionary();
+                _initialContext = context.ToImmutableSortedDictionary();
             }
             else
             {
@@ -345,7 +346,8 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    var combinedContext = new Dictionary<string, string>(currentContext);
+                    var combinedContext = new SortedDictionary<string, string>(
+                            (IDictionary<string, string>)currentContext);
                     foreach ((string key, string value) in proxy.Context)
                     {
                         combinedContext[key] = value; // the proxy Context entry prevails.

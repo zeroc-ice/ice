@@ -14,12 +14,35 @@ namespace ZeroC.Ice
         /// <summary>The proxy options parsed by the UriParser.</summary>
         internal struct ProxyOptions
         {
+            internal bool? CacheConnection;
+
+            internal SortedDictionary<string, string>? Context;
+
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
+            internal TimeSpan? LocatorCacheTimeout; // only for the ice URI scheme
             internal bool? PreferExistingConnection;
             internal NonSecure? PreferNonSecure;
             internal Protocol? Protocol;
-            internal bool? Relative;
+            internal bool? Relative; // only for the ice URI scheme
+
+            internal void Deconstruct(
+                out bool? cacheConnection,
+                out IReadOnlyDictionary<string, string>? context,
+                out TimeSpan? invocationTimeout,
+                out TimeSpan? locatorCacheTimeout,
+                out bool? preferExistingConnection,
+                out NonSecure? preferNonSecure,
+                out bool? relative)
+            {
+                cacheConnection = CacheConnection;
+                context = Context?.ToImmutableSortedDictionary();
+                invocationTimeout = InvocationTimeout;
+                locatorCacheTimeout = LocatorCacheTimeout;
+                preferExistingConnection = PreferExistingConnection;
+                preferNonSecure = PreferNonSecure;
+                relative = Relative;
+            }
         }
 
         // Common options for the generic URI parsers registered for the ice and ice+transport schemes.
@@ -252,91 +275,82 @@ namespace ZeroC.Ice
                 {
                     throw new FormatException($"invalid option `{p}'");
                 }
-                string name = p.Substring(0, equalPos);
-                string value = p.Substring(equalPos + 1);
+                string name = p[..equalPos];
+                string value = p[(equalPos + 1)..];
 
-                if (name == "encoding")
+                if (name == "context")
                 {
                     if (pureEndpoints)
                     {
-                        throw new FormatException($"encoding is not a valid option for endpoint `{uriString}'");
+                        throw new FormatException($"{name} is not a valid option for endpoint `{uriString}'");
                     }
-                    if (proxyOptions.Encoding != null)
+
+                    // We can have multiple context options: context=key1=value1,key2=value2 etc.
+                    foreach (string e in value.Split(','))
                     {
-                        throw new FormatException($"multiple encoding options in `{uriString}'");
+                        equalPos = e.IndexOf('=');
+                        if (equalPos <= 0)
+                        {
+                            throw new FormatException($"invalid option `{p}'");
+                        }
+                        string contextKey = Uri.UnescapeDataString(e[..equalPos]);
+                        string contextValue =
+                            equalPos == e.Length - 1 ? "" : Uri.UnescapeDataString(e[(equalPos + 1)..]);
+
+                        proxyOptions.Context ??= new SortedDictionary<string, string>();
+                        proxyOptions.Context[contextKey] = contextValue;
                     }
+                }
+                else if (name == "cache-connection")
+                {
+                    CheckProxyOption(name, proxyOptions.CacheConnection != null);
+                    proxyOptions.CacheConnection = bool.Parse(value);
+                }
+                else if (name == "encoding")
+                {
+                    CheckProxyOption(name, proxyOptions.Encoding != null);
                     proxyOptions.Encoding = Encoding.Parse(value);
                 }
                 else if (name == "invocation-timeout")
                 {
-                    if (pureEndpoints)
-                    {
-                        throw new FormatException(
-                            $"invocation-timeout is not a valid option for endpoint `{uriString}'");
-                    }
-                    if (proxyOptions.InvocationTimeout != null)
-                    {
-                        throw new FormatException($"multiple invocation-timeout options in `{uriString}'");
-                    }
+                    CheckProxyOption(name, proxyOptions.InvocationTimeout != null);
                     proxyOptions.InvocationTimeout = TimeSpanExtensions.Parse(value);
                     if (proxyOptions.InvocationTimeout.Value == TimeSpan.Zero)
                     {
-                        throw new FormatException(
-                            $"0 is not a valid value for invocation-timeout option in `{uriString}'");
+                        throw new FormatException($"0 is not a valid value for the {name} option in `{uriString}'");
                     }
+                }
+                else if (endpointOptions == null && name == "locator-cache-timeout")
+                {
+                    CheckProxyOption(name, proxyOptions.LocatorCacheTimeout != null);
+                    proxyOptions.LocatorCacheTimeout = TimeSpanExtensions.Parse(value);
+                }
+                else if (name == "prefer-existing-connection")
+                {
+                    CheckProxyOption(name, proxyOptions.PreferExistingConnection != null);
+                    proxyOptions.PreferExistingConnection = bool.Parse(value);
+                }
+                else if (name == "prefer-non-secure")
+                {
+                    CheckProxyOption(name, proxyOptions.PreferNonSecure != null);
+                    if (int.TryParse(value, out int _))
+                    {
+                        throw new FormatException($"{value} is not a valid option for prefer-non-secure");
+                    }
+                    proxyOptions.PreferNonSecure = Enum.Parse<NonSecure>(value, ignoreCase: true);
                 }
                 else if (name == "protocol")
                 {
-                    if (pureEndpoints)
-                    {
-                        throw new FormatException($"protocol is not a valid option for endpoint `{uriString}'");
-                    }
-                    if (proxyOptions.Protocol != null)
-                    {
-                        throw new FormatException($"multiple protocol options in `{uriString}'");
-                    }
+                    CheckProxyOption(name, proxyOptions.Protocol != null);
                     proxyOptions.Protocol = ProtocolExtensions.Parse(value);
                     if (proxyOptions.Protocol == Protocol.Ice1)
                     {
                         throw new FormatException("the URI format does not support protocol ice1");
                     }
                 }
-                else if (name == "prefer-existing-connection")
-                {
-                    if (pureEndpoints)
-                    {
-                        throw new FormatException(
-                            $"prefer-existing-connection is not a valid option for endpoint `{uriString}'");
-                    }
-                    if (proxyOptions.PreferExistingConnection != null)
-                    {
-                        throw new FormatException($"multiple prefer-existing-connection options in `{uriString}'");
-                    }
-                    proxyOptions.PreferExistingConnection = bool.Parse(value);
-                }
-                else if (name == "prefer-non-secure")
-                {
-                    if (pureEndpoints)
-                    {
-                        throw new FormatException($"prefer-non-secure is not a valid option for endpoint `{uriString}'");
-                    }
-                    else if (proxyOptions.PreferNonSecure != null)
-                    {
-                        throw new FormatException($"multiple prefer-non-secure options in `{uriString}'");
-                    }
-                    else if (int.TryParse(value, out int _))
-                    {
-                        throw new FormatException($"{value} is not a valid option for prefer-non-secure");
-                    }
-                    proxyOptions.PreferNonSecure = Enum.Parse<NonSecure>(value, ignoreCase: true);
-                }
                 else if (endpointOptions == null && name == "relative")
                 {
-                    // endpointOptions == null implies ice scheme and !pureEndpoints, see above.
-                    if (proxyOptions.Relative != null)
-                    {
-                        throw new FormatException($"multiple relative options in `{uriString}'");
-                    }
+                    CheckProxyOption(name, proxyOptions.Relative != null);
                     proxyOptions.Relative = bool.Parse(value);
                 }
                 else if (name == "fixed")
@@ -345,6 +359,8 @@ namespace ZeroC.Ice
                 }
                 else if (endpointOptions == null)
                 {
+                    // We've parsed all known proxy options so the remaining options must be endpoint options or
+                    // alt-endpoint, which applies only to a direct proxy.
                     throw new FormatException($"the ice URI scheme does not support option `{name}'");
                 }
                 else if (name == "alt-endpoint")
@@ -364,6 +380,18 @@ namespace ZeroC.Ice
                 }
             }
             return (uri, altEndpoint, proxyOptions);
+
+            void CheckProxyOption(string name, bool alreadySet)
+            {
+                if (pureEndpoints)
+                {
+                    throw new FormatException($"{name} is not a valid option for endpoint `{uriString}'");
+                }
+                if (alreadySet)
+                {
+                    throw new FormatException($"multiple {name} options in `{uriString}'");
+                }
+            }
         }
 
         /// <summary>Parses an ice or ice+transport URI string.</summary>

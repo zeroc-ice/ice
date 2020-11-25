@@ -1295,20 +1295,6 @@ Slice::Container::thisScope() const
     return "::";
 }
 
-void
-Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
-{
-    for (const auto& content : contents())
-    {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(content);
-        if (constructed && dependencies.find(constructed) != dependencies.end())
-        {
-            dependencies.insert(constructed);
-            constructed->recDependencies(dependencies);
-        }
-    }
-}
-
 bool
 Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 {
@@ -2079,7 +2065,7 @@ Slice::Module::createStruct(const string& name, NodeType nt)
 }
 
 SequencePtr
-Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metadata, NodeType nt)
+Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metadata)
 {
     _unit->checkType(type);
     if (!checkForRedefinition(this, name, "sequence"))
@@ -2088,7 +2074,7 @@ Slice::Module::createSequence(const string& name, const TypePtr& type, const Str
     }
 
     checkIdentifier(name); // Don't return here -- we create the sequence anyway.
-    if (nt == Real && _name == "")
+    if (_name == "")
     {
         _unit->error("`" + name + "': a sequence can only be defined at module scope");
     }
@@ -2100,7 +2086,7 @@ Slice::Module::createSequence(const string& name, const TypePtr& type, const Str
 
 DictionaryPtr
 Slice::Module::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetadata,
-                                const TypePtr& valueType, const StringList& valueMetadata, NodeType nt)
+                                const TypePtr& valueType, const StringList& valueMetadata)
 {
     _unit->checkType(keyType);
     _unit->checkType(valueType);
@@ -2110,23 +2096,20 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
     }
 
     checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
-    if (nt == Real)
+    if (_name == "")
     {
-        if (_name == "")
-        {
-            _unit->error("`" + name + "': a dictionary can only be defined at module scope");
-        }
+        _unit->error("`" + name + "': a dictionary can only be defined at module scope");
+    }
 
-        bool containsSequence = false;
-        if (!Dictionary::legalKeyType(keyType, containsSequence))
-        {
-            _unit->error("dictionary `" + name + "' uses an illegal key type");
-            return nullptr;
-        }
-        if (containsSequence)
-        {
-            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
-        }
+    bool containsSequence = false;
+    if (!Dictionary::legalKeyType(keyType, containsSequence))
+    {
+        _unit->error("dictionary `" + name + "' uses an illegal key type");
+        return nullptr;
+    }
+    if (containsSequence)
+    {
+        _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
     }
 
     DictionaryPtr p = new Dictionary(this, name, keyType, keyMetadata, valueType, valueMetadata);
@@ -2402,23 +2385,23 @@ Slice::Module::hasOnlyInterfaces() const
 }
 
 bool
-Slice::Module::hasOtherConstructedOrExceptions() const
+Slice::Module::hasNonClassTypes() const
 {
     for (const auto& content : _contents)
     {
-        if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content)
-            && ConstructedPtr::dynamicCast(content))
+        if (auto submodule = ModulePtr::dynamicCast(content))
         {
+            if (submodule->hasNonClassTypes())
+            {
+                return true;
+            }
+        }
+        else if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content) &&
+                 TypePtr::dynamicCast(content))
+         {
             return true;
         }
-
-        if (ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
-        {
-            return true;
-        }
-
-        ModulePtr submodule = ModulePtr::dynamicCast(content);
-        if (submodule && submodule->hasOtherConstructedOrExceptions())
+        else if(ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
         {
             return true;
         }
@@ -2447,31 +2430,6 @@ Slice::Module::hasOnlySubModules() const
 }
 
 // ----------------------------------------------------------------------
-// Constructed
-// ----------------------------------------------------------------------
-
-string
-Slice::Constructed::typeId() const
-{
-    return scoped();
-}
-
-ConstructedList
-Slice::Constructed::dependencies()
-{
-    set<ConstructedPtr> resultSet;
-    recDependencies(resultSet);
-    return ConstructedList(resultSet.begin(), resultSet.end());
-}
-
-Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) :
-    SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
-    Contained(container, name)
-{
-}
-
-// ----------------------------------------------------------------------
 // ClassDecl
 // ----------------------------------------------------------------------
 
@@ -2486,6 +2444,12 @@ ClassDefPtr
 Slice::ClassDecl::definition() const
 {
     return _definition;
+}
+
+string
+Slice::ClassDecl::typeId() const
+{
+    return scoped();
 }
 
 bool
@@ -2530,25 +2494,10 @@ Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
     visitor->visitClassDecl(this);
 }
 
-void
-Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    if (_definition)
-    {
-        _definition->containerRecDependencies(dependencies);
-        ClassDefPtr base = _definition->base();
-        if (base)
-        {
-            base->declaration()->recDependencies(dependencies);
-        }
-    }
-}
-
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name)
+    Type(container->unit())
 {
 }
 
@@ -2731,6 +2680,12 @@ Slice::InterfaceDecl::definition() const
     return _definition;
 }
 
+string
+Slice::InterfaceDecl::typeId() const
+{
+    return scoped();
+}
+
 bool
 Slice::InterfaceDecl::uses(const ContainedPtr&) const
 {
@@ -2774,19 +2729,6 @@ Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
 }
 
 void
-Slice::InterfaceDecl::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    if (_definition)
-    {
-        _definition->containerRecDependencies(dependencies);
-        for (auto& base : _definition->bases())
-        {
-            base->declaration()->recDependencies(dependencies);
-        }
-    }
-}
-
-void
 Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList& bases,
                                      const UnitPtr& ut)
 {
@@ -2821,9 +2763,8 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
 
 Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name)
+    Type(container->unit())
 {
 }
 
@@ -3387,6 +3328,12 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
                                                  defaultLiteral);
 }
 
+string
+Slice::Struct::typeId() const
+{
+    return scoped();
+}
+
 bool
 Slice::Struct::usesClasses() const
 {
@@ -3453,19 +3400,12 @@ Slice::Struct::visit(ParserVisitor* visitor, bool all)
     }
 }
 
-void
-Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    containerRecDependencies(dependencies);
-}
-
 Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
     DataMemberContainer(container, name),
-    Type(container->unit()),
-    Constructed(container, name)
+    Type(container->unit())
 {
 }
 
@@ -3483,6 +3423,12 @@ StringList
 Slice::Sequence::typeMetadata() const
 {
     return _typeMetadata;
+}
+
+string
+Slice::Sequence::typeId() const
+{
+    return scoped();
 }
 
 bool
@@ -3528,23 +3474,11 @@ Slice::Sequence::visit(ParserVisitor* visitor, bool)
     visitor->visitSequence(this);
 }
 
-void
-Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(_type);
-    if (constructed && dependencies.find(constructed) != dependencies.end())
-    {
-        dependencies.insert(constructed);
-        constructed->recDependencies(dependencies);
-    }
-}
-
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type,
                           const StringList& typeMetadata) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name),
+    Type(container->unit()),
     _type(type),
     _typeMetadata(typeMetadata)
 {
@@ -3576,6 +3510,12 @@ StringList
 Slice::Dictionary::valueMetadata() const
 {
     return _valueMetadata;
+}
+
+string
+Slice::Dictionary::typeId() const
+{
+    return scoped();
 }
 
 bool
@@ -3634,28 +3574,6 @@ void
 Slice::Dictionary::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitDictionary(this);
-}
-
-void
-Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
-{
-    {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(_keyType);
-        if (constructed && dependencies.find(constructed) != dependencies.end())
-        {
-            dependencies.insert(constructed);
-            constructed->recDependencies(dependencies);
-        }
-    }
-
-    {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(_valueType);
-        if (constructed && dependencies.find(constructed) != dependencies.end())
-        {
-            dependencies.insert(constructed);
-            constructed->recDependencies(dependencies);
-        }
-    }
 }
 
 //
@@ -3725,9 +3643,8 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
                               const StringList& keyMetadata, const TypePtr& valueType,
                               const StringList& valueMetadata) :
     SyntaxTreeBase(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name),
+    Type(container->unit()),
     _keyType(keyType),
     _valueType(valueType),
     _keyMetadata(keyMetadata),
@@ -3805,6 +3722,12 @@ Slice::Enum::contents() const
     return result;
 }
 
+string
+Slice::Enum::typeId() const
+{
+    return scoped();
+}
+
 bool
 Slice::Enum::uses(const ContainedPtr&) const
 {
@@ -3848,12 +3771,6 @@ Slice::Enum::visit(ParserVisitor* visitor, bool)
 }
 
 void
-Slice::Enum::recDependencies(set<ConstructedPtr>&)
-{
-    // An Enum does not have any dependencies.
-}
-
-void
 Slice::Enum::initUnderlying(const TypePtr& type)
 {
     assert(_enumerators.empty());
@@ -3877,9 +3794,8 @@ Slice::Enum::initUnderlying(const TypePtr& type)
 Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool unchecked) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
-    Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name),
+    Type(container->unit()),
     _unchecked(unchecked),
     _underlying(nullptr),
     _explicitValue(false),

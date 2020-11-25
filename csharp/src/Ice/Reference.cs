@@ -20,6 +20,7 @@ namespace ZeroC.Ice
     public sealed class Reference : IEquatable<Reference>
     {
         internal string AdapterId => Location.Count == 0 ? "" : Location[0];
+        internal bool CacheConnection { get; } = true;
         internal Communicator Communicator { get; }
         internal string ConnectionId { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
@@ -32,9 +33,7 @@ namespace ZeroC.Ice
         // enumerators are used.
         internal InvocationMode InvocationMode { get; }
 
-        internal TimeSpan InvocationTimeout { get; }
-        internal bool IsConnectionCached { get; }
-
+        internal TimeSpan InvocationTimeout => _invocationTimeout ?? Communicator.DefaultInvocationTimeout;
         internal bool IsFixed { get; }
         internal bool IsIndirect => Endpoints.Count == 0 && !IsFixed;
 
@@ -45,11 +44,11 @@ namespace ZeroC.Ice
         internal bool IsWellKnown => IsIndirect && Location.Count == 0;
         internal IReadOnlyList<string> Location { get; }
 
-        internal TimeSpan LocatorCacheTimeout { get; }
+        internal TimeSpan LocatorCacheTimeout => _locatorCacheTimeout ?? Communicator.DefaultLocatorCacheTimeout;
 
         internal LocatorInfo? LocatorInfo { get; }
         internal bool PreferExistingConnection { get; }
-        internal NonSecure PreferNonSecure { get; }
+        internal NonSecure PreferNonSecure => _preferNonSecure ?? Communicator.DefaultPreferNonSecure;
         internal Protocol Protocol { get; }
 
         internal RouterInfo? RouterInfo { get; }
@@ -57,6 +56,9 @@ namespace ZeroC.Ice
         private readonly IReadOnlyList<InvocationInterceptor> _invocationInterceptors;
 
         private volatile Connection? _connection; // readonly when IsFixed is true
+        private readonly TimeSpan? _invocationTimeout;
+        private readonly TimeSpan? _locatorCacheTimeout;
+        private readonly NonSecure? _preferNonSecure;
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
         /// <param name="lhs">The left hand side operand.</param>
@@ -92,6 +94,8 @@ namespace ZeroC.Ice
                 throw new FormatException("empty string is invalid");
             }
 
+            bool? cacheConnection = null;
+            IReadOnlyDictionary<string, string>? context = null;
             Encoding encoding;
             IReadOnlyList<Endpoint> endpoints;
             string facet;
@@ -101,8 +105,11 @@ namespace ZeroC.Ice
             IReadOnlyList<string> location;
             bool? preferExistingConnection = null;
             NonSecure? preferNonSecure = null;
+            TimeSpan? locatorCacheTimeout = null;
+            LocatorInfo? locatorInfo = null;
             Protocol protocol;
-            bool relative = false;
+            bool? relative = null;
+            RouterInfo? routerInfo = null;
 
             if (UriParser.IsProxyUri(proxyString))
             {
@@ -144,10 +151,18 @@ namespace ZeroC.Ice
                     throw new FormatException($"invalid location with empty segment in proxy `{proxyString}'");
                 }
 
-                invocationTimeout = proxyOptions.InvocationTimeout;
-                relative = proxyOptions.Relative ?? false;
-                preferNonSecure = proxyOptions.PreferNonSecure;
-                preferExistingConnection = proxyOptions.PreferExistingConnection;
+                (cacheConnection,
+                 context,
+                 invocationTimeout,
+                 locatorCacheTimeout,
+                 preferExistingConnection,
+                 preferNonSecure,
+                 relative) = proxyOptions;
+
+                if (locatorCacheTimeout != null && communicator.DefaultLocator == null)
+                {
+                    throw new FormatException("cannot set locator-cache-timeout without a Locator");
+                }
             }
             else
             {
@@ -159,69 +174,81 @@ namespace ZeroC.Ice
 
                 // 0 or 1 segment
                 location = location0.Length > 0 ? ImmutableArray.Create(location0) : ImmutableArray<string>.Empty;
-            }
 
-            bool? cacheConnection = null;
-            IReadOnlyDictionary<string, string>? context = null;
-            TimeSpan? locatorCacheTimeout = null;
-            LocatorInfo? locatorInfo = null;
-            RouterInfo? routerInfo = null;
-
-            // Override the defaults with the proxy properties if a property prefix is defined.
-            if (propertyPrefix != null && propertyPrefix.Length > 0)
-            {
-                // Warn about unknown properties.
-                if (communicator.WarnUnknownProperties)
+                // Override the defaults with the proxy properties if a property prefix is defined.
+                if (propertyPrefix != null && propertyPrefix.Length > 0)
                 {
-                    communicator.CheckForUnknownProperties(propertyPrefix);
-                }
+                    // Warn about unknown properties.
+                    if (communicator.WarnUnknownProperties)
+                    {
+                        communicator.CheckForUnknownProperties(propertyPrefix);
+                    }
 
-                cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.ConnectionCached");
+                    cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.CacheConnection");
 
-                string property = $"{propertyPrefix}.Context.";
-                context = communicator.GetProperties(forPrefix: property).
-                    ToDictionary(e => e.Key.Substring(property.Length), e => e.Value);
-                if (context.Count == 0)
-                {
-                    context = null;
-                }
+                    string property = $"{propertyPrefix}.Context.";
+                    context = communicator.GetProperties(forPrefix: property).
+                        ToImmutableDictionary(e => e.Key.Substring(property.Length), e => e.Value);
 
-                if (invocationTimeout == null)
-                {
                     property = $"{propertyPrefix}.InvocationTimeout";
                     invocationTimeout = communicator.GetPropertyAsTimeSpan(property);
                     if (invocationTimeout == TimeSpan.Zero)
                     {
-                        throw new InvalidConfigurationException($"0 is not a valid value for property `{property}'");
+                        throw new InvalidConfigurationException($"{property}: 0 is not a valid value");
                     }
-                }
 
-                locatorInfo = communicator.GetLocatorInfo(
-                    communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory));
+                    property = $"{propertyPrefix}.Locator";
+                    locatorInfo = communicator.GetLocatorInfo(
+                        communicator.GetPropertyAsProxy(property, ILocatorPrx.Factory));
 
-                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan($"{propertyPrefix}.LocatorCacheTimeout");
-
-                preferNonSecure ??= communicator.GetPropertyAsEnum<NonSecure>($"{propertyPrefix}.PreferNonSecure");
-
-                property = $"{propertyPrefix}.Router";
-                if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
-                {
-                    if (protocol != Protocol.Ice1)
+                    if (locatorInfo != null && endpoints.Count > 0)
                     {
-                        throw new InvalidConfigurationException(
-                            $"`{property}={communicator.GetProperty(property)}': only an ice1 proxy can have a router");
+                        throw new InvalidConfigurationException($"{property}: cannot set a locator on a direct proxy");
                     }
-                    if (router.Protocol != Protocol.Ice1)
+
+                    property = $"{propertyPrefix}.LocatorCacheTimeout";
+                    locatorCacheTimeout = communicator.GetPropertyAsTimeSpan(property);
+
+                    if (locatorCacheTimeout != null)
                     {
-                        throw new InvalidConfigurationException(@$"`{property}={communicator.GetProperty(property)
-                            }': a router proxy must use the ice1 protocol");
+                        if (endpoints.Count > 0)
+                        {
+                            throw new InvalidConfigurationException($"{property}: proxy has endpoints");
+                        }
+                        if (locatorInfo == null && communicator.DefaultLocator == null)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{property}: cannot set locator cache timeout without a Locator");
+                        }
                     }
-                    if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
+
+                    preferNonSecure = communicator.GetPropertyAsEnum<NonSecure>($"{propertyPrefix}.PreferNonSecure");
+                    relative = communicator.GetPropertyAsBool($"{propertyPrefix}.Relative");
+
+                    if (relative == true && endpoints.Count > 0)
                     {
-                        throw new InvalidConfigurationException(
-                            $"`{property}={communicator.GetProperty(property)}': cannot set a router on a router");
+                        throw new InvalidConfigurationException($"{property}: a direct proxy cannot be relative");
                     }
-                    routerInfo = communicator.GetRouterInfo(router);
+
+                    property = $"{propertyPrefix}.Router";
+                    if (communicator.GetPropertyAsProxy(property, IRouterPrx.Factory) is IRouterPrx router)
+                    {
+                        if (protocol != Protocol.Ice1)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"{property}: only an ice1 proxy can have a router");
+                        }
+                        if (router.Protocol != Protocol.Ice1)
+                        {
+                            throw new InvalidConfigurationException(@$"{property}={communicator.GetProperty(property)
+                                }: a router proxy must use the ice1 protocol");
+                        }
+                        if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
+                        {
+                            throw new InvalidConfigurationException($"{property}: cannot set a router on a router");
+                        }
+                        routerInfo = communicator.GetRouterInfo(router);
+                    }
                 }
             }
 
@@ -235,16 +262,16 @@ namespace ZeroC.Ice
                                  identity: identity,
                                  invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                  invocationMode: invocationMode,
-                                 invocationTimeout: invocationTimeout ?? communicator.DefaultInvocationTimeout,
+                                 invocationTimeout: invocationTimeout,
                                  location: location,
-                                 locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
-                                 locatorInfo:
-                                    locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator),
-                                 preferExistingConnection:
-                                    preferExistingConnection ?? communicator.DefaultPreferExistingConnection,
-                                 preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
+                                 locatorCacheTimeout: locatorCacheTimeout,
+                                 locatorInfo: locatorInfo ??
+                                    (endpoints.Count == 0 ?
+                                        communicator.GetLocatorInfo(communicator.DefaultLocator) : null),
+                                 preferExistingConnection: preferExistingConnection ?? true,
+                                 preferNonSecure: preferNonSecure,
                                  protocol: protocol,
-                                 relative: relative,
+                                 relative: relative ?? false,
                                  routerInfo: protocol == Protocol.Ice1 ?
                                     routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter) : null);
         }
@@ -280,6 +307,10 @@ namespace ZeroC.Ice
             else
             {
                 // Compare properties specific to other kinds of references
+                if (CacheConnection != other.CacheConnection)
+                {
+                    return false;
+                }
                 if (ConnectionId != other.ConnectionId)
                 {
                     return false;
@@ -288,15 +319,11 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                if (IsConnectionCached != other.IsConnectionCached)
-                {
-                    return false;
-                }
                 if (!Location.SequenceEqual(other.Location))
                 {
                     return false;
                 }
-                if (LocatorCacheTimeout != other.LocatorCacheTimeout)
+                if (_locatorCacheTimeout != other._locatorCacheTimeout)
                 {
                     return false;
                 }
@@ -304,11 +331,7 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                if (PreferExistingConnection != other.PreferExistingConnection)
-                {
-                    return false;
-                }
-                if (PreferNonSecure != other.PreferNonSecure)
+                if (_preferNonSecure != other._preferNonSecure)
                 {
                     return false;
                 }
@@ -343,7 +366,7 @@ namespace ZeroC.Ice
             {
                 return false;
             }
-            if (InvocationTimeout != other.InvocationTimeout)
+            if (_invocationTimeout != other._invocationTimeout)
             {
                 return false;
             }
@@ -383,7 +406,7 @@ namespace ZeroC.Ice
                 hash.Add(Identity);
                 hash.Add(_invocationInterceptors.GetSequenceHashCode());
                 hash.Add(InvocationMode);
-                hash.Add(InvocationTimeout);
+                hash.Add(_invocationTimeout);
                 hash.Add(IsFixed);
                 hash.Add(IsRelative);
                 hash.Add(Protocol);
@@ -394,14 +417,13 @@ namespace ZeroC.Ice
                 }
                 else
                 {
+                    hash.Add(CacheConnection);
                     hash.Add(ConnectionId);
                     hash.Add(Endpoints.GetSequenceHashCode());
-                    hash.Add(IsConnectionCached);
                     hash.Add(Location.GetSequenceHashCode());
-                    hash.Add(LocatorCacheTimeout);
+                    hash.Add(_locatorCacheTimeout);
                     hash.Add(LocatorInfo);
-                    hash.Add(PreferExistingConnection);
-                    hash.Add(PreferNonSecure);
+                    hash.Add(_preferNonSecure);
                     hash.Add(RouterInfo);
                 }
 
@@ -550,11 +572,27 @@ namespace ZeroC.Ice
                     sb.Append(path);
                 }
 
-                if (Protocol != Protocol.Ice2) // i.e. > ice2
+                if (!CacheConnection)
                 {
                     StartQueryOption(sb, ref firstOption);
-                    sb.Append("protocol=");
-                    sb.Append(Protocol.GetName());
+                    sb.Append("cache-connection=false");
+                }
+
+                if (Context.Count > 0)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("context=");
+                    int index = 0;
+                    foreach ((string key, string value) in Context)
+                    {
+                        sb.Append(Uri.EscapeDataString(key));
+                        sb.Append('=');
+                        sb.Append(Uri.EscapeDataString(value));
+                        if (++index != Context.Count)
+                        {
+                            sb.Append(',');
+                        }
+                    }
                 }
 
                 if (Encoding != Ice2Definitions.Encoding) // possible but quite unlikely
@@ -570,9 +608,33 @@ namespace ZeroC.Ice
                     sb.Append("fixed=true");
                 }
 
-                StartQueryOption(sb, ref firstOption);
-                sb.Append("invocation-timeout=");
-                sb.Append(TimeSpanExtensions.ToPropertyString(InvocationTimeout));
+                if (_invocationTimeout is TimeSpan invocationTimeout)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("invocation-timeout=");
+                    sb.Append(TimeSpanExtensions.ToPropertyValue(invocationTimeout));
+                }
+
+                if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("locator-cache-timeout=");
+                    sb.Append(TimeSpanExtensions.ToPropertyValue(locatorCacheTimeout));
+                }
+
+                if (_preferNonSecure is NonSecure preferNonSecure)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("prefer-non-secure=");
+                    sb.Append(preferNonSecure.ToString().ToLowerInvariant());
+                }
+
+                if (Protocol != Protocol.Ice2) // i.e. > ice2
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("protocol=");
+                    sb.Append(Protocol.GetName());
+                }
 
                 if (PreferExistingConnection)
                 {
@@ -589,6 +651,8 @@ namespace ZeroC.Ice
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("relative=true");
                 }
+
+                // TODO: add missing connection-id / label
 
                 if (Endpoints.Count > 1)
                 {
@@ -823,7 +887,7 @@ namespace ZeroC.Ice
                                              identity: proxyData.Identity,
                                              invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,
                                              invocationMode: InvocationMode.Twoway,
-                                             invocationTimeout: connection.Communicator.DefaultInvocationTimeout);
+                                             invocationTimeout: null);
                     }
                     else
                     {
@@ -913,12 +977,12 @@ namespace ZeroC.Ice
                    identity: identity,
                    invocationInterceptors: invocationInterceptors,
                    invocationMode: invocationMode,
-                   invocationTimeout: communicator.DefaultInvocationTimeout,
+                   invocationTimeout: null,
                    location: location,
-                   locatorCacheTimeout: communicator.DefaultLocatorCacheTimeout,
+                   locatorCacheTimeout: null,
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator),
                    preferExistingConnection: communicator.DefaultPreferExistingConnection,
-                   preferNonSecure: communicator.DefaultPreferNonSecure,
+                   preferNonSecure: null,
                    protocol: protocol,
                    relative: false,
                    routerInfo: protocol == Protocol.Ice1 ?
@@ -936,7 +1000,7 @@ namespace ZeroC.Ice
                    invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,
                    invocationMode: (fixedConnection.Endpoint?.IsDatagram ?? false) ?
                        InvocationMode.Datagram : InvocationMode.Twoway,
-                   invocationTimeout: fixedConnection.Communicator.DefaultInvocationTimeout)
+                   invocationTimeout: null)
         {
         }
 
@@ -1051,7 +1115,7 @@ namespace ZeroC.Ice
                 }
                 if (locatorCacheTimeout != null)
                 {
-                    throw new ArgumentException("cannot change the locator cache timeout of a fixed proxy",
+                    throw new ArgumentException("cannot set locator cache timeout on a fixed proxy",
                         nameof(locatorCacheTimeout));
                 }
                 if (preferExistingConnection != null)
@@ -1078,14 +1142,14 @@ namespace ZeroC.Ice
                 }
 
                 var clone = new Reference(
-                    context?.ToImmutableDictionary() ?? Context,
+                    context?.ToImmutableSortedDictionary() ?? Context,
                     encoding ?? Encoding,
                     facet ?? Facet,
                     (fixedConnection ?? _connection)!,
                     identity ?? Identity,
                     invocationInterceptors?.ToImmutableArray() ?? _invocationInterceptors,
                     invocationMode ?? InvocationMode,
-                    invocationTimeout ?? InvocationTimeout);
+                    invocationTimeout ?? _invocationTimeout);
                 return clone == this ? this : clone;
             }
             else
@@ -1155,16 +1219,6 @@ namespace ZeroC.Ice
                     }
                 }
 
-                LocatorInfo? locatorInfo = LocatorInfo;
-                if (locator != null)
-                {
-                    locatorInfo = Communicator.GetLocatorInfo(locator);
-                }
-                else if (clearLocator)
-                {
-                    locatorInfo = null;
-                }
-
                 if (relative ?? IsRelative)
                 {
                     if (newEndpoints?.Count > 0)
@@ -1174,6 +1228,38 @@ namespace ZeroC.Ice
                     else
                     {
                         newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
+                    }
+                }
+
+                newEndpoints ??= Endpoints;
+
+                LocatorInfo? locatorInfo = LocatorInfo;
+                if (locator != null)
+                {
+                    if (newEndpoints.Count > 0)
+                    {
+                        throw new ArgumentException($"cannot set {nameof(locator)} on a direct proxy",
+                                                    nameof(locator));
+                    }
+
+                    locatorInfo = Communicator.GetLocatorInfo(locator);
+                }
+                else if (clearLocator || newEndpoints.Count > 0)
+                {
+                    locatorInfo = null;
+                }
+
+                if (locatorCacheTimeout != null)
+                {
+                    if (newEndpoints.Count > 0)
+                    {
+                        throw new ArgumentException($"cannot set {nameof(locatorCacheTimeout)} on a direct proxy",
+                                                    nameof(locatorCacheTimeout));
+                    }
+                    if (locatorInfo == null)
+                    {
+                        throw new ArgumentException($"cannot set {nameof(locatorCacheTimeout)} without a locator",
+                                                    nameof(locatorCacheTimeout));
                     }
                 }
 
@@ -1187,22 +1273,22 @@ namespace ZeroC.Ice
                     routerInfo = null;
                 }
 
-                var clone = new Reference(cacheConnection ?? IsConnectionCached,
+                var clone = new Reference(cacheConnection ?? CacheConnection,
                                           Communicator,
                                           connectionId ?? ConnectionId,
-                                          context?.ToImmutableDictionary() ?? Context,
+                                          context?.ToImmutableSortedDictionary() ?? Context,
                                           encoding ?? Encoding,
-                                          newEndpoints ?? Endpoints,
+                                          newEndpoints,
                                           facet ?? Facet,
                                           identity ?? Identity,
                                           invocationInterceptors?.ToImmutableArray() ?? _invocationInterceptors,
                                           invocationMode ?? InvocationMode,
-                                          invocationTimeout ?? InvocationTimeout,
+                                          invocationTimeout ?? _invocationTimeout,
                                           newLocation ?? Location,
-                                          locatorCacheTimeout ?? LocatorCacheTimeout,
+                                          locatorCacheTimeout ?? (locatorInfo != null ? _locatorCacheTimeout : null),
                                           locatorInfo, // no fallback otherwise breaks clearLocator
                                           preferExistingConnection ?? PreferExistingConnection,
-                                          preferNonSecure ?? PreferNonSecure,
+                                          preferNonSecure ?? _preferNonSecure,
                                           Protocol,
                                           relative ?? IsRelative,
                                           routerInfo); // no fallback otherwise breaks clearRouter
@@ -1298,7 +1384,7 @@ namespace ZeroC.Ice
                     // connectors if required.
                     (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
                     connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
-                    if (IsConnectionCached)
+                    if (CacheConnection)
                     {
                         _connection = connection;
                     }
@@ -1320,7 +1406,7 @@ namespace ZeroC.Ice
                                                                          PreferNonSecure,
                                                                          ConnectionId,
                                                                          cancel).ConfigureAwait(false);
-                            if (IsConnectionCached)
+                            if (CacheConnection)
                             {
                                 _connection = connection;
                             }
@@ -1353,39 +1439,53 @@ namespace ZeroC.Ice
                 throw new NotSupportedException("cannot convert a fixed proxy to a property dictionary");
             }
 
-            var properties = new Dictionary<string, string>
-            {
-                [prefix] = ToString(),
-                [$"{prefix}.ConnectionCached"] = IsConnectionCached ? "1" : "0",
-                [$"{prefix}.LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
-            };
+            var properties = new Dictionary<string, string> { [prefix] = ToString() };
 
             if (Protocol == Protocol.Ice1)
             {
-                // For Ice2 these are URI options
-                properties[$"{prefix}.InvocationTimeout"] = InvocationTimeout.ToPropertyString();
-                properties[$"{prefix}.PreferExistingConnection"] = PreferExistingConnection ? "1" : "0";
-                properties[$"{prefix}.PreferNonSecure"] = PreferNonSecure.ToString();
-            }
+                if (!CacheConnection)
+                {
+                    properties[$"{prefix}.CacheConnection"] = "false";
+                }
+                // TODO: add connection ID
 
-            if (RouterInfo != null)
-            {
-                Dictionary<string, string> routerProperties =
-                    RouterInfo.Router.ToProperty(prefix + ".Router");
-                foreach (KeyValuePair<string, string> entry in routerProperties)
+                // We don't output context as this would require hard-to-generate escapes.
+
+                if (_invocationTimeout is TimeSpan invocationTimeout)
                 {
-                    properties[entry.Key] = entry.Value;
+                    // For ice2 the invocation timeout is included in the URI
+                    properties[$"{prefix}.InvocationTimeout"] = invocationTimeout.ToPropertyValue();
+                }
+                if (LocatorInfo != null)
+                {
+                    Dictionary<string, string> locatorProperties = LocatorInfo.Locator.ToProperty(prefix + ".Locator");
+                    foreach (KeyValuePair<string, string> entry in locatorProperties)
+                    {
+                        properties[entry.Key] = entry.Value;
+                    }
+                }
+                if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
+                {
+                    properties[$"{prefix}.LocatorCacheTimeout"] = locatorCacheTimeout.ToPropertyValue();
+                }
+                if (_preferNonSecure is NonSecure preferNonSecure)
+                {
+                    properties[$"{prefix}.PreferNonSecure"] = preferNonSecure.ToString();
+                }
+                if (IsRelative)
+                {
+                    properties[$"{prefix}.Relative"] = "true";
+                }
+                if (RouterInfo != null)
+                {
+                    Dictionary<string, string> routerProperties = RouterInfo.Router.ToProperty(prefix + ".Router");
+                    foreach (KeyValuePair<string, string> entry in routerProperties)
+                    {
+                        properties[entry.Key] = entry.Value;
+                    }
                 }
             }
-            if (LocatorInfo != null)
-            {
-                Dictionary<string, string> locatorProperties =
-                    LocatorInfo.Locator.ToProperty(prefix + ".Locator");
-                foreach (KeyValuePair<string, string> entry in locatorProperties)
-                {
-                    properties[entry.Key] = entry.Value;
-                }
-            }
+            // else, only a single property in the dictionary
 
             return properties;
         }
@@ -1450,16 +1550,17 @@ namespace ZeroC.Ice
             Identity identity,
             IReadOnlyList<InvocationInterceptor> invocationInterceptors, // already a copy provided by Ice
             InvocationMode invocationMode,
-            TimeSpan invocationTimeout,
+            TimeSpan? invocationTimeout,
             IReadOnlyList<string> location, // already a copy provided by Ice
-            TimeSpan locatorCacheTimeout,
+            TimeSpan? locatorCacheTimeout,
             LocatorInfo? locatorInfo,
             bool preferExistingConnection,
-            NonSecure preferNonSecure,
+            NonSecure? preferNonSecure,
             Protocol protocol,
             bool relative,
             RouterInfo? routerInfo)
         {
+            CacheConnection = cacheConnection;
             Communicator = communicator;
             ConnectionId = connectionId;
             Context = context;
@@ -1469,14 +1570,13 @@ namespace ZeroC.Ice
             Identity = identity;
             _invocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
-            InvocationTimeout = invocationTimeout;
-            IsConnectionCached = cacheConnection;
+            _invocationTimeout = invocationTimeout;
             IsRelative = relative;
             Location = location;
-            LocatorCacheTimeout = locatorCacheTimeout;
+            _locatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
             PreferExistingConnection = preferExistingConnection;
-            PreferNonSecure = preferNonSecure;
+            _preferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
 
@@ -1505,7 +1605,7 @@ namespace ZeroC.Ice
             Identity identity,
             IReadOnlyList<InvocationInterceptor> invocationInterceptors, // already a copy provided by Ice
             InvocationMode invocationMode,
-            TimeSpan invocationTimeout)
+            TimeSpan? invocationTimeout)
         {
             Communicator = fixedConnection.Communicator;
             ConnectionId = "";
@@ -1516,15 +1616,13 @@ namespace ZeroC.Ice
             Identity = identity;
             _invocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
-            InvocationTimeout = invocationTimeout;
-            IsConnectionCached = false;
+            _invocationTimeout = invocationTimeout;
             IsFixed = true;
             IsRelative = false;
             Location = ImmutableArray<string>.Empty;
-            LocatorCacheTimeout = TimeSpan.Zero;
+            _locatorCacheTimeout = null;
             LocatorInfo = null;
             PreferExistingConnection = false;
-            PreferNonSecure = fixedConnection.IsSecure ? NonSecure.Never : NonSecure.Always;
             Protocol = fixedConnection.Protocol;
             RouterInfo = null;
 
@@ -1570,7 +1668,7 @@ namespace ZeroC.Ice
                 // No cached connection, so now check if there is an existing connection that we can reuse.
                 (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
                 connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
-                if (IsConnectionCached)
+                if (CacheConnection)
                 {
                     _connection = connection;
                 }
@@ -1612,7 +1710,7 @@ namespace ZeroC.Ice
                                                                      PreferNonSecure,
                                                                      ConnectionId,
                                                                      cancel).ConfigureAwait(false);
-                        if (IsConnectionCached)
+                        if (CacheConnection)
                         {
                             _connection = connection;
                         }

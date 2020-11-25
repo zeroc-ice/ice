@@ -61,9 +61,8 @@ namespace ZeroC.Ice
         internal int OutgoingStreamCount => Thread.VolatileRead(ref _outgoingStreamCount);
 
         private int _incomingStreamCount;
-        // The mutex provides thread-safety for the _observer and LastActivity data members. It can also be used
-        // by specializations to provide data member thread-safety.
-        private protected readonly object _mutex = new();
+        // The mutex provides thread-safety for the _observer and LastActivity data members.
+        private readonly object _mutex = new();
         private IConnectionObserver? _observer;
         private int _outgoingStreamCount;
         private readonly ConcurrentDictionary<long, SocketStream> _streams = new();

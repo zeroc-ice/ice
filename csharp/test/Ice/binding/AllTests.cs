@@ -127,8 +127,8 @@ namespace ZeroC.Ice.Test.Binding
                                                                   preferExistingConnection: false);
                 ITestIntfPrx test2 = adapter.GetTestIntf()!.Clone(cacheConnection: false,
                                                                   preferExistingConnection: false);
-                TestHelper.Assert(!test1.IsConnectionCached && !test1.PreferExistingConnection);
-                TestHelper.Assert(!test2.IsConnectionCached && !test2.PreferExistingConnection);
+                TestHelper.Assert(!test1.CacheConnection && !test1.PreferExistingConnection);
+                TestHelper.Assert(!test2.CacheConnection && !test2.PreferExistingConnection);
                 TestHelper.Assert(test1.GetConnection() != null && test2.GetConnection() != null);
                 TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
 
@@ -160,7 +160,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 ITestIntfPrx obj = CreateTestIntfPrx(adapters);
                 obj = obj.Clone(cacheConnection: false, preferExistingConnection: false);
-                TestHelper.Assert(!obj.IsConnectionCached && !obj.PreferExistingConnection);
+                TestHelper.Assert(!obj.CacheConnection && !obj.PreferExistingConnection);
 
                 // Ensure that endpoints are tried in order by deactivating the adapters one after the other.
                 for (int i = 0; i < 3; i++)

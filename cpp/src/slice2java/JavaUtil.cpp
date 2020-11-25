@@ -1600,9 +1600,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+    assert (ContainedPtr::dynamicCast(type));
     StructPtr st = StructPtr::dynamicCast(type);
-    assert(constructed);
     if(marshal)
     {
         if(isTaggedParam)

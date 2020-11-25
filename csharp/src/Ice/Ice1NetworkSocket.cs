@@ -23,6 +23,8 @@ namespace ZeroC.Ice
         internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
         internal bool IsValidated { get; private set; }
 
+        // The mutex is used to protect the next stream IDs and the send queue.
+        private readonly object _mutex = new();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
         private long _nextPeerUnidirectionalId;
