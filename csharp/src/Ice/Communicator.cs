@@ -912,12 +912,22 @@ namespace ZeroC.Ice
                 IEnumerable<Task> tasks =
                     _outgoingConnections.Values.SelectMany(connections => connections).Select(connection =>
                         connection.GoAwayAsync(new CommunicatorDisposedException())).Append(
-                        ShutdownAsync()).Concat(_pendingOutgoingConnections.Values);
+                        ShutdownAsync());
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
 #if DEBUG
                 // Ensure all the outgoing connections were removed
                 Debug.Assert(_outgoingConnections.Count == 0);
+                foreach (var task in _pendingOutgoingConnections.Values)
+                {
+                    try
+                    {
+                        await task.ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                    }
+                }
                 Debug.Assert(_pendingOutgoingConnections.Count == 0);
 #endif
 

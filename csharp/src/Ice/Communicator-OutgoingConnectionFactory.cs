@@ -60,6 +60,8 @@ namespace ZeroC.Ice
                         connectTask = PerformConnectAsync(endpoint, preferNonSecure, cookie);
                         if (!connectTask.IsCompleted)
                         {
+                            // If the task didn't complete synchronously we add it to the pending map
+                            // and it will be removed once PerformConnectAsync completes.
                             _pendingOutgoingConnections[(endpoint, cookie)] = connectTask;
                         }
                     }
@@ -101,7 +103,7 @@ namespace ZeroC.Ice
                         list.Add(connection);
                     }
                     // Set the callback used to remove the connection from the factory.
-                    connection.Remove = connection => Remove(connection);
+                    connection.Remove = connection => Remove(connection, cookie);
                     return connection;
                 }
                 catch (TransportException)
@@ -153,15 +155,15 @@ namespace ZeroC.Ice
                 endpoint => _transportFailures.TryGetValue(endpoint, out DateTime value) ? value : default);
         }
 
-        internal void Remove(Connection connection)
+        internal void Remove(Connection connection, object label)
         {
             lock (_mutex)
             {
-                List<Connection> list = _outgoingConnections[(connection.Endpoint, connection.ConnectionId)];
+                List<Connection> list = _outgoingConnections[(connection.Endpoint, label)];
                 list.Remove(connection);
                 if (list.Count == 0)
                 {
-                    _outgoingConnections.Remove((connection.Endpoint, connection.ConnectionId));
+                    _outgoingConnections.Remove((connection.Endpoint, label));
                 }
             }
         }

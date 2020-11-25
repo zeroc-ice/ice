@@ -18,7 +18,7 @@ def props(process, current):
         "Ice.Default.Locator": "discovery",
         "Ice.Discovery.RetryCount": 20,
         "Ice.Discovery.DomainId": domainId,
-        "Ice.Discovery.Timeout": "50ms",
+        "Ice.Discovery.Timeout": "100ms",
         "Ice.Discovery.Multicast.Endpoints": f"{ipv4Endpoint}:{ipv6Endpoint}",
         "Ice.Discovery.Lookup": f"{ipv4Endpoint}:{ipv6Endpoint}",
         "Ice.Discovery.Reply.ServerName": "localhost",
