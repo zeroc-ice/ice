@@ -28,7 +28,8 @@ namespace ZeroC.Ice.Test.Binding
                         // udp endpoints are always non-secure. Set name.AcceptNonSecure = true
                         current.Communicator.SetProperty($"{name}.AcceptNonSecure", "true");
                     }
-                    ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
+                    ObjectAdapter adapter =
+                        current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints, cancel: cancel);
                     return current.Adapter.AddWithUUID(
                         new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
                 }
@@ -48,7 +49,8 @@ namespace ZeroC.Ice.Test.Binding
             Current current,
             CancellationToken cancel)
         {
-            ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
+            ObjectAdapter adapter =
+                current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints, cancel: cancel);
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 

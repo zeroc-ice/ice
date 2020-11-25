@@ -52,8 +52,8 @@ namespace ZeroC.Ice.Test.Location
                     serverCommunicator.SetProperty("TestAdapter.Endpoints", _helper.GetTestEndpoint(_nextPort++));
                     serverCommunicator.SetProperty("TestAdapter2.Endpoints", _helper.GetTestEndpoint(_nextPort++));
 
-                    adapter = serverCommunicator.CreateObjectAdapter("TestAdapter");
-                    adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");
+                    adapter = serverCommunicator.CreateObjectAdapter("TestAdapter", cancel: cancel);
+                    adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2", cancel: cancel);
 
                     var locator = ILocatorPrx.Parse(_helper.GetTestProxy("locator", 0), serverCommunicator);
                     adapter.Locator = locator;
