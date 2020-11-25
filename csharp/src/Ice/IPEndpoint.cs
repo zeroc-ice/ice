@@ -151,7 +151,7 @@ namespace ZeroC.Ice
                         NonSecure.Always => false,
                         _ => true
                     };
-                    connection = CreateConnection(preferNonSecure, secureOnly, address, networkProxy, cookie);
+                    connection = CreateConnection(secureOnly, address, networkProxy, cookie);
                     await connection.InitializeAsync(cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -173,7 +173,6 @@ namespace ZeroC.Ice
         }
 
         protected internal abstract Connection CreateConnection(
-            NonSecure preferNonSecure,
             bool secureOnly,
             IPEndPoint address,
             INetworkProxy? proxy,

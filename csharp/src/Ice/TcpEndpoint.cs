@@ -199,7 +199,6 @@ namespace ZeroC.Ice
         }
 
         protected internal override Connection CreateConnection(
-            NonSecure preferNonSecure,
             bool secureOnly,
             IPEndPoint address,
             INetworkProxy? proxy,
@@ -212,19 +211,16 @@ namespace ZeroC.Ice
                 _ => new SlicSocket(socket, this, null)
             };
             return CreateConnection(multiStreamSocket,
-                                    preferNonSecure,
                                     cookie,
                                     adapter: null);
         }
 
         protected internal virtual Connection CreateConnection(
             MultiStreamOverSingleStreamSocket socket,
-            NonSecure preferNonSecure,
             object cookie,
             ObjectAdapter? adapter) =>
             new TcpConnection(this,
                               socket,
-                              preferNonSecure,
                               connectionId: (string)cookie,
                               adapter);
 

@@ -39,7 +39,7 @@ namespace ZeroC.Ice
                         if (preferNonSecure != NonSecure.Never)
                         {
                             // If non-secure connections are allowed check them first
-                            connection = connections.OrderBy(connection => !connection.IsSecure).FirstOrDefault(
+                            connection = connections.OrderBy(connection => connection.IsSecure).FirstOrDefault(
                                 connection => connection.IsActive && connection.CanTrust(preferNonSecure));
                         }
                         else

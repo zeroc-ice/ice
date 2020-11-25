@@ -78,7 +78,6 @@ namespace ZeroC.Ice
                 var connection = new ColocatedConnection(
                     this,
                     new ColocatedSocket(this, id, reader.Writer, writer.Reader, false),
-                    preferNonSecure,
                     connectionId: (string)cookie,
                     adapter: null);
                 await connection.InitializeAsync(cancel).ConfigureAwait(false);

@@ -75,10 +75,7 @@ namespace ZeroC.Ice
                 _ => new SlicSocket(socket, Endpoint, _adapter)
             };
 
-            return ((TcpEndpoint)Endpoint).CreateConnection(multiStreamSocket,
-                                                            _adapter.AcceptNonSecure,
-                                                            cookie: "",
-                                                            _adapter);
+            return ((TcpEndpoint)Endpoint).CreateConnection(multiStreamSocket, cookie: "", _adapter);
         }
 
         public void Dispose() => _socket.CloseNoThrow();

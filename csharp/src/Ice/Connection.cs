@@ -107,8 +107,6 @@ namespace ZeroC.Ice
         /// <summary>The protocol used by the connection.</summary>
         public Protocol Protocol => Endpoint.Protocol;
 
-        internal NonSecure PreferNonSecure { get; }
-
         // Delegate used to remove the connection once it has been closed.
         internal Action<Connection>? Remove
         {
@@ -243,7 +241,6 @@ namespace ZeroC.Ice
         internal Connection(
             Endpoint endpoint,
             MultiStreamSocket socket,
-            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
         {
@@ -253,7 +250,6 @@ namespace ZeroC.Ice
             Endpoint = endpoint;
             KeepAlive = Communicator.KeepAlive;
             IsIncoming = adapter != null;
-            PreferNonSecure = preferNonSecure;
             _adapter = adapter;
             _state = ConnectionState.Initializing;
         }
@@ -747,10 +743,9 @@ namespace ZeroC.Ice
         internal ColocatedConnection(
             Endpoint endpoint,
             ColocatedSocket socket,
-            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, preferNonSecure, connectionId, adapter)
+            : base(endpoint, socket, connectionId, adapter)
         {
         }
 
@@ -797,10 +792,9 @@ namespace ZeroC.Ice
         internal IPConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, preferNonSecure, connectionId, adapter) => _socket = socket;
+            : base(endpoint, socket, connectionId, adapter) => _socket = socket;
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -841,10 +835,9 @@ namespace ZeroC.Ice
         internal TcpConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, preferNonSecure, connectionId, adapter)
+            : base(endpoint, socket, connectionId, adapter)
         {
         }
 
@@ -882,10 +875,9 @@ namespace ZeroC.Ice
         internal UdpConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, preferNonSecure, connectionId, adapter) =>
+            : base(endpoint, socket, connectionId, adapter) =>
             _udpSocket = (UdpSocket)_socket.Underlying;
 
         internal override bool CanTrust(NonSecure preferNonSecure) => true;
@@ -902,10 +894,9 @@ namespace ZeroC.Ice
         internal WSConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            NonSecure preferNonSecure,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, preferNonSecure, connectionId, adapter) =>
+            : base(endpoint, socket, connectionId, adapter) =>
             _wsSocket = (WSSocket)_socket.Underlying;
     }
 }
