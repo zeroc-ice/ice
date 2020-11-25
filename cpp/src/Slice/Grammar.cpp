@@ -957,6 +957,7 @@ static const yytype_int16 yyrline[] =
     2076,  2082,  2086,  2095,  2096,  2102,  2103,  2114,  2115,  2116,
     2117,  2118,  2119,  2120,  2121,  2122,  2123,  2124,  2125,  2126,
     2127,  2128,  2133,  2137,  2141,  2145,  2153,  2158,  2169,  2173,
+<<<<<<< HEAD
     2185,  2190,  2216,  2248,  2272,  2293,  2313,  2332,  2344,  2355,
     2366,  2378,  2384,  2390,  2397,  2409,  2418,  2427,  2467,  2474,
     2481,  2493,  2509,  2530,  2531,  2532,  2533,  2534,  2535,  2536,
@@ -964,6 +965,14 @@ static const yytype_int16 yyrline[] =
     2547,  2548,  2549,  2550,  2551,  2552,  2553,  2554,  2555,  2556,
     2557,  2558,  2559,  2560,  2561,  2562,  2563,  2564,  2565,  2566
 >>>>>>> Added better error handling logic to the parser.
+=======
+    2185,  2190,  2216,  2248,  2272,  2293,  2313,  2334,  2346,  2357,
+    2368,  2380,  2386,  2392,  2399,  2411,  2420,  2429,  2469,  2476,
+    2483,  2495,  2511,  2532,  2533,  2534,  2535,  2536,  2537,  2538,
+    2539,  2540,  2541,  2542,  2543,  2544,  2545,  2546,  2547,  2548,
+    2549,  2550,  2551,  2552,  2553,  2554,  2555,  2556,  2557,  2558,
+    2559,  2560,  2561,  2562,  2563,  2564,  2565,  2566,  2567,  2568
+>>>>>>> Cosmetic changes.
 };
 #endif
 
@@ -6107,7 +6116,7 @@ yyreduce:
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        type = rewrapIfOptional(type, alias->underlying());
+        type = rewrapIfOptional(alias->underlying(), type);
     }
 
     ModulePtr cont = unit->currentModule();
@@ -6158,7 +6167,7 @@ yyreduce:
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        type = rewrapIfOptional(type, alias->underlying());
+        type = rewrapIfOptional(alias->underlying(), type);
     }
 
     ModulePtr cont = unit->currentModule();
@@ -6212,12 +6221,12 @@ yyreduce:
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(keyType)))
     {
         mergeMetadataInPlace(keyMetadata->v, alias->typeMetadata());
-        keyType = rewrapIfOptional(keyType, alias->underlying());
+        keyType = rewrapIfOptional(alias->underlying(), keyType);
     }
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(valueType)))
     {
         mergeMetadataInPlace(valueMetadata->v, alias->typeMetadata());
-        valueType = rewrapIfOptional(valueType, alias->underlying());
+        valueType = rewrapIfOptional(alias->underlying(), valueType);
     }
 
     ModulePtr cont = unit->currentModule();
@@ -6270,12 +6279,12 @@ yyreduce:
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(keyType)))
     {
         mergeMetadataInPlace(keyMetadata->v, alias->typeMetadata());
-        keyType = rewrapIfOptional(keyType, alias->underlying());
+        keyType = rewrapIfOptional(alias->underlying(), keyType);
     }
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(valueType)))
     {
         mergeMetadataInPlace(valueMetadata->v, alias->typeMetadata());
-        valueType = rewrapIfOptional(valueType, alias->underlying());
+        valueType = rewrapIfOptional(alias->underlying(), valueType);
     }
 
     ModulePtr cont = unit->currentModule();
@@ -8036,17 +8045,20 @@ yyreduce:
 >>>>>>> Added better error handling logic to the parser.
 {
     TaggedDefTokPtr taggedDef = new TaggedDefTok;
-    if (auto alias = TypeAliasPtr::dynamicCast(yyvsp[0]))
+    TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
+
+    if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
     {
-        taggedDef->type = alias->underlying();
+        taggedDef->type = rewrapIfOptional(alias->underlying(), type);
         taggedDef->metadata = alias->typeMetadata();
     }
     else
     {
-        taggedDef->type = TypePtr::dynamicCast(yyvsp[0]);
+        taggedDef->type = type;
     }
     yyval = taggedDef;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8084,6 +8096,13 @@ yyreduce:
   case 197: /* member: tagged_type ICE_IDENTIFIER  */
 #line 2333 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4336 "src/Slice/Grammar.cpp"
+    break;
+
+  case 197: /* member: tagged_type ICE_IDENTIFIER  */
+#line 2335 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     def->name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -8095,6 +8114,7 @@ yyreduce:
 
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8132,6 +8152,13 @@ yyreduce:
   case 198: /* member: tagged_type keyword  */
 #line 2345 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4352 "src/Slice/Grammar.cpp"
+    break;
+
+  case 198: /* member: tagged_type keyword  */
+#line 2347 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     def->name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -8142,6 +8169,7 @@ yyreduce:
     unit->error("keyword `" + def->name + "' cannot be used as an identifier");
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8179,6 +8207,13 @@ yyreduce:
   case 199: /* member: tagged_type  */
 #line 2356 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4367 "src/Slice/Grammar.cpp"
+    break;
+
+  case 199: /* member: tagged_type  */
+#line 2358 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
     def->name = IceUtil::generateUUID(); // Dummy
@@ -8189,6 +8224,7 @@ yyreduce:
     unit->error("missing identifier");
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8226,12 +8262,20 @@ yyreduce:
   case 200: /* member: local_metadata member  */
 #line 2367 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4382 "src/Slice/Grammar.cpp"
+    break;
+
+  case 200: /* member: local_metadata member  */
+#line 2369 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-1]);
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
     def->metadata = mergeMetadata(metadata->v, def->metadata);
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8269,11 +8313,19 @@ yyreduce:
   case 201: /* string_literal: ICE_STRING_LITERAL string_literal  */
 #line 2379 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4393 "src/Slice/Grammar.cpp"
+    break;
+
+  case 201: /* string_literal: ICE_STRING_LITERAL string_literal  */
+#line 2381 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     StringTokPtr str1 = StringTokPtr::dynamicCast(yyvsp[-1]);
     StringTokPtr str2 = StringTokPtr::dynamicCast(yyvsp[0]);
     str1->v += str2->v;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8311,12 +8363,20 @@ yyreduce:
   case 203: /* string_list: string_list ',' string_literal  */
 #line 2391 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4403 "src/Slice/Grammar.cpp"
+    break;
+
+  case 203: /* string_list: string_list ',' string_literal  */
+#line 2393 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     StringTokPtr str = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr stringList = StringListTokPtr::dynamicCast(yyvsp[-2]);
     stringList->v.push_back(str->v);
     yyval = stringList;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8354,12 +8414,20 @@ yyreduce:
   case 204: /* string_list: string_literal  */
 #line 2398 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4414 "src/Slice/Grammar.cpp"
+    break;
+
+  case 204: /* string_list: string_literal  */
+#line 2400 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     StringTokPtr str = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr stringList = new StringListTok;
     stringList->v.push_back(str->v);
     yyval = stringList;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8397,6 +8465,13 @@ yyreduce:
   case 205: /* const_initializer: ICE_INTEGER_LITERAL  */
 #line 2410 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4425 "src/Slice/Grammar.cpp"
+    break;
+
+  case 205: /* const_initializer: ICE_INTEGER_LITERAL  */
+#line 2412 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     BuiltinPtr type = unit->builtin(Builtin::KindLong);
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast(yyvsp[0]);
@@ -8405,6 +8480,7 @@ yyreduce:
     ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), intVal->literal);
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8442,6 +8518,13 @@ yyreduce:
   case 206: /* const_initializer: ICE_FLOATING_POINT_LITERAL  */
 #line 2419 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4438 "src/Slice/Grammar.cpp"
+    break;
+
+  case 206: /* const_initializer: ICE_FLOATING_POINT_LITERAL  */
+#line 2421 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     BuiltinPtr type = unit->builtin(Builtin::KindDouble);
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast(yyvsp[0]);
@@ -8450,6 +8533,7 @@ yyreduce:
     ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), floatVal->literal);
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8487,6 +8571,13 @@ yyreduce:
   case 207: /* const_initializer: scoped_name  */
 #line 2428 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4451 "src/Slice/Grammar.cpp"
+    break;
+
+  case 207: /* const_initializer: scoped_name  */
+#line 2430 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def;
@@ -8530,6 +8621,7 @@ yyreduce:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #line 4378 "src/Slice/Grammar.cpp"
     break;
 
@@ -8563,12 +8655,20 @@ yyreduce:
   case 208: /* const_initializer: ICE_STRING_LITERAL  */
 #line 2468 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4495 "src/Slice/Grammar.cpp"
+    break;
+
+  case 208: /* const_initializer: ICE_STRING_LITERAL  */
+#line 2470 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, literal->v, literal->literal);
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8606,12 +8706,20 @@ yyreduce:
   case 209: /* const_initializer: ICE_FALSE  */
 #line 2475 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4506 "src/Slice/Grammar.cpp"
+    break;
+
+  case 209: /* const_initializer: ICE_FALSE  */
+#line 2477 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, "false", "false");
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8649,12 +8757,20 @@ yyreduce:
   case 210: /* const_initializer: ICE_TRUE  */
 #line 2482 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4517 "src/Slice/Grammar.cpp"
+    break;
+
+  case 210: /* const_initializer: ICE_TRUE  */
+#line 2484 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, "true", "true");
     yyval = def;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8692,6 +8808,13 @@ yyreduce:
   case 211: /* const_def: ICE_CONST local_metadata type ICE_IDENTIFIER '=' const_initializer  */
 #line 2494 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4528 "src/Slice/Grammar.cpp"
+    break;
+
+  case 211: /* const_def: ICE_CONST local_metadata type ICE_IDENTIFIER '=' const_initializer  */
+#line 2496 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-4]);
     TypePtr const_type = TypePtr::dynamicCast(yyvsp[-3]);
@@ -8701,12 +8824,13 @@ yyreduce:
     if (auto alias = TypeAliasPtr::dynamicCast(const_type))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        const_type = rewrapIfOptional(const_type, alias->underlying());
+        const_type = rewrapIfOptional(alias->underlying(), const_type);
     }
 
     yyval = unit->currentModule()->createConst(ident->v, const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -8744,6 +8868,13 @@ yyreduce:
   case 212: /* const_def: ICE_CONST local_metadata type '=' const_initializer  */
 #line 2510 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4548 "src/Slice/Grammar.cpp"
+    break;
+
+  case 212: /* const_def: ICE_CONST local_metadata type '=' const_initializer  */
+#line 2512 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 {
     StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr const_type = TypePtr::dynamicCast(yyvsp[-2]);
@@ -8753,12 +8884,13 @@ yyreduce:
     if (auto alias = TypeAliasPtr::dynamicCast(const_type))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        const_type = rewrapIfOptional(const_type, alias->underlying());
+        const_type = rewrapIfOptional(alias->underlying(), const_type);
     }
 
     yyval = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9007,231 +9139,235 @@ yyreduce:
 =======
 #line 4566 "src/Slice/Grammar.cpp"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4568 "src/Slice/Grammar.cpp"
+>>>>>>> Cosmetic changes.
     break;
 
   case 213: /* keyword: ICE_MODULE  */
-#line 2530 "src/Slice/Grammar.y"
+#line 2532 "src/Slice/Grammar.y"
              {}
-#line 4572 "src/Slice/Grammar.cpp"
+#line 4574 "src/Slice/Grammar.cpp"
     break;
 
   case 214: /* keyword: ICE_CLASS  */
-#line 2531 "src/Slice/Grammar.y"
+#line 2533 "src/Slice/Grammar.y"
             {}
-#line 4578 "src/Slice/Grammar.cpp"
+#line 4580 "src/Slice/Grammar.cpp"
     break;
 
   case 215: /* keyword: ICE_INTERFACE  */
-#line 2532 "src/Slice/Grammar.y"
+#line 2534 "src/Slice/Grammar.y"
                 {}
-#line 4584 "src/Slice/Grammar.cpp"
+#line 4586 "src/Slice/Grammar.cpp"
     break;
 
   case 216: /* keyword: ICE_EXCEPTION  */
-#line 2533 "src/Slice/Grammar.y"
+#line 2535 "src/Slice/Grammar.y"
                 {}
-#line 4590 "src/Slice/Grammar.cpp"
+#line 4592 "src/Slice/Grammar.cpp"
     break;
 
   case 217: /* keyword: ICE_STRUCT  */
-#line 2534 "src/Slice/Grammar.y"
+#line 2536 "src/Slice/Grammar.y"
              {}
-#line 4596 "src/Slice/Grammar.cpp"
+#line 4598 "src/Slice/Grammar.cpp"
     break;
 
   case 218: /* keyword: ICE_SEQUENCE  */
-#line 2535 "src/Slice/Grammar.y"
+#line 2537 "src/Slice/Grammar.y"
                {}
-#line 4602 "src/Slice/Grammar.cpp"
+#line 4604 "src/Slice/Grammar.cpp"
     break;
 
   case 219: /* keyword: ICE_DICTIONARY  */
-#line 2536 "src/Slice/Grammar.y"
+#line 2538 "src/Slice/Grammar.y"
                  {}
-#line 4608 "src/Slice/Grammar.cpp"
+#line 4610 "src/Slice/Grammar.cpp"
     break;
 
   case 220: /* keyword: ICE_ENUM  */
-#line 2537 "src/Slice/Grammar.y"
+#line 2539 "src/Slice/Grammar.y"
            {}
-#line 4614 "src/Slice/Grammar.cpp"
+#line 4616 "src/Slice/Grammar.cpp"
     break;
 
   case 221: /* keyword: ICE_OUT  */
-#line 2538 "src/Slice/Grammar.y"
+#line 2540 "src/Slice/Grammar.y"
           {}
-#line 4620 "src/Slice/Grammar.cpp"
+#line 4622 "src/Slice/Grammar.cpp"
     break;
 
   case 222: /* keyword: ICE_EXTENDS  */
-#line 2539 "src/Slice/Grammar.y"
+#line 2541 "src/Slice/Grammar.y"
               {}
-#line 4626 "src/Slice/Grammar.cpp"
+#line 4628 "src/Slice/Grammar.cpp"
     break;
 
   case 223: /* keyword: ICE_IMPLEMENTS  */
-#line 2540 "src/Slice/Grammar.y"
+#line 2542 "src/Slice/Grammar.y"
                  {}
-#line 4632 "src/Slice/Grammar.cpp"
+#line 4634 "src/Slice/Grammar.cpp"
     break;
 
   case 224: /* keyword: ICE_THROWS  */
-#line 2541 "src/Slice/Grammar.y"
+#line 2543 "src/Slice/Grammar.y"
              {}
-#line 4638 "src/Slice/Grammar.cpp"
+#line 4640 "src/Slice/Grammar.cpp"
     break;
 
   case 225: /* keyword: ICE_VOID  */
-#line 2542 "src/Slice/Grammar.y"
+#line 2544 "src/Slice/Grammar.y"
            {}
-#line 4644 "src/Slice/Grammar.cpp"
+#line 4646 "src/Slice/Grammar.cpp"
     break;
 
   case 226: /* keyword: ICE_BOOL  */
-#line 2543 "src/Slice/Grammar.y"
+#line 2545 "src/Slice/Grammar.y"
            {}
-#line 4650 "src/Slice/Grammar.cpp"
+#line 4652 "src/Slice/Grammar.cpp"
     break;
 
   case 227: /* keyword: ICE_BYTE  */
-#line 2544 "src/Slice/Grammar.y"
+#line 2546 "src/Slice/Grammar.y"
            {}
-#line 4656 "src/Slice/Grammar.cpp"
+#line 4658 "src/Slice/Grammar.cpp"
     break;
 
   case 228: /* keyword: ICE_SHORT  */
-#line 2545 "src/Slice/Grammar.y"
+#line 2547 "src/Slice/Grammar.y"
             {}
-#line 4662 "src/Slice/Grammar.cpp"
+#line 4664 "src/Slice/Grammar.cpp"
     break;
 
   case 229: /* keyword: ICE_USHORT  */
-#line 2546 "src/Slice/Grammar.y"
+#line 2548 "src/Slice/Grammar.y"
              {}
-#line 4668 "src/Slice/Grammar.cpp"
+#line 4670 "src/Slice/Grammar.cpp"
     break;
 
   case 230: /* keyword: ICE_INT  */
-#line 2547 "src/Slice/Grammar.y"
+#line 2549 "src/Slice/Grammar.y"
           {}
-#line 4674 "src/Slice/Grammar.cpp"
+#line 4676 "src/Slice/Grammar.cpp"
     break;
 
   case 231: /* keyword: ICE_UINT  */
-#line 2548 "src/Slice/Grammar.y"
+#line 2550 "src/Slice/Grammar.y"
            {}
-#line 4680 "src/Slice/Grammar.cpp"
+#line 4682 "src/Slice/Grammar.cpp"
     break;
 
   case 232: /* keyword: ICE_VARINT  */
-#line 2549 "src/Slice/Grammar.y"
+#line 2551 "src/Slice/Grammar.y"
              {}
-#line 4686 "src/Slice/Grammar.cpp"
+#line 4688 "src/Slice/Grammar.cpp"
     break;
 
   case 233: /* keyword: ICE_VARUINT  */
-#line 2550 "src/Slice/Grammar.y"
+#line 2552 "src/Slice/Grammar.y"
               {}
-#line 4692 "src/Slice/Grammar.cpp"
+#line 4694 "src/Slice/Grammar.cpp"
     break;
 
   case 234: /* keyword: ICE_LONG  */
-#line 2551 "src/Slice/Grammar.y"
+#line 2553 "src/Slice/Grammar.y"
            {}
-#line 4698 "src/Slice/Grammar.cpp"
+#line 4700 "src/Slice/Grammar.cpp"
     break;
 
   case 235: /* keyword: ICE_ULONG  */
-#line 2552 "src/Slice/Grammar.y"
+#line 2554 "src/Slice/Grammar.y"
             {}
-#line 4704 "src/Slice/Grammar.cpp"
+#line 4706 "src/Slice/Grammar.cpp"
     break;
 
   case 236: /* keyword: ICE_VARLONG  */
-#line 2553 "src/Slice/Grammar.y"
+#line 2555 "src/Slice/Grammar.y"
               {}
-#line 4710 "src/Slice/Grammar.cpp"
+#line 4712 "src/Slice/Grammar.cpp"
     break;
 
   case 237: /* keyword: ICE_VARULONG  */
-#line 2554 "src/Slice/Grammar.y"
+#line 2556 "src/Slice/Grammar.y"
                {}
-#line 4716 "src/Slice/Grammar.cpp"
+#line 4718 "src/Slice/Grammar.cpp"
     break;
 
   case 238: /* keyword: ICE_FLOAT  */
-#line 2555 "src/Slice/Grammar.y"
+#line 2557 "src/Slice/Grammar.y"
             {}
-#line 4722 "src/Slice/Grammar.cpp"
+#line 4724 "src/Slice/Grammar.cpp"
     break;
 
   case 239: /* keyword: ICE_DOUBLE  */
-#line 2556 "src/Slice/Grammar.y"
+#line 2558 "src/Slice/Grammar.y"
              {}
-#line 4728 "src/Slice/Grammar.cpp"
+#line 4730 "src/Slice/Grammar.cpp"
     break;
 
   case 240: /* keyword: ICE_STRING  */
-#line 2557 "src/Slice/Grammar.y"
+#line 2559 "src/Slice/Grammar.y"
              {}
-#line 4734 "src/Slice/Grammar.cpp"
+#line 4736 "src/Slice/Grammar.cpp"
     break;
 
   case 241: /* keyword: ICE_OBJECT  */
-#line 2558 "src/Slice/Grammar.y"
+#line 2560 "src/Slice/Grammar.y"
              {}
-#line 4740 "src/Slice/Grammar.cpp"
+#line 4742 "src/Slice/Grammar.cpp"
     break;
 
   case 242: /* keyword: ICE_CONST  */
-#line 2559 "src/Slice/Grammar.y"
+#line 2561 "src/Slice/Grammar.y"
             {}
-#line 4746 "src/Slice/Grammar.cpp"
+#line 4748 "src/Slice/Grammar.cpp"
     break;
 
   case 243: /* keyword: ICE_FALSE  */
-#line 2560 "src/Slice/Grammar.y"
+#line 2562 "src/Slice/Grammar.y"
             {}
-#line 4752 "src/Slice/Grammar.cpp"
+#line 4754 "src/Slice/Grammar.cpp"
     break;
 
   case 244: /* keyword: ICE_TRUE  */
-#line 2561 "src/Slice/Grammar.y"
+#line 2563 "src/Slice/Grammar.y"
            {}
-#line 4758 "src/Slice/Grammar.cpp"
+#line 4760 "src/Slice/Grammar.cpp"
     break;
 
   case 245: /* keyword: ICE_IDEMPOTENT  */
-#line 2562 "src/Slice/Grammar.y"
+#line 2564 "src/Slice/Grammar.y"
                  {}
-#line 4764 "src/Slice/Grammar.cpp"
+#line 4766 "src/Slice/Grammar.cpp"
     break;
 
   case 246: /* keyword: ICE_TAG  */
-#line 2563 "src/Slice/Grammar.y"
+#line 2565 "src/Slice/Grammar.y"
           {}
-#line 4770 "src/Slice/Grammar.cpp"
+#line 4772 "src/Slice/Grammar.cpp"
     break;
 
   case 247: /* keyword: ICE_OPTIONAL  */
-#line 2564 "src/Slice/Grammar.y"
+#line 2566 "src/Slice/Grammar.y"
                {}
-#line 4776 "src/Slice/Grammar.cpp"
+#line 4778 "src/Slice/Grammar.cpp"
     break;
 
   case 248: /* keyword: ICE_ANYCLASS  */
-#line 2565 "src/Slice/Grammar.y"
+#line 2567 "src/Slice/Grammar.y"
                {}
-#line 4782 "src/Slice/Grammar.cpp"
+#line 4784 "src/Slice/Grammar.cpp"
     break;
 
   case 249: /* keyword: ICE_VALUE  */
-#line 2566 "src/Slice/Grammar.y"
+#line 2568 "src/Slice/Grammar.y"
             {}
-#line 4788 "src/Slice/Grammar.cpp"
+#line 4790 "src/Slice/Grammar.cpp"
     break;
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -9246,6 +9382,9 @@ yyreduce:
 =======
 #line 4792 "src/Slice/Grammar.cpp"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 4794 "src/Slice/Grammar.cpp"
+>>>>>>> Cosmetic changes.
 
       default: break;
     }
@@ -9448,6 +9587,7 @@ yyreturn:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #line 2464 "src/Slice/Grammar.y"
 =======
 #line 2445 "src/Slice/Grammar.y"
@@ -9461,4 +9601,7 @@ yyreturn:
 =======
 #line 2569 "src/Slice/Grammar.y"
 >>>>>>> Added better error handling logic to the parser.
+=======
+#line 2571 "src/Slice/Grammar.y"
+>>>>>>> Cosmetic changes.
 

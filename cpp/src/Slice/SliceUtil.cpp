@@ -650,7 +650,7 @@ Slice::prependA(const string& s)
 }
 
 TypePtr
-Slice::rewrapIfOptional(const TypePtr& oldType, const TypePtr& newType)
+Slice::rewrapIfOptional(const TypePtr& newType, const TypePtr& oldType)
 {
     if (OptionalPtr::dynamicCast(oldType))
     {

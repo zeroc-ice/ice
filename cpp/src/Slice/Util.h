@@ -69,7 +69,7 @@ ciequals(const std::string& a, const std::string& b);
 std::string
 prependA(const std::string& s);
 
-TypePtr rewrapIfOptional(const TypePtr& oldType, const TypePtr& newType);
+TypePtr rewrapIfOptional(const TypePtr& newType, const TypePtr& oldType);
 TypePtr unwrapIfOptional(const TypePtr& type);
 TypePtr unwrapIfAlias(const TypePtr& type);
 TypePtr unwrapType(const TypePtr& type);
