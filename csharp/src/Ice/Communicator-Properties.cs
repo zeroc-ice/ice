@@ -235,10 +235,11 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Gets the value of a property as a proxy. If the property is not set, returns null. For ice2
-        /// proxies, this method is equivalent to parsing the property's value.</summary>
-        /// <param name="name">The property name. For ice1 proxies, the property name is also used as the prefix for
-        /// proxy options.</param>
+        /// <summary>Gets the value of a property as a proxy. If the property is not set, returns null. For ice1
+        /// proxies, this method uses the property name to lookup sub-properties such as Name.InvocationTimeout and
+        /// fill-in the corresponding property of new proxy. For ice2 proxies, this method is equivalent to parsing the
+        /// property's value.</summary>
+        /// <param name="name">The property name.</param>
         /// <param name="factory">The proxy factory. Use IAPrx.Factory to create IAPrx proxies.</param>
         /// <returns>The property value parsed into a proxy or null.</returns>
         public T? GetPropertyAsProxy<T>(string name, ProxyFactory<T> factory) where T : class, IObjectPrx
