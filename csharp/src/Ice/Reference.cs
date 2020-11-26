@@ -102,6 +102,7 @@ namespace ZeroC.Ice
             Identity identity;
             InvocationMode invocationMode = InvocationMode.Twoway;
             TimeSpan? invocationTimeout = null;
+            object? label = null;
             IReadOnlyList<string> location;
             bool? preferExistingConnection = null;
             NonSecure? preferNonSecure = null;
@@ -154,6 +155,7 @@ namespace ZeroC.Ice
                 (cacheConnection,
                  context,
                  invocationTimeout,
+                 label,
                  locatorCacheTimeout,
                  preferExistingConnection,
                  preferNonSecure,
@@ -196,6 +198,8 @@ namespace ZeroC.Ice
                     {
                         throw new InvalidConfigurationException($"{property}: 0 is not a valid value");
                     }
+
+                    label = communicator.GetProperty($"{propertyPrefix}.Label");
 
                     property = $"{propertyPrefix}.Locator";
                     locatorInfo = communicator.GetLocatorInfo(
@@ -620,6 +624,13 @@ namespace ZeroC.Ice
                     sb.Append(TimeSpanExtensions.ToPropertyValue(invocationTimeout));
                 }
 
+                if (Label != null)
+                {
+                    StartQueryOption(sb, ref firstOption);
+                    sb.Append("label=");
+                    sb.Append(Label.ToString());
+                }
+
                 if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
                 {
                     StartQueryOption(sb, ref firstOption);
@@ -652,8 +663,6 @@ namespace ZeroC.Ice
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("relative=true");
                 }
-
-                // TODO: add missing connection-id / label
 
                 if (Endpoints.Count > 1)
                 {
@@ -1459,7 +1468,6 @@ namespace ZeroC.Ice
                 {
                     properties[$"{prefix}.CacheConnection"] = "false";
                 }
-                // TODO: add connection ID
 
                 // We don't output context as this would require hard-to-generate escapes.
 
@@ -1467,6 +1475,10 @@ namespace ZeroC.Ice
                 {
                     // For ice2 the invocation timeout is included in the URI
                     properties[$"{prefix}.InvocationTimeout"] = invocationTimeout.ToPropertyValue();
+                }
+                if (Label is object label)
+                {
+                    properties[$"{prefix}.Label"] = label.ToString() ?? "";
                 }
                 if (LocatorInfo != null)
                 {

@@ -93,8 +93,7 @@ namespace ZeroC.Ice
                                                                         cancel).ConfigureAwait(false);
                     lock (_mutex)
                     {
-                        if (!_outgoingConnections.TryGetValue((endpoint, label),
-                            out List<Connection>? list))
+                        if (!_outgoingConnections.TryGetValue((endpoint, label), out List<Connection>? list))
                         {
                             list = new List<Connection>();
                             _outgoingConnections[(endpoint, label)] = list;
@@ -127,7 +126,8 @@ namespace ZeroC.Ice
             {
                 foreach (Endpoint endpoint in endpoints)
                 {
-                    if (_outgoingConnections.TryGetValue((endpoint, label), out List<Connection>? connections) &&
+                    if (_outgoingConnections.TryGetValue((endpoint, label),
+                                                         out List<Connection>? connections) &&
                         connections.FirstOrDefault(
                             connection => connection.IsActive && connection.CanTrust(preferNonSecure))
                         is Connection connection)
