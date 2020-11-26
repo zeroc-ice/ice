@@ -28,7 +28,8 @@ namespace ZeroC.Ice.Test.ACM
             string endpoint = TestHelper.GetTestEndpoint(properties: communicator.GetProperties(), ephemeral: true);
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("TestAdapter",
                 endpoint,
-                taskScheduler: schedulerPair.ExclusiveScheduler);
+                taskScheduler: schedulerPair.ExclusiveScheduler,
+                cancel: cancel);
 
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
