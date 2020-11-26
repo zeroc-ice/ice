@@ -305,6 +305,16 @@ namespace ZeroC.Ice
             CancellationToken cancel = default) =>
             IceInvokeAsync(Request.IceIsA(this, id, context, cancel), Response.IceIsA, progress);
 
+        public Task<System.IO.Stream> IceStreamAsync(
+            System.IO.Stream ioStream,
+            IReadOnlyDictionary<string, string>? context = null,
+            IProgress<bool>? progress = null,
+            CancellationToken cancel = default)
+        {
+            OutgoingRequestFrame request = Request.IcePing(this, context, cancel);
+            request.StreamDataWriter = socketStream => socketStream.SendDataFrameAsync(ioStream, cancel);
+        }
+
         /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>

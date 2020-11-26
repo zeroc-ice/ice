@@ -65,6 +65,10 @@ namespace ZeroC.Ice
         /// <summary>The frame data.</summary>
         internal ArraySegment<byte> Data { get; set; }
 
+        /// <summary>The socket stream used to receive data for input stream parameters. It's only assigned if the
+        /// socket stream wasn't finished after reading this frame.</summary>
+        internal SocketStream? SocketStream { get; set; }
+
         private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;
 
         private readonly int _maxSize;

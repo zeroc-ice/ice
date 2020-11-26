@@ -688,8 +688,8 @@ public:
     Mode sendMode() const; // TODO: remove
     bool isIdempotent() const { return _mode == Idempotent; }
     bool hasMarshaledResult() const;
-    MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
-    MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int);
+    MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int, bool);
+    MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int, bool);
     MemberList params() const;
     MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
     MemberList returnType() const;
@@ -1035,6 +1035,7 @@ public:
     TypePtr type() const;
     bool tagged() const;
     int tag() const;
+    bool stream() const;
     std::string defaultValue() const;
     std::string defaultLiteral() const;
     SyntaxTreeBasePtr defaultValueType() const;
@@ -1047,7 +1048,7 @@ public:
 
 protected:
 
-    Member(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+    Member(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, bool, const SyntaxTreeBasePtr& = nullptr,
                const std::string& = "", const std::string& = "");
 
     friend class DataMemberContainer;
@@ -1056,6 +1057,7 @@ protected:
     TypePtr _type;
     bool _tagged;
     int _tag;
+    bool _stream;
     SyntaxTreeBasePtr _defaultValueType;
     std::string _defaultValue;
     std::string _defaultLiteral;

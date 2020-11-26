@@ -48,6 +48,7 @@ namespace ZeroC.Ice
         /// the Ice protocol header. If a header is returned here, the implementation of the SendAsync method should
         /// this header to be set at the start of the first segment.</summary>
         protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
+        protected abstract bool ReceivedEndOfStream { get; }
 
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>
         internal event Action<long>? Reset;
@@ -59,6 +60,7 @@ namespace ZeroC.Ice
         // is called. Once it's assigned, it's immutable. The specialization of the stream is responsible for not
         // accessing this data member concurrently when it's not safe.
         private long _id = -1;
+        private bool _sentEndOfStream;
         private readonly MultiStreamSocket _socket;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
@@ -72,11 +74,11 @@ namespace ZeroC.Ice
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>Receives data in the given buffer and returns once the buffer is filled.</summary>
+        /// <summary>Receives data in the given buffer and return the number of received bytes.</summary>
         /// <param name="buffer">The buffer to store the received data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <return>True if no more data will be received over this stream, False otherwise.</return>
-        protected abstract ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
+        /// <return>The number of bytes received.</return>
+        protected abstract ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel);
 
         /// <summary>Resets the stream.</summary>
         /// <param name="errorCode">The error code indicating the reason of the reset to transmit to the peer.</param>
@@ -124,9 +126,8 @@ namespace ZeroC.Ice
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.GoAway;
 
-            (ArraySegment<byte> data, bool fin) =
-                await ReceiveFrameAsync(frameType, CancellationToken.None).ConfigureAwait(false);
-            if (!fin)
+            ArraySegment<byte> data = await ReceiveFrameAsync(frameType, CancellationToken.None).ConfigureAwait(false);
+            if (!ReceivedEndOfStream)
             {
                 throw new InvalidDataException($"expected end of stream after GoAway frame");
             }
@@ -159,8 +160,8 @@ namespace ZeroC.Ice
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.ValidateConnection : (byte)Ice2Definitions.FrameType.Initialize;
 
-            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
-            if (fin)
+            ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
+            if (!ReceivedEndOfStream)
             {
                 throw new InvalidDataException($"received unexpected end of stream after initialize frame");
             }
@@ -212,12 +213,12 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<(IncomingRequestFrame, bool)> ReceiveRequestFrameAsync(CancellationToken cancel)
+        internal async ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1Definitions.FrameType.Request : (byte)Ice2Definitions.FrameType.Request;
 
-            (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
+            ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
             var request = new IncomingRequestFrame(_socket.Endpoint.Protocol,
                                                    data,
@@ -228,17 +229,21 @@ namespace ZeroC.Ice
                 _socket.TraceFrame(Id, request);
             }
 
-            return (request, fin);
+            if (!ReceivedEndOfStream)
+            {
+                request.SocketStream = this;
+            }
+            return request;
         }
 
-        internal async ValueTask<(IncomingResponseFrame, bool)> ReceiveResponseFrameAsync(CancellationToken cancel)
+        internal async ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
         {
             try
             {
                 byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                     (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
 
-                (ArraySegment<byte> data, bool fin) = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
+                ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
                 var response = new IncomingResponseFrame(_socket.Endpoint.Protocol,
                                                          data,
@@ -248,7 +253,12 @@ namespace ZeroC.Ice
                 {
                     TraceFrame(response);
                 }
-                return (response, fin);
+
+                if (!ReceivedEndOfStream)
+                {
+                    response.SocketStream = this;
+                }
+                return response;
             }
             catch (OperationCanceledException)
             {
@@ -302,6 +312,38 @@ namespace ZeroC.Ice
             }
         }
 
+        internal void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel)
+        {
+            Task.Run(async () =>
+                {
+                    ArraySegment<byte> receiveBuffer = new byte[1024];
+                    var sendBuffers = new List<ArraySegment<byte>>(1);
+                    while (true)
+                    {
+                        try
+                        {
+                            int received = await ioStream.ReadAsync(receiveBuffer, cancel).ConfigureAwait(false);
+                            sendBuffers[0] = receiveBuffer.Slice(0, received);
+                            await SendAsync(sendBuffers, received == 0, cancel).ConfigureAwait(false);
+                            if (received == 0)
+                            {
+                                break;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            await ResetAsync((long)StreamResetErrorCode.StopStreamingData).ConfigureAwait(false);
+                            break;
+                        }
+                    }
+                    _sentEndOfStream = true;
+                    TryDispose();
+                },
+                cancel);
+        }
+
+        internal System.IO.Stream ReceiveDataIntoIOStream() => new IOStream(this);
+
         internal virtual async ValueTask SendInitializeFrameAsync(CancellationToken cancel)
         {
             if (_socket.Endpoint.Protocol == Protocol.Ice1)
@@ -348,12 +390,11 @@ namespace ZeroC.Ice
 
         internal async ValueTask SendRequestFrameAsync(
             OutgoingRequestFrame request,
-            bool fin,
             CancellationToken cancel)
         {
             try
             {
-                await SendFrameAsync(request, fin, cancel).ConfigureAwait(false);
+                await SendFrameAsync(request, cancel).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -365,10 +406,22 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, bool fin, CancellationToken cancel) =>
-             SendFrameAsync(response, fin, cancel);
+        internal ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, CancellationToken cancel) =>
+            SendFrameAsync(response, cancel);
 
-        private protected virtual async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
+        internal void TraceFrame(object frame, byte type = 0, byte compress = 0) =>
+            _socket.TraceFrame(Id, frame, type, compress);
+
+        internal void TryDispose()
+        {
+            if (IsBidirectional ? (ReceivedEndOfStream && _sentEndOfStream) :
+                                  (IsIncoming ? ReceivedEndOfStream : _sentEndOfStream))
+            {
+                Dispose();
+            }
+        }
+
+        private protected virtual async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
             byte expectedFrameType,
             CancellationToken cancel)
         {
@@ -377,7 +430,7 @@ namespace ZeroC.Ice
 
             // Read the Ice2 protocol header (byte frameType, varulong size)
             ArraySegment<byte> buffer = new byte[256];
-            bool fin = await ReceiveAsync(buffer.Slice(0, 2), cancel).ConfigureAwait(false);
+            await ReceiveFullAsync(buffer.Slice(0, 2), cancel).ConfigureAwait(false);
             var frameType = (Ice2Definitions.FrameType)buffer[0];
             if ((byte)frameType != expectedFrameType)
             {
@@ -388,7 +441,7 @@ namespace ZeroC.Ice
             int sizeLength = buffer[1].ReadSizeLength20();
             if (sizeLength > 1)
             {
-                fin = await ReceiveAsync(buffer.Slice(2, sizeLength - 1), cancel).ConfigureAwait(false);
+                await ReceiveFullAsync(buffer.Slice(2, sizeLength - 1), cancel).ConfigureAwait(false);
             }
             int size = buffer.Slice(1).AsReadOnlySpan().ReadSize20().Size;
 
@@ -400,14 +453,14 @@ namespace ZeroC.Ice
                     throw new InvalidDataException($"frame with {size} bytes exceeds Ice.IncomingFrameMaxSize value");
                 }
                 buffer = size > buffer.Array!.Length ? new ArraySegment<byte>(new byte[size]) : buffer.Slice(0, size);
-                fin = await ReceiveAsync(buffer, cancel).ConfigureAwait(false);
+                await ReceiveFullAsync(buffer, cancel).ConfigureAwait(false);
             }
-            return (buffer, fin);
+
+            return buffer;
         }
 
         private protected virtual async ValueTask SendFrameAsync(
             OutgoingFrame frame,
-            bool fin,
             CancellationToken cancel)
         {
             // The default implementation only supports the Ice2 protocol
@@ -447,15 +500,84 @@ namespace ZeroC.Ice
             data.Add(headerData);
             data.AddRange(frame.Data);
 
-            await SendAsync(data, fin, cancel).ConfigureAwait(false);
+            // If there's no data to stream, this is last frame to be sent on the stream.
+            _sentEndOfStream = frame.StreamDataWriter == null;
+
+            await SendAsync(data, _sentEndOfStream, cancel).ConfigureAwait(false);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame(frame);
             }
+
+            if (_sentEndOfStream)
+            {
+                TryDispose();
+            }
+            else
+            {
+                Debug.Assert(frame.StreamDataWriter != null);
+                frame.StreamDataWriter(this);
+            }
         }
 
-        internal void TraceFrame(object frame, byte type = 0, byte compress = 0) =>
-            _socket.TraceFrame(Id, frame, type, compress);
+        private async ValueTask ReceiveFullAsync(Memory<byte> buffer, CancellationToken cancel)
+        {
+            int offset = 0;
+            while (offset < buffer.Length)
+            {
+                int received = await ReceiveAsync(buffer[offset..], cancel).ConfigureAwait(false);
+                if (received == 0)
+                {
+                    throw new InvalidDataException("unexpected end of stream");
+                }
+                offset += received;
+            }
+        }
+
+        private class IOStream : System.IO.Stream
+        {
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotImplementedException();
+
+            public override long Position
+            {
+                get => throw new NotImplementedException();
+                set => throw new NotImplementedException();
+            }
+
+            private readonly SocketStream _stream;
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                try
+                {
+                    return ReadAsync(buffer, offset, count, CancellationToken.None).Result;
+                }
+                catch (AggregateException ex)
+                {
+                    Debug.Assert(ex.InnerException != null);
+                    throw ExceptionUtil.Throw(ex.InnerException);
+                }
+            }
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancel) =>
+                _stream.ReceiveAsync(new Memory<byte>(buffer, offset, count), cancel);
+
+            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancel) =>
+                _stream.ReceiveAsync(buffer, cancel);
+
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotImplementedException();
+            public override void Flush() => throw new NotImplementedException();
+            public override long Seek(long offset, System.IO.SeekOrigin origin) => throw new NotImplementedException();
+            public override void SetLength(long value) => throw new NotImplementedException();
+
+            internal IOStream(SocketStream stream) => _stream = stream;
+        }
     }
 }

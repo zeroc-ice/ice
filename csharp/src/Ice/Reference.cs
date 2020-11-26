@@ -769,6 +769,7 @@ namespace ZeroC.Ice
                         bool sent = false;
                         RetryPolicy retryPolicy = RetryPolicy.NoRetry;
                         IChildInvocationObserver? childObserver = null;
+                        SocketStream? stream = null;
                         try
                         {
                             // Get the connection, this will eventually establish a connection if needed.
@@ -779,16 +780,15 @@ namespace ZeroC.Ice
                             cancel.ThrowIfCancellationRequested();
 
                             // Create the outgoing stream.
-                            using SocketStream stream = connection.CreateStream(!oneway);
+                            stream = connection.CreateStream(!oneway);
 
                             childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
                             childObserver?.Attach();
 
                             // TODO: support for streaming data, fin should be false if there's data to stream.
-                            bool fin = true;
 
                             // Send the request and wait for the sending to complete.
-                            await stream.SendRequestFrameAsync(request, fin, cancel).ConfigureAwait(false);
+                            await stream.SendRequestFrameAsync(request, cancel).ConfigureAwait(false);
 
                             // The request is sent, notify the progress callback.
                             // TODO: Get rid of the sentSynchronously parameter which is always false now?
@@ -815,7 +815,7 @@ namespace ZeroC.Ice
                             // complex. So get rid of the synchronous boolean and simplify the proxy generated code?
 
                             // Wait for the reception of the response.
-                            (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+                            response = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
 
                             if (childObserver != null)
                             {
@@ -824,11 +824,6 @@ namespace ZeroC.Ice
                                 childObserver.Reply(response.Size);
                                 childObserver.Detach();
                                 childObserver = null;
-                            }
-
-                            if (!fin)
-                            {
-                                // TODO: handle received stream data.
                             }
 
                             // If success, just return the response!
@@ -886,6 +881,7 @@ namespace ZeroC.Ice
                         }
                         finally
                         {
+                            stream?.TryDispose();
                             childObserver?.Detach();
                         }
 
@@ -1411,6 +1407,7 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException($"{nameof(router)} must be an ice1 proxy", nameof(router));
                 }
+
                 if (locatorCacheTimeout != null &&
                     locatorCacheTimeout < TimeSpan.Zero && locatorCacheTimeout != Timeout.InfiniteTimeSpan)
                 {
