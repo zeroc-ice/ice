@@ -104,9 +104,7 @@ namespace ZeroC.Ice
         /// inner exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        public TransportException(
-            Exception innerException,
-            RetryPolicy retryPolicy = default)
+        public TransportException(Exception innerException, RetryPolicy retryPolicy = default)
             : base("", innerException) => RetryPolicy = retryPolicy;
 
         /// <summary>Constructs a new instance of the <see cref="LoadException"/> class with a specified error message
@@ -166,9 +164,7 @@ namespace ZeroC.Ice
         /// to the inner exception that is the cause of this exception.</summary>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="retryPolicy">The exception retry policy.</param>
-        public ConnectionRefusedException(
-            Exception innerException,
-            RetryPolicy retryPolicy = default)
+        public ConnectionRefusedException(Exception innerException, RetryPolicy retryPolicy = default)
             : base(innerException, retryPolicy)
         {
         }

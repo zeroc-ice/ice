@@ -116,7 +116,7 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     // If the connection was closed before the delegate was set execute it immediately otherwise
-                    // it will be called once the connection is close
+                    // it will be called once the connection is closed.
                     if (_state == ConnectionState.Closed)
                     {
                         Task.Run(() => value?.Invoke(this));
