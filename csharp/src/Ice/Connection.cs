@@ -44,10 +44,6 @@ namespace ZeroC.Ice
         /// <summary>Gets the communicator.</summary>
         public Communicator Communicator { get; }
 
-        /// <summary>Gets the connection ID which was used to create the connection.</summary>
-        /// <value>The connection ID used to create the connection.</value>
-        public string ConnectionId { get; }
-
         /// <summary>Gets the endpoint from which the connection was created.</summary>
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
@@ -99,6 +95,11 @@ namespace ZeroC.Ice
         /// <summary>Enables or disables the keep alive. When enabled, the connection is kept alive by sending ping
         /// frames at regular time intervals when the connection is idle.</summary>
         public bool KeepAlive { get; set; }
+
+        /// <summary>Gets the label which was used to create the connection, can be non-null only for outgoing
+        /// connections</summary>
+        /// <value>The label which was used to create the connection.</value>
+        public object? Label { get; }
 
         /// <summary>The peer's incoming frame maximum size. This is only supported with ice2 connections. For
         /// ice1 connections, the value is always -1.</summary>
@@ -241,12 +242,12 @@ namespace ZeroC.Ice
         internal Connection(
             Endpoint endpoint,
             MultiStreamSocket socket,
-            string connectionId,
+            object? label,
             ObjectAdapter? adapter)
         {
             Communicator = endpoint.Communicator;
             Socket = socket;
-            ConnectionId = connectionId;
+            Label = label;
             Endpoint = endpoint;
             KeepAlive = Communicator.KeepAlive;
             IsIncoming = adapter != null;
@@ -743,9 +744,9 @@ namespace ZeroC.Ice
         internal ColocatedConnection(
             Endpoint endpoint,
             ColocatedSocket socket,
-            string connectionId,
+            object? label,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, connectionId, adapter)
+            : base(endpoint, socket, label, adapter)
         {
         }
 
@@ -792,9 +793,9 @@ namespace ZeroC.Ice
         internal IPConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            string connectionId,
+            object? label,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, connectionId, adapter) => _socket = socket;
+            : base(endpoint, socket, label, adapter) => _socket = socket;
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -835,9 +836,9 @@ namespace ZeroC.Ice
         internal TcpConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            string connectionId,
+            object? label,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, connectionId, adapter)
+            : base(endpoint, socket, label, adapter)
         {
         }
 
@@ -875,9 +876,9 @@ namespace ZeroC.Ice
         internal UdpConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            string connectionId,
+            object? label,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, connectionId, adapter) =>
+            : base(endpoint, socket, label, adapter) =>
             _udpSocket = (UdpSocket)_socket.Underlying;
 
         internal override bool CanTrust(NonSecure preferNonSecure) => true;
@@ -894,9 +895,9 @@ namespace ZeroC.Ice
         internal WSConnection(
             Endpoint endpoint,
             MultiStreamOverSingleStreamSocket socket,
-            string connectionId,
+            object? label,
             ObjectAdapter? adapter)
-            : base(endpoint, socket, connectionId, adapter) =>
+            : base(endpoint, socket, label, adapter) =>
             _wsSocket = (WSSocket)_socket.Underlying;
     }
 }

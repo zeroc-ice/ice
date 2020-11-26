@@ -43,7 +43,7 @@ namespace ZeroC.Ice
 
         protected internal async override Task<Connection> ConnectAsync(
             NonSecure preferNonSecure,
-            object cookie,
+            object? label,
             CancellationToken cancel)
         {
             IObserver? observer = Communicator.Observer?.GetConnectionEstablishmentObserver(
@@ -78,7 +78,7 @@ namespace ZeroC.Ice
                 var connection = new ColocatedConnection(
                     this,
                     new ColocatedSocket(this, id, reader.Writer, writer.Reader, false),
-                    connectionId: (string)cookie,
+                    label,
                     adapter: null);
                 await connection.InitializeAsync(cancel).ConfigureAwait(false);
                 return connection;

@@ -12,9 +12,9 @@ namespace ZeroC.Ice
 {
     public sealed partial class Communicator
     {
-        private readonly Dictionary<(Endpoint, object), List<Connection>> _outgoingConnections =
+        private readonly Dictionary<(Endpoint, object?), List<Connection>> _outgoingConnections =
             new(ConnectionMapKeyComparer.Instance);
-        private readonly Dictionary<(Endpoint, object), Task<Connection>> _pendingOutgoingConnections =
+        private readonly Dictionary<(Endpoint, object?), Task<Connection>> _pendingOutgoingConnections =
             new(ConnectionMapKeyComparer.Instance);
         // We keep a map of the endpoints that recently resulted in a failure while establishing a connection. This is
         // used to influence the selection of endpoints when creating new connections. Endpoints with recent failures
@@ -24,7 +24,7 @@ namespace ZeroC.Ice
         internal async ValueTask<Connection> ConnectAsync(
             Endpoint endpoint,
             NonSecure preferNonSecure,
-            object cookie,
+            object? label,
             CancellationToken cancel)
         {
             Task<Connection>? connectTask;
@@ -34,7 +34,7 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     // Check if there is an active connection that we can use according to the endpoint settings.
-                    if (_outgoingConnections.TryGetValue((endpoint, cookie), out List<Connection>? connections))
+                    if (_outgoingConnections.TryGetValue((endpoint, label), out List<Connection>? connections))
                     {
                         if (preferNonSecure != NonSecure.Never)
                         {
@@ -54,15 +54,15 @@ namespace ZeroC.Ice
                     }
 
                     // If we didn't find an active connection check if there is a pending connect task for the same
-                    // endpoint and cookie.
-                    if (!_pendingOutgoingConnections.TryGetValue((endpoint, cookie), out connectTask))
+                    // endpoint and label.
+                    if (!_pendingOutgoingConnections.TryGetValue((endpoint, label), out connectTask))
                     {
-                        connectTask = PerformConnectAsync(endpoint, preferNonSecure, cookie);
+                        connectTask = PerformConnectAsync(endpoint, preferNonSecure, label);
                         if (!connectTask.IsCompleted)
                         {
                             // If the task didn't complete synchronously we add it to the pending map
                             // and it will be removed once PerformConnectAsync completes.
-                            _pendingOutgoingConnections[(endpoint, cookie)] = connectTask;
+                            _pendingOutgoingConnections[(endpoint, label)] = connectTask;
                         }
                     }
                 }
@@ -81,7 +81,7 @@ namespace ZeroC.Ice
             async Task<Connection> PerformConnectAsync(
                 Endpoint endpoint,
                 NonSecure preferNonSecure,
-                object cookie)
+                object? label)
             {
                 try
                 {
@@ -89,21 +89,21 @@ namespace ZeroC.Ice
                     using var source = new CancellationTokenSource(ConnectTimeout);
                     CancellationToken cancel = source.Token;
                     Connection connection = await endpoint.ConnectAsync(preferNonSecure,
-                                                                        cookie,
+                                                                        label,
                                                                         cancel).ConfigureAwait(false);
                     lock (_mutex)
                     {
-                        if (!_outgoingConnections.TryGetValue((endpoint, cookie),
+                        if (!_outgoingConnections.TryGetValue((endpoint, label),
                             out List<Connection>? list))
                         {
                             list = new List<Connection>();
-                            _outgoingConnections[(endpoint, cookie)] = list;
+                            _outgoingConnections[(endpoint, label)] = list;
                         }
 
                         list.Add(connection);
                     }
                     // Set the callback used to remove the connection from the factory.
-                    connection.Remove = connection => Remove(connection, cookie);
+                    connection.Remove = connection => Remove(connection, label);
                     return connection;
                 }
                 catch (TransportException)
@@ -115,19 +115,19 @@ namespace ZeroC.Ice
                 {
                     lock (_mutex)
                     {
-                        _pendingOutgoingConnections.Remove((endpoint, cookie));
+                        _pendingOutgoingConnections.Remove((endpoint, label));
                     }
                 }
             }
         }
 
-        internal Connection? GetConnection(List<Endpoint> endpoints, NonSecure preferNonSecure, object cookie)
+        internal Connection? GetConnection(List<Endpoint> endpoints, NonSecure preferNonSecure, object? label)
         {
             lock (_mutex)
             {
                 foreach (Endpoint endpoint in endpoints)
                 {
-                    if (_outgoingConnections.TryGetValue((endpoint, cookie), out List<Connection>? connections) &&
+                    if (_outgoingConnections.TryGetValue((endpoint, label), out List<Connection>? connections) &&
                         connections.FirstOrDefault(
                             connection => connection.IsActive && connection.CanTrust(preferNonSecure))
                         is Connection connection)
@@ -155,7 +155,7 @@ namespace ZeroC.Ice
                 endpoint => _transportFailures.TryGetValue(endpoint, out DateTime value) ? value : default);
         }
 
-        internal void Remove(Connection connection, object label)
+        internal void Remove(Connection connection, object? label)
         {
             lock (_mutex)
             {
@@ -195,17 +195,16 @@ namespace ZeroC.Ice
             }
         }
 
-        private class ConnectionMapKeyComparer : EqualityComparer<(Endpoint Endpoint, object Cookie)>
+        private class ConnectionMapKeyComparer : EqualityComparer<(Endpoint Endpoint, object? Label)>
         {
             internal static ConnectionMapKeyComparer Instance = new();
 
-            public override bool Equals((Endpoint Endpoint, object Cookie) lhs,
-                                        (Endpoint Endpoint, object Cookie) rhs) =>
-                lhs.Endpoint.IsEquivalent(rhs.Endpoint) &&
-                lhs.Cookie.Equals(rhs.Cookie);
+            public override bool Equals((Endpoint Endpoint, object? Label) lhs,
+                                        (Endpoint Endpoint, object? Label) rhs) =>
+                lhs.Endpoint.IsEquivalent(rhs.Endpoint) && Equals(lhs.Label, rhs.Label);
 
-            public override int GetHashCode((Endpoint Endpoint, object Cookie) obj) =>
-                HashCode.Combine(obj.Endpoint.GetEquivalentHashCode(), obj.Cookie);
+            public override int GetHashCode((Endpoint Endpoint, object? Label) obj) =>
+                HashCode.Combine(obj.Endpoint.GetEquivalentHashCode(), obj.Label);
         }
     }
 }

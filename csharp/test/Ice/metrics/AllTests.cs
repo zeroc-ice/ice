@@ -420,9 +420,9 @@ namespace ZeroC.Ice.Test.Metrics
 
             metrics.IcePing();
             metrics.IcePing();
-            metrics.Clone(connectionId: "Con1").IcePing();
-            metrics.Clone(connectionId: "Con1").IcePing();
-            metrics.Clone(connectionId: "Con1").IcePing();
+            metrics.Clone(label: "Con1").IcePing();
+            metrics.Clone(label: "Con1").IcePing();
+            metrics.Clone(label: "Con1").IcePing();
 
             WaitForCurrent(clientMetrics, "View", "Invocation", 0);
             WaitForCurrent(serverMetrics, "View", "Dispatch", 0);
@@ -447,7 +447,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(view["Dispatch"][0]!.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0);
 
             metrics.GetConnection().GoAwayAsync();
-            metrics.Clone(connectionId: "Con1").GetConnection().GoAwayAsync();
+            metrics.Clone(label: "Con1").GetConnection().GoAwayAsync();
 
             WaitForCurrent(clientMetrics, "View", "Connection", 0);
             WaitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -602,7 +602,7 @@ namespace ZeroC.Ice.Test.Metrics
                 // CheckFailure(serverMetrics, "Connection", sm1.Id, "ZeroC.Ice.ConnectionLostException", 0, output);
             }
 
-            IMetricsPrx m = metrics.Clone(connectionId: "Con1");
+            IMetricsPrx m = metrics.Clone(label: "Con1");
             m.IcePing();
 
             TestAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
@@ -631,7 +631,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             TestAttribute(clientMetrics, clientProps, update, "Connection", "incoming", "False", output);
             TestAttribute(clientMetrics, clientProps, update, "Connection", "adapterName", "", output);
-            TestAttribute(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1", output);
+            TestAttribute(clientMetrics, clientProps, update, "Connection", "label", "Con1", output);
             if (!colocated)
             {
                 TestAttribute(clientMetrics, clientProps, update, "Connection", "localHost", host, output);
@@ -945,7 +945,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             TestAttribute(serverMetrics, serverProps, update, "Dispatch", "incoming", "True", op, output);
             TestAttribute(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op, output);
-            TestAttribute(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op, output);
+            TestAttribute(serverMetrics, serverProps, update, "Dispatch", "label", "", op, output);
             if (!colocated)
             {
                 TestAttribute(serverMetrics, serverProps, update, "Dispatch", "localHost", host, op, output);

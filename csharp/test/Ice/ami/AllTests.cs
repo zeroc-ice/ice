@@ -809,7 +809,7 @@ namespace ZeroC.Ice.Test.AMI
                     // Local case: start an operation and then close the connection gracefully on the client side
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the
                     // invocation to fail with ConnectionClosedException.
-                    p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
+                    p = p.Clone(label: "CloseGracefully"); // Start with a new connection.
                     Connection con = p.GetConnection();
                     var cb = new CallbackBase();
                     Task t = p.StartDispatchAsync(progress: new Progress(sentSynchronously => cb.Called()));

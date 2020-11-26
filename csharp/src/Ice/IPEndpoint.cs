@@ -104,7 +104,7 @@ namespace ZeroC.Ice
 
         protected internal override async Task<Connection> ConnectAsync(
             NonSecure preferNonSecure,
-            object cookie,
+            object? label,
             CancellationToken cancel)
         {
             INetworkProxy? networkProxy;
@@ -151,7 +151,7 @@ namespace ZeroC.Ice
                         NonSecure.Always => false,
                         _ => true
                     };
-                    connection = CreateConnection(secureOnly, address, networkProxy, cookie);
+                    connection = CreateConnection(secureOnly, address, networkProxy, label);
                     await connection.InitializeAsync(cancel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -176,7 +176,7 @@ namespace ZeroC.Ice
             bool secureOnly,
             IPEndPoint address,
             INetworkProxy? proxy,
-            object cookie);
+            object? label);
 
         protected internal override void WriteOptions(OutputStream ostr)
         {

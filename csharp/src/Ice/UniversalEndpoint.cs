@@ -78,7 +78,7 @@ namespace ZeroC.Ice
 
         protected internal override Task<Connection> ConnectAsync(
             NonSecure preferNonSecure,
-            object cookie,
+            object? label,
             CancellationToken cancel) =>
             throw new NotSupportedException("cannot create a connection to an universal endpoint");
 

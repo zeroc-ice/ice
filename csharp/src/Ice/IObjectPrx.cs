@@ -119,9 +119,6 @@ namespace ZeroC.Ice
         /// <returns>The communicator that created this proxy.</returns>
         public Communicator Communicator => IceReference.Communicator;
 
-        /// <summary>The connection ID of this proxy.</summary>
-        public string ConnectionId => IceReference.ConnectionId;
-
         /// <summary>The context of this proxy, which will be sent with each invocation made using this proxy.
         /// </summary>
         public IReadOnlyDictionary<string, string> Context => IceReference.Context;
@@ -166,6 +163,11 @@ namespace ZeroC.Ice
         /// <value>True when this proxy is marked relative. Such a proxy has no endpoint and cannot be fixed as well.
         /// </value>
         public bool IsRelative => IceReference.IsRelative;
+
+        /// <summary>An optional label that can be used to prevent proxies with identical endpoints to share a
+        /// connection, outgoing connections between equivalent endpoints are shared for proxies with equal labels.
+        /// </summary>
+        public object? Label => IceReference.Label;
 
         /// <summary>Gets the location of this proxy. Ice uses this location to find the target object.</summary>
         public IReadOnlyList<string> Location => IceReference.Location;

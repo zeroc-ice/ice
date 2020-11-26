@@ -24,7 +24,7 @@ namespace ZeroC.Ice
 
             return new ColocatedConnection(_endpoint,
                                            new ColocatedSocket(_endpoint, id, writer, reader, true),
-                                           connectionId: "",
+                                           label: null,
                                            _adapter);
         }
 

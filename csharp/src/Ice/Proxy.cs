@@ -37,11 +37,11 @@ namespace ZeroC.Ice
         /// <param name="prx">The source proxy.</param>
         /// <param name="factory">The proxy factory used to manufacture the clone.</param>
         /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
+        /// <param name="clearLabel">When set to true, the clone does not have an associated label (optional).</param>
         /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
@@ -55,6 +55,7 @@ namespace ZeroC.Ice
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
+        /// <param name="label">The connection ID of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
@@ -70,9 +71,9 @@ namespace ZeroC.Ice
             this IObjectPrx prx,
             ProxyFactory<T> factory,
             bool? cacheConnection = null,
+            bool clearLabel = false,
             bool clearLocator = false,
             bool clearRouter = false,
-            string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
             IEnumerable<Endpoint>? endpoints = null,
@@ -83,6 +84,7 @@ namespace ZeroC.Ice
             IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
+            object? label = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -92,9 +94,9 @@ namespace ZeroC.Ice
             bool? relative = null,
             IRouterPrx? router = null) where T : class, IObjectPrx =>
             factory(prx.IceReference.Clone(cacheConnection,
+                                           clearLabel,
                                            clearLocator,
                                            clearRouter,
-                                           connectionId,
                                            context,
                                            encoding,
                                            endpoints,
@@ -105,6 +107,7 @@ namespace ZeroC.Ice
                                            invocationInterceptors,
                                            invocationMode,
                                            invocationTimeout,
+                                           label,
                                            location,
                                            locator,
                                            locatorCacheTimeout,
@@ -119,11 +122,11 @@ namespace ZeroC.Ice
         /// specified through the parameters change this proxy's options.</summary>
         /// <param name="prx">The source proxy.</param>
         /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
+        /// <param name="clearLabel">When set to true, the clone does not have an associated label (optional).</param>
         /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
@@ -134,6 +137,7 @@ namespace ZeroC.Ice
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
+        /// <param name="label">The connection ID of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
@@ -148,9 +152,9 @@ namespace ZeroC.Ice
         public static T Clone<T>(
             this T prx,
             bool? cacheConnection = null,
+            bool clearLabel = false,
             bool clearLocator = false,
             bool clearRouter = false,
-            string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
             IEnumerable<Endpoint>? endpoints = null,
@@ -158,6 +162,7 @@ namespace ZeroC.Ice
             IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
+            object? label = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -168,9 +173,9 @@ namespace ZeroC.Ice
             IRouterPrx? router = null) where T : IObjectPrx
         {
             Reference clone = prx.IceReference.Clone(cacheConnection,
+                                                     clearLabel,
                                                      clearLocator,
                                                      clearRouter,
-                                                     connectionId,
                                                      context,
                                                      encoding,
                                                      endpoints,
@@ -181,6 +186,7 @@ namespace ZeroC.Ice
                                                      invocationInterceptors,
                                                      invocationMode,
                                                      invocationTimeout,
+                                                     label,
                                                      location,
                                                      locator,
                                                      locatorCacheTimeout,

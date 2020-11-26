@@ -298,9 +298,9 @@ namespace ZeroC.Ice.Test.Retry
 
                         // Use two connections to simulate two concurrent retries, the first should succeed
                         // and the second should fail because the buffer size max.
-                        Task t1 = retry2.Clone(connectionId: "conn-1").OpWithDataAsync(2, 1000, data);
+                        Task t1 = retry2.Clone(label: "conn-1").OpWithDataAsync(2, 1000, data);
                         Thread.Sleep(100); // Ensure the first request it is send before the second request
-                        Task t2 = retry2.Clone(connectionId: "conn-2").OpWithDataAsync(2, 0, data);
+                        Task t2 = retry2.Clone(label: "conn-2").OpWithDataAsync(2, 0, data);
 
                         // T1 succeed, T2 Fail because buffer size max
                         t1.Wait();
@@ -315,7 +315,7 @@ namespace ZeroC.Ice.Test.Retry
                             TestHelper.Assert(ex.InnerException is SystemFailure);
                             retry2.OpWithData(0, 0, Array.Empty<byte>()); // Reset the counter
                         }
-                        retry2.Clone(connectionId: "conn-1").OpWithData(2, 100, data);
+                        retry2.Clone(label: "conn-1").OpWithData(2, 100, data);
                     }
                     output.WriteLine("ok");
                 }

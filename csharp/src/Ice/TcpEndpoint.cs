@@ -202,7 +202,7 @@ namespace ZeroC.Ice
             bool secureOnly,
             IPEndPoint address,
             INetworkProxy? proxy,
-            object cookie)
+            object? label)
         {
             SingleStreamSocket socket = CreateSocket(address, proxy, preferNonSecure: !secureOnly);
             MultiStreamOverSingleStreamSocket multiStreamSocket = Protocol switch
@@ -210,19 +210,14 @@ namespace ZeroC.Ice
                 Protocol.Ice1 => new Ice1NetworkSocket(socket, this, null),
                 _ => new SlicSocket(socket, this, null)
             };
-            return CreateConnection(multiStreamSocket,
-                                    cookie,
-                                    adapter: null);
+            return CreateConnection(multiStreamSocket, label, adapter: null);
         }
 
         protected internal virtual Connection CreateConnection(
             MultiStreamOverSingleStreamSocket socket,
-            object cookie,
+            object? label,
             ObjectAdapter? adapter) =>
-            new TcpConnection(this,
-                              socket,
-                              connectionId: (string)cookie,
-                              adapter);
+            new TcpConnection(this, socket, label, adapter);
 
         private protected static TimeSpan ParseTimeout(Dictionary<string, string?> options, string endpointString)
         {

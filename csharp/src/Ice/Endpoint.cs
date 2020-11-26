@@ -91,12 +91,13 @@ namespace ZeroC.Ice
         /// <summary>Creates a connection to this endpoint.</summary>
         /// <param name="preferNonSecure">Indicates under what conditions establishing a non-secure connection should
         /// be preferred.</param>
-        /// <param name="cookie">A cookie object that can contain transport specific data.</param>
+        /// <param name="label">The corresponding Connection property <see cref="Connection.Label"/> can be non-null
+        /// only for outgoing connections.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>The new established connection.</returns>
         protected internal abstract Task<Connection> ConnectAsync(
             NonSecure preferNonSecure,
-            object cookie,
+            object? label,
             CancellationToken cancel);
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>

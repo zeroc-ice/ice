@@ -22,7 +22,6 @@ namespace ZeroC.Ice
         internal string AdapterId => Location.Count == 0 ? "" : Location[0];
         internal bool CacheConnection { get; } = true;
         internal Communicator Communicator { get; }
-        internal string ConnectionId { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
         internal Encoding Encoding { get; }
         internal IReadOnlyList<Endpoint> Endpoints { get; }
@@ -42,6 +41,7 @@ namespace ZeroC.Ice
         internal bool IsRelative { get; }
 
         internal bool IsWellKnown => IsIndirect && Location.Count == 0;
+        internal object? Label { get; }
         internal IReadOnlyList<string> Location { get; }
 
         internal TimeSpan LocatorCacheTimeout => _locatorCacheTimeout ?? Communicator.DefaultLocatorCacheTimeout;
@@ -254,7 +254,6 @@ namespace ZeroC.Ice
 
             return new Reference(cacheConnection: cacheConnection ?? true,
                                  communicator: communicator,
-                                 connectionId: "",
                                  context: context ?? communicator.DefaultContext,
                                  encoding: encoding,
                                  endpoints: endpoints,
@@ -263,6 +262,7 @@ namespace ZeroC.Ice
                                  invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                  invocationMode: invocationMode,
                                  invocationTimeout: invocationTimeout,
+                                 label: null,
                                  location: location,
                                  locatorCacheTimeout: locatorCacheTimeout,
                                  locatorInfo: locatorInfo ??
@@ -311,11 +311,11 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                if (ConnectionId != other.ConnectionId)
+                if (!Endpoints.SequenceEqual(other.Endpoints))
                 {
                     return false;
                 }
-                if (!Endpoints.SequenceEqual(other.Endpoints))
+                if (Label != other.Label)
                 {
                     return false;
                 }
@@ -422,8 +422,8 @@ namespace ZeroC.Ice
                 else
                 {
                     hash.Add(CacheConnection);
-                    hash.Add(ConnectionId);
                     hash.Add(Endpoints.GetSequenceHashCode());
+                    hash.Add(Label);
                     hash.Add(Location.GetSequenceHashCode());
                     hash.Add(_locatorCacheTimeout);
                     hash.Add(LocatorInfo);
@@ -970,7 +970,6 @@ namespace ZeroC.Ice
             Protocol protocol)
             : this(cacheConnection: true,
                    communicator: communicator,
-                   connectionId: "",
                    context: communicator.DefaultContext,
                    encoding: encoding,
                    endpoints: endpoints,
@@ -979,6 +978,7 @@ namespace ZeroC.Ice
                    invocationInterceptors: invocationInterceptors,
                    invocationMode: invocationMode,
                    invocationTimeout: null,
+                   label: null,
                    location: location,
                    locatorCacheTimeout: null,
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator),
@@ -1013,9 +1013,9 @@ namespace ZeroC.Ice
 
         internal Reference Clone(
             bool? cacheConnection = null,
+            bool clearLabel = false,
             bool clearLocator = false,
             bool clearRouter = false,
-            string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null, // can be provided by app
             Encoding? encoding = null,
             IEnumerable<Endpoint>? endpoints = null, // from app
@@ -1026,6 +1026,7 @@ namespace ZeroC.Ice
             IEnumerable<InvocationInterceptor>? invocationInterceptors = null, // from app
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
+            object? label = null,
             IEnumerable<string>? location = null, // from app
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
@@ -1093,14 +1094,19 @@ namespace ZeroC.Ice
                     throw new ArgumentException("cannot change the connection caching configuration of a fixed proxy",
                         nameof(cacheConnection));
                 }
-                if (connectionId != null)
-                {
-                    throw new ArgumentException("cannot change the connection ID of a fixed proxy",
-                        nameof(connectionId));
-                }
                 if (endpoints != null)
                 {
                     throw new ArgumentException("cannot change the endpoints of a fixed proxy", nameof(endpoints));
+                }
+                if (clearLabel)
+                {
+                    throw new ArgumentException("cannot change the label of a fixed proxy",
+                        nameof(clearLabel));
+                }
+                else if (label != null)
+                {
+                    throw new ArgumentException("cannot change the label of a fixed proxy",
+                        nameof(label));
                 }
                 if (location != null)
                 {
@@ -1166,6 +1172,11 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException($"invalid location `{location}' with an empty segment",
                                                 nameof(location));
+                }
+
+                if (label != null && clearLabel)
+                {
+                    throw new ArgumentException($"cannot set both {nameof(label)} and {nameof(clearLabel)}");
                 }
 
                 if (locator != null && clearLocator)
@@ -1276,7 +1287,6 @@ namespace ZeroC.Ice
 
                 var clone = new Reference(cacheConnection ?? CacheConnection,
                                           Communicator,
-                                          connectionId ?? ConnectionId,
                                           context?.ToImmutableSortedDictionary() ?? Context,
                                           encoding ?? Encoding,
                                           newEndpoints,
@@ -1285,6 +1295,7 @@ namespace ZeroC.Ice
                                           invocationInterceptors?.ToImmutableArray() ?? _invocationInterceptors,
                                           invocationMode ?? InvocationMode,
                                           invocationTimeout ?? _invocationTimeout,
+                                          clearLabel ? null : label ?? Label,
                                           newLocation ?? Location,
                                           locatorCacheTimeout ?? (locatorInfo != null ? _locatorCacheTimeout : null),
                                           locatorInfo, // no fallback otherwise breaks clearLocator
@@ -1384,7 +1395,7 @@ namespace ZeroC.Ice
                     // can reuse, the connection factory will compute the reference endpoints and the endpoint
                     // connectors if required.
                     (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
-                    connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
+                    connection = Communicator.GetConnection(endpoints, PreferNonSecure, Label);
                     if (CacheConnection)
                     {
                         _connection = connection;
@@ -1405,7 +1416,7 @@ namespace ZeroC.Ice
                         {
                             connection = await Communicator.ConnectAsync(endpoint,
                                                                          PreferNonSecure,
-                                                                         ConnectionId,
+                                                                         Label,
                                                                          cancel).ConfigureAwait(false);
                             if (CacheConnection)
                             {
@@ -1468,6 +1479,10 @@ namespace ZeroC.Ice
                 if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
                 {
                     properties[$"{prefix}.LocatorCacheTimeout"] = locatorCacheTimeout.ToPropertyValue();
+                }
+                if (!PreferExistingConnection)
+                {
+                    properties[$"{prefix}.PreferExistingConnection"] = "false";
                 }
                 if (_preferNonSecure is NonSecure preferNonSecure)
                 {
@@ -1543,7 +1558,6 @@ namespace ZeroC.Ice
         private Reference(
             bool cacheConnection,
             Communicator communicator,
-            string connectionId,
             IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
             Encoding encoding,
             IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
@@ -1552,6 +1566,7 @@ namespace ZeroC.Ice
             IReadOnlyList<InvocationInterceptor> invocationInterceptors, // already a copy provided by Ice
             InvocationMode invocationMode,
             TimeSpan? invocationTimeout,
+            object? label,
             IReadOnlyList<string> location, // already a copy provided by Ice
             TimeSpan? locatorCacheTimeout,
             LocatorInfo? locatorInfo,
@@ -1563,7 +1578,7 @@ namespace ZeroC.Ice
         {
             CacheConnection = cacheConnection;
             Communicator = communicator;
-            ConnectionId = connectionId;
+
             Context = context;
             Encoding = encoding;
             Endpoints = endpoints;
@@ -1573,6 +1588,7 @@ namespace ZeroC.Ice
             InvocationMode = invocationMode;
             _invocationTimeout = invocationTimeout;
             IsRelative = relative;
+            Label = label;
             Location = location;
             _locatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
@@ -1609,7 +1625,7 @@ namespace ZeroC.Ice
             TimeSpan? invocationTimeout)
         {
             Communicator = fixedConnection.Communicator;
-            ConnectionId = "";
+            Label = null;
             Context = context;
             Encoding = encoding;
             Endpoints = Array.Empty<Endpoint>();
@@ -1667,7 +1683,7 @@ namespace ZeroC.Ice
             {
                 // No cached connection, so now check if there is an existing connection that we can reuse.
                 (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
-                connection = Communicator.GetConnection(endpoints, PreferNonSecure, ConnectionId);
+                connection = Communicator.GetConnection(endpoints, PreferNonSecure, Label);
                 if (CacheConnection)
                 {
                     _connection = connection;
@@ -1708,7 +1724,7 @@ namespace ZeroC.Ice
 
                         connection = await Communicator.ConnectAsync(endpoints[nextEndpoint],
                                                                      PreferNonSecure,
-                                                                     ConnectionId,
+                                                                     Label,
                                                                      cancel).ConfigureAwait(false);
                         if (CacheConnection)
                         {

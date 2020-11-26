@@ -134,13 +134,13 @@ namespace ZeroC.Ice
             bool secureOnly,
             IPEndPoint address,
             INetworkProxy? proxy,
-            object cookie)
+            object? label)
         {
             Debug.Assert(secureOnly == false);
             var socket = new UdpSocket(Communicator, address, SourceAddress, MulticastInterface, MulticastTtl);
             return new UdpConnection(this,
                                      new Ice1NetworkSocket(socket, this, adapter: null),
-                                     (string)cookie,
+                                     label,
                                      adapter: null);
         }
 
