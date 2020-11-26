@@ -15,11 +15,13 @@ namespace ZeroC.Ice
     {
         protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
+        protected override bool SentEndOfStream => _sentEndOfStream;
+        private int _flowControlCreditReleased;
         private readonly SlicSocket _socket;
         private int _receivedOffset;
         private int _receivedSize;
         private bool _receivedEndOfStream;
-        private int _flowControlCreditReleased;
+        private bool _sentEndOfStream;
 
         protected override void Dispose(bool disposing)
         {
@@ -93,7 +95,8 @@ namespace ZeroC.Ice
             return size;
         }
 
-        protected override async ValueTask ResetAsync(long errorCode) =>
+        protected override async ValueTask ResetAsync(long errorCode)
+        {
             await _socket.PrepareAndSendFrameAsync(
                 SlicDefinitions.FrameType.StreamReset,
                 ostr =>
@@ -104,6 +107,9 @@ namespace ZeroC.Ice
                     }
                 },
                 Id).ConfigureAwait(false);
+
+            _sentEndOfStream = true;
+        }
 
         protected override async ValueTask SendAsync(
             IList<ArraySegment<byte>> buffer,
@@ -262,6 +268,11 @@ namespace ZeroC.Ice
             finally
             {
                 buffer[0] = previous; // Restore the original value of the send buffer.
+            }
+
+            if (fin)
+            {
+                _sentEndOfStream = true;
             }
         }
 

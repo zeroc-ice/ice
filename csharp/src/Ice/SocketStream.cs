@@ -49,6 +49,7 @@ namespace ZeroC.Ice
         /// this header to be set at the start of the first segment.</summary>
         protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected abstract bool ReceivedEndOfStream { get; }
+        protected abstract bool SentEndOfStream { get; }
 
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>
         internal event Action<long>? Reset;
@@ -60,7 +61,6 @@ namespace ZeroC.Ice
         // is called. Once it's assigned, it's immutable. The specialization of the stream is responsible for not
         // accessing this data member concurrently when it's not safe.
         private long _id = -1;
-        private bool _sentEndOfStream;
         private readonly MultiStreamSocket _socket;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
@@ -336,7 +336,6 @@ namespace ZeroC.Ice
                             break;
                         }
                     }
-                    _sentEndOfStream = true;
                     TryDispose();
                 },
                 cancel);
@@ -414,8 +413,8 @@ namespace ZeroC.Ice
 
         internal void TryDispose()
         {
-            if (IsBidirectional ? (ReceivedEndOfStream && _sentEndOfStream) :
-                                  (IsIncoming ? ReceivedEndOfStream : _sentEndOfStream))
+            if (IsBidirectional ? (ReceivedEndOfStream && SentEndOfStream) :
+                                  (IsIncoming ? ReceivedEndOfStream : SentEndOfStream))
             {
                 Dispose();
             }
