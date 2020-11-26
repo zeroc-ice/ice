@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildThisFileDirectory)../msbuild/ice.test.props" />
     <PropertyGroup>
-        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net5</AppTargetFramework>
+        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net5.0</AppTargetFramework>
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Test.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
     <Choose>
@@ -13,11 +13,11 @@
         </When>
         <Otherwise>
             <ItemGroup>
-                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5/Glacier2.dll" />
-                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5/Ice.dll" />
-                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5/IceBox.dll" />
-                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5/IceGrid.dll" />
-                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5/IceStorm.dll" />
+                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/Glacier2.dll" />
+                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/Ice.dll" />
+                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/IceBox.dll" />
+                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/IceGrid.dll" />
+                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/IceStorm.dll" />
             </ItemGroup>
         </Otherwise>
     </Choose>
