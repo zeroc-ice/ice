@@ -249,7 +249,7 @@ namespace ZeroC.Ice
 
         internal void ClearAdapter(ObjectAdapter adapter) => Interlocked.CompareExchange(ref _adapter, null, adapter);
 
-        internal SocketStream CreateStream(bool bidirectional)
+        internal SocketStream CreateStream(bool isBidirectional)
         {
             // Ensure the stream is created in the active state only, no new streams should be created if the
             // connection is closing or closed.
@@ -261,7 +261,7 @@ namespace ZeroC.Ice
                                                         RetryPolicy.AfterDelay(TimeSpan.Zero),
                                                         Connector);
                 }
-                return Socket.CreateStream(bidirectional);
+                return Socket.CreateStream(isBidirectional, isControl: false);
             }
         }
 

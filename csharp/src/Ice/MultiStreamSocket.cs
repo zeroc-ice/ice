@@ -100,9 +100,10 @@ namespace ZeroC.Ice
         /// <summary>Creates an outgoing stream. Depending on the transport implementation, the stream ID might not
         /// be immediately available after the stream creation. It will be available after the first successful send
         /// call on the stream.</summary>
-        /// <param name="bidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
+        /// <param name="isBidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
+        /// <param name="isControl"><c>True</c> to create a control stream, <c>false</c> otherwise.</param>
         /// <return>The outgoing stream.</return>
-        public abstract SocketStream CreateStream(bool bidirectional);
+        public abstract SocketStream CreateStream(bool isBidirectional, bool isControl);
 
         /// <summary>The MultiStreamSocket constructor.</summary>
         /// <param name="endpoint">The endpoint from which the socket was created.</param>
@@ -279,14 +280,14 @@ namespace ZeroC.Ice
             return (largestBidirectionalStreamId, largestUnidirectionalStreamId);
         }
 
-        internal void AddStream(long id, SocketStream stream)
+        internal void AddStream(long id, SocketStream stream, bool isControl)
         {
             if (_streamsAborted)
             {
                 throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
             _streams[id] = stream;
-            if (!stream.IsControl)
+            if (!isControl)
             {
                 Interlocked.Increment(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
             }
@@ -351,7 +352,7 @@ namespace ZeroC.Ice
 
         internal virtual async ValueTask<SocketStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
-            SocketStream stream = CreateControlStream();
+            SocketStream stream = CreateStream(isBidirectional: false, isControl: true);
             await stream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
@@ -570,7 +571,5 @@ namespace ZeroC.Ice
                 await _streamsEmptySource.Task.ConfigureAwait(false);
             }
         }
-
-        private protected virtual SocketStream CreateControlStream() => CreateStream(bidirectional: false);
     }
 }

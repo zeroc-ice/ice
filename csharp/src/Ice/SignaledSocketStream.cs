@@ -13,6 +13,7 @@ namespace ZeroC.Ice
     /// for receiving data. The socket can easily signal the stream when new data is available.</summary>
     internal abstract class SignaledSocketStream<T> : SocketStream, IValueTaskSource<T>
     {
+        protected override bool IsAborted => _exception != null;
         internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
         private volatile Exception? _exception;
         private int _signaled;
@@ -24,6 +25,8 @@ namespace ZeroC.Ice
         /// exception to raise it after the stream consumes the signal and waits for a new signal</summary>
         public override void Abort(Exception ex)
         {
+            _exception ??= ex;
+
             // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
             // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
             //  the exception the next time the signal is awaited. This is necessary because
@@ -34,19 +37,15 @@ namespace ZeroC.Ice
                 _source.RunContinuationsAsynchronously = true;
                 _source.SetException(ex);
             }
-            else
-            {
-                _exception ??= ex;
-            }
         }
 
-        protected SignaledSocketStream(long streamId, MultiStreamSocket socket)
-            : base(streamId, socket)
+        protected SignaledSocketStream(MultiStreamSocket socket, long streamId)
+            : base(socket, streamId)
         {
         }
 
-        protected SignaledSocketStream(bool bidirectional, MultiStreamSocket socket)
-            : base(bidirectional, socket)
+        protected SignaledSocketStream(MultiStreamSocket socket, bool isBidirectional, bool isControl)
+            : base(socket, isBidirectional, isControl)
         {
         }
 

@@ -63,7 +63,7 @@ namespace ZeroC.Ice
             }
         }
 
-        protected async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
+        protected override async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
         {
             if (_receivedSize == _receivedOffset)
             {
@@ -183,11 +183,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal SlicStream(long streamId, SlicSocket socket)
-            : base(streamId, socket) => _socket = socket;
+        internal SlicStream(SlicSocket socket, long streamId)
+            : base(socket, streamId) => _socket = socket;
 
-        internal SlicStream(bool bidirectional, SlicSocket socket)
-            : base(bidirectional, socket) => _socket = socket;
+        internal SlicStream(SlicSocket socket, bool isBidirectional, bool isControl)
+            : base(socket, isBidirectional, isControl) => _socket = socket;
 
         internal void ReceivedFrame(int size, bool fin)
         {

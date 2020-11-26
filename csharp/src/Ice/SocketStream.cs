@@ -29,18 +29,18 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_id == -1);
                 _id = value;
-                _socket.AddStream(_id, this);
+                _socket.AddStream(_id, this, IsControl);
             }
         }
 
         /// <summary>Returns True if the stream is an incoming stream, False otherwise.</summary>
-        public bool IsIncoming => _id % 2 == (_socket.IsIncoming ? 0 : 1);
+        public bool IsIncoming => _id != -1 && _id % 2 == (_socket.IsIncoming ? 0 : 1);
 
         /// <summary>Returns True if the stream is a bidirectional stream, False otherwise.</summary>
         public bool IsBidirectional { get; }
 
         /// <summary>Returns True if the stream is a control stream, False otherwise.</summary>
-        public bool IsControl => _id == 2 || _id == 3;
+        public bool IsControl { get; }
 
         /// <summary>The transport header sentinel. Transport implementations that need to add an additional header
         /// to transmit data over the stream can provide the header data here. This will can improve performances by
@@ -48,6 +48,7 @@ namespace ZeroC.Ice
         /// the Ice protocol header. If a header is returned here, the implementation of the SendAsync method should
         /// this header to be set at the start of the first segment.</summary>
         protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
+        protected abstract bool IsAborted { get; }
         protected abstract bool ReceivedEndOfStream { get; }
         protected abstract bool SentEndOfStream { get; }
 
@@ -62,6 +63,7 @@ namespace ZeroC.Ice
         // accessing this data member concurrently when it's not safe.
         private long _id = -1;
         private readonly MultiStreamSocket _socket;
+        private int _useCount = 1;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
         /// implementation should abort the pending receive task.</summary>
@@ -93,21 +95,25 @@ namespace ZeroC.Ice
         /// <summary>Constructs a stream with the given ID.</summary>
         /// <param name="streamId">The stream ID.</param>
         /// <param name="socket">The parent socket.</param>
-        protected SocketStream(long streamId, MultiStreamSocket socket)
+        protected SocketStream(MultiStreamSocket socket, long streamId)
         {
             _socket = socket;
             _id = streamId;
-            _socket.AddStream(_id, this);
             IsBidirectional = _id % 4 < 2;
+            IsControl = _id == 2 || _id == 3;
+
+            _socket.AddStream(_id, this, IsControl);
         }
 
         /// <summary>Constructs an outgoing stream.</summary>
-        /// <param name="bidirectional">True to create a bidirectional, False otherwise.</param>
+        /// <param name="isBidirectional">True to create a bidirectional stream, False otherwise.</param>
+        /// <param name="isControl">True to create a control stream, False otherwise.</param>
         /// <param name="socket">The parent socket.</param>
-        protected SocketStream(bool bidirectional, MultiStreamSocket socket)
+        protected SocketStream(MultiStreamSocket socket, bool isBidirectional, bool isControl)
         {
-            IsBidirectional = bidirectional;
             _socket = socket;
+            IsBidirectional = isBidirectional;
+            IsControl = isControl;
         }
 
         /// <summary>Releases the resources used by the socket.</summary>
@@ -161,7 +167,7 @@ namespace ZeroC.Ice
                 (byte)Ice1Definitions.FrameType.ValidateConnection : (byte)Ice2Definitions.FrameType.Initialize;
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
-            if (!ReceivedEndOfStream)
+            if (ReceivedEndOfStream)
             {
                 throw new InvalidDataException($"received unexpected end of stream after initialize frame");
             }
@@ -314,6 +320,8 @@ namespace ZeroC.Ice
 
         internal void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel)
         {
+            Interlocked.Increment(ref _useCount);
+
             Task.Run(async () =>
                 {
                     ArraySegment<byte> receiveBuffer = new byte[1024];
@@ -336,12 +344,18 @@ namespace ZeroC.Ice
                             break;
                         }
                     }
+
                     TryDispose();
+                    ioStream.Dispose();
                 },
                 cancel);
         }
 
-        internal System.IO.Stream ReceiveDataIntoIOStream() => new IOStream(this);
+        internal System.IO.Stream ReceiveDataIntoIOStream()
+        {
+            Interlocked.Increment(ref _useCount);
+            return new IOStream(this);
+        }
 
         internal virtual async ValueTask SendInitializeFrameAsync(CancellationToken cancel)
         {
@@ -393,7 +407,11 @@ namespace ZeroC.Ice
         {
             try
             {
+                // Send the request frame.
                 await SendFrameAsync(request, cancel).ConfigureAwait(false);
+
+                // If there's a stream data writer, we can start streaming the data.
+                request.StreamDataWriter?.Invoke(this);
             }
             catch (OperationCanceledException)
             {
@@ -405,18 +423,27 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, CancellationToken cancel) =>
-            SendFrameAsync(response, cancel);
+        internal async ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, CancellationToken cancel)
+        {
+            // Send the response frame.
+            await SendFrameAsync(response, cancel).ConfigureAwait(false);
+
+            // If there's a stream data writer, we can start streaming the data.
+            response.StreamDataWriter?.Invoke(this);
+        }
 
         internal void TraceFrame(object frame, byte type = 0, byte compress = 0) =>
             _socket.TraceFrame(Id, frame, type, compress);
 
         internal void TryDispose()
         {
-            if (IsBidirectional ? (ReceivedEndOfStream && SentEndOfStream) :
-                                  (IsIncoming ? ReceivedEndOfStream : SentEndOfStream))
+            if (Interlocked.Decrement(ref _useCount) == 0)
             {
                 Dispose();
+            }
+            else
+            {
+                _socket.Endpoint.Communicator.Logger.Trace("NEtwork", "NOT DISPOSED!!!!");
             }
         }
 
@@ -499,24 +526,11 @@ namespace ZeroC.Ice
             data.Add(headerData);
             data.AddRange(frame.Data);
 
-            // If there's no data to stream, this is last frame to be sent on the stream.
-            _sentEndOfStream = frame.StreamDataWriter == null;
-
-            await SendAsync(data, _sentEndOfStream, cancel).ConfigureAwait(false);
+            await SendAsync(data, frame.StreamDataWriter == null, cancel).ConfigureAwait(false);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 TraceFrame(frame);
-            }
-
-            if (_sentEndOfStream)
-            {
-                TryDispose();
-            }
-            else
-            {
-                Debug.Assert(frame.StreamDataWriter != null);
-                frame.StreamDataWriter(this);
             }
         }
 
@@ -566,15 +580,24 @@ namespace ZeroC.Ice
             }
 
             public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancel) =>
-                _stream.ReceiveAsync(new Memory<byte>(buffer, offset, count), cancel);
+                ReadAsync(new Memory<byte>(buffer, offset, count), cancel).AsTask();
 
-            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancel) =>
+            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancel) =>
                 _stream.ReceiveAsync(buffer, cancel);
 
             public override void Write(byte[] buffer, int offset, int count) => throw new NotImplementedException();
             public override void Flush() => throw new NotImplementedException();
             public override long Seek(long offset, System.IO.SeekOrigin origin) => throw new NotImplementedException();
             public override void SetLength(long value) => throw new NotImplementedException();
+
+            protected override void Dispose(bool disposing)
+            {
+                base.Dispose(disposing);
+                if (disposing)
+                {
+                    _stream.TryDispose();
+                }
+            }
 
             internal IOStream(SocketStream stream) => _stream = stream;
         }

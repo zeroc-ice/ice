@@ -163,7 +163,7 @@ namespace ZeroC.Ice
             return buffer.Slice(0, received);
         }
 
-        public override ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
+        public override ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel) =>
             throw new InvalidOperationException();
 
         public override async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
