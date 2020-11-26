@@ -429,15 +429,37 @@ namespace ZeroC.Ice.Test.Metrics
 
             view = clientMetrics.GetMetricsView("View").ReturnValue;
             TestHelper.Assert(view["Connection"].Length == 2);
-            TestHelper.Assert(view["Invocation"].Length == 1);
 
-            var invoke = (InvocationMetrics)view["Invocation"][0]!;
+            if (ice1)
+            {
+                // With ice1 the label is not part of the ID
+                TestHelper.Assert(view["Invocation"].Length == 1);
+                var invoke = (InvocationMetrics)view["Invocation"][0]!;
+                TestHelper.Assert(invoke.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0 &&
+                                  invoke.Current == 0 &&
+                                  invoke.Total == 5);
+                TestHelper.Assert(invoke.Children.Length == 2);
+                TestHelper.Assert(invoke.Children[0]!.Total >= 2 && invoke.Children[1]!.Total >= 2);
+                TestHelper.Assert((invoke.Children[0]!.Total + invoke.Children[1]!.Total) == 5);
+            }
+            else
+            {
+                // With ice2 the label is part of the ID
+                TestHelper.Assert(view["Invocation"].Length == 2);
+                var invoke = (InvocationMetrics)view["Invocation"][0]!;
+                TestHelper.Assert(invoke.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0 &&
+                                  invoke.Current == 0 &&
+                                  invoke.Total == 2);
+                TestHelper.Assert(invoke.Children.Length == 1);
+                TestHelper.Assert(invoke.Children[0]!.Total == 2);
 
-            TestHelper.Assert(invoke.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0 &&
-                              invoke.Current == 0 && invoke.Total == 5);
-            TestHelper.Assert(invoke.Children.Length == 2);
-            TestHelper.Assert(invoke.Children[0]!.Total >= 2 && invoke.Children[1]!.Total >= 2);
-            TestHelper.Assert((invoke.Children[0]!.Total + invoke.Children[1]!.Total) == 5);
+                invoke = (InvocationMetrics)view["Invocation"][1]!;
+                TestHelper.Assert(invoke.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0 &&
+                                  invoke.Current == 0 &&
+                                  invoke.Total == 3);
+                TestHelper.Assert(invoke.Children.Length == 1);
+                TestHelper.Assert(invoke.Children[0]!.Total == 3);
+            }
 
             view = serverMetrics.GetMetricsView("View").ReturnValue;
             TestHelper.Assert(view["Connection"].Length == 2);
@@ -746,7 +768,6 @@ namespace ZeroC.Ice.Test.Metrics
                         $"metrics:{transport} -h localhost -p {port}" :
                         $"ice+{transport}://localhost:{port}/metrics",
                     communicator);
-
                 try
                 {
                     prx.IcePing();

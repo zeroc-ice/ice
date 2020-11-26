@@ -118,7 +118,6 @@ namespace ZeroC.Ice
                 {
                     networkProxy = await networkProxy.ResolveHostAsync(cancel).ConfigureAwait(false);
                 }
-
                 addresses = await Network.GetAddressesForClientEndpointAsync(
                     Host,
                     Port,
@@ -153,6 +152,7 @@ namespace ZeroC.Ice
                     };
                     connection = CreateConnection(secureOnly, address, networkProxy, label);
                     await connection.InitializeAsync(cancel).ConfigureAwait(false);
+                    break;
                 }
                 catch (Exception ex)
                 {
