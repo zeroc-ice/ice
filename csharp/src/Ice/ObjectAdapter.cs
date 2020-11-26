@@ -788,11 +788,10 @@ namespace ZeroC.Ice
             AdapterId = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
             ReplicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
 
-            if (AdapterId.Length > 0 || ReplicaGroupId.Length > 0)
-            {
-                Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory) ??
-                    Communicator.DefaultLocator;
-            }
+            // Note: Communicator.SetServerProcessProxyAsync relies on Ice.Admin's Locator even though object adapter
+            // Ice.Admin does not set AdapterId or ReplicaGroupId.
+            Locator =
+                Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory) ?? Communicator.DefaultLocator;
 
             int frameMaxSize =
                 Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameMaxSize") ?? Communicator.IncomingFrameMaxSize;
