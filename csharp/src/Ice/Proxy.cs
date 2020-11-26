@@ -55,7 +55,7 @@ namespace ZeroC.Ice
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
-        /// <param name="label">The connection ID of the clone (optional).</param>
+        /// <param name="label">The label of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
@@ -137,7 +137,7 @@ namespace ZeroC.Ice
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
-        /// <param name="label">The connection ID of the clone (optional).</param>
+        /// <param name="label">The label of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
