@@ -6,6 +6,35 @@ using Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
+    internal abstract class DictionaryComparer<TKey, TValue> : EqualityComparer<IReadOnlyDictionary<TKey, TValue>>
+        where TKey : notnull
+    {
+        internal static DictionaryComparer<TKey, TValue> Deep { get; } = new DeepDictionaryComparer();
+
+        private class DeepDictionaryComparer : DictionaryComparer<TKey, TValue>
+        {
+            public override bool Equals(
+                IReadOnlyDictionary<TKey, TValue>? lhs,
+                IReadOnlyDictionary<TKey, TValue>? rhs) =>
+                ReferenceEquals(lhs, rhs) || (lhs != null && rhs != null && lhs.DictionaryEqual(rhs));
+
+            public override int GetHashCode(IReadOnlyDictionary<TKey, TValue> obj) => obj.GetDictionaryHashCode();
+        }
+    }
+
+    internal abstract class SequenceComparer<T> : EqualityComparer<IEnumerable<T>>
+    {
+        internal static SequenceComparer<T> Deep { get; } = new DeepSequenceComparer();
+
+        private class DeepSequenceComparer : SequenceComparer<T>
+        {
+            public override bool Equals(IEnumerable<T>? lhs, IEnumerable<T>? rhs) =>
+                ReferenceEquals(lhs, rhs) || (lhs != null && rhs != null && lhs.SequenceEqual(rhs));
+
+            public override int GetHashCode(IEnumerable<T> obj) => obj.GetSequenceHashCode();
+        }
+    }
+
     public static class Twoways
     {
         internal static void Run(IMyClassPrx p)
@@ -19,8 +48,8 @@ namespace ZeroC.Ice.Test.DictMapping
 
                 (Dictionary<int, int> r, Dictionary<int, int> o) = p.OpNV(i);
 
-                TestHelper.Assert(i.DictionaryEquals(o));
-                TestHelper.Assert(i.DictionaryEquals(r));
+                TestHelper.Assert(i.DictionaryEqual(o));
+                TestHelper.Assert(i.DictionaryEqual(r));
             }
 
             {
@@ -32,8 +61,8 @@ namespace ZeroC.Ice.Test.DictMapping
 
                 (Dictionary<string, string> r, Dictionary<string, string> o) = p.OpNR(i);
 
-                TestHelper.Assert(i.DictionaryEquals(o));
-                TestHelper.Assert(i.DictionaryEquals(r));
+                TestHelper.Assert(i.DictionaryEqual(o));
+                TestHelper.Assert(i.DictionaryEqual(r));
             }
 
             {
@@ -47,12 +76,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["b"] = id;
 
                 (Dictionary<string, Dictionary<int, int>> r, Dictionary<string, Dictionary<int, int>> o) = p.OpNDV(i);
-
-                foreach (string key in i.Keys)
-                {
-                    TestHelper.Assert(i[key].DictionaryEquals(o[key]));
-                    TestHelper.Assert(i[key].DictionaryEquals(r[key]));
-                }
+                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<int, int>.Deep));
+                TestHelper.Assert(r.DictionaryEqual(i, DictionaryComparer<int, int>.Deep));
             }
 
             {
@@ -66,13 +91,9 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["b"] = id;
 
                 (Dictionary<string, Dictionary<string, string>> r,
-                 Dictionary<string, Dictionary<string, string>> o) = p.OpNDR(i);
-
-                foreach (string key in i.Keys)
-                {
-                    TestHelper.Assert(i[key].DictionaryEquals(o[key]));
-                    TestHelper.Assert(i[key].DictionaryEquals(r[key]));
-                }
+                Dictionary<string, Dictionary<string, string>> o) = p.OpNDR(i);
+                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<string, string>.Deep));
+                TestHelper.Assert(r.DictionaryEqual(i, DictionaryComparer<string, string>.Deep));
             }
 
             {
@@ -84,12 +105,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, int[]> r, Dictionary<string, int[]> o) = p.OpNDAIS(i);
-
-                foreach (string key in i.Keys)
-                {
-                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
-                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
-                }
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.Deep));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<int>.Deep));
             }
 
             {
@@ -105,12 +122,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, List<int>> r, Dictionary<string, List<int>> o) = p.OpNDGIS(i);
-
-                foreach (string key in i.Keys)
-                {
-                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
-                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
-                }
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.Deep));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<int>.Deep));
             }
 
             {
@@ -122,12 +135,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, string[]> r, Dictionary<string, string[]> o) = p.OpNDASS(i);
-
-                foreach (string key in i.Keys)
-                {
-                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
-                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
-                }
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.Deep));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<string>.Deep));
             }
 
             {
@@ -143,12 +152,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, List<string>> r, Dictionary<string, List<string>> o) = p.OpNDGSS(i);
-
-                foreach (string key in i.Keys)
-                {
-                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
-                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
-                }
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.Deep));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<string>.Deep));
             }
         }
     }

@@ -18,8 +18,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<int, int> ReturnValue, Dictionary<int, int> o) = p.OpNVAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i));
+                TestHelper.Assert(o.DictionaryEqual(i));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i));
             }
 
             {
@@ -30,8 +30,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, string> ReturnValue, Dictionary<string, string> o) = p.OpNRAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i));
+                TestHelper.Assert(o.DictionaryEqual(i));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i));
             }
 
             {
@@ -45,9 +45,9 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["b"] = id;
 
                 (Dictionary<string, Dictionary<int, int>> ReturnValue,
-                 Dictionary<string, Dictionary<int, int>> o) = p.OpNDVAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
+                Dictionary<string, Dictionary<int, int>> o) = p.OpNDVAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<int, int>.Deep));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i, DictionaryComparer<int, int>.Deep));
             }
 
             {
@@ -61,9 +61,9 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["b"] = id;
 
                 (Dictionary<string, Dictionary<string, string>> ReturnValue,
-                 Dictionary<string, Dictionary<string, string>> o) = p.OpNDRAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
+                Dictionary<string, Dictionary<string, string>> o) = p.OpNDRAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<string, string>.Deep));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i, DictionaryComparer<string, string>.Deep));
             }
 
             {
@@ -75,8 +75,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, int[]> ReturnValue, Dictionary<string, int[]> o) = p.OpNDAISAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.Deep));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i, SequenceComparer<int>.Deep));
             }
 
             {
@@ -93,8 +93,8 @@ namespace ZeroC.Ice.Test.DictMapping
 
                 (Dictionary<string, List<int>> ReturnValue,
                  Dictionary<string, List<int>> o) = p.OpNDGISAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.Deep));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i, SequenceComparer<int>.Deep));
             }
 
             {
@@ -107,8 +107,8 @@ namespace ZeroC.Ice.Test.DictMapping
 
                 (Dictionary<string, string[]> ReturnValue,
                  Dictionary<string, string[]> o) = p.OpNDASSAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.Deep));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i, SequenceComparer<string>.Deep));
             }
 
             {
@@ -125,8 +125,8 @@ namespace ZeroC.Ice.Test.DictMapping
 
                 (Dictionary<string, List<string>> ReturnValue,
                  Dictionary<string, List<string>> o) = p.OpNDGSSAsync(i).Result;
-                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
-                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.Deep));
+                TestHelper.Assert(ReturnValue.DictionaryEqual(i, SequenceComparer<string>.Deep));
             }
         }
     }
