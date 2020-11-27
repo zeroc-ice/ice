@@ -9,16 +9,21 @@ namespace ZeroC.Ice
     {
         /// <summary>Computes the hash code for a sequence, using each element's default comparer.</summary>
         /// <param name="sequence">The sequence.</param>
+        /// <typeparam name="T">The type of sequence's element.</typeparam>
         /// <returns>A hash code computed using the sequence's elements.</returns>
         public static int GetSequenceHashCode<T>(this IEnumerable<T> sequence) =>
-            GetSequenceHashCode(sequence, EqualityComparer<T>.Default);
+            GetSequenceHashCode(sequence, comparer: null);
 
         /// <summary>Computes the hash code for a sequence.</summary>
+        /// <typeparam name="T">The type of sequence's element.</typeparam>
         /// <param name="sequence">The sequence.</param>
-        /// <param name="comparer">The comparer used compute each element's hash code.</param>
+        /// <param name="comparer">The comparer used compute each element's hash code. When null, this method uses the
+        /// default comparer.</param>
         /// <returns>A hash code computed using the sequence's elements.</returns>
-        public static int GetSequenceHashCode<T>(this IEnumerable<T> sequence, IEqualityComparer<T> comparer)
+        public static int GetSequenceHashCode<T>(this IEnumerable<T> sequence, IEqualityComparer<T>? comparer)
         {
+            comparer ??= EqualityComparer<T>.Default;
+
             var hash = new HashCode();
             foreach (T element in sequence)
             {
