@@ -244,16 +244,14 @@ namespace ZeroC.Ice
             }
         }
 
-        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
-            serverName == Host ? this : Clone(serverName, Port);
-
-        protected internal override IEnumerable<Endpoint> ExpandHost()
+        protected internal override async ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel)
         {
             if (Address == IPAddress.None) // DNS name
             {
                 try
                 {
-                    return Dns.GetHostAddresses(Host).Select(
+                    // TODO: use cancel once GetHostAddressesAsync supports it.
+                    return (await Dns.GetHostAddressesAsync(Host).ConfigureAwait(false)).Select(
                         address =>
                         {
                             IPEndpoint expanded = Clone(address.ToString(), Port);
@@ -271,6 +269,9 @@ namespace ZeroC.Ice
                 return ImmutableArray.Create(this);
             }
         }
+
+        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
+            serverName == Host ? this : Clone(serverName, Port);
 
         internal IPEndpoint Clone(ushort port)
         {

@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildThisFileDirectory)../../../../msbuild/ice.test.props" />
     <PropertyGroup>
-        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net5</AppTargetFramework>
+        <AppTargetFramework Condition="'$(AppTargetFramework)' == ''">net5.0</AppTargetFramework>
     </PropertyGroup>
     <Choose>
         <When Condition="'$(ICE_BIN_DIST)' == 'all'">
@@ -12,8 +12,8 @@
         </When>
         <Otherwise>
             <ItemGroup>
-                <Reference Include="$(MSBuildThisFileDirectory)../../../../lib/netstandard2.1/Ice.dll" />
-                <Reference Include="$(MSBuildThisFileDirectory)../../../../lib/netstandard2.1/IceSSL.dll" />
+                <Reference Include="$(MSBuildThisFileDirectory)../../../../lib/net5.0/Ice.dll" />
+                <Reference Include="$(MSBuildThisFileDirectory)../../../../lib/net5.0/IceSSL.dll" />
             </ItemGroup>
         </Otherwise>
       </Choose>

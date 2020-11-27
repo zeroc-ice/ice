@@ -452,7 +452,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 (Dictionary<byte, bool> returnValue, Dictionary<byte, bool> p3) = p.OpByteBoolDAsync(di1, di2).Result;
 
-                TestHelper.Assert(p3.DictionaryEquals(di1));
+                TestHelper.Assert(p3.DictionaryEqual(di1));
                 TestHelper.Assert(returnValue.Count == 4);
                 TestHelper.Assert(returnValue[10] == true);
                 TestHelper.Assert(returnValue[11] == false);
@@ -476,7 +476,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 (Dictionary<short, int> returnValue, Dictionary<short, int> p3) = p.OpShortIntDAsync(di1, di2).Result;
 
-                TestHelper.Assert(p3.DictionaryEquals(di1));
+                TestHelper.Assert(p3.DictionaryEqual(di1));
                 TestHelper.Assert(returnValue.Count == 4);
                 TestHelper.Assert(returnValue[110] == -1);
                 TestHelper.Assert(returnValue[111] == -100);
@@ -501,7 +501,7 @@ namespace ZeroC.Ice.Test.Operations
                 (Dictionary<long, float> returnValue, Dictionary<long, float> p3) =
                     p.OpLongFloatDAsync(di1, di2).Result;
 
-                TestHelper.Assert(p3.DictionaryEquals(di1));
+                TestHelper.Assert(p3.DictionaryEqual(di1));
                 TestHelper.Assert(returnValue.Count == 4);
                 TestHelper.Assert(returnValue[999999110L] == -1.1f);
                 TestHelper.Assert(returnValue[999999120L] == -100.4f);
@@ -526,7 +526,7 @@ namespace ZeroC.Ice.Test.Operations
                 (Dictionary<string, string> returnValue, Dictionary<string, string> p3) =
                     p.OpStringStringDAsync(di1, di2).Result;
 
-                TestHelper.Assert(p3.DictionaryEquals(di1));
+                TestHelper.Assert(p3.DictionaryEqual(di1));
                 TestHelper.Assert(returnValue.Count == 4);
                 TestHelper.Assert(returnValue["foo"].Equals("abc -1.1"));
                 TestHelper.Assert(returnValue["FOO"].Equals("abc -100.4"));
@@ -551,7 +551,7 @@ namespace ZeroC.Ice.Test.Operations
                 (Dictionary<string, MyEnum> returnValue, Dictionary<string, MyEnum> p3) =
                     p.OpStringMyEnumDAsync(di1, di2).Result;
 
-                TestHelper.Assert(p3.DictionaryEquals(di1));
+                TestHelper.Assert(p3.DictionaryEqual(di1));
                 TestHelper.Assert(returnValue.Count == 4);
                 TestHelper.Assert(returnValue["abc"] == MyEnum.enum1);
                 TestHelper.Assert(returnValue["qwerty"] == MyEnum.enum3);
@@ -575,7 +575,7 @@ namespace ZeroC.Ice.Test.Operations
                     p.OpMyEnumStringDAsync(di1, di2).Result;
 
                 di1[MyEnum.enum1] = "abc";
-                TestHelper.Assert(p3.DictionaryEquals(di1));
+                TestHelper.Assert(p3.DictionaryEqual(di1));
                 TestHelper.Assert(returnValue.Count == 3);
                 TestHelper.Assert(returnValue[MyEnum.enum1].Equals("abc"));
                 TestHelper.Assert(returnValue[MyEnum.enum2].Equals("Hello!!"));
@@ -603,7 +603,7 @@ namespace ZeroC.Ice.Test.Operations
                 (Dictionary<MyStruct, MyEnum> returnValue, Dictionary<MyStruct, MyEnum> p3) =
                     p.OpMyStructMyEnumDAsync(di1, di2).Result;
 
-                TestHelper.Assert(p3.DictionaryEquals(di1));
+                TestHelper.Assert(p3.DictionaryEqual(di1));
                 TestHelper.Assert(returnValue.Count == 4);
                 TestHelper.Assert(returnValue[s11] == MyEnum.enum1);
                 TestHelper.Assert(returnValue[s12] == MyEnum.enum2);
@@ -1213,20 +1213,20 @@ namespace ZeroC.Ice.Test.Operations
                 };
                 {
                     TestHelper.Assert(p.Context.Count == 0);
-                    TestHelper.Assert(!ctx.DictionaryEquals(p.OpContextAsync().Result));
+                    TestHelper.Assert(!ctx.DictionaryEqual(p.OpContextAsync().Result));
                 }
                 {
                     TestHelper.Assert(p.Context.Count == 0);
-                    TestHelper.Assert(ctx.DictionaryEquals(p.OpContextAsync(ctx).Result));
+                    TestHelper.Assert(ctx.DictionaryEqual(p.OpContextAsync(ctx).Result));
                 }
                 {
                     IMyClassPrx p2 = p.Clone(context: ctx);
-                    TestHelper.Assert(p2.Context.DictionaryEquals(ctx));
-                    TestHelper.Assert(ctx.DictionaryEquals(p2.OpContextAsync().Result));
+                    TestHelper.Assert(p2.Context.DictionaryEqual(ctx));
+                    TestHelper.Assert(ctx.DictionaryEqual(p2.OpContextAsync().Result));
                 }
                 {
                     IMyClassPrx? p2 = p.Clone(context: ctx);
-                    TestHelper.Assert(ctx.DictionaryEquals(p2.OpContextAsync(ctx).Result));
+                    TestHelper.Assert(ctx.DictionaryEqual(p2.OpContextAsync(ctx).Result));
                 }
             }
 
@@ -1238,7 +1238,7 @@ namespace ZeroC.Ice.Test.Operations
                 communicator.CurrentContext["three"] = "THREE";
 
                 var p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEquals(communicator.CurrentContext));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(communicator.CurrentContext));
 
                 var prxContext = new Dictionary<string, string>
                 {
@@ -1263,16 +1263,16 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(communicator.DefaultContext.Count == 0);
                 communicator.DefaultContext = prxContext;
                 TestHelper.Assert(communicator.DefaultContext != prxContext); // it's a copy
-                TestHelper.Assert(communicator.DefaultContext.DictionaryEquals(prxContext));
+                TestHelper.Assert(communicator.DefaultContext.DictionaryEqual(prxContext));
 
                 p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
 
                 var ctx = new SortedDictionary<string, string>(communicator.CurrentContext);
                 communicator.CurrentContext.Clear();
-                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEquals(prxContext));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(prxContext));
 
                 communicator.CurrentContext = ctx;
-                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEquals(combined));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(combined));
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
@@ -1341,7 +1341,7 @@ namespace ZeroC.Ice.Test.Operations
                         };
                         (Dictionary<string, string> ReturnValue, Dictionary<string, string> p2) =
                             await p.OpMDict2Async(p1);
-                        TestHelper.Assert(p2.DictionaryEquals(p1) && ReturnValue.DictionaryEquals(p1));
+                        TestHelper.Assert(p2.DictionaryEqual(p1) && ReturnValue.DictionaryEqual(p1));
                     }
                 }).Wait();
         }

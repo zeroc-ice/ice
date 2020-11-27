@@ -211,10 +211,10 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void SetRouterInfo(RouterInfo routerInfo)
+        internal async ValueTask SetRouterInfoAsync(RouterInfo routerInfo, CancellationToken cancel)
         {
             ObjectAdapter? adapter = routerInfo.Adapter;
-            IReadOnlyList<Endpoint> endpoints = routerInfo.GetClientEndpoints(); // can make a synchronous remote call
+            IReadOnlyList<Endpoint> endpoints = await routerInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
 
             // Search for connections to the router's client proxy endpoints, and update the object adapter for
             // such connections, so that callbacks from the router can be received over such connections.

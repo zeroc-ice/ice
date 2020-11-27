@@ -147,15 +147,6 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 {
                     TestHelper.Assert(endpt.ToString() == "ice+tcp://localhost:12345");
                 }
-
-                var prx = IObjectPrx.Parse(ice1 ?
-                    "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000" :
-                    "ice+tcp://localhost:12346/dummy?alt-endpoint=localhost:12347", communicator);
-                adapter.SetPublishedEndpoints(prx.Endpoints);
-                TestHelper.Assert(adapter.PublishedEndpoints.Count == 2);
-                TestHelper.Assert(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints.
-                    SequenceEqual(prx.Endpoints));
-                TestHelper.Assert(adapter.PublishedEndpoints.SequenceEqual(prx.Endpoints));
             }
             output.WriteLine("ok");
 
@@ -184,16 +175,6 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
                     string endpointsStr = adapter.PublishedEndpoints[0].ToString();
                     TestHelper.Assert(endpointsStr == "tcp -h localhost -p 23456 -t 60000");
-
-                    try
-                    {
-                        adapter.SetPublishedEndpoints(router.Endpoints);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        // Expected.
-                    }
                 }
 
                 try

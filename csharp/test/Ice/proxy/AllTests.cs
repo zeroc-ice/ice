@@ -1014,7 +1014,7 @@ namespace ZeroC.Ice.Test.Proxy
             };
             cl = baseProxy.CheckedCast(IMyClassPrx.Factory, c);
             Dictionary<string, string> c2 = cl!.GetContext();
-            TestHelper.Assert(c.DictionaryEquals(c2));
+            TestHelper.Assert(c.DictionaryEqual(c2));
             output.WriteLine("ok");
 
             output.Write("testing location... ");
