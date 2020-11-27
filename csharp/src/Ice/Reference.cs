@@ -624,7 +624,7 @@ namespace ZeroC.Ice
                     sb.Append(TimeSpanExtensions.ToPropertyValue(invocationTimeout));
                 }
 
-                if (Label?.ToString() is string label)
+                if (Label?.ToString() is string label && label.Length > 0)
                 {
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("label=");
@@ -1474,9 +1474,9 @@ namespace ZeroC.Ice
                     // For ice2 the invocation timeout is included in the URI
                     properties[$"{prefix}.InvocationTimeout"] = invocationTimeout.ToPropertyValue();
                 }
-                if (Label is object label)
+                if (Label?.ToString() is string label && label.Length > 0)
                 {
-                    properties[$"{prefix}.Label"] = label.ToString() ?? "";
+                    properties[$"{prefix}.Label"] = label;
                 }
                 if (LocatorInfo != null)
                 {
