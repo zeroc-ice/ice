@@ -795,6 +795,18 @@ namespace ZeroC.Ice
             object? label,
             ObjectAdapter? adapter)
             : base(endpoint, socket, label, adapter) => _socket = socket;
+
+        internal override bool CanTrust(NonSecure preferNonSecure)
+        {
+            bool trusted = IsSecure || preferNonSecure switch
+            {
+                NonSecure.SameHost => RemoteEndpoint?.IsSameHost() ?? false,
+                NonSecure.TrustedHost => false, // TODO implement trusted host
+                NonSecure.Always => true,
+                _ => false
+            };
+            return trusted;
+        }
     }
 
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
@@ -840,28 +852,6 @@ namespace ZeroC.Ice
             : base(endpoint, socket, label, adapter)
         {
         }
-
-        internal override bool CanTrust(NonSecure preferNonSecure)
-        {
-            // If the connection uses ice1 endpoint, the connection is secure, or non-secure connections are always
-            // allowed we can trust the connection.
-            if (Endpoint.Protocol == Protocol.Ice1 || IsSecure || preferNonSecure == NonSecure.Always)
-            {
-                return true;
-            }
-
-            if (preferNonSecure == NonSecure.SameHost)
-            {
-                return RemoteEndpoint?.IsSameHost() ?? false;
-            }
-
-            if (preferNonSecure == NonSecure.TrustedHost)
-            {
-                // TODO implement trusted host
-                return false;
-            }
-            return false;
-        }
     }
 
     /// <summary>Represents a connection to a UDP-endpoint.</summary>
@@ -879,8 +869,6 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter)
             : base(endpoint, socket, label, adapter) =>
             _udpSocket = (UdpSocket)_socket.Underlying;
-
-        internal override bool CanTrust(NonSecure preferNonSecure) => true;
     }
 
     /// <summary>Represents a connection to a WS-endpoint.</summary>

@@ -624,11 +624,11 @@ namespace ZeroC.Ice
                     sb.Append(TimeSpanExtensions.ToPropertyValue(invocationTimeout));
                 }
 
-                if (Label != null)
+                if (Label?.ToString() is string label)
                 {
                     StartQueryOption(sb, ref firstOption);
                     sb.Append("label=");
-                    sb.Append(Label.ToString());
+                    sb.Append(Uri.EscapeDataString(label));
                 }
 
                 if (_locatorCacheTimeout is TimeSpan locatorCacheTimeout)
@@ -1136,7 +1136,8 @@ namespace ZeroC.Ice
                 }
                 if (preferExistingConnection != null)
                 {
-                    throw new ArgumentException("cannot change the prefer-existing-connection configuration of a fixed proxy",
+                    throw new ArgumentException(
+                        "cannot change the prefer-existing-connection configuration of a fixed proxy",
                         nameof(preferNonSecure));
                 }
                 if (preferNonSecure != null)
@@ -1389,65 +1390,62 @@ namespace ZeroC.Ice
 
         internal async ValueTask<Connection> GetConnectionAsync(CancellationToken cancel)
         {
-            var linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
+            Connection? connection = _connection;
+            if (connection != null && connection.IsActive)
+            {
+                return connection;
+            }
+            using var linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(
                 cancel,
                 Communicator.CancellationToken);
             cancel = linkedCancellationSource.Token;
-            Connection? connection = _connection;
-            try
+            bool cached;
+            List<Endpoint>? endpoints = null;
+            if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
             {
-                bool cached;
-                List<Endpoint>? endpoints = null;
-                if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
+                // No cached connection, so now check if the connection factory has an existing connection that we
+                // can reuse, the connection factory will compute the reference endpoints and the endpoint
+                // connectors if required.
+                (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                connection = Communicator.GetConnection(endpoints, PreferNonSecure, Label);
+                if (CacheConnection)
                 {
-                    // No cached connection, so now check if the connection factory has an existing connection that we
-                    // can reuse, the connection factory will compute the reference endpoints and the endpoint
-                    // connectors if required.
-                    (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
-                    connection = Communicator.GetConnection(endpoints, PreferNonSecure, Label);
-                    if (CacheConnection)
-                    {
-                        _connection = connection;
-                    }
-                }
-
-                if (connection == null)
-                {
-                    if (endpoints == null)
-                    {
-                        (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
-                    }
-
-                    Endpoint last = endpoints[^1];
-                    foreach (Endpoint endpoint in endpoints)
-                    {
-                        try
-                        {
-                            connection = await Communicator.ConnectAsync(endpoint,
-                                                                         PreferNonSecure,
-                                                                         Label,
-                                                                         cancel).ConfigureAwait(false);
-                            if (CacheConnection)
-                            {
-                                _connection = connection;
-                            }
-                            break;
-                        }
-                        catch
-                        {
-                            // Ignore the exception unless this is the last connector.
-                            // TODO retry with non cached endpoints
-                            if (ReferenceEquals(endpoint, last))
-                            {
-                                throw;
-                            }
-                        }
-                    }
+                    _connection = connection;
                 }
             }
-            finally
+
+            if (connection == null)
             {
-                linkedCancellationSource.Dispose();
+                if (endpoints == null)
+                {
+                    (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                }
+
+                Endpoint last = endpoints[^1];
+                foreach (Endpoint endpoint in endpoints)
+                {
+                    try
+                    {
+                        connection = await Communicator.ConnectAsync(endpoint,
+                                                                     PreferNonSecure,
+                                                                     Label,
+                                                                     cancel).ConfigureAwait(false);
+                        if (CacheConnection)
+                        {
+                            _connection = connection;
+                        }
+                        break;
+                    }
+                    catch
+                    {
+                        // Ignore the exception unless this is the last endpoint.
+                        // TODO retry with non cached endpoints
+                        if (ReferenceEquals(endpoint, last))
+                        {
+                            throw;
+                        }
+                    }
+                }
             }
             Debug.Assert(connection != null);
             return connection;

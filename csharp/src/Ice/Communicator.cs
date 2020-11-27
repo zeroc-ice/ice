@@ -554,7 +554,7 @@ namespace ZeroC.Ice
 
                 if (InvocationMaxAttempts <= 0)
                 {
-                    throw new InvalidConfigurationException($"Ice.RetryMaxAttempts must be greater than 0");
+                    throw new InvalidConfigurationException($"Ice.InvocationMaxAttempts must be greater than 0");
                 }
                 InvocationMaxAttempts = Math.Min(InvocationMaxAttempts, 5);
                 RetryBufferMaxSize = GetPropertyAsByteSize("Ice.RetryBufferMaxSize") ?? 1024 * 1024 * 100;
@@ -911,25 +911,28 @@ namespace ZeroC.Ice
 
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
-                IEnumerable<Task> tasks =
-                    _outgoingConnections.Values.SelectMany(connections => connections).Select(connection =>
-                        connection.GoAwayAsync(new CommunicatorDisposedException())).Append(
-                        ShutdownAsync());
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+                CommunicatorDisposedException disposedException = new();
+                IEnumerable<Task> closeTasks =
+                    _outgoingConnections.Values.SelectMany(connections => connections).Select(
+                        connection => connection.GoAwayAsync(disposedException)).Append(ShutdownAsync());
 
-#if DEBUG
-                // Ensure all the outgoing connections were removed
-                Debug.Assert(_outgoingConnections.Count == 0);
-                foreach (var task in _pendingOutgoingConnections.Values)
+                var connectTasks = _pendingOutgoingConnections.Values.ToList();
+                await Task.WhenAll(closeTasks).ConfigureAwait(false);
+
+                foreach (Task<Connection> connect in connectTasks)
                 {
                     try
                     {
-                        await task.ConfigureAwait(false);
+                        Connection connection = await connect.ConfigureAwait(false);
+                        await connection.GoAwayAsync(disposedException).ConfigureAwait(false);
                     }
                     catch
                     {
                     }
                 }
+#if DEBUG
+                // Ensure all the outgoing connections were removed
+                Debug.Assert(_outgoingConnections.Count == 0);
                 Debug.Assert(_pendingOutgoingConnections.Count == 0);
 #endif
 

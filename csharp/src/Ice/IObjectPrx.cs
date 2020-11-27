@@ -180,7 +180,9 @@ namespace ZeroC.Ice
         public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
         /// <summary>Indicates whether or not this proxy prefers using an existing connection over creating a new one.
-        /// </summary>
+        /// When <c>true</c> the proxy will prefer reusing an active connection to any of its endpoints, otherwise
+        /// endpoints are checked in order trying to get an active connection to the first endpoint, and if one doesn't
+        /// exists creating a new one to the first endpoint.</summary>
         public bool PreferExistingConnection => IceReference.PreferExistingConnection;
 
         /// <summary>Indicates the proxy's preference for establishing non-secure connections.</summary>
