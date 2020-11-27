@@ -58,17 +58,30 @@ namespace ZeroC.Ice
             return true;
         }
 
-        /// <summary>Computes the hash code for a dictionary.</summary>
+        /// <summary>Computes the hash code for a dictionary using the dictionary value's default comparer.</summary>
         /// <param name="dict">The dictionary.</param>
         /// <returns>A hash code computed using the dictionary's entries.</returns>
         public static int GetDictionaryHashCode<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict)
+            where TKey : notnull =>
+            GetDictionaryHashCode(dict, EqualityComparer<TValue>.Default);
+
+        /// <summary>Computes the hash code for a dictionary.</summary>
+        /// <param name="dict">The dictionary.</param>
+        /// <param name="valueComparer">The comparer used to get the hash code of the dictionary values.</param>
+        /// <returns>A hash code computed using the dictionary's entries.</returns>
+        public static int GetDictionaryHashCode<TKey, TValue>(
+            this IReadOnlyDictionary<TKey, TValue> dict,
+            IEqualityComparer<TValue> valueComparer)
             where TKey : notnull
         {
-            var hash = new System.HashCode();
-            foreach (KeyValuePair<TKey, TValue> e in dict)
+            var hash = new HashCode();
+            foreach ((TKey key, TValue value) in dict)
             {
-                hash.Add(e.Key);
-                hash.Add(e.Value);
+                hash.Add(key);
+                if (value != null)
+                {
+                    hash.Add(valueComparer.GetHashCode(value));
+                }
             }
             return hash.ToHashCode();
         }
