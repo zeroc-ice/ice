@@ -9,9 +9,9 @@ namespace ZeroC.Ice.Test.DictMapping
     internal abstract class DictionaryComparer<TKey, TValue> : EqualityComparer<IReadOnlyDictionary<TKey, TValue>>
         where TKey : notnull
     {
-        internal static DictionaryComparer<TKey, TValue> Deep { get; } = new DeepDictionaryComparer();
+        internal static DictionaryComparer<TKey, TValue> AllEntries { get; } = new AllEntriesDictionaryComparer();
 
-        private class DeepDictionaryComparer : DictionaryComparer<TKey, TValue>
+        private class AllEntriesDictionaryComparer : DictionaryComparer<TKey, TValue>
         {
             public override bool Equals(
                 IReadOnlyDictionary<TKey, TValue>? lhs,
@@ -24,9 +24,9 @@ namespace ZeroC.Ice.Test.DictMapping
 
     internal abstract class SequenceComparer<T> : EqualityComparer<IEnumerable<T>>
     {
-        internal static SequenceComparer<T> Deep { get; } = new DeepSequenceComparer();
+        internal static SequenceComparer<T> AllElements { get; } = new AllElementsSequenceComparer();
 
-        private class DeepSequenceComparer : SequenceComparer<T>
+        private class AllElementsSequenceComparer : SequenceComparer<T>
         {
             public override bool Equals(IEnumerable<T>? lhs, IEnumerable<T>? rhs) =>
                 ReferenceEquals(lhs, rhs) || (lhs != null && rhs != null && lhs.SequenceEqual(rhs));
@@ -76,8 +76,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 i["b"] = id;
 
                 (Dictionary<string, Dictionary<int, int>> r, Dictionary<string, Dictionary<int, int>> o) = p.OpNDV(i);
-                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<int, int>.Deep));
-                TestHelper.Assert(r.DictionaryEqual(i, DictionaryComparer<int, int>.Deep));
+                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<int, int>.AllEntries));
+                TestHelper.Assert(r.DictionaryEqual(i, DictionaryComparer<int, int>.AllEntries));
             }
 
             {
@@ -92,8 +92,8 @@ namespace ZeroC.Ice.Test.DictMapping
 
                 (Dictionary<string, Dictionary<string, string>> r,
                 Dictionary<string, Dictionary<string, string>> o) = p.OpNDR(i);
-                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<string, string>.Deep));
-                TestHelper.Assert(r.DictionaryEqual(i, DictionaryComparer<string, string>.Deep));
+                TestHelper.Assert(o.DictionaryEqual(i, DictionaryComparer<string, string>.AllEntries));
+                TestHelper.Assert(r.DictionaryEqual(i, DictionaryComparer<string, string>.AllEntries));
             }
 
             {
@@ -105,8 +105,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, int[]> r, Dictionary<string, int[]> o) = p.OpNDAIS(i);
-                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.Deep));
-                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<int>.Deep));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.AllElements));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<int>.AllElements));
             }
 
             {
@@ -122,8 +122,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, List<int>> r, Dictionary<string, List<int>> o) = p.OpNDGIS(i);
-                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.Deep));
-                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<int>.Deep));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<int>.AllElements));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<int>.AllElements));
             }
 
             {
@@ -135,8 +135,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, string[]> r, Dictionary<string, string[]> o) = p.OpNDASS(i);
-                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.Deep));
-                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<string>.Deep));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.AllElements));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<string>.AllElements));
             }
 
             {
@@ -152,8 +152,8 @@ namespace ZeroC.Ice.Test.DictMapping
                 };
 
                 (Dictionary<string, List<string>> r, Dictionary<string, List<string>> o) = p.OpNDGSS(i);
-                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.Deep));
-                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<string>.Deep));
+                TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.AllElements));
+                TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<string>.AllElements));
             }
         }
     }
