@@ -55,7 +55,14 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
 {
     constructor(prx, operation)
     {
-        super(prx.ice_getCommunicator(), operation, null, prx, null);
+        if (prx)
+        {
+            super(prx.ice_getCommunicator(), operation, null, prx, null);
+        }
+        else
+        {
+            super();
+        }
         this._mode = null;
         this._cnt = 0;
         this._sent = false;
@@ -190,8 +197,11 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
     constructor(prx, operation, completed)
     {
         super(prx, operation);
-        this._encoding = Protocol.getCompatibleEncoding(this._proxy._getReference().getEncoding());
-        this._completed = completed;
+        if (prx)
+        {
+            this._encoding = Protocol.getCompatibleEncoding(this._proxy._getReference().getEncoding());
+            this._completed = completed;
+        }
     }
 
     prepare(op, mode, ctx)

@@ -10,7 +10,7 @@ class AsyncResultBase extends Ice.Promise
     {
         super();
         this._communicator = communicator;
-        this._instance = communicator !== null ? communicator.instance : null;
+        this._instance = communicator ? communicator.instance : null;
         this._operation = op;
         this._connection = connection;
         this._proxy = proxy;

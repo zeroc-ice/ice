@@ -72,6 +72,11 @@ These are the changes since Ice 3.7.4.
   The property `Ice.AcceptClassCycles` can be set to a value greater than `0`
   to change this behavior.
 
+## JS Changes
+
+- Add default constructor for Promise derived objects, this works around problems with
+  JavaScript frameworks that don't support Symbol.species with their Promise implementations.
+
 # Changes in Ice 3.7.4
 
 These are the changes since Ice 3.7.3.

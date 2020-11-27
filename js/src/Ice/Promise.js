@@ -16,7 +16,7 @@ class P extends Promise
                 res = resolve;
                 rej = reject;
 
-                if(cb !== undefined)
+                if(cb)
                 {
                     cb(resolve, reject);
                 }
