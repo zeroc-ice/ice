@@ -753,7 +753,7 @@ namespace ZeroC.Ice
             AcceptNonSecure = communicator.AcceptNonSecure;
         }
 
-         /// <summary>Constructs a named object adapter.</summary>
+        /// <summary>Constructs a named object adapter.</summary>
         private ObjectAdapter(
             Communicator communicator,
             string name,
