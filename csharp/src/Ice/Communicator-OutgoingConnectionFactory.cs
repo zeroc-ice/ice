@@ -19,7 +19,10 @@ namespace ZeroC.Ice
         // We keep a map of the endpoints that recently resulted in a failure while establishing a connection. This is
         // used to influence the selection of endpoints when creating new connections. Endpoints with recent failures
         // are tried last.
+        // TODO consider including endpoints with transport failures during invocation?
         private readonly ConcurrentDictionary<Endpoint, DateTime> _transportFailures = new();
+        private TimeSpan _transportFailuresUpdated = Time.Elapsed;
+        private TimeSpan _transportFailuresPurge = Time.Elapsed;
 
         internal async ValueTask<Connection> ConnectAsync(
             Endpoint endpoint,
@@ -142,6 +145,7 @@ namespace ZeroC.Ice
                 catch (TransportException)
                 {
                     _transportFailures[endpoint] = DateTime.Now;
+                    _transportFailuresUpdated = Time.Elapsed;
                     throw;
                 }
                 finally
@@ -175,21 +179,30 @@ namespace ZeroC.Ice
 
         internal IEnumerable<Endpoint> OrderEndpointsByTransportFailures(IEnumerable<Endpoint> endpoints)
         {
-            // TODO rework this so that we don't have to purge expired transport failures with each call
-            // we can also optimize the common case where there is a single endpoint.
-
-            // Purge expired transport failures
-            DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
-            foreach ((Endpoint endpoint, DateTime date) in _transportFailures)
+            if (_transportFailures.IsEmpty)
             {
-                if (date <= expirationDate)
-                {
-                    _ = ((ICollection<KeyValuePair<Endpoint, DateTime>>)_transportFailures).Remove(
-                        new KeyValuePair<Endpoint, DateTime>(endpoint, date));
-                }
+                return endpoints;
             }
-            return endpoints.OrderBy(
-                endpoint => _transportFailures.TryGetValue(endpoint, out DateTime value) ? value : default);
+            else
+            {
+                // Purge expired transport failures
+                if (_transportFailuresUpdated > _transportFailuresPurge)
+                {
+                    _transportFailuresPurge = Time.Elapsed;
+                    DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
+                    foreach ((Endpoint endpoint, DateTime date) in _transportFailures)
+                    {
+                        if (date <= expirationDate)
+                        {
+                            _ = ((ICollection<KeyValuePair<Endpoint, DateTime>>)_transportFailures).Remove(
+                                new KeyValuePair<Endpoint, DateTime>(endpoint, date));
+                        }
+                    }
+                }
+
+                return endpoints.OrderBy(
+                    endpoint => _transportFailures.TryGetValue(endpoint, out DateTime value) ? value : default);
+            }
         }
 
         internal void Remove(Connection connection)

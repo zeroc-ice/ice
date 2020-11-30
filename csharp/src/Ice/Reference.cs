@@ -1356,7 +1356,7 @@ namespace ZeroC.Ice
             }
 
             // Apply overrides and filter endpoints
-            IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
+            List<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
             {
                 // Filter out opaque and universal endpoints
                 if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
@@ -1379,14 +1379,18 @@ namespace ZeroC.Ice
                     InvocationMode.Datagram => endpoint.IsDatagram,
                     _ => false
                 };
-            });
+            }).ToList();
 
-            var orderedEndpoints = Communicator.OrderEndpointsByTransportFailures(filteredEndpoints).ToList();
-            if (orderedEndpoints.Count == 0)
+            if (filteredEndpoints.Count == 0)
             {
                 throw new NoEndpointException(ToString());
             }
-            return (orderedEndpoints, cached);
+
+            if (filteredEndpoints.Count > 1)
+            {
+                filteredEndpoints = Communicator.OrderEndpointsByTransportFailures(filteredEndpoints).ToList();
+            }
+            return (filteredEndpoints, cached);
         }
         internal Connection? GetCachedConnection() => _connection;
 
