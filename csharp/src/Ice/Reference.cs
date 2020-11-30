@@ -47,7 +47,7 @@ namespace ZeroC.Ice
         internal TimeSpan LocatorCacheTimeout => _locatorCacheTimeout ?? Communicator.DefaultLocatorCacheTimeout;
 
         internal LocatorInfo? LocatorInfo { get; }
-        internal bool PreferExistingConnection { get; } = true;
+        internal bool PreferExistingConnection => _preferExistingConnection ?? Communicator.DefaultPreferExistingConnection;
         internal NonSecure PreferNonSecure => _preferNonSecure ?? Communicator.DefaultPreferNonSecure;
         internal Protocol Protocol { get; }
 
@@ -58,6 +58,7 @@ namespace ZeroC.Ice
         private volatile Connection? _connection; // readonly when IsFixed is true
         private readonly TimeSpan? _invocationTimeout;
         private readonly TimeSpan? _locatorCacheTimeout;
+        private readonly bool? _preferExistingConnection;
         private readonly NonSecure? _preferNonSecure;
 
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
@@ -272,7 +273,7 @@ namespace ZeroC.Ice
                                  locatorInfo: locatorInfo ??
                                     (endpoints.Count == 0 ?
                                         communicator.GetLocatorInfo(communicator.DefaultLocator) : null),
-                                 preferExistingConnection: preferExistingConnection ?? true,
+                                 preferExistingConnection: preferExistingConnection,
                                  preferNonSecure: preferNonSecure,
                                  protocol: protocol,
                                  relative: relative ?? false,
@@ -335,7 +336,7 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                if (PreferExistingConnection != other.PreferExistingConnection)
+                if (_preferExistingConnection != other._preferExistingConnection)
                 {
                     return false;
                 }
@@ -431,7 +432,7 @@ namespace ZeroC.Ice
                     hash.Add(Location.GetSequenceHashCode());
                     hash.Add(_locatorCacheTimeout);
                     hash.Add(LocatorInfo);
-                    hash.Add(PreferExistingConnection);
+                    hash.Add(_preferExistingConnection);
                     hash.Add(_preferNonSecure);
                     hash.Add(RouterInfo);
                 }
@@ -638,10 +639,11 @@ namespace ZeroC.Ice
                     sb.Append(TimeSpanExtensions.ToPropertyValue(locatorCacheTimeout));
                 }
 
-                if (!PreferExistingConnection)
+                if (_preferExistingConnection is bool preferExistingConnection)
                 {
                     StartQueryOption(sb, ref firstOption);
-                    sb.Append("prefer-existing-connection=false");
+                    sb.Append("prefer-existing-connection=");
+                    sb.Append(preferExistingConnection ? "true" : "false");
                 }
 
                 if (_preferNonSecure is NonSecure preferNonSecure)
@@ -991,7 +993,7 @@ namespace ZeroC.Ice
                    location: location,
                    locatorCacheTimeout: null,
                    locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator),
-                   preferExistingConnection: communicator.DefaultPreferExistingConnection,
+                   preferExistingConnection: null,
                    preferNonSecure: null,
                    protocol: protocol,
                    relative: false,
@@ -1138,7 +1140,7 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException(
                         "cannot change the prefer-existing-connection configuration of a fixed proxy",
-                        nameof(preferNonSecure));
+                        nameof(preferExistingConnection));
                 }
                 if (preferNonSecure != null)
                 {
@@ -1309,7 +1311,7 @@ namespace ZeroC.Ice
                                           newLocation ?? Location,
                                           locatorCacheTimeout ?? (locatorInfo != null ? _locatorCacheTimeout : null),
                                           locatorInfo, // no fallback otherwise breaks clearLocator
-                                          preferExistingConnection ?? PreferExistingConnection,
+                                          preferExistingConnection ?? _preferExistingConnection,
                                           preferNonSecure ?? _preferNonSecure,
                                           Protocol,
                                           relative ?? IsRelative,
@@ -1403,9 +1405,7 @@ namespace ZeroC.Ice
             List<Endpoint>? endpoints = null;
             if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
             {
-                // No cached connection, so now check if the connection factory has an existing connection that we
-                // can reuse, the connection factory will compute the reference endpoints and the endpoint
-                // connectors if required.
+                // No cached connection, so now check if there is an existing connection that we can reuse.
                 (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
                 connection = Communicator.GetConnection(endpoints, PreferNonSecure, Label);
                 if (CacheConnection)
@@ -1490,9 +1490,9 @@ namespace ZeroC.Ice
                 {
                     properties[$"{prefix}.LocatorCacheTimeout"] = locatorCacheTimeout.ToPropertyValue();
                 }
-                if (!PreferExistingConnection)
+                if (_preferExistingConnection is bool preferExistingConnection)
                 {
-                    properties[$"{prefix}.PreferExistingConnection"] = "false";
+                    properties[$"{prefix}.PreferExistingConnection"] = preferExistingConnection ? "true" : "false";
                 }
                 if (_preferNonSecure is NonSecure preferNonSecure)
                 {
@@ -1580,7 +1580,7 @@ namespace ZeroC.Ice
             IReadOnlyList<string> location, // already a copy provided by Ice
             TimeSpan? locatorCacheTimeout,
             LocatorInfo? locatorInfo,
-            bool preferExistingConnection,
+            bool? preferExistingConnection,
             NonSecure? preferNonSecure,
             Protocol protocol,
             bool relative,
@@ -1602,7 +1602,7 @@ namespace ZeroC.Ice
             Location = location;
             _locatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
-            PreferExistingConnection = preferExistingConnection;
+            _preferExistingConnection = preferExistingConnection;
             _preferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
@@ -1817,9 +1817,8 @@ namespace ZeroC.Ice
                 RetryPolicy retryPolicy =
                     response?.GetRetryPolicy(this) ?? exception!.GetRetryPolicy(request.IsIdempotent, sent);
 
-                // With the retry-policy OtherReplica we add the current connector to the list of excluded
-                // connectors and remove if from the list of connectors, this prevents the connector to be
-                // tried again during the current retry sequence.
+                // With the retry-policy OtherReplica we add the current endpoint to the list of excluded
+                // endpoints this prevents the endpoints to be tried again during the current retry sequence.
                 if (retryPolicy == RetryPolicy.OtherReplica)
                 {
                     if ((endpoints?[nextEndpoint] ?? connection?.Endpoint) is Endpoint endpoint)
@@ -1827,35 +1826,37 @@ namespace ZeroC.Ice
                         excludedEndpoints ??= new();
                         excludedEndpoints.Add(endpoint);
                     }
-                    endpoints?.RemoveAt(nextEndpoint);
                 }
 
                 if (endpoints != null)
                 {
-                    if (connection == null && retryPolicy != RetryPolicy.OtherReplica)
+                    if (connection == null || retryPolicy == RetryPolicy.OtherReplica)
                     {
-                        // If connection establishment failed and the endpoint was not excluded, try the next
+                        // If connection establishment failed or if the endpoint was excluded, try the next
                         // endpoint
                         nextEndpoint = ++nextEndpoint % endpoints.Count;
                     }
 
-                    if (endpoints.Count == 0 || nextEndpoint == 0)
+                    if (nextEndpoint == 0)
                     {
-                        // If the connector set is empty because all connectors has been excluded, or
-                        // nextConnector == 0, it indicates that we already tried all the connectors.
+                        // nextendpoint == 0 indicates that we already tried all the endpoints.
                         if (cached)
                         {
-                            // If the connectors were computed from cached endpoints, we clear the connectors to
-                            // trigger a new endpoint lookup.
+                            // If we were using cached endpoints, we clear the endpoints to trigger a new endpoint
+                            // lookup.
                             endpoints = null;
                             nextEndpoint = 0;
                         }
                         else
                         {
-                            // Otherwise we set triedAllConnectors to true to ensure further connection establishment
+                            // Otherwise we set triedAllEndpoints to true to ensure further connection establishment
                             // failures will now count as attempts (to prevent indefinitely looping if connection
                             // establishment failure results in a retryable exception).
                             triedAllEndpoints = true;
+                            if (excludedEndpoints != null)
+                            {
+                                endpoints = endpoints.Except(excludedEndpoints).ToList();
+                            }
                         }
                     }
                 }

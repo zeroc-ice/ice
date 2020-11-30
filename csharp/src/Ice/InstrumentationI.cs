@@ -65,14 +65,14 @@ namespace ZeroC.Ice
                 (obj, metrics) => (obj as InvocationMetrics)!.Children = metrics);
         }
 
-        public IObserver? GetConnectionEstablishmentObserver(Endpoint endpoint, string connector)
+        public IObserver? GetConnectionEstablishmentObserver(Endpoint endpoint, string description)
         {
             if (_connects.IsEnabled)
             {
                 try
                 {
-                    return _connects.GetObserver(new EndpointHelper(endpoint, connector),
-                        _delegate?.GetConnectionEstablishmentObserver(endpoint, connector));
+                    return _connects.GetObserver(new EndpointHelper(endpoint, description),
+                        _delegate?.GetConnectionEstablishmentObserver(endpoint, description));
                 }
                 catch (Exception ex)
                 {

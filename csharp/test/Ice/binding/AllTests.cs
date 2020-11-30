@@ -196,7 +196,7 @@ namespace ZeroC.Ice.Test.Binding
                 if (helper.Protocol == Protocol.Ice1)
                 {
                     // Now, re-activate the adapters with the same endpoints in the opposite order.
-                    // Wait 5 seconds to let recent connector failures expire
+                    // Wait 5 seconds to let recent endpoint failures expire
                     Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter66", endpoints[2].ToString()));
                     for (int i = 0; i < 3; i++)
@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.Binding
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter66");
                     }
 
-                    // Wait 5 seconds to let recent connector failures expire
+                    // Wait 5 seconds to let recent endpoint failures expire
                     Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter65", endpoints[1].ToString()));
                     for (int i = 0; i < 3; i++)
@@ -212,7 +212,7 @@ namespace ZeroC.Ice.Test.Binding
                         TestHelper.Assert(obj.GetAdapterName() == "Adapter65");
                     }
 
-                    // Wait 5 seconds to let recent connector failures expire
+                    // Wait 5 seconds to let recent endpoint failures expire
                     Thread.Sleep(5000);
                     adapters.Add(com.CreateObjectAdapterWithEndpoints("Adapter64", endpoints[0].ToString()));
                     for (int i = 0; i < 3; i++)

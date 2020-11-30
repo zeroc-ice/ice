@@ -746,11 +746,11 @@ namespace ZeroC.Ice.Test.Proxy
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             // InvocationTimeout is a property with ice1 and an URI option with ice2 so the extra property with ice1.
             // Also no router properties with ice2.
-            TestHelper.Assert(proxyProps.Count == (ice1 ? 3 : 1));
+            TestHelper.Assert(proxyProps.Count == (ice1 ? 4 : 1));
 
             TestHelper.Assert(proxyProps["Test"] ==
-                                (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
-                                    "ice+tcp://127.0.0.1/test?invocation-timeout=10s&prefer-non-secure=never"));
+                (ice1 ? "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 1000" :
+                        "ice+tcp://127.0.0.1/test?invocation-timeout=10s&prefer-existing-connection=true&prefer-non-secure=never"));
 
             if (ice1)
             {
@@ -780,9 +780,9 @@ namespace ZeroC.Ice.Test.Proxy
 
             proxyProps = b1.ToProperty("Test");
 
-            TestHelper.Assert(proxyProps.Count == (ice1 ? 10 : 1));
+            TestHelper.Assert(proxyProps.Count == (ice1 ? 12 : 1), $"count: {proxyProps.Count}");
             TestHelper.Assert(proxyProps["Test"] == (ice1 ? "test -t -e 1.1" :
-                "ice:test?invocation-timeout=10s&locator-cache-timeout=100s&prefer-non-secure=never"));
+                "ice:test?invocation-timeout=10s&locator-cache-timeout=100s&prefer-existing-connection=true&prefer-non-secure=never"));
 
             if (ice1)
             {

@@ -101,8 +101,6 @@ namespace ZeroC.Ice
                                                                         cancel).ConfigureAwait(false);
                     lock (_mutex)
                     {
-                        _pendingOutgoingConnections.Remove((endpoint, label));
-
                         if (!_outgoingConnections.TryGetValue((endpoint, label), out LinkedList<Connection>? list))
                         {
                             list = new LinkedList<Connection>();

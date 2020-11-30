@@ -50,7 +50,7 @@ namespace ZeroC.Ice
                 }
                 Endpoint endpoint = socket.Bind(this);
                 var multiStreamSocket = new Ice1NetworkSocket(socket, endpoint, adapter);
-                return new UdpConnection(endpoint, multiStreamSocket, "", adapter);
+                return new UdpConnection(endpoint, multiStreamSocket, label: null, adapter);
             }
             catch (Exception)
             {
@@ -137,11 +137,8 @@ namespace ZeroC.Ice
             object? label)
         {
             Debug.Assert(secureOnly == false);
-            var socket = new UdpSocket(Communicator, address, SourceAddress, MulticastInterface, MulticastTtl);
-            return new UdpConnection(this,
-                                     new Ice1NetworkSocket(socket, this, adapter: null),
-                                     label,
-                                     adapter: null);
+            UdpSocket socket = new(Communicator, address, SourceAddress, MulticastInterface, MulticastTtl);
+            return new UdpConnection(this, new Ice1NetworkSocket(socket, this, adapter: null), label, adapter: null);
         }
 
         protected internal override void WriteOptions(OutputStream ostr)
