@@ -916,17 +916,14 @@ namespace ZeroC.Ice
                     _outgoingConnections.Values.SelectMany(connections => connections).Select(
                         connection => connection.GoAwayAsync(disposedException)).Append(ShutdownAsync());
 
-                // Copy the pending connect tasks while we hold the mutex to dispose them bellow
-                var connectTasks = _pendingOutgoingConnections.Values.ToList();
                 await Task.WhenAll(closeTasks).ConfigureAwait(false);
 
-                foreach (Task<Connection> connect in connectTasks)
+                foreach (Task<Connection> connect in _pendingOutgoingConnections.Values)
                 {
                     try
                     {
                         Connection connection = await connect.ConfigureAwait(false);
                         await connection.GoAwayAsync(disposedException).ConfigureAwait(false);
-                        _pendingOutgoingConnections.Remove((connection.Endpoint, connection.Label));
                     }
                     catch
                     {
@@ -935,7 +932,6 @@ namespace ZeroC.Ice
 #if DEBUG
                 // Ensure all the outgoing connections were removed
                 Debug.Assert(_outgoingConnections.Count == 0);
-                Debug.Assert(_pendingOutgoingConnections.Count == 0);
 #endif
 
                 // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call

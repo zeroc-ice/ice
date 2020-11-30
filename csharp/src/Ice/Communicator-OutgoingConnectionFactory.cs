@@ -157,7 +157,11 @@ namespace ZeroC.Ice
                 {
                     lock (_mutex)
                     {
-                        _pendingOutgoingConnections.Remove((endpoint, label));
+                        // Don't modify the pending connections map after the communicator was disposed.
+                        if (_disposeTask == null)
+                        {
+                            _pendingOutgoingConnections.Remove((endpoint, label));
+                        }
                     }
                 }
             }
