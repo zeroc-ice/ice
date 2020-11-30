@@ -21,8 +21,6 @@ namespace ZeroC.Ice
         // are tried last.
         // TODO consider including endpoints with transport failures during invocation?
         private readonly ConcurrentDictionary<Endpoint, DateTime> _transportFailures = new();
-        private TimeSpan _transportFailuresUpdated = Time.Elapsed;
-        private TimeSpan _transportFailuresPurge = Time.Elapsed;
 
         internal async ValueTask<Connection> ConnectAsync(
             Endpoint endpoint,
@@ -104,6 +102,14 @@ namespace ZeroC.Ice
                                                                         cancel).ConfigureAwait(false);
                     lock (_mutex)
                     {
+                        if (_disposeTask != null)
+                        {
+                            // If the communicator has been already disposed throw here and avoid adding the connection
+                            // to the outgoing connections map, the connection will be disposed from the pending
+                            // connections map.
+                            throw new CommunicatorDisposedException();
+                        }
+
                         if (!_outgoingConnections.TryGetValue((endpoint, label), out LinkedList<Connection>? list))
                         {
                             list = new LinkedList<Connection>();
@@ -145,7 +151,6 @@ namespace ZeroC.Ice
                 catch (TransportException)
                 {
                     _transportFailures[endpoint] = DateTime.Now;
-                    _transportFailuresUpdated = Time.Elapsed;
                     throw;
                 }
                 finally
@@ -186,17 +191,15 @@ namespace ZeroC.Ice
             else
             {
                 // Purge expired transport failures
-                if (_transportFailuresUpdated > _transportFailuresPurge)
+
+                // TODO avoid purge failures with each call
+                DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
+                foreach ((Endpoint endpoint, DateTime date) in _transportFailures)
                 {
-                    _transportFailuresPurge = Time.Elapsed;
-                    DateTime expirationDate = DateTime.Now - TimeSpan.FromSeconds(5);
-                    foreach ((Endpoint endpoint, DateTime date) in _transportFailures)
+                    if (date <= expirationDate)
                     {
-                        if (date <= expirationDate)
-                        {
-                            _ = ((ICollection<KeyValuePair<Endpoint, DateTime>>)_transportFailures).Remove(
-                                new KeyValuePair<Endpoint, DateTime>(endpoint, date));
-                        }
+                        _ = ((ICollection<KeyValuePair<Endpoint, DateTime>>)_transportFailures).Remove(
+                            new KeyValuePair<Endpoint, DateTime>(endpoint, date));
                     }
                 }
 

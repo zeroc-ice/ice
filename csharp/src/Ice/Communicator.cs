@@ -916,6 +916,7 @@ namespace ZeroC.Ice
                     _outgoingConnections.Values.SelectMany(connections => connections).Select(
                         connection => connection.GoAwayAsync(disposedException)).Append(ShutdownAsync());
 
+                // Copy the pending connect tasks while we hold the mutex to dispose them bellow
                 var connectTasks = _pendingOutgoingConnections.Values.ToList();
                 await Task.WhenAll(closeTasks).ConfigureAwait(false);
 
@@ -925,6 +926,7 @@ namespace ZeroC.Ice
                     {
                         Connection connection = await connect.ConfigureAwait(false);
                         await connection.GoAwayAsync(disposedException).ConfigureAwait(false);
+                        _pendingOutgoingConnections.Remove((connection.Endpoint, connection.Label));
                     }
                     catch
                     {
