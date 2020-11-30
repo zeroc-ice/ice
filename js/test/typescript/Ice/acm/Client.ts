@@ -462,14 +462,14 @@ class SetACMTest extends TestCase
         await proxy.startHeartbeatCount();
         await proxy.waitForHeartbeatCount(2);
 
-        await new Promise(
+        await new Promise<void>(
             (resolve, reject) =>
                 {
                     con.setCloseCallback(() => resolve());
                     con.close(Ice.ConnectionClose.Gracefully);
                 });
 
-        await new Promise(
+        await new Promise<void>(
             (resolve, reject) =>
                 {
                     con.setCloseCallback(() => resolve());
