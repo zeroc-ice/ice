@@ -177,7 +177,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IEnumerable<Endpoint> OrderEndpointsByTransportFailures(IEnumerable<Endpoint> endpoints)
+        internal List<Endpoint> OrderEndpointsByTransportFailures(List<Endpoint> endpoints)
         {
             if (_transportFailures.IsEmpty)
             {
@@ -201,7 +201,7 @@ namespace ZeroC.Ice
                 }
 
                 return endpoints.OrderBy(
-                    endpoint => _transportFailures.TryGetValue(endpoint, out DateTime value) ? value : default);
+                    endpoint => _transportFailures.TryGetValue(endpoint, out DateTime value) ? value : default).ToList();
             }
         }
 
@@ -214,10 +214,6 @@ namespace ZeroC.Ice
                 if (list.Count == 0)
                 {
                     _outgoingConnections.Remove((connection.Endpoint, connection.Label));
-                }
-                if (_disposeTask != null)
-                {
-                    _pendingOutgoingConnections.Remove((connection.Endpoint, connection.Label));
                 }
             }
         }

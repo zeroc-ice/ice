@@ -1388,7 +1388,7 @@ namespace ZeroC.Ice
 
             if (filteredEndpoints.Count > 1)
             {
-                filteredEndpoints = Communicator.OrderEndpointsByTransportFailures(filteredEndpoints).ToList();
+                filteredEndpoints = Communicator.OrderEndpointsByTransportFailures(filteredEndpoints);
             }
             return (filteredEndpoints, cached);
         }
