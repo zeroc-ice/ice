@@ -13,7 +13,6 @@ namespace ZeroC.Ice
         public Endpoint Endpoint => _endpoint;
 
         private readonly ColocatedEndpoint _endpoint;
-        private readonly IConnectionManager _manager;
         private readonly ObjectAdapter _adapter;
         private readonly ChannelReader<(long, ColocatedChannelWriter, ColocatedChannelReader)> _reader;
         private readonly ChannelWriter<(long, ColocatedChannelWriter, ColocatedChannelReader)> _writer;
@@ -23,11 +22,9 @@ namespace ZeroC.Ice
             (long id, ColocatedChannelWriter writer, ColocatedChannelReader reader) =
                 await _reader.ReadAsync().ConfigureAwait(false);
 
-            return new ColocatedConnection(_manager,
-                                           _endpoint,
+            return new ColocatedConnection(_endpoint,
                                            new ColocatedSocket(_endpoint, id, writer, reader, true),
-                                           null,
-                                           "",
+                                           label: null,
                                            _adapter);
         }
 
@@ -40,13 +37,11 @@ namespace ZeroC.Ice
 
         internal ColocatedAcceptor(
             ColocatedEndpoint endpoint,
-            IConnectionManager manager,
             ObjectAdapter adapter,
             ChannelWriter<(long, ColocatedChannelWriter, ColocatedChannelReader)> writer,
             ChannelReader<(long, ColocatedChannelWriter, ColocatedChannelReader)> reader)
         {
             _endpoint = endpoint;
-            _manager = manager;
             _adapter = adapter;
             _writer = writer;
             _reader = reader;

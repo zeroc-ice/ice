@@ -19,11 +19,10 @@ namespace ZeroC.Ice
     /// servants, identities, and proxies.</summary>
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
-        /// <summary>Indicates whether or not the object adapter accepts non-secure incoming connections. When false, it
-        /// only accepts secure connections; when true, it accepts both secure and non-secure connections. This property
+        /// <summary>Indicates under what circumstances the object adapter accepts non-secure incoming connections. This property
         /// corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
         /// <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
-        public bool AcceptNonSecure { get; }
+        public NonSecure AcceptNonSecure { get; }
 
         /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not
         /// have an adapter ID.</summary>
@@ -81,24 +80,30 @@ namespace ZeroC.Ice
             "Endpoints",
             "IncomingFrameMaxSize",
             "Locator",
-            "Locator.Encoding",
             "Locator.CacheConnection",
+            "Locator.Encoding",
+            "Locator.Label",
+            "Locator.PreferExistingConnection",
             "Locator.PreferNonSecure",
             "Locator.Router",
             "ProxyOptions",
             "PublishedEndpoints",
             "ReplicaGroupId",
             "Router",
-            "Router.Encoding",
             "Router.CacheConnection",
-            "Router.PreferNonSecure",
+            "Router.Encoding",
+            "Router.InvocationTimeout",
+            "Router.Label",
             "Router.Locator",
             "Router.Locator.CacheConnection",
             "Router.Locator.InvocationTimeout",
+            "Router.Locator.Label",
             "Router.Locator.LocatorCacheTimeout",
+            "Router.Locator.PreferExistingConnection",
             "Router.Locator.PreferNonSecure",
             "Router.LocatorCacheTimeout",
-            "Router.InvocationTimeout",
+            "Router.PreferExistingConnection",
+            "Router.PreferNonSecure",
             "ServerName"
         };
 
@@ -228,7 +233,7 @@ namespace ZeroC.Ice
                 // Wait for the incoming connection factories to be disposed.
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
-                Communicator.OutgoingConnectionFactory.RemoveAdapter(this);
+                // TODO jose: Clear the outgoing connections adapter?
                 Communicator.EraseRouterInfo(_routerInfo?.Router);
                 Communicator.RemoveObjectAdapter(this);
             }
@@ -748,7 +753,7 @@ namespace ZeroC.Ice
             AcceptNonSecure = communicator.AcceptNonSecure;
         }
 
-         /// <summary>Constructs a named object adapter.</summary>
+        /// <summary>Constructs a named object adapter.</summary>
         private ObjectAdapter(
             Communicator communicator,
             string name,
@@ -801,7 +806,8 @@ namespace ZeroC.Ice
                 throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
             }
 
-            AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
+            AcceptNonSecure =
+                Communicator.GetPropertyAsEnum<NonSecure>($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
 
             if (router != null && router.Protocol != Protocol.Ice1)
             {
@@ -850,7 +856,7 @@ namespace ZeroC.Ice
 
                         // When the adapter is configured to only accept secure connections ensure that all
                         // configured endpoints only accept secure connections.
-                        if (!AcceptNonSecure &&
+                        if (AcceptNonSecure == NonSecure.Never &&
                             Endpoints.FirstOrDefault(endpoint => !endpoint.IsAlwaysSecure) is Endpoint endpoint)
                         {
                             throw new InvalidConfigurationException($@"object adapter `{Name
@@ -947,9 +953,7 @@ namespace ZeroC.Ice
                     // Modify all existing outgoing connections to the router's client proxy to use this object
                     // adapter for callbacks.
 
-                    await Communicator.OutgoingConnectionFactory.SetRouterInfoAsync(_routerInfo, cancel).
-                        ConfigureAwait(false);
-
+                    await Communicator.SetRouterInfoAsync(_routerInfo, cancel).ConfigureAwait(false);
                     PublishedEndpoints = await _routerInfo.Router.GetServerEndpointsAsync(cancel).ConfigureAwait(false);
                 }
                 else

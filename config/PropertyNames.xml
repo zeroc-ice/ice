@@ -242,6 +242,7 @@ generated from the section label.
         <suffix name="InvocationTimeout" />
         <suffix name="Locator" />
         <suffix name="LocatorCacheTimeout" />
+        <suffix name="PreferExistingConnection" />
         <suffix name="PreferNonSecure" />
         <suffix name="PreferSecure" /> <!-- TODO: remove -->
         <suffix name="Relative" />
@@ -328,6 +329,7 @@ generated from the section label.
         <property name="Default.LocatorCacheTimeout" />
         <property name="Default.InvocationTimeout" />
         <property name="Default.Package" />
+        <property name="Default.PreferExistingConnection" />
         <property name="Default.PreferNonSecure" />
         <!-- TODO remove PreferSecure -->
         <property name="Default.PreferSecure" />
@@ -358,6 +360,7 @@ generated from the section label.
         <property name="ImplicitContext" />
         <property name="IncomingFrameMaxSize" />
         <property name="InitPlugins" />
+        <property name="InvocationMaxAttempts" />
         <!-- TODO: Remove IPv4 -->
         <property name="IPv4" />
         <!-- TODO: Remove IPv6 -->

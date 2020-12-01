@@ -148,7 +148,7 @@ namespace ZeroC.Ice.Discovery
                 communicator.SetProperty("Ice.Discovery.Multicast.Endpoints",
                                           $"{defaultIPv4Endpoint}:{defaultIPv6Endpoint}");
             }
-            communicator.SetProperty("Ice.Discovery.Multicast.AcceptNonSecure", "True");
+            communicator.SetProperty("Ice.Discovery.Multicast.AcceptNonSecure", "Always");
 
             string? lookupEndpoints = communicator.GetProperty("Ice.Discovery.Lookup");
             if (lookupEndpoints == null)
@@ -171,7 +171,7 @@ namespace ZeroC.Ice.Discovery
             // create datagram proxies
             communicator.SetProperty("Ice.Discovery.Reply.ProxyOptions", "-d");
             // datagram connection are nonsecure
-            communicator.SetProperty("Ice.Discovery.Reply.AcceptNonSecure", "True");
+            communicator.SetProperty("Ice.Discovery.Reply.AcceptNonSecure", "Always");
 
             _multicastAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Multicast");
             _replyAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Reply");
@@ -198,7 +198,7 @@ namespace ZeroC.Ice.Discovery
             _lookup = ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
                 clearRouter: true,
                 invocationTimeout: _timeout,
-                preferNonSecure: true);
+                preferNonSecure: NonSecure.Always);
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
             // of the lookup proxy.

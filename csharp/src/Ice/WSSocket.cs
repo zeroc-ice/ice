@@ -45,7 +45,6 @@ namespace ZeroC.Ice
 
         private bool _closing;
         private readonly Communicator _communicator;
-        private readonly IConnector? _connector;
         private readonly bool _incoming;
         private readonly string _host;
         private string _key;
@@ -229,7 +228,7 @@ namespace ZeroC.Ice
 
             if (_receivePayloadLength == 0)
             {
-                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero), _connector);
+                throw new ConnectionLostException(RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
 
             // Read the payload
@@ -261,11 +260,9 @@ namespace ZeroC.Ice
             Communicator communicator,
             SingleStreamSocket del,
             string host,
-            string resource,
-            IConnector? connector)
+            string resource)
             : this(communicator, del)
         {
-            _connector = connector;
             _host = host;
             _resource = resource;
             _incoming = false;

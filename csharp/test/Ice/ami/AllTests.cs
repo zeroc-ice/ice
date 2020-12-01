@@ -302,9 +302,8 @@ namespace ZeroC.Ice.Test.AMI
                     p2.OpAsync().Wait();
                     TestHelper.Assert(false);
                 }
-                catch (AggregateException ex)
+                catch (CommunicatorDisposedException)
                 {
-                    TestHelper.Assert(ex.InnerException is CommunicatorDisposedException);
                 }
             }
             output.WriteLine("ok");
@@ -446,7 +445,7 @@ namespace ZeroC.Ice.Test.AMI
                     catch (TestIntfException)
                     {
                         // Run blocking IcePing() on another thread from the continuation to ensure there's no deadlock
-                        // if the continuaion blocks and wait for another thread to complete an invocation with the
+                        // if the continuation blocks and wait for another thread to complete an invocation with the
                         // connection.
                         Task.Run(() => p.IcePing()).Wait();
                     }
@@ -459,7 +458,7 @@ namespace ZeroC.Ice.Test.AMI
                     catch
                     {
                         // Run blocking IcePing() on another thread from the continuation to ensure there's no deadlock
-                        // if the continuaion blocks and wait for another thread to complete an invocation with the
+                        // if the continuation blocks and wait for another thread to complete an invocation with the
                         // connection.
                         Task.Run(() => p.IcePing()).Wait();
                     }
@@ -810,7 +809,7 @@ namespace ZeroC.Ice.Test.AMI
                     // Local case: start an operation and then close the connection gracefully on the client side
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the
                     // invocation to fail with ConnectionClosedException.
-                    p = p.Clone(connectionId: "CloseGracefully"); // Start with a new connection.
+                    p = p.Clone(label: "CloseGracefully"); // Start with a new connection.
                     Connection con = p.GetConnection();
                     var cb = new CallbackBase();
                     Task t = p.StartDispatchAsync(progress: new Progress(sentSynchronously => cb.Called()));

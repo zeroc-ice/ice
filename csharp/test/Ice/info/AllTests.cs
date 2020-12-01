@@ -79,7 +79,7 @@ namespace ZeroC.Ice.Test.Info
 
                 communicator.SetProperty("TestAdapter.Endpoints",
                     $"tcp -h \"{helper.Host}\" -p 0 -t 15000");
-                communicator.SetProperty("TestAdapter.AcceptNonSecure", "True");
+                communicator.SetProperty("TestAdapter.AcceptNonSecure", "Always");
                 communicator.SetProperty("TestAdapter.ServerName", serverName);
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
@@ -156,7 +156,7 @@ namespace ZeroC.Ice.Test.Info
                 {
                     Endpoint udpEndpoint =
                         testIntf.Clone(invocationMode: InvocationMode.Datagram,
-                                       preferNonSecure: true).GetConnection()!.Endpoint;
+                                       preferNonSecure: NonSecure.Always).GetConnection()!.Endpoint;
                     TestHelper.Assert(udpEndpoint.Port == endpointPort);
                     TestHelper.Assert(udpEndpoint.Host == defaultHost);
                 }
@@ -179,7 +179,7 @@ namespace ZeroC.Ice.Test.Info
                 }
 
                 // This could be either an ice1 ssl endpoint or an ice2 tcp endpoint with PreferNonSecure == False
-                if (connection.Endpoint.IsAlwaysSecure || !testIntf.PreferNonSecure)
+                if (connection.Endpoint.IsAlwaysSecure || testIntf.PreferNonSecure == NonSecure.Never)
                 {
                     TestHelper.Assert(((TcpConnection)connection).IsEncrypted);
                     // WSS tests run client authentication disabled for compatibility with web browser testing.
@@ -238,7 +238,7 @@ namespace ZeroC.Ice.Test.Info
                 if (ice1)
                 {
                     connection = (IPConnection)testIntf.Clone(invocationMode: InvocationMode.Datagram,
-                                                              preferNonSecure: true).GetConnection()!;
+                                                              preferNonSecure: NonSecure.Always).GetConnection()!;
 
                     var udpConnection = connection as UdpConnection;
                     TestHelper.Assert(udpConnection != null);

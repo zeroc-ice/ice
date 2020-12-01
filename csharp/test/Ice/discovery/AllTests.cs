@@ -181,49 +181,84 @@ namespace ZeroC.Ice.Test.Discovery
                     "oa3"
                 };
 
+                // Check that the well known object is reachable with all replica group members
                 ITestIntfPrx intf = ITestIntfPrx.Parse(ice1 ? "object" : "ice:object", communicator).Clone(
                     cacheConnection: false,
+                    preferExistingConnection: false,
                     locatorCacheTimeout: TimeSpan.Zero);
                 while (adapterIds.Count > 0)
                 {
-                    adapterIds.Remove(intf.GetAdapterId());
-                }
-
-                // TODO: describe what this test is testing and make sure it does not hang forever!
-                while (true)
-                {
-                    adapterIds.Add("oa1");
-                    adapterIds.Add("oa2");
-                    adapterIds.Add("oa3");
-                    intf = ITestIntfPrx.Parse(ice1 ? "object @ rg" : "ice:rg//object", communicator).Clone(
-                        cacheConnection: false,
-                        locatorCacheTimeout: TimeSpan.Zero);
-                    int nRetry = 100;
-                    while (adapterIds.Count > 0 && --nRetry > 0)
+                    string id = intf.GetAdapterId();
+                    adapterIds.Remove(id);
+                    switch (id)
                     {
-                        adapterIds.Remove(intf.GetAdapterId());
+                        case "oa1":
+                        {
+                            proxies[0].DeactivateObjectAdapter("oa");
+                            break;
+                        }
+                        case "oa2":
+                        {
+                            proxies[1].DeactivateObjectAdapter("oa");
+                            break;
+                        }
+                        case "oa3":
+                        {
+                            proxies[2].DeactivateObjectAdapter("oa");
+                            break;
+                        }
                     }
-                    if (nRetry > 0)
-                    {
-                        break;
-                    }
-
-                    adapterIds.Clear();
                 }
-
-                proxies[0].DeactivateObjectAdapter("oa");
-                proxies[1].DeactivateObjectAdapter("oa");
-                TestHelper.Assert(
-                    ITestIntfPrx.Parse(
-                        ice1 ? "object @ rg" : "ice:rg//object", communicator).GetAdapterId().Equals("oa3"));
-                proxies[2].DeactivateObjectAdapter("oa");
 
                 proxies[0].ActivateObjectAdapter("oa", "oa1", "rg");
+                proxies[1].ActivateObjectAdapter("oa", "oa2", "rg");
+                proxies[2].ActivateObjectAdapter("oa", "oa3", "rg");
+
                 proxies[0].AddObject("oa", "object");
-                TestHelper.Assert(
-                    ITestIntfPrx.Parse(
-                        ice1 ? "object @ rg" : "ice:rg//object", communicator).GetAdapterId().Equals("oa1"));
-                proxies[0].DeactivateObjectAdapter("oa");
+                proxies[1].AddObject("oa", "object");
+                proxies[2].AddObject("oa", "object");
+
+                IObjectPrx.Parse(ice1 ? "object @ oa1" : "ice:oa1//object", communicator).IcePing();
+                IObjectPrx.Parse(ice1 ? "object @ oa2" : "ice:oa2//object", communicator).IcePing();
+                IObjectPrx.Parse(ice1 ? "object @ oa3" : "ice:oa3//object", communicator).IcePing();
+
+                IObjectPrx.Parse(ice1 ? "object @ rg" : "ice:rg//object", communicator).IcePing();
+
+                adapterIds = new List<string>
+                {
+                    "oa1",
+                    "oa2",
+                    "oa3"
+                };
+
+                // Check that the indirect reference is reachable with all replica group members
+                intf = ITestIntfPrx.Parse(ice1 ? "object @ rg" : "ice:rg//object", communicator).Clone(
+                    cacheConnection: false,
+                    preferExistingConnection: false,
+                    locatorCacheTimeout: TimeSpan.Zero);
+                while (adapterIds.Count > 0)
+                {
+                    var id = intf.GetAdapterId();
+                    adapterIds.Remove(id);
+                    switch (id)
+                    {
+                        case "oa1":
+                        {
+                            proxies[0].DeactivateObjectAdapter("oa");
+                            break;
+                        }
+                        case "oa2":
+                        {
+                            proxies[1].DeactivateObjectAdapter("oa");
+                            break;
+                        }
+                        case "oa3":
+                        {
+                            proxies[2].DeactivateObjectAdapter("oa");
+                            break;
+                        }
+                    }
+                }
             }
             output.WriteLine("ok");
 

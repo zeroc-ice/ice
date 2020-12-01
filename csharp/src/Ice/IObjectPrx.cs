@@ -119,9 +119,6 @@ namespace ZeroC.Ice
         /// <returns>The communicator that created this proxy.</returns>
         public Communicator Communicator => IceReference.Communicator;
 
-        /// <summary>The connection ID of this proxy.</summary>
-        public string ConnectionId => IceReference.ConnectionId;
-
         /// <summary>The context of this proxy, which will be sent with each invocation made using this proxy.
         /// </summary>
         public IReadOnlyDictionary<string, string> Context => IceReference.Context;
@@ -167,6 +164,11 @@ namespace ZeroC.Ice
         /// </value>
         public bool IsRelative => IceReference.IsRelative;
 
+        /// <summary>An optional label that can be used to prevent proxies with identical endpoints to share a
+        /// connection, outgoing connections between equivalent endpoints are shared for proxies with equal labels.
+        /// </summary>
+        public object? Label => IceReference.Label;
+
         /// <summary>Gets the location of this proxy. Ice uses this location to find the target object.</summary>
         public IReadOnlyList<string> Location => IceReference.Location;
 
@@ -177,11 +179,14 @@ namespace ZeroC.Ice
         /// <summary>The locator cache timeout of this proxy.</summary>
         public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
-        /// <summary>Indicates whether or not this proxy prefers non-secure connections.</summary>
-        /// <value>When true, the proxy attempts to establish a non-secure connection if such a connection is available;
-        /// when false, the proxy attempts first to establish a secure connection and falls back to a non-secure
-        /// connection. The fallback to a non-secure connection applies only when using the ice1 protocol.</value>
-        public bool PreferNonSecure => IceReference.PreferNonSecure;
+        /// <summary>Indicates whether or not this proxy prefers using an existing connection over creating a new one.
+        /// When <c>true</c> the proxy will prefer reusing an active connection to any of its endpoints, otherwise
+        /// endpoints are checked in order trying to get an active connection to the first endpoint, and if one doesn't
+        /// exists creating a new one to the first endpoint.</summary>
+        public bool PreferExistingConnection => IceReference.PreferExistingConnection;
+
+        /// <summary>Indicates the proxy's preference for establishing non-secure connections.</summary>
+        public NonSecure PreferNonSecure => IceReference.PreferNonSecure;
 
         /// <summary>The Ice protocol of this proxy. Requests sent with this proxy use only this Ice protocol.</summary>
         public Protocol Protocol => IceReference.Protocol;

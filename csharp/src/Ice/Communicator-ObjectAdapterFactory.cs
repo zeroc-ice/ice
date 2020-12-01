@@ -348,6 +348,7 @@ namespace ZeroC.Ice
                 {
                     _adapterNamesInUse.Remove(adapter.Name);
                 }
+                // TODO clear outgoging connections adapter?
             }
         }
 

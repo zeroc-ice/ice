@@ -100,7 +100,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 communicator.SetProperty("DAdapter.ServerName", testHost);
                 if (ice1)
                 {
-                    communicator.SetProperty("DAdapter.AcceptNonSecure", "true");
+                    communicator.SetProperty("DAdapter.AcceptNonSecure", "Always");
                 }
                 {
                     communicator.SetProperty(
@@ -169,7 +169,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             if (ice1)
             {
                 var routerId = new Identity("router", "");
-                IRouterPrx router = obj.Clone(IRouterPrx.Factory, connectionId: "rc", identity: routerId);
+                IRouterPrx router = obj.Clone(IRouterPrx.Factory, label: "rc", identity: routerId);
                 {
                     using var adapter = communicator.CreateObjectAdapterWithRouter(router);
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 try
                 {
                     using var adapter = communicator.CreateObjectAdapterWithRouter(
-                        obj.Clone(IRouterPrx.Factory, connectionId: "rc", identity: new Identity("router", "")));
+                        obj.Clone(IRouterPrx.Factory, label: "rc", identity: new Identity("router", "")));
                     TestHelper.Assert(false);
                 }
                 catch (ArgumentException)
