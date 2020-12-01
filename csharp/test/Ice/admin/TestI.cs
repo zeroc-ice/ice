@@ -19,7 +19,8 @@ namespace ZeroC.Ice.Test.Admin
 
         public RemoteCommunicator(Communicator communicator) => _communicator = communicator;
 
-        public IObjectPrx? GetAdmin(Current current, CancellationToken cancel) => _communicator.GetAdmin();
+        public IObjectPrx? GetAdmin(Current current, CancellationToken cancel) =>
+            _communicator.GetAdmin(cancel: cancel);
 
         public IReadOnlyDictionary<string, string> GetChanges(Current current, CancellationToken cancel) =>
             new Dictionary<string, string>(_changes!);

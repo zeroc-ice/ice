@@ -31,9 +31,9 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public IObjectPrx? GetAdmin(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.GetAdmin();
+            current.Communicator.GetAdmin(cancel: cancel);
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 }
