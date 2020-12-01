@@ -112,8 +112,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
-                byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
+                byte[] bsi1 = new { 0x01, 0x11, 0x12, 0x22 };
+                byte[] bsi2 = new { 0xf1, 0xf2, 0xf3, 0xf4 };
 
                 (byte[] returnValue, byte[] bso) = p.OpByteSAsync(bsi1, bsi2).Result;
 
@@ -134,8 +134,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                bool[] bsi1 = new bool[] { true, true, false };
-                bool[] bsi2 = new bool[] { false };
+                bool[] bsi1 = new { true, true, false };
+                bool[] bsi2 = new { false };
 
                 (bool[] returnValue, bool[] p3) = p.OpBoolSAsync(bsi1, bsi2).Result;
 
@@ -151,9 +151,9 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                short[] ssi = new short[] { 1, 2, 3 };
-                int[] isi = new int[] { 5, 6, 7, 8 };
-                long[] lsi = new long[] { 10, 30, 20 };
+                short[] ssi = new { 1, 2, 3 };
+                int[] isi = new { 5, 6, 7, 8 };
+                long[] lsi = new { 10, 30, 20 };
 
                 (long[] returnValue, short[] p4, int[] p5, long[] p6) = p.OpShortIntLongSAsync(ssi, isi, lsi).Result;
 
@@ -180,8 +180,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                float[] fsi = new float[] { 3.14f, 1.11f };
-                double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+                float[] fsi = new { 3.14f, 1.11f };
+                double[] dsi = new { 1.1e10, 1.2e10, 1.3e10 };
 
                 (double[] returnValue, float[] p3, double[] p4) = p.OpFloatDoubleSAsync(fsi, dsi).Result;
                 TestHelper.Assert(p3.Length == 2);
@@ -200,8 +200,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                string[] ssi1 = new string[] { "abc", "de", "fghi" };
-                string[] ssi2 = new string[] { "xyz" };
+                string[] ssi1 = new { "abc", "de", "fghi" };
+                string[] ssi2 = new { "xyz" };
 
                 (string[] returnValue, string[] p3) = p.OpStringSAsync(ssi1, ssi2).Result;
                 TestHelper.Assert(p3.Length == 4);
@@ -216,13 +216,13 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                byte[] s11 = new byte[] { 0x01, 0x11, 0x12 };
-                byte[] s12 = new byte[] { 0xff };
-                byte[][] bsi1 = new byte[][] { s11, s12 };
+                byte[] s11 = new { 0x01, 0x11, 0x12 };
+                byte[] s12 = new { 0xff };
+                byte[][] bsi1 = new { s11, s12 };
 
-                byte[] s21 = new byte[] { 0x0e };
-                byte[] s22 = new byte[] { 0xf2, 0xf1 };
-                byte[][] bsi2 = new byte[][] { s21, s22 };
+                byte[] s21 = new { 0x0e };
+                byte[] s22 = new { 0xf2, 0xf1 };
+                byte[][] bsi2 = new { s21, s22 };
 
                 (byte[][] returnValue, byte[][] p3) = p.OpByteSSAsync(bsi1, bsi2).Result;
                 TestHelper.Assert(p3.Length == 2);
@@ -247,13 +247,13 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                bool[] s11 = new bool[] { true };
-                bool[] s12 = new bool[] { false };
-                bool[] s13 = new bool[] { true, true };
-                bool[][] bsi1 = new bool[][] { s11, s12, s13 };
+                bool[] s11 = new { true };
+                bool[] s12 = new { false };
+                bool[] s13 = new { true, true };
+                bool[][] bsi1 = new { s11, s12, s13 };
 
-                bool[] s21 = new bool[] { false, false, true };
-                bool[][] bsi2 = new bool[][] { s21 };
+                bool[] s21 = new { false, false, true };
+                bool[][] bsi2 = new { s21 };
 
                 (bool[][] returnValue, bool[][] p3) = p.OpBoolSSAsync(bsi1, bsi2).Result;
 
@@ -280,17 +280,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                short[] s11 = new short[] { 1, 2, 5 };
-                short[] s12 = new short[] { 13 };
+                short[] s11 = new { 1, 2, 5 };
+                short[] s12 = new { 13 };
                 short[] s13 = Array.Empty<short>();
-                short[][] ssi = new short[][] { s11, s12, s13 };
+                short[][] ssi = new { s11, s12, s13 };
 
-                int[] i11 = new int[] { 24, 98 };
-                int[] i12 = new int[] { 42 };
-                int[][] isi = new int[][] { i11, i12 };
+                int[] i11 = new { 24, 98 };
+                int[] i12 = new { 42 };
+                int[][] isi = new { i11, i12 };
 
-                long[] l11 = new long[] { 496, 1729 };
-                long[][] lsi = new long[][] { l11 };
+                long[] l11 = new { 496, 1729 };
+                long[][] lsi = new { l11 };
 
                 (long[][] returnValue, short[][] p4, int[][] p5, long[][] p6) =
                     p.OpShortIntLongSSAsync(ssi, isi, lsi).Result;
@@ -323,13 +323,13 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                float[] f11 = new float[] { 3.14f };
-                float[] f12 = new float[] { 1.11f };
+                float[] f11 = new { 3.14f };
+                float[] f12 = new { 1.11f };
                 float[] f13 = Array.Empty<float>();
-                float[][] fsi = new float[][] { f11, f12, f13 };
+                float[][] fsi = new { f11, f12, f13 };
 
-                double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
-                double[][] dsi = new double[][] { d11 };
+                double[] d11 = new { 1.1e10, 1.2e10, 1.3e10 };
+                double[][] dsi = new { d11 };
 
                 (double[][] returnValue, float[][] p3, double[][] p4) = p.OpFloatDoubleSSAsync(fsi, dsi).Result;
 
@@ -356,14 +356,14 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                string[] s11 = new string[] { "abc" };
-                string[] s12 = new string[] { "de", "fghi" };
-                string[][] ssi1 = new string[][] { s11, s12 };
+                string[] s11 = new { "abc" };
+                string[] s12 = new { "de", "fghi" };
+                string[][] ssi1 = new { s11, s12 };
 
                 string[] s21 = Array.Empty<string>();
                 string[] s22 = Array.Empty<string>();
-                string[] s23 = new string[] { "xyz" };
-                string[][] ssi2 = new string[][] { s21, s22, s23 };
+                string[] s23 = new { "xyz" };
+                string[][] ssi2 = new { s21, s22, s23 };
 
                 (string[][] returnValue, string[][] p3) = p.OpStringSSAsync(ssi1, ssi2).Result;
 
@@ -385,20 +385,20 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                string[] s111 = new string[] { "abc", "de" };
-                string[] s112 = new string[] { "xyz" };
-                string[][] ss11 = new string[][] { s111, s112 };
-                string[] s121 = new string[] { "hello" };
-                string[][] ss12 = new string[][] { s121 };
-                string[][][] sssi1 = new string[][][] { ss11, ss12 };
+                string[] s111 = new { "abc", "de" };
+                string[] s112 = new { "xyz" };
+                string[][] ss11 = new { s111, s112 };
+                string[] s121 = new { "hello" };
+                string[][] ss12 = new { s121 };
+                string[][][] sssi1 = new { ss11, ss12 };
 
-                string[] s211 = new string[] { "", "" };
-                string[] s212 = new string[] { "abcd" };
-                string[][] ss21 = new string[][] { s211, s212 };
-                string[] s221 = new string[] { "" };
-                string[][] ss22 = new string[][] { s221 };
+                string[] s211 = new { "", "" };
+                string[] s212 = new { "abcd" };
+                string[][] ss21 = new { s211, s212 };
+                string[] s221 = new { "" };
+                string[][] ss22 = new { s221 };
                 string[][] ss23 = Array.Empty<string[]>();
-                string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
+                string[][][] sssi2 = new { ss21, ss22, ss23 };
 
                 (string[][][] returnValue, string[][][] p3) = p.OpStringSSSAsync(sssi1, sssi2).Result;
 
@@ -908,9 +908,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<byte, byte[]>();
                 var sdi2 = new Dictionary<byte, byte[]>();
 
-                byte[] si1 = new byte[] { 0x01, 0x11 };
-                byte[] si2 = new byte[] { 0x12 };
-                byte[] si3 = new byte[] { 0xf2, 0xf3 };
+                byte[] si1 = new { 0x01, 0x11 };
+                byte[] si2 = new { 0x12 };
+                byte[] si3 = new { 0xf2, 0xf3 };
 
                 sdi1[0x01] = si1;
                 sdi1[0x22] = si2;
@@ -938,8 +938,8 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<bool, bool[]>();
                 var sdi2 = new Dictionary<bool, bool[]>();
 
-                bool[] si1 = new bool[] { true, false };
-                bool[] si2 = new bool[] { false, true, true };
+                bool[] si1 = new { true, false };
+                bool[] si2 = new { false, true, true };
 
                 sdi1[false] = si1;
                 sdi1[true] = si2;
@@ -965,9 +965,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<short, short[]>();
                 var sdi2 = new Dictionary<short, short[]>();
 
-                short[] si1 = new short[] { 1, 2, 3 };
-                short[] si2 = new short[] { 4, 5 };
-                short[] si3 = new short[] { 6, 7 };
+                short[] si1 = new { 1, 2, 3 };
+                short[] si2 = new { 4, 5 };
+                short[] si3 = new { 6, 7 };
 
                 sdi1[1] = si1;
                 sdi1[2] = si2;
@@ -998,9 +998,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<int, int[]>();
                 var sdi2 = new Dictionary<int, int[]>();
 
-                int[] si1 = new int[] { 100, 200, 300 };
-                int[] si2 = new int[] { 400, 500 };
-                int[] si3 = new int[] { 600, 700 };
+                int[] si1 = new { 100, 200, 300 };
+                int[] si2 = new { 400, 500 };
+                int[] si3 = new { 600, 700 };
 
                 sdi1[100] = si1;
                 sdi1[200] = si2;
@@ -1030,9 +1030,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<long, long[]>();
                 var sdi2 = new Dictionary<long, long[]>();
 
-                long[] si1 = new long[] { 999999110L, 999999111L, 999999110L };
-                long[] si2 = new long[] { 999999120L, 999999130L };
-                long[] si3 = new long[] { 999999110L, 999999120L };
+                long[] si1 = new { 999999110L, 999999111L, 999999110L };
+                long[] si2 = new { 999999120L, 999999130L };
+                long[] si3 = new { 999999110L, 999999120L };
 
                 sdi1[999999990L] = si1;
                 sdi1[999999991L] = si2;
@@ -1062,9 +1062,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<string, float[]>();
                 var sdi2 = new Dictionary<string, float[]>();
 
-                float[] si1 = new float[] { -1.1f, 123123.2f, 100.0f };
-                float[] si2 = new float[] { 42.24f, -1.61f };
-                float[] si3 = new float[] { -3.14f, 3.14f };
+                float[] si1 = new { -1.1f, 123123.2f, 100.0f };
+                float[] si2 = new { 42.24f, -1.61f };
+                float[] si3 = new { -3.14f, 3.14f };
 
                 sdi1["abc"] = si1;
                 sdi1["ABC"] = si2;
@@ -1094,9 +1094,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<string, double[]>();
                 var sdi2 = new Dictionary<string, double[]>();
 
-                double[] si1 = new double[] { 1.1E10, 1.2E10, 1.3E10 };
-                double[] si2 = new double[] { 1.4E10, 1.5E10 };
-                double[] si3 = new double[] { 1.6E10, 1.7E10 };
+                double[] si1 = new { 1.1E10, 1.2E10, 1.3E10 };
+                double[] si2 = new { 1.4E10, 1.5E10 };
+                double[] si3 = new { 1.6E10, 1.7E10 };
 
                 sdi1["Hello!!"] = si1;
                 sdi1["Goodbye"] = si2;
@@ -1125,9 +1125,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<string, string[]>();
                 var sdi2 = new Dictionary<string, string[]>();
 
-                string[] si1 = new string[] { "abc", "de", "fghi" };
-                string[] si2 = new string[] { "xyz", "or" };
-                string[] si3 = new string[] { "and", "xor" };
+                string[] si1 = new { "abc", "de", "fghi" };
+                string[] si2 = new { "xyz", "or" };
+                string[] si3 = new { "and", "xor" };
 
                 sdi1["abc"] = si1;
                 sdi1["def"] = si2;
@@ -1185,7 +1185,7 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+                int[] lengths = new { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
                 for (int l = 0; l < lengths.Length; ++l)
                 {

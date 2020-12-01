@@ -308,12 +308,12 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Structure si1 = new Structure();
+                Structure si1 = new ();
                 si1.P = p;
                 si1.E = MyEnum.enum3;
                 si1.S = new AnotherStruct();
                 si1.S.S = "abc";
-                Structure si2 = new Structure();
+                Structure si2 = new ();
                 si2.P = null;
                 si2.E = MyEnum.enum2;
                 si2.S = new AnotherStruct();
@@ -344,8 +344,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
-                byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
+                byte[] bsi1 = new { 0x01, 0x11, 0x12, 0x22 };
+                byte[] bsi2 = new { 0xf1, 0xf2, 0xf3, 0xf4 };
 
                 byte[] bso;
                 byte[] rso;
@@ -368,8 +368,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                bool[] bsi1 = new bool[] { true, true, false };
-                bool[] bsi2 = new bool[] { false };
+                bool[] bsi1 = new { true, true, false };
+                bool[] bsi2 = new { false };
 
                 bool[] bso;
                 bool[] rso;
@@ -387,9 +387,9 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                short[] ssi = new short[] { 1, 2, 3 };
-                int[] isi = new int[] { 5, 6, 7, 8 };
-                long[] lsi = new long[] { 10, 30, 20 };
+                short[] ssi = new { 1, 2, 3 };
+                int[] isi = new { 5, 6, 7, 8 };
+                long[] lsi = new { 10, 30, 20 };
 
                 short[] sso;
                 int[] iso;
@@ -420,9 +420,9 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                ushort[] ssi = new ushort[] { 1, 2, 3 };
-                uint[] isi = new uint[] { 5, 6, 7, 8 };
-                ulong[] lsi = new ulong[] { 10, 30, 20 };
+                ushort[] ssi = new { 1, 2, 3 };
+                uint[] isi = new { 5, 6, 7, 8 };
+                ulong[] lsi = new { 10, 30, 20 };
 
                 ushort[] sso;
                 uint[] iso;
@@ -453,8 +453,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                int[] isi = new int[] { 5, 6, 7, 8 };
-                long[] lsi = new long[] { 1_000, 3_000_000_000_000, -200_000 };
+                int[] isi = new { 5, 6, 7, 8 };
+                long[] lsi = new { 1_000, 3_000_000_000_000, -200_000 };
 
                 int[] iso;
                 long[] lso;
@@ -480,8 +480,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                uint[] isi = new uint[] { 5, 6, 7, 8 };
-                ulong[] lsi = new ulong[] { 1_000, 3_000_000_000_000, 200_000 };
+                uint[] isi = new { 5, 6, 7, 8 };
+                ulong[] lsi = new { 1_000, 3_000_000_000_000, 200_000 };
 
                 uint[] iso;
                 ulong[] lso;
@@ -507,8 +507,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                float[] fsi = new float[] { 3.14f, 1.11f };
-                double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+                float[] fsi = new { 3.14f, 1.11f };
+                double[] dsi = new { 1.1e10, 1.2e10, 1.3e10 };
 
                 float[] fso;
                 double[] dso;
@@ -531,8 +531,8 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                string[] ssi1 = new string[] { "abc", "de", "fghi" };
-                string[] ssi2 = new string[] { "xyz" };
+                string[] ssi1 = new { "abc", "de", "fghi" };
+                string[] ssi2 = new { "xyz" };
 
                 string[] sso;
                 string[] rso;
@@ -550,13 +550,13 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                byte[] s11 = new byte[] { 0x01, 0x11, 0x12 };
-                byte[] s12 = new byte[] { 0xff };
-                byte[][] bsi1 = new byte[][] { s11, s12 };
+                byte[] s11 = new { 0x01, 0x11, 0x12 };
+                byte[] s12 = new { 0xff };
+                byte[][] bsi1 = new { s11, s12 };
 
-                byte[] s21 = new byte[] { 0x0e };
-                byte[] s22 = new byte[] { 0xf2, 0xf1 };
-                byte[][] bsi2 = new byte[][] { s21, s22 };
+                byte[] s21 = new { 0x0e };
+                byte[] s22 = new { 0xf2, 0xf1 };
+                byte[][] bsi2 = new { s21, s22 };
 
                 byte[][] bso;
                 byte[][] rso;
@@ -584,13 +584,13 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                bool[] s11 = new bool[] { true };
-                bool[] s12 = new bool[] { false };
-                bool[] s13 = new bool[] { true, true };
-                bool[][] bsi1 = new bool[][] { s11, s12, s13 };
+                bool[] s11 = new { true };
+                bool[] s12 = new { false };
+                bool[] s13 = new { true, true };
+                bool[][] bsi1 = new { s11, s12, s13 };
 
-                bool[] s21 = new bool[] { false, false, true };
-                bool[][] bsi2 = new bool[][] { s21 };
+                bool[] s21 = new { false, false, true };
+                bool[][] bsi2 = new { s21 };
 
                 bool[][] rso;
                 bool[][] bso;
@@ -619,17 +619,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                short[] s11 = new short[] { 1, 2, 5 };
-                short[] s12 = new short[] { 13 };
+                short[] s11 = new { 1, 2, 5 };
+                short[] s12 = new { 13 };
                 short[] s13 = Array.Empty<short>();
-                short[][] ssi = new short[][] { s11, s12, s13 };
+                short[][] ssi = new { s11, s12, s13 };
 
-                int[] i11 = new int[] { 24, 98 };
-                int[] i12 = new int[] { 42 };
-                int[][] isi = new int[][] { i11, i12 };
+                int[] i11 = new { 24, 98 };
+                int[] i12 = new { 42 };
+                int[][] isi = new { i11, i12 };
 
-                long[] l11 = new long[] { 496, 1729 };
-                long[][] lsi = new long[][] { l11 };
+                long[] l11 = new { 496, 1729 };
+                long[][] lsi = new { l11 };
 
                 short[][] sso;
                 int[][] iso;
@@ -665,17 +665,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                ushort[] s11 = new ushort[] { 1, 2, 5 };
-                ushort[] s12 = new ushort[] { 13 };
+                ushort[] s11 = new { 1, 2, 5 };
+                ushort[] s12 = new { 13 };
                 ushort[] s13 = Array.Empty<ushort>();
-                ushort[][] ssi = new ushort[][] { s11, s12, s13 };
+                ushort[][] ssi = new { s11, s12, s13 };
 
-                uint[] i11 = new uint[] { 24, 98 };
-                uint[] i12 = new uint[] { 42 };
-                uint[][] isi = new uint[][] { i11, i12 };
+                uint[] i11 = new { 24, 98 };
+                uint[] i12 = new { 42 };
+                uint[][] isi = new { i11, i12 };
 
-                ulong[] l11 = new ulong[] { 496, 1729 };
-                ulong[][] lsi = new ulong[][] { l11 };
+                ulong[] l11 = new { 496, 1729 };
+                ulong[][] lsi = new { l11 };
 
                 ushort[][] sso;
                 uint[][] iso;
@@ -711,13 +711,13 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                float[] f11 = new float[] { 3.14f };
-                float[] f12 = new float[] { 1.11f };
+                float[] f11 = new { 3.14f };
+                float[] f12 = new { 1.11f };
                 float[] f13 = Array.Empty<float>();
-                float[][] fsi = new float[][] { f11, f12, f13 };
+                float[][] fsi = new { f11, f12, f13 };
 
-                double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
-                double[][] dsi = new double[][] { d11 };
+                double[] d11 = new { 1.1e10, 1.2e10, 1.3e10 };
+                double[][] dsi = new { d11 };
 
                 float[][] fso;
                 double[][] dso;
@@ -747,14 +747,14 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                string[] s11 = new string[] { "abc" };
-                string[] s12 = new string[] { "de", "fghi" };
-                string[][] ssi1 = new string[][] { s11, s12 };
+                string[] s11 = new { "abc" };
+                string[] s12 = new { "de", "fghi" };
+                string[][] ssi1 = new { s11, s12 };
 
                 string[] s21 = Array.Empty<string>();
                 string[] s22 = Array.Empty<string>();
-                string[] s23 = new string[] { "xyz" };
-                string[][] ssi2 = new string[][] { s21, s22, s23 };
+                string[] s23 = new { "xyz" };
+                string[][] ssi2 = new { s21, s22, s23 };
 
                 string[][] sso;
                 string[][] rso;
@@ -778,20 +778,20 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                string[] s111 = new string[] { "abc", "de" };
-                string[] s112 = new string[] { "xyz" };
-                string[][] ss11 = new string[][] { s111, s112 };
-                string[] s121 = new string[] { "hello" };
-                string[][] ss12 = new string[][] { s121 };
-                string[][][] sssi1 = new string[][][] { ss11, ss12 };
+                string[] s111 = new { "abc", "de" };
+                string[] s112 = new { "xyz" };
+                string[][] ss11 = new { s111, s112 };
+                string[] s121 = new { "hello" };
+                string[][] ss12 = new { s121 };
+                string[][][] sssi1 = new { ss11, ss12 };
 
-                string[] s211 = new string[] { "", "" };
-                string[] s212 = new string[] { "abcd" };
-                string[][] ss21 = new string[][] { s211, s212 };
-                string[] s221 = new string[] { "" };
-                string[][] ss22 = new string[][] { s221 };
+                string[] s211 = new { "", "" };
+                string[] s212 = new { "abcd" };
+                string[][] ss21 = new { s211, s212 };
+                string[] s221 = new { "" };
+                string[][] ss22 = new { s221 };
                 string[][] ss23 = Array.Empty<string[]>();
-                string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
+                string[][][] sssi2 = new { ss21, ss22, ss23 };
 
                 string[][][] ssso;
                 string[][][] rsso;
@@ -837,7 +837,7 @@ namespace ZeroC.Ice.Test.Operations
                     [10] = true,
                     [100] = false
                 };
-                Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+                Dictionary<byte, bool> di2 = new ();
                 di2[10] = true;
                 di2[11] = false;
                 di2[101] = true;
@@ -853,10 +853,10 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<short, int> di1 = new Dictionary<short, int>();
+                Dictionary<short, int> di1 = new ();
                 di1[110] = -1;
                 di1[1100] = 123123;
-                Dictionary<short, int> di2 = new Dictionary<short, int>();
+                Dictionary<short, int> di2 = new ();
                 di2[110] = -1;
                 di2[111] = -100;
                 di2[1101] = 0;
@@ -872,10 +872,10 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<ushort, uint> di1 = new Dictionary<ushort, uint>();
+                Dictionary<ushort, uint> di1 = new ();
                 di1[110] = 1;
                 di1[1100] = 123123;
-                Dictionary<ushort, uint> di2 = new Dictionary<ushort, uint>();
+                Dictionary<ushort, uint> di2 = new ();
                 di2[110] = 1;
                 di2[111] = 100;
                 di2[1101] = 0;
@@ -891,10 +891,10 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<long, float> di1 = new Dictionary<long, float>();
+                Dictionary<long, float> di1 = new ();
                 di1[999999110L] = -1.1f;
                 di1[999999111L] = 123123.2f;
-                Dictionary<long, float> di2 = new Dictionary<long, float>();
+                Dictionary<long, float> di2 = new ();
                 di2[999999110L] = -1.1f;
                 di2[999999120L] = -100.4f;
                 di2[999999130L] = 0.5f;
@@ -910,10 +910,10 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<string, string> di1 = new Dictionary<string, string>();
+                Dictionary<string, string> di1 = new ();
                 di1["foo"] = "abc -1.1";
                 di1["bar"] = "abc 123123.2";
-                Dictionary<string, string> di2 = new Dictionary<string, string>();
+                Dictionary<string, string> di2 = new ();
                 di2["foo"] = "abc -1.1";
                 di2["FOO"] = "abc -100.4";
                 di2["BAR"] = "abc 0.5";
@@ -988,17 +988,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
-                Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
+                Dictionary<byte, bool>[] dsi1 = new [2];
+                Dictionary<byte, bool>[] dsi2 = new [1];
 
-                Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+                Dictionary<byte, bool> di1 = new ();
                 di1[10] = true;
                 di1[100] = false;
-                Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+                Dictionary<byte, bool> di2 = new ();
                 di2[10] = true;
                 di2[11] = false;
                 di2[101] = true;
-                Dictionary<byte, bool> di3 = new Dictionary<byte, bool>();
+                Dictionary<byte, bool> di3 = new ();
                 di3[100] = false;
                 di3[101] = false;
 
@@ -1031,17 +1031,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
-                Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
+                Dictionary<short, int>[] dsi1 = new [2];
+                Dictionary<short, int>[] dsi2 = new [1];
 
-                Dictionary<short, int> di1 = new Dictionary<short, int>();
+                Dictionary<short, int> di1 = new ();
                 di1[110] = -1;
                 di1[1100] = 123123;
-                Dictionary<short, int> di2 = new Dictionary<short, int>();
+                Dictionary<short, int> di2 = new ();
                 di2[110] = -1;
                 di2[111] = -100;
                 di2[1101] = 0;
-                Dictionary<short, int> di3 = new Dictionary<short, int>();
+                Dictionary<short, int> di3 = new ();
                 di3[100] = -1001;
 
                 dsi1[0] = di1;
@@ -1072,17 +1072,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<ushort, uint>[] dsi1 = new Dictionary<ushort, uint>[2];
-                Dictionary<ushort, uint>[] dsi2 = new Dictionary<ushort, uint>[1];
+                Dictionary<ushort, uint>[] dsi1 = new [2];
+                Dictionary<ushort, uint>[] dsi2 = new [1];
 
-                Dictionary<ushort, uint> di1 = new Dictionary<ushort, uint>();
+                Dictionary<ushort, uint> di1 = new ();
                 di1[110] = 1;
                 di1[1100] = 123123;
-                Dictionary<ushort, uint> di2 = new Dictionary<ushort, uint>();
+                Dictionary<ushort, uint> di2 = new ();
                 di2[110] = 1;
                 di2[111] = 100;
                 di2[1101] = 0;
-                Dictionary<ushort, uint> di3 = new Dictionary<ushort, uint>();
+                Dictionary<ushort, uint> di3 = new ();
                 di3[100] = 1001;
 
                 dsi1[0] = di1;
@@ -1113,17 +1113,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
-                Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
+                Dictionary<long, float>[] dsi1 = new [2];
+                Dictionary<long, float>[] dsi2 = new [1];
 
-                Dictionary<long, float> di1 = new Dictionary<long, float>();
+                Dictionary<long, float> di1 = new ();
                 di1[999999110L] = -1.1f;
                 di1[999999111L] = 123123.2f;
-                Dictionary<long, float> di2 = new Dictionary<long, float>();
+                Dictionary<long, float> di2 = new ();
                 di2[999999110L] = -1.1f;
                 di2[999999120L] = -100.4f;
                 di2[999999130L] = 0.5f;
-                Dictionary<long, float> di3 = new Dictionary<long, float>();
+                Dictionary<long, float> di3 = new ();
                 di3[999999140L] = 3.14f;
 
                 dsi1[0] = di1;
@@ -1154,17 +1154,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<ulong, float>[] dsi1 = new Dictionary<ulong, float>[2];
-                Dictionary<ulong, float>[] dsi2 = new Dictionary<ulong, float>[1];
+                Dictionary<ulong, float>[] dsi1 = new [2];
+                Dictionary<ulong, float>[] dsi2 = new [1];
 
-                Dictionary<ulong, float> di1 = new Dictionary<ulong, float>();
+                Dictionary<ulong, float> di1 = new ();
                 di1[999999110L] = -1.1f;
                 di1[999999111L] = 123123.2f;
-                Dictionary<ulong, float> di2 = new Dictionary<ulong, float>();
+                Dictionary<ulong, float> di2 = new ();
                 di2[999999110L] = -1.1f;
                 di2[999999120L] = -100.4f;
                 di2[999999130L] = 0.5f;
-                Dictionary<ulong, float> di3 = new Dictionary<ulong, float>();
+                Dictionary<ulong, float> di3 = new ();
                 di3[999999140L] = 3.14f;
 
                 dsi1[0] = di1;
@@ -1195,17 +1195,17 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
-                Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
+                Dictionary<string, string>[] dsi1 = new [2];
+                Dictionary<string, string>[] dsi2 = new [1];
 
-                Dictionary<string, string> di1 = new Dictionary<string, string>();
+                Dictionary<string, string> di1 = new ();
                 di1["foo"] = "abc -1.1";
                 di1["bar"] = "abc 123123.2";
-                Dictionary<string, string> di2 = new Dictionary<string, string>();
+                Dictionary<string, string> di2 = new ();
                 di2["foo"] = "abc -1.1";
                 di2["FOO"] = "abc -100.4";
                 di2["BAR"] = "abc 0.5";
-                Dictionary<string, string> di3 = new Dictionary<string, string>();
+                Dictionary<string, string> di3 = new ();
                 di3["f00"] = "ABC -3.14";
 
                 dsi1[0] = di1;
@@ -1362,9 +1362,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<byte, byte[]>();
                 var sdi2 = new Dictionary<byte, byte[]>();
 
-                byte[] si1 = new byte[] { 0x01, 0x11 };
-                byte[] si2 = new byte[] { 0x12 };
-                byte[] si3 = new byte[] { 0xf2, 0xf3 };
+                byte[] si1 = new { 0x01, 0x11 };
+                byte[] si2 = new { 0x12 };
+                byte[] si3 = new { 0xf2, 0xf3 };
 
                 sdi1[0x01] = si1;
                 sdi1[0x22] = si2;
@@ -1392,8 +1392,8 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<bool, bool[]>();
                 var sdi2 = new Dictionary<bool, bool[]>();
 
-                bool[] si1 = new bool[] { true, false };
-                bool[] si2 = new bool[] { false, true, true };
+                bool[] si1 = new { true, false };
+                bool[] si2 = new { false, true, true };
 
                 sdi1[false] = si1;
                 sdi1[true] = si2;
@@ -1419,9 +1419,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<short, short[]>();
                 var sdi2 = new Dictionary<short, short[]>();
 
-                short[] si1 = new short[] { 1, 2, 3 };
-                short[] si2 = new short[] { 4, 5 };
-                short[] si3 = new short[] { 6, 7 };
+                short[] si1 = new { 1, 2, 3 };
+                short[] si2 = new { 4, 5 };
+                short[] si3 = new { 6, 7 };
 
                 sdi1[1] = si1;
                 sdi1[2] = si2;
@@ -1451,9 +1451,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<ushort, ushort[]>();
                 var sdi2 = new Dictionary<ushort, ushort[]>();
 
-                ushort[] si1 = new ushort[] { 1, 2, 3 };
-                ushort[] si2 = new ushort[] { 4, 5 };
-                ushort[] si3 = new ushort[] { 6, 7 };
+                ushort[] si1 = new { 1, 2, 3 };
+                ushort[] si2 = new { 4, 5 };
+                ushort[] si3 = new { 6, 7 };
 
                 sdi1[1] = si1;
                 sdi1[2] = si2;
@@ -1483,9 +1483,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<int, int[]>();
                 var sdi2 = new Dictionary<int, int[]>();
 
-                int[] si1 = new int[] { 100, 200, 300 };
-                int[] si2 = new int[] { 400, 500 };
-                int[] si3 = new int[] { 600, 700 };
+                int[] si1 = new { 100, 200, 300 };
+                int[] si2 = new { 400, 500 };
+                int[] si3 = new { 600, 700 };
 
                 sdi1[100] = si1;
                 sdi1[200] = si2;
@@ -1515,9 +1515,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<uint, uint[]>();
                 var sdi2 = new Dictionary<uint, uint[]>();
 
-                uint[] si1 = new uint[] { 100, 200, 300 };
-                uint[] si2 = new uint[] { 400, 500 };
-                uint[] si3 = new uint[] { 600, 700 };
+                uint[] si1 = new { 100, 200, 300 };
+                uint[] si2 = new { 400, 500 };
+                uint[] si3 = new { 600, 700 };
 
                 sdi1[100] = si1;
                 sdi1[200] = si2;
@@ -1549,7 +1549,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 var si1 = new long[] { 999999110L, 999999111L, 999999110L };
                 var si2 = new long[] { 999999120L, 999999130L };
-                long[] si3 = new long[] { 999999110L, 999999120L };
+                long[] si3 = new { 999999110L, 999999120L };
 
                 sdi1[999999990L] = si1;
                 sdi1[999999991L] = si2;
@@ -1578,9 +1578,9 @@ namespace ZeroC.Ice.Test.Operations
                 var sdi1 = new Dictionary<ulong, ulong[]>();
                 var sdi2 = new Dictionary<ulong, ulong[]>();
 
-                var si1 = new ulong[] { 999999110L, 999999111L, 999999110L };
-                var si2 = new ulong[] { 999999120L, 999999130L };
-                ulong[] si3 = new ulong[] { 999999110L, 999999120L };
+                var si1 = new { 999999110L, 999999111L, 999999110L };
+                var si2 = new { 999999120L, 999999130L };
+                ulong[] si3 = new { 999999110L, 999999120L };
 
                 sdi1[999999990L] = si1;
                 sdi1[999999991L] = si2;
@@ -1732,7 +1732,7 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+                int[] lengths = new { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
                 for (int l = 0; l < lengths.Length; ++l)
                 {
@@ -1784,11 +1784,11 @@ namespace ZeroC.Ice.Test.Operations
                 var p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
                 TestHelper.Assert(p3.OpContext().DictionaryEqual(communicator.CurrentContext));
 
-                Dictionary<string, string> prxContext = new Dictionary<string, string>();
+                Dictionary<string, string> prxContext = new ();
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
 
-                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                Dictionary<string, string> combined = new (prxContext);
                 foreach (KeyValuePair<string, string> e in communicator.CurrentContext)
                 {
                     try
@@ -1877,7 +1877,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 p.OpMSeq1();
 
-                string[] p1 = new string[1];
+                string[] p1 = new [1];
                 p1[0] = "test";
                 string[] p2, p3;
                 (p3, p2) = p.OpMSeq2(p1);
@@ -1887,7 +1887,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 p.OpMDict1();
 
-                Dictionary<string, string> p1 = new Dictionary<string, string>();
+                Dictionary<string, string> p1 = new ();
                 p1["test"] = "test";
                 Dictionary<string, string> p2, p3;
                 (p3, p2) = p.OpMDict2(p1);

@@ -12,7 +12,7 @@ public class Client : TestHelper
     public sealed class Case : Icase
     {
         public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current, CancellationToken cancel) =>
-            new ValueTask<int>(0);
+            new (0);
     }
 
     public sealed class Decimal : Idecimal
@@ -25,7 +25,7 @@ public class Client : TestHelper
     public sealed class Explicit : Iexplicit
     {
         public ValueTask<int> catchAsync(int @checked, ZeroC.Ice.Current current, CancellationToken cancel) =>
-            new ValueTask<int>(0);
+            new (0);
 
         public void @default(ZeroC.Ice.Current current, CancellationToken cancel) => Assert(current.Operation == "default");
     }

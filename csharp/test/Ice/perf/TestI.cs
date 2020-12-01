@@ -7,7 +7,7 @@ namespace ZeroC.Ice.Test.Perf
 {
     public sealed class PerformanceI : IPerformance
     {
-        private static readonly byte[] _bytes = new byte[Constants.ByteSeqSize];
+        private static readonly byte[] _bytes = new [Constants.ByteSeqSize];
 
         public void SendBytes(byte[] seq, Current current, CancellationToken cancel)
         {
@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Perf
         public System.ReadOnlyMemory<byte> ReceiveBytes(int size, Current current, CancellationToken cancel)
         {
             Debug.Assert(size <= _bytes.Length);
-            return new System.ReadOnlyMemory<byte>(_bytes, 0, size);
+            return new (_bytes, 0, size);
         }
 
         public void Shutdown(Current current, CancellationToken cancel) =>

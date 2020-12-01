@@ -179,22 +179,22 @@ namespace ZeroC.Ice.Test.Tagged
 
         public IInitial.OpMStruct1MarshaledReturnValue OpMStruct1(
             Current current,
-            CancellationToken cancel) => new IInitial.OpMStruct1MarshaledReturnValue(new SmallStruct(), current);
+            CancellationToken cancel) => new (new SmallStruct(), current);
 
         public IInitial.OpMStruct2MarshaledReturnValue OpMStruct2(
             SmallStruct? p1,
             Current current,
             CancellationToken cancel) =>
-            new IInitial.OpMStruct2MarshaledReturnValue(p1, p1, current);
+            new (p1, p1, current);
 
         public IInitial.OpMSeq1MarshaledReturnValue OpMSeq1(Current current, CancellationToken cancel) =>
-            new IInitial.OpMSeq1MarshaledReturnValue(Array.Empty<string>(), current);
+            new (Array.Empty<string>(), current);
 
         public IInitial.OpMSeq2MarshaledReturnValue OpMSeq2(string[]? p1, Current current, CancellationToken cancel) =>
-            new IInitial.OpMSeq2MarshaledReturnValue(p1, p1, current);
+            new (p1, p1, current);
 
         public IInitial.OpMDict1MarshaledReturnValue OpMDict1(Current current, CancellationToken cancel) =>
-            new IInitial.OpMDict1MarshaledReturnValue(new Dictionary<string, int>(), current);
+            new (new Dictionary<string, int>(), current);
 
         public IInitial.OpMDict2MarshaledReturnValue OpMDict2(
             Dictionary<string, int>? p1,
