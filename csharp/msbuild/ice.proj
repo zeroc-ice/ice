@@ -306,7 +306,7 @@
                  Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
 
         <!-- Build iceboxnet with net5 target framework -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net5\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net5.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Restore;Publish"
                  Condition="'$(Net5Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
