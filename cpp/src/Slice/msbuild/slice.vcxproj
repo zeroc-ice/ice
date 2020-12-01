@@ -90,10 +90,39 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\*.cpp" />
+    <ClCompile Include="..\Checksum.cpp" />
+    <ClCompile Include="..\CPlusPlusUtil.cpp" />
+    <ClCompile Include="..\FileTracker.cpp" />
+    <ClCompile Include="..\Grammar.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
+    <ClCompile Include="..\MD5.cpp" />
+    <ClCompile Include="..\MD5I.cpp" />
+    <ClCompile Include="..\Parser.cpp" />
+    <ClCompile Include="..\PHPUtil.cpp" />
+    <ClCompile Include="..\Preprocessor.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
+    <ClCompile Include="..\Ruby.cpp" />
+    <ClCompile Include="..\RubyUtil.cpp" />
+    <ClCompile Include="..\Scanner.cpp" />
+    <ClCompile Include="..\SliceUtil.cpp" />
+    <ClCompile Include="..\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\*.h" />
+    <ClInclude Include="..\Checksum.h" />
+    <ClInclude Include="..\CPlusPlusUtil.h" />
+    <ClInclude Include="..\FileTracker.h" />
+    <ClInclude Include="..\Grammar.h" />
+    <ClInclude Include="..\GrammarUtil.h" />
+    <ClInclude Include="..\JavaUtil.h" />
+    <ClInclude Include="..\MD5.h" />
+    <ClInclude Include="..\MD5I.h" />
+    <ClInclude Include="..\Parser.h" />
+    <ClInclude Include="..\PHPUtil.h" />
+    <ClInclude Include="..\Preprocessor.h" />
+    <ClInclude Include="..\PythonUtil.h" />
+    <ClInclude Include="..\RubyUtil.h" />
+    <ClInclude Include="..\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
