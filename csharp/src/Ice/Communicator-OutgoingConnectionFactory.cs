@@ -49,6 +49,8 @@ namespace ZeroC.Ice
 
                         if (connection != null)
                         {
+                            // TODO should CollocatedConnection.IsSecure return always true?, currently IsSecure
+                            // is only true for SSL connections.
                             Debug.Assert(preferNonSecure != NonSecure.Never ||
                                          connection is ColocatedConnection ||
                                          connection.IsSecure);
@@ -104,10 +106,10 @@ namespace ZeroC.Ice
                     {
                         if (_disposeTask != null)
                         {
-                            // If the communicator has been already disposed throw here and avoid adding the connection
-                            // to the outgoing connections map, the connection will be disposed from the pending
-                            // connections map.
-                            throw new CommunicatorDisposedException();
+                            // If the communicator has been disposed return the connection here and avoid adding the
+                            // connection to the outgoing connections map, the connection will be disposed from the
+                            // pending connections map.
+                            return connection;
                         }
 
                         if (!_outgoingConnections.TryGetValue((endpoint, label), out LinkedList<Connection>? list))
