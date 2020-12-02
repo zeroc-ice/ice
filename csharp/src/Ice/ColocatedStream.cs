@@ -14,10 +14,8 @@ namespace ZeroC.Ice
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
-        protected override bool SentEndOfStream => _sentEndOfStream;
 
         private bool _receivedEndOfStream;
-        private bool _sentEndOfStream;
         private volatile object? _streamable;
         private readonly ColocatedSocket _socket;
 
@@ -52,14 +50,8 @@ namespace ZeroC.Ice
             // TODO: Provide the error code?
             _socket.SendFrameAsync(this, frame: null, fin: true, CancellationToken.None);
 
-        protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel)
-        {
-            if (fin)
-            {
-                _sentEndOfStream = true;
-            }
-            return _socket.SendFrameAsync(this, frame: buffer, fin: fin, cancel);
-        }
+        protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
+            _socket.SendFrameAsync(this, frame: buffer, fin: fin, cancel);
 
         /// <summary>Constructor for incoming colocated stream</summary>
         internal ColocatedStream(ColocatedSocket socket, long streamId)
@@ -145,10 +137,6 @@ namespace ZeroC.Ice
         {
             bool fin = frame.StreamDataWriter == null;
             await _socket.SendFrameAsync(this, frame, fin, cancel).ConfigureAwait(false);
-            if (fin)
-            {
-                _sentEndOfStream = true;
-            }
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {

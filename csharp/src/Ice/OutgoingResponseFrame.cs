@@ -71,7 +71,11 @@ namespace ZeroC.Ice
         /// <param name="returnValue">The return value to write into the frame.</param>
         /// <param name="writer">The delegate that will send the stream return value.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithStreamableReturnValue<T>(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Performance",
+            "CA1801: Review unused parameters",
+            Justification = "TODO")]
+        public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
             bool compress,
             FormatType format,
@@ -123,7 +127,7 @@ namespace ZeroC.Ice
         /// <param name="returnValue">The return value to write into the frame.</param>
         /// <param name="writer">The delegate that writes the return value into the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithStreamableReturnValue<T>(
+        public static OutgoingResponseFrame WithReturnValue<T>(
             Current current,
             bool compress,
             FormatType format,

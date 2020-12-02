@@ -1362,32 +1362,31 @@ namespace ZeroC.Ice.Test.Operations
                     s2.Dispose();
                 }
 
-                try
+                if (p.Protocol != Protocol.Ice1)
                 {
                     Task.Run(async () =>
                     {
-                        // Send the file using a stream parameter and receive the new file
                         await p.OpSendStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+
                         await p.OpSendStream2Async("AllTests.cs", File.OpenRead("AllTests.cs")).ConfigureAwait(false);
 
-                        CompareStreams(await p.OpGetStream1Async().ConfigureAwait(false), File.OpenRead("AllTests.cs"));
-                        (string fileName, System.IO.Stream stream) = await p.OpGetStream2Async().ConfigureAwait(false);
+                        System.IO.Stream stream;
+                        string fileName;
+
+                        stream = await p.OpGetStream1Async().ConfigureAwait(false);
+                        CompareStreams(stream, File.OpenRead("AllTests.cs"));
+
+                        (fileName, stream) = await p.OpGetStream2Async().ConfigureAwait(false);
                         CompareStreams(stream, File.OpenRead(fileName));
 
-                        CompareStreams(await p.OpSendAndGetStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false),
-                                    File.OpenRead("AllTests.cs"));
+                        stream = await p.OpSendAndGetStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                        CompareStreams(stream, File.OpenRead("AllTests.cs"));
 
                         (fileName, stream) = await p.OpSendAndGetStream2Async(
                             "AllTests.cs",
                             File.OpenRead("AllTests.cs")).ConfigureAwait(false);
-
                         CompareStreams(stream, File.OpenRead(fileName));
                     }).Wait();
-                }
-                catch (System.Exception ex)
-                {
-                    Console.WriteLine(ex);
-                    throw;
                 }
             }
         }

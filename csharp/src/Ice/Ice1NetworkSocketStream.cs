@@ -13,10 +13,8 @@ namespace ZeroC.Ice
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
-        protected override bool SentEndOfStream => _sentEndOfStream;
 
         private bool _receivedEndOfStream;
-        private bool _sentEndOfStream;
         private readonly Ice1NetworkSocket _socket;
 
         protected override void Dispose(bool disposing)
@@ -36,14 +34,8 @@ namespace ZeroC.Ice
             // Stream reset is not supported with Ice1
             new ValueTask();
 
-        protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel)
-        {
-            if (fin)
-            {
-                _sentEndOfStream = true;
-            }
-            return _socket.SendFrameAsync(buffer, cancel);
-        }
+        protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
+            _socket.SendFrameAsync(buffer, cancel);
 
         internal Ice1NetworkSocketStream(Ice1NetworkSocket socket, long streamId)
             : base(socket, streamId) => _socket = socket;
@@ -136,8 +128,6 @@ namespace ZeroC.Ice
             }
 
             await _socket.SendFrameAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-
-            _sentEndOfStream = true;
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {

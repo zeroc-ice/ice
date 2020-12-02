@@ -2293,14 +2293,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             else
             {
-                if(params.back()->stream())
-                {
-                    _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithStreamableArgs(";
-                }
-                else
-                {
-                    _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithArgs(";
-                }
+                _out << nl << "ZeroC.Ice.OutgoingRequestFrame.WithArgs(";
                 _out.inc();
                 _out << nl << "proxy,"
                      << nl << "\"" << operation->name() << "\","
@@ -2738,14 +2731,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     << "(ZeroC.Ice.Current current, "
                     << (inValue ? "in " : "") << toTupleType(returns, true) << " returnValue) =>";
                 _out.inc();
-                if (returns.back()->stream())
-                {
-                    _out << nl << "ZeroC.Ice.OutgoingResponseFrame.WithStreamableReturnValue(";
-                }
-                else
-                {
-                    _out << nl << "ZeroC.Ice.OutgoingResponseFrame.WithReturnValue(";
-                }
+                _out << nl << "ZeroC.Ice.OutgoingResponseFrame.WithReturnValue(";
                 _out.inc();
                 _out << nl << "current,"
                     << nl << "compress: " << (opCompressReturn(operation) ? "true" : "false") << ","

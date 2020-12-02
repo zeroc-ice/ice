@@ -140,7 +140,11 @@ namespace ZeroC.Ice
         /// <param name="writer">The delegate that will send the streamable.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
-        public static OutgoingRequestFrame WithStreamableArgs<T>(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Performance",
+            "CA1801: Review unused parameters",
+            Justification = "TODO")]
+        public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
@@ -152,7 +156,7 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
         {
             OutgoingRequestFrame request = WithEmptyArgs(proxy, operation, idempotent, context, cancel);
-            // TODO: deal with compress, format and cancellation token
+            // TODO: deal with compress, format, and cancel paramters
             request.StreamDataWriter = socketStream => writer(socketStream, args, cancel);
             return request;
         }
@@ -218,7 +222,7 @@ namespace ZeroC.Ice
         /// <param name="writer">The delegate that writes the arguments into the frame.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A new OutgoingRequestFrame.</returns>
-        public static OutgoingRequestFrame WithStreamableArgs<T>(
+        public static OutgoingRequestFrame WithArgs<T>(
             IObjectPrx proxy,
             string operation,
             bool idempotent,
@@ -235,7 +239,7 @@ namespace ZeroC.Ice
                                         request.PayloadStart,
                                         request.Encoding,
                                         format);
-            // TODO: deal with compress, format and cancellation token
+            // TODO: deal with compress, format, and cancel paramters
             request.StreamDataWriter = writer(ostr, in args, cancel);
             request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)

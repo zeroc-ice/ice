@@ -57,9 +57,7 @@ namespace ZeroC.Ice
         /// the Ice protocol header. If a header is returned here, the implementation of the SendAsync method should
         /// this header to be set at the start of the first segment.</summary>
         protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
-        protected abstract bool IsAborted { get; }
         protected abstract bool ReceivedEndOfStream { get; }
-        protected abstract bool SentEndOfStream { get; }
 
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>
         internal event Action<long>? Reset;
@@ -72,6 +70,8 @@ namespace ZeroC.Ice
         // accessing this data member concurrently when it's not safe.
         private long _id = -1;
         private readonly MultiStreamSocket _socket;
+        // The use count indicates if the socket stream is being used to process an invocation or dispatch or
+        // to process stream parameters. The socket stream is disposed only once this count drops to 0.
         private int _useCount = 1;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
@@ -565,6 +565,7 @@ namespace ZeroC.Ice
 
         private async ValueTask ReceiveFullAsync(Memory<byte> buffer, CancellationToken cancel)
         {
+            // Loop until we received enough data to fully fill the given buffer.
             int offset = 0;
             while (offset < buffer.Length)
             {

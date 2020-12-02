@@ -13,7 +13,6 @@ namespace ZeroC.Ice
     /// for receiving data. The socket can easily signal the stream when new data is available.</summary>
     internal abstract class SignaledSocketStream<T> : SocketStream, IValueTaskSource<T>
     {
-        protected override bool IsAborted => _exception != null;
         internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
         private volatile Exception? _exception;
         private int _signaled;
