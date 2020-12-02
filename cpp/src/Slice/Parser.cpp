@@ -4181,12 +4181,6 @@ Slice::Operation::params() const
     return _params;
 }
 
-bool
-Slice::Operation::hasStreamParam() const
-{
-    return !_params.empty() && _params.back()->stream();
-}
-
 MemberList
 Slice::Operation::outParameters() const
 {
@@ -4345,12 +4339,6 @@ bool
 Slice::Operation::returnsMultipleValues() const
 {
     return _returnType.size() > 1;
-}
-
-bool
-Slice::Operation::hasStreamReturnValue() const
-{
-    return !_returnType.empty() && _returnType.back()->stream();
 }
 
 bool
