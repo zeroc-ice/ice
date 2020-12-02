@@ -1744,6 +1744,18 @@ namespace ZeroC.Ice
                         {
                             _connection = connection;
                         }
+
+                        if (RouterInfo != null)
+                        {
+                            await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this)).ConfigureAwait(false);
+
+                            // Set the object adapter for this router (if any) on the new connection, so that callbacks from
+                            // the router can be received over this new connection.
+                            if (RouterInfo.Adapter != null)
+                            {
+                                connection.Adapter = RouterInfo.Adapter;
+                            }
+                        }
                     }
 
                     cancel.ThrowIfCancellationRequested();
