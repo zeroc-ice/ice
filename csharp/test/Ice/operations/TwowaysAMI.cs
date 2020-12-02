@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Test;
@@ -1344,6 +1345,51 @@ namespace ZeroC.Ice.Test.Operations
                         TestHelper.Assert(p2.DictionaryEquals(p1) && ReturnValue.DictionaryEquals(p1));
                     }
                 }).Wait();
+
+            {
+                void CompareStreams(System.IO.Stream s1, System.IO.Stream s2)
+                {
+                    int v1, v2;
+                    do
+                    {
+                        v1 = s1.ReadByte();
+                        v2 = s2.ReadByte();
+                        TestHelper.Assert(v1 == v2);
+                    }
+                    while (v1 != -1 && v2 != -1);
+
+                    s1.Dispose();
+                    s2.Dispose();
+                }
+
+                try
+                {
+                    Task.Run(async () =>
+                    {
+                        // Send the file using a stream parameter and receive the new file
+                        await p.OpSendStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                        await p.OpSendStream2Async("AllTests.cs", File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+
+                        CompareStreams(await p.OpGetStream1Async().ConfigureAwait(false), File.OpenRead("AllTests.cs"));
+                        (string fileName, System.IO.Stream stream) = await p.OpGetStream2Async().ConfigureAwait(false);
+                        CompareStreams(stream, File.OpenRead(fileName));
+
+                        CompareStreams(await p.OpSendAndGetStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false),
+                                    File.OpenRead("AllTests.cs"));
+
+                        (fileName, stream) = await p.OpSendAndGetStream2Async(
+                            "AllTests.cs",
+                            File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+
+                        CompareStreams(stream, File.OpenRead(fileName));
+                    }).Wait();
+                }
+                catch (System.Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    throw;
+                }
+            }
         }
     }
 }

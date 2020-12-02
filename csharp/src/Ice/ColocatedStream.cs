@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -17,7 +18,20 @@ namespace ZeroC.Ice
 
         private bool _receivedEndOfStream;
         private bool _sentEndOfStream;
+        private volatile object? _streamable;
         private readonly ColocatedSocket _socket;
+
+        public override System.IO.Stream ReceiveDataIntoIOStream()
+        {
+            if (ReceiveStreamable() is not System.IO.Stream ioStream)
+            {
+                throw new InvalidDataException("unexpected data");
+            }
+            return ioStream;
+        }
+
+        public override void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel) =>
+            Task.Run(() => _socket.SendFrameAsync(this, frame: ioStream, fin: true, cancel));
 
         protected override void Dispose(bool disposing)
         {
@@ -55,10 +69,24 @@ namespace ZeroC.Ice
         internal ColocatedStream(ColocatedSocket socket, bool isBidirectional, bool isControl)
             : base(socket, isBidirectional, isControl) => _socket = socket;
 
-        internal void ReceivedFrame(object frame, bool fin) =>
-            // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
-            // code which could end up blocking the AcceptStreamAsync task.
-            SignalCompletion((frame, fin), runContinuationAsynchronously: frame is OutgoingResponseFrame);
+        internal void ReceivedFrame(object frame, bool fin)
+        {
+            if (IsSignaled)
+            {
+                Debug.Assert(fin);
+                _streamable = frame;
+                if (!IsSignaled)
+                {
+                    SignalCompletion((frame, true));
+                }
+            }
+            else
+            {
+                // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
+                // code which could end up blocking the AcceptStreamAsync task.
+                SignalCompletion((frame, fin), runContinuationAsynchronously: frame is OutgoingResponseFrame);
+            }
+        }
 
         private protected override async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
             byte expectedFrameType,
@@ -94,6 +122,23 @@ namespace ZeroC.Ice
                 Debug.Assert(false);
                 throw new InvalidDataException("unexpected frame");
             }
+        }
+
+        private object ReceiveStreamable()
+        {
+            object frame;
+            if (_streamable != null)
+            {
+                _receivedEndOfStream = true;
+                frame = _streamable;
+            }
+            else
+            {
+                (frame, _receivedEndOfStream) = WaitSignalAsync().AsTask().Result;
+                Debug.Assert(_receivedEndOfStream);
+            }
+            TryDispose();
+            return frame;
         }
 
         private protected override async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)

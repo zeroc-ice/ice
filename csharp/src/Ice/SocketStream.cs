@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -12,6 +13,14 @@ namespace ZeroC.Ice
     /// There's an instance of this class for each active stream managed by the multi-stream socket.</summary>
     public abstract class SocketStream : IDisposable
     {
+        /// <summary>A delegate used to send data from a System.IO.Stream value.</summary>
+        public static readonly Action<SocketStream, System.IO.Stream, CancellationToken> IceSendDataFromIOStream =
+            (socketStream, value, cancel) => socketStream.SendDataFromIOStream(value, cancel);
+
+        /// <summary>A delegate used to receive data into a System.IO.Stream value.</summary>
+        public static readonly Func<SocketStream, System.IO.Stream> IceReceiveDataIntoIOStream =
+            socketStream => socketStream.ReceiveDataIntoIOStream();
+
         /// <summary>The stream ID. If the stream ID hasn't been assigned yet, an exception is thrown. Assigning the
         /// stream ID registers the stream with the socket.</summary>
         /// <exception cref="InvalidOperationException">If the stream ID has not been assigned yet.</exception>
@@ -76,6 +85,62 @@ namespace ZeroC.Ice
             GC.SuppressFinalize(this);
         }
 
+        public virtual System.IO.Stream ReceiveDataIntoIOStream() => new IOStream(this);
+
+        public virtual void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel)
+        {
+            Interlocked.Increment(ref _useCount);
+            Task.Run(async () =>
+                {
+                    // We use the same default buffer size as System.IO.Stream.CopyToAsync()
+                    int bufferSize = 81920;
+                    if (ioStream.CanSeek)
+                    {
+                        long remaining = ioStream.Length - ioStream.Position;
+                        if (remaining > 0)
+                        {
+                            // In the case of a positive overflow, stick to the default size
+                            bufferSize = (int)Math.Min(bufferSize, remaining);
+                        }
+                    }
+
+                    ArraySegment<byte> receiveBuffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+                    try
+                    {
+                        var sendBuffers = new List<ArraySegment<byte>> { receiveBuffer };
+                        while (true)
+                        {
+                            try
+                            {
+                                Header.CopyTo(receiveBuffer);
+                                int received = await ioStream.ReadAsync(receiveBuffer.Slice(Header.Length),
+                                                                        cancel).ConfigureAwait(false);
+
+                                sendBuffers[0] = receiveBuffer.Slice(0, Header.Length + received);
+                                await SendAsync(sendBuffers, received == 0, cancel).ConfigureAwait(false);
+                                if (received == 0)
+                                {
+                                    break;
+                                }
+                            }
+                            catch
+                            {
+                                await ResetAsync((long)StreamResetErrorCode.StopStreamingData).ConfigureAwait(false);
+                                break;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        ArrayPool<byte>.Shared.Return(receiveBuffer.Array!);
+                    }
+
+                    TryDispose();
+                    ioStream.Dispose();
+                },
+                cancel);
+        }
+
         /// <summary>Receives data in the given buffer and return the number of received bytes.</summary>
         /// <param name="buffer">The buffer to store the received data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
@@ -121,7 +186,7 @@ namespace ZeroC.Ice
         /// unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (IsStarted)
+            if (disposing && IsStarted)
             {
                 _socket.RemoveStream(Id);
             }
@@ -237,6 +302,9 @@ namespace ZeroC.Ice
 
             if (!ReceivedEndOfStream)
             {
+                // Increment the use count of this stream to ensure it's not going to be disposed before the
+                // stream parameter data is disposed.
+                Interlocked.Increment(ref _useCount);
                 request.SocketStream = this;
             }
             return request;
@@ -262,6 +330,9 @@ namespace ZeroC.Ice
 
                 if (!ReceivedEndOfStream)
                 {
+                    // Increment the use count of this stream to ensure it's not going to be disposed before the
+                    // stream parameter data is disposed.
+                    Interlocked.Increment(ref _useCount);
                     response.SocketStream = this;
                 }
                 return response;
@@ -316,45 +387,6 @@ namespace ZeroC.Ice
                     TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2Definitions.FrameType.GoAway);
                 }
             }
-        }
-
-        internal void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel)
-        {
-            Interlocked.Increment(ref _useCount);
-
-            Task.Run(async () =>
-                {
-                    ArraySegment<byte> receiveBuffer = new byte[1024];
-                    var sendBuffers = new List<ArraySegment<byte>>(1);
-                    while (true)
-                    {
-                        try
-                        {
-                            int received = await ioStream.ReadAsync(receiveBuffer, cancel).ConfigureAwait(false);
-                            sendBuffers[0] = receiveBuffer.Slice(0, received);
-                            await SendAsync(sendBuffers, received == 0, cancel).ConfigureAwait(false);
-                            if (received == 0)
-                            {
-                                break;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            await ResetAsync((long)StreamResetErrorCode.StopStreamingData).ConfigureAwait(false);
-                            break;
-                        }
-                    }
-
-                    TryDispose();
-                    ioStream.Dispose();
-                },
-                cancel);
-        }
-
-        internal System.IO.Stream ReceiveDataIntoIOStream()
-        {
-            Interlocked.Increment(ref _useCount);
-            return new IOStream(this);
         }
 
         internal virtual async ValueTask SendInitializeFrameAsync(CancellationToken cancel)
@@ -441,10 +473,7 @@ namespace ZeroC.Ice
             {
                 Dispose();
             }
-            else
-            {
-                _socket.Endpoint.Communicator.Logger.Trace("NEtwork", "NOT DISPOSED!!!!");
-            }
+            Debug.Assert(_useCount >= 0);
         }
 
         private protected virtual async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
@@ -551,11 +580,8 @@ namespace ZeroC.Ice
         private class IOStream : System.IO.Stream
         {
             public override bool CanRead => true;
-
             public override bool CanSeek => false;
-
             public override bool CanWrite => false;
-
             public override long Length => throw new NotImplementedException();
 
             public override long Position
@@ -565,6 +591,8 @@ namespace ZeroC.Ice
             }
 
             private readonly SocketStream _stream;
+
+            public override void Flush() => throw new NotImplementedException();
 
             public override int Read(byte[] buffer, int offset, int count)
             {
@@ -585,10 +613,9 @@ namespace ZeroC.Ice
             public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancel) =>
                 _stream.ReceiveAsync(buffer, cancel);
 
-            public override void Write(byte[] buffer, int offset, int count) => throw new NotImplementedException();
-            public override void Flush() => throw new NotImplementedException();
             public override long Seek(long offset, System.IO.SeekOrigin origin) => throw new NotImplementedException();
             public override void SetLength(long value) => throw new NotImplementedException();
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotImplementedException();
 
             protected override void Dispose(bool disposing)
             {

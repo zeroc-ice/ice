@@ -29,7 +29,7 @@ namespace ZeroC.Ice
 
             // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
             // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
-            //  the exception the next time the signal is awaited. This is necessary because
+            // the exception the next time the signal is awaited. This is necessary because
             // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
             // call again SetXxx until the source's result or exception is consumed.
             if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
@@ -70,6 +70,7 @@ namespace ZeroC.Ice
             else
             {
                 // The stream is already signaled because it got aborted.
+                Debug.Assert(_exception != null);
                 throw new InvalidOperationException("the stream is already signaled");
             }
         }

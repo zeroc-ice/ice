@@ -136,6 +136,13 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
+
+            if (SocketStream != null)
+            {
+                SocketStream.TryDispose();
+                throw new InvalidDataException("stream data available for operation without stream parameter");
+            }
+
             Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
         }
 
@@ -150,7 +157,59 @@ namespace ZeroC.Ice
             {
                 DecompressPayload();
             }
+
+            if (SocketStream != null)
+            {
+                SocketStream.TryDispose();
+                throw new InvalidDataException("stream data available for operation without stream parameter");
+            }
+
             return Payload.AsReadOnlyMemory().ReadEncapsulation(Protocol.GetEncoding(), reader, connection: connection);
+        }
+
+        /// <summary>Reads a single stream argument from the request.</summary>
+        /// <param name="reader">The delegate used to read the argument.</param>
+        /// <returns>The request argument.</returns>
+        public T ReadArgs<T>(Func<SocketStream, T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
+            if (SocketStream == null)
+            {
+                throw new InvalidDataException("no stream data available for operation with stream parameter");
+            }
+
+            Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
+            return reader(SocketStream);
+        }
+
+        /// <summary>Reads the arguments from a request. The arguments include a stream argument.</summary>
+        /// <paramtype name="T">The type of the arguments.</paramtype>
+        /// <param name="connection">The current connection.</param>
+        /// <param name="reader">The delegate used to read the arguments.</param>
+        /// <returns>The request arguments.</returns>
+        public T ReadArgs<T>(Connection connection, InputStreamReaderWithStreamable<T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
+            if (SocketStream == null)
+            {
+                throw new InvalidDataException("no stream data available for operation with stream parameter");
+            }
+
+            var istr = new InputStream(Payload.AsReadOnlyMemory(),
+                                       Protocol.GetEncoding(),
+                                       connection: connection,
+                                       startEncapsulation: true);
+            T value = reader(istr, SocketStream);
+            istr.CheckEndOfBuffer(skipTaggedParams: true);
+            return value;
         }
 
         private protected override ArraySegment<byte> GetEncapsulation() => Payload;

@@ -691,6 +691,7 @@ public:
     MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int, bool);
     MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int, bool);
     MemberList params() const;
+    bool hasStreamParam() const;
     MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
     MemberList returnType() const;
     MemberList allMembers() const;
@@ -702,6 +703,7 @@ public:
     bool returnsClasses(bool) const;
     bool returnsData() const;
     bool returnsMultipleValues() const;
+    bool hasStreamReturnValue() const;
     bool hasReturnAndOut() const;
     bool hasSingleReturnType() const;
     FormatType format() const;

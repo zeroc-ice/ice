@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Test;
@@ -998,5 +999,53 @@ namespace ZeroC.Ice.Test.Operations
             Current current,
             CancellationToken cancel) =>
             new IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
+
+        public void OpSendStream1(Stream p1, Current current, CancellationToken cancel) =>
+            CompareStreams(File.OpenRead("AllTests.cs"), p1);
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public void OpSendStream2(string p1, Stream p2, Current current, CancellationToken cancel) =>
+            CompareStreams(File.OpenRead(p1), p2);
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public Stream OpGetStream1(Current current, CancellationToken cancel) =>
+            File.OpenRead("AllTests.cs");
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>Named tuple with the following fields:</returns>
+        public (string R1, Stream R2) OpGetStream2(Current current, CancellationToken cancel) =>
+            ("AllTests.cs", File.OpenRead("AllTests.cs"));
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public Stream OpSendAndGetStream1(Stream p1, Current current, CancellationToken cancel) =>
+            p1;
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>Named tuple with the following fields:</returns>
+        public (string R1, Stream R2) OpSendAndGetStream2(
+            string p1,
+            Stream p2,
+            Current current,
+            CancellationToken cancel) => (p1, p2);
+
+        private static void CompareStreams(Stream s1, Stream s2)
+        {
+            int v1, v2;
+            do
+            {
+                v1 = s1.ReadByte();
+                v2 = s2.ReadByte();
+                TestHelper.Assert(v1 == v2);
+            }
+            while (v1 != -1 && v2 != -1);
+
+            s1.Dispose();
+            s2.Dispose();
+        }
     }
 }

@@ -264,6 +264,15 @@ interface MyClass
 
     [marshaled-result] StringStringD opMDict1();
     [marshaled-result] (StringStringD r1, StringStringD r2) opMDict2(StringStringD p1);
+
+    void opSendStream1(stream byte p1);
+    void opSendStream2(string p1, stream byte p2);
+
+    stream byte opGetStream1();
+    (string r1, stream byte r2) opGetStream2();
+
+    stream byte opSendAndGetStream1(stream byte p1);
+    (string r1, stream byte r2) opSendAndGetStream2(string p1, stream byte p2);
 }
 
 struct MyStruct1

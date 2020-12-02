@@ -104,6 +104,16 @@ namespace ZeroC.Ice
                                     // Wait for the stream to receive the data before reading a new Slic frame.
                                     await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
                                 }
+                                else
+                                {
+                                    if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                                    {
+                                        TraceTransportFrame("received ",
+                                                            SlicDefinitions.FrameType.StreamLast,
+                                                            0,
+                                                            streamId);
+                                    }
+                                }
                             }
                             catch
                             {
@@ -225,12 +235,12 @@ namespace ZeroC.Ice
             {
                 if (size > 0)
                 {
-                    ArraySegment<byte> data = new byte[size];
-                    await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
-                    if (Endpoint.Communicator.TraceLevels.Transport > 2)
-                    {
-                        TraceTransportFrame("received ", type, size, streamId);
-                    }
+                    await ReceiveDataAsync(new byte[size], cancel).ConfigureAwait(false);
+                }
+
+                if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                {
+                    TraceTransportFrame("received ", type, size, streamId);
                 }
             }
         }

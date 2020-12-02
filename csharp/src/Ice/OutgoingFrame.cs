@@ -54,7 +54,7 @@ namespace ZeroC.Ice
 
         /// <summary>The stream data writer if the request or response has an outgoing stream param. The writer is
         /// called after the request or response frame is sent over a socket stream.</summary>
-        internal Action<SocketStream>? StreamDataWriter;
+        internal Action<SocketStream>? StreamDataWriter { get; set; }
 
         // Position of the end of the payload. With ice1, this is always the end of the frame.
         private protected OutputStream.Position PayloadEnd { get; set; }

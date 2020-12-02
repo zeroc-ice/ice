@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1009,6 +1010,60 @@ namespace ZeroC.Ice.Test.Operations
         {
             await Task.Delay(0, cancel);
             return new IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
+        }
+
+        public ValueTask OpSendStream1Async(Stream p1, Current current, CancellationToken cancel)
+        {
+            CompareStreams(File.OpenRead("AllTests.cs"), p1);
+            return default;
+        }
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public ValueTask OpSendStream2Async(string p1, Stream p2, Current current, CancellationToken cancel)
+        {
+            CompareStreams(File.OpenRead(p1), p2);
+            return default;
+        }
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public ValueTask<Stream> OpGetStream1Async(Current current, CancellationToken cancel) =>
+            new(File.OpenRead("AllTests.cs"));
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>Named tuple with the following fields:</returns>
+        public ValueTask<(string R1, Stream R2)> OpGetStream2Async(Current current, CancellationToken cancel) =>
+            new(("AllTests.cs", File.OpenRead("AllTests.cs")));
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        public ValueTask<Stream> OpSendAndGetStream1Async(Stream p1, Current current, CancellationToken cancel) =>
+            new(p1);
+
+        /// <param name="current">The Current object for the dispatch.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>Named tuple with the following fields:</returns>
+        public ValueTask<(string R1, Stream R2)> OpSendAndGetStream2Async(
+            string p1,
+            Stream p2,
+            Current current,
+            CancellationToken cancel) => new((p1, p2));
+
+        private static void CompareStreams(Stream s1, Stream s2)
+        {
+            int v1, v2;
+            do
+            {
+                v1 = s1.ReadByte();
+                v2 = s2.ReadByte();
+                TestHelper.Assert(v1 == v2);
+            }
+            while (v1 != -1 && v2 != -1);
+
+            s1.Dispose();
+            s2.Dispose();
         }
 
         private static IReadOnlyDictionary<TKey, TValue> MergeDictionaries<TKey, TValue>(

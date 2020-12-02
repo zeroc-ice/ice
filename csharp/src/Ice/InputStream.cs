@@ -16,6 +16,13 @@ namespace ZeroC.Ice
     /// <param name="istr">The input stream to read from.</param>
     public delegate T InputStreamReader<T>(InputStream istr);
 
+    /// <summary>A delegate that reads a value from an input stream. The value contains a stream parameter that
+    /// will be received using the given socket stream.</summary>
+    /// <typeparam name="T">The type of the value to read.</typeparam>
+    /// <param name="istr">The input stream to read from.</param>
+    /// <param name="socketStream">The socket stream to receive the streamable data from.</param>
+    public delegate T InputStreamReaderWithStreamable<T>(InputStream istr, SocketStream socketStream);
+
     /// <summary>Reads a byte buffer encoded using the Ice encoding.</summary>
     public sealed partial class InputStream
     {

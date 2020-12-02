@@ -4181,6 +4181,12 @@ Slice::Operation::params() const
     return _params;
 }
 
+bool
+Slice::Operation::hasStreamParam() const
+{
+    return !_params.empty() && _params.back()->stream();
+}
+
 MemberList
 Slice::Operation::outParameters() const
 {
@@ -4342,6 +4348,12 @@ Slice::Operation::returnsMultipleValues() const
 }
 
 bool
+Slice::Operation::hasStreamReturnValue() const
+{
+    return !_returnType.empty() && _returnType.back()->stream();
+}
+
+bool
 Slice::Operation::hasReturnAndOut() const
 {
     return _hasReturnType && _usesOutParams;
@@ -4467,8 +4479,8 @@ Slice::Member::operation() const
 }
 
 Slice::Member::Member(const ContainerPtr& container, const string& name, const TypePtr& type,
-                              bool tagged, int tag, bool stream, const SyntaxTreeBasePtr& defaultValueType,
-                              const string& defaultValue, const string& defaultLiteral) :
+                      bool tagged, int tag, bool stream, const SyntaxTreeBasePtr& defaultValueType,
+                      const string& defaultValue, const string& defaultLiteral) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),

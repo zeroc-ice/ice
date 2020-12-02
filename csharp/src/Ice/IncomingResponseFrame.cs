@@ -47,12 +47,93 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
+            if (SocketStream != null)
+            {
+                SocketStream.TryDispose();
+                throw new InvalidDataException("stream data available for operation without stream parameter");
+            }
+
             if (ResultType == ResultType.Success)
             {
                 return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), reader, proxy: proxy);
             }
             else
             {
+                throw ReadException(proxy);
+            }
+        }
+
+        /// <summary>Reads the return value which contains a stream return value. If this response frame carries a
+        /// failure, reads and throws this exception.</summary>
+        /// <paramtype name="T">The type of the return value.</paramtype>
+        /// <param name="proxy">The proxy used to send the request. <c>proxy</c> is used to read relative proxies.
+        /// </param>
+        /// <param name="reader">A reader used to read the frame return value, when the frame return value contain
+        /// multiple values the reader must use a tuple to return the values.</param>
+        /// <returns>The frame return value.</returns>
+        public T ReadReturnValue<T>(IObjectPrx proxy, InputStreamReaderWithStreamable<T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
+            if (ResultType == ResultType.Success)
+            {
+                if (SocketStream == null)
+                {
+                    throw new InvalidDataException("no stream data available for operation with stream parameter");
+                }
+
+                var istr = new InputStream(Payload.AsReadOnlyMemory(1),
+                                           Protocol.GetEncoding(),
+                                           reference: proxy?.IceReference,
+                                           startEncapsulation: true);
+                T value = reader(istr, SocketStream);
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+                return value;
+            }
+            else
+            {
+                if (SocketStream != null)
+                {
+                    SocketStream.TryDispose();
+                    throw new InvalidDataException("stream data available with remote exception result");
+                }
+                throw ReadException(proxy);
+            }
+        }
+
+        /// <summary>Reads the return value which is a stream return value only. If this response frame carries a
+        /// failure, reads and throws this exception.</summary>
+        /// <paramtype name="T">The type of the return value.</paramtype>
+        /// <param name="proxy">The proxy used to send the request. <c>proxy</c> is used to read relative proxies.
+        /// </param>
+        /// <param name="reader">A reader used to read the frame return value.</param>
+        /// <returns>The frame return value.</returns>
+        public T ReadReturnValue<T>(IObjectPrx proxy, Func<SocketStream, T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
+            if (ResultType == ResultType.Success)
+            {
+                if (SocketStream == null)
+                {
+                    throw new InvalidDataException("no stream data available for operation with stream parameter");
+                }
+                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding());
+                return reader(SocketStream);
+            }
+            else
+            {
+                if (SocketStream != null)
+                {
+                    SocketStream.TryDispose();
+                    throw new InvalidDataException("stream data available with remote exception result");
+                }
                 throw ReadException(proxy);
             }
         }
@@ -66,6 +147,12 @@ namespace ZeroC.Ice
             if (HasCompressedPayload)
             {
                 DecompressPayload();
+            }
+
+            if (SocketStream != null)
+            {
+                SocketStream.TryDispose();
+                throw new InvalidDataException("stream data available for operation without stream parameter");
             }
 
             if (ResultType == ResultType.Success)

@@ -75,9 +75,9 @@ namespace ZeroC.Ice
                 // Wait to be signaled for the reception of a new stream frame for this stream.
                 (_receivedSize, _receivedEndOfStream) = await WaitSignalAsync(cancel).ConfigureAwait(false);
                 _receivedOffset = 0;
-                if (_receivedEndOfStream && _receivedSize < buffer.Length)
+                if (_receivedSize == 0)
                 {
-                    throw new InvalidDataException("received last frame with less data than expected");
+                    return 0;
                 }
             }
 
@@ -233,7 +233,7 @@ namespace ZeroC.Ice
 
             // The given buffer includes space for the Slic header, we subtract the header size from the given
             // frame size.
-            Debug.Assert(packetSize > Header.Length);
+            Debug.Assert(packetSize >= Header.Length);
             packetSize -= Header.Length;
 
             // Compute how much space the size and stream ID require to figure out the start of the Slic header.
