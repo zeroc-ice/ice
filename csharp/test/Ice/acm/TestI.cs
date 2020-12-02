@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.ACM
             CancellationToken cancel)
         {
             var communicator = new Communicator(
-                new Dictionary<string, string>(current.Adapter.Communicator.GetProperties())
+                new Dictionary<string, string>(current.Communicator.GetProperties())
                 {
                     ["Ice.Warn.Connections"] = "0",
                     ["Ice.IdleTimeout"] = $"{idleTimeout}s",
@@ -35,7 +35,7 @@ namespace ZeroC.Ice.Test.ACM
         }
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            _ = current.Adapter.Communicator.ShutdownAsync();
+            _ = current.Communicator.ShutdownAsync();
     }
 
     public class RemoteObjectAdapter : IRemoteObjectAdapter

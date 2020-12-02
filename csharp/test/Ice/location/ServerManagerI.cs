@@ -91,7 +91,7 @@ namespace ZeroC.Ice.Test.Location
                 c.Dispose();
             }
             _communicators.Clear();
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
         }
     }
 }

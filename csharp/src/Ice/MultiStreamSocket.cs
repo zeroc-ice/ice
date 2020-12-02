@@ -553,6 +553,11 @@ namespace ZeroC.Ice
                 s.Append("\nmessage from peer = ");
                 s.Append(istr.ReadString());
             }
+            else
+            {
+                s.Append("\nlast request ID = ");
+                s.Append((int)(LastResponseStreamId >> 2) + 1);
+            }
 
             s.Append('\n');
             s.Append(ToString());

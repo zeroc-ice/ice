@@ -29,6 +29,6 @@ namespace ZeroC.Ice.Test.Inheritance
         public ICPrx Icop(Current current, CancellationToken cancel) => _ic;
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 }
