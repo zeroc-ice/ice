@@ -650,16 +650,6 @@ Slice::prependA(const string& s)
 }
 
 TypePtr
-Slice::rewrapIfOptional(const TypePtr& newType, const TypePtr& oldType)
-{
-    if (OptionalPtr::dynamicCast(oldType))
-    {
-        return new Optional(newType);
-    }
-    return newType;
-}
-
-TypePtr
 Slice::unwrapIfOptional(const TypePtr& type)
 {
     if (auto optional = OptionalPtr::dynamicCast(type))
@@ -683,6 +673,23 @@ TypePtr
 Slice::unwrapType(const TypePtr& type)
 {
     return unwrapIfOptional(unwrapIfAlias(type));
+}
+
+void
+Slice::resolveAlias(TypePtr& type, StringList& metadata)
+{
+    if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
+    {
+        mergeMetadataInPlace(metadata, alias->typeMetadata());
+        if (OptionalPtr::dynamicCast(type))
+        {
+            type = new Optional(alias->underlying());
+        }
+        else
+        {
+            type = alias->underlying();
+        }
+    }
 }
 
 CaseConvention
@@ -947,13 +954,7 @@ optional<string> Slice::findMetadata(const string& directive, const map<string, 
 
 void Slice::mergeMetadataInPlace(StringList& m1, const StringList& m2)
 {
-    for (const auto& m : m2)
-    {
-        if (find(m1.begin(), m1.end(), m) == m1.end())
-        {
-            m1.push_back(m);
-        }
-    }
+    m1.insert(m1.end(), m2.begin(), m2.end());
 }
 
 StringList Slice::mergeMetadata(const StringList& m1, const StringList& m2)
