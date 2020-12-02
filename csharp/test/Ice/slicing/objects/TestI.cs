@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
     public sealed class TestIntf : ITestIntf
     {
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
 
         public AnyClass SBaseAsObject(Current current, CancellationToken cancel)
         {

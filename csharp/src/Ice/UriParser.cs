@@ -20,8 +20,10 @@ namespace ZeroC.Ice
 
             internal Encoding? Encoding;
             internal TimeSpan? InvocationTimeout;
+            internal object? Label;
             internal TimeSpan? LocatorCacheTimeout; // only for the ice URI scheme
-            internal bool? PreferNonSecure;
+            internal bool? PreferExistingConnection;
+            internal NonSecure? PreferNonSecure;
             internal Protocol? Protocol;
             internal bool? Relative; // only for the ice URI scheme
 
@@ -29,14 +31,18 @@ namespace ZeroC.Ice
                 out bool? cacheConnection,
                 out IReadOnlyDictionary<string, string>? context,
                 out TimeSpan? invocationTimeout,
+                out object? label,
                 out TimeSpan? locatorCacheTimeout,
-                out bool? preferNonSecure,
+                out bool? preferExistingConnection,
+                out NonSecure? preferNonSecure,
                 out bool? relative)
             {
                 cacheConnection = CacheConnection;
                 context = Context?.ToImmutableSortedDictionary();
                 invocationTimeout = InvocationTimeout;
+                label = Label;
                 locatorCacheTimeout = LocatorCacheTimeout;
+                preferExistingConnection = PreferExistingConnection;
                 preferNonSecure = PreferNonSecure;
                 relative = Relative;
             }
@@ -317,15 +323,29 @@ namespace ZeroC.Ice
                         throw new FormatException($"0 is not a valid value for the {name} option in `{uriString}'");
                     }
                 }
+                else if (name == "label")
+                {
+                    CheckProxyOption(name, proxyOptions.Label != null);
+                    proxyOptions.Label = value;
+                }
                 else if (endpointOptions == null && name == "locator-cache-timeout")
                 {
                     CheckProxyOption(name, proxyOptions.LocatorCacheTimeout != null);
                     proxyOptions.LocatorCacheTimeout = TimeSpanExtensions.Parse(value);
                 }
+                else if (name == "prefer-existing-connection")
+                {
+                    CheckProxyOption(name, proxyOptions.PreferExistingConnection != null);
+                    proxyOptions.PreferExistingConnection = bool.Parse(value);
+                }
                 else if (name == "prefer-non-secure")
                 {
                     CheckProxyOption(name, proxyOptions.PreferNonSecure != null);
-                    proxyOptions.PreferNonSecure = bool.Parse(value);
+                    if (int.TryParse(value, out int _))
+                    {
+                        throw new FormatException($"{value} is not a valid option for prefer-non-secure");
+                    }
+                    proxyOptions.PreferNonSecure = Enum.Parse<NonSecure>(value, ignoreCase: true);
                 }
                 else if (name == "protocol")
                 {

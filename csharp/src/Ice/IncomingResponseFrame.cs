@@ -211,6 +211,21 @@ namespace ZeroC.Ice
             }
         }
 
+        internal RetryPolicy GetRetryPolicy(Reference reference)
+        {
+            RetryPolicy retryPolicy = RetryPolicy.NoRetry;
+            if (Encoding == Encoding.V11)
+            {
+                retryPolicy = Ice1Definitions.GetRetryPolicy(this, reference);
+            }
+            else if (BinaryContext.TryGetValue((int)Ice.BinaryContext.RetryPolicy,
+                                               out ReadOnlyMemory<byte> value))
+            {
+                retryPolicy = value.Read(istr => new RetryPolicy(istr));
+            }
+            return retryPolicy;
+        }
+
         private protected override ArraySegment<byte> GetEncapsulation()
         {
             // Can only be called for a frame with an encapsulation:

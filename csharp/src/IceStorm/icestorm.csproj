@@ -4,7 +4,7 @@
         <AssemblyName>IceStorm</AssemblyName>
         <Title>IceStorm .NET Client Library</Title>
         <OutputPath>../../lib</OutputPath>
-        <TargetFramework>net5</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />

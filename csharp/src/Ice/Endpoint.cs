@@ -88,6 +88,18 @@ namespace ZeroC.Ice
         /// print. Always true for ice1 endpoints.</summary>
         protected internal abstract bool HasOptions { get; }
 
+        /// <summary>Creates a connection to this endpoint.</summary>
+        /// <param name="preferNonSecure">Indicates under what conditions establishing a non-secure connection should
+        /// be preferred.</param>
+        /// <param name="label">The corresponding Connection property <see cref="Connection.Label"/> can be non-null
+        /// only for outgoing connections.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>The new established connection.</returns>
+        protected internal abstract Task<Connection> ConnectAsync(
+            NonSecure preferNonSecure,
+            object? label,
+            CancellationToken cancel);
+
         /// <summary>The equality operator == returns true if its operands are equal, false otherwise.</summary>
         /// <param name="lhs">The left hand side operand.</param>
         /// <param name="rhs">The right hand side operand.</param>
@@ -156,6 +168,14 @@ namespace ZeroC.Ice
         /// ice1 endpoints.</param>
         protected internal abstract void AppendOptions(StringBuilder sb, char optionSeparator);
 
+        /// <summary>Provides the same hash code for two equivalent endpoints. See <see cref="IsEquivalent"/>.</summary>
+        protected internal virtual int GetEquivalentHashCode() => GetHashCode();
+
+        /// <summary>Two endpoints are considered equivalent if they are equal or their differences should not trigger
+        /// the establishment of separate connections to those endpoints. For example, two tcp endpoints that are
+        /// identical except for their ice1 HashCompressedFlag property are equivalent but are not equal.</summary>
+        protected internal virtual bool IsEquivalent(Endpoint other) => Equals(other);
+
         /// <summary>Writes the options of this endpoint to the output stream. ice1-only.</summary>
         /// <param name="ostr">The output stream.</param>
         protected internal abstract void WriteOptions(OutputStream ostr);
@@ -164,16 +184,9 @@ namespace ZeroC.Ice
         /// from clients and creates a new connection for each client. This is typically used to implement a
         /// stream-based transport. Datagram transports don't implement this method but instead implement the
         /// <see cref="CreateDatagramServerConnection"/> method.</summary>
-        /// <param name="manager">The connection manager to manage connections created by the acceptor.</param>
         /// <param name="adapter">The object adapter associated to the acceptor.</param>
         /// <returns>An acceptor for this endpoint.</returns>
-        public abstract IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter);
-
-        /// <summary>Returns a connector for this endpoint, or empty list if no connector is available.</summary>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>A collector of connectors for this endpoint.</returns>
-        public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            CancellationToken cancel);
+        public abstract IAcceptor Acceptor(ObjectAdapter adapter);
 
         /// <summary>Creates a datagram server side connection for this endpoint to receive datagrams from clients.
         /// Unlike stream-based transports, datagram endpoints don't support an acceptor responsible for accepting new
@@ -184,10 +197,10 @@ namespace ZeroC.Ice
 
         /// <summary>Expands endpoint into separate endpoints for each IP address returned by the DNS resolver.
         /// </summary>
-        /// <returns>The expanded endpoints if Host is a DNS name or IP address and an empty collection if this
-        /// endpoint is not usable as an object adapter endpoint.</returns>
-        // TODO: should this be ExpandHostAsync?
-        protected internal virtual IEnumerable<Endpoint> ExpandHost() => ImmutableArray<Endpoint>.Empty;
+        /// <returns>A value task holding the expanded endpoints if Host is a DNS name or IP address; otherwise, a value
+        /// task holding an empty collection.</returns>
+        protected internal virtual ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel) =>
+            new(ImmutableArray<Endpoint>.Empty);
 
         /// <summary>Returns the published endpoint for this object adapter endpoint.</summary>
         /// <param name="serverName">The server name, to be used as the host of the published endpoint when the

@@ -25,10 +25,11 @@ namespace ZeroC.Ice.Test.Binding
 
                     if (transport == "udp")
                     {
-                        // udp endpoints are always non-secure. Set name.AcceptNonSecure = true
-                        current.Communicator.SetProperty($"{name}.AcceptNonSecure", "true");
+                        // udp endpoints are always non-secure. Set name.AcceptNonSecure = Always
+                        current.Communicator.SetProperty($"{name}.AcceptNonSecure", "Always");
                     }
-                    ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
+                    ObjectAdapter adapter =
+                        current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints, cancel: cancel);
                     return current.Adapter.AddWithUUID(
                         new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
                 }
@@ -48,7 +49,8 @@ namespace ZeroC.Ice.Test.Binding
             Current current,
             CancellationToken cancel)
         {
-            ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
+            ObjectAdapter adapter =
+                current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints, cancel: cancel);
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
@@ -60,6 +62,6 @@ namespace ZeroC.Ice.Test.Binding
             adapter!.Deactivate(cancel: cancel);
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 }

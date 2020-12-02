@@ -57,7 +57,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static Socket CreateSocket(bool udp, AddressFamily family, IConnector? connector = null)
+        internal static Socket CreateSocket(bool udp, AddressFamily family)
         {
             Socket socket;
 
@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             }
             catch (SocketException ex)
             {
-                throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
+                throw new TransportException(ex, RetryPolicy.OtherReplica);
             }
 
             if (!udp)
@@ -87,13 +87,13 @@ namespace ZeroC.Ice
                 catch (SocketException ex)
                 {
                     socket.CloseNoThrow();
-                    throw new TransportException(ex, RetryPolicy.OtherReplica, connector);
+                    throw new TransportException(ex, RetryPolicy.OtherReplica);
                 }
             }
             return socket;
         }
 
-        internal static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(
+        internal static async ValueTask<IReadOnlyList<IPEndPoint>> GetAddressesAsync(
             string host,
             int port,
             int ipVersion,
@@ -151,7 +151,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(
+        internal static async ValueTask<IReadOnlyList<IPEndPoint>> GetAddressesForClientEndpointAsync(
             string host,
             int port,
             int ipVersion,
@@ -298,6 +298,22 @@ namespace ZeroC.Ice
         internal static bool IsMulticast(IPEndPoint addr) =>
             addr.AddressFamily == AddressFamily.InterNetwork ?
                 (addr.Address.GetAddressBytes()[0] & 0xF0) == 0xE0 : addr.Address.IsIPv6Multicast;
+
+        /// <summary>Check if an IPEndPoint is on the same host, we consider a peer endpoint is on the same host
+        /// if its address matches any of the host local addresses.</summary>
+        /// <param name="peer">The peer endpoint to check.</param>
+        /// <returns><c>True</c> if the peer is on the same host otherwise <c>false</c>.</returns>
+        internal static bool IsSameHost(this IPEndPoint peer)
+        {
+            try
+            {
+                return GetLocalAddresses(EnableBoth, true, false).Any(address => address.Equals(peer.Address));
+            }
+            catch
+            {
+            }
+            return false;
+        }
 
         internal static string LocalAddrToString(EndPoint? endpoint) => endpoint?.ToString() ?? "<not bound>";
 

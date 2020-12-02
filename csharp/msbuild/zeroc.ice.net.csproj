@@ -33,14 +33,14 @@
             <Pack>true</Pack>
         </Content>
 
-        <Content Include="..\lib\netstandard2.0\*.dll">
+        <Content Include="..\lib\net5.0\*.dll">
             <Pack>true</Pack>
-            <PackagePath>lib\netstandard2.0</PackagePath>
+            <PackagePath>lib\net5.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\$(AppTargetFramework)\publish\*" Exclude="..\bin\$(AppTargetFramework)\publish\iceboxnet">
+        <Content Include="..\bin\net5.0\publish\*" Exclude="..\bin\net5.0\publish\iceboxnet">
             <Pack>true</Pack>
-            <PackagePath>tools\$(AppTargetFramework)</PackagePath>
+            <PackagePath>tools\net5.0</PackagePath>
         </Content>
 
         <Content Include="..\..\slice\**\*.ice"

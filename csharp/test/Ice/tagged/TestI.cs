@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Tagged
     public class Initial : IInitial
     {
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
 
         public AnyClass? PingPong(AnyClass? obj, Current current, CancellationToken cancel) => obj;
 

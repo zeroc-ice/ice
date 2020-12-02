@@ -19,13 +19,13 @@ namespace ZeroC.Ice.Instrumentation
     /// communicator constructor.</summary>
     public interface ICommunicatorObserver
     {
-        /// <summary>This method should return an observer for the given endpoint information and connector.
+        /// <summary>This method should return an observer for the given endpoint information.
         /// The Ice run-time calls this method for each connection establishment attempt.</summary>
         /// <param name="endpoint">The endpoint.</param>
-        /// <param name="connector">The description of the connector. For IP transports, this is typically the IP
-        /// address to connect to.</param>
+        /// <param name="description">The description of the connection target. For IP transports, this is typically
+        /// the IP address to connect to.</param>
         /// <returns>The observer to instrument the connection establishment.</returns>
-        IObserver? GetConnectionEstablishmentObserver(Endpoint endpoint, string connector);
+        IObserver? GetConnectionEstablishmentObserver(Endpoint endpoint, string description);
 
         /// <summary>This method should return a connection observer for the given connection. The Ice run-time calls
         /// this method for each new connection and for all the Ice communicator connections when
@@ -49,8 +49,8 @@ namespace ZeroC.Ice.Instrumentation
         IDispatchObserver? GetDispatchObserver(Current current, long requestId, int size);
 
         /// <summary>This method should return an observer for the given endpoint information. The Ice run-time calls
-        /// this method to resolve an endpoint and obtain the list of connectors. For IP endpoints, this typically
-        /// involves doing a DNS lookup to obtain the IP addresses associated with the DNS name.</summary>
+        /// this method to resolve an endpoint. For IP endpoints, this typically involves doing a DNS lookup to obtain
+        /// the IP addresses associated with the DNS name.</summary>
         /// <param name="endpoint">The endpoint.</param>
         /// <returns>The observer to instrument the endpoint lookup.</returns>
         IObserver? GetEndpointLookupObserver(Endpoint endpoint);

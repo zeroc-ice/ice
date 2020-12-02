@@ -43,7 +43,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             var properties = new Dictionary<string, string>(defaultProperties);
 
-            properties["Ice.AcceptNonSecure"] = "False";
+            properties["Ice.AcceptNonSecure"] = "Never";
 
             if (defaultProperties.TryGetValue("IceSSL.DefaultDir", out string? value))
             {
@@ -73,7 +73,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
         private static IServerFactoryPrx
         CreateServerFactoryPrx(string factoryRef, Communicator communicator) =>
-            IServerFactoryPrx.Parse(factoryRef, communicator).Clone(preferNonSecure: true);
+            IServerFactoryPrx.Parse(factoryRef, communicator).Clone(preferNonSecure: NonSecure.Always);
 
         public static IServerFactoryPrx Run(TestHelper helper, string testDir)
         {

@@ -165,15 +165,28 @@ namespace ZeroC.Ice
             return new WSEndpoint(data, options, communicator, oaEndpoint);
         }
 
-        // Constructor for ice1 unmarshaling
-        private WSEndpoint(EndpointData data, TimeSpan timeout, bool compress, Communicator communicator)
-            : base(data, timeout, compress, communicator)
-        {
-        }
+        internal override SingleStreamSocket CreateSocket(
+            EndPoint addr,
+            INetworkProxy? proxy,
+            bool preferNonSecure) =>
+            new WSSocket(Communicator, base.CreateSocket(addr, proxy, preferNonSecure), Host, Resource);
 
-        // Constructor for ice2 unmarshaling.
-        internal WSEndpoint(EndpointData data, Communicator communicator)
-            : base(data, communicator)
+        internal override SingleStreamSocket CreateSocket(Socket socket, string adapterName, bool preferNonSecure) =>
+            new WSSocket(Communicator, base.CreateSocket(socket, adapterName, preferNonSecure));
+
+        protected internal override Connection CreateConnection(
+            MultiStreamOverSingleStreamSocket socket,
+            object? label,
+            ObjectAdapter? adapter) =>
+            new WSConnection(this, socket, label, adapter);
+
+        // Constructor used for ice2 parsing.
+        private WSEndpoint(
+            EndpointData data,
+            Dictionary<string, string> options,
+            Communicator communicator,
+            bool oaEndpoint)
+            : base(data, options, communicator, oaEndpoint)
         {
         }
 
@@ -190,23 +203,17 @@ namespace ZeroC.Ice
         {
         }
 
-        // Constructor used for ice2 parsing.
-        private WSEndpoint(
-            EndpointData data,
-            Dictionary<string, string> options,
-            Communicator communicator,
-            bool oaEndpoint)
-            : base(data, options, communicator, oaEndpoint)
+        // Constructor for ice1 unmarshaling
+        private WSEndpoint(EndpointData data, TimeSpan timeout, bool compress, Communicator communicator)
+            : base(data, timeout, compress, communicator)
         {
         }
 
-        internal override Connection CreateConnection(
-            IConnectionManager manager,
-            MultiStreamOverSingleStreamSocket socket,
-            IConnector? connector,
-            string connectionId,
-            ObjectAdapter? adapter) =>
-            new WSConnection(manager, this, socket, connector, connectionId, adapter);
+        // Constructor for ice2 unmarshaling.
+        private WSEndpoint(EndpointData data, Communicator communicator)
+            : base(data, communicator)
+        {
+        }
 
         // Clone constructor
         private WSEndpoint(WSEndpoint endpoint, string host, ushort port)
@@ -216,19 +223,5 @@ namespace ZeroC.Ice
 
         private protected override IPEndpoint Clone(string host, ushort port) =>
             new WSEndpoint(this, host, port);
-
-        internal override SingleStreamSocket CreateSocket(
-            IConnector connector,
-            EndPoint addr,
-            INetworkProxy? proxy,
-            bool preferNonSecure) =>
-            new WSSocket(Communicator,
-                         base.CreateSocket(connector, addr, proxy, preferNonSecure),
-                         Host,
-                         Resource,
-                         connector);
-
-        internal override SingleStreamSocket CreateSocket(Socket socket, string adapterName, bool preferNonSecure) =>
-            new WSSocket(Communicator, base.CreateSocket(socket, adapterName, preferNonSecure));
     }
 }

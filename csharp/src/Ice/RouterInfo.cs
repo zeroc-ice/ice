@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -93,20 +92,6 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IReadOnlyList<Endpoint> GetClientEndpoints(CancellationToken cancel = default)
-        {
-            try
-            {
-                ValueTask<IReadOnlyList<Endpoint>> task = GetClientEndpointsAsync(cancel);
-                return task.IsCompleted ? task.Result : task.AsTask().Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
         internal async ValueTask<IReadOnlyList<Endpoint>> GetClientEndpointsAsync(CancellationToken cancel = default)
         {
             lock (_mutex)
@@ -135,21 +120,6 @@ namespace ZeroC.Ice
 
     internal static class RouterExtensions
     {
-        internal static IReadOnlyList<Endpoint> GetServerEndpoints(
-            this IRouterPrx router,
-            CancellationToken cancel = default)
-        {
-            try
-            {
-                return router.GetServerEndpointsAsync(cancel).Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
         internal static async Task<IReadOnlyList<Endpoint>> GetServerEndpointsAsync(
             this IRouterPrx router,
             CancellationToken cancel = default)

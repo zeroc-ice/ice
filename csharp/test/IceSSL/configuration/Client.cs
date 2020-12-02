@@ -12,8 +12,8 @@ namespace ZeroC.IceSSL.Test.Configuration
         public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
-            // TODO: remove this when False is the communicator default
-            properties["Ice.Default.PreferNonSecure"] = "False";
+            // TODO: remove this when Never is the communicator default
+            properties["Ice.Default.PreferNonSecure"] = "Never";
             await using Ice.Communicator communicator = Initialize(properties);
             if (args.Length < 1)
             {

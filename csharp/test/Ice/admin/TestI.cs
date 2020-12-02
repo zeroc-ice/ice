@@ -86,7 +86,7 @@ namespace ZeroC.Ice.Test.Admin
             return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
         }
 
-        public void Shutdown(Current current, CancellationToken cancel) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current, CancellationToken cancel) => current.Communicator.ShutdownAsync();
 
         private class NullLogger : ILogger
         {

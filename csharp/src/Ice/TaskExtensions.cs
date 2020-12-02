@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +14,30 @@ namespace ZeroC.Ice
     /// connection to be sent.</summary>
     internal static class TaskExtensions
     {
+        /// <summary>Waits for a value task to complete and returns its result.</summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="task">The value task.</param>
+        /// <returns>The result.</returns>
+        internal static TResult GetResult<TResult>(this ValueTask<TResult> task)
+        {
+            if (task.IsCompleted)
+            {
+                return task.Result;
+            }
+            else
+            {
+                try
+                {
+                    return task.AsTask().Result;
+                }
+                catch (AggregateException ex)
+                {
+                    Debug.Assert(ex.InnerException != null);
+                    throw ExceptionUtil.Throw(ex.InnerException);
+                }
+            }
+        }
+
         /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
         /// <param name="task">The task to wait for.</param>
         /// <param name="cancel">The cancellation token.</param>

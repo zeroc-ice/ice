@@ -19,11 +19,10 @@ namespace ZeroC.Ice
     /// servants, identities, and proxies.</summary>
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
-        /// <summary>Indicates whether or not the object adapter accepts non-secure incoming connections. When false, it
-        /// only accepts secure connections; when true, it accepts both secure and non-secure connections. This property
+        /// <summary>Indicates under what circumstances the object adapter accepts non-secure incoming connections. This property
         /// corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
         /// <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
-        public bool AcceptNonSecure { get; }
+        public NonSecure AcceptNonSecure { get; }
 
         /// <summary>Returns the adapter ID of this object adapter, or the empty string if this object adapter does not
         /// have an adapter ID.</summary>
@@ -35,7 +34,8 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the endpoints this object adapter is listening on.</summary>
         /// <returns>The endpoints. All IP endpoints have IP addresses, not DNS names.</returns>
-        public IReadOnlyList<Endpoint> Endpoints { get; } = ImmutableArray<Endpoint>.Empty;
+        // set is only in InitAsync, before the new object adapter is returned to the application.
+        public IReadOnlyList<Endpoint> Endpoints { get; private set; } = ImmutableArray<Endpoint>.Empty;
 
         /// <summary>The Ice Locator associated with this object adapter, if any. The object adapter registers itself
         /// with this locator during <see cref="ActivateAsync"/>.</summary>
@@ -55,10 +55,9 @@ namespace ZeroC.Ice
         /// determines this protocol.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.
-        /// <seealso cref="SetPublishedEndpoints"/>
-        /// <seealso cref="SetPublishedEndpointsAsync"/></summary>
-        public IReadOnlyList<Endpoint> PublishedEndpoints => _publishedEndpoints;
+        /// <summary>Returns the endpoints listed in a direct proxy created by this object adapter.</summary>
+        // set is only in InitAsync, before the new object adapter is returned to the application.
+        public IReadOnlyList<Endpoint> PublishedEndpoints { get; private set; } = ImmutableArray<Endpoint>.Empty;
 
         /// <summary>Returns the replica group ID of this object adapter, or the empty string if this object adapter
         /// does not belong to a replica group.</summary>
@@ -81,24 +80,30 @@ namespace ZeroC.Ice
             "Endpoints",
             "IncomingFrameMaxSize",
             "Locator",
-            "Locator.Encoding",
             "Locator.CacheConnection",
+            "Locator.Encoding",
+            "Locator.Label",
+            "Locator.PreferExistingConnection",
             "Locator.PreferNonSecure",
             "Locator.Router",
             "ProxyOptions",
             "PublishedEndpoints",
             "ReplicaGroupId",
             "Router",
-            "Router.Encoding",
             "Router.CacheConnection",
-            "Router.PreferNonSecure",
+            "Router.Encoding",
+            "Router.InvocationTimeout",
+            "Router.Label",
             "Router.Locator",
             "Router.Locator.CacheConnection",
             "Router.Locator.InvocationTimeout",
+            "Router.Locator.Label",
             "Router.Locator.LocatorCacheTimeout",
+            "Router.Locator.PreferExistingConnection",
             "Router.Locator.PreferNonSecure",
             "Router.LocatorCacheTimeout",
-            "Router.InvocationTimeout",
+            "Router.PreferExistingConnection",
+            "Router.PreferNonSecure",
             "ServerName"
         };
 
@@ -116,7 +121,6 @@ namespace ZeroC.Ice
 
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new();
-        private volatile IReadOnlyList<Endpoint> _publishedEndpoints = ImmutableArray<Endpoint>.Empty;
 
         private readonly RouterInfo? _routerInfo;
 
@@ -167,7 +171,7 @@ namespace ZeroC.Ice
                 }
 
                 // In the event _publishedEndpoints is empty, RegisterEndpointsAsync does nothing.
-                _activateTask ??= RegisterEndpointsAsync(_publishedEndpoints, default);
+                _activateTask ??= RegisterEndpointsAsync(PublishedEndpoints, default);
             }
             await _activateTask.ConfigureAwait(false);
 
@@ -229,7 +233,7 @@ namespace ZeroC.Ice
                 // Wait for the incoming connection factories to be disposed.
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
-                Communicator.OutgoingConnectionFactory.RemoveAdapter(this);
+                // TODO jose: Clear the outgoing connections adapter?
                 Communicator.EraseRouterInfo(_routerInfo?.Router);
                 Communicator.RemoveObjectAdapter(this);
             }
@@ -499,12 +503,12 @@ namespace ZeroC.Ice
                 ImmutableArray<string> location = ReplicaGroupId.Length > 0 ? ImmutableArray.Create(ReplicaGroupId) :
                     AdapterId.Length > 0 ? ImmutableArray.Create(AdapterId) : ImmutableArray<string>.Empty;
 
-                Protocol protocol = _publishedEndpoints.Count > 0 ? _publishedEndpoints[0].Protocol : Protocol;
+                Protocol protocol = PublishedEndpoints.Count > 0 ? PublishedEndpoints[0].Protocol : Protocol;
 
                 return factory(new Reference(Communicator,
                                              protocol.GetEncoding(),
                                              endpoints: AdapterId.Length == 0 ?
-                                                _publishedEndpoints : ImmutableArray<Endpoint>.Empty,
+                                                PublishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                              facet,
                                              identity,
                                              invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
@@ -539,279 +543,23 @@ namespace ZeroC.Ice
             return CreateProxy(identity, facet, factory);
         }
 
-        /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
-        /// </summary>
-        /// <param name="newEndpoints">The new published endpoints.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints, CancellationToken cancel = default)
-        {
-            try
-            {
-                SetPublishedEndpointsAsync(newEndpoints, cancel).Wait(cancel);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
-
-        /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
-        /// </summary>
-        /// <param name="newEndpoints">The new published endpoints.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        public async Task SetPublishedEndpointsAsync(
-            IEnumerable<Endpoint> newEndpoints,
-            CancellationToken cancel = default)
-        {
-            if (Name.Length == 0)
-            {
-                throw new InvalidOperationException("cannot set published endpoints on a nameless object adapter");
-            }
-
-            IReadOnlyList<Endpoint> publishedEndpoints = newEndpoints.ToImmutableArray();
-
-            if (publishedEndpoints.Count == 0)
-            {
-                throw new ArgumentException("the new endpoints cannot be empty", nameof(newEndpoints));
-            }
-
-            if (publishedEndpoints.Select(endpoint => endpoint.Protocol).Distinct().Count() > 1)
-            {
-                throw new ArgumentException("all endpoints must use the same protocol", nameof(newEndpoints));
-            }
-
-            if (_routerInfo != null)
-            {
-                throw new InvalidOperationException(
-                    "cannot set published endpoints on an object adapter associated with a router");
-            }
-
-            await RegisterEndpointsAsync(publishedEndpoints, cancel).ConfigureAwait(false);
-
-            _publishedEndpoints = publishedEndpoints;
-        }
-
-        // Called by Communicator to create a nameless ObjectAdapter
-        internal ObjectAdapter(
+        /// <summary>Creates synchronously a new nameless object adapter.</summary>
+        internal static ObjectAdapter Create(
             Communicator communicator,
             bool serializeDispatch,
             TaskScheduler? scheduler,
-            Protocol protocol)
-        {
-            Communicator = communicator;
-            Name = "";
-            SerializeDispatch = serializeDispatch;
-            TaskScheduler = scheduler;
+            Protocol protocol) =>
+            new ObjectAdapter(communicator, serializeDispatch, scheduler, protocol);
 
-            AdapterId = "";
-            ReplicaGroupId = "";
-            Protocol = protocol;
-            IncomingFrameMaxSize = communicator.IncomingFrameMaxSize;
-            AcceptNonSecure = communicator.AcceptNonSecure;
-        }
-
-        // Called by Communicator.
-        internal ObjectAdapter(
+        /// <summary>Creates asynchronously a new named object adapter.</summary>
+        internal static ValueTask<ObjectAdapter> CreateAsync(
             Communicator communicator,
             string name,
             bool serializeDispatch,
             TaskScheduler? scheduler,
-            IRouterPrx? router)
-        {
-            Debug.Assert(name.Length != 0);
-
-            Communicator = communicator;
-            Name = name;
-            SerializeDispatch = serializeDispatch;
-            TaskScheduler = scheduler;
-
-            (bool noProps, List<string> unknownProps) = FilterProperties();
-
-            // Warn about unknown object adapter properties.
-            if (unknownProps.Count != 0 && Communicator.WarnUnknownProperties)
-            {
-                var message = new StringBuilder("found unknown properties for object adapter `");
-                message.Append(Name);
-                message.Append("':");
-                foreach (string s in unknownProps)
-                {
-                    message.Append("\n    ");
-                    message.Append(s);
-                }
-                Communicator.Logger.Warning(message.ToString());
-            }
-
-            // Make sure named adapter has configuration.
-            if (router == null && noProps)
-            {
-                throw new InvalidConfigurationException($"object adapter `{Name}' requires configuration");
-            }
-
-            AdapterId = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
-            ReplicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
-
-            int frameMaxSize =
-                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameMaxSize") ?? Communicator.IncomingFrameMaxSize;
-            IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
-            if (IncomingFrameMaxSize < 1024)
-            {
-                throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
-            }
-
-            AcceptNonSecure = Communicator.GetPropertyAsBool($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
-
-            try
-            {
-                if (router != null && router.Protocol != Protocol.Ice1)
-                {
-                    throw new ArgumentException($"{nameof(router)} must be an ice1 proxy", nameof(router));
-                }
-
-                router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
-
-                if (router != null)
-                {
-                    Protocol = router.Protocol;
-                    if (Protocol != Protocol.Ice1)
-                    {
-                        throw new InvalidConfigurationException($"{Name}.Router must be an ice1 proxy");
-                    }
-                    _routerInfo = Communicator.GetRouterInfo(router);
-                    Debug.Assert(_routerInfo != null);
-
-                    // Make sure this router is not already registered with another adapter.
-                    if (_routerInfo.Adapter != null)
-                    {
-                        throw new ArgumentException($"router `{router}' is already registered with an object adapter",
-                            nameof(router));
-                    }
-
-                    // Associate this object adapter with the router. This way, new outgoing connections to the
-                    // router's client proxy will use this object adapter for callbacks.
-                    _routerInfo.Adapter = this;
-
-                    // Also modify all existing outgoing connections to the router's client proxy to use this object
-                    // adapter for callbacks.
-
-                    // Often makes a synchronous remote call.
-                    Communicator.OutgoingConnectionFactory.SetRouterInfo(_routerInfo);
-
-                    // Synchronous remote call!
-                    _publishedEndpoints = router.GetServerEndpoints();
-                }
-                else
-                {
-                    IReadOnlyList<Endpoint>? endpoints = null;
-
-                    // Parse the endpoints, but don't store them in the adapter. The connection factory might change
-                    // it, for example, to fill in the real port number.
-                    if (Communicator.GetProperty($"{Name}.Endpoints") is string value)
-                    {
-                        if (UriParser.IsEndpointUri(value))
-                        {
-                            Protocol = Protocol.Ice2;
-                            endpoints = UriParser.ParseEndpoints(value, Communicator);
-                        }
-                        else
-                        {
-                            Protocol = Protocol.Ice1;
-                            endpoints = Ice1Parser.ParseEndpoints(value, communicator);
-                            _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
-
-                            // When the adapter is configured to only accept secure connections ensure that all
-                            // configured endpoints only accept secure connections.
-                            if (!AcceptNonSecure &&
-                                endpoints.FirstOrDefault(endpoint => !endpoint.IsAlwaysSecure) is Endpoint endpoint)
-                            {
-                                throw new InvalidConfigurationException($@"object adapter `{Name
-                                    }' is configured to only accept secure connections but endpoint: `{endpoint
-                                    }' accepts non-secure connections");
-                            }
-                        }
-
-                        if (endpoints.Any(endpoint => endpoint is IPEndpoint ipEndpoint && ipEndpoint.Port == 0))
-                        {
-                            if (endpoints.Count > 1)
-                            {
-                                throw new InvalidConfigurationException(@$"object adapter `{Name
-                                    }': only one endpoint is allowed when a dynamic IP port (:0) is configured");
-                            }
-
-                            if (endpoints[0] is IPEndpoint ipEndpoint && ipEndpoint.Address == IPAddress.None)
-                            {
-                                throw new InvalidConfigurationException(@$"object adapter `{Name
-                                    }': use an IP address to configure an endpoint with a dynamic port (:0)");
-                            }
-                        }
-
-                        _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
-                            endpoint.ExpandHost().Select(expanded =>
-                                expanded.IsDatagram ?
-                                    (IncomingConnectionFactory)new DatagramIncomingConnectionFactory(
-                                        this,
-                                        expanded) :
-                                    new AcceptorIncomingConnectionFactory(this, expanded))));
-
-                        Endpoints = _incomingConnectionFactories.Select(factory => factory.Endpoint).ToImmutableArray();
-                    }
-                    else
-                    {
-                        // This OA is most likely used for colocation, unless a router is set.
-                        Protocol = router != null ? router.Protocol : Protocol.Ice2;
-                    }
-
-                    if (endpoints == null || endpoints.Count == 0)
-                    {
-                        if (Communicator.TraceLevels.Transport >= 2)
-                        {
-                            Communicator.Logger.Trace(TraceLevels.TransportCategory,
-                                                      $"created adapter `{Name}' without endpoints");
-                        }
-                    }
-
-                    if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string publishedEndpointsValue)
-                    {
-                        _publishedEndpoints = UriParser.IsEndpointUri(publishedEndpointsValue) ?
-                            UriParser.ParseEndpoints(publishedEndpointsValue, Communicator) :
-                            Ice1Parser.ParseEndpoints(publishedEndpointsValue, Communicator, oaEndpoints: false);
-                    }
-
-                    if (_publishedEndpoints.Count == 0)
-                    {
-                        // If the PublishedEndpoints config property isn't set, we compute the published endpoints.
-
-                        string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
-
-                        _publishedEndpoints = Endpoints.Select(endpoint => endpoint.GetPublishedEndpoint(serverName)).
-                            Distinct().ToImmutableArray();
-                    }
-
-                    if (Communicator.TraceLevels.Transport >= 1 && _publishedEndpoints.Count > 0)
-                    {
-                        var sb = new StringBuilder("published endpoints for object adapter `");
-                        sb.Append(Name);
-                        sb.Append("':\n");
-                        sb.AppendEndpointList(_publishedEndpoints);
-                        Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
-                    }
-                }
-
-                Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
-                    ?? Communicator.DefaultLocator;
-            }
-            catch (AggregateException ex)
-            {
-                Dispose();
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-            catch
-            {
-                Dispose();
-                throw;
-            }
-        }
+            IRouterPrx? router,
+            CancellationToken cancel) =>
+            new ObjectAdapter(communicator, name, serializeDispatch, scheduler, router).InitAsync(cancel);
 
         internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
             IncomingRequestFrame request,
@@ -964,7 +712,7 @@ namespace ZeroC.Ice
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
                     return reference.Endpoints.Any(endpoint =>
-                        _publishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
+                        PublishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
                         _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
             }
@@ -984,6 +732,283 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException("identity name cannot be empty", nameof(identity));
             }
+        }
+
+        /// <summary>Constructs a nameless object adapter.</summary>
+        private ObjectAdapter(
+            Communicator communicator,
+            bool serializeDispatch,
+            TaskScheduler? scheduler,
+            Protocol protocol)
+        {
+            Communicator = communicator;
+            Name = "";
+            SerializeDispatch = serializeDispatch;
+            TaskScheduler = scheduler;
+
+            AdapterId = "";
+            ReplicaGroupId = "";
+            Protocol = protocol;
+            IncomingFrameMaxSize = communicator.IncomingFrameMaxSize;
+            AcceptNonSecure = communicator.AcceptNonSecure;
+        }
+
+        /// <summary>Constructs a named object adapter.</summary>
+        private ObjectAdapter(
+            Communicator communicator,
+            string name,
+            bool serializeDispatch,
+            TaskScheduler? scheduler,
+            IRouterPrx? router)
+        {
+            Debug.Assert(name.Length != 0);
+
+            Communicator = communicator;
+            Name = name;
+            SerializeDispatch = serializeDispatch;
+            TaskScheduler = scheduler;
+
+            (bool noProps, List<string> unknownProps) = FilterProperties();
+
+            // Warn about unknown object adapter properties.
+            if (unknownProps.Count != 0 && Communicator.WarnUnknownProperties)
+            {
+                var message = new StringBuilder("found unknown properties for object adapter `");
+                message.Append(Name);
+                message.Append("':");
+                foreach (string s in unknownProps)
+                {
+                    message.Append("\n    ");
+                    message.Append(s);
+                }
+                Communicator.Logger.Warning(message.ToString());
+            }
+
+            // Make sure named adapter has configuration.
+            if (router == null && noProps)
+            {
+                throw new InvalidConfigurationException($"object adapter `{Name}' requires configuration");
+            }
+
+            AdapterId = Communicator.GetProperty($"{Name}.AdapterId") ?? "";
+            ReplicaGroupId = Communicator.GetProperty($"{Name}.ReplicaGroupId") ?? "";
+
+            // Note: Communicator.SetServerProcessProxyAsync relies on Ice.Admin's Locator even though object adapter
+            // Ice.Admin does not set AdapterId or ReplicaGroupId.
+            Locator =
+                Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory) ?? Communicator.DefaultLocator;
+
+            int frameMaxSize =
+                Communicator.GetPropertyAsByteSize($"{Name}.IncomingFrameMaxSize") ?? Communicator.IncomingFrameMaxSize;
+            IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
+            if (IncomingFrameMaxSize < 1024)
+            {
+                throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
+            }
+
+            AcceptNonSecure =
+                Communicator.GetPropertyAsEnum<NonSecure>($"{Name}.AcceptNonSecure") ?? Communicator.AcceptNonSecure;
+
+            if (router != null && router.Protocol != Protocol.Ice1)
+            {
+                throw new ArgumentException($"{nameof(router)} must be an ice1 proxy", nameof(router));
+            }
+
+            router ??= Communicator.GetPropertyAsProxy($"{Name}.Router", IRouterPrx.Factory);
+
+            if (router != null)
+            {
+                Protocol = router.Protocol;
+                if (Protocol != Protocol.Ice1)
+                {
+                    throw new InvalidConfigurationException($"{Name}.Router must be an ice1 proxy");
+                }
+                _routerInfo = Communicator.GetRouterInfo(router);
+                Debug.Assert(_routerInfo != null);
+
+                // Make sure this router is not already registered with another adapter.
+                if (_routerInfo.Adapter != null)
+                {
+                    throw new ArgumentException($"router `{router}' is already registered with an object adapter",
+                        nameof(router));
+                }
+
+                // Associate this object adapter with the router. This way, new outgoing connections to the
+                // router's client proxy will use this object adapter for callbacks.
+                _routerInfo.Adapter = this;
+            }
+            else
+            {
+                // Parse the endpoints and store them temporarily in Endpoints. InitAsync will update them.
+
+                if (Communicator.GetProperty($"{Name}.Endpoints") is string value)
+                {
+                    if (UriParser.IsEndpointUri(value))
+                    {
+                        Protocol = Protocol.Ice2;
+                        Endpoints = UriParser.ParseEndpoints(value, Communicator);
+                    }
+                    else
+                    {
+                        Protocol = Protocol.Ice1;
+                        Endpoints = Ice1Parser.ParseEndpoints(value, communicator);
+                        _invocationMode = Ice1Parser.ParseProxyOptions(Name, communicator);
+
+                        // When the adapter is configured to only accept secure connections ensure that all
+                        // configured endpoints only accept secure connections.
+                        if (AcceptNonSecure == NonSecure.Never &&
+                            Endpoints.FirstOrDefault(endpoint => !endpoint.IsAlwaysSecure) is Endpoint endpoint)
+                        {
+                            throw new InvalidConfigurationException($@"object adapter `{Name
+                                }' is configured to only accept secure connections but endpoint: `{endpoint
+                                }' accepts non-secure connections");
+                        }
+                    }
+
+                    if (Endpoints.Any(endpoint => endpoint is IPEndpoint ipEndpoint && ipEndpoint.Port == 0))
+                    {
+                        if (Endpoints.Count > 1)
+                        {
+                            throw new InvalidConfigurationException(@$"object adapter `{Name
+                                }': only one endpoint is allowed when a dynamic IP port (:0) is configured");
+                        }
+
+                        if (Endpoints[0] is IPEndpoint ipEndpoint && ipEndpoint.Address == IPAddress.None)
+                        {
+                            throw new InvalidConfigurationException(@$"object adapter `{Name
+                                }': use an IP address to configure an endpoint with a dynamic port (:0)");
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO: is an adapter with a name but no Endpoints or Router really a valid adapter?
+                    Protocol = Protocol.Ice2;
+                }
+            }
+
+            if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string publishedEndpointsValue)
+            {
+                if (router != null)
+                {
+                    throw new InvalidConfigurationException(
+                        $"{Name}.PublishedEndpoints is not compatible with a router");
+                }
+
+                PublishedEndpoints = UriParser.IsEndpointUri(publishedEndpointsValue) ?
+                    UriParser.ParseEndpoints(publishedEndpointsValue, Communicator) :
+                    Ice1Parser.ParseEndpoints(publishedEndpointsValue, Communicator, oaEndpoints: false);
+            }
+        }
+
+        private (bool NoProps, List<string> UnknownProps) FilterProperties()
+        {
+            // Do not create unknown properties list if Ice prefix, i.e. Ice, Glacier2, etc.
+            bool addUnknown = true;
+            string prefix = $"{Name}.";
+            foreach (string propertyName in PropertyNames.ClassPropertyNames)
+            {
+                if (prefix.StartsWith($"{propertyName}.", StringComparison.Ordinal))
+                {
+                    addUnknown = false;
+                    break;
+                }
+            }
+
+            bool noProps = true;
+            var unknownProps = new List<string>();
+            Dictionary<string, string> props = Communicator.GetProperties(forPrefix: prefix);
+            foreach (string prop in props.Keys)
+            {
+                bool valid = false;
+                for (int i = 0; i < _suffixes.Length; ++i)
+                {
+                    if (prop.Equals(prefix + _suffixes[i]))
+                    {
+                        noProps = false;
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (!valid && addUnknown)
+                {
+                    unknownProps.Add(prop);
+                }
+            }
+            return (noProps, unknownProps);
+        }
+
+        /// <summary>Initializes the object adapter asynchronously. This method is called by CreateAsync.</summary>
+        /// <param name="cancel">The cancellation token.</param>
+        /// <returns>A value task holding this object adapter.</returns>
+        private async ValueTask<ObjectAdapter> InitAsync(CancellationToken cancel)
+        {
+            Debug.Assert(Name.Length > 0);
+
+            try
+            {
+                if (_routerInfo != null)
+                {
+                    // Modify all existing outgoing connections to the router's client proxy to use this object
+                    // adapter for callbacks.
+
+                    await Communicator.SetRouterInfoAsync(_routerInfo, cancel).ConfigureAwait(false);
+                    PublishedEndpoints = await _routerInfo.Router.GetServerEndpointsAsync(cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    foreach (Endpoint endpoint in Endpoints)
+                    {
+                        IEnumerable<Endpoint> expandedEndpoints =
+                            await endpoint.ExpandHostAsync(cancel).ConfigureAwait(false);
+
+                        _incomingConnectionFactories.AddRange(
+                            expandedEndpoints.Select<Endpoint, IncomingConnectionFactory>(
+                                expanded => expanded.IsDatagram ?
+                                    new DatagramIncomingConnectionFactory(this, expanded) :
+                                    new AcceptorIncomingConnectionFactory(this, expanded)));
+                    }
+
+                    // Replace Endpoints using the factories.
+                    Endpoints = _incomingConnectionFactories.Select(factory => factory.Endpoint).ToImmutableArray();
+
+                    if (Endpoints.Count == 0)
+                    {
+                        if (Communicator.TraceLevels.Transport >= 2)
+                        {
+                            Communicator.Logger.Trace(TraceLevels.TransportCategory,
+                                                      $"created adapter `{Name}' without endpoints");
+                        }
+                    }
+
+                    if (PublishedEndpoints.Count == 0)
+                    {
+                        // If the PublishedEndpoints config property isn't set, we compute the published endpoints from
+                        // the endpoints.
+
+                        string serverName = Communicator.GetProperty($"{Name}.ServerName") ?? Communicator.ServerName;
+
+                        PublishedEndpoints = Endpoints.Select(endpoint => endpoint.GetPublishedEndpoint(serverName)).
+                            Distinct().ToImmutableArray();
+                    }
+                }
+
+                if (Communicator.TraceLevels.Transport >= 1 && PublishedEndpoints.Count > 0)
+                {
+                    var sb = new StringBuilder("published endpoints for object adapter `");
+                    sb.Append(Name);
+                    sb.Append("':\n");
+                    sb.AppendEndpointList(PublishedEndpoints);
+                    Communicator.Logger.Trace(TraceLevels.TransportCategory, sb.ToString());
+                }
+            }
+            catch
+            {
+                await DisposeAsync().ConfigureAwait(false);
+                throw;
+            }
+            return this;
         }
 
         private async Task RegisterEndpointsAsync(IReadOnlyList<Endpoint> endpoints, CancellationToken cancel)
@@ -1130,44 +1155,6 @@ namespace ZeroC.Ice
                     TraceLevels.LocatorCategory,
                     $"unregistered the endpoints of object adapter `{Name}' from the locator registry");
             }
-        }
-
-        private (bool NoProps, List<string> UnknownProps) FilterProperties()
-        {
-            // Do not create unknown properties list if Ice prefix, i.e. Ice, Glacier2, etc.
-            bool addUnknown = true;
-            string prefix = $"{Name}.";
-            foreach (string propertyName in PropertyNames.ClassPropertyNames)
-            {
-                if (prefix.StartsWith($"{propertyName}.", StringComparison.Ordinal))
-                {
-                    addUnknown = false;
-                    break;
-                }
-            }
-
-            bool noProps = true;
-            var unknownProps = new List<string>();
-            Dictionary<string, string> props = Communicator.GetProperties(forPrefix: prefix);
-            foreach (string prop in props.Keys)
-            {
-                bool valid = false;
-                for (int i = 0; i < _suffixes.Length; ++i)
-                {
-                    if (prop.Equals(prefix + _suffixes[i]))
-                    {
-                        noProps = false;
-                        valid = true;
-                        break;
-                    }
-                }
-
-                if (!valid && addUnknown)
-                {
-                    unknownProps.Add(prop);
-                }
-            }
-            return (noProps, unknownProps);
         }
     }
 }

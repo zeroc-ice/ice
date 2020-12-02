@@ -32,11 +32,11 @@ namespace ZeroC.Ice.Test.Metrics
             new ValueTask(Task.CompletedTask);
 
         public ValueTask<IObjectPrx?> GetAdminAsync(Current current, CancellationToken cancel) =>
-            new ValueTask<IObjectPrx?>(current.Adapter.Communicator.GetAdmin());
+            new ValueTask<IObjectPrx?>(current.Communicator.GetAdmin());
 
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
     }

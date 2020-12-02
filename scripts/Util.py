@@ -210,7 +210,7 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            self.defaultNetCoreFramework = "net5"
+            self.defaultNetCoreFramework = "net5.0"
         except:
             self.nugetPackageCache = None
 
@@ -281,7 +281,7 @@ class Platform(object):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "net5")
+            return os.path.join(installDir, "lib", "net5.0")
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
@@ -741,8 +741,8 @@ class Mapping(object):
                             props["Test.Transport"] = self.transport
                             if self.transport in  {"wss", "ssl"}:
                                 # Switch this logic when the default in the Communicator is False
-                                props["Ice.Default.PreferNonSecure"] = "False"
-                                props["Ice.AcceptNonSecure"] = "False"
+                                props["Ice.Default.PreferNonSecure"] = "Never"
+                                props["Ice.AcceptNonSecure"] = "Never"
                     else:
                         props["Ice.Default.Transport"] = self.transport
                 if self.protocol:
@@ -3403,7 +3403,7 @@ class CSharpMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            self.libTargetFramework = "net5"
+            self.libTargetFramework = "net5.0"
             self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
             self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
 

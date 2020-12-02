@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -38,11 +37,11 @@ namespace ZeroC.Ice
         /// <param name="prx">The source proxy.</param>
         /// <param name="factory">The proxy factory used to manufacture the clone.</param>
         /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
+        /// <param name="clearLabel">When set to true, the clone does not have an associated label (optional).</param>
         /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
@@ -56,10 +55,13 @@ namespace ZeroC.Ice
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
+        /// <param name="label">The label of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
+        /// <param name="preferExistingConnection">Determines whether or not the clone prefer using an existing
+        /// connection.</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="relative">When true, the new proxy is a relative proxy (optional).</param>
@@ -69,9 +71,9 @@ namespace ZeroC.Ice
             this IObjectPrx prx,
             ProxyFactory<T> factory,
             bool? cacheConnection = null,
+            bool clearLabel = false,
             bool clearLocator = false,
             bool clearRouter = false,
-            string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
             IEnumerable<Endpoint>? endpoints = null,
@@ -82,17 +84,19 @@ namespace ZeroC.Ice
             IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
+            object? label = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
-            bool? preferNonSecure = null,
+            bool? preferExistingConnection = null,
+            NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null) where T : class, IObjectPrx =>
             factory(prx.IceReference.Clone(cacheConnection,
+                                           clearLabel,
                                            clearLocator,
                                            clearRouter,
-                                           connectionId,
                                            context,
                                            encoding,
                                            endpoints,
@@ -103,10 +107,12 @@ namespace ZeroC.Ice
                                            invocationInterceptors,
                                            invocationMode,
                                            invocationTimeout,
+                                           label,
                                            location,
                                            locator,
                                            locatorCacheTimeout,
                                            oneway,
+                                           preferExistingConnection,
                                            preferNonSecure,
                                            relative,
                                            router));
@@ -116,11 +122,11 @@ namespace ZeroC.Ice
         /// specified through the parameters change this proxy's options.</summary>
         /// <param name="prx">The source proxy.</param>
         /// <param name="cacheConnection">Determines whether or not the clone caches its connection (optional).</param>
+        /// <param name="clearLabel">When set to true, the clone does not have an associated label (optional).</param>
         /// <param name="clearLocator">When set to true, the clone does not have an associated locator proxy (optional).
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
         /// <param name="endpoints">The endpoints of the clone (optional).</param>
@@ -131,10 +137,13 @@ namespace ZeroC.Ice
         /// <param name="invocationMode">The invocation mode of the clone (optional). Applies only to ice1 proxies.
         /// </param>
         /// <param name="invocationTimeout">The invocation timeout of the clone (optional).</param>
+        /// <param name="label">The label of the clone (optional).</param>
         /// <param name="location">The location of the clone (optional).</param>
         /// <param name="locator">The locator proxy of the clone (optional).</param>
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional).</param>
+        /// <param name="preferExistingConnection">Determines whether or not the clone prefer using an existing
+        /// connection.</param>
         /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="relative">When true, the new proxy is a relative proxy (optional).</param>
@@ -143,9 +152,9 @@ namespace ZeroC.Ice
         public static T Clone<T>(
             this T prx,
             bool? cacheConnection = null,
+            bool clearLabel = false,
             bool clearLocator = false,
             bool clearRouter = false,
-            string? connectionId = null,
             IReadOnlyDictionary<string, string>? context = null,
             Encoding? encoding = null,
             IEnumerable<Endpoint>? endpoints = null,
@@ -153,18 +162,20 @@ namespace ZeroC.Ice
             IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             InvocationMode? invocationMode = null,
             TimeSpan? invocationTimeout = null,
+            object? label = null,
             IEnumerable<string>? location = null,
             ILocatorPrx? locator = null,
             TimeSpan? locatorCacheTimeout = null,
             bool? oneway = null,
-            bool? preferNonSecure = null,
+            bool? preferExistingConnection = null,
+            NonSecure? preferNonSecure = null,
             bool? relative = null,
             IRouterPrx? router = null) where T : IObjectPrx
         {
             Reference clone = prx.IceReference.Clone(cacheConnection,
+                                                     clearLabel,
                                                      clearLocator,
                                                      clearRouter,
-                                                     connectionId,
                                                      context,
                                                      encoding,
                                                      endpoints,
@@ -175,10 +186,12 @@ namespace ZeroC.Ice
                                                      invocationInterceptors,
                                                      invocationMode,
                                                      invocationTimeout,
+                                                     label,
                                                      location,
                                                      locator,
                                                      locatorCacheTimeout,
                                                      oneway,
+                                                     preferExistingConnection,
                                                      preferNonSecure,
                                                      relative,
                                                      router);
@@ -195,7 +208,7 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
-        /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
+        /// <returns>The Connection for this proxy.</returns>
         public static Connection GetConnection(this IObjectPrx prx)
         {
             try
@@ -212,11 +225,11 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
-        /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
+        /// <returns>The Connection for this proxy.</returns>
         public static ValueTask<Connection> GetConnectionAsync(
             this IObjectPrx prx,
             CancellationToken cancel = default) =>
-            prx.IceReference.GetConnectionAsync(ImmutableList<IConnector>.Empty, cancel);
+            prx.IceReference.GetConnectionAsync(cancel);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>

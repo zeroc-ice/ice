@@ -33,7 +33,7 @@ namespace ZeroC.Ice
 
         private int _hashCode;
 
-        public override IAcceptor Acceptor(IConnectionManager manager, ObjectAdapter adapter) =>
+        public override IAcceptor Acceptor(ObjectAdapter adapter) =>
             throw new InvalidOperationException();
 
         public override Connection CreateDatagramServerConnection(ObjectAdapter adapter)
@@ -50,7 +50,7 @@ namespace ZeroC.Ice
                 }
                 Endpoint endpoint = socket.Bind(this);
                 var multiStreamSocket = new Ice1NetworkSocket(socket, endpoint, adapter);
-                return new UdpConnection(null, endpoint, multiStreamSocket, null, "", adapter);
+                return new UdpConnection(endpoint, multiStreamSocket, label: null, adapter);
             }
             catch (Exception)
             {
@@ -128,6 +128,17 @@ namespace ZeroC.Ice
             {
                 sb.Append(" -z");
             }
+        }
+
+        protected internal override Connection CreateConnection(
+            bool secureOnly,
+            IPEndPoint address,
+            INetworkProxy? proxy,
+            object? label)
+        {
+            Debug.Assert(secureOnly == false);
+            UdpSocket socket = new(Communicator, address, SourceAddress, MulticastInterface, MulticastTtl);
+            return new UdpConnection(this, new Ice1NetworkSocket(socket, this, adapter: null), label, adapter: null);
         }
 
         protected internal override void WriteOptions(OutputStream ostr)
@@ -213,8 +224,6 @@ namespace ZeroC.Ice
                                    oaEndpoint,
                                    endpointString);
         }
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(this, addr);
 
         // Constructor for ice1 unmarshaling
         private UdpEndpoint(EndpointData data, bool compress, Communicator communicator)

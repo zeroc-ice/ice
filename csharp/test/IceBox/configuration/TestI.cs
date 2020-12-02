@@ -13,7 +13,7 @@ namespace ZeroC.IceBox.Test.Configuration
         public TestIntf(string[] args) => _args = args;
 
         public string GetProperty(string name, Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.GetProperty(name) ?? "";
+            current.Communicator.GetProperty(name) ?? "";
 
         public IEnumerable<string> GetArgs(Current current, CancellationToken cancel) => _args;
     }

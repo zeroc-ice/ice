@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
@@ -41,7 +42,7 @@ namespace ZeroC.Ice
                 {
                     if (!IPAddress.TryParse(Host, out _address))
                     {
-                         // Assume it's a DNS name
+                        // Assume it's a DNS name
                         _address = IPAddress.None;
                     }
                 }
@@ -101,41 +102,87 @@ namespace ZeroC.Ice
             }
         }
 
+        protected internal override async Task<Connection> ConnectAsync(
+            NonSecure preferNonSecure,
+            object? label,
+            CancellationToken cancel)
+        {
+            INetworkProxy? networkProxy;
+            IReadOnlyList<IPEndPoint> addresses;
+            IObserver? endpointLookupObserver = Communicator.Observer?.GetEndpointLookupObserver(this);
+            endpointLookupObserver?.Attach();
+            try
+            {
+                networkProxy = Communicator.NetworkProxy;
+                if (networkProxy != null)
+                {
+                    networkProxy = await networkProxy.ResolveHostAsync(cancel).ConfigureAwait(false);
+                }
+                addresses = await Network.GetAddressesForClientEndpointAsync(
+                    Host,
+                    Port,
+                    networkProxy?.IPVersion ?? Network.EnableBoth,
+                    cancel).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                endpointLookupObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                throw;
+            }
+            finally
+            {
+                endpointLookupObserver?.Detach();
+            }
+
+            IPEndPoint lastAddress = addresses[^1];
+            Connection? connection = null;
+            foreach (IPEndPoint address in addresses)
+            {
+                IObserver? connectionEstablishmentObserver =
+                    Communicator.Observer?.GetConnectionEstablishmentObserver(this, address.ToString());
+                connectionEstablishmentObserver?.Attach();
+                try
+                {
+                    bool secureOnly = preferNonSecure switch
+                    {
+                        NonSecure.SameHost => !address.IsSameHost(),
+                        NonSecure.TrustedHost => true, // TODO check if address is a trusted host
+                        NonSecure.Always => false,
+                        _ => true
+                    };
+                    connection = CreateConnection(secureOnly, address, networkProxy, label);
+                    await connection.InitializeAsync(cancel).ConfigureAwait(false);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    connectionEstablishmentObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    // Ignore the exception unless this is the last address
+                    if (ex is OperationCanceledException || ReferenceEquals(lastAddress, address))
+                    {
+                        throw;
+                    }
+                }
+                finally
+                {
+                    connectionEstablishmentObserver?.Detach();
+                }
+            }
+            Debug.Assert(connection != null);
+            return connection;
+        }
+
+        protected internal abstract Connection CreateConnection(
+            bool secureOnly,
+            IPEndPoint address,
+            INetworkProxy? proxy,
+            object? label);
+
         protected internal override void WriteOptions(OutputStream ostr)
         {
             Debug.Assert(Protocol == Protocol.Ice1);
             ostr.WriteString(Host);
             ostr.WriteInt(Port);
-        }
-
-        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(CancellationToken cancel)
-        {
-            Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
-            observer?.Attach();
-            try
-            {
-                INetworkProxy? networkProxy = Communicator.NetworkProxy;
-                if (networkProxy != null)
-                {
-                    networkProxy = await networkProxy.ResolveHostAsync(cancel).ConfigureAwait(false);
-                }
-
-                IEnumerable<IPEndPoint> addrs =
-                    await Network.GetAddressesForClientEndpointAsync(Host,
-                                                                     Port,
-                                                                     networkProxy?.IPVersion ?? Network.EnableBoth,
-                                                                     cancel).ConfigureAwait(false);
-                return addrs.Select(item => CreateConnector(item, networkProxy));
-            }
-            catch (Exception ex)
-            {
-                observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                throw;
-            }
-            finally
-            {
-                observer?.Detach();
-            }
         }
 
         protected internal override void AppendOptions(StringBuilder sb, char optionSeparator)
@@ -197,16 +244,14 @@ namespace ZeroC.Ice
             }
         }
 
-        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
-            serverName == Host ? this : Clone(serverName, Port);
-
-        protected internal override IEnumerable<Endpoint> ExpandHost()
+        protected internal override async ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel)
         {
             if (Address == IPAddress.None) // DNS name
             {
                 try
                 {
-                    return Dns.GetHostAddresses(Host).Select(
+                    // TODO: use cancel once GetHostAddressesAsync supports it.
+                    return (await Dns.GetHostAddressesAsync(Host).ConfigureAwait(false)).Select(
                         address =>
                         {
                             IPEndpoint expanded = Clone(address.ToString(), Port);
@@ -224,6 +269,9 @@ namespace ZeroC.Ice
                 return ImmutableArray.Create(this);
             }
         }
+
+        protected internal override Endpoint GetPublishedEndpoint(string serverName) =>
+            serverName == Host ? this : Clone(serverName, Port);
 
         internal IPEndpoint Clone(ushort port)
         {
@@ -440,7 +488,5 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a clone with the specified host and port.</summary>
         private protected abstract IPEndpoint Clone(string host, ushort port);
-
-        private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
     }
 }
