@@ -711,10 +711,10 @@ namespace ZeroC.Ice
             {
                 // Abort non-processed outgoing streams and all incoming streams.
                 Socket.AbortStreams(exception,
-                                         stream => stream.IsIncoming ||
-                                                   stream.IsBidirectional ?
-                                                       stream.Id > lastStreamIds.Bidirectional :
-                                                       stream.Id > lastStreamIds.Unidirectional);
+                                    stream => stream.IsIncoming ||
+                                              stream.IsBidirectional ?
+                                                  stream.Id > lastStreamIds.Bidirectional :
+                                                  stream.Id > lastStreamIds.Unidirectional);
 
                 // Yield to ensure the code below is executed without the mutex locked (PerformGoAwayAsync is called
                 // with the mutex locked).
