@@ -37,19 +37,23 @@ namespace ZeroC.Ice
         // set is only in InitAsync, before the new object adapter is returned to the application.
         public IReadOnlyList<Endpoint> Endpoints { get; private set; } = ImmutableArray<Endpoint>.Empty;
 
-        /// <summary>The Ice LocatorRegistry associated with this object adapter, if any. The object adapter registers
-        /// itself with this locator registry during <see cref="ActivateAsync"/>.</summary>
+        /// <summary>The locator registry proxy associated with this object adapter, if any. The object adapter
+        /// registers itself with this locator registry during <see cref="ActivateAsync"/>.</summary>
         /// <value>The locator registry proxy.</value>
         public ILocatorRegistryPrx? LocatorRegistry
         {
             get => _locatorRegistry;
             set
             {
-                if (_activateTask != null)
+                lock (_mutex)
                 {
-                    throw new InvalidOperationException("cannot set the locator registry proxy after activation");
+                    if (_activateTask != null)
+                    {
+                        throw new InvalidOperationException(
+                            "the locator registry proxy can be set only before activation");
+                    }
+                    _locatorRegistry = value;
                 }
-                _locatorRegistry = value;
             }
         }
 
@@ -114,7 +118,7 @@ namespace ZeroC.Ice
             "ServerName"
         };
 
-        private volatile Task? _activateTask;
+        private Task? _activateTask;
 
         private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new();
         private AcceptorIncomingConnectionFactory? _colocatedConnectionFactory;

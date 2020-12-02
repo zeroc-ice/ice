@@ -210,7 +210,7 @@ namespace ZeroC.Ice
         private readonly bool _adminEnabled;
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
         private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
-        private Identity _adminIdentity;
+        private Identity? _adminIdentity;
         private readonly bool _backgroundLocatorCacheUpdates;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<string, Func<AnyClass>?> _classFactoryCache =
@@ -794,14 +794,14 @@ namespace ZeroC.Ice
                     throw new ArgumentException($"facet `{facet}' is already registered", nameof(facet));
                 }
                 _adminFacets.Add(facet, servant);
-                _adminAdapter?.Add(_adminIdentity, facet, servant);
+                _adminAdapter?.Add(_adminIdentity!.Value, facet, servant);
             }
         }
 
         /// <summary>Adds the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
-        /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with the
-        /// Locator's LocatorRegistry. CreateAdmin can only be called once; subsequent calls raise
-        /// InvalidOperationException.</summary>
+        /// set and the provided object adapter has a locator registry, CreateAdmin registers the Admin's Process facet
+        /// with the locator registry. CreateAdmin can only be called once; subsequent calls throw
+        /// <see cref="InvalidOperationException"/>.</summary>
         /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints
         /// is set, create, activate and use the Ice.Admin object adapter.</param>
         /// <param name="adminIdentity">The identity of the Admin object.</param>
@@ -815,8 +815,8 @@ namespace ZeroC.Ice
 
         /// <summary>Adds the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
         /// set and the provided object adapter has a locator registry, CreateAdmin registers the Admin's Process facet
-        /// with this locator registry. CreateAdmin can only be called once; subsequent calls throw
-        /// InvalidOperationException.</summary>
+        /// with the locator registry. CreateAdmin can only be called once; subsequent calls throw
+        /// <see cref="InvalidOperationException"/>.</summary>
         /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints
         /// is set, create, activate and use the Ice.Admin object adapter.</param>
         /// <param name="adminIdentity">The identity of the Admin object.</param>
@@ -999,7 +999,7 @@ namespace ZeroC.Ice
 
         /// <summary>Gets a proxy to the main facet of the Admin object. GetAdmin also creates the Admin object and
         /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Endpoints is set.
-        /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
+        /// The identity of the Admin object created by GetAdmin is {value of Ice.Admin.InstanceName}/admin, or
         /// {UUID}/admin when Ice.Admin.InstanceName is not set.
         ///
         /// If Ice.Admin.DelayCreation is 0 or not set, GetAdmin is called by the communicator initialization, after
@@ -1010,15 +1010,14 @@ namespace ZeroC.Ice
 
         /// <summary>Gets a proxy to the main facet of the Admin object. GetAdminAsync also creates the Admin object and
         /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Endpoints is set.
-        /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
-        /// {UUID}/admin when Ice.Admin.InstanceName is not set.
-        ///
-        /// If Ice.Admin.DelayCreation is 0 or not set, GetAdminAsync is called by the communicator initialization,
-        /// after initialization of all plugins.</summary>
+        /// The identity of the Admin object created by GetAdminAsync is {value of Ice.Admin.InstanceName}/admin, or
+        /// {UUID}/admin when Ice.Admin.InstanceName is not set.</summary>
         /// <param name="cancel">The cancellation token.</param>
         /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
         public async ValueTask<IObjectPrx?> GetAdminAsync(CancellationToken cancel = default)
         {
+            Task<IObjectPrx?> getAdminTask;
+
             lock (_mutex)
             {
                 if (IsDisposed)
@@ -1028,7 +1027,7 @@ namespace ZeroC.Ice
 
                 if (_adminAdapter != null)
                 {
-                    return _adminAdapter.CreateProxy(_adminIdentity, IObjectPrx.Factory);
+                    return _adminAdapter.CreateProxy(_adminIdentity!.Value, IObjectPrx.Factory);
                 }
                 else if (!_adminEnabled || GetProperty("Ice.Admin.Endpoints") == null)
                 {
@@ -1037,32 +1036,43 @@ namespace ZeroC.Ice
                 else
                 {
                     _getAdminTask ??= PerformGetAdminAsync(cancel);
+                    getAdminTask = _getAdminTask;
                 }
             }
 
-            return await _getAdminTask.ConfigureAwait(false);
+            return await getAdminTask.ConfigureAwait(false);
 
             async Task<IObjectPrx?> PerformGetAdminAsync(CancellationToken cancel)
             {
                 ObjectAdapter adminAdapter =
                     await CreateObjectAdapterAsync("Ice.Admin", cancel: cancel).ConfigureAwait(false);
 
+                Identity adminIdentity;
+
                 lock (_mutex)
                 {
                     Debug.Assert(_adminAdapter == null);
                     _adminAdapter = adminAdapter;
-
-                    _adminIdentity = new Identity("admin", GetProperty("Ice.Admin.InstanceName") ?? "");
-                    if (_adminIdentity.Category.Length == 0)
+                    if (_adminIdentity != null) // maybe be set by CreateAdminAsync
                     {
-                        _adminIdentity = new Identity(_adminIdentity.Name, Guid.NewGuid().ToString());
+                        adminIdentity = _adminIdentity.Value;
                     }
+                    else
+                    {
+                        adminIdentity = new Identity("admin", GetProperty("Ice.Admin.InstanceName") ?? "");
+                        if (adminIdentity.Category.Length == 0)
+                        {
+                            adminIdentity = new Identity(adminIdentity.Name, Guid.NewGuid().ToString());
+                        }
+                        _adminIdentity = adminIdentity;
+                    }
+
                     AddAllAdminFacets();
                 }
 
                 await adminAdapter.ActivateAsync().ConfigureAwait(false);
-                await SetServerProcessProxyAsync(adminAdapter, _adminIdentity, cancel).ConfigureAwait(false);
-                return adminAdapter.CreateProxy(_adminIdentity, IObjectPrx.Factory);
+                await SetServerProcessProxyAsync(adminAdapter, adminIdentity, cancel).ConfigureAwait(false);
+                return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
             }
         }
 
@@ -1082,7 +1092,7 @@ namespace ZeroC.Ice
                     return null;
                 }
 
-                _adminAdapter?.Remove(_adminIdentity, facet);
+                _adminAdapter?.Remove(_adminIdentity!.Value, facet);
                 return result;
             }
         }
@@ -1364,7 +1374,7 @@ namespace ZeroC.Ice
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
-                        _adminAdapter.Add(_adminIdentity, entry.Key, entry.Value);
+                        _adminAdapter.Add(_adminIdentity!.Value, entry.Key, entry.Value);
                     }
                 }
             }
