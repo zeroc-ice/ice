@@ -1,7 +1,7 @@
 TypeAlias.ice:33: `foo' is not defined
 TypeAlias.ice:33: unable to resolve underlying type
-TypeAlias.ice:34: `OptintAlias': optional types cannot be type-aliased
-TypeAlias.ice:35: missing underlying type for typealias `dummyIdentifier'
+TypeAlias.ice:34: `optintAlias': optional types cannot be type-aliased
+TypeAlias.ice:35: missing underlying type for typealias `missingType'
 TypeAlias.ice:38: `;' missing after type-alias
 TypeAlias.ice:39: `C1' is not defined
 TypeAlias.ice:39: unable to resolve underlying type

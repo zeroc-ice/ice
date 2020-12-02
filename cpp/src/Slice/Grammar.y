@@ -1708,9 +1708,8 @@ type_alias_def
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     StringListTokPtr metadata = StringListTokPtr::dynamicCast($4);
-    TypePtr type = TypePtr::dynamicCast($5);
 
-    if (type)
+    if (TypePtr type = TypePtr::dynamicCast($5))
     {
         if (auto alias = TypeAliasPtr::dynamicCast(type))
         {
@@ -1726,15 +1725,15 @@ type_alias_def
         $$ = nullptr;
     }
 }
-| ICE_USING ICE_IDENTIFIER '=' local_metadata error
-{
-    unit->error("unable to resolve underlying type");
-    $$ = nullptr;
-}
 | ICE_USING ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     unit->error("missing underlying type for typealias `" + ident->v + "'");
+    $$ = nullptr;
+}
+| ICE_USING error
+{
+    unit->error("unable to resolve underlying type");
     $$ = nullptr;
 }
 
@@ -1750,7 +1749,7 @@ sequence_def
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        type = rewrapIfOptional(alias->underlying(), type);
+        type = rewrapIfOptional(type, alias->underlying());
     }
 
     ModulePtr cont = unit->currentModule();
@@ -1765,7 +1764,7 @@ sequence_def
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        type = rewrapIfOptional(alias->underlying(), type);
+        type = rewrapIfOptional(type, alias->underlying());
     }
 
     ModulePtr cont = unit->currentModule();
@@ -1788,12 +1787,12 @@ dictionary_def
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(keyType)))
     {
         mergeMetadataInPlace(keyMetadata->v, alias->typeMetadata());
-        keyType = rewrapIfOptional(alias->underlying(), keyType);
+        keyType = rewrapIfOptional(keyType, alias->underlying());
     }
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(valueType)))
     {
         mergeMetadataInPlace(valueMetadata->v, alias->typeMetadata());
-        valueType = rewrapIfOptional(alias->underlying(), valueType);
+        valueType = rewrapIfOptional(valueType, alias->underlying());
     }
 
     ModulePtr cont = unit->currentModule();
@@ -1810,12 +1809,12 @@ dictionary_def
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(keyType)))
     {
         mergeMetadataInPlace(keyMetadata->v, alias->typeMetadata());
-        keyType = rewrapIfOptional(alias->underlying(), keyType);
+        keyType = rewrapIfOptional(keyType, alias->underlying());
     }
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(valueType)))
     {
         mergeMetadataInPlace(valueMetadata->v, alias->typeMetadata());
-        valueType = rewrapIfOptional(alias->underlying(), valueType);
+        valueType = rewrapIfOptional(valueType, alias->underlying());
     }
 
     ModulePtr cont = unit->currentModule();
@@ -2363,7 +2362,7 @@ tagged_type
 
     if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
     {
-        taggedDef->type = rewrapIfOptional(alias->underlying(), type);
+        taggedDef->type = rewrapIfOptional(type, alias->underlying());
         taggedDef->metadata = alias->typeMetadata();
     }
     else
@@ -2548,7 +2547,7 @@ const_def
     if (auto alias = TypeAliasPtr::dynamicCast(const_type))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        const_type = rewrapIfOptional(alias->underlying(), const_type);
+        const_type = rewrapIfOptional(const_type, alias->underlying());
     }
 
     $$ = unit->currentModule()->createConst(ident->v, const_type, metadata->v, value->v,
@@ -2564,7 +2563,7 @@ const_def
     if (auto alias = TypeAliasPtr::dynamicCast(const_type))
     {
         mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-        const_type = rewrapIfOptional(alias->underlying(), const_type);
+        const_type = rewrapIfOptional(const_type, alias->underlying());
     }
 
     $$ = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metadata->v, value->v,

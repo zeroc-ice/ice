@@ -31,14 +31,14 @@ module Test
     using floatSeqAlias = floatSeq;     //ok
     using customAlias = Custom;         //ok
     using unknownAlias = foo;           //can't resolve type
-    using OptintAlias = int?;           //can't typealias optional types
-    using dummyIdentifier;              //missing underlying type
+    using optintAlias = int?;           //can't typealias optional types
+    using missingType;                  //missing underlying type
     using aliasName = int               //missing semicolon
 
     using C0Alias = C0;                      //ok
     using C1Alias = C1;                      //can't resolve type
-    using ScopedC0Alias = Test::C0;          //ok
-    using ScopedC1Alias = Test::Nested1::C1; //ok
+    using scopedC0Alias = Test::C0;          //ok
+    using scopedC1Alias = Test::Nested1::C1; //ok
 
     // Type resolution of type-aliases
     module Nested2
@@ -46,9 +46,9 @@ module Test
         using C0Alias = C0;                      //ok
         using C1Alias = C1;                      //can't resolve type
         using C2Alias = C2;                      //ok
-        using ScopedC0Alias = Test::C0;          //ok
-        using ScopedC1Alias = Test::Nested1::C1; //ok
-        using ScopedC2Alias = Test::Nested2::C2; //ok
+        using scopedC0Alias = Test::C0;          //ok
+        using scopedC1Alias = Test::Nested1::C1; //ok
+        using scopedC2Alias = Test::Nested2::C2; //ok
     }
 
     // Inheritance from type-aliases

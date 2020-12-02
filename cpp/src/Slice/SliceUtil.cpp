@@ -945,8 +945,6 @@ optional<string> Slice::findMetadata(const string& directive, const map<string, 
     return (match != metadata.end() ? make_optional(match->second) : nullopt);
 }
 
-// Adds the metadata from m2 into m1. m2 is not altered by this operation, but m1 is.
-// If metadata is repeated, the values in m1 take precedence.
 void Slice::mergeMetadataInPlace(StringList& m1, const StringList& m2)
 {
     for (const auto& m : m2)
@@ -958,7 +956,6 @@ void Slice::mergeMetadataInPlace(StringList& m1, const StringList& m2)
     }
 }
 
-// Combines the metadata in m1 and m2 into a new StringList. If metadata is repeated, the values in m1 take precedence.
 StringList Slice::mergeMetadata(const StringList& m1, const StringList& m2)
 {
     StringList result = m1;
