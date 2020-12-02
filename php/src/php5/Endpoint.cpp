@@ -233,10 +233,10 @@ static zend_function_entry _interfaceMethods[] =
 //
 static zend_function_entry _endpointMethods[] =
 {
-    ZEND_ME(Ice_Endpoint, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Endpoint, __toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Endpoint, toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Endpoint, getInfo, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Endpoint, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Endpoint, __toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Endpoint, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Endpoint, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -245,10 +245,10 @@ static zend_function_entry _endpointMethods[] =
 //
 static zend_function_entry _endpointInfoMethods[] =
 {
-    ZEND_ME(Ice_EndpointInfo, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_EndpointInfo, type, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_EndpointInfo, datagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_EndpointInfo, secure, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_EndpointInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_EndpointInfo, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_EndpointInfo, datagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_EndpointInfo, secure, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 

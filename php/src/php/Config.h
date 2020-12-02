@@ -118,6 +118,10 @@ ZEND_BEGIN_MODULE_GLOBALS(ice)
     zval* unset;
 ZEND_END_MODULE_GLOBALS(ice)
 
+ZEND_BEGIN_ARG_INFO(ice_void_arginfo, 0)
+ZEND_END_ARG_INFO()
+
+
 #ifdef ZTS
 #   define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
 #else
@@ -142,5 +146,11 @@ ZEND_END_MODULE_GLOBALS(ice)
 #   error "STRCAST already defined!"
 #endif
 #define STRCAST(s) const_cast<char*>(s)
+
+
+// PHP8 removed TSRMLS_CC, however older versions still require it
+#ifndef TSRMLS_CC
+#   define TSRMLS_CC
+#endif
 
 #endif

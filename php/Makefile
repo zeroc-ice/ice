@@ -27,7 +27,7 @@ ifeq ($(filter tests,$(MAKECMDGOALS)),)
     ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo 0),0)
         include $(lang_srcdir)/src/php5/Makefile.mk
     else
-        include $(lang_srcdir)/src/php7/Makefile.mk
+        include $(lang_srcdir)/src/php/Makefile.mk
     endif
 endif
 

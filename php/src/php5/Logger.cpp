@@ -235,13 +235,13 @@ static zend_function_entry _interfaceMethods[] =
 };
 static zend_function_entry _classMethods[] =
 {
-    ZEND_ME(Ice_Logger, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Logger, __toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, print, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, trace, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, warning, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, error, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, cloneWithPrefix, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Logger, __toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, print, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, trace, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, warning, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, error, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, cloneWithPrefix, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 //
