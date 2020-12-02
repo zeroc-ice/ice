@@ -212,11 +212,11 @@ namespace ZeroC.Ice
             return (endpoints, cached);
         }
 
-        internal async ValueTask<ILocatorRegistryPrx?> GetLocatorRegistryAsync()
+        internal async ValueTask<ILocatorRegistryPrx?> GetLocatorRegistryAsync(CancellationToken cancel)
         {
             if (_locatorRegistry == null)
             {
-                ILocatorRegistryPrx? registry = await Locator.GetRegistryAsync().ConfigureAwait(false);
+                ILocatorRegistryPrx? registry = await Locator.GetRegistryAsync(cancel: cancel).ConfigureAwait(false);
 
                 // The locator registry can't be located.
                 _locatorRegistry = registry?.Clone(clearLocator: true);
