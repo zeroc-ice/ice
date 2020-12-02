@@ -50,7 +50,7 @@ namespace ZeroC.Ice
                     if (_activateTask != null)
                     {
                         throw new InvalidOperationException(
-                            "the locator registry proxy can be set only before activation");
+                            "cannot set the locator registry proxy during or after activation");
                     }
                     _locatorRegistry = value;
                 }

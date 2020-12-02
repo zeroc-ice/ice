@@ -210,13 +210,17 @@ namespace ZeroC.Ice
         private readonly bool _adminEnabled;
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
         private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
-        private Identity? _adminIdentity;
+
+        // The identity of the Admin object. Always set just before setting _adminAdapter or _createAdminTask.
+        private Identity _adminIdentity;
         private readonly bool _backgroundLocatorCacheUpdates;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<string, Func<AnyClass>?> _classFactoryCache =
             new ConcurrentDictionary<string, Func<AnyClass>?>();
         private readonly ConcurrentDictionary<int, Func<AnyClass>?> _compactIdCache =
             new ConcurrentDictionary<int, Func<AnyClass>?>();
+
+        private Task<IObjectPrx>? _createAdminTask;
         private readonly ThreadLocal<SortedDictionary<string, string>> _currentContext
             = new ThreadLocal<SortedDictionary<string, string>>();
         private volatile IReadOnlyDictionary<string, string> _defaultContext =
@@ -225,7 +229,6 @@ namespace ZeroC.Ice
         private volatile IRouterPrx? _defaultRouter;
         private readonly List<DispatchInterceptor> _dispatchInterceptors = new List<DispatchInterceptor>();
         private Task? _disposeTask;
-        private Task<IObjectPrx?>? _getAdminTask;
         private readonly List<InvocationInterceptor> _invocationInterceptors = new List<InvocationInterceptor>();
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
@@ -794,7 +797,7 @@ namespace ZeroC.Ice
                     throw new ArgumentException($"facet `{facet}' is already registered", nameof(facet));
                 }
                 _adminFacets.Add(facet, servant);
-                _adminAdapter?.Add(_adminIdentity!.Value, facet, servant);
+                _adminAdapter?.Add(_adminIdentity, facet, servant);
             }
         }
 
@@ -827,6 +830,8 @@ namespace ZeroC.Ice
             Identity adminIdentity,
             CancellationToken cancel)
         {
+            Task<IObjectPrx>? createAdminTask = null;
+
             lock (_mutex)
             {
                 if (IsDisposed)
@@ -834,7 +839,7 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
-                if (_adminAdapter != null || _getAdminTask != null)
+                if (_adminAdapter != null || _createAdminTask != null)
                 {
                     throw new InvalidOperationException("Admin already created");
                 }
@@ -844,22 +849,32 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException("Admin is disabled");
                 }
 
-                _adminIdentity = adminIdentity;
-
-                if (adminAdapter != null)
+                if (adminAdapter == null)
                 {
+                    if (GetProperty("Ice.Admin.Endpoints") == null)
+                    {
+                        throw new InvalidConfigurationException("Ice.Admin has no endpoints");
+                    }
+
+                    _adminIdentity = adminIdentity;
+                    _createAdminTask = CreateAdminAsync(cancel);
+                    createAdminTask = _createAdminTask;
+                }
+                else
+                {
+                    _adminIdentity = adminIdentity;
                     _adminAdapter = adminAdapter;
                     AddAllAdminFacets();
                 }
             }
 
-            if (adminAdapter == null)
+            if (createAdminTask != null)
             {
-                return await GetAdminAsync(cancel).ConfigureAwait(false) ??
-                    throw new InvalidConfigurationException("missing Ice.Admin.Endpoints");
+                return await createAdminTask.ConfigureAwait(false);
             }
             else
             {
+                Debug.Assert(adminAdapter != null);
                 await SetServerProcessProxyAsync(adminAdapter, adminIdentity, cancel).ConfigureAwait(false);
                 return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
             }
@@ -1016,7 +1031,7 @@ namespace ZeroC.Ice
         /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
         public async ValueTask<IObjectPrx?> GetAdminAsync(CancellationToken cancel = default)
         {
-            Task<IObjectPrx?> getAdminTask;
+            Task<IObjectPrx> createAdminTask;
 
             lock (_mutex)
             {
@@ -1025,9 +1040,14 @@ namespace ZeroC.Ice
                     throw new CommunicatorDisposedException();
                 }
 
-                if (_adminAdapter != null)
+                if (_createAdminTask != null)
                 {
-                    return _adminAdapter.CreateProxy(_adminIdentity!.Value, IObjectPrx.Factory);
+                    createAdminTask = _createAdminTask;
+                }
+                else if (_adminAdapter != null) // set by CreateAdminAsync (since _createAdminTask is null)
+                {
+                    Debug.Assert(_adminEnabled);
+                    return _adminAdapter.CreateProxy(_adminIdentity, IObjectPrx.Factory);
                 }
                 else if (!_adminEnabled || GetProperty("Ice.Admin.Endpoints") == null)
                 {
@@ -1035,45 +1055,19 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    _getAdminTask ??= PerformGetAdminAsync(cancel);
-                    getAdminTask = _getAdminTask;
+                    var adminIdentity = new Identity("admin", GetProperty("Ice.Admin.InstanceName") ?? "");
+                    if (adminIdentity.Category.Length == 0)
+                    {
+                        adminIdentity = new Identity(adminIdentity.Name, Guid.NewGuid().ToString());
+                    }
+
+                    _adminIdentity = adminIdentity;
+                    _createAdminTask = CreateAdminAsync(cancel);
+                    createAdminTask = _createAdminTask;
                 }
             }
 
-            return await getAdminTask.ConfigureAwait(false);
-
-            async Task<IObjectPrx?> PerformGetAdminAsync(CancellationToken cancel)
-            {
-                ObjectAdapter adminAdapter =
-                    await CreateObjectAdapterAsync("Ice.Admin", cancel: cancel).ConfigureAwait(false);
-
-                Identity adminIdentity;
-
-                lock (_mutex)
-                {
-                    Debug.Assert(_adminAdapter == null);
-                    _adminAdapter = adminAdapter;
-                    if (_adminIdentity != null) // maybe be set by CreateAdminAsync
-                    {
-                        adminIdentity = _adminIdentity.Value;
-                    }
-                    else
-                    {
-                        adminIdentity = new Identity("admin", GetProperty("Ice.Admin.InstanceName") ?? "");
-                        if (adminIdentity.Category.Length == 0)
-                        {
-                            adminIdentity = new Identity(adminIdentity.Name, Guid.NewGuid().ToString());
-                        }
-                        _adminIdentity = adminIdentity;
-                    }
-
-                    AddAllAdminFacets();
-                }
-
-                await adminAdapter.ActivateAsync().ConfigureAwait(false);
-                await SetServerProcessProxyAsync(adminAdapter, adminIdentity, cancel).ConfigureAwait(false);
-                return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
-            }
+            return await createAdminTask.ConfigureAwait(false);
         }
 
         /// <summary>Removes an admin facet servant previously added with AddAdminFacet.</summary>
@@ -1092,7 +1086,7 @@ namespace ZeroC.Ice
                     return null;
                 }
 
-                _adminAdapter?.Remove(_adminIdentity!.Value, facet);
+                _adminAdapter?.Remove(_adminIdentity, facet);
                 return result;
             }
         }
@@ -1374,7 +1368,7 @@ namespace ZeroC.Ice
                 {
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
                     {
-                        _adminAdapter.Add(_adminIdentity!.Value, entry.Key, entry.Value);
+                        _adminAdapter.Add(_adminIdentity, entry.Key, entry.Value);
                     }
                 }
             }
@@ -1392,6 +1386,26 @@ namespace ZeroC.Ice
                 }
             }
             return null;
+        }
+
+        private async Task<IObjectPrx> CreateAdminAsync(CancellationToken cancel)
+        {
+            ObjectAdapter adminAdapter =
+                await CreateObjectAdapterAsync("Ice.Admin", cancel: cancel).ConfigureAwait(false);
+
+            Identity adminIdentity;
+
+            lock (_mutex)
+            {
+                Debug.Assert(_adminAdapter == null);
+                _adminAdapter = adminAdapter;
+                AddAllAdminFacets();
+                adminIdentity = _adminIdentity;
+            }
+
+            await adminAdapter.ActivateAsync().ConfigureAwait(false);
+            await SetServerProcessProxyAsync(adminAdapter, adminIdentity, cancel).ConfigureAwait(false);
+            return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
         private INetworkProxy? CreateNetworkProxy(int protocolSupport)
