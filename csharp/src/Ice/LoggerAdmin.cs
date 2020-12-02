@@ -136,7 +136,7 @@ namespace ZeroC.Ice
                     throw new ObjectNotExistException();
                 }
 
-                _sendLogCommunicator ??= CreateSendLogCommunicator(current.Adapter.Communicator, _logger.LocalLogger);
+                _sendLogCommunicator ??= CreateSendLogCommunicator(current.Communicator, _logger.LocalLogger);
 
                 Identity remoteLoggerId = prx.Identity;
 

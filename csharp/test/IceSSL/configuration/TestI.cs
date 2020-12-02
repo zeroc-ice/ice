@@ -112,7 +112,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         public void Shutdown(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_servers.Count == 0);
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
         }
     }
 }

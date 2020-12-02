@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.DictMapping
     public sealed class MyClass : IMyClass
     {
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
 
         public (IReadOnlyDictionary<int, int>, IReadOnlyDictionary<int, int>) OpNV(
             Dictionary<int, int> i,

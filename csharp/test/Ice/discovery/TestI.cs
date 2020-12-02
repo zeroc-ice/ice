@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.Discovery
             Current current,
             CancellationToken cancel)
         {
-            Communicator communicator = current.Adapter.Communicator;
+            Communicator communicator = current.Communicator;
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             string transport = TestHelper.GetTestTransport(communicator.GetProperties());
 
@@ -51,12 +51,12 @@ namespace ZeroC.Ice.Test.Discovery
         }
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 
     public sealed class TestIntf : ITestIntf
     {
         public string GetAdapterId(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.GetProperty($"{current.Adapter.Name}.AdapterId") ?? "";
+            current.Communicator.GetProperty($"{current.Adapter.Name}.AdapterId") ?? "";
     }
 }

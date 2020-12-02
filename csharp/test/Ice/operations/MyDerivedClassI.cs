@@ -36,7 +36,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
 
         // TODO check if compress is supported.
         public bool SupportsCompress(Current current, CancellationToken cancel) => false;
