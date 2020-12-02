@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Metrics
         public int Current;
         public int FailedCount;
 
-        protected readonly object Mutex = new object();
+        protected readonly object Mutex = new();
 
         public virtual void Reset()
         {
@@ -135,7 +135,7 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 if (ChildInvocationObserver == null)
                 {
-                    ChildInvocationObserver = new ChildInvocationObserver();
+                    ChildInvocationObserver = new();
                     ChildInvocationObserver.Reset();
                 }
                 return ChildInvocationObserver;
@@ -257,7 +257,7 @@ namespace ZeroC.Ice.Test.Metrics
                 TestHelper.Assert(old == null || old is ConnectionObserver);
                 if (ConnectionObserver == null)
                 {
-                    ConnectionObserver = new ConnectionObserver();
+                    ConnectionObserver = new();
                     ConnectionObserver.Reset();
                 }
                 return ConnectionObserver;
@@ -273,7 +273,7 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 if (InvocationObserver == null)
                 {
-                    InvocationObserver = new InvocationObserver();
+                    InvocationObserver = new();
                     InvocationObserver.Reset();
                 }
                 return InvocationObserver;
@@ -286,7 +286,7 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 if (DispatchObserver == null)
                 {
-                    DispatchObserver = new DispatchObserver();
+                    DispatchObserver = new();
                     DispatchObserver.Reset();
                 }
                 return DispatchObserver;

@@ -483,7 +483,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 // Test IPv6 dual mode socket
                 {
-                    using Communicator serverCommunicator = new Communicator();
+                    using Communicator serverCommunicator = new();
                     string endpoint = getEndpoint("::0");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     oa.Activate();
@@ -502,7 +502,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     try
                     {
-                        using Communicator clientCommunicator = new Communicator();
+                        using Communicator clientCommunicator = new();
                         var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
                         prx.IcePing();
                     }
@@ -514,7 +514,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 // Test IPv6 only endpoints
                 {
-                    using Communicator serverCommunicator = new Communicator();
+                    using Communicator serverCommunicator = new();
                     string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6Only" : "?ipv6-only=true");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     oa.Activate();
@@ -528,7 +528,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     try
                     {
-                        using Communicator clientCommunicator = new Communicator();
+                        using Communicator clientCommunicator = new();
                         var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
                         prx.IcePing();
                         TestHelper.Assert(false);
@@ -541,7 +541,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 // Listen on IPv4 loopback with IPv6 dual mode socket
                 {
-                    using Communicator serverCommunicator = new Communicator();
+                    using Communicator serverCommunicator = new();
                     string endpoint = getEndpoint("::ffff:127.0.0.1");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     oa.Activate();
@@ -560,7 +560,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     try
                     {
-                        using Communicator clientCommunicator = new Communicator();
+                        using Communicator clientCommunicator = new();
                         var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
                         prx.IcePing();
                     }

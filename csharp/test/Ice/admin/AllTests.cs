@@ -621,9 +621,9 @@ namespace ZeroC.Ice.Test.Admin
 
         private class RemoteLogger : IRemoteLogger
         {
-            private readonly Queue<LogMessage> _initMessages = new Queue<LogMessage>();
-            private readonly Queue<LogMessage> _logMessages = new Queue<LogMessage>();
-            private readonly object _mutex = new object();
+            private readonly Queue<LogMessage> _initMessages = new();
+            private readonly Queue<LogMessage> _logMessages = new();
+            private readonly object _mutex = new();
             private string? _prefix;
             private int _receivedCalls;
 

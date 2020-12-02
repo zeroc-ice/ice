@@ -148,12 +148,12 @@ namespace ZeroC.Ice.Test.Optional
             output.WriteLine("ok");
 
             output.Write("testing operations with sequence<T?> parameters... ");
-            int?[] intSeq = new { 1, -5, null, 19, -35000 };
+            int?[] intSeq = new int?[] { 1, -5, null, 19, -35000 };
             TestHelper.Assert(test.OpOptIntSeq(intSeq).SequenceEqual(intSeq));
             TestHelper.Assert(test.OpTaggedOptIntSeq(intSeq)!.SequenceEqual(intSeq));
             TestHelper.Assert(test.OpTaggedOptIntSeq(null) == null);
 
-            string?[] stringSeq = new { "foo", "test", null, "", "bar" };
+            string?[] stringSeq = new string?[] { "foo", "test", null, "", "bar" };
             TestHelper.Assert(test.OpOptStringSeq(stringSeq).SequenceEqual(stringSeq));
             TestHelper.Assert(test.OpTaggedOptStringSeq(stringSeq)!.SequenceEqual(stringSeq));
             TestHelper.Assert(test.OpTaggedOptStringSeq(null) == null);
@@ -161,13 +161,13 @@ namespace ZeroC.Ice.Test.Optional
             output.WriteLine("ok");
 
             output.Write("testing operations with dictionary<K, V?> parameters... ");
-            Dictionary<int, int?> intIntDict = new { { 1, -5 }, { 3, null }, { 5, 19 },
+            Dictionary<int, int?> intIntDict = new Dictionary<int, int?> { { 1, -5 }, { 3, null }, { 5, 19 },
                 { 7, -35000 }};
             TestHelper.Assert(test.OpIntOptIntDict(intIntDict).DictionaryEqual(intIntDict));
             TestHelper.Assert(test.OpTaggedIntOptIntDict(intIntDict)!.DictionaryEqual(intIntDict));
             TestHelper.Assert(test.OpTaggedIntOptIntDict(null) == null);
 
-            Dictionary<int, string?> intStringDict = new { { 1, "foo" }, { 3, "test" },
+            Dictionary<int, string?> intStringDict = new Dictionary<int, string?> { { 1, "foo" }, { 3, "test" },
                 { 5, null }, { 7, "bar" }};
             TestHelper.Assert(test.OpIntOptStringDict(intStringDict).DictionaryEqual(intStringDict));
             TestHelper.Assert(test.OpTaggedIntOptStringDict(intStringDict)!.DictionaryEqual(intStringDict));

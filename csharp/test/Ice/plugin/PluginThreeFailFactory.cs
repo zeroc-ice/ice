@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
                 GC.SuppressFinalize(this);
                 TestHelper.Assert(false);
-                return new ValueTask(Task.CompletedTask);
+                return new(Task.CompletedTask);
             }
 
             ~PluginThreeFail()

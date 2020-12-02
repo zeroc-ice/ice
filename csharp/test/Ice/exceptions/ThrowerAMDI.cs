@@ -35,8 +35,7 @@ namespace ZeroC.Ice.Test.Exceptions
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<bool> SupportsAssertExceptionAsync(Current current, CancellationToken cancel) =>
-            new ValueTask<bool>(false);
+        public ValueTask<bool> SupportsAssertExceptionAsync(Current current, CancellationToken cancel) => new(false);
 
         public ValueTask ThrowAasAAsync(int a, Current current, CancellationToken cancel) => throw new A(a);
 
@@ -85,8 +84,7 @@ namespace ZeroC.Ice.Test.Exceptions
             throw new ConnectionClosedException();
 
         // Not supported with C# AMD API
-        public ValueTask ThrowAfterResponseAsync(Current current, CancellationToken cancel) =>
-            new ValueTask(Task.CompletedTask);
+        public ValueTask ThrowAfterResponseAsync(Current current, CancellationToken cancel) => new(Task.CompletedTask);
 
         // Not supported with C# AMD API
         public ValueTask ThrowAfterExceptionAsync(Current current, CancellationToken cancel) => throw new A();

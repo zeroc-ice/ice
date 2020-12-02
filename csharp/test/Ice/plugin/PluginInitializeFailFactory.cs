@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Plugin
             public ValueTask DisposeAsync()
             {
                 TestHelper.Assert(false);
-                return new ValueTask(Task.CompletedTask);
+                return new(Task.CompletedTask);
             }
         }
     }

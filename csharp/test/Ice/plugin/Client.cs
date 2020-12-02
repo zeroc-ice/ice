@@ -130,7 +130,7 @@ namespace ZeroC.Ice.Test.Plugin
             public ValueTask DisposeAsync()
             {
                 _destroyed = true;
-                return new ValueTask(Task.CompletedTask);
+                return new(Task.CompletedTask);
             }
         }
     }

@@ -29,15 +29,15 @@ namespace ZeroC.Ice.Test.Metrics
             throw new ArgumentOutOfRangeException();
 
         public ValueTask OpByteSAsync(byte[] bs, Current current, CancellationToken cancel) =>
-            new ValueTask(Task.CompletedTask);
+            new(Task.CompletedTask);
 
         public ValueTask<IObjectPrx?> GetAdminAsync(Current current, CancellationToken cancel) =>
-            new ValueTask<IObjectPrx?>(current.Adapter.Communicator.GetAdmin());
+            new(current.Adapter.Communicator.GetAdmin());
 
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Adapter.Communicator.ShutdownAsync();
-            return new ValueTask(Task.CompletedTask);
+            return new(Task.CompletedTask);
         }
     }
 }

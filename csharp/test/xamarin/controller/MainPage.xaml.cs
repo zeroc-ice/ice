@@ -680,7 +680,7 @@ namespace controller
             private set;
         }
 
-        private ObservableCollection<string> _outputSource = new ();
+        private ObservableCollection<string> _outputSource = new();
         private ControllerI _controllerI;
 
         public MainPage(PlatformAdapter platformAdapter)

@@ -30,7 +30,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
                 GC.SuppressFinalize(this);
                 _destroyed = true;
-                return new (Task.CompletedTask);
+                return new(Task.CompletedTask);
             }
 
             ~Plugin()

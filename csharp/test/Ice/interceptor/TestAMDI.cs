@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Interceptor
         private int _i;
 
         public ValueTask<int> AddAsync(int x, int y, Current current, CancellationToken cancel) =>
-            new ValueTask<int>(x + y);
+            new(x + y);
         public ValueTask<int> AddWithRetryAsync(int x, int y, Current current, CancellationToken cancel)
         {
             if (current.Context.TryGetValue("retry", out string? value) && value == "no")
@@ -24,13 +24,13 @@ namespace ZeroC.Ice.Test.Interceptor
             throw new InvalidInputException("badAdd");
         public ValueTask<int> NotExistAddAsync(int x, int y, Current current, CancellationToken cancel) =>
             throw new ObjectNotExistException();
-        public ValueTask Op1Async(Current current, CancellationToken cancel) => new ValueTask();
+        public ValueTask Op1Async(Current current, CancellationToken cancel) => new();
         public ValueTask OpWithBinaryContextAsync(Token token, Current current, CancellationToken cancel) => default;
 
         public ValueTask<IReadOnlyDictionary<string, string>> Op2Async(Current current, CancellationToken cancel) =>
-            new ValueTask<IReadOnlyDictionary<string, string>>(current.Context);
+            new(current.Context);
 
-        public ValueTask<int> Op3Async(Current current, CancellationToken cancel) => new ValueTask<int>(_i++);
+        public ValueTask<int> Op3Async(Current current, CancellationToken cancel) => new(_i++);
 
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {

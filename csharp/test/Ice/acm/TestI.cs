@@ -59,7 +59,7 @@ namespace ZeroC.Ice.Test.ACM
     public class TestIntf : ITestIntf
     {
         private int _count;
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
 
         public void Sleep(int delay, Current current, CancellationToken cancel)
         {

@@ -14,21 +14,21 @@ namespace ZeroC.Ice.Test.Proxy
         private IReadOnlyDictionary<string, string>? _ctx;
 
         public ValueTask<IObjectPrx?> EchoAsync(IObjectPrx? obj, Current c, CancellationToken cancel) =>
-            new (obj);
+            new(obj);
 
         public ValueTask<IEnumerable<string>> GetLocationAsync(Current current, CancellationToken cancel) =>
-            new (current.Location);
+            new(current.Location);
 
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Adapter.Communicator.ShutdownAsync();
-            return new (Task.CompletedTask);
+            return new(Task.CompletedTask);
         }
 
         public ValueTask<IReadOnlyDictionary<string, string>> GetContextAsync(
             Current current,
             CancellationToken cancel) =>
-            new (_ctx!);
+            new(_ctx!);
 
         public bool IceIsA(string typeId, Current current, CancellationToken cancel)
         {

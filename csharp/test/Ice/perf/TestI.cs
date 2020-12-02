@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Perf
         public System.ReadOnlyMemory<byte> ReceiveBytes(int size, Current current, CancellationToken cancel)
         {
             Debug.Assert(size <= _bytes.Length);
-            return new (_bytes, 0, size);
+            return new(_bytes, 0, size);
         }
 
         public void Shutdown(Current current, CancellationToken cancel) =>

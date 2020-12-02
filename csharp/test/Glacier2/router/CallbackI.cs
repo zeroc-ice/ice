@@ -39,7 +39,7 @@ namespace ZeroC.Glacier2.Test.Router
 
     public sealed class CallbackReceiver : ICallbackReceiver
     {
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
         private bool _callback;
 
         public CallbackReceiver() => _callback = false;
