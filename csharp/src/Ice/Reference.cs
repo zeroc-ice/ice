@@ -1740,10 +1740,6 @@ namespace ZeroC.Ice
                                                                      PreferNonSecure,
                                                                      Label,
                                                                      cancel).ConfigureAwait(false);
-                        if (CacheConnection)
-                        {
-                            _connection = connection;
-                        }
 
                         if (RouterInfo != null)
                         {
@@ -1755,6 +1751,11 @@ namespace ZeroC.Ice
                             {
                                 connection.Adapter = RouterInfo.Adapter;
                             }
+                        }
+
+                        if (CacheConnection)
+                        {
+                            _connection = connection;
                         }
                     }
 
