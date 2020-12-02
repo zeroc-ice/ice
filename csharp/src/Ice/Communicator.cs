@@ -853,7 +853,7 @@ namespace ZeroC.Ice
                 {
                     if (GetProperty("Ice.Admin.Endpoints") == null)
                     {
-                        throw new InvalidConfigurationException("Ice.Admin has no endpoints");
+                        throw new InvalidConfigurationException("Ice.Admin has no endpoint");
                     }
 
                     _adminIdentity = adminIdentity;
