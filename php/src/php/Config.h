@@ -119,7 +119,8 @@ ZEND_BEGIN_MODULE_GLOBALS(ice)
 ZEND_END_MODULE_GLOBALS(ice)
 
 // A void arginfo used for methods which do not take parameters.
-ZEND_BEGIN_ARG_INFO(ice_void_arginfo, 0)
+// Avoid narrowing conversion warnings with ZEND_BEGIN_ARG_INFO_EX usage in PHP >= 5.4
+ZEND_BEGIN_ARG_INFO_EX(ice_void_arginfo, 0, ZEND_RETURN_VALUE, static_cast<zend_uint>(-1))
 ZEND_END_ARG_INFO()
 
 #ifdef ZTS
