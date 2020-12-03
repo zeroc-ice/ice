@@ -67,6 +67,19 @@ addProxyInfo(const ProxyInfoPtr& p)
     m->insert(ProxyInfoMap::value_type(p->id, p));
 }
 
+static void
+addPropertyZval(zval* arg, const char* key, zval* value)
+{
+#if PHP_VERSION_ID >= 80000
+    add_property_zval(arg, key, value);
+#else
+    if(add_property_zval(arg, key, value) != SUCCESS)
+    {
+        throw AbortMarshaling();
+    }
+#endif
+}
+
 //
 // getProxyInfo()
 //
@@ -307,10 +320,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
 #endif
     AutoDestroy slicesDestroyer(&slices);
 
-    if(add_property_zval(&sd, STRCAST("slices"), &slices) != SUCCESS)
-    {
-        throw AbortMarshaling();
-    }
+    addPropertyZval(&sd, STRCAST("slices"), &slices);
 
     //
     // Translate each SliceInfo object into its PHP equivalent.
@@ -334,10 +344,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         zval typeId;
         AutoDestroy typeIdDestroyer(&typeId);
         ZVAL_STRINGL(&typeId, STRCAST((*p)->typeId.c_str()), static_cast<int>((*p)->typeId.size()));
-        if(add_property_zval(&slice, STRCAST("typeId"), &typeId) != SUCCESS)
-        {
-            throw AbortMarshaling();
-        }
+        addPropertyZval(&slice, STRCAST("typeId"), &typeId);
 
         //
         // compactId
@@ -345,10 +352,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         zval compactId;
         AutoDestroy compactIdDestroyer(&compactId);
         ZVAL_LONG(&compactId, (*p)->compactId);
-        if(add_property_zval(&slice, STRCAST("compactId"), &compactId) != SUCCESS)
-        {
-            throw AbortMarshaling();
-        }
+        addPropertyZval(&slice, STRCAST("compactId"), &compactId);
 
         //
         // bytes
@@ -360,10 +364,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         {
             add_next_index_long(&bytes, *q & 0xff);
         }
-        if(add_property_zval(&slice, STRCAST("bytes"), &bytes) != SUCCESS)
-        {
-            throw AbortMarshaling();
-        }
+        addPropertyZval(&slice, STRCAST("bytes"), &bytes);
 
         //
         // instances
@@ -374,10 +375,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         HT_ALLOW_COW_VIOLATION(Z_ARRVAL(instances)); // Allow circular references.
 #endif
         AutoDestroy instancesDestroyer(&instances);
-        if(add_property_zval(&slice, STRCAST("instances"), &instances) != SUCCESS)
-        {
-            throw AbortMarshaling();
-        }
+        addPropertyZval(&slice, STRCAST("instances"), &instances);
 
         for(vector<Ice::ObjectPtr>::const_iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
@@ -399,10 +397,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         zval hasOptionalMembers;
         AutoDestroy hasOptionalMembersDestroyer(&hasOptionalMembers);
         ZVAL_BOOL(&hasOptionalMembers, (*p)->hasOptionalMembers ? 1 : 0);
-        if(add_property_zval(&slice, STRCAST("hasOptionalMembers"), &hasOptionalMembers) != SUCCESS)
-        {
-            throw AbortMarshaling();
-        }
+        addPropertyZval(&slice, STRCAST("hasOptionalMembers"), &hasOptionalMembers);
 
         //
         // isLastSlice
@@ -410,16 +405,10 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         zval isLastSlice;
         AutoDestroy isLastSliceDestroyer(&isLastSlice);
         ZVAL_BOOL(&isLastSlice, (*p)->isLastSlice ? 1 : 0);
-        if(add_property_zval(&slice, STRCAST("isLastSlice"), &isLastSlice) != SUCCESS)
-        {
-            throw AbortMarshaling();
-        }
+        addPropertyZval(&slice, STRCAST("isLastSlice"), &isLastSlice);
     }
 
-    if(add_property_zval(obj, STRCAST("_ice_slicedData"), &sd) != SUCCESS)
-    {
-        throw AbortMarshaling();
-    }
+    addPropertyZval(obj, STRCAST("_ice_slicedData"), &sd);
 }
 
 //
@@ -1164,8 +1153,11 @@ void
 IcePHP::DataMember::setMember(zval* target, zval* zv)
 {
     assert(Z_TYPE_P(target) == IS_OBJECT);
-
+#if PHP_VERSION_ID >= 80000
+    zend_update_property(Z_OBJCE_P(target), Z_OBJ_P(target), STRCAST(name.c_str()), strlen(name.c_str()), zv);
+#else
     zend_update_property(Z_OBJCE_P(target), target, STRCAST(name.c_str()), strlen(name.c_str()), zv);
+#endif
 }
 
 static void
@@ -2978,7 +2970,11 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
         zend_try
         {
             assert(Z_TYPE(_object) == IS_OBJECT);
+#if PHP_VERSION_ID >= 80000
+            zend_call_method(Z_OBJ_P(&_object), 0, 0, const_cast<char*>("ice_id"), sizeof("ice_id") - 1, &ret, 0, 0, 0);
+#else
             zend_call_method(const_cast<zval*>(&_object), 0, 0, const_cast<char*>("ice_id"), sizeof("ice_id") - 1, &ret, 0, 0, 0);
+#endif
         }
         zend_catch
         {

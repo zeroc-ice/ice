@@ -458,20 +458,20 @@ static zend_function_entry _interfaceMethods[] =
 };
 static zend_function_entry _connectionClassMethods[] =
 {
-    ZEND_ME(Ice_Connection, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Connection, __toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, close, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getEndpoint, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, heartbeat, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setACM, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getACM, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, type, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, timeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getInfo, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setBufferSize, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, throwException, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Connection, __toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, close, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, flushBatchRequests, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, getACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, timeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setBufferSize, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -485,7 +485,7 @@ ZEND_METHOD(Ice_ConnectionInfo, __construct)
 //
 static zend_function_entry _connectionInfoClassMethods[] =
 {
-    ZEND_ME(Ice_ConnectionInfo, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_ConnectionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     {0, 0, 0}
 };
 //
@@ -546,7 +546,11 @@ IcePHP::connectionInit(void)
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce);
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+#if PHP_VERSION_ID >= 80000
+    _connectionHandlers.compare = handleConnectionCompare;
+#else
     _connectionHandlers.compare_objects = handleConnectionCompare;
+#endif
     _connectionHandlers.free_obj = handleConnectionFreeStorage;
     _connectionHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionPtr>, zobj);
     zend_class_implements(connectionClassEntry, 1, interface);

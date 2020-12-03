@@ -1504,28 +1504,28 @@ static zend_function_entry _interfaceMethods[] =
 };
 static zend_function_entry _classMethods[] =
 {
-    ZEND_ME(Ice_Communicator, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Communicator, shutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, isShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, waitForShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, destroy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, propertyToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToProperty, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToIdentity, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, identityToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, addObjectFactory, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, findObjectFactory, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getValueFactoryManager, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getImplicitContext, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getProperties, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getLogger, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getDefaultRouter, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultRouter, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getDefaultLocator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultLocator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Communicator, shutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, isShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, waitForShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, destroy, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToProxy, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, propertyToProxy, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToProperty, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToIdentity, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, identityToString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, addObjectFactory, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, findObjectFactory, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getValueFactoryManager, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getProperties, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getLogger, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getDefaultRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getDefaultLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, flushBatchRequests, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -1538,9 +1538,9 @@ static zend_function_entry _vfmInterfaceMethods[] =
 };
 static zend_function_entry _vfmClassMethods[] =
 {
-    ZEND_ME(Ice_ValueFactoryManager, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_ValueFactoryManager, add, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ValueFactoryManager, find, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_ValueFactoryManager, add, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, find, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 

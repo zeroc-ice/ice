@@ -254,11 +254,19 @@ extern "C"
 {
 static zend_object* handleAlloc(zend_class_entry*);
 static void handleFreeStorage(zend_object*);
+#if PHP_VERSION_ID >= 80000
+static zend_object* handleClone(zend_object*);
+#else
 static zend_object* handleClone(zval*);
+#endif
 
 static zend_object* handleVfmAlloc(zend_class_entry*);
 static void handleVfmFreeStorage(zend_object*);
+#if PHP_VERSION_ID >= 80000
+static zend_object* handleVfmClone(zend_object*);
+#else
 static zend_object* handleVfmClone(zval*);
+#endif
 }
 
 ZEND_METHOD(Ice_Communicator, __construct)
@@ -983,7 +991,11 @@ handleFreeStorage(zend_object* object)
 extern "C"
 #endif
 static zend_object*
+#if PHP_VERSION_ID >= 80000
+handleClone(zend_object* zobj)
+#else
 handleClone(zval* zv)
+#endif
 {
     php_error_docref(0, E_ERROR, "communicators cannot be cloned");
     return 0;
@@ -1020,7 +1032,11 @@ handleVfmFreeStorage(zend_object* object)
 extern "C"
 #endif
 static zend_object*
+#if PHP_VERSION_ID >= 80000
+handleVfmClone(zend_object* zobj)
+#else
 handleVfmClone(zval* zv)
+#endif
 {
     php_error_docref(0, E_ERROR, "value factory managers cannot be cloned");
     return 0;
@@ -1518,28 +1534,28 @@ static zend_function_entry _interfaceMethods[] =
 };
 static zend_function_entry _classMethods[] =
 {
-    ZEND_ME(Ice_Communicator, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Communicator, shutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, isShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, waitForShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, destroy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, propertyToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToProperty, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToIdentity, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, identityToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, addObjectFactory, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, findObjectFactory, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getValueFactoryManager, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getImplicitContext, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getProperties, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getLogger, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getDefaultRouter, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultRouter, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getDefaultLocator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultLocator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Communicator, shutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, isShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, waitForShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, destroy, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToProxy, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, propertyToProxy, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToProperty, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToIdentity, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, identityToString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, addObjectFactory, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, findObjectFactory, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getValueFactoryManager, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getProperties, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getLogger, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getDefaultRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getDefaultLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, flushBatchRequests, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -1552,9 +1568,9 @@ static zend_function_entry _vfmInterfaceMethods[] =
 };
 static zend_function_entry _vfmClassMethods[] =
 {
-    ZEND_ME(Ice_ValueFactoryManager, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_ValueFactoryManager, add, ICE_NULLPTR, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ValueFactoryManager, find, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_ValueFactoryManager, add, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, find, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -1963,7 +1979,11 @@ IcePHP::FactoryWrapper::create(const string& id)
     zend_try
     {
         assert(Z_TYPE(_factory) == IS_OBJECT);
+#if PHP_VERSION_ID >= 80000
+        zend_call_method(Z_OBJ_P(&_factory), 0, 0, const_cast<char*>("create"), sizeof("create") - 1, &obj, 1, &arg, 0);
+#else
         zend_call_method(&_factory, 0, 0, const_cast<char*>("create"), sizeof("create") - 1, &obj, 1, &arg, 0);
+#endif
     }
     zend_catch
     {
