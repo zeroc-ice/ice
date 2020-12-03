@@ -499,13 +499,11 @@ extern "C"
 static zend_object*
 #if PHP_VERSION_ID >= 80000
 handleClone(zend_object* zobj)
-#else
-handleClone(zval* zv)
-#endif
 {
-#if PHP_VERSION_ID >= 80000
     Ice::PropertiesPtr p = *Wrapper<Ice::PropertiesPtr>::fetch(zobj)->ptr;
 #else
+handleClone(zval* zv)
+{
     Ice::PropertiesPtr p = Wrapper<Ice::PropertiesPtr>::value(zv);
 #endif
     assert(p);
