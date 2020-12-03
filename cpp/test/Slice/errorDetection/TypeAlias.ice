@@ -54,16 +54,16 @@ module Test
     // Inheritance from type-aliases
     // Note, all metadata is allowed, but non-type metadata will error out when the alias is used.
     using C0Alias = C0;                            //redefinition error
-    using C0AliasMetadata = [protected] C0;        //ok
+    using C0AliasMetadata = [protected] C0;        //illegal metadata
     class DerivedClass1 : C0Alias {}               //ok
     class DerivedClass2 : C0AliasMetadata {}       //illegal metadata
 
-    using I0Alias = I0;                            //ok
-    using I0AliasMetadata = [amd] I0;              //ok
+    using I0Alias = I0;                                //ok
+    using I0AliasMetadata = [amd] I0;                  //illegal metadata
     interface DerivedInterface1 : I0Alias {}           //ok
     interface DerivedInterface2 : I0AliasMetadata {}   //illegal metadata
 
-    using E0Alias = E0;                            //exceptions cannot be used as types
+    using E0Alias = E0;         //exceptions cannot be used as types
 
     struct TestStruct
     {
