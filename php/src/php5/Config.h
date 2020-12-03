@@ -125,6 +125,10 @@ ZEND_BEGIN_MODULE_GLOBALS(ice)
     zval* unset;
 ZEND_END_MODULE_GLOBALS(ice)
 
+// A void arginfo used for methods which do not take parameters.
+ZEND_BEGIN_ARG_INFO(ice_void_arginfo, 0)
+ZEND_END_ARG_INFO()
+
 #ifdef ZTS
 #   define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
 #else
