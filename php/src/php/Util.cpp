@@ -121,6 +121,26 @@ getVersion(zval* zv, T& v, const char* type)
     return true;
 }
 
+void
+zendUpdateProperty(zend_class_entry* scope, zval* zv, const char* name, size_t nameLength, zval* value)
+{
+#if PHP_VERSION_ID >= 80000
+    zend_update_property(scope, Z_OBJ_P(zv), name, nameLength, value);
+#else
+    zend_update_property(scope, zv, name, nameLength, value);
+#endif
+}
+
+void
+zendUpdatePropertyLong(zend_class_entry* scope, zval* zv, const char* name, size_t nameLength, zend_long value)
+{
+#if PHP_VERSION_ID >= 80000
+    zend_update_property_long(scope, Z_OBJ_P(zv), name, nameLength, value);
+#else
+    zend_update_property_long(scope, zv, name, nameLength, value);
+#endif
+}
+
 template<typename T>
 bool
 createVersion(zval* zv, const T& version, const char* type)
@@ -133,13 +153,8 @@ createVersion(zval* zv, const T& version, const char* type)
         runtimeError("unable to initialize %s", cls->name->val);
         return false;
     }
-#if PHP_VERSION_ID >= 80000
-    zend_update_property_long(cls, Z_OBJ_P(zv), const_cast<char*>("major"), sizeof("major") - 1, version.major);
-    zend_update_property_long(cls, Z_OBJ_P(zv), const_cast<char*>("minor"), sizeof("minor") - 1, version.minor);
-#else
-    zend_update_property_long(cls, zv, const_cast<char*>("major"), sizeof("major") - 1, version.major);
-    zend_update_property_long(cls, zv, const_cast<char*>("minor"), sizeof("minor") - 1, version.minor);
-#endif
+    zendUpdatePropertyLong(cls, zv, const_cast<char*>("major"), sizeof("major") - 1, version.major);
+    zendUpdatePropertyLong(cls, zv, const_cast<char*>("minor"), sizeof("minor") - 1, version.minor);
 
     return true;
 }
@@ -494,11 +509,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
             zval_ptr_dtor(&id);
             return false;
         }
-#if PHP_VERSION_ID >= 80000
-        zend_update_property(cls, Z_OBJ_P(zex), const_cast<char*>("id"), sizeof("id") - 1, &id);
-#else
-        zend_update_property(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
-#endif
+        zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
         zval_ptr_dtor(&id);
     }
     catch(const Ice::RequestFailedException& e)
@@ -509,39 +520,23 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
             zval_ptr_dtor(&id);
             return false;
         }
-#if PHP_VERSION_ID >= 80000
-        zend_update_property(cls, Z_OBJ_P(zex), const_cast<char*>("id"), sizeof("id") - 1, &id);
-#else
-        zend_update_property(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
-#endif
+        zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
         zval_ptr_dtor(&id);
         setStringMember(zex, "facet", e.facet);
         setStringMember(zex, "operation", e.operation);
     }
     catch(const Ice::FileException& e)
     {
-#if PHP_VERSION_ID >= 80000
-        zend_update_property_long(cls, Z_OBJ_P(zex), const_cast<char*>("error"), sizeof("error") - 1, e.error);
-#else
-        zend_update_property_long(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
-#endif
+        zendUpdatePropertyLong(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
         setStringMember(zex, "path", e.path);
     }
     catch(const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
     {
-#if PHP_VERSION_ID >= 80000
-        zend_update_property_long(cls, Z_OBJ_P(zex), const_cast<char*>("error"), sizeof("error") - 1, e.error);
-#else
-        zend_update_property_long(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
-#endif
+        zendUpdatePropertyLong(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
     }
     catch(const Ice::DNSException& e)
     {
-#if PHP_VERSION_ID >= 80000
-        zend_update_property_long(cls, Z_OBJ_P(zex), const_cast<char*>("error"), sizeof("error") - 1, e.error);
-#else
-        zend_update_property_long(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
-#endif
+        zendUpdatePropertyLong(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error);
         setStringMember(zex, "host", e.host);
     }
     catch(const Ice::UnsupportedProtocolException& e)
@@ -552,11 +547,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
             zval_ptr_dtor(&v);
             return false;
         }
-#if PHP_VERSION_ID >= 80000
-        zend_update_property(cls, Z_OBJ_P(zex), const_cast<char*>("bad"), sizeof("bad") - 1, &v);
-#else
-        zend_update_property(cls, zex, const_cast<char*>("bad"), sizeof("bad") - 1, &v);
-#endif
+        zendUpdateProperty(cls, zex, const_cast<char*>("bad"), sizeof("bad") - 1, &v);
         zval_ptr_dtor(&v);
 
         if(!createProtocolVersion(&v, e.supported))
@@ -564,11 +555,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
             zval_ptr_dtor(&v);
             return false;
         }
-#if PHP_VERSION_ID >= 80000
-        zend_update_property(cls, Z_OBJ_P(zex), const_cast<char*>("supported"), sizeof("supported") - 1, &v);
-#else
-        zend_update_property(cls, zex, const_cast<char*>("supported"), sizeof("supported") - 1, &v);
-#endif
+        zendUpdateProperty(cls, zex, const_cast<char*>("supported"), sizeof("supported") - 1, &v);
         zval_ptr_dtor(&v);
     }
     catch(const Ice::UnsupportedEncodingException& e)
@@ -579,11 +566,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
             zval_ptr_dtor(&v);
             return false;
         }
-#if PHP_VERSION_ID >= 80000
-        zend_update_property(cls, Z_OBJ_P(zex), const_cast<char*>("bad"), sizeof("bad") - 1, &v);
-#else
-        zend_update_property(cls, zex, const_cast<char*>("bad"), sizeof("bad") - 1, &v);
-#endif
+        zendUpdateProperty(cls, zex, const_cast<char*>("bad"), sizeof("bad") - 1, &v);
         zval_ptr_dtor(&v);
 
         if(!createEncodingVersion(&v, e.supported))
@@ -591,11 +574,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
             zval_ptr_dtor(&v);
             return false;
         }
-#if PHP_VERSION_ID >= 80000
-        zend_update_property(cls, Z_OBJ_P(zex), const_cast<char*>("supported"), sizeof("supported") - 1, &v);
-#else
-        zend_update_property(cls, zex, const_cast<char*>("supported"), sizeof("supported") - 1, &v);
-#endif
+        zendUpdateProperty(cls, zex, const_cast<char*>("supported"), sizeof("supported") - 1, &v);
         zval_ptr_dtor(&v);
     }
     catch(const Ice::NoValueFactoryException& e)
