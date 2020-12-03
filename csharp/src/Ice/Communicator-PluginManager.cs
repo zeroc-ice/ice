@@ -76,7 +76,7 @@ namespace ZeroC.Ice
                 {
                     try
                     {
-                        plugin.DisposeAsync().AsTask().Wait();
+                        plugin.DisposeAsync().GetResult();
                     }
                     catch
                     {

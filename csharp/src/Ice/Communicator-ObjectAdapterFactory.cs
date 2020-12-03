@@ -46,18 +46,7 @@ namespace ZeroC.Ice
         /// thread of a server, which will be completed once the shutdown process completes, and then the caller can
         /// do some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally exists the
         /// application.</summary>
-        public void WaitForShutdown()
-        {
-            try
-            {
-                WaitForShutdownAsync().Wait();
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
+        public void WaitForShutdown() => WaitForShutdownAsync().GetAwaiter().GetResult();
 
         /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
         /// task returned by this operation completes once all executing operations have completed. On the client side,

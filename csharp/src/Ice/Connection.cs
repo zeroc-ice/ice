@@ -212,18 +212,7 @@ namespace ZeroC.Ice
 
         /// <summary>Sends a ping frame.</summary>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public void Ping(CancellationToken cancel = default)
-        {
-            try
-            {
-                PingAsync(cancel: cancel).Wait(cancel);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
+        public void Ping(CancellationToken cancel = default) => PingAsync(cancel: cancel).GetAwaiter().GetResult();
 
         /// <summary>Sends an asynchronous ping frame.</summary>
         /// <param name="progress">Sent progress provider.</param>

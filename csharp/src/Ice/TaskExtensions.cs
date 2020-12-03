@@ -18,23 +18,16 @@ namespace ZeroC.Ice
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="task">The value task.</param>
         /// <returns>The result.</returns>
-        internal static TResult GetResult<TResult>(this ValueTask<TResult> task)
+        internal static TResult GetResult<TResult>(this ValueTask<TResult> task) =>
+            task.IsCompleted ? task.Result : task.AsTask().GetAwaiter().GetResult();
+
+        /// <summary>Waits for a value task to complete.</summary>
+        /// <param name="task">The value task.</param>
+        internal static void GetResult(this ValueTask task)
         {
-            if (task.IsCompleted)
+            if (!task.IsCompleted)
             {
-                return task.Result;
-            }
-            else
-            {
-                try
-                {
-                    return task.AsTask().Result;
-                }
-                catch (AggregateException ex)
-                {
-                    Debug.Assert(ex.InnerException != null);
-                    throw ExceptionUtil.Throw(ex.InnerException);
-                }
+                task.AsTask().GetAwaiter().GetResult();
             }
         }
 

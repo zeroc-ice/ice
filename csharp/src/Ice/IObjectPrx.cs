@@ -355,13 +355,9 @@ namespace ZeroC.Ice
         {
             try
             {
-                IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway: false).Result;
+                IncomingResponseFrame response =
+                    Reference.InvokeAsync(this, request, oneway: false).GetAwaiter().GetResult();
                 return response.ReadReturnValue(this, reader);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
             }
             finally
             {
@@ -378,16 +374,11 @@ namespace ZeroC.Ice
         {
             try
             {
-                IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway).Result;
+                IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway).GetAwaiter().GetResult();
                 if (!oneway)
                 {
                     response.ReadVoidReturnValue(this);
                 }
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
             }
             finally
             {

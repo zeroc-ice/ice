@@ -363,7 +363,7 @@ namespace ZeroC.IceBox
             {
                 try
                 {
-                    communicator.ShutdownAsync().Wait();
+                    communicator.ShutdownAsync().GetAwaiter().GetResult();
                 }
                 catch (CommunicatorDisposedException)
                 {
