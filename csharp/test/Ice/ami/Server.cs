@@ -18,6 +18,9 @@ namespace ZeroC.Ice.Test.AMI
             // of data.
             properties["Ice.TCP.RcvSize"] = "50K";
 
+            // The client sends large payloads to block in send()
+            properties["Ice.IncomingFrameMaxSize"] = "15M";
+
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));

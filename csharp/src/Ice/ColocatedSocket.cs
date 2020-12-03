@@ -172,7 +172,16 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ValueTask SendFrameAsync(long streamId, object? frame, bool fin, CancellationToken cancel) =>
-            _writer.WriteAsync((streamId, frame, fin), cancel);
+        internal ValueTask SendFrameAsync(long streamId, object? frame, bool fin, CancellationToken cancel)
+        {
+            try
+            {
+                return _writer.WriteAsync((streamId, frame, fin), cancel);
+            }
+            catch (Exception ex)
+            {
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+            }
+        }
     }
 }
