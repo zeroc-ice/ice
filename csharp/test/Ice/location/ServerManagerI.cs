@@ -56,8 +56,9 @@ namespace ZeroC.Ice.Test.Location
                     adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2", cancel: cancel);
 
                     var locator = ILocatorPrx.Parse(_helper.GetTestProxy("locator", 0), serverCommunicator);
-                    adapter.Locator = locator;
-                    adapter2.Locator = locator;
+                    ILocatorRegistryPrx? locatorRegistry = locator.GetRegistry(cancel: cancel);
+                    adapter.LocatorRegistry = locatorRegistry;
+                    adapter2.LocatorRegistry = locatorRegistry;
 
                     var testI = new TestIntf(adapter, adapter2, _registry);
                     _registry.AddObject(adapter.Add("test", testI, IObjectPrx.Factory));
@@ -75,7 +76,7 @@ namespace ZeroC.Ice.Test.Location
                         throw;
                     }
 
-                    // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web
+                    // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
                     // browser clients if the driver uses ports in the same range as this test, ICE-8148)
                     adapter?.Dispose();
                     adapter2?.Dispose();

@@ -162,7 +162,7 @@ namespace ZeroC.Ice
                         {
                             reference.LocatorInfo?.ClearCache(reference);
                         }
-                        return RetryPolicy.AfterDelay(TimeSpan.Zero);
+                        return RetryPolicy.OtherReplica;
                     }
                 }
             }

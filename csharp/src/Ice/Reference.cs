@@ -1742,6 +1742,19 @@ namespace ZeroC.Ice
                                                                      PreferNonSecure,
                                                                      Label,
                                                                      cancel).ConfigureAwait(false);
+
+                        if (RouterInfo != null)
+                        {
+                            await RouterInfo.AddProxyAsync(IObjectPrx.Factory(this)).ConfigureAwait(false);
+
+                            // Set the object adapter for this router (if any) on the new connection, so that callbacks from
+                            // the router can be received over this new connection.
+                            if (RouterInfo.Adapter != null)
+                            {
+                                connection.Adapter = RouterInfo.Adapter;
+                            }
+                        }
+
                         if (CacheConnection)
                         {
                             _connection = connection;
@@ -1828,14 +1841,10 @@ namespace ZeroC.Ice
                     }
                 }
 
-                if (endpoints != null)
+                if (endpoints != null && (connection == null || retryPolicy == RetryPolicy.OtherReplica))
                 {
-                    if (connection == null || retryPolicy == RetryPolicy.OtherReplica)
-                    {
-                        // If connection establishment failed or if the endpoint was excluded, try the next
-                        // endpoint
-                        nextEndpoint = ++nextEndpoint % endpoints.Count;
-                    }
+                    // If connection establishment failed or if the endpoint was excluded, try the next endpoint
+                    nextEndpoint = ++nextEndpoint % endpoints.Count;
 
                     if (nextEndpoint == 0)
                     {
@@ -1845,7 +1854,6 @@ namespace ZeroC.Ice
                             // If we were using cached endpoints, we clear the endpoints to trigger a new endpoint
                             // lookup.
                             endpoints = null;
-                            nextEndpoint = 0;
                         }
                         else
                         {
@@ -1863,7 +1871,7 @@ namespace ZeroC.Ice
 
                 // Check if we can retry, we cannot retry if we have consumed all attempts, the current retry
                 // policy doesn't allow retries, the request was already released, there are no more endpoints
-                // or a fixed reference receives an exception with OtherReplica retry.
+                // or a fixed reference receives an exception with OtherReplica retry policy.
 
                 if (attempt == Communicator.InvocationMaxAttempts ||
                     retryPolicy == RetryPolicy.NoRetry ||
@@ -1903,8 +1911,8 @@ namespace ZeroC.Ice
 
                     if (connection != null || triedAllEndpoints)
                     {
-                        // Only count an attempt if the connection was established or if all the endpoints were
-                        // tried at least once. This ensures that we don't end up into an infinite loop for connection
+                        // Only count an attempt if the connection was established or if all the endpoints were tried
+                        // at least once. This ensures that we don't end up into an infinite loop for connection
                         // establishment failures which don't result in endpoint exclusion.
                         attempt++;
                     }

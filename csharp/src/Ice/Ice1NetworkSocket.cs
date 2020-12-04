@@ -414,10 +414,6 @@ namespace ZeroC.Ice
 
                 case Ice1Definitions.FrameType.ValidateConnection:
                 {
-                    if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
-                    {
-                        TraceFrame(0, ArraySegment<byte>.Empty, (byte)Ice1Definitions.FrameType.ValidateConnection);
-                    }
                     // Notify the control stream of the reception of a Ping frame.
                     ReceivedPing();
                     return (IsIncoming ? 2 : 3, frameType, default);

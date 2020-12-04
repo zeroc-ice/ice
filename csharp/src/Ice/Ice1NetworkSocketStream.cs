@@ -47,7 +47,10 @@ namespace ZeroC.Ice
             // would be blocked calling user code through this method.
             if (frameType == Ice1Definitions.FrameType.Reply)
             {
-                _socket.LastResponseStreamId = Id;
+                if (_socket.LastResponseStreamId < Id)
+                {
+                    _socket.LastResponseStreamId = Id;
+                }
                 SignalCompletion((frameType, frame), runContinuationAsynchronously: true);
             }
             else
