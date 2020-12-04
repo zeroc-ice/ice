@@ -100,10 +100,10 @@ namespace ZeroC.Ice
         /// <summary>Creates an outgoing stream. Depending on the transport implementation, the stream ID might not
         /// be immediately available after the stream creation. It will be available after the first successful send
         /// call on the stream.</summary>
-        /// <param name="isBidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
-        /// <param name="isControl"><c>True</c> to create a control stream, <c>false</c> otherwise.</param>
+        /// <param name="bidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
+        /// <param name="control"><c>True</c> to create a control stream, <c>false</c> otherwise.</param>
         /// <return>The outgoing stream.</return>
-        public abstract SocketStream CreateStream(bool isBidirectional, bool isControl);
+        public abstract SocketStream CreateStream(bool bidirectional, bool control);
 
         /// <summary>The MultiStreamSocket constructor.</summary>
         /// <param name="endpoint">The endpoint from which the socket was created.</param>
@@ -352,7 +352,7 @@ namespace ZeroC.Ice
 
         internal virtual async ValueTask<SocketStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
-            SocketStream stream = CreateStream(isBidirectional: false, isControl: true);
+            SocketStream stream = CreateStream(bidirectional: false, control: true);
             await stream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }

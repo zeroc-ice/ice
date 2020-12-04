@@ -688,8 +688,9 @@ public:
     Mode sendMode() const; // TODO: remove
     bool isIdempotent() const { return _mode == Idempotent; }
     bool hasMarshaledResult() const;
-    MemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int, bool);
-    MemberPtr createReturnMember(const std::string&, const TypePtr&, bool, int, bool);
+    MemberPtr createParameter(const std::string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag,
+                              bool stream);
+    MemberPtr createReturnMember(const std::string& name, const TypePtr& type, bool tagged, int tag, bool stream);
     MemberList params() const;
     MemberList outParameters() const; //TODO remove this once the compilers have been updated to use return-tuples.
     MemberList returnType() const;

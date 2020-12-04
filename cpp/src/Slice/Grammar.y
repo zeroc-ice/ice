@@ -1947,10 +1947,12 @@ qualifier
 }
 | ICE_STREAM ICE_OUT
 {
+    // Not allowed but we still allow the parsing to print an appropriate error message
     $$ = new IntegerTok(QUALIFIER_OUT | QUALIFIER_STREAM);
 }
 | ICE_OUT ICE_STREAM
 {
+    // Not allowed but we still allow the parsing to print an appropriate error message
     $$ = new IntegerTok(QUALIFIER_OUT | QUALIFIER_STREAM);
 }
 | %empty
@@ -1971,6 +1973,11 @@ parameter
     {
         bool isOutParam = qualifier->v & QUALIFIER_OUT;
         bool isStreamParam = qualifier->v & QUALIFIER_STREAM;
+        if (isOutParam && isStreamParam)
+        {
+            unit->error("`" + def->name + "': stream parameter cannot be marked as out");
+        }
+
         MemberPtr param = op->createParameter(def->name, def->type, isOutParam, def->isTagged, def->tag, isStreamParam);
         unit->currentContainer()->checkIntroduced(def->name, param);
         if(param && !def->metadata.empty())

@@ -329,7 +329,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     {
         if (auto builtin = BuiltinPtr::dynamicCast(type); builtin && builtin->kind() == Builtin::KindByte)
         {
-            return "System.IO.Stream";
+            return "global::System.IO.Stream";
         }
         else
         {

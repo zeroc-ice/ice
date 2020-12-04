@@ -11,8 +11,8 @@ namespace ZeroC.Ice
 {
     /// <summary>A delegate that reads the response return value from a response frame.</summary>
     /// <typeparam name="T">The type of the return value to read.</typeparam>
-    /// <param name="proxy">The proxy used to received the response frame.</param>
-    /// <param name="response">The response frame to read the return value from.</param>
+    /// <param name="proxy">The proxy used to send the request.</param>
+    /// <param name="response">The response frame.</param>
     /// <returns>The response return value.</returns>
     public delegate T ResponseReader<T>(IObjectPrx proxy, IncomingResponseFrame response);
 
@@ -435,7 +435,8 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return reader(this, await responseTask.ConfigureAwait(false));
+                    using IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
+                    return reader(this, response);
                 }
                 finally
                 {
@@ -473,7 +474,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
+                    using IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
                     if (!oneway)
                     {
                         response.ReadVoidReturnValue(this);

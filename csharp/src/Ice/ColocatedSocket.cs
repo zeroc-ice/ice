@@ -91,8 +91,8 @@ namespace ZeroC.Ice
             await _reader.Completion.ConfigureAwait(false);
         }
 
-        public override SocketStream CreateStream(bool isBidirectional, bool isControl) =>
-            new ColocatedStream(this, isBidirectional, isControl);
+        public override SocketStream CreateStream(bool bidirectional, bool control) =>
+            new ColocatedStream(this, bidirectional, control);
 
         public async override ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -157,10 +157,14 @@ namespace ZeroC.Ice
         {
             if (stream.IsIncoming && !stream.IsBidirectional && !stream.IsControl)
             {
+                // This client side stream acquires the semaphore before opening an unidirectional stream. The
+                // semaphore is released when this server side stream is disposed.
                 _peerUnidirectionalSerializeSemaphore?.Release();
             }
             else if (!stream.IsIncoming && stream.IsBidirectional && stream.IsStarted)
             {
+                // This client side stream acquires the semaphore before opening a bidirectional stream. The
+                // semaphore is released when this client side stream is disposed.
                 _bidirectionalSerializeSemaphore?.Release();
             }
         }
@@ -184,16 +188,11 @@ namespace ZeroC.Ice
                     // If serialization is enabled on the adapter, we wait on the semaphore to ensure that no more than
                     // one stream is active. The wait is done the client side to ensure the sent callback for the
                     // request isn't called until the adapter is ready to dispatch a new request.
-                    if (stream.IsBidirectional)
+                    AsyncSemaphore? semaphore = stream.IsBidirectional ?
+                        _bidirectionalSerializeSemaphore : _unidirectionalSerializeSemaphore;
+                    if (semaphore != null)
                     {
-                        if (_bidirectionalSerializeSemaphore != null)
-                        {
-                            await _bidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                        }
-                    }
-                    else if (_unidirectionalSerializeSemaphore != null)
-                    {
-                        await _unidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                        await semaphore.WaitAsync(cancel).ConfigureAwait(false);
                     }
                 }
 

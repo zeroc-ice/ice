@@ -132,16 +132,11 @@ namespace ZeroC.Ice
                         try
                         {
                             stream = new Ice1NetworkSocketStream(this, streamId);
-                            if (stream.IsBidirectional)
+                            AsyncSemaphore? semaphore = stream.IsBidirectional ?
+                                _bidirectionalSerializeSemaphore : _unidirectionalSerializeSemaphore;
+                            if (semaphore != null)
                             {
-                                if (_bidirectionalSerializeSemaphore != null)
-                                {
-                                    await _bidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                                }
-                            }
-                            else if (_unidirectionalSerializeSemaphore != null)
-                            {
-                                await _unidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                                await semaphore.WaitAsync(cancel).ConfigureAwait(false);
                             }
                             stream.ReceivedFrame(frameType, frame);
                             return stream;
@@ -187,13 +182,13 @@ namespace ZeroC.Ice
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _socket.CloseAsync(exception, cancel);
 
-        public override SocketStream CreateStream(bool isBidirectional, bool isControl)
+        public override SocketStream CreateStream(bool bidirectional, bool control)
         {
             lock (_mutex)
             {
-                Debug.Assert(!isControl || (isBidirectional ? _nextBidirectionalId : _nextUnidirectionalId) < 4);
+                Debug.Assert(!control || (bidirectional ? _nextBidirectionalId : _nextUnidirectionalId) < 4);
                 SocketStream stream;
-                if (isBidirectional)
+                if (bidirectional)
                 {
                     stream = new Ice1NetworkSocketStream(this, _nextBidirectionalId);
                     _nextBidirectionalId += 4;
@@ -270,13 +265,13 @@ namespace ZeroC.Ice
 
         internal void ReleaseFlowControlCredit(Ice1NetworkSocketStream stream)
         {
-            if (stream.IsIncoming)
+            if (stream.IsIncoming && !stream.IsControl)
             {
                 if (stream.IsBidirectional)
                 {
                     _bidirectionalSerializeSemaphore?.Release();
                 }
-                else if (!stream.IsControl)
+                else
                 {
                     _unidirectionalSerializeSemaphore?.Release();
                 }
@@ -339,7 +334,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new ValueTask<SocketStream>(CreateStream(isBidirectional: false, isControl: true));
+                return new ValueTask<SocketStream>(CreateStream(bidirectional: false, control: true));
             }
         }
 

@@ -1347,7 +1347,7 @@ namespace ZeroC.Ice.Test.Operations
                 }).Wait();
 
             {
-                void CompareStreams(System.IO.Stream s1, System.IO.Stream s2)
+                void AssertStreamEquals(System.IO.Stream s1, System.IO.Stream s2)
                 {
                     int v1, v2;
                     do
@@ -1357,9 +1357,6 @@ namespace ZeroC.Ice.Test.Operations
                         TestHelper.Assert(v1 == v2);
                     }
                     while (v1 != -1 && v2 != -1);
-
-                    s1.Dispose();
-                    s2.Dispose();
                 }
 
                 if (p.Protocol != Protocol.Ice1)
@@ -1370,22 +1367,34 @@ namespace ZeroC.Ice.Test.Operations
 
                         await p.OpSendStream2Async("AllTests.cs", File.OpenRead("AllTests.cs")).ConfigureAwait(false);
 
-                        System.IO.Stream stream;
-                        string fileName;
+                        {
+                            using Stream stream = await p.OpGetStream1Async().ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead("AllTests.cs");
+                            AssertStreamEquals(stream, fileStream);
+                        }
 
-                        stream = await p.OpGetStream1Async().ConfigureAwait(false);
-                        CompareStreams(stream, File.OpenRead("AllTests.cs"));
+                        {
+                            (string fileName, Stream stream) = await p.OpGetStream2Async().ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead(fileName);
+                            AssertStreamEquals(stream, File.OpenRead(fileName));
+                            stream.Dispose();
+                        }
 
-                        (fileName, stream) = await p.OpGetStream2Async().ConfigureAwait(false);
-                        CompareStreams(stream, File.OpenRead(fileName));
+                        {
+                            using Stream stream =
+                                await p.OpSendAndGetStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead("AllTests.cs");
+                            AssertStreamEquals(stream, fileStream);
+                        }
 
-                        stream = await p.OpSendAndGetStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
-                        CompareStreams(stream, File.OpenRead("AllTests.cs"));
-
-                        (fileName, stream) = await p.OpSendAndGetStream2Async(
-                            "AllTests.cs",
-                            File.OpenRead("AllTests.cs")).ConfigureAwait(false);
-                        CompareStreams(stream, File.OpenRead(fileName));
+                        {
+                            (string fileName, Stream stream) = await p.OpSendAndGetStream2Async(
+                                "AllTests.cs",
+                                File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead(fileName);
+                            AssertStreamEquals(stream, fileStream);
+                            stream.Dispose();
+                        }
                     }).Wait();
                 }
             }

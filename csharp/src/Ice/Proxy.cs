@@ -253,7 +253,8 @@ namespace ZeroC.Ice
             var forwardedRequest = new OutgoingRequestFrame(proxy, request, cancel: cancel);
             try
             {
-                IncomingResponseFrame response =
+                // TODO: add support for stream data forwarding.
+                using IncomingResponseFrame response =
                     await Reference.InvokeAsync(proxy, forwardedRequest, oneway, progress).ConfigureAwait(false);
                 return new OutgoingResponseFrame(request, response);
             }

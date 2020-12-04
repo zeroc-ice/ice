@@ -108,20 +108,17 @@ namespace ZeroC.Ice
                     try
                     {
                         var sendBuffers = new List<ArraySegment<byte>> { receiveBuffer };
-                        while (true)
+                        int received;
+                        do
                         {
                             try
                             {
                                 Header.CopyTo(receiveBuffer);
-                                int received = await ioStream.ReadAsync(receiveBuffer.Slice(Header.Length),
-                                                                        cancel).ConfigureAwait(false);
+                                received = await ioStream.ReadAsync(receiveBuffer.Slice(Header.Length),
+                                                                    cancel).ConfigureAwait(false);
 
                                 sendBuffers[0] = receiveBuffer.Slice(0, Header.Length + received);
                                 await SendAsync(sendBuffers, received == 0, cancel).ConfigureAwait(false);
-                                if (received == 0)
-                                {
-                                    break;
-                                }
                             }
                             catch
                             {
@@ -129,6 +126,7 @@ namespace ZeroC.Ice
                                 break;
                             }
                         }
+                        while (received > 0);
                     }
                     finally
                     {
@@ -171,14 +169,14 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Constructs an outgoing stream.</summary>
-        /// <param name="isBidirectional">True to create a bidirectional stream, False otherwise.</param>
-        /// <param name="isControl">True to create a control stream, False otherwise.</param>
+        /// <param name="bidirectional">True to create a bidirectional stream, False otherwise.</param>
+        /// <param name="control">True to create a control stream, False otherwise.</param>
         /// <param name="socket">The parent socket.</param>
-        protected SocketStream(MultiStreamSocket socket, bool isBidirectional, bool isControl)
+        protected SocketStream(MultiStreamSocket socket, bool bidirectional, bool control)
         {
             _socket = socket;
-            IsBidirectional = isBidirectional;
-            IsControl = isControl;
+            IsBidirectional = bidirectional;
+            IsControl = control;
         }
 
         /// <summary>Releases the resources used by the socket.</summary>
@@ -291,51 +289,36 @@ namespace ZeroC.Ice
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
-            var request = new IncomingRequestFrame(_socket.Endpoint.Protocol,
-                                                   data,
-                                                   _socket.IncomingFrameMaxSize);
+            IncomingRequestFrame request;
+            if (ReceivedEndOfStream)
+            {
+                request = new IncomingRequestFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, null);
+            }
+            else
+            {
+                // Increment the use count of this stream to ensure it's not going to be disposed before the
+                // stream parameter data is disposed.
+                Interlocked.Increment(ref _useCount);
+                request = new IncomingRequestFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, this);
+            }
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
                 _socket.TraceFrame(Id, request);
             }
 
-            if (!ReceivedEndOfStream)
-            {
-                // Increment the use count of this stream to ensure it's not going to be disposed before the
-                // stream parameter data is disposed.
-                Interlocked.Increment(ref _useCount);
-                request.SocketStream = this;
-            }
             return request;
         }
 
         internal async ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
         {
+            ArraySegment<byte> data;
             try
             {
                 byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                     (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
 
-                ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
-
-                var response = new IncomingResponseFrame(_socket.Endpoint.Protocol,
-                                                         data,
-                                                         _socket.IncomingFrameMaxSize);
-
-                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-                {
-                    TraceFrame(response);
-                }
-
-                if (!ReceivedEndOfStream)
-                {
-                    // Increment the use count of this stream to ensure it's not going to be disposed before the
-                    // stream parameter data is disposed.
-                    Interlocked.Increment(ref _useCount);
-                    response.SocketStream = this;
-                }
-                return response;
+                data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -345,6 +328,26 @@ namespace ZeroC.Ice
                 }
                 throw;
             }
+
+            IncomingResponseFrame response;
+            if (ReceivedEndOfStream)
+            {
+                response = new IncomingResponseFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, null);
+            }
+            else
+            {
+                // Increment the use count of this stream to ensure it's not going to be disposed before the
+                // stream parameter data is disposed.
+                Interlocked.Increment(ref _useCount);
+                response = new IncomingResponseFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, this);
+            }
+
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            {
+                TraceFrame(response);
+            }
+
+            return response;
         }
 
         internal virtual async ValueTask SendGoAwayFrameAsync(

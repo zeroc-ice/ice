@@ -21,27 +21,29 @@ namespace ZeroC.Ice.Test.Invoke
             output.Flush();
 
             {
-                var request = OutgoingRequestFrame.WithEmptyArgs(oneway, "opOneway", idempotent: false);
-                IncomingResponseFrame response;
+                using var request = OutgoingRequestFrame.WithEmptyArgs(oneway, "opOneway", idempotent: false);
+
                 try
                 {
-                    response = oneway.InvokeAsync(request, oneway: true).Result;
+                    using IncomingResponseFrame response = oneway.InvokeAsync(request, oneway: true).Result;
                 }
                 catch
                 {
                     TestHelper.Assert(false);
                 }
+            }
 
-                request = OutgoingRequestFrame.WithArgs(cl,
-                                                        "opString",
-                                                        idempotent: false,
-                                                        compress: false,
-                                                        format: default,
-                                                        context: null,
-                                                        TestString,
-                                                        OutputStream.IceWriterFromString);
+            {
+                using var request = OutgoingRequestFrame.WithArgs(cl,
+                                                                  "opString",
+                                                                  idempotent: false,
+                                                                  compress: false,
+                                                                  format: default,
+                                                                  context: null,
+                                                                  TestString,
+                                                                  OutputStream.IceWriterFromString);
 
-                response = cl.InvokeAsync(request).Result;
+                using IncomingResponseFrame response = cl.InvokeAsync(request).Result;
                 (string s1, string s2) = response.ReadReturnValue(cl, istr =>
                     {
                         string s1 = istr.ReadString();
@@ -53,8 +55,8 @@ namespace ZeroC.Ice.Test.Invoke
             }
 
             {
-                var request = OutgoingRequestFrame.WithEmptyArgs(cl, "opException", idempotent: false);
-                IncomingResponseFrame response = cl.InvokeAsync(request).Result;
+                using var request = OutgoingRequestFrame.WithEmptyArgs(cl, "opException", idempotent: false);
+                using IncomingResponseFrame response = cl.InvokeAsync(request).Result;
 
                 try
                 {

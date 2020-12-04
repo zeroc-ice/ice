@@ -1772,6 +1772,7 @@ namespace ZeroC.Ice
                     }
                     sent = true;
                     exception = null;
+                    response?.Dispose();
 
                     if (oneway)
                     {

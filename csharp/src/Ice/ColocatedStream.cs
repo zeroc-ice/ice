@@ -19,14 +19,8 @@ namespace ZeroC.Ice
         private volatile object? _streamable;
         private readonly ColocatedSocket _socket;
 
-        public override System.IO.Stream ReceiveDataIntoIOStream()
-        {
-            if (ReceiveStreamable() is not System.IO.Stream ioStream)
-            {
-                throw new InvalidDataException("unexpected data");
-            }
-            return ioStream;
-        }
+        public override System.IO.Stream ReceiveDataIntoIOStream() =>
+            ReceiveStreamable() as System.IO.Stream ?? throw new InvalidDataException("unexpected data");
 
         public override void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel) =>
             Task.Run(() => _socket.SendFrameAsync(this, frame: ioStream, fin: true, cancel));
@@ -58,15 +52,27 @@ namespace ZeroC.Ice
             : base(socket, streamId) => _socket = socket;
 
         /// <summary>Constructor for outgoing colocated stream</summary>
-        internal ColocatedStream(ColocatedSocket socket, bool isBidirectional, bool isControl)
-            : base(socket, isBidirectional, isControl) => _socket = socket;
+        internal ColocatedStream(ColocatedSocket socket, bool bidirectional, bool control)
+            : base(socket, bidirectional, control) => _socket = socket;
 
         internal void ReceivedFrame(object frame, bool fin)
         {
             if (IsSignaled)
             {
+                // The frame might already be signaled if the peer sends the request frame and then the request
+                // stream data. SignaledSocketStream can't queue multiple signals so we have to keep track of the
+                // second frame in _streamable here. This can only occur for the stream data and in this case
+                // fin should be true since the data frame is the last frame that will be sent.
+                //
+                // TODO: All this code needs to be revisited to no longer pass around the System.IO.Stream object
+                // from the client side to the server side but instead create a new stream object on the server
+                // side and copy the client stream into it. This will require to handle the queuing of multiple
+                // successive frames for a given stream.
                 Debug.Assert(fin);
                 _streamable = frame;
+
+                // If the signal got consumed by another thread in the meantime, make sure to signal the stream to
+                // ensure the ReceiveFrameAsync will wake-up and return the frame.
                 if (!IsSignaled)
                 {
                     SignalCompletion((frame, true));

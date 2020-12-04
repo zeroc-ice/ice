@@ -2401,7 +2401,7 @@ Slice::Module::hasNonClassTypes() const
          {
             return true;
         }
-        else if(ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
+        else if (ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
         {
             return true;
         }
@@ -4122,7 +4122,8 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
 
     if (!params.empty() && params.back()->stream())
     {
-        _unit->error("stream parameter `" + params.back()->name() + "' must be the last parameter");
+        _unit->error(stream ? "operations can have a single stream parameter as the last parameter" :
+                              ("stream parameter `" + params.back()->name() + "' must be the last parameter"));
     }
 
     if (tagged && tag > -1)
@@ -4160,7 +4161,7 @@ Slice::Operation::createReturnMember(const std::string& name, const TypePtr& typ
         }
     }
 
-    if(!_returnType.empty() && _returnType.back()->stream())
+    if (!_returnType.empty() && _returnType.back()->stream())
     {
         _unit->error("stream return value `" + _returnType.back()->name() + "' must be the last return value");
     }

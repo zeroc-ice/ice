@@ -43,8 +43,8 @@ namespace ZeroC.Ice
         {
         }
 
-        protected SignaledSocketStream(MultiStreamSocket socket, bool isBidirectional, bool isControl)
-            : base(socket, isBidirectional, isControl)
+        protected SignaledSocketStream(MultiStreamSocket socket, bool bidirectional, bool control)
+            : base(socket, bidirectional, control)
         {
         }
 

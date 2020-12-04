@@ -248,8 +248,8 @@ namespace ZeroC.Ice
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _socket.CloseAsync(exception, cancel);
 
-        public override SocketStream CreateStream(bool isBidirectional, bool isControl) =>
-            new SlicStream(this, isBidirectional, isControl);
+        public override SocketStream CreateStream(bool bidirectional, bool control) =>
+            new SlicStream(this, bidirectional, control);
 
         public override async ValueTask InitializeAsync(CancellationToken cancel)
         {

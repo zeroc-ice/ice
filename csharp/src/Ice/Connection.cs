@@ -259,7 +259,7 @@ namespace ZeroC.Ice
 
         internal void ClearAdapter(ObjectAdapter adapter) => Interlocked.CompareExchange(ref _adapter, null, adapter);
 
-        internal SocketStream CreateStream(bool isBidirectional)
+        internal SocketStream CreateStream(bool bidirectional)
         {
             // Ensure the stream is created in the active state only, no new streams should be created if the
             // connection is closing or closed.
@@ -270,7 +270,7 @@ namespace ZeroC.Ice
                     throw new ConnectionClosedException(isClosedByPeer: false,
                                                         RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
-                return Socket.CreateStream(isBidirectional, isControl: false);
+                return Socket.CreateStream(bidirectional, control: false);
             }
         }
 
@@ -539,7 +539,8 @@ namespace ZeroC.Ice
                 }
 
                 // Receives the request frame from the stream
-                IncomingRequestFrame request = await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
+                using IncomingRequestFrame request =
+                    await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
 
                 // If no adapter is configure to dispatch the request, return an ObjectNotExistException to the caller.
                 OutgoingResponseFrame response;

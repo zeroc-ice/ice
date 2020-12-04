@@ -199,24 +199,17 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
 
         if (members.back()->stream())
         {
-            if (i == 0)
+            if (members.size() == 1)
             {
-                if (members.size() == 1)
-                {
-                    _out << nl << "return socketStream => socketStream." << streamDataWriter(members.back()->type());
-                    _out << "(value, cancel);";
-                }
-                else
-                {
-                    _out << nl << "var streamableValue = value." + fieldName(members.back()) << ";";
-                }
                 _out << nl << "return socketStream => socketStream." << streamDataWriter(members.back()->type());
-                _out << "(" << (members.size() == 1 ? "value" : "streamableValue") << ", cancel);";
+                _out << "(value, cancel);";
             }
             else
             {
-                _out << nl << "return null;";
+                _out << nl << "var streamableValue = value." + fieldName(members.back()) << ";";
             }
+            _out << nl << "return socketStream => socketStream." << streamDataWriter(members.back()->type());
+            _out << "(" << (members.size() == 1 ? "value" : "streamableValue") << ", cancel);";
         }
 
         if (i == 0 && write11ReturnLast) // only for first loop
@@ -296,7 +289,7 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
                                      nullptr);
         }
 
-        if (i == 0 && members.back()->stream())
+        if (members.back()->stream())
         {
             _out << nl << paramTypeStr(members.back(), false) << " " << paramName(members.back(), "iceP_");
             _out << " = socketStream." << streamDataReader(members.back()->type()) << "();";
