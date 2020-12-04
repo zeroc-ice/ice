@@ -171,7 +171,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 var routerId = new Identity("router", "");
                 IRouterPrx router = obj.Clone(IRouterPrx.Factory, label: "rc", identity: routerId);
                 {
-                    using var adapter = communicator.CreateObjectAdapterWithRouter(router);
+                    using var adapter = communicator.CreateRoutedObjectAdapterAsync(router).GetAwaiter().GetResult();
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
                     string endpointsStr = adapter.PublishedEndpoints[0].ToString();
                     TestHelper.Assert(endpointsStr == "tcp -h localhost -p 23456 -t 60000");
@@ -181,7 +181,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 {
                     routerId = new Identity("test", "");
                     router = obj.Clone(IRouterPrx.Factory, identity: routerId);
-                    communicator.CreateObjectAdapterWithRouter(router);
+                    communicator.CreateRoutedObjectAdapterAsync(router).GetAwaiter().GetResult();
                     TestHelper.Assert(false);
                 }
                 catch (OperationNotExistException)
@@ -192,7 +192,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 try
                 {
                     router = IRouterPrx.Parse(helper.GetTestProxy("test", 1), communicator);
-                    communicator.CreateObjectAdapterWithRouter(router);
+                    communicator.CreateRoutedObjectAdapterAsync(router).GetAwaiter().GetResult();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectFailedException)
@@ -203,8 +203,10 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             {
                 try
                 {
-                    using var adapter = communicator.CreateObjectAdapterWithRouter(
-                        obj.Clone(IRouterPrx.Factory, label: "rc", identity: new Identity("router", "")));
+                    using var adapter = communicator.CreateRoutedObjectAdapterAsync(
+                        obj.Clone(IRouterPrx.Factory, label: "rc", identity: new Identity("router", ""))).
+                        GetAwaiter().GetResult();
+
                     TestHelper.Assert(false);
                 }
                 catch (ArgumentException)

@@ -84,6 +84,9 @@ namespace ZeroC.Ice
         /// <summary>Gets the default port of this endpoint.</summary>
         protected internal abstract ushort DefaultPort { get; }
 
+        /// <summary>Returns true when Host is a DNS name that needs to be resolved; otherwise, returns false.</summary>
+        protected internal virtual bool HasDnsHost => false;
+
         /// <summary>Indicates whether or not this endpoint has options with non default values that ToString would
         /// print. Always true for ice1 endpoints.</summary>
         protected internal abstract bool HasOptions { get; }
@@ -197,10 +200,10 @@ namespace ZeroC.Ice
 
         /// <summary>Expands endpoint into separate endpoints for each IP address returned by the DNS resolver.
         /// </summary>
-        /// <returns>A value task holding the expanded endpoints if Host is a DNS name or IP address; otherwise, a value
-        /// task holding an empty collection.</returns>
+        /// <returns>A value task holding the expanded endpoints if HasDnsHost is true; otherwise, throws
+        /// <see cref="InvalidOperationException"/>.</returns>
         protected internal virtual ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel) =>
-            new(ImmutableArray<Endpoint>.Empty);
+            throw new InvalidOperationException();
 
         /// <summary>Returns the published endpoint for this object adapter endpoint.</summary>
         /// <param name="serverName">The server name, to be used as the host of the published endpoint when the

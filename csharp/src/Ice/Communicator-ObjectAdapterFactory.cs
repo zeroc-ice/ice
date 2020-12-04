@@ -90,94 +90,58 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
-                var adapter = ObjectAdapter.Create(this, serializeDispatch, taskScheduler, protocol);
+                var adapter = new ObjectAdapter(this, serializeDispatch, taskScheduler, protocol);
                 _adapters.Add(adapter);
                 return adapter;
             }
         }
 
         /// <summary>Creates a new object adapter. The communicator uses the object adapter's name to lookup its
-        /// properties, such as name.Endpoints.</summary>
+        /// properties, such as name.Endpoints. Use
+        /// <see cref="CreateRoutedObjectAdapterAsync(string, IRouterPrx?, bool, TaskScheduler?, CancellationToken)"/>
+        /// to create a routed object adapter.</summary>
         /// <param name="name">The object adapter name. Cannot be empty.</param>
         /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
         /// <returns>The new object adapter.</returns>
         public ObjectAdapter CreateObjectAdapter(
             string name,
             bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default) =>
-            CreateObjectAdapterAsync(name, serializeDispatch, taskScheduler, cancel).GetResult();
-
-        /// <summary>Creates a new object adapter. The communicator uses the object adapter's name to lookup its
-        /// properties, such as name.Endpoints.</summary>
-        /// <param name="name">The object adapter name. Cannot be empty.</param>
-        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
-        /// of requests received over the same connection.</param>
-        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A value task holding the new object adapter.</returns>
-        public ValueTask<ObjectAdapter> CreateObjectAdapterAsync(
-            string name,
-            bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default) =>
-            CreateObjectAdapterAsync(name, serializeDispatch, taskScheduler, null, cancel);
+            TaskScheduler? taskScheduler = null)
+        {
+            lock (_mutex)
+            {
+                ObjectAdapter adapter;
+                AddName(name);
+                try
+                {
+                    adapter = new ObjectAdapter(this, name, serializeDispatch, taskScheduler);
+                }
+                catch
+                {
+                    RemoveName(name);
+                    throw;
+                }
+                _adapters.Add(adapter);
+                return adapter;
+            }
+        }
 
         /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
         /// to setting the name.Endpoints property and then calling
-        /// <see cref="CreateObjectAdapter(string, bool, TaskScheduler?, CancellationToken)"/>.</summary>
+        /// <see cref="CreateObjectAdapter(string, bool, TaskScheduler?)"/>.</summary>
         /// <param name="name">The object adapter name. Cannot be empty.</param>
         /// <param name="endpoints">The endpoint string for the object adapter.</param>
         /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
         /// <returns>The new object adapter.</returns>
         public ObjectAdapter CreateObjectAdapterWithEndpoints(
             string name,
             string endpoints,
             bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default) =>
-            CreateObjectAdapterWithEndpointsAsync(name, endpoints, serializeDispatch, taskScheduler, cancel).
-                GetResult();
-
-        /// <summary>Creates a new object adapter with the specified endpoint string. This method generates a UUID for
-        /// the object adapter name and then calls
-        /// <see cref="CreateObjectAdapterWithEndpoints(string, string, bool, TaskScheduler?, CancellationToken)"/>.
-        /// </summary>
-        /// <param name="endpoints">The endpoint string for the object adapter.</param>
-        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
-        /// of requests received over the same connection.</param>
-        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithEndpoints(
-            string endpoints,
-            bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default) =>
-            CreateObjectAdapterWithEndpointsAsync(endpoints, serializeDispatch, taskScheduler, cancel).GetResult();
-
-        /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
-        /// to setting the name.Endpoints property and then calling
-        /// <see cref="CreateObjectAdapterAsync(string, bool, TaskScheduler?, CancellationToken)"/>.</summary>
-        /// <param name="name">The object adapter name. Cannot be empty.</param>
-        /// <param name="endpoints">The endpoint string for the object adapter.</param>
-        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
-        /// of requests received over the same connection.</param>
-        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A value task holding the new object adapter.</returns>
-        public ValueTask<ObjectAdapter> CreateObjectAdapterWithEndpointsAsync(
-            string name,
-            string endpoints,
-            bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default)
+            TaskScheduler? taskScheduler = null)
         {
             if (name.Length == 0)
             {
@@ -185,78 +149,40 @@ namespace ZeroC.Ice
             }
 
             SetProperty($"{name}.Endpoints", endpoints);
-            return CreateObjectAdapterAsync(name, serializeDispatch, taskScheduler, cancel);
+            return CreateObjectAdapter(name, serializeDispatch, taskScheduler);
         }
 
         /// <summary>Creates a new object adapter with the specified endpoint string. This method generates a UUID for
         /// the object adapter name and then calls
-        /// <see cref="CreateObjectAdapterWithEndpoints(string, string, bool, TaskScheduler?, CancellationToken)"/>.
+        /// <see cref="CreateObjectAdapterWithEndpoints(string, string, bool, TaskScheduler?)"/>.
         /// </summary>
         /// <param name="endpoints">The endpoint string for the object adapter.</param>
         /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A value task holding the new object adapter.</returns>
-        public ValueTask<ObjectAdapter> CreateObjectAdapterWithEndpointsAsync(
+        /// <returns>The new object adapter.</returns>
+        public ObjectAdapter CreateObjectAdapterWithEndpoints(
             string endpoints,
             bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default) =>
-            CreateObjectAdapterWithEndpointsAsync(Guid.NewGuid().ToString(),
-                                                  endpoints,
-                                                  serializeDispatch,
-                                                  taskScheduler,
-                                                  cancel);
+            TaskScheduler? taskScheduler = null) =>
+            CreateObjectAdapterWithEndpoints(Guid.NewGuid().ToString(),
+                                             endpoints,
+                                             serializeDispatch,
+                                             taskScheduler);
 
-        /// <summary>Creates a new object adapter with the specified router proxy. Calling this method is equivalent
-        /// to setting the name.Router property and then calling
-        /// <see cref="CreateObjectAdapter(string, bool, TaskScheduler?, CancellationToken)"/>.</summary>
+        /// <summary>Creates a new object adapter with a router. The router can be provided as an explicit parameter or
+        /// through configuration.</summary>
         /// <param name="name">The object adapter name. Cannot be empty.</param>
-        /// <param name="router">The proxy to the router.</param>
+        /// <param name="router">The proxy to the router. If null, this proxy must be provided through configuration.
+        /// </param>
         /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <param name="cancel">The cancellation token.</param>
-        /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(
+        /// <returns>A task holding the new object adapter.</returns>
+        public async Task<ObjectAdapter> CreateRoutedObjectAdapterAsync(
             string name,
-            IRouterPrx router,
-            bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default) =>
-            CreateObjectAdapterWithRouterAsync(name, router, serializeDispatch, taskScheduler, cancel).GetResult();
-
-        /// <summary>Creates a new object adapter with the specified router proxy. This method generates a UUID for
-        /// the object adapter name and then calls
-        /// <see cref="CreateObjectAdapterWithRouter(string, IRouterPrx, bool, TaskScheduler?, CancellationToken)"/>.
-        /// </summary>
-        /// <param name="router">The proxy to the router.</param>
-        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
-        /// of requests received over the same connection.</param>
-        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(
-            IRouterPrx router,
-            bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null,
-            CancellationToken cancel = default) =>
-            CreateObjectAdapterWithRouterAsync(router, serializeDispatch, taskScheduler, cancel).GetResult();
-
-        /// <summary>Creates a new object adapter with the specified router proxy. Calling this method is equivalent to
-        /// setting the name.Router property and then calling
-        /// <see cref="CreateObjectAdapterAsync(string, bool, TaskScheduler?, CancellationToken)"/>.</summary>
-        /// <param name="name">The object adapter name. Cannot be empty.</param>
-        /// <param name="router">The proxy to the router.</param>
-        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
-        /// of requests received over the same connection.</param>
-        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A value task holding the new object adapter.</returns>
-        public ValueTask<ObjectAdapter> CreateObjectAdapterWithRouterAsync(
-            string name,
-            IRouterPrx router,
+            IRouterPrx? router = null,
             bool serializeDispatch = false,
             TaskScheduler? taskScheduler = null,
             CancellationToken cancel = default)
@@ -266,36 +192,80 @@ namespace ZeroC.Ice
                 throw new ArgumentException("the empty string is not a valid object adapter name", nameof(name));
             }
 
-            // We set the proxy properties here, although we still use the proxy supplied.
-            Dictionary<string, string> properties = router.ToProperty($"{name}.Router");
-            foreach (KeyValuePair<string, string> entry in properties)
+            if (router != null)
             {
-                SetProperty(entry.Key, entry.Value);
+                // We set the proxy properties here, although we still use the proxy supplied.
+                Dictionary<string, string> properties = router.ToProperty($"{name}.Router");
+                foreach (KeyValuePair<string, string> entry in properties)
+                {
+                    SetProperty(entry.Key, entry.Value);
+                }
+            }
+            else
+            {
+                // Retrieve router proxy from configuration
+                router = GetPropertyAsProxy($"{name}.Router", IRouterPrx.Factory) ??
+                    throw new InvalidConfigurationException($"`{name}' has no Router configuration");
             }
 
-            return CreateObjectAdapterAsync(name, serializeDispatch, taskScheduler, router, cancel);
+            AddName(name);
+
+            ObjectAdapter adapter;
+            try
+            {
+                adapter = await ObjectAdapter.CreateRoutedAsync(
+                    this,
+                    name,
+                    router,
+                    serializeDispatch,
+                    taskScheduler,
+                    cancel).ConfigureAwait(false);
+            }
+            catch
+            {
+                RemoveName(name);
+                throw;
+            }
+
+            bool disposed;
+            lock (_mutex)
+            {
+                disposed = IsDisposed;
+                if (!disposed)
+                {
+                    _adapters.Add(adapter);
+                }
+            }
+
+            if (disposed)
+            {
+                await adapter.DisposeAsync().ConfigureAwait(false);
+                throw new CommunicatorDisposedException();
+            }
+
+            return adapter;
         }
 
         /// <summary>Creates a new object adapter with the specified router proxy. This method generates a UUID for the
         /// object adapter name and then calls <see
-        /// cref="CreateObjectAdapterWithRouterAsync(string, IRouterPrx, bool, TaskScheduler?, CancellationToken)"/>.
+        /// cref="CreateRoutedObjectAdapterAsync(string, IRouterPrx?, bool, TaskScheduler?, CancellationToken)"/>.
         /// </summary>
         /// <param name="router">The proxy to the router.</param>
         /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A value task holding the new object adapter.</returns>
-        public ValueTask<ObjectAdapter> CreateObjectAdapterWithRouterAsync(
+        /// <returns>The new object adapter.</returns>
+        public Task<ObjectAdapter> CreateRoutedObjectAdapterAsync(
             IRouterPrx router,
             bool serializeDispatch = false,
             TaskScheduler? taskScheduler = null,
             CancellationToken cancel = default) =>
-            CreateObjectAdapterWithRouterAsync(Guid.NewGuid().ToString(),
-                                               router,
-                                               serializeDispatch,
-                                               taskScheduler,
-                                               cancel);
+            CreateRoutedObjectAdapterAsync(Guid.NewGuid().ToString(),
+                                           router,
+                                           serializeDispatch,
+                                           taskScheduler,
+                                           cancel);
 
         internal Endpoint? GetColocatedEndpoint(Reference reference)
         {
@@ -341,12 +311,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask<ObjectAdapter> CreateObjectAdapterAsync(
-            string name,
-            bool serializeDispatch,
-            TaskScheduler? taskScheduler,
-            IRouterPrx? router,
-            CancellationToken cancel)
+        private void AddName(string name)
         {
             if (name.Length == 0)
             {
@@ -366,40 +331,13 @@ namespace ZeroC.Ice
                                                 nameof(name));
                 }
             }
+        }
 
-            ObjectAdapter adapter;
-            try
-            {
-                adapter = await ObjectAdapter.CreateAsync(this, name, serializeDispatch, taskScheduler, router, cancel).
-                    ConfigureAwait(false);
-            }
-            catch
-            {
-                lock (_mutex)
-                {
-                    _adapterNamesInUse.Remove(name);
-                }
-                throw;
-            }
-
-            bool disposed;
+        private void RemoveName(string name)
+        {
             lock (_mutex)
             {
-                disposed = IsDisposed;
-                if (!disposed)
-                {
-                    _adapters.Add(adapter);
-                }
-            }
-
-            if (disposed)
-            {
-                await adapter.DisposeAsync().ConfigureAwait(false);
-                throw new CommunicatorDisposedException();
-            }
-            else
-            {
-                return adapter;
+                _adapterNamesInUse.Remove(name);
             }
         }
     }

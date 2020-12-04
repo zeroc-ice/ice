@@ -164,11 +164,11 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.Enabled", "1" }
                 };
                 using var com = new Communicator(properties);
-                TestHelper.Assert(com.GetAdmin() == null);
+                TestHelper.Assert(com.GetAdminAsync().AsTask().GetAwaiter().GetResult() == null);
                 var id = Identity.Parse("test-admin");
                 try
                 {
-                    com.CreateAdmin(null, id);
+                    _ = com.CreateAdminAsync(null, id).GetAwaiter().GetResult();
                     TestHelper.Assert(false);
                 }
                 catch (InvalidConfigurationException)
@@ -176,8 +176,8 @@ namespace ZeroC.Ice.Test.Admin
                 }
 
                 ObjectAdapter adapter = com.CreateObjectAdapter();
-                TestHelper.Assert(com.CreateAdmin(adapter, id) != null);
-                TestHelper.Assert(com.GetAdmin() != null);
+                TestHelper.Assert(com.CreateAdminAsync(adapter, id).GetAwaiter().GetResult() != null);
+                TestHelper.Assert(com.GetAdminAsync().AsTask().GetAwaiter().GetResult() != null);
 
                 TestFacets(com, true, false);
             }
@@ -193,7 +193,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 using var com = new Communicator(properties);
                 TestFacets(com, true, false);
-                com.GetAdmin();
+                com.GetAdminAsync().AsTask().GetAwaiter().GetResult();
                 TestFacets(com, true, false);
             }
             output.WriteLine("ok");
