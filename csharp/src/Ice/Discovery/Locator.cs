@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace ZeroC.Ice.Discovery
 {
     /// <summary>Servant class that implements the Slice interface Ice::Locator.</summary>
-    internal class Locator : IAsyncLocator
+    internal class Locator : IAsyncLocator, IAsyncDisposable
     {
         private readonly string _domainId;
         private readonly int _latencyMultiplier;
@@ -27,13 +27,16 @@ namespace ZeroC.Ice.Discovery
 
         private readonly ObjectAdapter _multicastAdapter;
 
-        private readonly ILocatorPrx _proxy;
-
         private readonly ILocatorRegistryPrx _registry;
 
         private readonly ObjectAdapter _replyAdapter;
         private readonly int _retryCount;
         private readonly TimeSpan _timeout;
+
+        public ValueTask DisposeAsync() =>
+             new(Task.WhenAll(_locatorAdapter.DisposeAsync().AsTask(),
+                              _multicastAdapter.DisposeAsync().AsTask(),
+                              _replyAdapter.DisposeAsync().AsTask()));
 
         public async ValueTask<IObjectPrx?> FindAdapterByIdAsync(
             string adapterId,
@@ -136,7 +139,8 @@ namespace ZeroC.Ice.Discovery
                     adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty);
         }
 
-        internal static ILocatorPrx Initialize(Communicator communicator) => new Locator(communicator)._proxy;
+        internal static Task<ILocatorPrx> CreateAsync(Communicator communicator) =>
+            new Locator(communicator).InitAsync();
 
         private Locator(Communicator communicator)
         {
@@ -150,19 +154,6 @@ namespace ZeroC.Ice.Discovery
             }
             communicator.SetProperty("Ice.Discovery.Multicast.AcceptNonSecure", "Always");
 
-            string? lookupEndpoints = communicator.GetProperty("Ice.Discovery.Lookup");
-            if (lookupEndpoints == null)
-            {
-                List<string> endpoints = new();
-                List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
-                List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
-
-                endpoints.AddRange(ipv4Interfaces.Select(i => $"{defaultIPv4Endpoint} --interface \"{i}\""));
-                endpoints.AddRange(ipv6Interfaces.Select(i => $"{defaultIPv6Endpoint} --interface \"{i}\""));
-
-                lookupEndpoints = string.Join(":", endpoints);
-            }
-
             if (communicator.GetProperty("Ice.Discovery.Reply.Endpoints") == null)
             {
                 communicator.SetProperty("Ice.Discovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
@@ -172,10 +163,6 @@ namespace ZeroC.Ice.Discovery
             communicator.SetProperty("Ice.Discovery.Reply.ProxyOptions", "-d");
             // datagram connection are nonsecure
             communicator.SetProperty("Ice.Discovery.Reply.AcceptNonSecure", "Always");
-
-            _multicastAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Multicast");
-            _replyAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Reply");
-            _locatorAdapter = communicator.CreateObjectAdapter();
 
             _timeout = communicator.GetPropertyAsTimeSpan("Ice.Discovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
             if (_timeout == Timeout.InfiniteTimeSpan)
@@ -194,19 +181,43 @@ namespace ZeroC.Ice.Discovery
 
             _domainId = communicator.GetProperty("Ice.Discovery.DomainId") ?? "";
 
-            // Datagram proxies do not support SSL/TLS so they can only be used with PreferNonSecure set to true
+            string? lookupEndpoints = communicator.GetProperty("Ice.Discovery.Lookup");
+            if (lookupEndpoints == null)
+            {
+                List<string> endpoints = new();
+                List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
+                List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
+
+                endpoints.AddRange(ipv4Interfaces.Select(i => $"{defaultIPv4Endpoint} --interface \"{i}\""));
+                endpoints.AddRange(ipv6Interfaces.Select(i => $"{defaultIPv6Endpoint} --interface \"{i}\""));
+
+                lookupEndpoints = string.Join(":", endpoints);
+            }
+
+            // Datagram proxies do not support SSL/TLS so they can only be used with PreferNonSecure set to
+            // NonSecure.Always.
             _lookup = ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
                 clearRouter: true,
                 invocationTimeout: _timeout,
                 preferNonSecure: NonSecure.Always);
 
-            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
-            // of the lookup proxy.
+            _locatorAdapter = communicator.CreateObjectAdapter();
+
+            // Setup locator registry.
+            var registryServant = new LocatorRegistry(communicator);
+            _registry = _locatorAdapter.AddWithUUID(registryServant, ILocatorRegistryPrx.Factory);
+
+            _multicastAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Multicast");
+            _replyAdapter = communicator.CreateObjectAdapter("Ice.Discovery.Reply");
 
             // Dummy proxy for replies which can have multiple endpoints (but see below).
             IObjectPrx lookupReply = _replyAdapter.CreateProxy("dummy", IObjectPrx.Factory);
             Debug.Assert(lookupReply.InvocationMode == InvocationMode.Datagram);
 
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on
+            // each of the lookup proxy.
+            // TODO: this code is incorrect now that the default published endpoints are no longer an expansion
+            // of the object adapter endpoints.
             foreach (Endpoint endpoint in _lookup.Endpoints)
             {
                 if (!endpoint.IsDatagram)
@@ -232,19 +243,25 @@ namespace ZeroC.Ice.Discovery
             }
             Debug.Assert(_lookups.Count > 0);
 
-            _proxy = _locatorAdapter.AddWithUUID(this, ILocatorPrx.Factory);
-
-            // Setup locator registry.
-            var locatorRegistryServant = new LocatorRegistry(communicator);
-            _registry = _locatorAdapter.AddWithUUID(locatorRegistryServant, ILocatorRegistryPrx.Factory);
-
             // Add lookup Ice object
-            var lookupServant = new Lookup(locatorRegistryServant, communicator);
-            _multicastAdapter.Add("IceDiscovery/Lookup", lookupServant);
+            _multicastAdapter.Add("IceDiscovery/Lookup", new Lookup(registryServant, communicator));
+        }
 
-            _multicastAdapter.Activate();
-            _replyAdapter.Activate();
-            _locatorAdapter.Activate();
+        private async Task<ILocatorPrx> InitAsync()
+        {
+            try
+            {
+                await _multicastAdapter.ActivateAsync().ConfigureAwait(false);
+                await _replyAdapter.ActivateAsync().ConfigureAwait(false);
+                await _locatorAdapter.ActivateAsync().ConfigureAwait(false);
+
+                return _locatorAdapter.AddWithUUID(this, ILocatorPrx.Factory);
+            }
+            catch
+            {
+                await DisposeAsync().ConfigureAwait(false);
+                throw;
+            }
         }
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>

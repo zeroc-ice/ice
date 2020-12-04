@@ -710,7 +710,7 @@ namespace ZeroC.Ice
                 {
                     if (defaultLocatorValue.Equals("discovery", StringComparison.OrdinalIgnoreCase))
                     {
-                        _defaultLocator = Discovery.Locator.Initialize(this);
+                        _defaultLocator = Discovery.Locator.CreateAsync(this).GetAwaiter().GetResult();
                     }
                     else if (defaultLocatorValue.Equals("locatordiscovery", StringComparison.OrdinalIgnoreCase))
                     {
