@@ -33,7 +33,8 @@ namespace ZeroC.Ice
         public Communicator Communicator { get; }
 
         /// <summary>Returns the endpoints this object adapter is listening on.</summary>
-        /// <returns>The endpoints. They may contain DNS names.</returns>
+        /// <returns>The endpoints configured on the object adapter; for IP endpoints, port 0 is substituted by the
+        /// actual port selected by the operating system.</returns>
         public IReadOnlyList<Endpoint> Endpoints { get; } = ImmutableArray<Endpoint>.Empty;
 
         /// <summary>The locator proxy associated with this object adapter, if any. The object adapter registers itself
@@ -181,8 +182,10 @@ namespace ZeroC.Ice
                 _interceptors.AddRange(Communicator.DispatchInterceptors);
                 _interceptors.AddRange(interceptors);
 
-                if (expandedEndpoints != null && _incomingConnectionFactories.Count == 0)
+                if (expandedEndpoints != null)
                 {
+                    Debug.Assert(_incomingConnectionFactories.Count == 0);
+
                     _incomingConnectionFactories.AddRange(
                         expandedEndpoints.Select<Endpoint, IncomingConnectionFactory>(
                             endpoint =>
@@ -858,14 +861,12 @@ namespace ZeroC.Ice
                         nameof(router));
                 }
 
-                // Associate this object adapter with the router. This way, new outgoing connections to the
-                // router's client proxy will use this object adapter for callbacks.
+                // Associate this object adapter with the router. This way, new outgoing connections to the router's
+                // client proxy will use this object adapter for callbacks.
                 _routerInfo.Adapter = this;
             }
             else
             {
-                // Parse the endpoints and store them temporarily in Endpoints. InitAsync will update them.
-
                 if (Communicator.GetProperty($"{Name}.Endpoints") is string value)
                 {
                     if (UriParser.IsEndpointUri(value))
@@ -889,6 +890,7 @@ namespace ZeroC.Ice
                                 }' accepts non-secure connections");
                         }
                     }
+                    Debug.Assert(Endpoints.Count > 0);
 
                     if (Endpoints.Any(endpoint => endpoint is IPEndpoint ipEndpoint && ipEndpoint.Port == 0))
                     {
@@ -898,7 +900,7 @@ namespace ZeroC.Ice
                                 }': only one endpoint is allowed when a dynamic IP port (:0) is configured");
                         }
 
-                        if (Endpoints[0] is IPEndpoint ipEndpoint && ipEndpoint.Address == IPAddress.None)
+                        if (Endpoints[0].HasDnsHost)
                         {
                             throw new InvalidConfigurationException(@$"object adapter `{Name
                                 }': use an IP address to configure an endpoint with a dynamic port (:0)");
@@ -917,15 +919,7 @@ namespace ZeroC.Ice
                         // Replace Endpoints using the factories.
                         Endpoints = _incomingConnectionFactories.Select(factory => factory.Endpoint).ToImmutableArray();
                     }
-
-                    if (Endpoints.Count == 0)
-                    {
-                        if (Communicator.TraceLevels.Transport >= 2)
-                        {
-                            Communicator.Logger.Trace(TraceLevels.TransportCategory,
-                                                      $"created adapter `{Name}' without endpoints");
-                        }
-                    }
+                    // else keep Endpoints as-is. They do not contain port 0 since DNS name with port 0 is disallowed.
                 }
                 else
                 {
@@ -1002,13 +996,12 @@ namespace ZeroC.Ice
             return (noProps, unknownProps);
         }
 
-        /// <summary>Initializes a routed object adapter asynchronously. This method is called by CreateRoutedAsync.
-        /// </summary>
+        /// <summary>Initializes a routed object adapter asynchronously. This method is called by
+        /// <see cref="CreateRoutedAsync"/>.</summary>
         /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A task holding this object adapter.</returns>
+        /// <returns>The initialized object adapter.</returns>
         private async Task<ObjectAdapter> InitAsync(CancellationToken cancel)
         {
-            Debug.Assert(Name.Length > 0);
             Debug.Assert(_routerInfo != null);
 
             try
