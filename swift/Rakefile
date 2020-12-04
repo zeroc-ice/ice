@@ -101,7 +101,6 @@ def create_project(name, bindist)
         config.build_settings["CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER"] = "YES"
         # Disable header maps as they cause problems with parallel builds on Xcode 12
         config.build_settings["USE_HEADERMAP"] = "NO"
-        config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F";
     end
 
     [:osx, :ios].each do |platform|
