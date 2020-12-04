@@ -555,6 +555,7 @@ namespace ZeroC.Ice
                 Task task;
                 lock (_mutex)
                 {
+                    // Allocate a new ID according to the Quic numbering scheme.
                     if (stream.IsBidirectional)
                     {
                         stream.Id = _nextBidirectionalId;

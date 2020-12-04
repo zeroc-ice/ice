@@ -175,45 +175,57 @@ namespace ZeroC.Ice
             bool fin,
             CancellationToken cancel)
         {
-            if (stream.IsStarted)
+            try
             {
-                await _writer.WriteAsync((stream.Id, frame, fin), cancel).ConfigureAwait(false);
+                if (stream.IsStarted)
+                {
+                    await _writer.WriteAsync((stream.Id, frame, fin), cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    Debug.Assert(!stream.IsIncoming);
+
+                    if (!stream.IsControl)
+                    {
+                        // If serialization is enabled on the adapter, we wait on the semaphore to ensure that no more
+                        // than one stream is active. The wait is done the client side to ensure the sent callback for
+                        // the request isn't called until the adapter is ready to dispatch a new request.
+                        AsyncSemaphore? semaphore = stream.IsBidirectional ?
+                            _bidirectionalSerializeSemaphore : _unidirectionalSerializeSemaphore;
+                        if (semaphore != null)
+                        {
+                            await semaphore.WaitAsync(cancel).ConfigureAwait(false);
+                        }
+                    }
+
+                    // Ensure we allocate and queue the first stream frame atomically to ensure the receiver won't
+                    // receive stream frames with out-of-order stream IDs.
+                    ValueTask task;
+                    lock (_mutex)
+                    {
+                        // Allocate a new ID according to the Quic numbering scheme.
+                        if (stream.IsBidirectional)
+                        {
+                            stream.Id = _nextBidirectionalId;
+                            _nextBidirectionalId += 4;
+                        }
+                        else
+                        {
+                            stream.Id = _nextUnidirectionalId;
+                            _nextUnidirectionalId += 4;
+                        }
+                        task = _writer.WriteAsync((stream.Id, frame, fin), cancel);
+                    }
+                    await task.ConfigureAwait(false);
+                }
             }
-            else
+            catch (OperationCanceledException)
             {
-                Debug.Assert(!stream.IsIncoming);
-
-                if (!stream.IsControl)
-                {
-                    // If serialization is enabled on the adapter, we wait on the semaphore to ensure that no more than
-                    // one stream is active. The wait is done the client side to ensure the sent callback for the
-                    // request isn't called until the adapter is ready to dispatch a new request.
-                    AsyncSemaphore? semaphore = stream.IsBidirectional ?
-                        _bidirectionalSerializeSemaphore : _unidirectionalSerializeSemaphore;
-                    if (semaphore != null)
-                    {
-                        await semaphore.WaitAsync(cancel).ConfigureAwait(false);
-                    }
-                }
-
-                // Ensure we allocate and queue the first stream frame atomically to ensure the receiver won't
-                // receive stream frames with out-of-order stream IDs.
-                ValueTask task;
-                lock (_mutex)
-                {
-                    if (stream.IsBidirectional)
-                    {
-                        stream.Id = _nextBidirectionalId;
-                        _nextBidirectionalId += 4;
-                    }
-                    else
-                    {
-                        stream.Id = _nextUnidirectionalId;
-                        _nextUnidirectionalId += 4;
-                    }
-                    task = _writer.WriteAsync((stream.Id, frame, fin), cancel);
-                }
-                await task.ConfigureAwait(false);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
     }

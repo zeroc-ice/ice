@@ -190,6 +190,11 @@ namespace ZeroC.Ice
                                                     _peerAddr).WaitAsync(cancel).ConfigureAwait(false);
                 }
             }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.MessageSize)
+            {
+                // Don't retry if the datagram can't be sent because its too large.
+                throw new TransportException(ex, RetryPolicy.NoRetry);
+            }
             catch (Exception ex)
             {
                 if (ex.IsConnectionLost())

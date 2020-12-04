@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
-
+        internal int RequestId => IsBidirectional ? ((int)(Id >> 2) + 1) : 0;
         private bool _receivedEndOfStream;
         private readonly Ice1NetworkSocket _socket;
 
@@ -34,11 +34,17 @@ namespace ZeroC.Ice
             // Stream reset is not supported with Ice1
             new ValueTask();
 
-        protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
-            _socket.SendFrameAsync(buffer, cancel);
+        protected async override ValueTask SendAsync(
+            IList<ArraySegment<byte>> buffer,
+            bool fin,
+            CancellationToken cancel) =>
+            await _socket.SendFrameAsync(this, buffer, false, cancel).ConfigureAwait(false);
 
         internal Ice1NetworkSocketStream(Ice1NetworkSocket socket, long streamId)
             : base(socket, streamId) => _socket = socket;
+
+        internal Ice1NetworkSocketStream(Ice1NetworkSocket socket, bool bidirectional, bool control)
+            : base(socket, bidirectional, control) => _socket = socket;
 
         internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame)
         {
@@ -98,39 +104,17 @@ namespace ZeroC.Ice
             }
             int size = frame.Size + Ice1Definitions.HeaderSize + 4;
             headerData.AsSpan(10, 4).WriteInt(size);
-            // Write the request ID
-            headerData.AsSpan(Ice1Definitions.HeaderSize).WriteInt(IsBidirectional ? ((int)(Id >> 2) + 1) : 0);
+            // Note: we don't write the request ID here if the stream ID is not allocated yet. We want to allocate
+            // it from the send queue to ensure requests are sent in the same order as the request ID values.
+            if (IsStarted)
+            {
+                headerData.AsSpan(Ice1Definitions.HeaderSize).WriteInt(RequestId);
+            }
             buffer.Add(headerData);
             buffer.AddRange(frame.Data);
 
-            byte compressionStatus = 0;
-            if (BZip2.IsLoaded && frame.Compress)
-            {
-                List<ArraySegment<byte>>? compressed = null;
-                if (size >= _socket.Endpoint.Communicator.CompressionMinSize)
-                {
-                    compressed = BZip2.Compress(buffer,
-                                                size,
-                                                Ice1Definitions.HeaderSize,
-                                                _socket.Endpoint.Communicator.CompressionLevel);
-                }
-
-                if (compressed != null)
-                {
-                    // Message compressed, get the compression status and ensure we send the compressed message.
-                    buffer = compressed;
-                    compressionStatus = buffer[0][9];
-                }
-                else
-                {
-                    // Message not compressed, request compressed response, if any and write the compression status.
-                    compressionStatus = 1;
-                    ArraySegment<byte> header = buffer[0];
-                    header[9] = compressionStatus; // Write the compression status
-                }
-            }
-
-            await _socket.SendFrameAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+            byte compressionStatus =
+                await _socket.SendFrameAsync(this, buffer, frame.Compress, cancel).ConfigureAwait(false);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {

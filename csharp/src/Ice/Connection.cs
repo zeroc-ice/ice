@@ -139,8 +139,6 @@ namespace ZeroC.Ice
         private EventHandler? _closed;
         // The close task is assigned when GoAwayAsync or AbortAsync are called, it's protected with _mutex.
         private Task? _closeTask;
-        // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
-        private (long Bidirectional, long Unidirectional) _lastIncomingStreamIds;
         // The mutex protects mutable non-volatile data members and ensures the logic for some operations is
         // performed atomically.
         private readonly object _mutex = new();
@@ -298,14 +296,11 @@ namespace ZeroC.Ice
 
             async Task PerformGoAwayAsync(Exception exception)
             {
-                // Abort outgoing streams and get the largest incoming stream ID. With Ice2, we don't wait for
+                // Abort outgoing streams and get the largest incoming stream IDs. With Ice2, we don't wait for
                 // the incoming streams to complete before sending the GoAway frame but instead provide the ID
-                // of the latest incoming stream ID to the peer. The peer will close the connection once it
-                // received the response for this stream ID.
-                _lastIncomingStreamIds = Socket.AbortStreams(exception, stream => !stream.IsIncoming);
-
-                // Yield to ensure the code below is executed without the mutex locked.
-                await Task.Yield();
+                // of the latest incoming stream IDs to the peer. The peer will close the connection only once
+                // the streams with IDs inferior or equal to the largest stream IDs are complete.
+                (long, long) lastIncomingStreamIds = Socket.AbortStreams(exception, stream => !stream.IsIncoming);
 
                 // With Ice1, we first wait for all incoming streams to complete before sending the GoAway frame.
                 if (Endpoint.Protocol == Protocol.Ice1)
@@ -320,7 +315,7 @@ namespace ZeroC.Ice
                     CancellationToken cancel = source.Token;
 
                     // Write the close frame
-                    await _controlStream!.SendGoAwayFrameAsync(_lastIncomingStreamIds,
+                    await _controlStream!.SendGoAwayFrameAsync(lastIncomingStreamIds,
                                                                exception.Message,
                                                                cancel).ConfigureAwait(false);
 
@@ -474,16 +469,16 @@ namespace ZeroC.Ice
             {
                 await Socket.AbortAsync(exception).ConfigureAwait(false);
 
-                // Yield to ensure the code below is executed without the mutex locked (PerformAbortAsync is called
-                // with the mutex locked).
-                await Task.Yield();
-
                 // Dispose of the socket.
                 Socket.Dispose();
 
                 _timer?.Dispose();
 
-                // Raise the Closed event
+                // Yield to ensure the code below is executed without the mutex locked (PerformAbortAsync is called
+                // with the mutex locked).
+                await Task.Yield();
+
+                // Raise the Closed event, this will call user code so we shouldn't hold the mutex.
                 try
                 {
                     _closed?.Invoke(this, EventArgs.Empty);
@@ -492,6 +487,10 @@ namespace ZeroC.Ice
                 {
                     Communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
                 }
+
+                // Remove the connection from its factory. This must be called without the connection's mutex locked
+                // because the factory needs to acquire an internal mutex and the factory might call on the connection
+                // with its internal mutex locked.
                 _remove?.Invoke(this);
             }
         }
@@ -501,31 +500,11 @@ namespace ZeroC.Ice
             SocketStream? stream = null;
             try
             {
-                while (true)
-                {
-                    // Accept a new stream.
-                    stream = await Socket.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
+                // Accept a new stream.
+                stream = await Socket.AcceptStreamAsync(CancellationToken.None).ConfigureAwait(false);
 
-                    // Ignore the stream if the connection is being closed and the stream ID superior to the last
-                    // incoming stream ID to be processed. The loop will eventually terminate when the peer closes
-                    // the connection.
-                    if (_state != ConnectionState.Active)
-                    {
-                        lock (_mutex)
-                        {
-                            if (stream.Id > (stream.IsBidirectional ? _lastIncomingStreamIds.Bidirectional :
-                                                                      _lastIncomingStreamIds.Unidirectional))
-                            {
-                                stream.Dispose();
-                                continue;
-                            }
-                        }
-                    }
-
-                    // Start a new accept stream task otherwise to accept another stream.
-                    _acceptStreamTask = Task.Run(() => AcceptStreamAsync().AsTask());
-                    break;
-                }
+                // Start a new accept stream task otherwise to accept another stream.
+                _acceptStreamTask = Task.Run(() => AcceptStreamAsync().AsTask());
 
                 using var cancelSource = new CancellationTokenSource();
                 CancellationToken cancel = cancelSource.Token;
@@ -715,10 +694,6 @@ namespace ZeroC.Ice
                                               stream.IsBidirectional ?
                                                   stream.Id > lastStreamIds.Bidirectional :
                                                   stream.Id > lastStreamIds.Unidirectional);
-
-                // Yield to ensure the code below is executed without the mutex locked (PerformGoAwayAsync is called
-                // with the mutex locked).
-                await Task.Yield();
 
                 // Wait for all the streams to complete.
                 await Socket.WaitForEmptyStreamsAsync().ConfigureAwait(false);

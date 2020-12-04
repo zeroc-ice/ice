@@ -23,11 +23,10 @@ namespace ZeroC.Ice
 
         private readonly AsyncSemaphore? _bidirectionalSerializeSemaphore;
         // The mutex is used to protect the next stream IDs and the send queue.
-        private readonly object _mutex = new();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
         private long _nextPeerUnidirectionalId;
-        private Task _sendTask = Task.CompletedTask;
+        private readonly AsyncSemaphore _sendSemaphore = new AsyncSemaphore(1);
         private readonly SingleStreamSocket _socket;
         private readonly AsyncSemaphore? _unidirectionalSerializeSemaphore;
 
@@ -182,25 +181,8 @@ namespace ZeroC.Ice
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _socket.CloseAsync(exception, cancel);
 
-        public override SocketStream CreateStream(bool bidirectional, bool control)
-        {
-            lock (_mutex)
-            {
-                Debug.Assert(!control || (bidirectional ? _nextBidirectionalId : _nextUnidirectionalId) < 4);
-                SocketStream stream;
-                if (bidirectional)
-                {
-                    stream = new Ice1NetworkSocketStream(this, _nextBidirectionalId);
-                    _nextBidirectionalId += 4;
-                }
-                else
-                {
-                    stream = new Ice1NetworkSocketStream(this, _nextUnidirectionalId);
-                    _nextUnidirectionalId += 4;
-                }
-                return stream;
-            }
-        }
+        public override SocketStream CreateStream(bool bidirectional, bool control) =>
+            new Ice1NetworkSocketStream(this, bidirectional, control);
 
         public override ValueTask InitializeAsync(CancellationToken cancel) =>
             _socket.InitializeAsync(cancel);
@@ -209,7 +191,7 @@ namespace ZeroC.Ice
         {
             cancel.ThrowIfCancellationRequested();
 
-            await SendFrameAsync(Ice1Definitions.ValidateConnectionFrame, CancellationToken.None).ConfigureAwait(false);
+            await SendFrameAsync(null, Ice1Definitions.ValidateConnectionFrame, false, cancel).ConfigureAwait(false);
 
             if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
@@ -233,7 +215,7 @@ namespace ZeroC.Ice
                 _unidirectionalSerializeSemaphore = new AsyncSemaphore(1);
             }
 
-            // We use the same stream ID numbering scheme as Quic
+            // We use the same stream ID numbering scheme as Quic.
             if (IsIncoming)
             {
                 _nextBidirectionalId = 1;
@@ -278,48 +260,66 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask SendFrameAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        internal async ValueTask<byte> SendFrameAsync(
+            Ice1NetworkSocketStream? stream,
+            IList<ArraySegment<byte>> buffer,
+            bool compress,
+            CancellationToken cancel)
         {
-            cancel.ThrowIfCancellationRequested();
+            // Wait for sending of other frames to complete. The semaphore is used as an asynchronous queue
+            // to serialize the sending of frames.
+            await _sendSemaphore.WaitAsync(cancel).ConfigureAwait(false);
 
-            // Synchronization is required here because this might be called concurrently by the connection code.
-            Task task;
-            lock (_mutex)
+            try
             {
-                ValueTask sendTask = QueueAsync(buffer, cancel);
-                if (sendTask.IsCompletedSuccessfully)
+                // If the stream is not started, assign the stream ID now. If we're sending a request, also make sure
+                // to set the request ID in the header.
+                if (stream != null && !stream.IsStarted)
                 {
-                    _sendTask = Task.CompletedTask;
-                    return;
-                }
-                _sendTask = task = sendTask.AsTask();
-            }
-            await task.ConfigureAwait(false);
-
-            async ValueTask QueueAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
-            {
-                try
-                {
-                    // Wait for the previous send to complete
-                    await _sendTask.ConfigureAwait(false);
-                }
-                catch (TransportException ex) when (Endpoint.IsDatagram &&
-                                                    ex.InnerException is SocketException socketException &&
-                                                    socketException.SocketErrorCode == SocketError.MessageSize)
-                {
-                    // If the previous send failed because the datagram was too large, ignore and continue sending.
-                }
-                catch (OperationCanceledException)
-                {
-                    // Ignore if the previous send got canceled.
+                    stream.Id = AllocateId(stream.IsBidirectional);
+                    if (buffer[0][8] == (byte)Ice1Definitions.FrameType.Request)
+                    {
+                        buffer[0].AsSpan(Ice1Definitions.HeaderSize).WriteInt(stream.RequestId);
+                    }
                 }
 
-                // If the send got cancelled, throw to notify the connection of the cancellation. This isn't a fatal
-                // connection error, the next pending frame will be sent.
-                cancel.ThrowIfCancellationRequested();
+                // Compress the message if asked to and the compression library is loaded.
+                byte compressionStatus = 0;
+                if (BZip2.IsLoaded && compress)
+                {
+                    int size = buffer.GetByteCount();
+                    List<ArraySegment<byte>>? compressed = null;
+                    if (size >= Endpoint.Communicator.CompressionMinSize)
+                    {
+                        compressed = BZip2.Compress(buffer,
+                                                    size,
+                                                    Ice1Definitions.HeaderSize,
+                                                    Endpoint.Communicator.CompressionLevel);
+                    }
+
+                    if (compressed != null)
+                    {
+                        // Message compressed, get the compression status and ensure we send the compressed message.
+                        buffer = compressed;
+                        compressionStatus = buffer[0][9];
+                    }
+                    else
+                    {
+                        // Message not compressed, request compressed response, if any and write the compression status.
+                        compressionStatus = 1;
+                        ArraySegment<byte> header = buffer[0];
+                        header[9] = compressionStatus; // Write the compression status
+                    }
+                }
 
                 // Perform the sending.
-                await SendAsync(buffer, cancel).ConfigureAwait(false);
+                await SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+
+                return compressionStatus;
+            }
+            finally
+            {
+                _sendSemaphore.Release();
             }
         }
 
@@ -334,8 +334,25 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new ValueTask<SocketStream>(CreateStream(bidirectional: false, control: true));
+                return new ValueTask<SocketStream>(new Ice1NetworkSocketStream(this, AllocateId(false)));
             }
+        }
+
+        private long AllocateId(bool bidirectional)
+        {
+            // Allocate a new ID according to the Quic numbering scheme.
+            long id;
+            if (bidirectional)
+            {
+                id = _nextBidirectionalId;
+                _nextBidirectionalId += 4;
+            }
+            else
+            {
+                id = _nextUnidirectionalId;
+                _nextUnidirectionalId += 4;
+            }
+            return id;
         }
 
         private (long, Ice1Definitions.FrameType, ArraySegment<byte>) ParseFrame(ArraySegment<byte> readBuffer)
@@ -375,7 +392,7 @@ namespace ZeroC.Ice
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
 
                     // Compute the stream ID out of the request ID. For one-way requests which use a null request ID,
-                    // we generated a new stream ID using the _nextPeerUnidirectionalId counter.
+                    // we generate a new stream ID using the _nextPeerUnidirectionalId counter.
                     long streamId;
                     if (requestId == 0)
                     {

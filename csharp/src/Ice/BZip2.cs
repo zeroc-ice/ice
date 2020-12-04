@@ -110,7 +110,7 @@ namespace ZeroC.Ice
             });
 
         internal static List<ArraySegment<byte>>? Compress(
-            List<ArraySegment<byte>> data, int size, int headerSize, CompressionLevel compressionLevel)
+            IList<ArraySegment<byte>> data, int size, int headerSize, CompressionLevel compressionLevel)
         {
             Debug.Assert(IsLoaded);
 
