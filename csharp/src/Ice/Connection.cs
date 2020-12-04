@@ -296,11 +296,10 @@ namespace ZeroC.Ice
 
             async Task PerformGoAwayAsync(Exception exception)
             {
-                // Abort outgoing streams and get the largest incoming stream ID. With Ice2, we don't wait for
+                // Abort outgoing streams and get the largest incoming stream IDs. With Ice2, we don't wait for
                 // the incoming streams to complete before sending the GoAway frame but instead provide the ID
-                // of the latest incoming stream ID to the peer. The peer will close the connection once it
-                // received the response for this stream ID.
-                // The last incoming stream IDs are setup when the streams are aborted, it's protected with _mutex.
+                // of the latest incoming stream IDs to the peer. The peer will close the connection only once
+                // the streams with IDs inferior or equal to the largest stream IDs are complete.
                 (long, long) lastIncomingStreamIds = Socket.AbortStreams(exception, stream => !stream.IsIncoming);
 
                 // With Ice1, we first wait for all incoming streams to complete before sending the GoAway frame.

@@ -262,7 +262,7 @@ namespace ZeroC.Ice
 
             try
             {
-                // If the stream is not started, assign the stream ID now and we're sending a request make sure
+                // If the stream is not started, assign the stream ID now. If we're sending a request, also make sure
                 // to set the request ID in the header.
                 if (stream != null && !stream.IsStarted)
                 {
@@ -289,15 +289,13 @@ namespace ZeroC.Ice
 
                     if (compressed != null)
                     {
-                        // Message compressed, get the compression status and ensure we send the compressed
-                        // message.
+                        // Message compressed, get the compression status and ensure we send the compressed message.
                         buffer = compressed;
                         compressionStatus = buffer[0][9];
                     }
                     else
                     {
-                        // Message not compressed, request compressed response, if any and write the compression
-                        // status.
+                        // Message not compressed, request compressed response, if any and write the compression status.
                         compressionStatus = 1;
                         ArraySegment<byte> header = buffer[0];
                         header[9] = compressionStatus; // Write the compression status

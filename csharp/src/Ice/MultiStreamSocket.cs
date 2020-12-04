@@ -291,7 +291,7 @@ namespace ZeroC.Ice
                 Interlocked.Increment(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
             }
 
-            // If the socket streams are aborted, we remove the stream from the dictionnary and throw. It's important
+            // If the socket streams are aborted, we remove the stream from the dictionary and throw. It's important
             // to do this check after adding the stream to the dictionary since AbortStreams sets this flag before
             // looping over the streams to abort them.
             if (_streamsAborted)
