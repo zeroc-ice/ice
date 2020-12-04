@@ -397,6 +397,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
+                // Allocate a new ID according to the Quic numbering scheme.
                 long id;
                 if (bidirectional)
                 {

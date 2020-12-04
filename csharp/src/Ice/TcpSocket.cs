@@ -83,6 +83,10 @@ namespace ZeroC.Ice
             {
                 throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
@@ -108,6 +112,10 @@ namespace ZeroC.Ice
             catch (SocketException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

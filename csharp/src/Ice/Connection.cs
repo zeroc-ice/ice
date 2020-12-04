@@ -296,9 +296,6 @@ namespace ZeroC.Ice
 
             async Task PerformGoAwayAsync(Exception exception)
             {
-                // Yield to ensure the code below is executed without the mutex locked.
-                await Task.Yield();
-
                 // Abort outgoing streams and get the largest incoming stream ID. With Ice2, we don't wait for
                 // the incoming streams to complete before sending the GoAway frame but instead provide the ID
                 // of the latest incoming stream ID to the peer. The peer will close the connection once it
@@ -473,16 +470,16 @@ namespace ZeroC.Ice
             {
                 await Socket.AbortAsync(exception).ConfigureAwait(false);
 
-                // Yield to ensure the code below is executed without the mutex locked (PerformAbortAsync is called
-                // with the mutex locked).
-                await Task.Yield();
-
                 // Dispose of the socket.
                 Socket.Dispose();
 
                 _timer?.Dispose();
 
-                // Raise the Closed event
+                // Yield to ensure the code below is executed without the mutex locked (PerformAbortAsync is called
+                // with the mutex locked).
+                await Task.Yield();
+
+                // Raise the Closed event, this will call user code so we shouldn't hold the mutex.
                 try
                 {
                     _closed?.Invoke(this, EventArgs.Empty);
@@ -491,6 +488,10 @@ namespace ZeroC.Ice
                 {
                     Communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
                 }
+
+                // Remove the connection from its factory. This must be called without the connection's mutex locked
+                // because the factory needs to acquire an internal mutex and the factory might call on the connection
+                // with its internal mutex locked.
                 _remove?.Invoke(this);
             }
         }
@@ -688,10 +689,6 @@ namespace ZeroC.Ice
 
             async Task PerformGoAwayAsync((long Bidirectional, long Unidirectional) lastStreamIds, Exception exception)
             {
-                // Yield to ensure the code below is executed without the mutex locked (PerformGoAwayAsync is called
-                // with the mutex locked).
-                await Task.Yield();
-
                 // Abort non-processed outgoing streams and all incoming streams.
                 Socket.AbortStreams(exception,
                                     stream => stream.IsIncoming ||

@@ -220,7 +220,7 @@ namespace ZeroC.Ice
                 UnidirectionalSerializeSemaphore = new AsyncSemaphore(1);
             }
 
-            // We use the same stream ID numbering scheme as Quic
+            // We use the same stream ID numbering scheme as Quic.
             if (IsIncoming)
             {
                 _nextBidirectionalId = 1;
@@ -305,16 +305,7 @@ namespace ZeroC.Ice
                 }
 
                 // Perform the sending.
-                try
-                {
-                    await SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-                }
-                catch (TransportException ex) when (Endpoint.IsDatagram &&
-                                                    ex.InnerException is SocketException socketException &&
-                                                    socketException.SocketErrorCode == SocketError.MessageSize)
-                {
-                    // If the previous send failed because the datagram was too large, ignore and continue sending.
-                }
+                await SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
 
                 return compressionStatus;
             }
@@ -341,7 +332,7 @@ namespace ZeroC.Ice
 
         private long AllocateId(bool bidirectional)
         {
-            // No mutex protection needed, this is called with the mutex locked.
+            // Allocate a new ID according to the Quic numbering scheme.
             long id;
             if (bidirectional)
             {
@@ -393,7 +384,7 @@ namespace ZeroC.Ice
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
 
                     // Compute the stream ID out of the request ID. For one-way requests which use a null request ID,
-                    // we generated a new stream ID using the _nextPeerUnidirectionalId counter.
+                    // we generate a new stream ID using the _nextPeerUnidirectionalId counter.
                     long streamId;
                     if (requestId == 0)
                     {
