@@ -139,18 +139,8 @@ namespace ZeroC.Ice
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
         /// set).</summary>
         /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
-        public void Activate(params DispatchInterceptor[] interceptors)
-        {
-            try
-            {
-                ActivateAsync(interceptors).Wait();
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
+        public void Activate(params DispatchInterceptor[] interceptors) =>
+            ActivateAsync(interceptors).GetAwaiter().GetResult();
 
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. ActivateAsync also registers this object adapter with the
@@ -193,7 +183,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Releases resources used by the object adapter.</summary>
-        public void Dispose() => DisposeAsync().AsTask().Wait();
+        public void Dispose() => DisposeAsync().GetResult();
 
         /// <summary>Releases resources used by the object adapter.</summary>
         public async ValueTask DisposeAsync()

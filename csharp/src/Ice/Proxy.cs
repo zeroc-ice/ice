@@ -202,34 +202,29 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
         /// connection, it does not attempt to create a connection.</summary>
+        /// <param name="proxy">The proxy.</param>
         /// <returns>The cached Connection for this proxy (null if the proxy does not have
         /// an established connection).</returns>
-        public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();
+        public static Connection? GetCachedConnection(this IObjectPrx proxy) =>
+            proxy.IceReference.GetCachedConnection();
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
+        /// <param name="proxy">The proxy.</param>
+        /// <param name="cancel">The cancellation token.</param>
         /// <returns>The Connection for this proxy.</returns>
-        public static Connection GetConnection(this IObjectPrx prx)
-        {
-            try
-            {
-                ValueTask<Connection> task = prx.GetConnectionAsync(cancel: default);
-                return task.IsCompleted ? task.Result : task.AsTask().Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
-            }
-        }
+        public static Connection GetConnection(this IObjectPrx proxy, CancellationToken cancel = default) =>
+            proxy.GetConnectionAsync(cancel).GetResult();
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
+        /// <param name="proxy">The proxy.</param>
+        /// <param name="cancel">The cancellation token.</param>
         /// <returns>The Connection for this proxy.</returns>
         public static ValueTask<Connection> GetConnectionAsync(
-            this IObjectPrx prx,
+            this IObjectPrx proxy,
             CancellationToken cancel = default) =>
-            prx.IceReference.GetConnectionAsync(cancel);
+            proxy.IceReference.GetConnectionAsync(cancel);
 
         /// <summary>Forwards an incoming request to another Ice object represented by the <paramref name="proxy"/>
         /// parameter.</summary>

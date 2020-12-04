@@ -975,7 +975,7 @@ namespace ZeroC.Ice
 
         /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
         /// implicitly.</summary>
-        public void Dispose() => DisposeAsync().AsTask().Wait();
+        public void Dispose() => DisposeAsync().GetResult();
 
         /// <summary>Returns a facet of the Admin object.</summary>
         /// <param name="facet">The name of the Admin facet.</param>

@@ -120,19 +120,10 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             {
                 try
                 {
-                    throw exception;
-                }
-                catch (CommunicatorDisposedException)
-                {
+                    Assert(exception is CommunicatorDisposedException ||
+                           exception is FormatException ||
+                           exception is OperationCanceledException);
                     Console.Out.WriteLine("ok");
-                }
-                catch (FormatException)
-                {
-                    Console.Out.WriteLine("ok");
-                }
-                catch
-                {
-                    Assert(false);
                 }
                 finally
                 {
