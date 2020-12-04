@@ -374,7 +374,6 @@ def create_platform_targets(project, platform, bindist)
     # TestDriver app
     #
     target = project.new_target(:application, "TestDriver", platform)
-    puts "type #{target.product_type} #{:application}"
     target.name = "#{target.name} #{platform_name}"
     target_set_common_build_settings(target, "TestDriver", platform,
                                      plist: "test/TestDriver/#{platform_name}/Info.plist",
