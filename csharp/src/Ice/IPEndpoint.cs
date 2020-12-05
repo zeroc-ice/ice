@@ -248,7 +248,8 @@ namespace ZeroC.Ice
 
         protected internal override async ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel)
         {
-            Debug.Assert(Address == IPAddress.None);
+            Debug.Assert(HasDnsHost);
+
             try
             {
                 // TODO: use cancel once GetHostAddressesAsync supports it.

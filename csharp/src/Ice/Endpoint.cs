@@ -84,7 +84,8 @@ namespace ZeroC.Ice
         /// <summary>Gets the default port of this endpoint.</summary>
         protected internal abstract ushort DefaultPort { get; }
 
-        /// <summary>Returns true when Host is a DNS name that needs to be resolved; otherwise, returns false.</summary>
+        /// <summary>Returns true when Host is a DNS name that needs to be resolved; otherwise, returns false.
+        /// When a derived implementation returns true, it must override <see cref="ExpandHostAsync"/>.</summary>
         protected internal virtual bool HasDnsHost => false;
 
         /// <summary>Indicates whether or not this endpoint has options with non default values that ToString would
@@ -199,11 +200,10 @@ namespace ZeroC.Ice
         public abstract Connection CreateDatagramServerConnection(ObjectAdapter adapter);
 
         /// <summary>Expands endpoint into separate endpoints for each IP address returned by the DNS resolver.
-        /// </summary>
-        /// <returns>A value task holding the expanded endpoints if HasDnsHost is true; otherwise, throws
-        /// <see cref="InvalidOperationException"/>.</returns>
+        /// Precondition: <see cref="HasDnsHost"/> is true.</summary>
+        /// <returns>A value task holding the expanded endpoints.</returns>
         protected internal virtual ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel) =>
-            throw new InvalidOperationException();
+            throw new NotImplementedException();
 
         /// <summary>Returns the published endpoint for this object adapter endpoint.</summary>
         /// <param name="serverName">The server name, to be used as the host of the published endpoint when the
