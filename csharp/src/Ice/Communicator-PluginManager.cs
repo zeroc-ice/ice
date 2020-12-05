@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -22,7 +24,8 @@ namespace ZeroC.Ice
     public sealed partial class Communicator
     {
         private static readonly List<string> _loadOnInitialization = new List<string>();
-        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new Dictionary<string, IPluginFactory>();
+        private static readonly Dictionary<string, IPluginFactory> _pluginFactories =
+            new Dictionary<string, IPluginFactory>();
         private bool _pluginsInitialized;
         private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
 
@@ -31,7 +34,7 @@ namespace ZeroC.Ice
         /// <param name="factory">The factory.</param>
         /// <param name="loadOnInit">If true, the plug-in is always loaded (created) during communicator
         /// initialization, even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during
-        /// communication initialization only if Ice.Plugin.name  is set to a non-empty value
+        /// communicator initialization only if Ice.Plugin.name is set to a non-empty value
         /// (e.g.: Ice.Plugin.IceSSL= 1).</param>
         public static void RegisterPluginFactory(string name, IPluginFactory factory, bool loadOnInit)
         {
@@ -47,25 +50,31 @@ namespace ZeroC.Ice
 
         /// <summary>Initializes the configured plug-ins. The communicator automatically initializes the plug-ins by
         /// default, but an application may need to interact directly with a plug-in prior to initialization. In this
-        /// case, the application must set Ice.InitPlugins=0 and then invoke InitializePlugins() manually. The plug-ins
-        /// are initialized in the order in which they are loaded. If a plug-in raises an exception during
+        /// case, the application must set Ice.InitPlugins=0 and then invoke InitializePluginsAsync() manually.
+        /// The plug-ins are initialized in the order in which they are loaded. If a plug-in raises an exception during
         /// initialization, the communicator invokes destroy on the plug-ins that have already been initialized.
         /// </summary>
-        public void InitializePlugins()
+        /// <param name="cancel">The cancellation token.</param>
+        /// <returns>A task that completes once all the plug-ins are initialized.</returns>
+        public async Task InitializePluginsAsync(CancellationToken cancel = default)
         {
-            if (_pluginsInitialized)
+            lock (_mutex)
             {
-                throw new InvalidOperationException("plug-ins already initialized");
+                if (_pluginsInitialized)
+                {
+                    throw new InvalidOperationException("plug-ins already initialized");
+                }
+                _pluginsInitialized = true;
             }
 
-            // Invoke initialize() on the plug-ins, in the order they were loaded.
+            // Invoke InitializeAsync on the plug-ins, in the order they were loaded.
             var initializedPlugins = new List<IPlugin>();
             try
             {
                 var context = new PluginInitializationContext(this);
                 foreach ((string name, IPlugin plugin) in _plugins)
                 {
-                    plugin.Initialize(context);
+                    await plugin.InitializeAsync(context, cancel).ConfigureAwait(false);
                     initializedPlugins.Add(plugin);
                 }
             }
@@ -76,21 +85,19 @@ namespace ZeroC.Ice
                 {
                     try
                     {
-                        plugin.DisposeAsync().GetResult();
+                        await plugin.DisposeAsync().ConfigureAwait(false);
                     }
                     catch
                     {
                         // Ignore.
                     }
                 }
-                _plugins.Clear();
+                _plugins.Clear(); // TODO: is this correct?
                 throw;
             }
-
-            _pluginsInitialized = true;
         }
 
-        /// <summary>Install a new plug-in.</summary>
+        /// <summary>Installs a new plug-in.</summary>
         /// <param name="name">The plug-in's name.</param>
         /// <param name="plugin">The new plug-in.</param>
         public void AddPlugin(string name, IPlugin plugin)
@@ -104,14 +111,14 @@ namespace ZeroC.Ice
 
                 if (FindPlugin(name) != null)
                 {
-                    throw new ArgumentException("a plugin named `{name}' is already registered", nameof(name));
+                    throw new ArgumentException($"a plugin named `{name}' is already registered", nameof(name));
                 }
 
                 _plugins.Add((name, plugin));
             }
         }
 
-        /// <summary>Obtain a plug-in by name.</summary>
+        /// <summary>Obtains a plug-in by name.</summary>
         /// <param name="name">The plug-in's name.</param>
         /// <returns>The plug-in.</returns>
         public IPlugin? GetPlugin(string name)
@@ -127,7 +134,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Get a list of plugins installed.</summary>
+        /// <summary>Gets a list of plugins installed.</summary>
         /// <returns>The names of the plugins installed.</returns>
         public string[] GetPlugins()
         {

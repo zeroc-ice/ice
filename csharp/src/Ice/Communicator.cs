@@ -749,7 +749,7 @@ namespace ZeroC.Ice
                 // interacted directly with the plug-ins.
                 if (GetPropertyAsBool("Ice.InitPlugins") ?? true)
                 {
-                    InitializePlugins();
+                    InitializePluginsAsync().GetAwaiter().GetResult();
                 }
 
                 // This must be done last as this call creates the Ice.Admin object adapter and eventually registers a
