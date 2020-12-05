@@ -11,8 +11,10 @@ using System.Threading.Tasks;
 namespace ZeroC.Ice.Discovery
 {
     /// <summary>Servant class that implements the Slice interface Ice::Locator.</summary>
-    internal class Locator : IAsyncLocator, IAsyncDisposable
+    internal class Locator : IAsyncLocator
     {
+        internal ILocatorPrx Proxy { get; }
+
         private readonly string _domainId;
         private readonly int _latencyMultiplier;
 
@@ -32,11 +34,6 @@ namespace ZeroC.Ice.Discovery
         private readonly ObjectAdapter _replyAdapter;
         private readonly int _retryCount;
         private readonly TimeSpan _timeout;
-
-        public ValueTask DisposeAsync() =>
-             new(Task.WhenAll(_locatorAdapter.DisposeAsync().AsTask(),
-                              _multicastAdapter.DisposeAsync().AsTask(),
-                              _replyAdapter.DisposeAsync().AsTask()));
 
         public async ValueTask<IObjectPrx?> FindAdapterByIdAsync(
             string adapterId,
@@ -139,10 +136,7 @@ namespace ZeroC.Ice.Discovery
                     adapterId.Length > 0 ? ImmutableArray.Create(adapterId) : ImmutableArray<string>.Empty);
         }
 
-        internal static Task<ILocatorPrx> CreateAsync(Communicator communicator) =>
-            new Locator(communicator).InitAsync();
-
-        private Locator(Communicator communicator)
+        internal Locator(Communicator communicator)
         {
             const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
             const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
@@ -202,6 +196,7 @@ namespace ZeroC.Ice.Discovery
                 preferNonSecure: NonSecure.Always);
 
             _locatorAdapter = communicator.CreateObjectAdapter();
+            Proxy = _locatorAdapter.AddWithUUID(this, ILocatorPrx.Factory);
 
             // Setup locator registry.
             var registryServant = new LocatorRegistry(communicator);
@@ -247,22 +242,10 @@ namespace ZeroC.Ice.Discovery
             _multicastAdapter.Add("IceDiscovery/Lookup", new Lookup(registryServant, communicator));
         }
 
-        private async Task<ILocatorPrx> InitAsync()
-        {
-            try
-            {
-                await _multicastAdapter.ActivateAsync().ConfigureAwait(false);
-                await _replyAdapter.ActivateAsync().ConfigureAwait(false);
-                await _locatorAdapter.ActivateAsync().ConfigureAwait(false);
-
-                return _locatorAdapter.AddWithUUID(this, ILocatorPrx.Factory);
-            }
-            catch
-            {
-                await DisposeAsync().ConfigureAwait(false);
-                throw;
-            }
-        }
+        internal Task ActivateAsync(CancellationToken cancel) =>
+            Task.WhenAll(_locatorAdapter.ActivateAsync(cancel),
+                         _multicastAdapter.ActivateAsync(cancel),
+                         _replyAdapter.ActivateAsync(cancel));
 
         /// <summary>Invokes a find or resolve request on a Lookup object and processes the reply(ies).</summary>
         /// <param name="findAsync">A delegate that performs the remote call. Its parameters correspond to an entry in

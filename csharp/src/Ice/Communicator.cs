@@ -203,7 +203,7 @@ namespace ZeroC.Ice
             "Context\\..*"
         };
         private static readonly object _staticMutex = new object();
-
+        private readonly Func<CancellationToken, Task>? _activateLocatorAsync;
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
         private ObjectAdapter? _adminAdapter;
@@ -706,11 +706,15 @@ namespace ZeroC.Ice
                 {
                     if (defaultLocatorValue.Equals("discovery", StringComparison.OrdinalIgnoreCase))
                     {
-                        _defaultLocator = Discovery.Locator.CreateAsync(this).GetAwaiter().GetResult();
+                        var discovery = new Discovery.Locator(this);
+                        _defaultLocator = discovery.Proxy;
+                        _activateLocatorAsync = discovery.ActivateAsync;
                     }
                     else if (defaultLocatorValue.Equals("locatordiscovery", StringComparison.OrdinalIgnoreCase))
                     {
-                        _defaultLocator = LocatorDiscovery.Locator.CreateAsync(this).GetAwaiter().GetResult();
+                        var locatorDiscovery = new LocatorDiscovery.Locator(this);
+                        _defaultLocator = locatorDiscovery.Proxy;
+                        _activateLocatorAsync = locatorDiscovery.ActivateAsync;
                     }
                     else
                     {
@@ -745,25 +749,37 @@ namespace ZeroC.Ice
                     }
                 }
 
-                // An application can set Ice.InitPlugins=0 if it wants to postpone initialization until after it has
-                // interacted directly with the plug-ins.
-                if (GetPropertyAsBool("Ice.InitPlugins") ?? true)
-                {
-                    InitializePluginsAsync().GetAwaiter().GetResult();
-                }
-
-                // This must be done last as this call creates the Ice.Admin object adapter and eventually registers a
-                // process proxy with the Ice locator (allowing remote clients to invoke on Ice.Admin facets as soon as
-                // it's registered).
-                if (!(GetPropertyAsBool("Ice.Admin.DelayCreation") ?? false))
-                {
-                    GetAdminAsync().GetResult();
-                }
+                // TODO: temporary!
+                InitializeAsync().GetAwaiter().GetResult();
             }
             catch
             {
                 Dispose();
                 throw;
+            }
+        }
+
+        // TODO: temporarily private, and should this method be renamed ActivateAsync?
+        private async Task InitializeAsync(CancellationToken cancel = default)
+        {
+            // An application can set Ice.InitPlugins=0 if it wants to postpone initialization until after it has
+            // interacted directly with the plug-ins.
+            if (GetPropertyAsBool("Ice.InitPlugins") ?? true)
+            {
+                await InitializePluginsAsync(cancel).ConfigureAwait(false);
+            }
+
+            if (_activateLocatorAsync != null)
+            {
+                await _activateLocatorAsync(cancel).ConfigureAwait(false);
+            }
+
+            // This must be done last as this call creates the Ice.Admin object adapter and eventually registers a
+            // process proxy with the Ice locator (allowing remote clients to invoke on Ice.Admin facets as soon as
+            // it's registered).
+            if (!(GetPropertyAsBool("Ice.Admin.DelayCreation") ?? false))
+            {
+                _ = await GetAdminAsync(cancel).ConfigureAwait(false);
             }
         }
 
