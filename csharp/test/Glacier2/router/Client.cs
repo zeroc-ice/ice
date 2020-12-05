@@ -181,8 +181,7 @@ namespace ZeroC.Glacier2.Test.Router
                 Console.Out.Write("creating and activating callback receiver adapter... ");
                 Console.Out.Flush();
                 communicator.SetProperty("Ice.PrintAdapterReady", "0");
-                adapter = communicator.CreateRoutedObjectAdapterAsync("CallbackReceiverAdapter", router).
-                    GetAwaiter().GetResult();
+                adapter = communicator.CreateObjectAdapterWithRouter("CallbackReceiverAdapter", router);
                 adapter.Activate();
                 Console.Out.WriteLine("ok");
             }

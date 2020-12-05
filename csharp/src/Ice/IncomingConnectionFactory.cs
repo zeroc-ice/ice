@@ -14,7 +14,7 @@ namespace ZeroC.Ice
 
         public abstract ValueTask DisposeAsync();
 
-        internal abstract void Activate(); // TODO: should this be ActivateAsync?
+        internal abstract void Activate();
 
         internal bool IsLocal(Endpoint endpoint) => endpoint.IsLocal(Endpoint);
 

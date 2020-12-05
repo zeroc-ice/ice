@@ -840,7 +840,7 @@ namespace ZeroC.Ice
             if (activateAdminAdapter)
             {
                 // We need to activate the newly created adminAdapter
-                await adminAdapter.ActivateAsync().ConfigureAwait(false);
+                await adminAdapter.ActivateAsync(cancel).ConfigureAwait(false);
             }
             await SetServerProcessProxyAsync(adminAdapter, adminIdentity, cancel).ConfigureAwait(false);
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
@@ -1022,7 +1022,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            await adminAdapter.ActivateAsync().ConfigureAwait(false);
+            await adminAdapter.ActivateAsync(cancel).ConfigureAwait(false);
             await SetServerProcessProxyAsync(adminAdapter, adminIdentity, cancel).ConfigureAwait(false);
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
