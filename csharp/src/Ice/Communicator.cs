@@ -759,7 +759,7 @@ namespace ZeroC.Ice
             }
         }
 
-        // TODO: temporarily private, and should this method be renamed ActivateAsync?
+        // TODO: temporarily private
         private async Task InitializeAsync(CancellationToken cancel = default)
         {
             // An application can set Ice.InitPlugins=0 if it wants to postpone initialization until after it has
@@ -1002,9 +1002,6 @@ namespace ZeroC.Ice
         /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
         public async ValueTask<IObjectPrx?> GetAdminAsync(CancellationToken cancel = default)
         {
-            ObjectAdapter adminAdapter;
-            Identity adminIdentity;
-
             lock (_mutex)
             {
                 if (IsDisposed)
@@ -1022,25 +1019,22 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    adminIdentity = new Identity("admin", GetProperty("Ice.Admin.InstanceName") ?? "");
-                    if (adminIdentity.Category.Length == 0)
-                    {
-                        adminIdentity = new Identity(adminIdentity.Name, Guid.NewGuid().ToString());
-                    }
+                    string instanceName = GetProperty("Ice.Admin.InstanceName") ?? "";
 
-                    adminAdapter = CreateObjectAdapter("Ice.Admin");
-
-                    _adminIdentity = adminIdentity;
-                    _adminAdapter = adminAdapter;
+                    _adminIdentity = new Identity("admin",
+                                                  instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
+                    _adminAdapter = CreateObjectAdapter("Ice.Admin");
 
                     AddAllAdminFacets();
                     // and continue below outside the lock
                 }
             }
 
-            await adminAdapter.ActivateAsync(cancel).ConfigureAwait(false);
-            await SetServerProcessProxyAsync(adminAdapter, adminIdentity, cancel).ConfigureAwait(false);
-            return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
+            // _adminAdapter and _adminIdentity are read-only at this point.
+
+            await _adminAdapter.ActivateAsync(cancel).ConfigureAwait(false);
+            await SetServerProcessProxyAsync(_adminAdapter, _adminIdentity, cancel).ConfigureAwait(false);
+            return _adminAdapter.CreateProxy(_adminIdentity, IObjectPrx.Factory);
         }
 
         /// <summary>Removes an admin facet servant previously added with AddAdminFacet.</summary>

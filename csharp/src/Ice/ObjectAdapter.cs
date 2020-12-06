@@ -56,8 +56,7 @@ namespace ZeroC.Ice
                 {
                     if (_activateTask != null)
                     {
-                        throw new InvalidOperationException(
-                            "cannot set the locator proxy during or after activation");
+                        throw new InvalidOperationException("cannot set the locator proxy during or after activation");
                     }
                     _locator = value;
                 }
@@ -85,9 +84,11 @@ namespace ZeroC.Ice
                         if (_activateTask == null || !_activateTask.IsCompleted)
                         {
                             throw new InvalidOperationException(
-                                @$"the published endpoints of routed object adapter {Name
-                                } are not available until after activation has completed");
+                                @$"the published endpoints of routed object adapter `{Name
+                                }' are not available until after activation has completed");
                         }
+                        // this lock's Exit is a full memory barrier so we read the latest _publishedEndpoints
+                        // afterwards.
                     }
                 }
                 return _publishedEndpoints;
