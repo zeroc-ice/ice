@@ -1460,7 +1460,7 @@ operation_list
             StringList returnMetadata = returnType->getAllMetadata();
 
             // Merge any metadata specified on the operation into the return type.
-            returnType->setMetadata(mergeMetadata(metadata->v, returnMetadata));
+            returnType->setMetadata(appendMetadata(metadata->v, returnMetadata));
         }
     }
 }
@@ -1699,7 +1699,7 @@ type_alias_def
     {
         if (auto alias = TypeAliasPtr::dynamicCast(type))
         {
-            mergeMetadataInPlace(metadata->v, alias->typeMetadata());
+            appendMetadataInPlace(metadata->v, alias->typeMetadata());
             type = alias->underlying();
         }
 
@@ -1732,7 +1732,7 @@ sequence_def
     StringListTokPtr metadata = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
 
-    resolveAlias(type, metadata->v);
+    unalias(type, metadata->v);
 
     ModulePtr cont = unit->currentModule();
     $$ = cont->createSequence(ident->v, type, metadata->v);
@@ -1743,7 +1743,7 @@ sequence_def
     StringListTokPtr metadata = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
 
-    resolveAlias(type, metadata->v);
+    unalias(type, metadata->v);
 
     ModulePtr cont = unit->currentModule();
     $$ = cont->createSequence(ident->v, type, metadata->v); // Dummy
@@ -1762,8 +1762,8 @@ dictionary_def
     StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
 
-    resolveAlias(keyType, keyMetadata->v);
-    resolveAlias(valueType, valueMetadata->v);
+    unalias(keyType, keyMetadata->v);
+    unalias(valueType, valueMetadata->v);
 
     ModulePtr cont = unit->currentModule();
     $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
@@ -1776,8 +1776,8 @@ dictionary_def
     StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
 
-    resolveAlias(keyType, keyMetadata->v);
-    resolveAlias(valueType, valueMetadata->v);
+    unalias(keyType, keyMetadata->v);
+    unalias(valueType, valueMetadata->v);
 
     ModulePtr cont = unit->currentModule();
     $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
@@ -2322,7 +2322,7 @@ tagged_type
     TaggedDefTokPtr taggedDef = new TaggedDefTok;
     taggedDef->type = TypePtr::dynamicCast($1);
 
-    resolveAlias(taggedDef->type, taggedDef->metadata);
+    unalias(taggedDef->type, taggedDef->metadata);
 
     $$ = taggedDef;
 }
@@ -2369,7 +2369,7 @@ member
 {
     StringListTokPtr metadata = StringListTokPtr::dynamicCast($1);
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($2);
-    def->metadata = mergeMetadata(metadata->v, def->metadata);
+    def->metadata = appendMetadata(metadata->v, def->metadata);
     $$ = def;
 }
 ;
@@ -2499,7 +2499,7 @@ const_def
     StringTokPtr ident = StringTokPtr::dynamicCast($4);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($6);
 
-    resolveAlias(const_type, metadata->v);
+    unalias(const_type, metadata->v);
 
     $$ = unit->currentModule()->createConst(ident->v, const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
@@ -2511,7 +2511,7 @@ const_def
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($5);
     unit->error("missing constant name");
 
-    resolveAlias(const_type, metadata->v);
+    unalias(const_type, metadata->v);
 
     $$ = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy

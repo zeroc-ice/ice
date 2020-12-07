@@ -6046,7 +6046,7 @@ yyreduce:
             StringList returnMetadata = returnType->getAllMetadata();
 
             // Merge any metadata specified on the operation into the return type.
-            returnType->setMetadata(mergeMetadata(metadata->v, returnMetadata));
+            returnType->setMetadata(appendMetadata(metadata->v, returnMetadata));
         }
     }
 }
@@ -7010,7 +7010,7 @@ yyreduce:
     {
         if (auto alias = TypeAliasPtr::dynamicCast(type))
         {
-            mergeMetadataInPlace(metadata->v, alias->typeMetadata());
+            appendMetadataInPlace(metadata->v, alias->typeMetadata());
             type = alias->underlying();
         }
 
@@ -7081,7 +7081,7 @@ yyreduce:
     StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr type = TypePtr::dynamicCast(yyvsp[-2]);
 
-    resolveAlias(type, metadata->v);
+    unalias(type, metadata->v);
 
     ModulePtr cont = unit->currentModule();
     yyval = cont->createSequence(ident->v, type, metadata->v);
@@ -7160,7 +7160,7 @@ yyreduce:
     StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr type = TypePtr::dynamicCast(yyvsp[-2]);
 
-    resolveAlias(type, metadata->v);
+    unalias(type, metadata->v);
 
     ModulePtr cont = unit->currentModule();
     yyval = cont->createSequence(ident->v, type, metadata->v); // Dummy
@@ -7242,8 +7242,8 @@ yyreduce:
     StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr valueType = TypePtr::dynamicCast(yyvsp[-2]);
 
-    resolveAlias(keyType, keyMetadata->v);
-    resolveAlias(valueType, valueMetadata->v);
+    unalias(keyType, keyMetadata->v);
+    unalias(valueType, valueMetadata->v);
 
     ModulePtr cont = unit->currentModule();
     yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
@@ -7324,8 +7324,8 @@ yyreduce:
     StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr valueType = TypePtr::dynamicCast(yyvsp[-2]);
 
-    resolveAlias(keyType, keyMetadata->v);
-    resolveAlias(valueType, valueMetadata->v);
+    unalias(keyType, keyMetadata->v);
+    unalias(valueType, valueMetadata->v);
 
     ModulePtr cont = unit->currentModule();
     yyval = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
@@ -9978,7 +9978,7 @@ yyreduce:
     TaggedDefTokPtr taggedDef = new TaggedDefTok;
     taggedDef->type = TypePtr::dynamicCast(yyvsp[0]);
 
-    resolveAlias(taggedDef->type, taggedDef->metadata);
+    unalias(taggedDef->type, taggedDef->metadata);
 
     yyval = taggedDef;
 }
@@ -10356,7 +10356,7 @@ yyreduce:
 {
     StringListTokPtr metadata = StringListTokPtr::dynamicCast(yyvsp[-1]);
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
-    def->metadata = mergeMetadata(metadata->v, def->metadata);
+    def->metadata = appendMetadata(metadata->v, def->metadata);
     yyval = def;
 }
 <<<<<<< HEAD
@@ -11305,7 +11305,7 @@ yyreduce:
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-2]);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
 
-    resolveAlias(const_type, metadata->v);
+    unalias(const_type, metadata->v);
 
     yyval = unit->currentModule()->createConst(ident->v, const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
@@ -11401,7 +11401,7 @@ yyreduce:
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
     unit->error("missing constant name");
 
-    resolveAlias(const_type, metadata->v);
+    unalias(const_type, metadata->v);
 
     yyval = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy

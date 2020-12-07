@@ -70,9 +70,8 @@ std::string
 prependA(const std::string& s);
 
 TypePtr unwrapIfOptional(const TypePtr& type);
-TypePtr unwrapIfAlias(const TypePtr& type);
 
-void resolveAlias(TypePtr& type, StringList& metadata);
+void unalias(TypePtr& type, StringList& metadata);
 
 enum CaseConvention { SliceCase, CamelCase, PascalCase, SnakeCase };
 
@@ -123,10 +122,10 @@ std::optional<std::string> findMetadata(const std::string& directive,
 
 // Adds the metadata from m2 into m1. m2 is not altered by this operation, but m1 is.
 // If metadata is repeated, the values in m1 take precedence.
-void mergeMetadataInPlace(StringList& m1, const StringList& m2);
+void appendMetadataInPlace(StringList& m1, const StringList& m2);
 
 // Combines the metadata in m1 and m2 into a new StringList. If metadata is repeated, the values in m1 take precedence.
-StringList mergeMetadata(const StringList& m1, const StringList& m2);
+StringList appendMetadata(const StringList& m1, const StringList& m2);
 
 }
 
