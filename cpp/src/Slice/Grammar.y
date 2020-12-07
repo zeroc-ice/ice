@@ -1699,8 +1699,8 @@ type_alias_def
     {
         if (auto alias = TypeAliasPtr::dynamicCast(type))
         {
-            mergeMetadataInPlace(metadata, alias->typeMetadata());
-            underlying = alias->underlying();
+            mergeMetadataInPlace(metadata->v, alias->typeMetadata());
+            type = alias->underlying();
         }
 
         ModulePtr cont = unit->currentModule();
@@ -2322,7 +2322,6 @@ tagged_type
     TaggedDefTokPtr taggedDef = new TaggedDefTok;
     taggedDef->type = TypePtr::dynamicCast($1);
 
-    tie(taggedDef->type, taggedDef->metadata) = resolveAlias(taggedDef->type, taggedDef->metadata);
     resolveAlias(taggedDef->type, taggedDef->metadata);
 
     $$ = taggedDef;
