@@ -4,8 +4,8 @@ require 'xcodeproj'
 
 $projectVersion = "4.0.0-alpha.0"
 $dylibVersion = "4.0.0"
-$macOSDeploymentTarget = "10.15"
-$iOSDeploymentTarget = "12.0"
+$macOSDeploymentTarget = "11.00"
+$iOSDeploymentTarget = "14.2"
 
 $tests = [
     "Ice/acm",
@@ -98,10 +98,10 @@ end
 def create_project(name, bindist)
     project = Xcodeproj::Project.new(name)
 
-    project.build_configurations.each do |conf|
-        conf.build_settings["CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER"] = "YES"
+    project.build_configurations.each do |config|
+        config.build_settings["CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER"] = "YES"
         # Disable header maps as they cause problems with parallel builds on Xcode 12
-        conf.build_settings["USE_HEADERMAP"] = "NO"
+        config.build_settings["USE_HEADERMAP"] = "NO"
     end
 
     [:osx, :ios].each do |platform|
@@ -278,7 +278,7 @@ def create_platform_targets(project, platform, bindist)
 
         group = project_group(project, "slice/Ice")
         target_add_files(target, group, "../slice/Ice", ["*.ice"])
-        target_add_slice2swift_build_rule(project, target, "Ice")
+        target_add_slice2swift_build_rule(project, target, "Ice", srcPrefix: "../slice/Ice")
 
         target_add_swiftlint_build_phase(target, "src/Ice")
 
@@ -320,7 +320,7 @@ def create_platform_targets(project, platform, bindist)
 
             group = project_group(project, "slice/#{framework}")
             target_add_files(target, group, "../slice/#{framework}", ["*.ice"])
-            target_add_slice2swift_build_rule(project, target, framework)
+            target_add_slice2swift_build_rule(project, target, framework, srcPrefix: "../slice/#{framework}")
             target.frameworks_build_phases.add_file_reference(ice_target.product_reference)
             target.add_dependency(ice_target)
         end
@@ -345,7 +345,7 @@ def create_platform_targets(project, platform, bindist)
     else
         target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
     end
-    target_add_slice2swift_build_rule(project, target)
+    target_add_slice2swift_build_rule(project, target, "test/TestCommon", test: true)
     target_add_swiftlint_build_phase(target, "test/TestCommon")
     test_common_target = target
 
@@ -368,7 +368,7 @@ def create_platform_targets(project, platform, bindist)
                                      plist: "test/TestDriver/#{platform_name}/Info.plist",
                                      swift: true,
                                      identifier: "com.zeroc.Swift-Test-Controller")
-    target_add_slice2swift_build_rule(project, target)
+    target_add_slice2swift_build_rule(project, target, "test/TestDriver", srcPrefix: "../scripts", test: true)
     target_add_swiftlint_build_phase(target, "test/TestDriver")
 
     group = project_group(project, "test/TestDriver")
@@ -381,6 +381,9 @@ def create_platform_targets(project, platform, bindist)
         target_add_files(target, group, "test/TestDriver/#{platform_name}", ["*.xcassets"])
         target_add_files(target, group, "test/TestDriver/#{platform_name}/Base.lproj", ["*.storyboard"])
         target.add_resources(group_add_files(group, "..", ["certs"]))
+        target.build_configurations.each { |config|
+            config.build_settings["ONLY_ACTIVE_ARCH"] = "YES"
+        }
     end
 
     #
@@ -447,7 +450,7 @@ def create_platform_targets(project, platform, bindist)
         }
 
         target_add_carthage_framework(target, platform, "PromiseKit.framework")
-        target_add_slice2swift_build_rule(project, target)
+        target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
         target_add_swiftlint_build_phase(target, "test/#{test}")
 
         #
@@ -514,7 +517,7 @@ def create_platform_targets(project, platform, bindist)
             }
 
             target_add_carthage_framework(target, platform, "PromiseKit.framework")
-            target_add_slice2swift_build_rule(project, target)
+            target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
             target_add_swiftlint_build_phase(target, "test/#{test}")
 
             #
@@ -572,10 +575,12 @@ class PBXBuildRule < Xcodeproj::Project::PBXBuildRule
     attribute :dependency_file, String
 end
 
-def target_add_slice2swift_build_rule(project, target, prefix = nil)
-    #
+def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix: nil, test: false)
+    unless srcPrefix
+        srcPrefix = projectPrefix
+    end
+
     # Add Slice Compiler build rule to the target
-    #
     rule = project.new(PBXBuildRule)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
     rule.file_type = "pattern.proxy"
@@ -593,34 +598,28 @@ def target_add_slice2swift_build_rule(project, target, prefix = nil)
         fi
     EOF
 
-    if prefix then
-        rule.name = "Slice Compiler for #{prefix}/*.ice"
-        rule.file_patterns = "*.ice"
+    rule.name = "Slice Compiler for #{projectPrefix}/*.ice"
+    rule.run_once_per_architecture = "0"
+    rule.file_patterns = "*/#{srcPrefix.delete_prefix('../')}/*.ice"
+
+    if test then
+        rule.script = <<~EOF
+            #{slic2swift}
+            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR" "$INPUT_FILE_PATH"
+        EOF
+        rule.input_files = find_files(srcPrefix, ["*.ice"]).map { |p| "#{srcPrefix}/#{p}" }
+        rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
+    else
         rule.script = <<~EOF
             #{slic2swift}
             BASENAME=$(basename -- "$INPUT_FILE_PATH")
             BASENAME="${BASENAME%.*}"
-            mkdir -p "$DERIVED_FILE_DIR/#{prefix}"
-            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR/#{prefix}" "$INPUT_FILE_PATH"
-            mv "$DERIVED_FILE_DIR/#{prefix}/$BASENAME.swift" "$DERIVED_FILE_DIR/#{prefix}_$BASENAME.swift"
-
-            "$SLICE2SWIFT" --depend --depend-file "$DERIVED_FILES_DIR/#{prefix}_$INPUT_FILE_NAME.d" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" "$INPUT_FILE_PATH"
-            echo "$INPUT_FILE_PATH: $SLICE2SWIFT" >> "$DERIVED_FILES_DIR/#{prefix}_$INPUT_FILE_NAME.d"
+            mkdir -p "$DERIVED_FILE_DIR/#{projectPrefix}"
+            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR/#{projectPrefix}" "$INPUT_FILE_PATH"
+            mv "$DERIVED_FILE_DIR/#{projectPrefix}/$BASENAME.swift" "$DERIVED_FILE_DIR/#{projectPrefix}_$BASENAME.swift"
         EOF
-        rule.dependency_file = "$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_NAME).d"
-        rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_BASE).swift"]
-        rule.input_files = find_files("../slice/#{prefix}", ["*.ice"]).map { |p| "$SRCROOT/../slice/#{prefix}/#{p}" }
-    else
-        rule.name = "Slice Compiler"
-        rule.file_patterns = "*.ice"
-        rule.script = <<~EOF
-            #{slic2swift}
-            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR" "$INPUT_FILE_PATH"
-            "$SLICE2SWIFT" --depend --depend-file "$DERIVED_FILES_DIR/$INPUT_FILE_NAME.d" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" "$INPUT_FILE_PATH"
-            echo "$INPUT_FILE_PATH: $SLICE2SWIFT" >> "$DERIVED_FILES_DIR/$INPUT_FILE_NAME.d"
-        EOF
-        rule.dependency_file = "$(DERIVED_FILE_DIR)/$(INPUT_FILE_NAME).d"
-        rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
+        rule.input_files = find_files(srcPrefix, ["*.ice"]).map { |p| "$SRCROOT/#{srcPrefix}/#{p}" }
+        rule.output_files = ["$(DERIVED_FILE_DIR)/#{projectPrefix}_$(INPUT_FILE_BASE).swift"]
     end
     target.build_rules << rule
 end
@@ -633,8 +632,8 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
     rule.file_type = "pattern.proxy"
     rule.name = "Slice2Cpp Compiler for #{prefix}/*.ice"
+    rule.run_once_per_architecture = "0"
     rule.file_patterns = "*.ice"
-    rule.dependency_file = "$(DERIVED_FILES_DIR)/#{prefix}/$(INPUT_FILE_NAME).d"
 
     rule.script = <<~EOF
         if [ -f "$ICE_HOME/cpp/bin/slice2cpp" ]; then
@@ -712,7 +711,6 @@ def target_set_common_build_settings(target, product, platform, plist: nil, swif
     target.build_configurations.each { |config|
         config.build_settings["GCC_SYMBOLS_PRIVATE_EXTERN"] = "YES"
         config.build_settings["ENABLE_TESTABILITY"] = "NO"
-        config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
         config.build_settings["CURRENT_PROJECT_VERSION"] = $projectVersion
         config.build_settings["DYLIB_CURRENT_VERSION"] = $dylibVersion
         config.build_settings["DYLIB_COMPATIBILITY_VERSION"] = "0"
@@ -733,7 +731,12 @@ def target_set_common_build_settings(target, product, platform, plist: nil, swif
         config.build_settings["AVAILABLE_PLATFORMS"] =
             (target.name.include? "macOS") ? "macosx" : "iphoneos iphonesimulator"
 
-        config.build_settings["CODE_SIGN_IDENTITY"] = "-"
+        config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
+        if config.name == "Debug" or target.product_type == "com.apple.product-type.application" then
+            config.build_settings["CODE_SIGN_IDENTITY"] = "-";
+        else
+            config.build_settings["CODE_SIGN_IDENTITY"] = "";
+        end
 
         if platform == :osx
             config.build_settings["MACOSX_DEPLOYMENT_TARGET"] = $macOSDeploymentTarget
