@@ -2078,6 +2078,22 @@ Slice::Module::createTypeAlias(const string& name, const TypePtr& type, const St
         _unit->error("`" + name + "': a typealias can only be defined at module scope");
     }
 
+    // Ensure the type isn't an alias itself. These should already be unwrapped by the grammar.
+    assert(!TypeAliasPtr::dynamicCast(type));
+
+    // Metadata cannot be specified on aliases of classes and interfaces.
+    if (!metadata.empty())
+    {
+        if (ClassDeclPtr::dynamicCast(type))
+        {
+            _unit->error("illegal metadata on `" + name + "': metadata cannot be specified on aliases of classes");
+        }
+        else if (InterfaceDeclPtr::dynamicCast(type))
+        {
+            _unit->error("illegal metadata on `" + name + "': metadata cannot be specified on aliases of interfaces");
+        }
+    }
+
     TypeAliasPtr alias = new TypeAlias(this, name, type, metadata);
     _contents.push_back(alias);
     return alias;

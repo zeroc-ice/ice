@@ -669,12 +669,6 @@ Slice::unwrapIfAlias(const TypePtr& type)
     return type;
 }
 
-TypePtr
-Slice::unwrapType(const TypePtr& type)
-{
-    return unwrapIfOptional(unwrapIfAlias(type));
-}
-
 void
 Slice::resolveAlias(TypePtr& type, StringList& metadata)
 {

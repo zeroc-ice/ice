@@ -71,7 +71,6 @@ prependA(const std::string& s);
 
 TypePtr unwrapIfOptional(const TypePtr& type);
 TypePtr unwrapIfAlias(const TypePtr& type);
-TypePtr unwrapType(const TypePtr& type);
 
 void resolveAlias(TypePtr& type, StringList& metadata);
 

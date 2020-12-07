@@ -1459,6 +1459,7 @@ operation_list
             MemberPtr returnType = operation->returnType().front();
             StringList returnMetadata = returnType->getAllMetadata();
 
+            // Merge any metadata specified on the operation into the return type.
             returnType->setMetadata(mergeMetadata(metadata->v, returnMetadata));
         }
     }
@@ -1698,23 +1699,8 @@ type_alias_def
     {
         if (auto alias = TypeAliasPtr::dynamicCast(type))
         {
-            mergeMetadataInPlace(metadata->v, alias->typeMetadata());
-            type = alias->underlying();
-        }
-
-        // Metadata cannot be specified on aliases of classes and interfaces.
-        if (!metadata->v.empty())
-        {
-            if (ClassDeclPtr::dynamicCast(type))
-            {
-                unit->error("illegal metadata on `" + ident->v +
-                            "': metadata cannot be specified on aliases of classes");
-            }
-            else if (InterfaceDeclPtr::dynamicCast(type))
-            {
-                unit->error("illegal metadata on `" + ident->v +
-                            "': metadata cannot be specified on aliases of interfaces");
-            }
+            mergeMetadataInPlace(metadata, alias->typeMetadata());
+            underlying = alias->underlying();
         }
 
         ModulePtr cont = unit->currentModule();
@@ -2336,6 +2322,7 @@ tagged_type
     TaggedDefTokPtr taggedDef = new TaggedDefTok;
     taggedDef->type = TypePtr::dynamicCast($1);
 
+    tie(taggedDef->type, taggedDef->metadata) = resolveAlias(taggedDef->type, taggedDef->metadata);
     resolveAlias(taggedDef->type, taggedDef->metadata);
 
     $$ = taggedDef;
