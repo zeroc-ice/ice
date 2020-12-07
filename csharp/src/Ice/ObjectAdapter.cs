@@ -20,7 +20,7 @@ namespace ZeroC.Ice
     public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
         /// <summary>Indicates under what circumstances the object adapter accepts non-secure incoming connections. This
-        /// property  corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
+        /// property corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
         /// <see cref="Communicator.AcceptNonSecure"/> is used.</summary>
         public NonSecure AcceptNonSecure { get; }
 
@@ -185,7 +185,14 @@ namespace ZeroC.Ice
                 expandedEndpoints = new();
                 foreach (Endpoint endpoint in Endpoints)
                 {
-                    expandedEndpoints.AddRange(await endpoint.ExpandHostAsync(default).ConfigureAwait(false));
+                    if (endpoint.HasDnsHost)
+                    {
+                        expandedEndpoints.AddRange(await endpoint.ExpandHostAsync(cancel).ConfigureAwait(false));
+                    }
+                    else
+                    {
+                        expandedEndpoints.Add(endpoint);
+                    }
                 }
             }
 

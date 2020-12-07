@@ -31,7 +31,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public IObjectPrx? GetAdmin(Current current, CancellationToken cancel) =>
-            current.Communicator.GetAdminAsync(cancel: cancel).AsTask().GetAwaiter().GetResult();
+            current.Communicator.GetAdminAsync(cancel: cancel).GetAwaiter().GetResult();
 
         public void Shutdown(Current current, CancellationToken cancel) =>
             current.Communicator.ShutdownAsync();

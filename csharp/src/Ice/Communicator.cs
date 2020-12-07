@@ -1000,7 +1000,7 @@ namespace ZeroC.Ice
         /// {UUID}/admin when Ice.Admin.InstanceName is not set.</summary>
         /// <param name="cancel">The cancellation token.</param>
         /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
-        public async ValueTask<IObjectPrx?> GetAdminAsync(CancellationToken cancel = default)
+        public async Task<IObjectPrx?> GetAdminAsync(CancellationToken cancel = default)
         {
             lock (_mutex)
             {
@@ -1019,10 +1019,8 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    string instanceName = GetProperty("Ice.Admin.InstanceName") ?? "";
-
                     _adminIdentity = new Identity("admin",
-                                                  instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
+                                                  GetProperty("Ice.Admin.InstanceName") ?? Guid.NewGuid().ToString());
                     _adminAdapter = CreateObjectAdapter("Ice.Admin");
 
                     AddAllAdminFacets();
