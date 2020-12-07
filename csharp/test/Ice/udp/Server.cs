@@ -17,6 +17,7 @@ namespace ZeroC.Ice.Test.UDP
             properties["Ice.UDP.RcvSize"] = "16K";
 
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             int num = 0;
             try
             {

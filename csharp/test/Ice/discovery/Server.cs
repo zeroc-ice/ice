@@ -11,6 +11,8 @@ namespace ZeroC.Ice.Test.Discovery
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
+            await communicator.ActivateAsync();
+
             int num = 0;
             try
             {

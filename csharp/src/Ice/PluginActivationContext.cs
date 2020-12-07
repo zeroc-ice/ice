@@ -4,11 +4,10 @@ using System;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The plug-in initialization context is passed to plug-ins during initialization allowing plug-ins to
-    /// set the Communicator's logger, or add dispatch and invocation interceptors.</summary>
-    public sealed class PluginInitializationContext : IDisposable
+    /// <summary>The activation context is passed to plug-ins during activation.</summary>
+    public sealed class PluginActivationContext : IDisposable
     {
-        /// <summary>The communicator that is in the process of being initialized.</summary>
+        /// <summary>The communicator that is in the process of being activated.</summary>
         public Communicator Communicator { get; }
 
         private volatile bool _disposed;
@@ -21,7 +20,7 @@ namespace ZeroC.Ice
             {
                 if (_disposed)
                 {
-                    throw new ObjectDisposedException($"{typeof(PluginInitializationContext).FullName}");
+                    throw new ObjectDisposedException($"{typeof(PluginActivationContext).FullName}");
                 }
                 Communicator.Logger = value;
             }
@@ -33,7 +32,7 @@ namespace ZeroC.Ice
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException($"{typeof(PluginInitializationContext).FullName}");
+                throw new ObjectDisposedException($"{typeof(PluginActivationContext).FullName}");
             }
             Communicator.AddDispatchInterceptor(interceptor);
         }
@@ -44,13 +43,13 @@ namespace ZeroC.Ice
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException($"{typeof(PluginInitializationContext).FullName}");
+                throw new ObjectDisposedException($"{typeof(PluginActivationContext).FullName}");
             }
             Communicator.AddInvocationInterceptor(interceptor);
         }
 
         public void Dispose() => _disposed = true;
 
-        internal PluginInitializationContext(Communicator communicator) => Communicator = communicator;
+        internal PluginActivationContext(Communicator communicator) => Communicator = communicator;
     }
 }

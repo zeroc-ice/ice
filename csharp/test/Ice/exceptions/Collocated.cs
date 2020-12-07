@@ -15,6 +15,7 @@ namespace ZeroC.Ice.Test.Exceptions
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.IncomingFrameMaxSize"] = "10K";
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("thrower", new Thrower());

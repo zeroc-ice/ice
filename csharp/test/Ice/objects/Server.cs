@@ -13,6 +13,7 @@ namespace ZeroC.Ice.Test.Objects
             Dictionary<string, string>? properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("initial", new Initial(adapter));

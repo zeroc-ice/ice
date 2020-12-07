@@ -14,6 +14,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Test.Protocol"] = "ice1";
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             communicator.SetProperty("DeactivatedAdapter.Endpoints", GetTestEndpoint(1));
             communicator.CreateObjectAdapter("DeactivatedAdapter");
 

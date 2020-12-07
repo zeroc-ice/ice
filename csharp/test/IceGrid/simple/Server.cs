@@ -15,6 +15,8 @@ namespace ZeroC.IceGrid.Test.Simple
             properties.ParseArgs(ref args, "TestAdapter");
 
             await using Communicator communicator = Initialize(ref args, properties);
+            await communicator.ActivateAsync();
+
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
             await adapter.ActivateAsync();

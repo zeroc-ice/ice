@@ -117,6 +117,7 @@ namespace ZeroC.Ice.Test.Interceptor
                             return response;
                         }
                     });
+                communicator.ActivateAsync().GetAwaiter().GetResult();
 
                 for (int i = 0; i < 10; ++i)
                 {
@@ -160,6 +161,7 @@ namespace ZeroC.Ice.Test.Interceptor
                             return next(target, request, cancel);
                         }
                     });
+                communicator.ActivateAsync().GetAwaiter().GetResult();
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 prx1.Op1(new Dictionary<string, string> { { "local-user", "10" } });
@@ -190,6 +192,7 @@ namespace ZeroC.Ice.Test.Interceptor
                             return next(target, request, cancel);
                         }
                     });
+                communicator.ActivateAsync().GetAwaiter().GetResult();
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 try

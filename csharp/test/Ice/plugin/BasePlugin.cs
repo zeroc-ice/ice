@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         public bool IsDestroyed() => Destroyed;
 
-        public abstract Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel);
+        public abstract Task ActivateAsync(PluginActivationContext context, CancellationToken cancel);
         public virtual async ValueTask DisposeAsync()
         {
             GC.SuppressFinalize(this);

@@ -15,6 +15,7 @@ namespace ZeroC.Ice.Test.Compress
                 {
                     ["Ice.CompressionMinSize"] = "1K"
                 });
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test-1", new Interceptor(new TestIntf(), compressed: true));

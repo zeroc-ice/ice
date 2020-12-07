@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
             }
 
-            public override Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel) =>
+            public override Task ActivateAsync(PluginActivationContext context, CancellationToken cancel) =>
                 throw new PluginInitializeFailException();
 
             public override ValueTask DisposeAsync()

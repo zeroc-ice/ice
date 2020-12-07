@@ -25,7 +25,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         public bool isDestroyed() => _destroyed;
 
-        public abstract Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel);
+        public abstract Task ActivateAsync(PluginActivationContext context, CancellationToken cancel);
         public abstract ValueTask DisposeAsync();
     }
 }

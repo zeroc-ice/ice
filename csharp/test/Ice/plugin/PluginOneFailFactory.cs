@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
             }
 
-            public override Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel)
+            public override Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
             {
                 var two = (BasePluginFail?)_communicator.GetPlugin("PluginTwoFail");
                 TestHelper.Assert(two != null);
