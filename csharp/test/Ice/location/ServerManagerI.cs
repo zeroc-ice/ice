@@ -52,13 +52,12 @@ namespace ZeroC.Ice.Test.Location
                     serverCommunicator.SetProperty("TestAdapter.Endpoints", _helper.GetTestEndpoint(_nextPort++));
                     serverCommunicator.SetProperty("TestAdapter2.Endpoints", _helper.GetTestEndpoint(_nextPort++));
 
-                    adapter = serverCommunicator.CreateObjectAdapter("TestAdapter", cancel: cancel);
-                    adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2", cancel: cancel);
+                    adapter = serverCommunicator.CreateObjectAdapter("TestAdapter");
+                    adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");
 
                     var locator = ILocatorPrx.Parse(_helper.GetTestProxy("locator", 0), serverCommunicator);
-                    ILocatorRegistryPrx? locatorRegistry = locator.GetRegistry(cancel: cancel);
-                    adapter.LocatorRegistry = locatorRegistry;
-                    adapter2.LocatorRegistry = locatorRegistry;
+                    adapter.Locator = locator;
+                    adapter2.Locator = locator;
 
                     var testI = new TestIntf(adapter, adapter2, _registry);
                     _registry.AddObject(adapter.Add("test", testI, IObjectPrx.Factory));
