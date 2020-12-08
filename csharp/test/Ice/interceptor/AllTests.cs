@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -86,7 +87,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 var invocationContext = new AsyncLocal<int>();
                 using var communicator = new Communicator(prx.Communicator.GetProperties());
 
-                communicator.AddInvocationInterceptor(
+                communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
                         if (ice2)
@@ -135,7 +136,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 // the first invocation calls next and subsequent invocations reuse the first response.
                 using var communicator = new Communicator(prx.Communicator.GetProperties());
 
-                communicator.AddInvocationInterceptor(
+                communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
                         if (ice2)
@@ -158,9 +159,16 @@ namespace ZeroC.Ice.Test.Interceptor
                         TestHelper.Assert(response == null);
                         return next(target, request, cancel);
                     });
+
+                TestHelper.Assert(communicator.DefaultInvocationInterceptors.Count == 3);
                 communicator.ActivateAsync().GetAwaiter().GetResult();
+                TestHelper.Assert(communicator.DefaultInvocationInterceptors.Count == 4);
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
+
+                // Truly reference equal
+                TestHelper.Assert(prx1.InvocationInterceptors == communicator.DefaultInvocationInterceptors);
+
                 prx1.Op1(new Dictionary<string, string> { { "local-user", "10" } });
                 prx1.Op1(new Dictionary<string, string> { { "local-user", "11" } });
                 prx1.Op1(new Dictionary<string, string> { { "local-user", "12" } });
@@ -170,7 +178,7 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 // throwing from an interceptor stops the interceptor chain
                 using var communicator = new Communicator(prx.Communicator.GetProperties());
-                communicator.AddInvocationInterceptor(
+                communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
                         request.ContextOverride["interceptor-1"] = "interceptor-1";
@@ -318,6 +326,8 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Write("testing per proxy invocation interceptors... ");
             output.Flush();
             {
+                var communicator = helper.Communicator!;
+
                 if (ice2)
                 {
                     // This test use ContextOverride not supported with ice1
@@ -325,31 +335,27 @@ namespace ZeroC.Ice.Test.Interceptor
                     TestHelper.Assert(context["context1"] == "plug-in");
                     TestHelper.Assert(context["context2"] == "plug-in");
                     TestHelper.Assert(!context.ContainsKey("context3"));
-                    prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                    prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
+                        (target, request, next, cancel) =>
                         {
-                            (target, request, next, cancel) =>
-                            {
-                                request.ContextOverride["context2"] = "proxy";
-                                request.ContextOverride["context3"] = "proxy";
-                                return next(target, request, cancel);
-                            }
-                        });
+                            request.ContextOverride["context2"] = "proxy";
+                            request.ContextOverride["context3"] = "proxy";
+                            return next(target, request, cancel);
+                        }).AddRange(communicator.DefaultInvocationInterceptors));
                     context = prx.Op2();
                     TestHelper.Assert(context["context1"] == "plug-in");
                     TestHelper.Assert(context["context2"] == "plug-in");
                     TestHelper.Assert(context["context3"] == "proxy");
 
                     // Calling next twice doesn't change the result
-                    prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
+                    prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
+                        (target, request, next, cancel) =>
                         {
-                            (target, request, next, cancel) =>
-                            {
-                                request.ContextOverride["context2"] = "proxy";
-                                request.ContextOverride["context3"] = "proxy";
-                                _ = next(target, request, cancel);
-                                return next(target, request, cancel);
-                            }
-                        });
+                            request.ContextOverride["context2"] = "proxy";
+                            request.ContextOverride["context3"] = "proxy";
+                            _ = next(target, request, cancel);
+                            return next(target, request, cancel);
+                        }).AddRange(communicator.DefaultInvocationInterceptors));
                     context = prx.Op2();
                     TestHelper.Assert(context["context1"] == "plug-in");
                     TestHelper.Assert(context["context2"] == "plug-in");
@@ -366,19 +372,17 @@ namespace ZeroC.Ice.Test.Interceptor
                 // The server increments the result with each call when using the invocation interceptor we
                 // return a cached response, and we will see the same result with each call.
                 IncomingResponseFrame? response = null;
-                prx = prx.Clone(invocationInterceptors: new InvocationInterceptor[]
-                    {
-                        async (target, request, next, cancel) =>
-                        {
-                            response ??= await next(target, request, cancel);
-                            return response;
-                        }
-                    });
+                prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
+                   async (target, request, next, cancel) =>
+                   {
+                       response ??= await next(target, request, cancel);
+                       return response;
+                   }).AddRange(communicator.DefaultInvocationInterceptors));
                 TestHelper.Assert(prx.Op3() == 0);
                 TestHelper.Assert(prx.Op3() == 0);
 
                 // After clearing the invocation interceptors we should see the result increase with each call
-                prx = prx.Clone(invocationInterceptors: Array.Empty<InvocationInterceptor>());
+                prx = prx.Clone(invocationInterceptors: communicator.DefaultInvocationInterceptors);
                 TestHelper.Assert(prx.Op3() == 1);
                 TestHelper.Assert(prx.Op3() == 2);
             }

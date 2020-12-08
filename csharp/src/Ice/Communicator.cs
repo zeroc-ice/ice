@@ -98,6 +98,15 @@ namespace ZeroC.Ice
             set => _defaultContext = value.ToImmutableSortedDictionary();
         }
 
+        /// <summary>The default invocation interceptors for proxies created using this communicator. Changing the value
+        /// of DefaultInvocationInterceptors does not change the invocation interceptors of previously created proxies.
+        /// </summary>
+        public IReadOnlyList<InvocationInterceptor> DefaultInvocationInterceptors
+        {
+            get => _defaultInvocationInterceptors;
+            set => _defaultInvocationInterceptors = value.ToImmutableList();
+        }
+
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
         /// All newly created proxies and object adapters will use this default locator. Note that setting this property
         /// has no effect on existing proxies or object adapters.</summary>
@@ -171,7 +180,6 @@ namespace ZeroC.Ice
         internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
         internal TimeSpan IdleTimeout { get; }
         internal int IncomingFrameMaxSize { get; }
-        internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
         internal bool KeepAlive { get; }
         internal int MaxBidirectionalStreams { get; }
@@ -226,13 +234,13 @@ namespace ZeroC.Ice
             = new ThreadLocal<SortedDictionary<string, string>>();
         private volatile IReadOnlyDictionary<string, string> _defaultContext =
             ImmutableSortedDictionary<string, string>.Empty;
+        private volatile ImmutableList<InvocationInterceptor> _defaultInvocationInterceptors =
+            ImmutableList<InvocationInterceptor>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
         private volatile ImmutableList<DispatchInterceptor> _dispatchInterceptors =
             ImmutableList<DispatchInterceptor>.Empty;
         private Task? _disposeTask;
-        private volatile ImmutableList<InvocationInterceptor> _invocationInterceptors =
-            ImmutableList<InvocationInterceptor>.Empty;
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
@@ -793,21 +801,6 @@ namespace ZeroC.Ice
                 }
 
                 _dispatchInterceptors = _dispatchInterceptors.AddRange(interceptor);
-            }
-        }
-
-        /// <summary>Adds one or more invocation interceptors to this communicator.</summary>
-        /// <param name="interceptor">The invocation interceptor or interceptors to add.</param>
-        public void AddInvocationInterceptor(params InvocationInterceptor[] interceptor)
-        {
-            lock (_mutex)
-            {
-                if (IsDisposed)
-                {
-                    throw new CommunicatorDisposedException();
-                }
-
-                _invocationInterceptors = _invocationInterceptors.AddRange(interceptor);
             }
         }
 

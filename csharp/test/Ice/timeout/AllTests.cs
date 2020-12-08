@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Test;
 
 namespace ZeroC.Ice.Test.Timeout
@@ -143,7 +144,7 @@ namespace ZeroC.Ice.Test.Timeout
                 {
                     var comm1 = new Communicator(communicator.GetProperties());
 
-                    comm1.AddInvocationInterceptor(
+                    comm1.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                             (target, request, next, cancel) =>
                             {
                                 request.AddBinaryContextEntry(10, request.Deadline, (ostr, value) =>

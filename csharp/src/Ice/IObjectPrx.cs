@@ -151,6 +151,9 @@ namespace ZeroC.Ice
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity => IceReference.Identity;
 
+        /// <summary>The invocation interceptors of this proxy.</summary>
+        public IReadOnlyList<InvocationInterceptor> InvocationInterceptors => IceReference.InvocationInterceptors;
+
         /// <summary>The invocation mode of this proxy. Only useful for ice1 proxies.</summary>
         public InvocationMode InvocationMode => IceReference.InvocationMode;
 

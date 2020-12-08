@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -17,7 +18,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
             public Task ActivateAsync(CancellationToken cancel)
             {
-                _communicator.AddInvocationInterceptor(
+                _communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     async (target, request, next, cancel) =>
                     {
                         if (request.Protocol == Protocol.Ice2)
@@ -34,7 +35,7 @@ namespace ZeroC.Ice.Test.Interceptor
                                 value.Read(istr => istr.ReadInt()) == 100);
                         }
                         return response;
-                    });
+                    }).AddRange(_communicator.DefaultInvocationInterceptors);
 
                 return Task.CompletedTask;
             }

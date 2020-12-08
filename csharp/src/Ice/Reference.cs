@@ -28,6 +28,8 @@ namespace ZeroC.Ice
         internal string Facet { get; }
         internal Identity Identity { get; }
 
+        internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors { get; }
+
         // For ice1 proxies, all the enumerators are meaningful. For other proxies, only the Twoway and Oneway
         // enumerators are used.
         internal InvocationMode InvocationMode { get; }
@@ -54,7 +56,6 @@ namespace ZeroC.Ice
 
         internal RouterInfo? RouterInfo { get; }
         private int _hashCode;
-        private readonly IReadOnlyList<InvocationInterceptor> _invocationInterceptors;
 
         private volatile Connection? _connection; // readonly when IsFixed is true
         private readonly TimeSpan? _invocationTimeout;
@@ -265,7 +266,7 @@ namespace ZeroC.Ice
                                  endpoints: endpoints,
                                  facet: facet,
                                  identity: identity,
-                                 invocationInterceptors: communicator.InvocationInterceptors,
+                                 invocationInterceptors: communicator.DefaultInvocationInterceptors,
                                  invocationMode: invocationMode,
                                  invocationTimeout: invocationTimeout,
                                  label: null,
@@ -368,7 +369,7 @@ namespace ZeroC.Ice
             {
                 return false;
             }
-            if (!_invocationInterceptors.SequenceEqual(other._invocationInterceptors))
+            if (!InvocationInterceptors.SequenceEqual(other.InvocationInterceptors))
             {
                 return false;
             }
@@ -414,7 +415,7 @@ namespace ZeroC.Ice
                 hash.Add(Encoding);
                 hash.Add(Facet);
                 hash.Add(Identity);
-                hash.Add(_invocationInterceptors.GetSequenceHashCode());
+                hash.Add(InvocationInterceptors.GetSequenceHashCode());
                 hash.Add(InvocationMode);
                 hash.Add(_invocationTimeout);
                 hash.Add(IsFixed);
@@ -711,7 +712,7 @@ namespace ZeroC.Ice
             bool oneway,
             IProgress<bool>? progress = null)
         {
-            IReadOnlyList<InvocationInterceptor> proxyInterceptors = proxy.IceReference._invocationInterceptors;
+            IReadOnlyList<InvocationInterceptor> invocationInterceptors = proxy.IceReference.InvocationInterceptors;
 
             switch (proxy.InvocationMode)
             {
@@ -740,9 +741,9 @@ namespace ZeroC.Ice
             {
                 cancel.ThrowIfCancellationRequested();
                 InvocationInterceptor? interceptor = null;
-                if (i < proxyInterceptors.Count)
+                if (i < invocationInterceptors.Count)
                 {
-                    interceptor = proxyInterceptors[i];
+                    interceptor = invocationInterceptors[i];
                 }
 
                 if (interceptor != null)
@@ -892,7 +893,8 @@ namespace ZeroC.Ice
                                              facet: proxyData.Facet ?? "",
                                              fixedConnection: connection,
                                              identity: proxyData.Identity,
-                                             invocationInterceptors: connection.Communicator.InvocationInterceptors,
+                                             invocationInterceptors:
+                                                connection.Communicator.DefaultInvocationInterceptors,
                                              invocationMode: InvocationMode.Twoway,
                                              invocationTimeout: null);
                     }
@@ -979,7 +981,7 @@ namespace ZeroC.Ice
                    endpoints: endpoints,
                    facet: facet,
                    identity: identity,
-                   invocationInterceptors: communicator.InvocationInterceptors,
+                   invocationInterceptors: communicator.DefaultInvocationInterceptors,
                    invocationMode: invocationMode,
                    invocationTimeout: null,
                    label: null,
@@ -1160,8 +1162,7 @@ namespace ZeroC.Ice
                     facet ?? Facet,
                     (fixedConnection ?? _connection)!,
                     identity ?? Identity,
-                    invocationInterceptors?.ToImmutableList().AddRange(Communicator.InvocationInterceptors) ??
-                        _invocationInterceptors,
+                    invocationInterceptors?.ToImmutableList() ?? InvocationInterceptors,
                     invocationMode ?? InvocationMode,
                     invocationTimeout ?? _invocationTimeout);
                 return clone == this ? this : clone;
@@ -1300,8 +1301,7 @@ namespace ZeroC.Ice
                                           newEndpoints,
                                           facet ?? Facet,
                                           identity ?? Identity,
-                                          invocationInterceptors?.ToImmutableList().AddRange(
-                                                Communicator.InvocationInterceptors) ?? _invocationInterceptors,
+                                          invocationInterceptors?.ToImmutableList() ?? InvocationInterceptors,
                                           invocationMode ?? InvocationMode,
                                           invocationTimeout ?? _invocationTimeout,
                                           clearLabel ? null : label ?? Label,
@@ -1595,7 +1595,7 @@ namespace ZeroC.Ice
             Endpoints = endpoints;
             Facet = facet;
             Identity = identity;
-            _invocationInterceptors = invocationInterceptors;
+            InvocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
             _invocationTimeout = invocationTimeout;
             IsRelative = relative;
@@ -1642,7 +1642,7 @@ namespace ZeroC.Ice
             Endpoints = Array.Empty<Endpoint>();
             Facet = facet;
             Identity = identity;
-            _invocationInterceptors = invocationInterceptors;
+            InvocationInterceptors = invocationInterceptors;
             InvocationMode = invocationMode;
             _invocationTimeout = invocationTimeout;
             IsFixed = true;
