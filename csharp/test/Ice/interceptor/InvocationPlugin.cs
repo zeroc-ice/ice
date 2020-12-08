@@ -9,13 +9,15 @@ namespace ZeroC.Ice.Test.Interceptor
 {
     public class InvocationPluginFactory : IPluginFactory
     {
-        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin();
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
 
         internal class Plugin : IPlugin
         {
-            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
+            private Communicator _communicator;
+
+            public Task ActivateAsync(CancellationToken cancel)
             {
-                context.AddInvocationInterceptor(
+                _communicator.AddInvocationInterceptor(
                     async (target, request, next, cancel) =>
                     {
                         if (request.Protocol == Protocol.Ice2)
@@ -36,6 +38,8 @@ namespace ZeroC.Ice.Test.Interceptor
 
                 return Task.CompletedTask;
             }
+
+            internal Plugin(Communicator communicator) => _communicator = communicator;
 
             public ValueTask DisposeAsync() => default;
         }

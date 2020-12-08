@@ -141,10 +141,9 @@ namespace ZeroC.Ice.Test.Timeout
                 output.Write("testing deadlines... ");
                 output.Flush();
                 {
-                    var comm1 = new Communicator(
-                        communicator.GetProperties(),
-                        invocationInterceptors: new InvocationInterceptor[]
-                        {
+                    var comm1 = new Communicator(communicator.GetProperties());
+
+                    comm1.AddInvocationInterceptor(
                             (target, request, next, cancel) =>
                             {
                                 request.AddBinaryContextEntry(10, request.Deadline, (ostr, value) =>
@@ -153,8 +152,7 @@ namespace ZeroC.Ice.Test.Timeout
                                     ostr.WriteVarLong((long)deadline);
                                 });
                                 return next(target, request, cancel);
-                            }
-                        });
+                            });
 
                     for (int i = 1000; i < 5000;)
                     {

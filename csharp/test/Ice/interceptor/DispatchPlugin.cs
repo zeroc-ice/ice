@@ -7,13 +7,15 @@ namespace ZeroC.Ice.Test.Interceptor
 {
     public class DispatchPluginFactory : IPluginFactory
     {
-        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin();
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
 
         internal class Plugin : IPlugin
         {
-            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
+            private Communicator _communicator;
+
+            public Task ActivateAsync(CancellationToken cancel)
             {
-                context.AddDispatchInterceptor(
+                _communicator.AddDispatchInterceptor(
                     async (request, current, next, cancel) =>
                     {
                         current.Context["DispatchPlugin"] = "1";
@@ -27,6 +29,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
                 return Task.CompletedTask;
             }
+            internal Plugin(Communicator communicator) => _communicator = communicator;
 
             public ValueTask DisposeAsync() => default;
         }

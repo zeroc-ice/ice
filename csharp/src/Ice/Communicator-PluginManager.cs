@@ -106,10 +106,9 @@ namespace ZeroC.Ice
             var activatedPlugins = new List<IPlugin>();
             try
             {
-                using var context = new PluginActivationContext(this);
                 foreach ((string name, IPlugin plugin) in _plugins)
                 {
-                    await plugin.ActivateAsync(context, cancel).ConfigureAwait(false);
+                    await plugin.ActivateAsync(cancel).ConfigureAwait(false);
                     activatedPlugins.Add(plugin);
                 }
             }

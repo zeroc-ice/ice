@@ -84,39 +84,38 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 var tasks = new List<Task>();
                 var invocationContext = new AsyncLocal<int>();
-                using var communicator = new Communicator(
-                    prx.Communicator.GetProperties(),
-                    invocationInterceptors: new InvocationInterceptor[]
+                using var communicator = new Communicator(prx.Communicator.GetProperties());
+
+                communicator.AddInvocationInterceptor(
+                    (target, request, next, cancel) =>
                     {
-                        (target, request, next, cancel) =>
+                        if (ice2)
                         {
-                            if (ice2)
-                            {
-                                request.ContextOverride["interceptor-1"] = "interceptor-1";
-                                request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
-                            }
-                            return next(target, request, cancel);
-                        },
-                        async (target, request, next, cancel) =>
-                        {
-                            if (ice2)
-                            {
-                                TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                                request.ContextOverride["interceptor-2"] = "interceptor-2";
-                                request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
-                            }
-                            IncomingResponseFrame response = await next(target, request, cancel);
-                            TestHelper.Assert(invocationContext.Value == int.Parse(request.Context["local-user"]));
-                            if (ice2)
-                            {
-                                TestHelper.Assert(response.BinaryContext.ContainsKey(110));
-                                TestHelper.Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
-                                TestHelper.Assert(response.BinaryContext.ContainsKey(120));
-                                TestHelper.Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
-                            }
-                            return response;
+                            request.ContextOverride["interceptor-1"] = "interceptor-1";
+                            request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
                         }
+                        return next(target, request, cancel);
+                    },
+                    async (target, request, next, cancel) =>
+                    {
+                        if (ice2)
+                        {
+                            TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                            request.ContextOverride["interceptor-2"] = "interceptor-2";
+                            request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
+                        }
+                        IncomingResponseFrame response = await next(target, request, cancel);
+                        TestHelper.Assert(invocationContext.Value == int.Parse(request.Context["local-user"]));
+                        if (ice2)
+                        {
+                            TestHelper.Assert(response.BinaryContext.ContainsKey(110));
+                            TestHelper.Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
+                            TestHelper.Assert(response.BinaryContext.ContainsKey(120));
+                            TestHelper.Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
+                        }
+                        return response;
                     });
+
                 communicator.ActivateAsync().GetAwaiter().GetResult();
 
                 for (int i = 0; i < 10; ++i)
@@ -134,32 +133,30 @@ namespace ZeroC.Ice.Test.Interceptor
                 int invocations = 0;
                 // An interceptor can stop the chain and directly return a response without calling next,
                 // the first invocation calls next and subsequent invocations reuse the first response.
-                using var communicator = new Communicator(
-                    prx.Communicator.GetProperties(),
-                    invocationInterceptors: new InvocationInterceptor[]
+                using var communicator = new Communicator(prx.Communicator.GetProperties());
+
+                communicator.AddInvocationInterceptor(
+                    (target, request, next, cancel) =>
                     {
-                        (target, request, next, cancel) =>
+                        if (ice2)
                         {
-                            if (ice2)
-                            {
-                                request.ContextOverride["interceptor-1"] = "interceptor-1";
-                            }
-                            return next(target, request, cancel);
-                        },
-                        async (target, request, next, cancel) =>
-                        {
-                            if (response == null)
-                            {
-                                response = await next(target, request, cancel);
-                            }
-                            return response;
-                        },
-                        (target, request, next, cancel) =>
-                        {
-                            invocations++;
-                            TestHelper.Assert(response == null);
-                            return next(target, request, cancel);
+                            request.ContextOverride["interceptor-1"] = "interceptor-1";
                         }
+                        return next(target, request, cancel);
+                    },
+                    async (target, request, next, cancel) =>
+                    {
+                        if (response == null)
+                        {
+                            response = await next(target, request, cancel);
+                        }
+                        return response;
+                    },
+                    (target, request, next, cancel) =>
+                    {
+                        invocations++;
+                        TestHelper.Assert(response == null);
+                        return next(target, request, cancel);
                     });
                 communicator.ActivateAsync().GetAwaiter().GetResult();
 
@@ -172,25 +169,22 @@ namespace ZeroC.Ice.Test.Interceptor
 
             {
                 // throwing from an interceptor stops the interceptor chain
-                using var communicator = new Communicator(
-                    prx.Communicator.GetProperties(),
-                    invocationInterceptors: new InvocationInterceptor[]
+                using var communicator = new Communicator(prx.Communicator.GetProperties());
+                communicator.AddInvocationInterceptor(
+                    (target, request, next, cancel) =>
                     {
-                        (target, request, next, cancel) =>
-                        {
-                            request.ContextOverride["interceptor-1"] = "interceptor-1";
-                            return next(target, request, cancel);
-                        },
-                        (target, request, next, cancel) =>
-                        {
-                            TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                            throw new InvalidOperationException("stop interceptor chain");
-                        },
-                        (target, request, next, cancel) =>
-                        {
-                            TestHelper.Assert(false);
-                            return next(target, request, cancel);
-                        }
+                        request.ContextOverride["interceptor-1"] = "interceptor-1";
+                        return next(target, request, cancel);
+                    },
+                    (target, request, next, cancel) =>
+                    {
+                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                        throw new InvalidOperationException("stop interceptor chain");
+                    },
+                    (target, request, next, cancel) =>
+                    {
+                        TestHelper.Assert(false);
+                        return next(target, request, cancel);
                     });
                 communicator.ActivateAsync().GetAwaiter().GetResult();
 

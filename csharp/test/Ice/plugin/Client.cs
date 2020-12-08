@@ -129,7 +129,7 @@ namespace ZeroC.Ice.Test.Plugin
 
             public bool IsDestroyed() => _destroyed;
 
-            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
+            public Task ActivateAsync(CancellationToken cancel)
             {
                 _initialized = true;
                 return Task.CompletedTask;
