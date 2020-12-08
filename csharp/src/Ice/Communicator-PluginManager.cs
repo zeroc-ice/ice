@@ -163,15 +163,10 @@ namespace ZeroC.Ice
                 }
             }
 
-            // Loads and activates the plug-ins defined in the property set with the prefix "Ice.Plugin.". These
-            // properties should have the following format:
+            // Loads the plug-ins defined in the property set with the prefix "Ice.Plugin.". These properties should
+            // have the following format:
             //
             // Ice.Plugin.name[.<language>]=entry_point [args]
-            //
-            // The code below is different from the Java/C++ algorithm because C# must support full assembly names such
-            // as:
-            //
-            // Ice.Plugin.Logger=logger, Version=0.0.0.0, Culture=neutral:LoginPluginFactory
             //
             // If the Ice.PluginLoadOrder property is defined, load the specified plug-ins in the specified order, then
             // load any remaining plug-ins.

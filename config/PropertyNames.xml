@@ -297,6 +297,7 @@ generated from the section label.
         <property name="ACM.Server" class="acm"/>
         <property name="AcceptNonSecure" />
         <property name="Admin" class="objectadapter" />
+        <!-- TODO: Remove Admin.DelayCreation -->
         <property name="Admin.DelayCreation" />
         <property name="Admin.Enabled" />
         <property name="Admin.Facets" />
@@ -359,6 +360,7 @@ generated from the section label.
         <property name="IdleTimeout"/>
         <property name="ImplicitContext" />
         <property name="IncomingFrameMaxSize" />
+        <!-- TODO: Remove InitPlugins -->
         <property name="InitPlugins" />
         <property name="InvocationMaxAttempts" />
         <!-- TODO: Remove IPv4 -->

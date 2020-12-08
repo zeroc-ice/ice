@@ -203,7 +203,7 @@ namespace ZeroC.Ice
             "Context\\..*"
         };
         private static readonly object _staticMutex = new object();
-        private volatile bool _activateCalled;
+        private bool _activateCalled;
         private readonly Func<CancellationToken, Task>? _activateLocatorAsync;
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
@@ -764,11 +764,14 @@ namespace ZeroC.Ice
         /// <returns>A task that completes when the activation completes.</returns>
         public async Task ActivateAsync(CancellationToken cancel = default)
         {
-            if (_activateCalled)
+            lock (_mutex)
             {
-                throw new InvalidOperationException("ActivateAsync was already called on this communicator");
+                if (_activateCalled)
+                {
+                    throw new InvalidOperationException("ActivateAsync was already called on this communicator");
+                }
+                _activateCalled = true;
             }
-            _activateCalled = true;
 
             await ActivatePluginsAsync(cancel).ConfigureAwait(false);
 
