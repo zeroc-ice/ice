@@ -272,7 +272,6 @@ namespace ZeroC.Ice
                                           _publishedEndpoints,
                                           facet: "",
                                           new Identity("dummy", ""),
-                                          invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                           invocationMode: default,
                                           location: ImmutableArray<string>.Empty,
                                           protocol: _publishedEndpoints[0].Protocol));
@@ -331,6 +330,11 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
+
                 _interceptors = _interceptors.AddRange(interceptor);
             }
         }
@@ -665,7 +669,6 @@ namespace ZeroC.Ice
                                                 PublishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                              facet,
                                              identity,
-                                             invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                              _invocationMode,
                                              location,
                                              protocol));
