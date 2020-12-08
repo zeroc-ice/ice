@@ -230,7 +230,7 @@ namespace ZeroC.Ice
                     factory.Activate();
                 }
 
-                _activateTask = _routerInfo != null ? ActivateWithRouterAsync(cancel) : RegisterEndpointsAsync(cancel);
+                _activateTask = PerformActivateAsync(cancel);
             }
 
             await _activateTask.ConfigureAwait(false);
@@ -240,23 +240,23 @@ namespace ZeroC.Ice
                 Console.Out.WriteLine($"{Name} ready");
             }
 
-            async Task ActivateWithRouterAsync(CancellationToken cancel)
+            async Task PerformActivateAsync(CancellationToken cancel)
             {
-                Debug.Assert(_publishedEndpoints.Count == 0);
-                Debug.Assert(_routerInfo != null);
+                if (_routerInfo != null)
+                {
+                    // Modify all existing outgoing connections to the router's client proxy to use this object adapter
+                    // for callbacks.
+                    await Communicator.SetRouterInfoAsync(_routerInfo, cancel).ConfigureAwait(false);
 
-                // Modify all existing outgoing connections to the router's client proxy to use this object adapter for
-                // callbacks.
+                    Debug.Assert(_publishedEndpoints.Count == 0);
+                    _publishedEndpoints =
+                        await _routerInfo.Router.GetServerEndpointsAsync(cancel).ConfigureAwait(false);
+                    TracePublishedEndpoints();
+                }
 
-                await Communicator.SetRouterInfoAsync(_routerInfo, cancel).ConfigureAwait(false);
-                _publishedEndpoints = await _routerInfo.Router.GetServerEndpointsAsync(cancel).ConfigureAwait(false);
-                TracePublishedEndpoints();
-            }
+                // Then register the published endpoints with the locator registry.
 
-            async Task RegisterEndpointsAsync(CancellationToken cancel)
-            {
                 // _locator and _publishedEndpoints are read-only at this point.
-
                 if (_publishedEndpoints.Count == 0 || AdapterId.Length == 0 || _locator == null)
                 {
                     return; // nothing to do
@@ -787,6 +787,17 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException(
                         $"the router for object adapter `{Name}' must be an ice1 proxy");
                 }
+                if (Communicator.GetProperty($"{Name}.Endpoints") != null)
+                {
+                    throw new InvalidConfigurationException(
+                        $"{Name}.Endpoints is not valid for an object adapter with a router");
+                }
+                if (Communicator.GetProperty($"{Name}.PublishedEndpoints") != null)
+                {
+                    throw new InvalidConfigurationException(
+                        $"{Name}.PublishedEndpoints is not valid for an object adapter with a router");
+                }
+
                 _routerInfo = Communicator.GetRouterInfo(router);
                 Debug.Assert(_routerInfo != null);
 
@@ -862,23 +873,14 @@ namespace ZeroC.Ice
                     // TODO: is an adapter with a name but no Endpoints or Router really a valid adapter?
                     Protocol = Protocol.Ice2;
                 }
-            }
 
-            if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string publishedEndpointsValue)
-            {
-                if (router != null)
+                if (Communicator.GetProperty($"{Name}.PublishedEndpoints") is string publishedEndpointsValue)
                 {
-                    throw new InvalidConfigurationException(
-                        $"{Name}.PublishedEndpoints is not compatible with a router");
+                    _publishedEndpoints = UriParser.IsEndpointUri(publishedEndpointsValue) ?
+                        UriParser.ParseEndpoints(publishedEndpointsValue, Communicator) :
+                        Ice1Parser.ParseEndpoints(publishedEndpointsValue, Communicator, oaEndpoints: false);
                 }
 
-                _publishedEndpoints = UriParser.IsEndpointUri(publishedEndpointsValue) ?
-                    UriParser.ParseEndpoints(publishedEndpointsValue, Communicator) :
-                    Ice1Parser.ParseEndpoints(publishedEndpointsValue, Communicator, oaEndpoints: false);
-            }
-
-            if (router == null)
-            {
                 if (_publishedEndpoints.Count == 0)
                 {
                     // If the PublishedEndpoints config property isn't set, we compute the published endpoints from
