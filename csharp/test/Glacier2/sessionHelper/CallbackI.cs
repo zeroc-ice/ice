@@ -14,6 +14,6 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             proxy!.CallbackEx(current.Context, cancel: cancel);
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 }

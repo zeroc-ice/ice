@@ -104,6 +104,16 @@ namespace ZeroC.Ice
                                     // Wait for the stream to receive the data before reading a new Slic frame.
                                     await WaitForReceivedStreamDataCompletionAsync(cancel).ConfigureAwait(false);
                                 }
+                                else
+                                {
+                                    if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                                    {
+                                        TraceTransportFrame("received ",
+                                                            SlicDefinitions.FrameType.StreamLast,
+                                                            0,
+                                                            streamId);
+                                    }
+                                }
                             }
                             catch
                             {
@@ -135,7 +145,7 @@ namespace ZeroC.Ice
                             // Accept the new incoming stream and notify the stream that data is available.
                             try
                             {
-                                stream = new SlicStream(streamId.Value, this);
+                                stream = new SlicStream(this, streamId.Value);
                                 if (stream.IsControl)
                                 {
                                     // We don't acquire flow control credit for the control stream.
@@ -225,12 +235,12 @@ namespace ZeroC.Ice
             {
                 if (size > 0)
                 {
-                    ArraySegment<byte> data = new byte[size];
-                    await ReceiveDataAsync(data, cancel).ConfigureAwait(false);
-                    if (Endpoint.Communicator.TraceLevels.Transport > 2)
-                    {
-                        TraceTransportFrame("received ", type, size, streamId);
-                    }
+                    await ReceiveDataAsync(new byte[size], cancel).ConfigureAwait(false);
+                }
+
+                if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                {
+                    TraceTransportFrame("received ", type, size, streamId);
                 }
             }
         }
@@ -238,7 +248,8 @@ namespace ZeroC.Ice
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _socket.CloseAsync(exception, cancel);
 
-        public override SocketStream CreateStream(bool bidirectional) => new SlicStream(bidirectional, this);
+        public override SocketStream CreateStream(bool bidirectional, bool control) =>
+            new SlicStream(this, bidirectional, control);
 
         public override async ValueTask InitializeAsync(CancellationToken cancel)
         {
@@ -393,25 +404,6 @@ namespace ZeroC.Ice
             return streamIds;
         }
 
-        internal long AllocateId(bool bidirectional)
-        {
-            lock (_mutex)
-            {
-                long id;
-                if (bidirectional)
-                {
-                    id = _nextBidirectionalId;
-                    _nextBidirectionalId += 4;
-                }
-                else
-                {
-                    id = _nextUnidirectionalId;
-                    _nextUnidirectionalId += 4;
-                }
-                return id;
-            }
-        }
-
         internal void FinishedReceivedStreamData(long streamId, int frameOffset, int frameSize, bool fin)
         {
             // The stream finished receiving stream data.
@@ -452,9 +444,9 @@ namespace ZeroC.Ice
             return SendFrameAsync(data, cancel);
         }
 
-        internal async ValueTask ReceiveDataAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        internal async ValueTask ReceiveDataAsync(Memory<byte> buffer, CancellationToken cancel)
         {
-            for (int offset = 0; offset != buffer.Count;)
+            for (int offset = 0; offset != buffer.Length;)
             {
                 int received = await _socket.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
                 offset += received;
@@ -540,18 +532,21 @@ namespace ZeroC.Ice
             }
             else
             {
-                Debug.Assert(!stream.IsIncoming && !stream.IsControl);
+                Debug.Assert(!stream.IsIncoming);
 
-                // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
-                // control credit to ensure we don't open more streams than the peer allows. The semaphore
-                // provides FIFO guarantee to ensure that the sending of requests is serialized.
-                if (stream.IsBidirectional)
+                if (!stream.IsControl)
                 {
-                    await _bidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
-                }
-                else
-                {
-                    await _unidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                    // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
+                    // control credit to ensure we don't open more streams than the peer allows. The semaphore
+                    // provides FIFO guarantee to ensure that the sending of requests is serialized.
+                    if (stream.IsBidirectional)
+                    {
+                        await _bidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await _unidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                    }
                 }
 
                 // Ensure we allocate and queue for sending the first packet atomically to ensure the receiver
@@ -560,7 +555,17 @@ namespace ZeroC.Ice
                 Task task;
                 lock (_mutex)
                 {
-                    stream.Id = AllocateId(stream.IsBidirectional);
+                    // Allocate a new ID according to the Quic numbering scheme.
+                    if (stream.IsBidirectional)
+                    {
+                        stream.Id = _nextBidirectionalId;
+                        _nextBidirectionalId += 4;
+                    }
+                    else
+                    {
+                        stream.Id = _nextUnidirectionalId;
+                        _nextUnidirectionalId += 4;
+                    }
                     task = stream.SendPacketAsync(packetSize, fin, buffer, cancel);
                 }
                 await task.ConfigureAwait(false);
@@ -603,11 +608,6 @@ namespace ZeroC.Ice
 
             Endpoint.Communicator.Logger.Trace(TraceLevels.TransportCategory, s.ToString());
         }
-
-        private protected override SocketStream CreateControlStream() =>
-            // We make sure to allocate the ID for the control stream right away. Otherwise, it would be considered
-            // like a regular stream and if serialization is enabled, it would acquire the semaphore.
-            new SlicStream(AllocateId(false), this);
 
         private void ReadParameters(InputStream istr)
         {

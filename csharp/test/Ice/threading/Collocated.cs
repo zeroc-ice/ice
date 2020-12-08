@@ -11,6 +11,7 @@ namespace ZeroC.Ice.Test.Threading
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
+            await communicator.ActivateAsync();
 
             ObjectAdapter adapter1 = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter1.Add("test", new TestIntf(TaskScheduler.Default));

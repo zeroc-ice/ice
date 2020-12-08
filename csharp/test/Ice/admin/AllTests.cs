@@ -138,6 +138,7 @@ namespace ZeroC.Ice.Test.Admin
                     ["Ice.Admin.InstanceName"] = "Test"
                 };
                 using var com = new Communicator(properties);
+                com.ActivateAsync().GetAwaiter().GetResult();
                 TestFacets(com, true, false);
             }
             {
@@ -150,11 +151,13 @@ namespace ZeroC.Ice.Test.Admin
                     ["Ice.Admin.Facets"] = "Properties"
                 };
                 using var com = new Communicator(properties);
+                com.ActivateAsync().GetAwaiter().GetResult();
                 TestFacets(com, false, true);
             }
             {
                 // Test: Verify that the operations work correctly with the Admin object disabled.
                 using var com = new Communicator();
+                com.ActivateAsync().GetAwaiter().GetResult();
                 TestFacets(com, false, false);
             }
             {
@@ -164,11 +167,12 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.Enabled", "1" }
                 };
                 using var com = new Communicator(properties);
-                TestHelper.Assert(com.GetAdmin() == null);
+                com.ActivateAsync().GetAwaiter().GetResult();
+                TestHelper.Assert(com.GetAdminAsync().GetAwaiter().GetResult() == null);
                 var id = Identity.Parse("test-admin");
                 try
                 {
-                    com.CreateAdmin(null, id);
+                    _ = com.CreateAdminAsync(null, id).GetAwaiter().GetResult();
                     TestHelper.Assert(false);
                 }
                 catch (InvalidConfigurationException)
@@ -176,8 +180,8 @@ namespace ZeroC.Ice.Test.Admin
                 }
 
                 ObjectAdapter adapter = com.CreateObjectAdapter();
-                TestHelper.Assert(com.CreateAdmin(adapter, id) != null);
-                TestHelper.Assert(com.GetAdmin() != null);
+                TestHelper.Assert(com.CreateAdminAsync(adapter, id).GetAwaiter().GetResult() != null);
+                TestHelper.Assert(com.GetAdminAsync().GetAwaiter().GetResult() != null);
 
                 TestFacets(com, true, false);
             }
@@ -187,13 +191,12 @@ namespace ZeroC.Ice.Test.Admin
                 {
                     { "Ice.Admin.Endpoints", ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0" },
                     { "Ice.ServerName", "127.0.0.1" },
-                    { "Ice.Admin.InstanceName", "Test" },
-                    { "Ice.Admin.DelayCreation", "1" }
+                    { "Ice.Admin.InstanceName", "Test" }
                 };
 
                 using var com = new Communicator(properties);
                 TestFacets(com, true, false);
-                com.GetAdmin();
+                com.ActivateAsync().GetAwaiter().GetResult();
                 TestFacets(com, true, false);
             }
             output.WriteLine("ok");

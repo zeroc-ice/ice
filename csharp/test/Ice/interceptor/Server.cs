@@ -21,9 +21,12 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                     {
                         "Ice.Plugin.DispatchPlugin",
-                        $"{pluginPath }:ZeroC.Ice.Test.Interceptor.DispatchPluginFactory"
+                        $"{pluginPath}:ZeroC.Ice.Test.Interceptor.DispatchPluginFactory"
                     }
                 });
+
+            await communicator.ActivateAsync();
+
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyObject());

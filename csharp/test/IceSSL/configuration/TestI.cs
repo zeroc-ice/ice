@@ -91,8 +91,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 transport: ice1 ? "ssl" : "tcp",
                 ephemeral: host != "localhost");
 
-            ObjectAdapter adapter =
-                communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", serverEndpoint, cancel: cancel);
+            ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", serverEndpoint);
             var server = new SSLServer(communicator);
             IServerPrx prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;
@@ -112,7 +111,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         public void Shutdown(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_servers.Count == 0);
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
         }
     }
 }

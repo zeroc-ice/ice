@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
@@ -15,13 +16,14 @@ namespace ZeroC.Ice.Test.Plugin
             {
             }
 
-            public override void Initialize(PluginInitializationContext context)
+            public override Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
             {
                 var other = (BasePlugin?)Communicator.GetPlugin("PluginTwo");
                 TestHelper.Assert(other != null);
                 Other = other;
                 TestHelper.Assert(Other.IsInitialized());
                 Initialized = true;
+                return Task.CompletedTask;
             }
 
             public override async ValueTask DisposeAsync()

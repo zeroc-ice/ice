@@ -30,6 +30,8 @@ namespace ZeroC.Ice
         // The default port with ice1 is 0.
         protected internal override ushort DefaultPort => Protocol == Protocol.Ice1 ? (ushort)0 : DefaultIPPort;
 
+        protected internal override bool HasDnsHost => Address == IPAddress.None;
+
         internal const ushort DefaultIPPort = 4062;
 
         /// <summary>When Host is an IP address, returns the parsed IP address. Otherwise, when Host is a DNS name,
@@ -246,27 +248,22 @@ namespace ZeroC.Ice
 
         protected internal override async ValueTask<IEnumerable<Endpoint>> ExpandHostAsync(CancellationToken cancel)
         {
-            if (Address == IPAddress.None) // DNS name
+            Debug.Assert(HasDnsHost);
+
+            try
             {
-                try
-                {
-                    // TODO: use cancel once GetHostAddressesAsync supports it.
-                    return (await Dns.GetHostAddressesAsync(Host).ConfigureAwait(false)).Select(
-                        address =>
-                        {
-                            IPEndpoint expanded = Clone(address.ToString(), Port);
-                            expanded._address = address;
-                            return expanded;
-                        });
-                }
-                catch (Exception ex)
-                {
-                    throw new DNSException(Host, ex);
-                }
+                // TODO: use cancel once GetHostAddressesAsync supports it.
+                return (await Dns.GetHostAddressesAsync(Host).ConfigureAwait(false)).Select(
+                    address =>
+                    {
+                        IPEndpoint expanded = Clone(address.ToString(), Port);
+                        expanded._address = address;
+                        return expanded;
+                    });
             }
-            else
+            catch (Exception ex)
             {
-                return ImmutableArray.Create(this);
+                throw new DNSException(Host, ex);
             }
         }
 

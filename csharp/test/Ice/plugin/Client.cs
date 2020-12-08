@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -28,6 +29,7 @@ namespace ZeroC.Ice.Test.Plugin
                         $"{pluginPath }:ZeroC.Ice.Test.Plugin.PluginFactory 'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'"
                     }
                 });
+                await communicator.ActivateAsync();
                 Console.WriteLine("ok");
             }
 
@@ -36,12 +38,13 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Out.Flush();
                 try
                 {
-                    Initialize(new Dictionary<string, string>()
+                    await using Communicator communicator = Initialize(new Dictionary<string, string>()
                     {
                         {
                             "Ice.Plugin.Test", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginInitializeFailFactory"
                         }
                     });
+                    await communicator.ActivateAsync();
                     Assert(false);
                 }
                 catch
@@ -55,13 +58,14 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Write("testing plug-in load order... ");
                 Console.Out.Flush();
 
-                using Communicator communicator = Initialize(new Dictionary<string, string>()
+                await using Communicator communicator = Initialize(new Dictionary<string, string>()
                 {
                     { "Ice.Plugin.PluginOne", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFactory" },
                     { "Ice.Plugin.PluginTwo", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginTwoFactory" },
                     { "Ice.Plugin.PluginThree", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginThreeFactory" },
                     { "Ice.PluginLoadOrder", "PluginOne, PluginTwo" } // Exclude PluginThree
                 });
+                await communicator.ActivateAsync();
                 Console.WriteLine("ok");
             }
 
@@ -71,12 +75,11 @@ namespace ZeroC.Ice.Test.Plugin
 
                 MyPlugin p4;
                 {
-                    using Communicator communicator = Initialize(new Dictionary<string, string>()
+                    await using Communicator communicator = Initialize(new Dictionary<string, string>()
                     {
                         { "Ice.Plugin.PluginOne", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFactory" },
                         { "Ice.Plugin.PluginTwo", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginTwoFactory" },
                         { "Ice.Plugin.PluginThree", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginThreeFactory" },
-                        { "Ice.InitPlugins", "0"}
                     });
 
                     Assert(communicator.GetPlugin("PluginOne") != null);
@@ -87,7 +90,7 @@ namespace ZeroC.Ice.Test.Plugin
                     communicator.AddPlugin("PluginFour", p4);
                     Assert(communicator.GetPlugin("PluginFour") != null);
 
-                    communicator.InitializePlugins();
+                    await communicator.ActivateAsync();
 
                     Assert(p4.IsInitialized());
                 }
@@ -100,13 +103,14 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Out.Flush();
                 try
                 {
-                    Initialize(new Dictionary<string, string>()
+                    await using Communicator communicator = Initialize(new Dictionary<string, string>()
                     {
                         { "Ice.Plugin.PluginOneFail", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFailFactory" },
                         { "Ice.Plugin.PluginTwoFail", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginTwoFailFactory" },
                         { "Ice.Plugin.PluginThreeFail", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginThreeFailFactory" },
                         { "Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail"}
                     });
+                    await communicator.ActivateAsync();
                 }
                 catch
                 {
@@ -125,7 +129,11 @@ namespace ZeroC.Ice.Test.Plugin
 
             public bool IsDestroyed() => _destroyed;
 
-            public void Initialize(PluginInitializationContext context) => _initialized = true;
+            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
+            {
+                _initialized = true;
+                return Task.CompletedTask;
+            }
 
             public ValueTask DisposeAsync()
             {

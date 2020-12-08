@@ -17,6 +17,8 @@ namespace ZeroC.Ice.LocatorDiscovery
     /// can be an ice1/1.1 proxy that understands only 1.1-encoded requests.</summary>
     internal class Locator : IAsyncLocator
     {
+        internal ILocatorPrx Proxy { get; }
+
         private TaskCompletionSource<ILocatorPrx>? _completionSource;
         private Task<ILocatorPrx?>? _findLocatorTask;
         private string _instanceName;
@@ -32,8 +34,6 @@ namespace ZeroC.Ice.LocatorDiscovery
         private readonly int _lookupTraceLevel;
         private readonly object _mutex = new();
         private TimeSpan _nextRetry;
-
-        private readonly ILocatorPrx _proxy;
 
         private readonly ObjectAdapter _replyAdapter;
 
@@ -62,7 +62,7 @@ namespace ZeroC.Ice.LocatorDiscovery
             }
             else
             {
-                // Calls the base DispathAsync, which calls FindAdapterByIdAsync etc.
+                // Calls the base DispatchAsync, which calls FindAdapterByIdAsync etc.
                 // The transcoding is naturally limited to the known Ice::Locator operations. Other operations
                 // cannot be transcoded and result in OperationNotExistException.
                 return await IAsyncLocator.DispatchAsync(this, request, current, cancel).ConfigureAwait(false);
@@ -132,8 +132,95 @@ namespace ZeroC.Ice.LocatorDiscovery
                     }
                 });
 
-        internal static ILocatorPrx Initialize(Communicator communicator) =>
-            new Locator(communicator)._proxy;
+        internal Locator(Communicator communicator)
+        {
+            const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
+            const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
+
+            string? lookupEndpoints = communicator.GetProperty("Ice.LocatorDiscovery.Lookup");
+            if (lookupEndpoints == null)
+            {
+                List<string> endpoints = new();
+                List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
+                List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
+
+                endpoints.AddRange(ipv4Interfaces.Select(i => $"{defaultIPv4Endpoint} --interface \"{i}\""));
+                endpoints.AddRange(ipv6Interfaces.Select(i => $"{defaultIPv6Endpoint} --interface \"{i}\""));
+
+                lookupEndpoints = string.Join(":", endpoints);
+            }
+
+            _timeout = communicator.GetPropertyAsTimeSpan("Ice.LocatorDiscovery.Timeout") ??
+                 TimeSpan.FromMilliseconds(300);
+            if (_timeout == Timeout.InfiniteTimeSpan)
+            {
+                _timeout = TimeSpan.FromMilliseconds(300);
+            }
+
+            _lookup = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
+                    clearRouter: true,
+                    invocationTimeout: _timeout,
+                    preferNonSecure: NonSecure.Always);
+
+            if (communicator.GetProperty("Ice.LocatorDiscovery.Reply.Endpoints") == null)
+            {
+                communicator.SetProperty("Ice.LocatorDiscovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
+            }
+            communicator.SetProperty("Ice.LocatorDiscovery.Reply.ProxyOptions", "-d");
+            communicator.SetProperty("Ice.LocatorDiscovery.Reply.AcceptNonSecure", "Always");
+
+            _instanceName = communicator.GetProperty("Ice.LocatorDiscovery.InstanceName") ?? "";
+
+            _replyAdapter = communicator.CreateObjectAdapter("Ice.LocatorDiscovery.Reply");
+            _locatorAdapter = communicator.CreateObjectAdapter();
+
+            var locatorIdentity = new Identity("Locator",
+                                               _instanceName.Length > 0 ? _instanceName : Guid.NewGuid().ToString());
+            Proxy = _locatorAdapter.Add(locatorIdentity, this, ILocatorPrx.Factory);
+
+            var lookupReplyId = new Identity(Guid.NewGuid().ToString(), "");
+            ILookupReplyPrx lookupReply = _replyAdapter.CreateProxy(lookupReplyId, ILookupReplyPrx.Factory);
+            Debug.Assert(lookupReply.InvocationMode == InvocationMode.Datagram);
+
+            _replyAdapter.Add(lookupReplyId, new LookupReply(this));
+
+            _retryCount = Math.Max(communicator.GetPropertyAsInt("Ice.LocatorDiscovery.RetryCount") ?? 3, 1);
+            _retryDelay = communicator.GetPropertyAsTimeSpan("Ice.LocatorDiscovery.RetryDelay") ??
+                TimeSpan.FromMilliseconds(2000);
+            _lookupTraceLevel = communicator.GetPropertyAsInt("Ice.LocatorDiscovery.Trace.Lookup") ?? 0;
+            _lookupTraceCategory = "Ice.LocatorDiscovery.Lookup";
+
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
+            // endpoint.
+
+            // TODO: revisit, as it no longer works properly with the new default published endpoints.
+            foreach (Endpoint endpoint in _lookup.Endpoints)
+            {
+                if (!endpoint.IsDatagram)
+                {
+                    throw new InvalidConfigurationException("Ice.LocatorDiscovery.Lookup can only have udp endpoints");
+                }
+
+                ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
+
+                if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
+                {
+                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
+
+                    if (q != null)
+                    {
+                        _lookups[key] = lookupReply.Clone(endpoints: ImmutableArray.Create(q));
+                    }
+                }
+
+                if (!_lookups.ContainsKey(key))
+                {
+                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                    _lookups[key] = lookupReply;
+                }
+            }
+            Debug.Assert(_lookups.Count > 0);
+        }
 
         internal void FoundLocator(ILocatorPrx locator)
         {
@@ -209,94 +296,8 @@ namespace ZeroC.Ice.LocatorDiscovery
             }
         }
 
-        private Locator(Communicator communicator)
-        {
-            const string defaultIPv4Endpoint = "udp -h 239.255.0.1 -p 4061";
-            const string defaultIPv6Endpoint = "udp -h \"ff15::1\" -p 4061";
-
-            string? lookupEndpoints = communicator.GetProperty("Ice.LocatorDiscovery.Lookup");
-            if (lookupEndpoints == null)
-            {
-                List<string> endpoints = new();
-                List<string> ipv4Interfaces = Network.GetInterfacesForMulticast("0.0.0.0", Network.EnableIPv4);
-                List<string> ipv6Interfaces = Network.GetInterfacesForMulticast("::0", Network.EnableIPv6);
-
-                endpoints.AddRange(ipv4Interfaces.Select(i => $"{defaultIPv4Endpoint} --interface \"{i}\""));
-                endpoints.AddRange(ipv6Interfaces.Select(i => $"{defaultIPv6Endpoint} --interface \"{i}\""));
-
-                lookupEndpoints = string.Join(":", endpoints);
-            }
-
-            _timeout = communicator.GetPropertyAsTimeSpan("Ice.LocatorDiscovery.Timeout") ??
-                 TimeSpan.FromMilliseconds(300);
-            if (_timeout == Timeout.InfiniteTimeSpan)
-            {
-                _timeout = TimeSpan.FromMilliseconds(300);
-            }
-
-            _lookup = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", communicator).Clone(
-                    clearRouter: true,
-                    invocationTimeout: _timeout,
-                    preferNonSecure: NonSecure.Always);
-
-            if (communicator.GetProperty("Ice.LocatorDiscovery.Reply.Endpoints") == null)
-            {
-                communicator.SetProperty("Ice.LocatorDiscovery.Reply.Endpoints", "udp -h \"::0\" -p 0");
-            }
-            communicator.SetProperty("Ice.LocatorDiscovery.Reply.ProxyOptions", "-d");
-            communicator.SetProperty("Ice.LocatorDiscovery.Reply.AcceptNonSecure", "Always");
-
-            _replyAdapter = communicator.CreateObjectAdapter("Ice.LocatorDiscovery.Reply");
-            _locatorAdapter = communicator.CreateObjectAdapter();
-
-            var lookupReplyId = new Identity(Guid.NewGuid().ToString(), "");
-            ILookupReplyPrx lookupReply = _replyAdapter.CreateProxy(lookupReplyId, ILookupReplyPrx.Factory);
-            Debug.Assert(lookupReply.InvocationMode == InvocationMode.Datagram);
-
-            string instanceName = communicator.GetProperty("Ice.LocatorDiscovery.InstanceName") ?? "";
-            var locatorId = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
-            _proxy = _locatorAdapter.Add(locatorId, this, ILocatorPrx.Factory);
-            _replyAdapter.Add(lookupReplyId, new LookupReply(this));
-
-            _retryCount = Math.Max(communicator.GetPropertyAsInt("Ice.LocatorDiscovery.RetryCount") ?? 3, 1);
-            _retryDelay = communicator.GetPropertyAsTimeSpan("Ice.LocatorDiscovery.RetryDelay") ??
-                TimeSpan.FromMilliseconds(2000);
-            _lookupTraceLevel = communicator.GetPropertyAsInt("Ice.LocatorDiscovery.Trace.Lookup") ?? 0;
-            _lookupTraceCategory = "Ice.LocatorDiscovery.Lookup";
-            _instanceName = instanceName;
-
-            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
-            // endpoint.
-            foreach (Endpoint endpoint in _lookup.Endpoints)
-            {
-                if (!endpoint.IsDatagram)
-                {
-                    throw new InvalidConfigurationException("Ice.LocatorDiscovery.Lookup can only have udp endpoints");
-                }
-
-                ILookupPrx key = _lookup.Clone(endpoints: ImmutableArray.Create(endpoint));
-
-                if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
-                {
-                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
-
-                    if (q != null)
-                    {
-                        _lookups[key] = lookupReply.Clone(endpoints: ImmutableArray.Create(q));
-                    }
-                }
-
-                if (!_lookups.ContainsKey(key))
-                {
-                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
-                    _lookups[key] = lookupReply;
-                }
-            }
-            Debug.Assert(_lookups.Count > 0);
-
-            _replyAdapter.Activate();
-            _locatorAdapter.Activate();
-        }
+        internal Task ActivateAsync(CancellationToken cancel) =>
+            Task.WhenAll(_locatorAdapter.ActivateAsync(cancel), _replyAdapter.ActivateAsync(cancel));
 
         private async Task<ILocatorPrx?> FindLocatorAsync()
         {

@@ -217,7 +217,7 @@ namespace ZeroC.Ice
         public override ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             throw new InvalidOperationException("only supported by datagram transports");
 
-        public override async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public override async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
         {
             // If we've fully read the previous DATA frame payload, read a new frame
             if (_receivePayloadOffset == _receivePayloadLength)
@@ -232,20 +232,14 @@ namespace ZeroC.Ice
             }
 
             // Read the payload
-            int length = Math.Min(_receivePayloadLength, buffer.Count);
+            int length = Math.Min(_receivePayloadLength, buffer.Length);
             int received = await _underlying.ReceiveAsync(buffer[0..length], cancel).ConfigureAwait(false);
 
             if (_incoming)
             {
-                for (int i = 0; i < received; ++i)
-                {
-                    buffer[i] = (byte)(buffer[i] ^ _receiveMask[_receivePayloadOffset++ % 4]);
-                }
+                Unmask(buffer, _receivePayloadOffset, received);
             }
-            else
-            {
-                _receivePayloadOffset += received;
-            }
+            _receivePayloadOffset += received;
             return received;
         }
 
@@ -415,10 +409,7 @@ namespace ZeroC.Ice
                         byte[] payload = payloadBuffer.ToArray();
                         if (_incoming)
                         {
-                            for (int i = 0; i < payload.Length; ++i)
-                            {
-                                payload[i] = (byte)(payload[i] ^ _receiveMask[i % 4]);
-                            }
+                            Unmask(payload, 0, payload.Length);
                         }
 
                         // If we've received a close frame and we were waiting for it, notify the task. Otherwise,
@@ -691,6 +682,15 @@ namespace ZeroC.Ice
                 await _underlying.SendAsync(_sendBuffer, cancel).ConfigureAwait(false);
                 _sendBuffer.Clear();
                 return size;
+            }
+        }
+
+        private void Unmask(Memory<byte> buffer, int offset, int length)
+        {
+            Span<byte> bufferAsSpan = buffer.Span;
+            for (int i = 0; i < length; ++i)
+            {
+                bufferAsSpan[i] = (byte)(bufferAsSpan[i] ^ _receiveMask[offset++ % 4]);
             }
         }
     }

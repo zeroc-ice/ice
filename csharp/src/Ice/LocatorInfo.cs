@@ -33,8 +33,9 @@ namespace ZeroC.Ice
             new(_locationComparer);
 
         private ILocatorRegistryPrx? _locatorRegistry;
+        private bool _locatorRegistryRetrieved; // used to cache null locator registries
 
-        // _mutex protects _locationRequests and _wellKnownProxyRequests
+        // _mutex protects _locatorRegistry, _locatorRegistryRetrieved, _locationRequests and _wellKnownProxyRequests
         private readonly object _mutex = new();
 
         private readonly ConcurrentDictionary<(Identity, string, Protocol), (TimeSpan InsertionTime, EndpointList Endpoints, Location Location)> _wellKnownProxyCache =
@@ -212,16 +213,31 @@ namespace ZeroC.Ice
             return (endpoints, cached);
         }
 
-        internal async ValueTask<ILocatorRegistryPrx?> GetLocatorRegistryAsync()
+        internal async Task<ILocatorRegistryPrx?> GetLocatorRegistryAsync(CancellationToken cancel)
         {
-            if (_locatorRegistry == null)
+            lock (_mutex)
             {
-                ILocatorRegistryPrx? registry = await Locator.GetRegistryAsync().ConfigureAwait(false);
-
-                // The locator registry can't be located.
-                _locatorRegistry = registry?.Clone(clearLocator: true);
+                if (_locatorRegistryRetrieved)
+                {
+                    return _locatorRegistry;
+                }
             }
-            return _locatorRegistry;
+
+            ILocatorRegistryPrx? locatorRegistry = await Locator.GetRegistryAsync(cancel: cancel).ConfigureAwait(false);
+
+            lock (_mutex)
+            {
+                if (_locatorRegistryRetrieved)
+                {
+                    locatorRegistry = _locatorRegistry;
+                }
+                else
+                {
+                    _locatorRegistry = locatorRegistry;
+                    _locatorRegistryRetrieved = true;
+                }
+            }
+            return locatorRegistry;
         }
 
         private static bool CheckTTL(TimeSpan insertionTime, TimeSpan ttl) =>

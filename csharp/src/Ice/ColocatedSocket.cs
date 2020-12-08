@@ -17,15 +17,14 @@ namespace ZeroC.Ice
             internal set => throw new NotSupportedException("IdleTimeout is not supported with colocated connections");
         }
 
-        internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
-        internal readonly object Mutex = new();
-        internal AsyncSemaphore? PeerUnidirectionalSerializeSemaphore { get; private set; }
-        internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
-
+        private readonly AsyncSemaphore? _bidirectionalSerializeSemaphore;
         private readonly long _id;
+        private readonly object _mutex = new();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
+        private AsyncSemaphore? _peerUnidirectionalSerializeSemaphore;
         private readonly ChannelReader<(long, object?, bool)> _reader;
+        private readonly AsyncSemaphore? _unidirectionalSerializeSemaphore;
         private readonly ChannelWriter<(long, object?, bool)> _writer;
 
         public override void Abort() => _writer.TryComplete();
@@ -64,7 +63,7 @@ namespace ZeroC.Ice
                         Debug.Assert(frame != null);
                         try
                         {
-                            stream = new ColocatedStream(streamId, this);
+                            stream = new ColocatedStream(this, streamId);
                             stream.ReceivedFrame(frame, fin);
                             return stream;
                         }
@@ -92,18 +91,19 @@ namespace ZeroC.Ice
             await _reader.Completion.ConfigureAwait(false);
         }
 
-        public override SocketStream CreateStream(bool bidirectional) => new ColocatedStream(bidirectional, this);
+        public override SocketStream CreateStream(bool bidirectional, bool control) =>
+            new ColocatedStream(this, bidirectional, control);
 
         public async override ValueTask InitializeAsync(CancellationToken cancel)
         {
             // Send our unidirectional semaphore to the peer. The peer will decrease the semaphore when the stream is
             // disposed.
-            await _writer.WriteAsync((-1, UnidirectionalSerializeSemaphore, false), cancel).ConfigureAwait(false);
+            await _writer.WriteAsync((-1, _unidirectionalSerializeSemaphore, false), cancel).ConfigureAwait(false);
             (_, object? semaphore, _) = await _reader.ReadAsync(cancel).ConfigureAwait(false);
 
-            // Get the peer's unidirectional semaphore and keep track of it to be able to release it once a
+            // Get the peer's unidirectional semaphore and keep track of it to be able to release it once an
             // unidirectional stream is disposed.
-            PeerUnidirectionalSerializeSemaphore = (AsyncSemaphore?)semaphore;
+            _peerUnidirectionalSerializeSemaphore = (AsyncSemaphore?)semaphore;
         }
 
         public override Task PingAsync(CancellationToken cancel) => Task.CompletedTask;
@@ -125,8 +125,8 @@ namespace ZeroC.Ice
 
             if (endpoint.Adapter.SerializeDispatch)
             {
-                BidirectionalSerializeSemaphore = new AsyncSemaphore(1);
-                UnidirectionalSerializeSemaphore = new AsyncSemaphore(1);
+                _bidirectionalSerializeSemaphore = new AsyncSemaphore(1);
+                _unidirectionalSerializeSemaphore = new AsyncSemaphore(1);
             }
 
             // We use the same stream ID numbering scheme as Quic
@@ -147,32 +147,86 @@ namespace ZeroC.Ice
             (long, long) streamIds = base.AbortStreams(exception, predicate);
 
             // Unblock requests waiting on the semaphores.
-            BidirectionalSerializeSemaphore?.CancelAwaiters(exception);
-            UnidirectionalSerializeSemaphore?.CancelAwaiters(exception);
+            _bidirectionalSerializeSemaphore?.CancelAwaiters(exception);
+            _unidirectionalSerializeSemaphore?.CancelAwaiters(exception);
 
             return streamIds;
         }
 
-        internal long AllocateId(bool bidirectional)
+        internal void ReleaseFlowControlCredit(ColocatedStream stream)
         {
-            lock (Mutex)
+            if (stream.IsIncoming && !stream.IsBidirectional && !stream.IsControl)
             {
-                long id;
-                if (bidirectional)
-                {
-                    id = _nextBidirectionalId;
-                    _nextBidirectionalId += 4;
-                }
-                else
-                {
-                    id = _nextUnidirectionalId;
-                    _nextUnidirectionalId += 4;
-                }
-                return id;
+                // This client side stream acquires the semaphore before opening an unidirectional stream. The
+                // semaphore is released when this server side stream is disposed.
+                _peerUnidirectionalSerializeSemaphore?.Release();
+            }
+            else if (!stream.IsIncoming && stream.IsBidirectional && stream.IsStarted)
+            {
+                // This client side stream acquires the semaphore before opening a bidirectional stream. The
+                // semaphore is released when this client side stream is disposed.
+                _bidirectionalSerializeSemaphore?.Release();
             }
         }
 
-        internal ValueTask SendFrameAsync(long streamId, object? frame, bool fin, CancellationToken cancel) =>
-            _writer.WriteAsync((streamId, frame, fin), cancel);
+        internal async ValueTask SendFrameAsync(
+            ColocatedStream stream,
+            object? frame,
+            bool fin,
+            CancellationToken cancel)
+        {
+            try
+            {
+                if (stream.IsStarted)
+                {
+                    await _writer.WriteAsync((stream.Id, frame, fin), cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    Debug.Assert(!stream.IsIncoming);
+
+                    if (!stream.IsControl)
+                    {
+                        // If serialization is enabled on the adapter, we wait on the semaphore to ensure that no more
+                        // than one stream is active. The wait is done the client side to ensure the sent callback for
+                        // the request isn't called until the adapter is ready to dispatch a new request.
+                        AsyncSemaphore? semaphore = stream.IsBidirectional ?
+                            _bidirectionalSerializeSemaphore : _unidirectionalSerializeSemaphore;
+                        if (semaphore != null)
+                        {
+                            await semaphore.WaitAsync(cancel).ConfigureAwait(false);
+                        }
+                    }
+
+                    // Ensure we allocate and queue the first stream frame atomically to ensure the receiver won't
+                    // receive stream frames with out-of-order stream IDs.
+                    ValueTask task;
+                    lock (_mutex)
+                    {
+                        // Allocate a new ID according to the Quic numbering scheme.
+                        if (stream.IsBidirectional)
+                        {
+                            stream.Id = _nextBidirectionalId;
+                            _nextBidirectionalId += 4;
+                        }
+                        else
+                        {
+                            stream.Id = _nextUnidirectionalId;
+                            _nextUnidirectionalId += 4;
+                        }
+                        task = _writer.WriteAsync((stream.Id, frame, fin), cancel);
+                    }
+                    await task.ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+            }
+        }
     }
 }

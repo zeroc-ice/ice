@@ -276,9 +276,11 @@ namespace ZeroC.IceBox
                     StartService(s.Name, s.EntryPoint, s.Args);
                 }
 
-                // Start Admin (if enabled)
+                // Add Admin facet
                 _communicator.AddAdminFacet("IceBox.ServiceManager", this);
-                _communicator.GetAdmin();
+
+                // We can now activate the main communicator.
+                await _communicator.ActivateAsync().ConfigureAwait(false);
 
                 // We may want to notify external scripts that the services have started and that IceBox is "ready".
                 // This is done by defining the property IceBox.PrintServicesReady=bundleName, bundleName is whatever
@@ -363,7 +365,7 @@ namespace ZeroC.IceBox
             {
                 try
                 {
-                    communicator.ShutdownAsync().Wait();
+                    communicator.ShutdownAsync().GetAwaiter().GetResult();
                 }
                 catch (CommunicatorDisposedException)
                 {

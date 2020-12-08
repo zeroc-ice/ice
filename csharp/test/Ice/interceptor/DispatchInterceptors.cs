@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -15,7 +16,12 @@ namespace ZeroC.Ice.Test.Interceptor
 
     public static class DispatchInterceptors
     {
+<<<<<<< HEAD
         public static AsyncLocal<int> LocalContext { get; } = new();
+=======
+        public static AsyncLocal<int> LocalContext { get; } = new AsyncLocal<int>();
+
+>>>>>>> 301fb5bc94de42709adef6874cdd68c38ae9693e
         public static async ValueTask ActivateAsync(ObjectAdapter adapter)
         {
             DispatchInterceptor raiseInterceptor = async (request, current, next, cancel) =>
@@ -92,7 +98,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     return await next(request, current, cancel);
                 };
 
-            DispatchInterceptor opWithBianryContext = async (request, current, next, cancel) =>
+            DispatchInterceptor opWithBinaryContext = async (request, current, next, cancel) =>
                 {
                     if (current.Operation == "opWithBinaryContext" && request.Protocol == Protocol.Ice2)
                     {
@@ -146,7 +152,8 @@ namespace ZeroC.Ice.Test.Interceptor
                     }
                     return await next(request, current, cancel);
                 };
-            await adapter.ActivateAsync(raiseInterceptor, addWithRetry, retry, opWithBianryContext, op1);
+            await adapter.ActivateAsync(
+                ImmutableArray.Create(raiseInterceptor, addWithRetry, retry, opWithBinaryContext, op1));
         }
     }
 }

@@ -42,7 +42,7 @@ namespace ZeroC.Ice
         public bool IsIdempotent => IncomingRequestFrame.IsIdempotent;
 
         /// <summary><c>True</c> for oneway requests, <c>False</c> otherwise.</summary>
-        public bool IsOneway { get; }
+        public bool IsOneway => !Stream.IsBidirectional;
 
         /// <summary>The location of the target Ice object.</summary>
         public IReadOnlyList<string> Location => IncomingRequestFrame.Location;
@@ -54,7 +54,6 @@ namespace ZeroC.Ice
         public Protocol Protocol => IncomingRequestFrame.Protocol;
         /// <summary>The stream ID</summary>
         public long StreamId => Stream.Id;
-        internal bool EndOfStream { get; }
         internal IncomingRequestFrame IncomingRequestFrame { get; }
         internal SocketStream Stream { get; }
 
@@ -62,13 +61,10 @@ namespace ZeroC.Ice
             ObjectAdapter adapter,
             IncomingRequestFrame incomingRequestFrame,
             SocketStream stream,
-            bool endOfStream,
             Connection connection)
         {
             Adapter = adapter;
             Connection = connection;
-            EndOfStream = endOfStream;
-            IsOneway = !stream.IsBidirectional;
             IncomingRequestFrame = incomingRequestFrame;
             Stream = stream;
         }

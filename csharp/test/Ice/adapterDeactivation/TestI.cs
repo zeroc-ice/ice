@@ -14,8 +14,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             var transport = TestHelper.GetTestTransport(current.Communicator.GetProperties());
             var endpoint = ice1 ? $"{transport} -h \"::0\"" : $"ice+{transport}://[::0]:0";
 
-            using ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(
-                "TransientTestAdapter", endpoint, cancel: cancel);
+            using ObjectAdapter adapter =
+                current.Communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", endpoint);
             adapter.Activate();
         }
 

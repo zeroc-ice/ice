@@ -15,6 +15,7 @@ namespace ZeroC.Ice.Test.Location
             Dictionary<string, string> properties = CreateTestProperties(ref args);
 
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             communicator.SetProperty("ServerManagerAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ServerManagerAdapter");
 

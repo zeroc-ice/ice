@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
     {
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
-            _ = current.Adapter.Communicator.ShutdownAsync();
+            _ = current.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 

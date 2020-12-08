@@ -38,7 +38,7 @@ namespace ZeroC.Ice.Test.Scope
             public C1? OpC1(C1? c1, Current current, CancellationToken cancel) => c1;
 
             public void Shutdown(Current current, CancellationToken cancel) =>
-                current.Adapter.Communicator.ShutdownAsync();
+                current.Communicator.ShutdownAsync();
         }
 
         private class I2 : Inner.II
@@ -62,7 +62,7 @@ namespace ZeroC.Ice.Test.Scope
             OpCMap(Dictionary<string, Inner.Inner2.C?> c1, Current current, CancellationToken cancel) => (c1, c1);
 
             public void Shutdown(Current current, CancellationToken cancel) =>
-                current.Adapter.Communicator.ShutdownAsync();
+                current.Communicator.ShutdownAsync();
         }
 
         private class I3 : Inner.Inner2.II
@@ -86,7 +86,7 @@ namespace ZeroC.Ice.Test.Scope
             OpCMap(Dictionary<string, Inner.Inner2.C?> c1, Current current, CancellationToken cancel) => (c1, c1);
 
             public void Shutdown(Current current, CancellationToken cancel) =>
-                current.Adapter.Communicator.ShutdownAsync();
+                current.Communicator.ShutdownAsync();
         }
 
         private class I4 : Inner.Test.Inner2.II
@@ -106,12 +106,13 @@ namespace ZeroC.Ice.Test.Scope
             public (IReadOnlyDictionary<string, C?>, IReadOnlyDictionary<string, C?>)
             OpCMap(Dictionary<string, C?> c1, Current current, CancellationToken cancel) => (c1, c1);
 
-            public void Shutdown(Current current, CancellationToken cancel) => current.Adapter.Communicator.ShutdownAsync();
+            public void Shutdown(Current current, CancellationToken cancel) => current.Communicator.ShutdownAsync();
         }
 
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("i1", new I1());

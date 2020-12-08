@@ -130,6 +130,6 @@ namespace ZeroC.Ice.Test.Enums
             (f1, f1);
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 }

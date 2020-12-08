@@ -162,7 +162,7 @@ namespace ZeroC.Ice
             return buffer.Slice(0, received);
         }
 
-        public override ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
+        public override ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel) =>
             throw new InvalidOperationException();
 
         public override async ValueTask<int> SendAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
@@ -189,6 +189,11 @@ namespace ZeroC.Ice
                                                     SocketFlags.None,
                                                     _peerAddr).WaitAsync(cancel).ConfigureAwait(false);
                 }
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.MessageSize)
+            {
+                // Don't retry if the datagram can't be sent because its too large.
+                throw new TransportException(ex, RetryPolicy.NoRetry);
             }
             catch (Exception ex)
             {

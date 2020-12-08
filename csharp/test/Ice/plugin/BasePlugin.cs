@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
@@ -31,7 +32,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         public bool IsDestroyed() => Destroyed;
 
-        public abstract void Initialize(PluginInitializationContext context);
+        public abstract Task ActivateAsync(PluginActivationContext context, CancellationToken cancel);
         public virtual async ValueTask DisposeAsync()
         {
             GC.SuppressFinalize(this);

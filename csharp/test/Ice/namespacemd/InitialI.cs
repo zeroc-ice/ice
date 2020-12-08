@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
             new WithNamespace.C2();
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
 
         public void ThrowNoNamespaceE2AsE1(Current current, CancellationToken cancel) => throw new NoNamespace.E2();
 

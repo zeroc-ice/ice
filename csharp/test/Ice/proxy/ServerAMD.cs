@@ -16,6 +16,7 @@ namespace ZeroC.Ice.Test.Proxy
             properties["Ice.Warn.Dispatch"] = "0";
 
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new AsyncMyDerivedClass());

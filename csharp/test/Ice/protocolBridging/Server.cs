@@ -11,6 +11,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapterForwarder.Endpoints", GetTestEndpoint(0));
 
             var ice1Endpoint = TestHelper.GetTestEndpoint(

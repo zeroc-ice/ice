@@ -108,10 +108,10 @@ namespace ZeroC.Ice.Test.Objects
         public (F1?, F1?) OpF1(F1? f11, Current current, CancellationToken cancel) => (f11, new F1("F12"));
 
         public (IF2Prx?, IF2Prx?) OpF2(IF2Prx? f21, Current current, CancellationToken cancel) =>
-            (f21, IF2Prx.Parse("F22", current.Adapter.Communicator));
+            (f21, IF2Prx.Parse("F22", current.Communicator));
 
         public (F3?, F3?) OpF3(F3? f31, Current current, CancellationToken cancel) =>
-            (f31, new F3(new F1("F12"), IF2Prx.Parse("F22", current.Adapter.Communicator)));
+            (f31, new F3(new F1("F12"), IF2Prx.Parse("F22", current.Communicator)));
 
         public bool HasF3(Current current, CancellationToken cancel) => true;
     }

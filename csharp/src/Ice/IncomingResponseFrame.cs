@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace ZeroC.Ice
 {
     /// <summary>Represents a response protocol frame received by the application.</summary>
-    public sealed class IncomingResponseFrame : IncomingFrame
+    public sealed class IncomingResponseFrame : IncomingFrame, IDisposable
     {
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
@@ -20,17 +20,21 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
-        /// <summary>Returns an <see cref="IncomingResponseFrame"/> that represents a oneway pseudo response.</summary>
-        internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
-            _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
-            {
-                var data = new List<ArraySegment<byte>>();
-                var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
-                ostr.Write(ResultType.Success);
-                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                Debug.Assert(data.Count == 1);
-                return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
-            });
+        // The optional socket stream. The stream is non-null if there's still data to read over the stream
+        // after the reading of the response frame.
+        private SocketStream? _socketStream;
+
+        /// <summary>Constructs an incoming response frame.</summary>
+        /// <param name="protocol">The Ice protocol of this frame.</param>
+        /// <param name="data">The frame data as an array segment.</param>
+        /// <param name="maxSize">The maximum payload size, checked during decompress.</param>
+        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int maxSize)
+            : this(protocol, data, maxSize, null)
+        {
+        }
+
+        /// <summary>Releases resources used by the response frame.</summary>
+        public void Dispose() => _socketStream?.TryDispose();
 
         /// <summary>Reads the return value. If this response frame carries a failure, reads and throws this exception.
         /// </summary>
@@ -47,12 +51,97 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
+            if (_socketStream != null)
+            {
+                throw new InvalidDataException("stream data available for operation without stream parameter");
+            }
+
             if (ResultType == ResultType.Success)
             {
                 return Payload.AsReadOnlyMemory(1).ReadEncapsulation(Protocol.GetEncoding(), reader, proxy: proxy);
             }
             else
             {
+                throw ReadException(proxy);
+            }
+        }
+
+        /// <summary>Reads the return value which contains a stream return value. If this response frame carries a
+        /// failure, reads and throws this exception.</summary>
+        /// <paramtype name="T">The type of the return value.</paramtype>
+        /// <param name="proxy">The proxy used to send the request. <c>proxy</c> is used to read relative proxies.
+        /// </param>
+        /// <param name="reader">A reader used to read the frame return value, when the frame return value contain
+        /// multiple values the reader must use a tuple to return the values.</param>
+        /// <returns>The frame return value.</returns>
+        public T ReadReturnValue<T>(IObjectPrx proxy, InputStreamReaderWithStreamable<T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
+            if (ResultType == ResultType.Success)
+            {
+                if (_socketStream == null)
+                {
+                    throw new InvalidDataException("no stream data available for operation with stream parameter");
+                }
+
+                var istr = new InputStream(Payload.AsReadOnlyMemory(1),
+                                           Protocol.GetEncoding(),
+                                           reference: proxy?.IceReference,
+                                           startEncapsulation: true);
+                T value = reader(istr, _socketStream);
+                // Clear the socket stream to ensure it's not disposed with the response frame. It's now the
+                // responsibility of the stream parameter object to dispose the socket stream.
+                _socketStream = null;
+                istr.CheckEndOfBuffer(skipTaggedParams: true);
+                return value;
+            }
+            else
+            {
+                if (_socketStream != null)
+                {
+                    throw new InvalidDataException("stream data available with remote exception result");
+                }
+                throw ReadException(proxy);
+            }
+        }
+
+        /// <summary>Reads the return value which is a stream return value only. If this response frame carries a
+        /// failure, reads and throws this exception.</summary>
+        /// <paramtype name="T">The type of the return value.</paramtype>
+        /// <param name="proxy">The proxy used to send the request. <c>proxy</c> is used to read relative proxies.
+        /// </param>
+        /// <param name="reader">A reader used to read the frame return value.</param>
+        /// <returns>The frame return value.</returns>
+        public T ReadReturnValue<T>(IObjectPrx proxy, Func<SocketStream, T> reader)
+        {
+            if (HasCompressedPayload)
+            {
+                DecompressPayload();
+            }
+
+            if (ResultType == ResultType.Success)
+            {
+                if (_socketStream == null)
+                {
+                    throw new InvalidDataException("no stream data available for operation with stream parameter");
+                }
+                Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding());
+                T value = reader(_socketStream);
+                // Clear the socket stream to ensure it's not disposed with the response frame. It's now the
+                // responsibility of the stream parameter object to dispose the socket stream.
+                _socketStream = null;
+                return value;
+            }
+            else
+            {
+                if (_socketStream != null)
+                {
+                    throw new InvalidDataException("stream data available with remote exception result");
+                }
                 throw ReadException(proxy);
             }
         }
@@ -68,6 +157,11 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
+            if (_socketStream != null)
+            {
+                throw new InvalidDataException("stream data available for operation without stream parameter");
+            }
+
             if (ResultType == ResultType.Success)
             {
                 Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding());
@@ -78,13 +172,33 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Returns an <see cref="IncomingResponseFrame"/> that represents a oneway pseudo response.</summary>
+        internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
+            _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
+            {
+                var data = new List<ArraySegment<byte>>();
+                var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
+                ostr.Write(ResultType.Success);
+                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                Debug.Assert(data.Count == 1);
+                return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
+            });
+
         /// <summary>Constructs an incoming response frame.</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
         /// <param name="data">The frame data as an array segment.</param>
         /// <param name="maxSize">The maximum payload size, checked during decompress.</param>
-        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> data, int maxSize)
+        /// <param name="socketStream">The optional socket stream. The stream is non-null if there's still data to
+        /// read on the stream after the reading the response frame.</param>
+        internal IncomingResponseFrame(
+            Protocol protocol,
+            ArraySegment<byte> data,
+            int maxSize,
+            SocketStream? socketStream)
             : base(data, protocol, maxSize)
         {
+            _socketStream = socketStream;
+
             bool hasEncapsulation = false;
 
             if (Protocol == Protocol.Ice1)

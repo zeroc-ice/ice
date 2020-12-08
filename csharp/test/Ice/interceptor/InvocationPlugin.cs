@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -12,7 +13,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
         internal class Plugin : IPlugin
         {
-            public void Initialize(PluginInitializationContext context)
+            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
             {
                 context.AddInvocationInterceptor(
                     async (target, request, next, cancel) =>
@@ -32,6 +33,8 @@ namespace ZeroC.Ice.Test.Interceptor
                         }
                         return response;
                     });
+
+                return Task.CompletedTask;
             }
 
             public ValueTask DisposeAsync() => default;

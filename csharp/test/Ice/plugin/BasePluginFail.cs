@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
@@ -24,7 +25,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         public bool isDestroyed() => _destroyed;
 
-        public abstract void Initialize(PluginInitializationContext context);
+        public abstract Task ActivateAsync(PluginActivationContext context, CancellationToken cancel);
         public abstract ValueTask DisposeAsync();
     }
 }

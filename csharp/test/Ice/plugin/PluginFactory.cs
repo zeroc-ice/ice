@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
@@ -17,20 +18,21 @@ namespace ZeroC.Ice.Test.Plugin
 
             public Plugin(string[] args) => _args = args;
 
-            public void Initialize(PluginInitializationContext context)
+            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
             {
                 _initialized = true;
                 TestHelper.Assert(_args.Length == 3);
                 TestHelper.Assert(_args[0] == "C:\\Program Files\\");
                 TestHelper.Assert(_args[1] == "--DatabasePath");
                 TestHelper.Assert(_args[2] == "C:\\Program Files\\Application\\db");
+                return Task.CompletedTask;
             }
 
             public ValueTask DisposeAsync()
             {
                 GC.SuppressFinalize(this);
                 _destroyed = true;
-                return new(Task.CompletedTask);
+                return default;
             }
 
             ~Plugin()

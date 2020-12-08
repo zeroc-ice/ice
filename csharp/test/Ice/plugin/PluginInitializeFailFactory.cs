@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
@@ -10,7 +11,8 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class PluginInitializeFail : IPlugin
         {
-            public void Initialize(PluginInitializationContext context) => throw new PluginInitializeFailException();
+            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel) =>
+                throw new PluginInitializeFailException();
 
             public ValueTask DisposeAsync()
             {

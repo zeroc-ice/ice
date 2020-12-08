@@ -1,17 +1,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>A communicator plug-in, a plug-in generally adds a feature to a communicator, such as support for a
-    /// protocol. The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the
-    /// second stage invokes Plugin#initialize on each one.</summary>
+    /// <summary>A plug-in adds a feature to a communicator, such as support for a transport. The plugins are created
+    /// when the communicator is constructed, and are later activated asynchronously when the communicator is
+    /// activated asynchronously.</summary>
     public interface IPlugin : IAsyncDisposable
     {
-        /// <summary>Perform any necessary initialization steps.</summary>
-        /// <param name="context">The plug-in initialization context enables the registration of invocation and dispatch
-        /// interceptors, it can also be use to set the communicator logger.</param>
-        void Initialize(PluginInitializationContext context);
+        /// <summary>Performs any necessary activation steps.</summary>
+        /// <param name="context">The plug-in activation context allows the registration of invocation and dispatch
+        /// interceptors, and can be used to set the communicator logger.</param>
+        /// <param name="cancel">The cancellation token.</param>
+        /// <returns>A task that completes once the activation completes.</returns>
+        Task ActivateAsync(PluginActivationContext context, CancellationToken cancel);
     }
 }

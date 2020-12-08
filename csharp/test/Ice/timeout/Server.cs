@@ -25,6 +25,7 @@ namespace ZeroC.Ice.Test.Timeout
             properties["Ice.TCP.RcvSize"] = "50K";
 
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
 
@@ -74,6 +75,6 @@ namespace ZeroC.Ice.Test.Timeout
         public void ResumeAdapter(Current current, CancellationToken cancel) => _ = _semaphore.Release();
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 }

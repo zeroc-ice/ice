@@ -61,6 +61,33 @@ namespace ZeroC.Ice
             return response;
         }
 
+        /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a single stream return
+        /// value.</summary>
+        /// <typeparam name="T">The type of the return value.</typeparam>
+        /// <param name="current">The Current object for the corresponding incoming request.</param>
+        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
+        /// class instances.</param>
+        /// <param name="returnValue">The return value to write into the frame.</param>
+        /// <param name="writer">The delegate that will send the stream return value.</param>
+        /// <returns>A new OutgoingResponseFrame.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Performance",
+            "CA1801: Review unused parameters",
+            Justification = "TODO")]
+        public static OutgoingResponseFrame WithReturnValue<T>(
+            Current current,
+            bool compress,
+            FormatType format,
+            T returnValue,
+            Action<SocketStream, T, System.Threading.CancellationToken> writer)
+        {
+            OutgoingResponseFrame response = WithVoidReturnValue(current);
+            // TODO: deal with compress, format and cancellation token
+            response.StreamDataWriter = socketStream => writer(socketStream, returnValue, default);
+            return response;
+        }
+
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a tuple or struct return
         /// type.</summary>
         /// <typeparam name="T">The type of the return value.</typeparam>
@@ -82,6 +109,35 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, in returnValue);
+            response.PayloadEnd = ostr.Finish();
+            if (compress && current.Encoding == Encoding.V20)
+            {
+                response.CompressPayload();
+            }
+            return response;
+        }
+
+        /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a tuple return
+        /// type where the tuple return type contains a stream return value.</summary>
+        /// <typeparam name="T">The type of the return value.</typeparam>
+        /// <param name="current">The Current object for the corresponding incoming request.</param>
+        /// <param name="compress">True if the response should be compressed, false otherwise.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>returnValue</c> contains
+        /// class instances.</param>
+        /// <param name="returnValue">The return value to write into the frame.</param>
+        /// <param name="writer">The delegate that writes the return value into the frame.</param>
+        /// <returns>A new OutgoingResponseFrame.</returns>
+        public static OutgoingResponseFrame WithReturnValue<T>(
+            Current current,
+            bool compress,
+            FormatType format,
+            in T returnValue,
+            OutputStreamValueWriterWithStreamable<T> writer)
+            where T : struct
+        {
+            (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
+            // TODO: deal with compress, format and cancellation token
+            response.StreamDataWriter = writer(ostr, in returnValue, default);
             response.PayloadEnd = ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {

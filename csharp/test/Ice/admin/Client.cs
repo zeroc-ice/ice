@@ -10,6 +10,7 @@ namespace ZeroC.Ice.Test.Admin
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
+            await communicator.ActivateAsync();
             AllTests.Run(this);
         }
 

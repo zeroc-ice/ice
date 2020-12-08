@@ -101,8 +101,9 @@ namespace ZeroC.Ice
         /// be immediately available after the stream creation. It will be available after the first successful send
         /// call on the stream.</summary>
         /// <param name="bidirectional"><c>True</c> to create a bidirectional stream, <c>false</c> otherwise.</param>
+        /// <param name="control"><c>True</c> to create a control stream, <c>false</c> otherwise.</param>
         /// <return>The outgoing stream.</return>
-        public abstract SocketStream CreateStream(bool bidirectional);
+        public abstract SocketStream CreateStream(bool bidirectional, bool control);
 
         /// <summary>The MultiStreamSocket constructor.</summary>
         /// <param name="endpoint">The endpoint from which the socket was created.</param>
@@ -121,12 +122,15 @@ namespace ZeroC.Ice
         /// unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // The only streams left at this point should be the control stream. The connection ensures other streams
-            // are aborted and disposed when the connection is aborted.
+            // Dispose of the control streams. It's possible that non-control streams are still left in the dictionary
+            // if they are being created and added while this socket is being disposed. AddStream will remove them
+            // from the dictionary and throw in this case once it checks for _streamsAborted.
             foreach (SocketStream stream in _streams.Values)
             {
-                Debug.Assert(stream.IsControl);
-                stream.Dispose();
+                if (stream.IsControl)
+                {
+                    stream.Dispose();
+                }
             }
         }
 
@@ -279,22 +283,28 @@ namespace ZeroC.Ice
             return (largestBidirectionalStreamId, largestUnidirectionalStreamId);
         }
 
-        internal void AddStream(long id, SocketStream stream)
+        internal void AddStream(long id, SocketStream stream, bool control)
         {
-            if (_streamsAborted)
-            {
-                throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
-            }
             _streams[id] = stream;
-            if (!stream.IsControl)
+
+            if (!control)
             {
                 Interlocked.Increment(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
+            }
+
+            // If the socket streams are aborted, we remove the stream from the dictionary and throw. It's important
+            // to do this check after adding the stream to the dictionary since AbortStreams sets this flag before
+            // looping over the streams to abort them.
+            if (_streamsAborted)
+            {
+                RemoveStream(id);
+                throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
         internal void CheckStreamsEmpty()
         {
-            if (_incomingStreamCount == 0 && _outgoingStreamCount == 0)
+            if (IncomingStreamCount == 0 && OutgoingStreamCount == 0)
             {
                 _streamsEmptySource?.TrySetResult();
             }
@@ -351,7 +361,7 @@ namespace ZeroC.Ice
 
         internal virtual async ValueTask<SocketStream> SendInitializeFrameAsync(CancellationToken cancel)
         {
-            SocketStream stream = CreateControlStream();
+            SocketStream stream = CreateStream(bidirectional: false, control: true);
             await stream.SendInitializeFrameAsync(cancel).ConfigureAwait(false);
             return stream;
         }
@@ -553,6 +563,11 @@ namespace ZeroC.Ice
                 s.Append("\nmessage from peer = ");
                 s.Append(istr.ReadString());
             }
+            else
+            {
+                s.Append("\nlast request ID = ");
+                s.Append((int)(LastResponseStreamId >> 2) + 1);
+            }
 
             s.Append('\n');
             s.Append(ToString());
@@ -560,9 +575,9 @@ namespace ZeroC.Ice
             communicator.Logger.Trace(TraceLevels.ProtocolCategory, s.ToString());
         }
 
-        internal async ValueTask WaitForEmptyStreamsAsync()
+        internal virtual async ValueTask WaitForEmptyStreamsAsync()
         {
-            if (_incomingStreamCount > 0 || _outgoingStreamCount > 0)
+            if (IncomingStreamCount > 0 || OutgoingStreamCount > 0)
             {
                 // Create a task completion source to wait for the streams to complete.
                 _streamsEmptySource ??= new TaskCompletionSource();
@@ -570,7 +585,5 @@ namespace ZeroC.Ice
                 await _streamsEmptySource.Task.ConfigureAwait(false);
             }
         }
-
-        private protected virtual SocketStream CreateControlStream() => CreateStream(bidirectional: false);
     }
 }

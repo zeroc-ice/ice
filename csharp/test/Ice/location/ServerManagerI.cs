@@ -52,8 +52,8 @@ namespace ZeroC.Ice.Test.Location
                     serverCommunicator.SetProperty("TestAdapter.Endpoints", _helper.GetTestEndpoint(_nextPort++));
                     serverCommunicator.SetProperty("TestAdapter2.Endpoints", _helper.GetTestEndpoint(_nextPort++));
 
-                    adapter = serverCommunicator.CreateObjectAdapter("TestAdapter", cancel: cancel);
-                    adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2", cancel: cancel);
+                    adapter = serverCommunicator.CreateObjectAdapter("TestAdapter");
+                    adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");
 
                     var locator = ILocatorPrx.Parse(_helper.GetTestProxy("locator", 0), serverCommunicator);
                     adapter.Locator = locator;
@@ -75,7 +75,7 @@ namespace ZeroC.Ice.Test.Location
                         throw;
                     }
 
-                    // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web
+                    // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
                     // browser clients if the driver uses ports in the same range as this test, ICE-8148)
                     adapter?.Dispose();
                     adapter2?.Dispose();
@@ -90,7 +90,7 @@ namespace ZeroC.Ice.Test.Location
                 c.Dispose();
             }
             _communicators.Clear();
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
         }
     }
 }

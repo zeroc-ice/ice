@@ -11,12 +11,13 @@ namespace ZeroC.Ice.Test.NetworkProxy
         public class TestIntf : ITestIntf
         {
             public void Shutdown(Current current, CancellationToken cancel) =>
-                current.Adapter.Communicator.ShutdownAsync();
+                current.Communicator.ShutdownAsync();
         }
 
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
+            await communicator.ActivateAsync();
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());

@@ -15,6 +15,7 @@ namespace ZeroC.Glacier2.Test.Router
             properties["Test.Protocol"] = "ice1";
 
             await using Communicator communicator = Initialize(properties);
+            await communicator.ActivateAsync();
             communicator.SetProperty("CallbackAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
 

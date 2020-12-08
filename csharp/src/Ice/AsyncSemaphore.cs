@@ -41,6 +41,8 @@ namespace ZeroC.Ice
 
         internal async ValueTask WaitAsync(CancellationToken cancel = default)
         {
+            cancel.ThrowIfCancellationRequested();
+
             ManualResetValueTaskCompletionSource<bool> taskCompletionSource;
             lock (_mutex)
             {

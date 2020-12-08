@@ -172,13 +172,17 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
 
         for (const auto& member : requiredMembers)
         {
-            writeMarshalCode(_out,
-                             member->type(),
-                             bitSequenceIndex,
-                             false,
-                             ns,
-                             members.size() == 1 ? "value" : "value." + fieldName(member));
+            if (!member->stream())
+            {
+                writeMarshalCode(_out,
+                                member->type(),
+                                bitSequenceIndex,
+                                false,
+                                ns,
+                                members.size() == 1 ? "value" : "value." + fieldName(member));
+            }
         }
+
         if (bitSequenceSize > 0)
         {
             assert(static_cast<size_t>(bitSequenceIndex) == bitSequenceSize);
@@ -191,6 +195,21 @@ Slice::CsVisitor::writeMarshal(const OperationPtr& operation, bool returnType)
                                    false,
                                    ns,
                                    members.size() == 1 ? "value" : "value." + fieldName(member), member->tag());
+        }
+
+        if (members.back()->stream())
+        {
+            if (members.size() == 1)
+            {
+                _out << nl << "return socketStream => socketStream." << streamDataWriter(members.back()->type());
+                _out << "(value, cancel);";
+            }
+            else
+            {
+                _out << nl << "var streamableValue = value." + fieldName(members.back()) << ";";
+            }
+            _out << nl << "return socketStream => socketStream." << streamDataWriter(members.back()->type());
+            _out << "(" << (members.size() == 1 ? "value" : "streamableValue") << ", cancel);";
         }
 
         if (i == 0 && write11ReturnLast) // only for first loop
@@ -247,9 +266,12 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
 
         for (const auto& member : requiredMembers)
         {
-            _out << nl << paramTypeStr(member, false);
-            _out << " ";
-            writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns, paramName(member, "iceP_"));
+            if (!member->stream())
+            {
+                _out << nl << paramTypeStr(member, false);
+                _out << " ";
+                writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns, paramName(member, "iceP_"));
+            }
         }
         if (bitSequenceSize > 0)
         {
@@ -265,6 +287,12 @@ Slice::CsVisitor::writeUnmarshal(const OperationPtr& operation, bool returnType)
                                      paramName(member, "iceP_"),
                                      member->tag(),
                                      nullptr);
+        }
+
+        if (members.back()->stream())
+        {
+            _out << nl << paramTypeStr(members.back(), false) << " " << paramName(members.back(), "iceP_");
+            _out << " = socketStream." << streamDataReader(members.back()->type()) << "();";
         }
 
         if (members.size() == 1)
@@ -391,7 +419,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
     {
         ostringstream param;
         param << getParamAttributes(p);
-        param << CsGenerator::typeToString(p->type(), ns, true, true) << " " << paramName(p);
+        param << CsGenerator::typeToString(p->type(), ns, true, true, p->stream()) << " " << paramName(p);
         params.push_back(param.str());
     }
     params.push_back("global::System.Collections.Generic.IReadOnlyDictionary<string, string>? " +
@@ -408,7 +436,7 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
     {
         ostringstream param;
         param << getParamAttributes(p);
-        param << CsGenerator::typeToString(p->type(), ns, true, true) << " " << paramName(p, prefix);
+        param << CsGenerator::typeToString(p->type(), ns, true, true, p->stream()) << " " << paramName(p, prefix);
         params.push_back(param.str());
     }
 
@@ -2291,16 +2319,16 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 if (returns.size() > 0)
                 {
                     _out << sp;
-                    _out << nl << "/// <summary>The <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> for the return type "
-                         << "of operation " << fixId(operationName(operation)) << ".</summary>";
-                    string propertyName = fixId(operationName(operation));
-                    _out << nl << "public static readonly ";
-                    string readerType = "ZeroC.Ice.InputStreamReader<" + toTupleType(returns, false) + ">";
-                    _out << readerType << " " << propertyName << " =";
+                    string opName = fixId(operationName(operation));
+                    _out << nl << "/// <summary>The <see cref=\"ZeroC.Ice.ResponseReader{T}\"/> for the return type "
+                         << "of operation " << opName << ".</summary>";
+                    _out << nl << "public static " << toTupleType(returns, false) << ' ' << opName;
+                    _out << "(ZeroC.Ice.IObjectPrx proxy, ZeroC.Ice.IncomingResponseFrame response) =>";
                     _out.inc();
                     _out << nl;
+                    _out << "response.ReadReturnValue(proxy, ";
                     writeIncomingResponseReader(operation);
-                    _out << ";";
+                    _out << ");";
                     _out.dec();
                 }
             }
@@ -2510,12 +2538,24 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     if (defaultWriter)
     {
         // This includes operations with a single struct parameter.
-        _out << outputStreamWriter(params.front()->type(), ns, true, true);
+        if (params.front()->stream())
+        {
+            _out << "SocketStream.Ice" << streamDataWriter(params.front()->type());
+        }
+        else
+        {
+            _out << outputStreamWriter(params.front()->type(), ns, true, true);
+        }
     }
     else
     {
-        _out << "(ZeroC.Ice.OutputStream ostr, " << (params.size() > 1 ? "in " : "") << toTupleType(params, true)
-            << " value) =>";
+        _out << "(ZeroC.Ice.OutputStream ostr, ";
+        _out << (params.size() > 1 ? "in " : "") << toTupleType(params, true) << " value";
+        if (params.back()->stream())
+        {
+            _out << ", global::System.Threading.CancellationToken cancel";
+        }
+        _out << ") =>";
         _out << sb;
         writeMarshal(operation, false);
         _out << eb;
@@ -2535,11 +2575,25 @@ Slice::Gen::ProxyVisitor::writeIncomingResponseReader(const OperationPtr& operat
 
     if (defaultReader)
     {
-        _out << inputStreamReader(returnType.front()->type(), ns);
+        if(returnType.front()->stream())
+        {
+            _out << "ZeroC.Ice.SocketStream.Ice" << streamDataReader(returnType.front()->type());
+        }
+        else
+        {
+            _out << inputStreamReader(returnType.front()->type(), ns);
+        }
     }
     else if (returnType.size() > 0)
     {
-        _out << "istr =>";
+        if (returnType.back()->stream())
+        {
+            _out << "(istr, socketStream) =>";
+        }
+        else
+        {
+            _out << "istr =>";
+        }
         _out << sb;
         writeUnmarshal(operation, true);
         _out << eb;
@@ -2603,8 +2657,9 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Generate nested Request and Response classes if needed.
     auto operationList = p->operations();
     bool generateRequestClass =
-        find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->params().empty(); })
-            != operationList.end();
+        find_if(operationList.begin(), operationList.end(), [](const auto& op) {
+            return !op->params().empty() && (op->params().size() > 1 || !op->params().front()->stream());
+            }) != operationList.end();
 
     bool generateResponseClass =
         find_if(operationList.begin(), operationList.end(), [](const auto& op) { return !op->returnType().empty(); })
@@ -2621,20 +2676,21 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (auto operation : operationList)
         {
             auto params = operation->params();
-            if (params.size() > 0)
+            if (!params.empty() && (params.size() > 1 || !params.front()->stream()))
             {
                 string propertyName = fixId(operationName(operation));
                 _out << sp;
-                _out << nl << "/// <summary>The <see cref=\"ZeroC.Ice.InputStreamReader{T}\"/> for the parameter"
+                _out << nl << "/// <summary>The <see cref=\"ZeroC.Ice.RequestReader{T}\"/> for the parameter"
                      << (params.size() > 1 ? "s " : " ")
                      << "of operation " << propertyName << ".</summary>";
-                _out << nl << "public static readonly ";
-                string readerType = "ZeroC.Ice.InputStreamReader<" + toTupleType(params, false) + ">";
-                _out << readerType << " " << propertyName << " =";
+
+                _out << nl << "public static " << toTupleType(params, false) << ' ' << fixId(operationName(operation));
+                _out << "(ZeroC.Ice.Connection connection, ZeroC.Ice.IncomingRequestFrame request) =>";
                 _out.inc();
                 _out << nl;
+                _out << "request.ReadArgs(connection, ";
                 writeIncomingRequestReader(operation);
-                _out << ";";
+                _out << ");";
                 _out.dec();
             }
         }
@@ -2893,10 +2949,16 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     {
         _out << nl << "request.ReadEmptyArgs();";
     }
+    else if(params.size() == 1 && params.front()->stream())
+    {
+        _out << nl << "var " << paramName(params.front(), "iceP_") << " = request.ReadArgs(";
+        _out << "ZeroC.Ice.SocketStream.Ice" << streamDataReader(params.front()->type());
+        _out << ");";
+    }
     else
     {
         _out << nl << "var " << (params.size() == 1 ? paramName(params.front(), "iceP_") : "args")
-            << " = request.ReadArgs(current.Connection, Request." << fixId(opName) << ");";
+            << " = Request." << fixId(opName) << "(current.Connection, request);";
     }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)
@@ -3014,11 +3076,25 @@ Slice::Gen::DispatcherVisitor::writeIncomingRequestReader(const OperationPtr& op
 
     if (defaultReader)
     {
-        _out << inputStreamReader(params.front()->type(), ns);
+        if (params.front()->stream())
+        {
+            _out << "ZeroC.Ice.SocketStream.Ice" << streamDataReader(params.front()->type());
+        }
+        else
+        {
+            _out << inputStreamReader(params.front()->type(), ns);
+        }
     }
     else if (params.size() > 0)
     {
-        _out << "istr =>";
+        if (params.back()->stream())
+        {
+            _out << "(istr, socketStream) =>";
+        }
+        else
+        {
+            _out << "istr =>";
+        }
         _out << sb;
         writeUnmarshal(operation, false);
         _out << eb;
@@ -3040,12 +3116,24 @@ Slice::Gen::DispatcherVisitor::writeOutgoingResponseWriter(const OperationPtr& o
     if (defaultWriter)
     {
         // This includes operations with a single struct return type.
-        _out << outputStreamWriter(returns.front()->type(), ns, true, true);
+        if (returns.front()->stream())
+        {
+            _out << "SocketStream.Ice" << streamDataWriter(returns.front()->type());
+        }
+        else
+        {
+            _out << outputStreamWriter(returns.front()->type(), ns, true, true);
+        }
     }
     else
     {
-        _out << "(ZeroC.Ice.OutputStream ostr, " << (returns.size() > 1 ? "in " : "") << toTupleType(returns, true)
-            << " value) =>";
+        _out << "(ZeroC.Ice.OutputStream ostr, ";
+        _out << (returns.size() > 1 ? "in " : "") << toTupleType(returns, true) << " value";
+        if(returns.back()->stream())
+        {
+            _out << ", global::System.Threading.CancellationToken cancel";
+        }
+        _out << ") =>";
         _out << sb;
         writeMarshal(operation, true);
         _out << eb;

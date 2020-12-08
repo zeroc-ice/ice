@@ -14,11 +14,12 @@ namespace ZeroC.Ice
     internal class SlicStream : SignaledSocketStream<(int, bool)>
     {
         protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
-        private readonly SlicSocket _socket;
+        protected override bool ReceivedEndOfStream => _receivedEndOfStream;
+        private int _flowControlCreditReleased;
         private int _receivedOffset;
         private int _receivedSize;
         private bool _receivedEndOfStream;
-        private int _flowControlCreditReleased;
+        private readonly SlicSocket _socket;
 
         protected override void Dispose(bool disposing)
         {
@@ -60,40 +61,40 @@ namespace ZeroC.Ice
             }
         }
 
-        protected override async ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        protected override async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
         {
-            int offset = 0;
-            while (offset < buffer.Count)
+            if (_receivedSize == _receivedOffset)
             {
-                if (_receivedSize == _receivedOffset)
+                if (_receivedEndOfStream)
                 {
-                    // Wait to be signaled for the reception of a new stream frame for this stream.
-                    (_receivedSize, _receivedEndOfStream) = await WaitSignalAsync(cancel).ConfigureAwait(false);
-                    _receivedOffset = 0;
-                    if (_receivedEndOfStream && offset + _receivedSize < buffer.Count)
-                    {
-                        throw new InvalidDataException("received last frame with less data than expected");
-                    }
+                    return 0;
                 }
 
-                // Read and append the received stream frame data into the given buffer.
-                int size = Math.Min(_receivedSize - _receivedOffset, buffer.Slice(offset).Count);
-                await _socket.ReceiveDataAsync(buffer.Slice(offset, size),
-                                                    CancellationToken.None).ConfigureAwait(false);
-                offset += size;
-                _receivedOffset += size;
-
-                // If we've consumed the whole Slic frame, notify the socket that it can start receiving
-                // a new frame.
-                if (_receivedOffset == _receivedSize)
+                // Wait to be signaled for the reception of a new stream frame for this stream.
+                (_receivedSize, _receivedEndOfStream) = await WaitSignalAsync(cancel).ConfigureAwait(false);
+                _receivedOffset = 0;
+                if (_receivedSize == 0)
                 {
-                    _socket.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
+                    return 0;
                 }
             }
-            return _receivedEndOfStream;
+
+            // Read and append the received stream frame data into the given buffer.
+            int size = Math.Min(_receivedSize - _receivedOffset, buffer.Length);
+            await _socket.ReceiveDataAsync(buffer.Slice(0, size), CancellationToken.None).ConfigureAwait(false);
+            _receivedOffset += size;
+
+            // If we've consumed the whole Slic frame, notify the socket that it can start receiving
+            // a new frame.
+            if (_receivedOffset == _receivedSize)
+            {
+                _socket.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
+            }
+            return size;
         }
 
-        protected override async ValueTask ResetAsync(long errorCode) =>
+        protected override async ValueTask ResetAsync(long errorCode)
+        {
             await _socket.PrepareAndSendFrameAsync(
                 SlicDefinitions.FrameType.StreamReset,
                 ostr =>
@@ -104,6 +105,7 @@ namespace ZeroC.Ice
                     }
                 },
                 Id).ConfigureAwait(false);
+        }
 
         protected override async ValueTask SendAsync(
             IList<ArraySegment<byte>> buffer,
@@ -177,11 +179,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal SlicStream(long streamId, SlicSocket socket)
-            : base(streamId, socket) => _socket = socket;
+        internal SlicStream(SlicSocket socket, long streamId)
+            : base(socket, streamId) => _socket = socket;
 
-        internal SlicStream(bool bidirectional, SlicSocket socket)
-            : base(bidirectional, socket) => _socket = socket;
+        internal SlicStream(SlicSocket socket, bool bidirectional, bool control)
+            : base(socket, bidirectional, control) => _socket = socket;
 
         internal void ReceivedFrame(int size, bool fin)
         {
@@ -227,7 +229,7 @@ namespace ZeroC.Ice
 
             // The given buffer includes space for the Slic header, we subtract the header size from the given
             // frame size.
-            Debug.Assert(packetSize > Header.Length);
+            Debug.Assert(packetSize >= Header.Length);
             packetSize -= Header.Length;
 
             // Compute how much space the size and stream ID require to figure out the start of the Slic header.

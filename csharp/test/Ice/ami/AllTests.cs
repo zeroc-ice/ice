@@ -682,7 +682,7 @@ namespace ZeroC.Ice.Test.AMI
                     source.CancelAfter(TimeSpan.FromMilliseconds(i));
                     try
                     {
-                        p.Clone().SleepAsync(700, cancel: source.Token, context: cancelCtx).Wait();
+                        p.Clone().SleepAsync(2000, cancel: source.Token, context: cancelCtx).Wait();
                         TestHelper.Assert(false);
                     }
                     catch (OperationCanceledException)
@@ -699,14 +699,13 @@ namespace ZeroC.Ice.Test.AMI
                 // send buffer and ensure other requests won't be sent.
                 serialized.Set(20);
                 serialized.SleepAsync(400);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
-                serialized.OpWithPayloadAsync(new byte[512 * 1024]);
+                var payload = new byte[5 * 1024 * 1024];
+                serialized.OpWithPayloadAsync(payload);
+                serialized.OpWithPayloadAsync(payload);
+                serialized.OpWithPayloadAsync(payload);
+                serialized.OpWithPayloadAsync(payload);
+                serialized.OpWithPayloadAsync(payload);
+                serialized.OpWithPayloadAsync(payload);
 
                 // The send queue is blocked, we send 4 set requests and cancel 2 of them. We make sure that the
                 // requests are canceled and not sent by checking the response of set which sends the previous set
@@ -736,18 +735,8 @@ namespace ZeroC.Ice.Test.AMI
                 }
                 TestHelper.Assert(t0.Status == TaskStatus.Canceled);
                 TestHelper.Assert(t2.Status == TaskStatus.Canceled);
-                if (serialized.Protocol == Protocol.Ice1 && serialized.GetConnection() is not ColocatedConnection)
-                {
-                    // Non-colocated Ice1 doesn't support canceling the request from the send queue
-                    // TODO: support it?
-                    TestHelper.Assert(t1.Result == 0);
-                    TestHelper.Assert(t3.Result == 2);
-                }
-                else
-                {
-                    TestHelper.Assert(t1.Result == 20);
-                    TestHelper.Assert(t3.Result == 1);
-                }
+                TestHelper.Assert(t1.Result == 20);
+                TestHelper.Assert(t3.Result == 1);
                 TestHelper.Assert(serialized.Set(0) == 3);
             }
             output.WriteLine("ok");

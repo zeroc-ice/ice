@@ -90,6 +90,6 @@ namespace ZeroC.Ice.Test.Compress
             throw new MyException(Enumerable.Range(0, size).Select(i => (byte)i).ToArray());
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
     }
 }

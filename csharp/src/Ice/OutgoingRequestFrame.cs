@@ -124,6 +124,43 @@ namespace ZeroC.Ice
             return request;
         }
 
+        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with a single stream
+        /// parameter.</summary>
+        /// <typeparam name="T">The type of the operation's parameter.</typeparam>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
+        /// encoding and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>args</c> contains class
+        /// instances.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
+        /// <param name="args">The argument(s) to write into the frame.</param>
+        /// <param name="writer">The delegate that will send the streamable.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>A new OutgoingRequestFrame.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Performance",
+            "CA1801: Review unused parameters",
+            Justification = "TODO")]
+        public static OutgoingRequestFrame WithArgs<T>(
+            IObjectPrx proxy,
+            string operation,
+            bool idempotent,
+            bool compress,
+            FormatType format,
+            IReadOnlyDictionary<string, string>? context,
+            T args,
+            Action<SocketStream, T, CancellationToken> writer,
+            CancellationToken cancel = default)
+        {
+            OutgoingRequestFrame request = WithEmptyArgs(proxy, operation, idempotent, context, cancel);
+            // TODO: deal with compress, format, and cancel paramters
+            request.StreamDataWriter = socketStream => writer(socketStream, args, cancel);
+            return request;
+        }
+
         /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with multiple parameters or a
         /// single struct parameter.</summary>
         /// <typeparam name="T">The type of the operation's parameters; it's a tuple type for an operation with multiple
@@ -160,6 +197,50 @@ namespace ZeroC.Ice
                                         request.Encoding,
                                         format);
             writer(ostr, in args);
+            request.PayloadEnd = ostr.Finish();
+            if (compress && proxy.Encoding == Encoding.V20)
+            {
+                request.CompressPayload();
+            }
+            return request;
+        }
+
+        /// <summary>Creates a new <see cref="OutgoingRequestFrame"/> for an operation with multiple parameters where
+        /// one of the parameter is a stream parameter.</summary>
+        /// <typeparam name="T">The type of the operation's parameters; it's a tuple type for an operation with multiple
+        /// parameters.</typeparam>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
+        /// encoding and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="compress">True if the request should be compressed, false otherwise.</param>
+        /// <param name="format">The format to use when writing class instances in case <c>args</c> contains class
+        /// instances.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
+        /// <param name="args">The argument(s) to write into the frame.</param>
+        /// <param name="writer">The delegate that writes the arguments into the frame.</param>
+        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+        /// <returns>A new OutgoingRequestFrame.</returns>
+        public static OutgoingRequestFrame WithArgs<T>(
+            IObjectPrx proxy,
+            string operation,
+            bool idempotent,
+            bool compress,
+            FormatType format,
+            IReadOnlyDictionary<string, string>? context,
+            in T args,
+            OutputStreamValueWriterWithStreamable<T> writer,
+            CancellationToken cancel = default) where T : struct
+        {
+            var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
+                                        request.Data,
+                                        request.PayloadStart,
+                                        request.Encoding,
+                                        format);
+            // TODO: deal with compress, format, and cancel paramters
+            request.StreamDataWriter = writer(ostr, in args, cancel);
             request.PayloadEnd = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {

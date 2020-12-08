@@ -9,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>A delegate that reads the response return value from a response frame.</summary>
+    /// <typeparam name="T">The type of the return value to read.</typeparam>
+    /// <param name="proxy">The proxy used to send the request.</param>
+    /// <param name="response">The response frame.</param>
+    /// <returns>The response return value.</returns>
+    public delegate T ResponseReader<T>(IObjectPrx proxy, IncomingResponseFrame response);
+
     /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
@@ -72,22 +79,25 @@ namespace ZeroC.Ice
                 OutgoingRequestFrame.WithEmptyArgs(proxy, "ice_ping", idempotent: true, context, cancel);
         }
 
-        /// <summary>Holds an <see cref="InputStreamReader{T}"/> for each non-void remote operation defined in the
+        /// <summary>Holds an <see cref="ResponseReader{T}"/> for each non-void remote operation defined in the
         /// pseudo-interface Object.</summary>
         public static class Response
         {
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_id.
+            /// <summary>The <see cref="ResponseReader{T}"/> reader for the return type of operation ice_id.
             /// </summary>
-            public static readonly InputStreamReader<string> IceId = InputStream.IceReaderIntoString;
+            public static string IceId(IObjectPrx proxy, IncomingResponseFrame response) =>
+                 response.ReadReturnValue(proxy, InputStream.IceReaderIntoString);
 
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_ids.
+            /// <summary>The <see cref="ResponseReader{T}"/> reader for the return type of operation ice_ids.
             /// </summary>
-            public static readonly InputStreamReader<string[]> IceIds =
-                istr => istr.ReadArray(minElementSize: 1, InputStream.IceReaderIntoString);
+            public static string[] IceIds(IObjectPrx proxy, IncomingResponseFrame response) =>
+                response.ReadReturnValue(
+                    proxy, istr => istr.ReadArray(minElementSize: 1, InputStream.IceReaderIntoString));
 
-            /// <summary>The <see cref="InputStreamReader{T}"/> reader for the return type of operation ice_isA.
+            /// <summary>The <see cref="ResponseReader{T}"/> reader for the return type of operation ice_isA.
             /// </summary>
-            public static readonly InputStreamReader<bool> IceIsA = InputStream.IceReaderIntoBool;
+            public static bool IceIsA(IObjectPrx proxy, IncomingResponseFrame response) =>
+                response.ReadReturnValue(proxy, InputStream.IceReaderIntoBool);
         }
 
         /// <summary>Factory for <see cref="IObjectPrx"/> proxies.</summary>
@@ -347,21 +357,17 @@ namespace ZeroC.Ice
         /// <summary>Sends a request that returns a value and returns the result synchronously.</summary>
         /// <typeparam name="T">The operation's return type.</typeparam>
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
-        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
+        /// <param name="reader">An <see cref="ResponseReader{T}"/> for the operation's return value. Typically
         /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
         /// <returns>The operation's return value.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected T IceInvoke<T>(OutgoingRequestFrame request, InputStreamReader<T> reader)
+        protected T IceInvoke<T>(OutgoingRequestFrame request, ResponseReader<T> reader)
         {
             try
             {
-                IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway: false).Result;
-                return response.ReadReturnValue(this, reader);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
+                IncomingResponseFrame response =
+                    Reference.InvokeAsync(this, request, oneway: false).GetAwaiter().GetResult();
+                return reader(this, response);
             }
             finally
             {
@@ -378,16 +384,11 @@ namespace ZeroC.Ice
         {
             try
             {
-                IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway).Result;
+                IncomingResponseFrame response = Reference.InvokeAsync(this, request, oneway).GetAwaiter().GetResult();
                 if (!oneway)
                 {
                     response.ReadVoidReturnValue(this);
                 }
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ExceptionUtil.Throw(ex.InnerException);
             }
             finally
             {
@@ -398,14 +399,14 @@ namespace ZeroC.Ice
         /// <summary>Sends a request that returns a value and returns the result asynchronously.</summary>
         /// <typeparam name="T">The operation's return type.</typeparam>
         /// <param name="request">The <see cref="OutgoingRequestFrame"/> for this invocation.</param>
-        /// <param name="reader">An <see cref="InputStreamReader{T}"/> for the operation's return value. Typically
+        /// <param name="reader">An <see cref="ResponseReader{T}"/> for the operation's return value. Typically
         /// {IInterfaceNamePrx}.Response.{OperationName}.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <returns>A task that provides the return value asynchronously.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected Task<T> IceInvokeAsync<T>(
             OutgoingRequestFrame request,
-            InputStreamReader<T> reader,
+            ResponseReader<T> reader,
             IProgress<bool>? progress)
         {
             Task<IncomingResponseFrame> responseTask;
@@ -425,7 +426,8 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return (await responseTask.ConfigureAwait(false)).ReadReturnValue(this, reader);
+                    using IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
+                    return reader(this, response);
                 }
                 finally
                 {
@@ -463,7 +465,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
+                    using IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
                     if (!oneway)
                     {
                         response.ReadVoidReturnValue(this);

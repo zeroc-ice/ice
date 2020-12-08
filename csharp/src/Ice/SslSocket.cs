@@ -99,9 +99,9 @@ namespace ZeroC.Ice
         public override ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             throw new InvalidOperationException("only supported by datagram transports");
 
-        public override async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel)
+        public override async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
         {
-            if (buffer.Count == 0)
+            if (buffer.Length == 0)
             {
                 throw new ArgumentException($"empty {nameof(buffer)}");
             }
@@ -115,7 +115,11 @@ namespace ZeroC.Ice
             {
                 throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
-            catch (IOException ex)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
@@ -139,16 +143,15 @@ namespace ZeroC.Ice
                 await _writeStream!.FlushAsync(cancel).ConfigureAwait(false);
                 return sent;
             }
-            catch (ObjectDisposedException ex)
-            {
-                // The stream might have been disposed if the connection is closed.
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
-            }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
-            catch (IOException ex)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }

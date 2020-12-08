@@ -73,7 +73,7 @@ namespace ZeroC.Ice.Test.Retry
         public void Sleep(int delay, Current current, CancellationToken cancel) => Thread.Sleep(delay);
 
         public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Adapter.Communicator.ShutdownAsync();
+            current.Communicator.ShutdownAsync();
 
         public void OpWithData(int retries, int delay, byte[] data, Current current, CancellationToken cancel)
         {

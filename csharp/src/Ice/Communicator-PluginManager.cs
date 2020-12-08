@@ -4,34 +4,34 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
     /// <summary>Applications implement this interface to provide a plug-in factory to the Ice run time.</summary>
     public interface IPluginFactory
     {
-        /// <summary>Called by the Ice run time to create a new plug-in.</summary>
-        ///
-        /// <param name="communicator">The communicator that is in the process of being initialized.</param>
+        /// <summary>Creates a new plug-in.</summary>
+        /// <param name="communicator">The communicator being constructed.</param>
         /// <param name="name">The name of the plug-in.</param>
-        /// <param name="args">The arguments that are specified in the plug-ins configuration.</param>
-        /// <returns>The plug-in that was created by this method.</returns>
+        /// <param name="args">The arguments specified in the plug-in configuration.</param>
+        /// <returns>The plug-in created by this factory.</returns>
         IPlugin Create(Communicator communicator, string name, string[] args);
     }
 
     public sealed partial class Communicator
     {
-        private static readonly List<string> _loadOnInitialization = new List<string>();
-        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new Dictionary<string, IPluginFactory>();
-        private bool _pluginsInitialized;
-        private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
+        private static readonly List<string> _loadOnInitialization = new();
+        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new();
+        private readonly List<(string Name, IPlugin Plugin)> _plugins = new();
 
         /// <summary>Manually registers a plug-in factory.</summary>
         /// <param name="name">The name assigned to the plug-in.</param>
         /// <param name="factory">The factory.</param>
         /// <param name="loadOnInit">If true, the plug-in is always loaded (created) during communicator
-        /// initialization, even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during
-        /// communication initialization only if Ice.Plugin.name  is set to a non-empty value
+        /// construction, even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during
+        /// communicator construction only if Ice.Plugin.name is set to a non-empty value
         /// (e.g.: Ice.Plugin.IceSSL= 1).</param>
         public static void RegisterPluginFactory(string name, IPluginFactory factory, bool loadOnInit)
         {
@@ -45,52 +45,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Initializes the configured plug-ins. The communicator automatically initializes the plug-ins by
-        /// default, but an application may need to interact directly with a plug-in prior to initialization. In this
-        /// case, the application must set Ice.InitPlugins=0 and then invoke InitializePlugins() manually. The plug-ins
-        /// are initialized in the order in which they are loaded. If a plug-in raises an exception during
-        /// initialization, the communicator invokes destroy on the plug-ins that have already been initialized.
-        /// </summary>
-        public void InitializePlugins()
-        {
-            if (_pluginsInitialized)
-            {
-                throw new InvalidOperationException("plug-ins already initialized");
-            }
-
-            // Invoke initialize() on the plug-ins, in the order they were loaded.
-            var initializedPlugins = new List<IPlugin>();
-            try
-            {
-                var context = new PluginInitializationContext(this);
-                foreach ((string name, IPlugin plugin) in _plugins)
-                {
-                    plugin.Initialize(context);
-                    initializedPlugins.Add(plugin);
-                }
-            }
-            catch (Exception)
-            {
-                // Destroy the plug-ins that have been successfully initialized, in the reverse order.
-                foreach (IPlugin plugin in Enumerable.Reverse(initializedPlugins))
-                {
-                    try
-                    {
-                        plugin.DisposeAsync().AsTask().Wait();
-                    }
-                    catch
-                    {
-                        // Ignore.
-                    }
-                }
-                _plugins.Clear();
-                throw;
-            }
-
-            _pluginsInitialized = true;
-        }
-
-        /// <summary>Install a new plug-in.</summary>
+        /// <summary>Installs a new plug-in.</summary>
         /// <param name="name">The plug-in's name.</param>
         /// <param name="plugin">The new plug-in.</param>
         public void AddPlugin(string name, IPlugin plugin)
@@ -104,14 +59,14 @@ namespace ZeroC.Ice
 
                 if (FindPlugin(name) != null)
                 {
-                    throw new ArgumentException("a plugin named `{name}' is already registered", nameof(name));
+                    throw new ArgumentException($"a plugin named `{name}' is already registered", nameof(name));
                 }
 
                 _plugins.Add((name, plugin));
             }
         }
 
-        /// <summary>Obtain a plug-in by name.</summary>
+        /// <summary>Obtains a plug-in by name.</summary>
         /// <param name="name">The plug-in's name.</param>
         /// <returns>The plug-in.</returns>
         public IPlugin? GetPlugin(string name)
@@ -127,7 +82,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Get a list of plugins installed.</summary>
+        /// <summary>Gets a list of plugins installed.</summary>
         /// <returns>The names of the plugins installed.</returns>
         public string[] GetPlugins()
         {
@@ -142,12 +97,47 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Activates the configured plug-ins.</summary>
+        /// <param name="cancel">The cancellation token.</param>
+        /// <returns>A task that completes once all the plug-ins are activated.</returns>
+        private async Task ActivatePluginsAsync(CancellationToken cancel = default)
+        {
+            // Invoke ActivateAsync on the plug-ins, in the order they were loaded.
+            var activatedPlugins = new List<IPlugin>();
+            try
+            {
+                using var context = new PluginActivationContext(this);
+                foreach ((string name, IPlugin plugin) in _plugins)
+                {
+                    await plugin.ActivateAsync(context, cancel).ConfigureAwait(false);
+                    activatedPlugins.Add(plugin);
+                }
+            }
+            catch (Exception)
+            {
+                // Destroy the plug-ins that have been successfully activated, in the reverse order.
+                foreach (IPlugin plugin in Enumerable.Reverse(activatedPlugins))
+                {
+                    try
+                    {
+                        await plugin.DisposeAsync().ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // Ignore.
+                    }
+                }
+                _plugins.Clear(); // TODO: is this correct?
+                throw;
+            }
+        }
+
         private void LoadPlugins(ref string[] cmdArgs)
         {
             const string prefix = "Ice.Plugin.";
             Dictionary<string, string> plugins = GetProperties(forPrefix: prefix);
 
-            // First, load static plugin factories which were setup to load on communicator initialization. If a
+            // First, load static plugin factories which were setup to load on communicator construction. If a
             // matching plugin property is set, we load the plugin with the plugin specification. The entryPoint will
             // be ignored but the rest of the plugin specification might be used.
             foreach (string name in _loadOnInitialization)
@@ -171,15 +161,10 @@ namespace ZeroC.Ice
                 }
             }
 
-            // Load and initialize the plug-ins defined in the property set with the prefix "Ice.Plugin.". These
-            // properties should have the following format:
+            // Loads the plug-ins defined in the property set with the prefix "Ice.Plugin.". These properties should
+            // have the following format:
             //
             // Ice.Plugin.name[.<language>]=entry_point [args]
-            //
-            // The code below is different from the Java/C++ algorithm because C# must support full assembly names such
-            // as:
-            //
-            // Ice.Plugin.Logger=logger, Version=0.0.0.0, Culture=neutral:LoginPluginFactory
             //
             // If the Ice.PluginLoadOrder property is defined, load the specified plug-ins in the specified order, then
             // load any remaining plug-ins.
