@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
         internal class Plugin : IPlugin
         {
-            public Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel)
+            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
             {
                 context.AddInvocationInterceptor(
                     async (target, request, next, cancel) =>

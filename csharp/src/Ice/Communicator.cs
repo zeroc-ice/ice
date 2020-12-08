@@ -137,7 +137,7 @@ namespace ZeroC.Ice
         public ILogger Logger { get; internal set; }
 
         /// <summary>Gets the communicator observer used by the Ice run-time or null if a communicator observer
-        /// was not set during communicator initialization.</summary>
+        /// was not set during communicator construction.</summary>
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
         /// <summary>The output mode or format for ToString on Ice proxies when the protocol is ice1. See
@@ -203,6 +203,7 @@ namespace ZeroC.Ice
             "Context\\..*"
         };
         private static readonly object _staticMutex = new object();
+        private bool _activateCalled;
         private readonly Func<CancellationToken, Task>? _activateLocatorAsync;
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
@@ -748,9 +749,6 @@ namespace ZeroC.Ice
                         _printProcessIdDone = true;
                     }
                 }
-
-                // TODO: temporary!
-                InitializeAsync().GetAwaiter().GetResult();
             }
             catch
             {
@@ -759,28 +757,30 @@ namespace ZeroC.Ice
             }
         }
 
-        // TODO: temporarily private
-        private async Task InitializeAsync(CancellationToken cancel = default)
+        /// <summary>Activates the plugins and built-in locator implementation of this communicator, if any. Also
+        /// creates and activates the Ice.Admin object and its object adapter, if enabled. It is recommended to always
+        /// activate a communicator even though this activation may not do anything.</summary>
+        /// <param name="cancel">The cancellation token.</param>
+        /// <returns>A task that completes when the activation completes.</returns>
+        public async Task ActivateAsync(CancellationToken cancel = default)
         {
-            // An application can set Ice.InitPlugins=0 if it wants to postpone initialization until after it has
-            // interacted directly with the plug-ins.
-            if (GetPropertyAsBool("Ice.InitPlugins") ?? true)
+            lock (_mutex)
             {
-                await InitializePluginsAsync(cancel).ConfigureAwait(false);
+                if (_activateCalled)
+                {
+                    throw new InvalidOperationException("ActivateAsync was already called on this communicator");
+                }
+                _activateCalled = true;
             }
+
+            await ActivatePluginsAsync(cancel).ConfigureAwait(false);
 
             if (_activateLocatorAsync != null)
             {
                 await _activateLocatorAsync(cancel).ConfigureAwait(false);
             }
 
-            // This must be done last as this call creates the Ice.Admin object adapter and eventually registers a
-            // process proxy with the Ice locator (allowing remote clients to invoke on Ice.Admin facets as soon as
-            // it's registered).
-            if (!(GetPropertyAsBool("Ice.Admin.DelayCreation") ?? false))
-            {
-                _ = await GetAdminAsync(cancel).ConfigureAwait(false);
-            }
+            _ = await GetAdminAsync(cancel).ConfigureAwait(false);
         }
 
         /// <summary>Adds an admin facet to the communicator.</summary>
@@ -1108,11 +1108,11 @@ namespace ZeroC.Ice
             }
         }
 
-        // Add one or more dispatch interceptors, only to use by PluginInitializationContext
+        // Add one or more dispatch interceptors, only to use by PluginActivationContext
         internal void AddDispatchInterceptor(DispatchInterceptor[] interceptors) =>
             _dispatchInterceptors.AddRange(interceptors);
 
-        // Add one or more invocation interceptors, only to use by PluginInitializationContext
+        // Add one or more invocation interceptors, only to use by PluginActivationContext
         internal void AddInvocationInterceptor(InvocationInterceptor[] interceptors) =>
             _invocationInterceptors.AddRange(interceptors);
 

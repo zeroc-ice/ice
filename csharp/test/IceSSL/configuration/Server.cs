@@ -11,6 +11,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         public override async Task RunAsync(string[] args)
         {
             await using Ice.Communicator communicator = Initialize(ref args);
+            await communicator.ActivateAsync();
             if (args.Length < 1)
             {
                 throw new ArgumentException("Usage: server testdir");

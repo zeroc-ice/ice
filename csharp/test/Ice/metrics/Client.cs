@@ -17,7 +17,6 @@ namespace ZeroC.Ice.Test.Metrics
 
             properties["Ice.Admin.Endpoints"] = ice1 ? "tcp -h 127.0.0.1" : "ice+tcp://127.0.0.1:0";
             properties["Ice.Admin.InstanceName"] = "client";
-            properties["Ice.Admin.DelayCreation"] = "1";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.ConnectTimeout"] = "3s";
 

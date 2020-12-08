@@ -21,9 +21,12 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                     {
                         "Ice.Plugin.InvocationPlugin",
-                        $"{pluginPath }:ZeroC.Ice.Test.Interceptor.InvocationPluginFactory"
+                        $"{pluginPath}:ZeroC.Ice.Test.Interceptor.InvocationPluginFactory"
                     }
                 });
+
+            await communicator.ActivateAsync();
+
             IMyObjectPrx prx = AllTests.Run(this);
             await prx.ShutdownAsync();
         }

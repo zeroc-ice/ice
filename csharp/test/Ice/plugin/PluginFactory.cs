@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Plugin
 
             public Plugin(string[] args) => _args = args;
 
-            public Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel)
+            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
             {
                 _initialized = true;
                 TestHelper.Assert(_args.Length == 3);

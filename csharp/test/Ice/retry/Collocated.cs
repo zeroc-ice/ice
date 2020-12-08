@@ -17,6 +17,7 @@ namespace ZeroC.Ice.Test.Retry
             // This test kills connections, so we don't want warnings.
             properties["Ice.Warn.Connections"] = "0";
             await using Communicator communicator = Initialize(properties, observer: observer);
+            await communicator.ActivateAsync();
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.CreateObjectAdapter("TestAdapter").Add("retry", new Retry());
