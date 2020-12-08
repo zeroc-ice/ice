@@ -128,6 +128,10 @@ void convertMetadata(StringListTokPtr& metadata)
     }
 }
 
+const int QUALIFIER_NONE = 0;
+const int QUALIFIER_OUT = 1;
+const int QUALIFIER_STREAM = 2;
+
 %}
 
 // Directs Bison to generate a re-entrant parser.
@@ -152,6 +156,7 @@ void convertMetadata(StringListTokPtr& metadata)
 %token ICE_DICTIONARY
 %token ICE_ENUM
 %token ICE_OUT
+%token ICE_STREAM
 %token ICE_EXTENDS
 %token ICE_IMPLEMENTS
 %token ICE_THROWS
@@ -1151,10 +1156,15 @@ data_members
 // ----------------------------------------------------------------------
 return_tuple
 // ----------------------------------------------------------------------
-: out_qualifier member
+: qualifier member
 {
+    IntegerTokPtr qualifier = IntegerTokPtr::dynamicCast($1);
     TaggedDefTokPtr returnMember = TaggedDefTokPtr::dynamicCast($2);
-    if (BoolTokPtr::dynamicCast($1)->v)
+
+    returnMember->isStream = qualifier->v & QUALIFIER_STREAM;
+
+    bool isOutParam = qualifier->v & QUALIFIER_OUT;
+    if (isOutParam)
     {
         unit->error("`" + returnMember->name + "': return members cannot be marked as out");
     }
@@ -1163,10 +1173,15 @@ return_tuple
     returnMembers->v.push_back(returnMember);
     $$ = returnMembers;
 }
-| return_tuple ',' out_qualifier member
+| return_tuple ',' qualifier member
 {
+    IntegerTokPtr qualifier = IntegerTokPtr::dynamicCast($3);
     TaggedDefTokPtr returnMember = TaggedDefTokPtr::dynamicCast($4);
-    if (BoolTokPtr::dynamicCast($3)->v)
+
+    returnMember->isStream = qualifier->v & QUALIFIER_STREAM;
+
+    bool isOutParam = qualifier->v & QUALIFIER_OUT;
+    if (isOutParam)
     {
         unit->error("`" + returnMember->name + "': return members cannot be marked as out");
     }
@@ -1179,11 +1194,21 @@ return_tuple
 // ----------------------------------------------------------------------
 return_type
 // ----------------------------------------------------------------------
-: tagged_type
+: qualifier tagged_type
 {
-    TaggedDefTokPtr returnMember = TaggedDefTokPtr::dynamicCast($1);
+    IntegerTokPtr qualifier = IntegerTokPtr::dynamicCast($1);
+    TaggedDefTokPtr returnMember = TaggedDefTokPtr::dynamicCast($2);
+
     // For unnamed return types we infer their name to be 'returnValue'.
     returnMember->name = "returnValue";
+
+    returnMember->isStream = qualifier->v & QUALIFIER_STREAM;
+
+    bool isOutParam = qualifier->v & QUALIFIER_OUT;
+    if (isOutParam)
+    {
+        unit->error("return value cannot be marked as out");
+    }
 
     if (returnMember->isTagged)
     {
@@ -1233,7 +1258,7 @@ operation_preamble
             for (const auto& returnMember : returnMembers->v)
             {
                 MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
-                                                     returnMember->tag);
+                                                     returnMember->tag, returnMember->isStream);
                 if (p && !returnMember->metadata.empty())
                 {
                     p->setMetadata(returnMember->metadata);
@@ -1268,7 +1293,7 @@ operation_preamble
             for (const auto& returnMember : returnMembers->v)
             {
                 MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
-                                                     returnMember->tag);
+                                                     returnMember->tag, returnMember->isStream);
                 if (p && !returnMember->metadata.empty())
                 {
                     p->setMetadata(returnMember->metadata);
@@ -1301,7 +1326,7 @@ operation_preamble
             for (const auto& returnMember : returnMembers->v)
             {
                 MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
-                                                     returnMember->tag);
+                                                     returnMember->tag, returnMember->isStream);
                 if (p && !returnMember->metadata.empty())
                 {
                     p->setMetadata(returnMember->metadata);
@@ -1335,7 +1360,7 @@ operation_preamble
             for (const auto& returnMember : returnMembers->v)
             {
                 MemberPtr p = op->createReturnMember(returnMember->name, returnMember->type, returnMember->isTagged,
-                                                     returnMember->tag);
+                                                     returnMember->tag, returnMember->isStream);
                 if (p && !returnMember->metadata.empty())
                 {
                     p->setMetadata(returnMember->metadata);
@@ -1910,29 +1935,50 @@ enumerator_initializer
 ;
 
 // ----------------------------------------------------------------------
-out_qualifier
+qualifier
 // ----------------------------------------------------------------------
 : ICE_OUT
 {
-    $$ = new BoolTok(true);
+    $$ = new IntegerTok(QUALIFIER_OUT);
+}
+| ICE_STREAM
+{
+    $$ = new IntegerTok(QUALIFIER_STREAM);
+}
+| ICE_STREAM ICE_OUT
+{
+    // Not allowed but we still allow the parsing to print an appropriate error message
+    $$ = new IntegerTok(QUALIFIER_OUT | QUALIFIER_STREAM);
+}
+| ICE_OUT ICE_STREAM
+{
+    // Not allowed but we still allow the parsing to print an appropriate error message
+    $$ = new IntegerTok(QUALIFIER_OUT | QUALIFIER_STREAM);
 }
 | %empty
 {
-    $$ = new BoolTok(false);
+    $$ = new IntegerTok(QUALIFIER_NONE);
 }
 ;
 
 // ----------------------------------------------------------------------
 parameter
 // ----------------------------------------------------------------------
-: out_qualifier member
+: qualifier member
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
+    IntegerTokPtr qualifier = IntegerTokPtr::dynamicCast($1);
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($2);
 
     if (OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer()))
     {
-        MemberPtr param = op->createParameter(def->name, def->type, isOutParam->v, def->isTagged, def->tag);
+        bool isOutParam = qualifier->v & QUALIFIER_OUT;
+        bool isStreamParam = qualifier->v & QUALIFIER_STREAM;
+        if (isOutParam && isStreamParam)
+        {
+            unit->error("`" + def->name + "': stream parameter cannot be marked as out");
+        }
+
+        MemberPtr param = op->createParameter(def->name, def->type, isOutParam, def->isTagged, def->tag, isStreamParam);
         unit->currentContainer()->checkIntroduced(def->name, param);
         if(param && !def->metadata.empty())
         {
@@ -2384,6 +2430,7 @@ keyword
 | ICE_DICTIONARY {}
 | ICE_ENUM {}
 | ICE_OUT {}
+| ICE_STREAM {}
 | ICE_EXTENDS {}
 | ICE_IMPLEMENTS {}
 | ICE_THROWS {}

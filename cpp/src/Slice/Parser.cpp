@@ -1641,7 +1641,7 @@ Slice::DataMemberContainer::createDataMember(const string& name, const TypePtr& 
         }
     }
 
-    MemberPtr member = new Member(this, name, type, tagged, tag, dvt, dv, dl);
+    MemberPtr member = new Member(this, name, type, tagged, tag, false, dvt, dv, dl);
     _dataMembers.push_back(member);
     return member;
 }
@@ -2401,7 +2401,7 @@ Slice::Module::hasNonClassTypes() const
          {
             return true;
         }
-        else if(ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
+        else if (ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
         {
             return true;
         }
@@ -4085,7 +4085,8 @@ Slice::Operation::hasMarshaledResult() const
 }
 
 MemberPtr
-Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
+Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag,
+                                  bool stream)
 {
     _unit->checkType(type);
 
@@ -4118,6 +4119,13 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
     }
 
     MemberList& params = isOutParam ? _returnType : _params;
+
+    if (!params.empty() && params.back()->stream())
+    {
+        _unit->error(stream ? "operations can have a single stream parameter as the last parameter" :
+                              ("stream parameter `" + params.back()->name() + "' must be the last parameter"));
+    }
+
     if (tagged && tag > -1)
     {
         // Check for a duplicate tag.
@@ -4130,13 +4138,13 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         }
     }
 
-    MemberPtr param = new Member(this, name, type, tagged, tag);
+    MemberPtr param = new Member(this, name, type, tagged, tag, stream);
     params.push_back(param);
     return param;
 }
 
 MemberPtr
-Slice::Operation::createReturnMember(const std::string& name, const TypePtr& type, bool tagged, int tag)
+Slice::Operation::createReturnMember(const std::string& name, const TypePtr& type, bool tagged, int tag, bool stream)
 {
     _hasReturnType = true;
 
@@ -4153,12 +4161,17 @@ Slice::Operation::createReturnMember(const std::string& name, const TypePtr& typ
         }
     }
 
+    if (!_returnType.empty() && _returnType.back()->stream())
+    {
+        _unit->error("stream return value `" + _returnType.back()->name() + "' must be the last return value");
+    }
+
     if (!checkForRedefinition(this, name, "parameter"))
     {
         return nullptr;
     }
 
-    MemberPtr returnMember = new Member(this, name, type, tagged, tag);
+    MemberPtr returnMember = new Member(this, name, type, tagged, tag, stream);
     _returnType.push_back(returnMember);
     return returnMember;
 }
@@ -4400,6 +4413,12 @@ Slice::Member::tag() const
     return _tag;
 }
 
+bool
+Slice::Member::stream() const
+{
+    return _stream;
+}
+
 string
 Slice::Member::defaultValue() const
 {
@@ -4449,13 +4468,14 @@ Slice::Member::operation() const
 }
 
 Slice::Member::Member(const ContainerPtr& container, const string& name, const TypePtr& type,
-                              bool tagged, int tag, const SyntaxTreeBasePtr& defaultValueType,
-                              const string& defaultValue, const string& defaultLiteral) :
+                      bool tagged, int tag, bool stream, const SyntaxTreeBasePtr& defaultValueType,
+                      const string& defaultValue, const string& defaultLiteral) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),
     _tagged(tagged),
     _tag(tag),
+    _stream(stream),
     _defaultValueType(defaultValueType),
     _defaultValue(defaultValue),
     _defaultLiteral(defaultLiteral)

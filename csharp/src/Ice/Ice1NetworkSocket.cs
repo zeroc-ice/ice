@@ -19,16 +19,16 @@ namespace ZeroC.Ice
     {
         public override TimeSpan IdleTimeout { get; internal set; }
 
-        internal AsyncSemaphore? BidirectionalSerializeSemaphore { get; }
-        internal AsyncSemaphore? UnidirectionalSerializeSemaphore { get; }
         internal bool IsValidated { get; private set; }
 
+        private readonly AsyncSemaphore? _bidirectionalSerializeSemaphore;
         // The mutex is used to protect the next stream IDs and the send queue.
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
         private long _nextPeerUnidirectionalId;
         private readonly AsyncSemaphore _sendSemaphore = new AsyncSemaphore(1);
         private readonly SingleStreamSocket _socket;
+        private readonly AsyncSemaphore? _unidirectionalSerializeSemaphore;
 
         public override async ValueTask<SocketStream> AcceptStreamAsync(CancellationToken cancel)
         {
@@ -130,17 +130,12 @@ namespace ZeroC.Ice
                         // the semaphore first to serialize the dispatching.
                         try
                         {
-                            stream = new Ice1NetworkSocketStream(streamId, this);
-                            if (stream.IsBidirectional)
+                            stream = new Ice1NetworkSocketStream(this, streamId);
+                            AsyncSemaphore? semaphore = stream.IsBidirectional ?
+                                _bidirectionalSerializeSemaphore : _unidirectionalSerializeSemaphore;
+                            if (semaphore != null)
                             {
-                                if (BidirectionalSerializeSemaphore != null)
-                                {
-                                    await BidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
-                                }
-                            }
-                            else if (UnidirectionalSerializeSemaphore != null)
-                            {
-                                await UnidirectionalSerializeSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                                await semaphore.WaitAsync(cancel).ConfigureAwait(false);
                             }
                             stream.ReceivedFrame(frameType, frame);
                             return stream;
@@ -155,7 +150,7 @@ namespace ZeroC.Ice
                     {
                         // If we received a connection validation frame and the stream is not known, it's the first
                         // received connection validation message, create the control stream and return it.
-                        stream = new Ice1NetworkSocketStream(streamId, this);
+                        stream = new Ice1NetworkSocketStream(this, streamId);
                         Debug.Assert(stream.IsControl);
                         stream.ReceivedFrame(frameType, frame);
                         return stream;
@@ -186,8 +181,8 @@ namespace ZeroC.Ice
         public override ValueTask CloseAsync(Exception exception, CancellationToken cancel) =>
             _socket.CloseAsync(exception, cancel);
 
-        public override SocketStream CreateStream(bool bidirectional) =>
-            new Ice1NetworkSocketStream(bidirectional, this);
+        public override SocketStream CreateStream(bool bidirectional, bool control) =>
+            new Ice1NetworkSocketStream(this, bidirectional, control);
 
         public override ValueTask InitializeAsync(CancellationToken cancel) =>
             _socket.InitializeAsync(cancel);
@@ -216,8 +211,8 @@ namespace ZeroC.Ice
             // dispatch per connection.
             if (adapter?.SerializeDispatch ?? false)
             {
-                BidirectionalSerializeSemaphore = new AsyncSemaphore(1);
-                UnidirectionalSerializeSemaphore = new AsyncSemaphore(1);
+                _bidirectionalSerializeSemaphore = new AsyncSemaphore(1);
+                _unidirectionalSerializeSemaphore = new AsyncSemaphore(1);
             }
 
             // We use the same stream ID numbering scheme as Quic.
@@ -242,11 +237,26 @@ namespace ZeroC.Ice
             // control stream immediately for an incoming connection.
             if (IsIncoming)
             {
-                return new ValueTask<SocketStream>(new Ice1NetworkSocketStream(2, this));
+                return new ValueTask<SocketStream>(new Ice1NetworkSocketStream(this, 2));
             }
             else
             {
                 return base.ReceiveInitializeFrameAsync(cancel);
+            }
+        }
+
+        internal void ReleaseFlowControlCredit(Ice1NetworkSocketStream stream)
+        {
+            if (stream.IsIncoming && !stream.IsControl)
+            {
+                if (stream.IsBidirectional)
+                {
+                    _bidirectionalSerializeSemaphore?.Release();
+                }
+                else
+                {
+                    _unidirectionalSerializeSemaphore?.Release();
+                }
             }
         }
 
@@ -324,7 +334,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new ValueTask<SocketStream>(new Ice1NetworkSocketStream(AllocateId(false), this));
+                return new ValueTask<SocketStream>(new Ice1NetworkSocketStream(this, AllocateId(false)));
             }
         }
 

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Test;
@@ -1344,6 +1345,59 @@ namespace ZeroC.Ice.Test.Operations
                         TestHelper.Assert(p2.DictionaryEqual(p1) && ReturnValue.DictionaryEqual(p1));
                     }
                 }).Wait();
+
+            {
+                void AssertStreamEquals(System.IO.Stream s1, System.IO.Stream s2)
+                {
+                    int v1, v2;
+                    do
+                    {
+                        v1 = s1.ReadByte();
+                        v2 = s2.ReadByte();
+                        TestHelper.Assert(v1 == v2);
+                    }
+                    while (v1 != -1 && v2 != -1);
+                }
+
+                if (p.Protocol != Protocol.Ice1)
+                {
+                    Task.Run(async () =>
+                    {
+                        await p.OpSendStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+
+                        await p.OpSendStream2Async("AllTests.cs", File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+
+                        {
+                            using Stream stream = await p.OpGetStream1Async().ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead("AllTests.cs");
+                            AssertStreamEquals(stream, fileStream);
+                        }
+
+                        {
+                            (string fileName, Stream stream) = await p.OpGetStream2Async().ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead(fileName);
+                            AssertStreamEquals(stream, File.OpenRead(fileName));
+                            stream.Dispose();
+                        }
+
+                        {
+                            using Stream stream =
+                                await p.OpSendAndGetStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead("AllTests.cs");
+                            AssertStreamEquals(stream, fileStream);
+                        }
+
+                        {
+                            (string fileName, Stream stream) = await p.OpSendAndGetStream2Async(
+                                "AllTests.cs",
+                                File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                            using Stream fileStream = File.OpenRead(fileName);
+                            AssertStreamEquals(stream, fileStream);
+                            stream.Dispose();
+                        }
+                    }).Wait();
+                }
+            }
         }
     }
 }

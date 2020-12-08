@@ -1207,6 +1207,7 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException($"{nameof(router)} must be an ice1 proxy", nameof(router));
                 }
+
                 if (locatorCacheTimeout != null &&
                     locatorCacheTimeout < TimeSpan.Zero && locatorCacheTimeout != Timeout.InfiniteTimeSpan)
                 {
@@ -1716,6 +1717,7 @@ namespace ZeroC.Ice
             {
                 bool sent = false;
                 IChildInvocationObserver? childObserver = null;
+                SocketStream? stream = null;
                 try
                 {
                     if (connection == null)
@@ -1762,16 +1764,13 @@ namespace ZeroC.Ice
                     cancel.ThrowIfCancellationRequested();
 
                     // Create the outgoing stream.
-                    using SocketStream stream = connection.CreateStream(!oneway);
+                    stream = connection.CreateStream(!oneway);
 
                     childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
                     childObserver?.Attach();
 
-                    // TODO: support for streaming data, fin should be false if there's data to stream.
-                    bool fin = true;
-
                     // Send the request and wait for the sending to complete.
-                    await stream.SendRequestFrameAsync(request, fin, cancel).ConfigureAwait(false);
+                    await stream.SendRequestFrameAsync(request, cancel).ConfigureAwait(false);
 
                     // The request is sent, notify the progress callback.
                     // TODO: Get rid of the sentSynchronously parameter which is always false now?
@@ -1786,6 +1785,7 @@ namespace ZeroC.Ice
                     }
                     sent = true;
                     exception = null;
+                    response?.Dispose();
 
                     if (oneway)
                     {
@@ -1793,14 +1793,9 @@ namespace ZeroC.Ice
                     }
 
                     // Wait for the reception of the response.
-                    (response, fin) = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
+                    response = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
 
                     childObserver?.Reply(response.Size);
-
-                    if (!fin)
-                    {
-                        // TODO: handle received stream data.
-                    }
 
                     // If success, just return the response!
                     if (response.ResultType == ResultType.Success)
@@ -1825,6 +1820,7 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
+                    stream?.TryDispose();
                     childObserver?.Detach();
                 }
 

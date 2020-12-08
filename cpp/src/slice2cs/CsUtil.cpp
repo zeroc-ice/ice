@@ -50,7 +50,8 @@ Slice::paramTypeStr(const MemberPtr& param, bool readOnly)
     return CsGenerator::typeToString(param->type(),
                                      getNamespace(InterfaceDefPtr::dynamicCast(param->operation()->container())),
                                      readOnly,
-                                     readOnly);
+                                     readOnly,
+                                     param->stream());
 }
 
 std::string
@@ -319,9 +320,24 @@ Slice::fixId(const string& name, unsigned int baseTypes)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool readOnly, bool readOnlyParam)
+Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool readOnly, bool readOnlyParam,
+                                 bool streamParam)
 {
     assert(!readOnlyParam || readOnly);
+
+    if (streamParam)
+    {
+        if (auto builtin = BuiltinPtr::dynamicCast(type); builtin && builtin->kind() == Builtin::KindByte)
+        {
+            return "global::System.IO.Stream";
+        }
+        else
+        {
+            // TODO
+            assert(false);
+            return "";
+        }
+    }
 
     if (!type)
     {
@@ -789,6 +805,38 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     else
     {
         out << typeToString(type, scope) << ".IceReader";
+    }
+    return out.str();
+}
+
+string
+Slice::CsGenerator::streamDataReader(const TypePtr& type)
+{
+    ostringstream out;
+    if (auto builtin = BuiltinPtr::dynamicCast(type); builtin && builtin->kind() == Builtin::KindByte)
+    {
+        out << "ReceiveDataIntoIOStream";
+    }
+    else
+    {
+        // TODO
+        assert(false);
+    }
+    return out.str();
+}
+
+string
+Slice::CsGenerator::streamDataWriter(const TypePtr &type)
+{
+    ostringstream out;
+    if (auto builtin = BuiltinPtr::dynamicCast(type); builtin && builtin->kind() == Builtin::KindByte)
+    {
+        out << "SendDataFromIOStream";
+    }
+    else
+    {
+        // TODO
+        assert(false);
     }
     return out.str();
 }

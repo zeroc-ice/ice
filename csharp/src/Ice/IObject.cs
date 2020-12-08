@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>A delegate that reads the request parameters from a request frame.</summary>
+    /// <typeparam name="T">The type of the request parameters to read.</typeparam>
+    /// <param name="connection">The connection used to received the request frame.</param>
+    /// <param name="request">The request frame to read the parameters from.</param>
+    /// <returns>The request parmeters.</returns>
+    public delegate T RequestReader<T>(Connection connection, IncomingRequestFrame request);
+
     /// <summary>The base interface for all servants.</summary>
     public interface IObject
     {
@@ -31,12 +38,17 @@ namespace ZeroC.Ice
 
         // The following are helper classes and methods for generated servants.
 
-        /// <summary>Holds an <see cref="InputStreamReader{T}"/> for each remote operation with parameter(s) defined in
+        /// <summary>Holds a <see cref="RequestReader{T}"/> for each remote operation with parameter(s) defined in
         /// the pseudo-interface Object.</summary>
         public static class Request
         {
-            /// <summary>The <see cref="InputStreamReader{T}"/> for the parameter of operation ice_isA.</summary>
-            public static readonly InputStreamReader<string> IceIsA = InputStream.IceReaderIntoString;
+            /// <summary>The <see cref="RequestReader{T}"/> for the parameter of operation ice_isA.</summary>
+            /// <summary>Decodes the ice_id operation parameters from an <see cref="IncomingRequestFrame"/>.</summary>
+            /// <param name="connection">The used to receive the frame.</param>
+            /// <param name="request">The request frame.</param>
+            /// <returns>The return value decoded from the frame.</returns>
+            public static string IceIsA(Connection connection, IncomingRequestFrame request) =>
+                 request.ReadArgs(connection, InputStream.IceReaderIntoString);
         }
 
         /// <summary>Provides an <see cref="OutgoingResponseFrame"/> factory method for each non-void remote operation
@@ -170,7 +182,7 @@ namespace ZeroC.Ice
             Current current,
             CancellationToken cancel)
         {
-            string id = request.ReadArgs(current.Connection, Request.IceIsA);
+            string id = Request.IceIsA(current.Connection, request);
             bool returnValue = IceIsA(id, current, cancel);
             return new ValueTask<OutgoingResponseFrame>(Response.IceIsA(current, returnValue));
         }

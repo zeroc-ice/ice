@@ -1,7 +1,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Operations
@@ -84,6 +86,15 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             (byte ReturnValue, byte p3) = p.OpByteAsync(0xff, 0x0f).Result;
+
+            if (p.Protocol != Protocol.Ice1)
+            {
+                Task.Run(async () =>
+                {
+                    await p.OpSendStream1Async(File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                    await p.OpSendStream2Async("AllTests.cs", File.OpenRead("AllTests.cs")).ConfigureAwait(false);
+                }).Wait();
+            }
         }
     }
 }

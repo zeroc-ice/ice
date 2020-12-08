@@ -931,7 +931,7 @@ namespace ZeroC.Ice
             return (noProps, unknownProps);
         }
 
-        internal async ValueTask<(OutgoingResponseFrame, bool)> DispatchAsync(
+        internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
             IncomingRequestFrame request,
             Current current,
             CancellationToken cancel)
@@ -948,8 +948,6 @@ namespace ZeroC.Ice
                 {
                     throw new ObjectNotExistException(RetryPolicy.OtherReplica);
                 }
-
-                // TODO: support input streamable data if Current.EndOfStream == false and output streamable data.
 
                 ValueTask<OutgoingResponseFrame> DispatchAsync(int i)
                 {
@@ -970,7 +968,7 @@ namespace ZeroC.Ice
                     response.Finish();
                 }
                 dispatchObserver?.Reply(response.Size);
-                return (response, true);
+                return response;
             }
             catch (Exception ex)
             {
@@ -995,7 +993,7 @@ namespace ZeroC.Ice
                     var response = new OutgoingResponseFrame(request, actualEx);
                     response.Finish();
                     dispatchObserver?.Reply(response.Size);
-                    return (response, true);
+                    return response;
                 }
                 else
                 {
@@ -1004,7 +1002,7 @@ namespace ZeroC.Ice
                         Warning(ex);
                     }
                     dispatchObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    return (OutgoingResponseFrame.WithVoidReturnValue(current), true);
+                    return OutgoingResponseFrame.WithVoidReturnValue(current);
                 }
             }
             finally

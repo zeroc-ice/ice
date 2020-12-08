@@ -80,7 +80,8 @@ public:
         const TypePtr& type,
         const std::string& package,
         bool readOnly = false,
-        bool readOnlyParam = false);
+        bool readOnlyParam = false,
+        bool streamParam = false);
 
 protected:
 
@@ -99,6 +100,10 @@ protected:
         const std::string& param);
 
     std::string inputStreamReader(const TypePtr& type, const std::string& scope);
+
+    std::string streamDataReader(const TypePtr& type);
+
+    std::string streamDataWriter(const TypePtr& type);
 
     void writeUnmarshalCode(
         ::IceUtilInternal::Output& out,

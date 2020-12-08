@@ -34,20 +34,20 @@ namespace ZeroC.Ice
         public override ValueTask<ArraySegment<byte>> ReceiveDatagramAsync(CancellationToken cancel) =>
             Underlying.ReceiveDatagramAsync(cancel);
 
-        public override async ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel = default)
+        public override async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel = default)
         {
             int received = 0;
             if (_buffer.Count > 0)
             {
                 // If there's still data buffered for the payload, consume the buffered data.
-                int length = Math.Min(_buffer.Count, buffer.Count);
-                _buffer.Slice(0, length).CopyTo(buffer);
+                int length = Math.Min(_buffer.Count, buffer.Length);
+                _buffer.Slice(0, length).AsMemory().CopyTo(buffer);
                 _buffer = _buffer.Slice(length);
                 received = length;
             }
 
             // Then, read the reminder from the underlying transport.
-            if (received < buffer.Count)
+            if (received < buffer.Length)
             {
                 received += await Underlying.ReceiveAsync(buffer.Slice(received), cancel).ConfigureAwait(false);
             }

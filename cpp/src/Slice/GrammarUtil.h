@@ -72,6 +72,12 @@ class IntegerTok : public GrammarBase
 {
 public:
 
+    IntegerTok(IceUtil::Int64 value) :
+        v(value)
+    { }
+    IntegerTok()
+    {
+    }
     IceUtil::Int64 v;
     std::string literal;
 };
@@ -175,16 +181,19 @@ class TaggedDefTok : public GrammarBase
 public:
 
     TaggedDefTok() :
+        isStream(false),
         isTagged(false),
         tag(-1)
     { }
     TaggedDefTok(int t) :
+        isStream(false),
         isTagged(true),
         tag(t)
     { }
 
     TypePtr type;
     std::string name;
+    bool isStream;
     bool isTagged;
     int tag;
     StringList metadata;

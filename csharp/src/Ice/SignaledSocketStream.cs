@@ -24,9 +24,11 @@ namespace ZeroC.Ice
         /// exception to raise it after the stream consumes the signal and waits for a new signal</summary>
         public override void Abort(Exception ex)
         {
+            _exception ??= ex;
+
             // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
             // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
-            //  the exception the next time the signal is awaited. This is necessary because
+            // the exception the next time the signal is awaited. This is necessary because
             // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
             // call again SetXxx until the source's result or exception is consumed.
             if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
@@ -34,19 +36,15 @@ namespace ZeroC.Ice
                 _source.RunContinuationsAsynchronously = true;
                 _source.SetException(ex);
             }
-            else
-            {
-                _exception ??= ex;
-            }
         }
 
-        protected SignaledSocketStream(long streamId, MultiStreamSocket socket)
-            : base(streamId, socket)
+        protected SignaledSocketStream(MultiStreamSocket socket, long streamId)
+            : base(socket, streamId)
         {
         }
 
-        protected SignaledSocketStream(bool bidirectional, MultiStreamSocket socket)
-            : base(bidirectional, socket)
+        protected SignaledSocketStream(MultiStreamSocket socket, bool bidirectional, bool control)
+            : base(socket, bidirectional, control)
         {
         }
 
@@ -71,6 +69,7 @@ namespace ZeroC.Ice
             else
             {
                 // The stream is already signaled because it got aborted.
+                Debug.Assert(_exception != null);
                 throw new InvalidOperationException("the stream is already signaled");
             }
         }

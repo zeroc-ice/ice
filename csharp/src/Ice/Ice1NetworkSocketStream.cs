@@ -12,26 +12,21 @@ namespace ZeroC.Ice
     internal class Ice1NetworkSocketStream : SignaledSocketStream<(Ice1Definitions.FrameType, ArraySegment<byte>)>
     {
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
+        protected override bool ReceivedEndOfStream => _receivedEndOfStream;
         internal int RequestId => IsBidirectional ? ((int)(Id >> 2) + 1) : 0;
+        private bool _receivedEndOfStream;
         private readonly Ice1NetworkSocket _socket;
 
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            if (disposing && IsIncoming)
+            if (disposing)
             {
-                if (IsBidirectional)
-                {
-                    _socket.BidirectionalSerializeSemaphore?.Release();
-                }
-                else if (!IsControl)
-                {
-                    _socket.UnidirectionalSerializeSemaphore?.Release();
-                }
+                _socket.ReleaseFlowControlCredit(this);
             }
         }
 
-        protected override ValueTask<bool> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel) =>
+        protected override ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel) =>
             // This is never called because we override the default ReceiveFrameAsync implementation
             throw new NotImplementedException();
 
@@ -45,11 +40,11 @@ namespace ZeroC.Ice
             CancellationToken cancel) =>
             await _socket.SendFrameAsync(this, buffer, false, cancel).ConfigureAwait(false);
 
-        internal Ice1NetworkSocketStream(long streamId, Ice1NetworkSocket socket)
-            : base(streamId, socket) => _socket = socket;
+        internal Ice1NetworkSocketStream(Ice1NetworkSocket socket, long streamId)
+            : base(socket, streamId) => _socket = socket;
 
-        internal Ice1NetworkSocketStream(bool bidirectional, Ice1NetworkSocket socket)
-            : base(bidirectional, socket) => _socket = socket;
+        internal Ice1NetworkSocketStream(Ice1NetworkSocket socket, bool bidirectional, bool control)
+            : base(socket, bidirectional, control) => _socket = socket;
 
         internal void ReceivedFrame(Ice1Definitions.FrameType frameType, ArraySegment<byte> frame)
         {
@@ -70,7 +65,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override async ValueTask<(ArraySegment<byte>, bool)> ReceiveFrameAsync(
+        private protected override async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
             byte expectedFrameType,
             CancellationToken cancel)
         {
@@ -84,15 +79,19 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
             }
 
+            _receivedEndOfStream = frameType != Ice1Definitions.FrameType.ValidateConnection;
+
             // No more data will ever be received over this stream unless it's the validation connection frame.
-            return (frame, frameType != Ice1Definitions.FrameType.ValidateConnection);
+            return frame;
         }
 
-        private protected override async ValueTask SendFrameAsync(
-            OutgoingFrame frame,
-            bool fin,
-            CancellationToken cancel)
+        private protected override async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)
         {
+            if (frame.StreamDataWriter != null)
+            {
+                throw new NotSupportedException("stream parameters are not supported with ice1");
+            }
+
             var buffer = new List<ArraySegment<byte>>(frame.Data.Count + 1);
             byte[] headerData = new byte[Ice1Definitions.HeaderSize + 4];
             if (frame is OutgoingRequestFrame)
@@ -119,7 +118,7 @@ namespace ZeroC.Ice
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {
-                TraceFrame(frame, 0, compressionStatus);
+                TraceFrame(frame, compress: compressionStatus);
             }
         }
     }

@@ -257,7 +257,7 @@ namespace ZeroC.Ice
                     throw new ConnectionClosedException(isClosedByPeer: false,
                                                         RetryPolicy.AfterDelay(TimeSpan.Zero));
                 }
-                return Socket.CreateStream(bidirectional);
+                return Socket.CreateStream(bidirectional, control: false);
             }
         }
 
@@ -507,8 +507,8 @@ namespace ZeroC.Ice
                 }
 
                 // Receives the request frame from the stream
-                (IncomingRequestFrame request, bool fin)
-                    = await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
+                using IncomingRequestFrame request =
+                    await stream.ReceiveRequestFrameAsync(cancel).ConfigureAwait(false);
 
                 // If no adapter is configure to dispatch the request, return an ObjectNotExistException to the caller.
                 OutgoingResponseFrame response;
@@ -519,22 +519,22 @@ namespace ZeroC.Ice
                     {
                         var exception = new ObjectNotExistException();
                         response = new OutgoingResponseFrame(request, exception);
-                        await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
+                        await stream.SendResponseFrameAsync(response, cancel).ConfigureAwait(false);
                     }
                     return;
                 }
 
                 // Dispatch the request and get the response
-                var current = new Current(adapter, request, stream, fin, this);
+                var current = new Current(adapter, request, stream, this);
                 if (adapter.TaskScheduler != null)
                 {
-                    (response, fin) = await TaskRun(() => adapter.DispatchAsync(request, current, cancel),
-                                                    cancel,
-                                                    adapter.TaskScheduler).ConfigureAwait(false);
+                    response = await TaskRun(() => adapter.DispatchAsync(request, current, cancel),
+                                             cancel,
+                                             adapter.TaskScheduler).ConfigureAwait(false);
                 }
                 else
                 {
-                    (response, fin) = await adapter.DispatchAsync(request, current, cancel).ConfigureAwait(false);
+                    response = await adapter.DispatchAsync(request, current, cancel).ConfigureAwait(false);
                 }
 
                 // No need to send the response if the dispatch is canceled.
@@ -545,7 +545,7 @@ namespace ZeroC.Ice
                     try
                     {
                         // Send the response over the stream
-                        await stream.SendResponseFrameAsync(response, fin, cancel).ConfigureAwait(false);
+                        await stream.SendResponseFrameAsync(response, cancel).ConfigureAwait(false);
                     }
                     catch (RemoteException ex)
                     {
@@ -553,7 +553,7 @@ namespace ZeroC.Ice
                         // if sending raises a remote exception.
                         response = new OutgoingResponseFrame(request, ex);
                         response.Finish();
-                        await stream.SendResponseFrameAsync(response, true, cancel).ConfigureAwait(false);
+                        await stream.SendResponseFrameAsync(response, cancel).ConfigureAwait(false);
                     }
                 }
             }
@@ -569,16 +569,16 @@ namespace ZeroC.Ice
             }
             finally
             {
-                stream?.Dispose();
+                stream?.TryDispose();
             }
 
-            static async ValueTask<(OutgoingResponseFrame, bool)> TaskRun(
-                Func<ValueTask<(OutgoingResponseFrame, bool)>> func,
+            static async ValueTask<OutgoingResponseFrame> TaskRun(
+                Func<ValueTask<OutgoingResponseFrame>> func,
                 CancellationToken cancel,
                 TaskScheduler scheduler)
             {
                 // First await for the dispatch to be ran on the task scheduler.
-                ValueTask<(OutgoingResponseFrame, bool)> task =
+                ValueTask<OutgoingResponseFrame> task =
                     await Task.Factory.StartNew(func, cancel, TaskCreationOptions.None, scheduler).ConfigureAwait(false);
 
                 // Now wait for the async dispatch to complete.

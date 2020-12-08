@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         /// <param name="buffer">The buffer that holds the received data.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <return>The number of bytes received.</return>
-        public abstract ValueTask<int> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancel);
+        public abstract ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel);
 
         /// <summary>Send data over the connection.</summary>
         /// <param name="buffer">The buffer containing the data to send.</param>

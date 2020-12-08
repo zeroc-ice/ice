@@ -32,6 +32,19 @@ namespace ZeroC.Ice
     /// <param name="value">The value to write to the stream.</param>
     public delegate void OutputStreamValueWriter<T>(OutputStream ostr, in T value) where T : struct;
 
+    /// <summary>A delegate that writes a value passed as in-reference to an output stream. The value contains a
+    /// stream parameter that will be sent using the returned stream data writer. This value typically corresponds
+    /// to the argument tuple or return value tuple of an operation.</summary>
+    /// <typeparam name="T">The type of the value to write (a struct).</typeparam>
+    /// <param name="ostr">The output stream to write to.</param>
+    /// <param name="value">The value to write to the stream.</param>
+    /// <param name="cancel">The cancellation token to cancel the sending of the streamable parameter.</param>
+    /// <returns>The stream data writer to write the streamable parameter.</returns>
+    public delegate Action<SocketStream> OutputStreamValueWriterWithStreamable<T>(
+        OutputStream ostr,
+        in T value,
+        System.Threading.CancellationToken cancel) where T : struct;
+
     /// <summary>Writes data into a byte buffer using the Ice encoding.</summary>
     public sealed partial class OutputStream
     {

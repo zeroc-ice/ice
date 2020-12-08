@@ -680,7 +680,8 @@ void initScanner()
         {"AnyClass", ICE_ANYCLASS},
         // 'Value' is kept as an alias for 'AnyClass' for backwards compatibility.
         {"Value", ICE_VALUE},
-        {"unchecked", ICE_UNCHECKED}
+        {"unchecked", ICE_UNCHECKED},
+        {"stream", ICE_STREAM}
     };
 }
 
