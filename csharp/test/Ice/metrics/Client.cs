@@ -19,6 +19,7 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.Admin.InstanceName"] = "client";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.ConnectTimeout"] = "3s";
+            properties["Ice.InvocationMaxAttempts"] = "2";
 
             await using Communicator? communicator = Initialize(properties, observer: observer);
             IMetricsPrx metrics = AllTests.Run(this, observer, colocated: false);
