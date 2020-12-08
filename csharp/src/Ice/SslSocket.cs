@@ -115,7 +115,11 @@ namespace ZeroC.Ice
             {
                 throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
-            catch (IOException ex)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
@@ -139,16 +143,15 @@ namespace ZeroC.Ice
                 await _writeStream!.FlushAsync(cancel).ConfigureAwait(false);
                 return sent;
             }
-            catch (ObjectDisposedException ex)
-            {
-                // The stream might have been disposed if the connection is closed.
-                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
-            }
             catch (IOException ex) when (ex.IsConnectionLost())
             {
                 throw new ConnectionLostException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
-            catch (IOException ex)
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }

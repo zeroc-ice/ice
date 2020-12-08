@@ -157,6 +157,7 @@ namespace ZeroC.Ice
         {
             lock (Mutex)
             {
+                // Allocate a new ID according to the Quic numbering scheme.
                 long id;
                 if (bidirectional)
                 {
@@ -172,7 +173,20 @@ namespace ZeroC.Ice
             }
         }
 
-        internal ValueTask SendFrameAsync(long streamId, object? frame, bool fin, CancellationToken cancel) =>
-            _writer.WriteAsync((streamId, frame, fin), cancel);
+        internal async ValueTask SendFrameAsync(long streamId, object? frame, bool fin, CancellationToken cancel)
+        {
+            try
+            {
+                await _writer.WriteAsync((streamId, frame, fin), cancel).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new TransportException(ex, RetryPolicy.AfterDelay(TimeSpan.Zero));
+            }
+        }
     }
 }
