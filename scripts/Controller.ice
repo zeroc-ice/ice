@@ -80,7 +80,11 @@ module Test::Common
         TestCase* runTestCase(string mapping, string testsuite, string testcase, string cross)
             throws TestCaseNotExistException;
 
+    #ifdef __SLICE2SWIFT__ // Temporary workaround until swift optionals are fixed.
+        OptionOverrides? getOptionOverrides();
+    #else
         OptionOverrides getOptionOverrides();
+    #endif
 
         StringSeq getTestSuites(string mapping);
 

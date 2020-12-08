@@ -1,6 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -12,6 +14,8 @@ namespace ZeroC.Ice
         /// <summary>Perform any necessary initialization steps.</summary>
         /// <param name="context">The plug-in initialization context enables the registration of invocation and dispatch
         /// interceptors, it can also be use to set the communicator logger.</param>
-        void Initialize(PluginInitializationContext context);
+        /// <param name="cancel">The cancellation token.</param>
+        /// <returns>A task that completes once the initialization completes.</returns>
+        Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel);
     }
 }

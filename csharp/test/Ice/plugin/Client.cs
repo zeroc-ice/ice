@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -87,7 +88,7 @@ namespace ZeroC.Ice.Test.Plugin
                     communicator.AddPlugin("PluginFour", p4);
                     Assert(communicator.GetPlugin("PluginFour") != null);
 
-                    communicator.InitializePlugins();
+                    communicator.InitializePluginsAsync().GetAwaiter().GetResult();
 
                     Assert(p4.IsInitialized());
                 }
@@ -125,7 +126,11 @@ namespace ZeroC.Ice.Test.Plugin
 
             public bool IsDestroyed() => _destroyed;
 
-            public void Initialize(PluginInitializationContext context) => _initialized = true;
+            public Task InitializeAsync(PluginInitializationContext context, CancellationToken cancel)
+            {
+                _initialized = true;
+                return Task.CompletedTask;
+            }
 
             public ValueTask DisposeAsync()
             {

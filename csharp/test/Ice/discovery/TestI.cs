@@ -27,7 +27,7 @@ namespace ZeroC.Ice.Test.Discovery
                 $"ice+{transport}://127.0.0.1:0");
 
             communicator.SetProperty($"{name}.ServerName", "localhost");
-            ObjectAdapter oa = communicator.CreateObjectAdapter(name, cancel: cancel);
+            ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
             oa.Activate();
         }
