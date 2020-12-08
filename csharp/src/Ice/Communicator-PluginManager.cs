@@ -22,11 +22,9 @@ namespace ZeroC.Ice
 
     public sealed partial class Communicator
     {
-        private static readonly List<string> _loadOnInitialization = new List<string>();
-        private static readonly Dictionary<string, IPluginFactory> _pluginFactories =
-            new Dictionary<string, IPluginFactory>();
-
-        private readonly List<(string Name, IPlugin Plugin)> _plugins = new List<(string Name, IPlugin Plugin)>();
+        private static readonly List<string> _loadOnInitialization = new();
+        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new();
+        private readonly List<(string Name, IPlugin Plugin)> _plugins = new();
 
         /// <summary>Manually registers a plug-in factory.</summary>
         /// <param name="name">The name assigned to the plug-in.</param>
