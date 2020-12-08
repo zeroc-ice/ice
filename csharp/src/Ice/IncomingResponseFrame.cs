@@ -188,8 +188,8 @@ namespace ZeroC.Ice
         /// <param name="protocol">The Ice protocol of this frame.</param>
         /// <param name="data">The frame data as an array segment.</param>
         /// <param name="maxSize">The maximum payload size, checked during decompress.</param>
-        /// <param name="socketStream">The optional socket stream. The stream is non-null only if there's still data to
-        /// on the stream after the reading of the response frame.</param>
+        /// <param name="socketStream">The optional socket stream. The stream is non-null if there's still data to
+        /// read on the stream after the reading the response frame.</param>
         internal IncomingResponseFrame(
             Protocol protocol,
             ArraySegment<byte> data,

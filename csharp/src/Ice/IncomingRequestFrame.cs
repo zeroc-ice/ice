@@ -150,8 +150,8 @@ namespace ZeroC.Ice
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
         /// <param name="maxSize">The maximum payload size, checked during decompression.</param>
-        /// <param name="socketStream">The optional socket stream. The stream is non-null only if there's still data to
-        /// on the stream after the reading of the request frame.</param>
+        /// <param name="socketStream">The optional socket stream. The stream is non-null if there's still data to
+        /// read on the stream after the reading the request frame.</param>
         internal IncomingRequestFrame(
             Protocol protocol,
             ArraySegment<byte> data,
@@ -220,9 +220,9 @@ namespace ZeroC.Ice
                 if (BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
                 {
                     Context = value.Read(istr => istr.ReadDictionary(minKeySize: 1,
-                                                                        minValueSize: 1,
-                                                                        InputStream.IceReaderIntoString,
-                                                                        InputStream.IceReaderIntoString));
+                                                                     minValueSize: 1,
+                                                                     InputStream.IceReaderIntoString,
+                                                                     InputStream.IceReaderIntoString));
                 }
                 else
                 {
