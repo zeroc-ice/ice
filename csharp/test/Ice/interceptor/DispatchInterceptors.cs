@@ -148,8 +148,10 @@ namespace ZeroC.Ice.Test.Interceptor
                     }
                     return await next(request, current, cancel);
                 };
-            await adapter.ActivateAsync(
-                ImmutableArray.Create(raiseInterceptor, addWithRetry, retry, opWithBinaryContext, op1));
+
+            adapter.AddDispatchInterceptor(raiseInterceptor, addWithRetry, retry, opWithBinaryContext, op1);
+
+            await adapter.ActivateAsync();
         }
     }
 }

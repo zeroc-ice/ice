@@ -960,7 +960,7 @@ namespace ZeroC.Ice
                                          endpoints,
                                          proxyData.Facet ?? "",
                                          proxyData.Identity,
-                                         invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
+                                         invocationInterceptors: ImmutableList<InvocationInterceptor>.Empty,
                                          proxyData.InvocationMode ?? InvocationMode.Twoway,
                                          (IReadOnlyList<string>?)proxyData.Location ?? ImmutableArray<string>.Empty,
                                          protocol);

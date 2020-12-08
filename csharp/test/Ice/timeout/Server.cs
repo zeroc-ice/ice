@@ -33,7 +33,8 @@ namespace ZeroC.Ice.Test.Timeout
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter",
                                                                       taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter.Add("timeout", new Timeout());
-            adapter.Activate((request, current, next, cancel) =>
+            adapter.AddDispatchInterceptor(
+                (request, current, next, cancel) =>
                 {
                     if (current.Operation == "checkDeadline")
                     {
@@ -44,6 +45,8 @@ namespace ZeroC.Ice.Test.Timeout
                     }
                     return next(request, current, cancel);
                 });
+
+            await adapter.ActivateAsync();
 
             ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
