@@ -450,6 +450,8 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
+                // If the stream is not started, there's no need to send a stream reset frame. The stream ID wasn't
+                // allocated and the peer doesn't know about this stream.
                 if (IsStarted && _socket.Endpoint.Protocol != Protocol.Ice1)
                 {
                     await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);

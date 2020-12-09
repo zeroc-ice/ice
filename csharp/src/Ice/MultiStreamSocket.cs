@@ -557,9 +557,9 @@ namespace ZeroC.Ice
             {
                 var istr = new InputStream(data, encoding);
                 s.Append("\nlast bidirectional stream ID = ");
-                s.Append(istr.ReadVarLong());
+                s.Append(istr.ReadVarULong());
                 s.Append("\nlast unidirectional stream ID = ");
-                s.Append(istr.ReadVarLong());
+                s.Append(istr.ReadVarULong());
                 s.Append("\nmessage from peer = ");
                 s.Append(istr.ReadString());
             }
