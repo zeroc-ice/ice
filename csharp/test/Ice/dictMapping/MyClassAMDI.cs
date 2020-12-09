@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.DictMapping
         public ValueTask<(IReadOnlyDictionary<int, int>, IReadOnlyDictionary<int, int>)> OpNVAsync(
             Dictionary<int, int> i,
             Current current,
-            CancellationToken cancel) => new((i, i));
+            CancellationToken cancel) => (i, i));
 
         public ValueTask<(IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)> OpNRAsync(
             Dictionary<string, string> i,

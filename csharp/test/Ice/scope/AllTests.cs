@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Scope
                 TestHelper.Assert(sseq2[0].Equals(s1));
                 TestHelper.Assert(sseq3[0].Equals(s1));
 
-                Dictionary<string, S> smap1 = new();
+                var smap1 = new Dictionary<string, S>();
                 smap1["a"] = s1;
                 var (smap3, smap2) = i.OpSMap(smap1);
                 TestHelper.Assert(smap2["a"].Equals(s1));
@@ -111,7 +111,7 @@ namespace ZeroC.Ice.Test.Scope
             {
                 var i = Inner.IIPrx.Parse(helper.GetTestProxy("i2"), communicator);
 
-                Inner.Inner2.S s1 = new(0);
+                var s1 = new Inner.Inner2.S(0);
                 var (s3, s2) = i.OpS(s1);
                 TestHelper.Assert(s2.Equals(s1));
                 TestHelper.Assert(s3.Equals(s1));
@@ -147,7 +147,7 @@ namespace ZeroC.Ice.Test.Scope
                 var i = Inner.IIPrx.Parse(helper.GetTestProxy("i2"), communicator);
                 Task.Run(async () =>
                     {
-                        Inner.Inner2.S s1 = new(0);
+                        var s1 = new Inner.Inner2.S(0);
                         var opSResult = await i.OpSAsync(s1);
                         TestHelper.Assert(s1.Equals(opSResult.R1));
                         TestHelper.Assert(s1.Equals(opSResult.R2));
@@ -237,7 +237,7 @@ namespace ZeroC.Ice.Test.Scope
                         TestHelper.Assert(opSMapResult.R1["a"].Equals(s1));
                         TestHelper.Assert(opSMapResult.R2["a"].Equals(s1));
 
-                        Inner.Inner2.C c1 = new(s1);
+                        var c1 = new Inner.Inner2.C(s1);
                         var opCResult = await i.OpCAsync(c1);
                         TestHelper.Assert(c1.S.Equals(opCResult.R1!.S));
                         TestHelper.Assert(c1.S.Equals(opCResult.R2!.S));
@@ -257,7 +257,7 @@ namespace ZeroC.Ice.Test.Scope
             {
                 var i = Inner.Test.Inner2.IIPrx.Parse(helper.GetTestProxy("i4"), communicator);
 
-                S s1 = new(0);
+                var s1 = new S(0);
                 var (s3, s2) = i.OpS(s1);
                 TestHelper.Assert(s2.Equals(s1));
                 TestHelper.Assert(s3.Equals(s1));
@@ -273,7 +273,7 @@ namespace ZeroC.Ice.Test.Scope
                 TestHelper.Assert(smap2["a"].Equals(s1));
                 TestHelper.Assert(smap3["a"].Equals(s1));
 
-                C c1 = new(s1);
+                var c1 = new C(s1);
                 var (c3, c2) = i.OpC(c1);
                 TestHelper.Assert(c2!.S.Equals(c1.S));
                 TestHelper.Assert(c3!.S.Equals(c1.S));
