@@ -11,14 +11,10 @@ namespace ZeroC.Ice.Test.Plugin
 
         internal class PluginInitializeFail : IPlugin
         {
-            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel) =>
+            public Task ActivateAsync(CancellationToken cancel) =>
                 throw new PluginInitializeFailException();
 
-            public ValueTask DisposeAsync()
-            {
-                TestHelper.Assert(false);
-                return new(Task.CompletedTask);
-            }
+            public ValueTask DisposeAsync() => default;
         }
     }
 }

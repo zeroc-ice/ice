@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,26 +8,30 @@ namespace ZeroC.Ice.Test.Interceptor
 {
     public class DispatchPluginFactory : IPluginFactory
     {
-        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin();
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
 
         internal class Plugin : IPlugin
         {
-            public Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
+            private Communicator _communicator;
+
+            public Task ActivateAsync(CancellationToken cancel)
             {
-                context.AddDispatchInterceptor(
-                    async (request, current, next, cancel) =>
-                    {
-                        current.Context["DispatchPlugin"] = "1";
-                        OutgoingResponseFrame response = await next(request, current, cancel);
-                        if (request.Protocol == Protocol.Ice2)
+                _communicator.DefaultDispatchInterceptors =
+                    _communicator.DefaultDispatchInterceptors.ToImmutableList().Add(
+                        async (request, current, next, cancel) =>
                         {
-                            response.AddBinaryContextEntry(100, 100, (ostr, v) => ostr.WriteInt(v));
-                        }
-                        return response;
-                    });
+                            current.Context["DispatchPlugin"] = "1";
+                            OutgoingResponseFrame response = await next(request, current, cancel);
+                            if (request.Protocol == Protocol.Ice2)
+                            {
+                                response.AddBinaryContextEntry(100, 100, (ostr, v) => ostr.WriteInt(v));
+                            }
+                            return response;
+                        });
 
                 return Task.CompletedTask;
             }
+            internal Plugin(Communicator communicator) => _communicator = communicator;
 
             public ValueTask DisposeAsync() => default;
         }

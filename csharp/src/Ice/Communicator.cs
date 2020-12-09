@@ -98,6 +98,24 @@ namespace ZeroC.Ice
             set => _defaultContext = value.ToImmutableSortedDictionary();
         }
 
+        /// <summary>The default dispatch interceptors for object adapters created using this communicator. Changing the
+        /// value of DefaultDispatchInterceptors does not change the dispatch interceptors of previously created object
+        /// adapters.</summary>
+        public IReadOnlyList<DispatchInterceptor> DefaultDispatchInterceptors
+        {
+            get => _defaultDispatchInterceptors;
+            set => _defaultDispatchInterceptors = value.ToImmutableList();
+        }
+
+        /// <summary>The default invocation interceptors for proxies created using this communicator. Changing the value
+        /// of DefaultInvocationInterceptors does not change the invocation interceptors of previously created proxies.
+        /// </summary>
+        public IReadOnlyList<InvocationInterceptor> DefaultInvocationInterceptors
+        {
+            get => _defaultInvocationInterceptors;
+            set => _defaultInvocationInterceptors = value.ToImmutableList();
+        }
+
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
         /// All newly created proxies and object adapters will use this default locator. Note that setting this property
         /// has no effect on existing proxies or object adapters.</summary>
@@ -134,7 +152,11 @@ namespace ZeroC.Ice
         }
 
         /// <summary>The logger for this communicator.</summary>
-        public ILogger Logger { get; internal set; }
+        public ILogger Logger
+        {
+            get => _logger;
+            set => _logger = value;
+        }
 
         /// <summary>Gets the communicator observer used by the Ice run-time or null if a communicator observer
         /// was not set during communicator construction.</summary>
@@ -164,10 +186,8 @@ namespace ZeroC.Ice
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
 
-        internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
         internal TimeSpan IdleTimeout { get; }
         internal int IncomingFrameMaxSize { get; }
-        internal IReadOnlyList<InvocationInterceptor> InvocationInterceptors => _invocationInterceptors;
         internal bool IsDisposed => _disposeTask != null;
         internal bool KeepAlive { get; }
         internal int MaxBidirectionalStreams { get; }
@@ -220,16 +240,20 @@ namespace ZeroC.Ice
             new ConcurrentDictionary<int, Func<AnyClass>?>();
         private readonly ThreadLocal<SortedDictionary<string, string>> _currentContext
             = new ThreadLocal<SortedDictionary<string, string>>();
-        private volatile IReadOnlyDictionary<string, string> _defaultContext =
+        private volatile ImmutableSortedDictionary<string, string> _defaultContext =
             ImmutableSortedDictionary<string, string>.Empty;
+        private volatile ImmutableList<InvocationInterceptor> _defaultInvocationInterceptors =
+            ImmutableList<InvocationInterceptor>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
-        private readonly List<DispatchInterceptor> _dispatchInterceptors = new List<DispatchInterceptor>();
+        private volatile ImmutableList<DispatchInterceptor> _defaultDispatchInterceptors =
+            ImmutableList<DispatchInterceptor>.Empty;
         private Task? _disposeTask;
-        private readonly List<InvocationInterceptor> _invocationInterceptors = new List<InvocationInterceptor>();
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
+
+        private volatile ILogger _logger;
 
         private readonly object _mutex = new object();
         private static bool _oneOffDone;
@@ -258,26 +282,18 @@ namespace ZeroC.Ice
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="properties">The properties of the new communicator.</param>
-        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
-        /// executed with each dispatch.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             IReadOnlyDictionary<string, string> properties,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
             TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    appSettings: null,
-                   dispatchInterceptors,
-                   invocationInterceptors,
                    logger,
                    observer,
                    properties,
@@ -289,10 +305,6 @@ namespace ZeroC.Ice
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
         /// <param name="properties">The properties of the new communicator.</param>
-        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
-        /// executed with each dispatch.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="tlsClientOptions">Client side configuration for TLS connections.</param>
@@ -300,16 +312,12 @@ namespace ZeroC.Ice
         public Communicator(
             ref string[] args,
             IReadOnlyDictionary<string, string> properties,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             TlsClientOptions? tlsClientOptions = null,
             TlsServerOptions? tlsServerOptions = null)
             : this(ref args,
                    appSettings: null,
-                   dispatchInterceptors,
-                   invocationInterceptors,
                    logger,
                    observer,
                    properties,
@@ -321,10 +329,6 @@ namespace ZeroC.Ice
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
         /// param has precedence over the properties param.</param>
-        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
-        /// executed with each dispatch.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the Ice run-time.</param>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -332,8 +336,6 @@ namespace ZeroC.Ice
         /// <param name="tlsServerOptions">Server side configuration for TLS connections.</param>
         public Communicator(
             NameValueCollection? appSettings = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             IReadOnlyDictionary<string, string>? properties = null,
@@ -341,8 +343,6 @@ namespace ZeroC.Ice
             TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    appSettings,
-                   dispatchInterceptors,
-                   invocationInterceptors,
                    logger,
                    observer,
                    properties,
@@ -355,10 +355,6 @@ namespace ZeroC.Ice
         /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
         /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
         /// param has precedence over the properties param.</param>
-        /// <param name="dispatchInterceptors">A collection of <see cref="DispatchInterceptor"/> that will be
-        /// executed with each dispatch.</param>
-        /// <param name="invocationInterceptors">A collection of <see cref="InvocationInterceptor"/> that will
-        /// be executed with each invocation.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -367,15 +363,13 @@ namespace ZeroC.Ice
         public Communicator(
             ref string[] args,
             NameValueCollection? appSettings = null,
-            IEnumerable<DispatchInterceptor>? dispatchInterceptors = null,
-            IEnumerable<InvocationInterceptor>? invocationInterceptors = null,
             ILogger? logger = null,
             Instrumentation.ICommunicatorObserver? observer = null,
             IReadOnlyDictionary<string, string>? properties = null,
             TlsClientOptions? tlsClientOptions = null,
             TlsServerOptions? tlsServerOptions = null)
         {
-            Logger = logger ?? Runtime.Logger;
+            _logger = logger ?? Runtime.Logger;
             Observer = observer;
 
             // clone properties as we don't want to modify the properties given to this constructor
@@ -623,16 +617,6 @@ namespace ZeroC.Ice
                 if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
                     LoadAssemblies();
-                }
-
-                if (dispatchInterceptors != null)
-                {
-                    _dispatchInterceptors.AddRange(dispatchInterceptors);
-                }
-
-                if (invocationInterceptors != null)
-                {
-                    _invocationInterceptors.AddRange(invocationInterceptors);
                 }
 
                 // Load plug-ins.
@@ -1107,14 +1091,6 @@ namespace ZeroC.Ice
                 // Ignored, already registered
             }
         }
-
-        // Add one or more dispatch interceptors, only to use by PluginActivationContext
-        internal void AddDispatchInterceptor(DispatchInterceptor[] interceptors) =>
-            _dispatchInterceptors.AddRange(interceptors);
-
-        // Add one or more invocation interceptors, only to use by PluginActivationContext
-        internal void AddInvocationInterceptor(InvocationInterceptor[] interceptors) =>
-            _invocationInterceptors.AddRange(interceptors);
 
         internal void DecRetryBufferSize(int size)
         {

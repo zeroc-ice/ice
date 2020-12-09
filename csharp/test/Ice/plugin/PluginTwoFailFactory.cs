@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
             }
 
-            public override Task ActivateAsync(PluginActivationContext context, CancellationToken cancel)
+            public override Task ActivateAsync(CancellationToken cancel)
             {
                 var one = (BasePluginFail?)_communicator.GetPlugin("PluginOneFail");
                 TestHelper.Assert(one != null);
@@ -35,12 +35,8 @@ namespace ZeroC.Ice.Test.Plugin
             public override ValueTask DisposeAsync()
             {
                 GC.SuppressFinalize(this);
-                TestHelper.Assert(_one != null && !_one.isDestroyed());
-
-                // Not destroyed because initialize fails.
-                TestHelper.Assert(_three != null && !_three.isDestroyed());
                 _destroyed = true;
-                return new(Task.CompletedTask);
+                return default;
             }
 
             ~PluginTwoFail()
