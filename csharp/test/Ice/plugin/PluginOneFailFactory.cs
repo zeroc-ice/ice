@@ -40,7 +40,7 @@ namespace ZeroC.Ice.Test.Plugin
                 // Not destroyed because initialize fails.
                 TestHelper.Assert(_three != null && !_three.isDestroyed());
                 _destroyed = true;
-                return new ValueTask(Task.CompletedTask);
+                return new(Task.CompletedTask);
             }
 
             ~PluginOneFail()

@@ -976,23 +976,22 @@ namespace ZeroC.Ice.Test.Operations
             OpStringLiterals(current, cancel);
 
         public IMyClass.OpMStruct1MarshaledReturnValue OpMStruct1(Current current, CancellationToken cancel) =>
-            new IMyClass.OpMStruct1MarshaledReturnValue(
-                new Structure(null, MyEnum.enum1, new AnotherStruct("")), current);
+            new(new Structure(null, MyEnum.enum1, new AnotherStruct("")), current);
 
         public IMyClass.OpMStruct2MarshaledReturnValue OpMStruct2(
             Structure p1,
             Current current,
             CancellationToken cancel) =>
-            new IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);
+            new(p1, p1, current);
 
         public IMyClass.OpMSeq1MarshaledReturnValue OpMSeq1(Current current, CancellationToken cancel) =>
-            new IMyClass.OpMSeq1MarshaledReturnValue(Array.Empty<string>(), current);
+            new(Array.Empty<string>(), current);
 
         public IMyClass.OpMSeq2MarshaledReturnValue OpMSeq2(string[] p1, Current current, CancellationToken cancel) =>
-            new IMyClass.OpMSeq2MarshaledReturnValue(p1, p1, current);
+            new(p1, p1, current);
 
         public IMyClass.OpMDict1MarshaledReturnValue OpMDict1(Current current, CancellationToken cancel) =>
-            new IMyClass.OpMDict1MarshaledReturnValue(new Dictionary<string, string>(), current);
+            new(new Dictionary<string, string>(), current);
 
         public IMyClass.OpMDict2MarshaledReturnValue OpMDict2(
             Dictionary<string, string> p1,

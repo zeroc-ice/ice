@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
     public static class DispatchInterceptors
     {
-        public static AsyncLocal<int> LocalContext { get; } = new AsyncLocal<int>();
+        public static AsyncLocal<int> LocalContext { get; } = new();
 
         public static async ValueTask ActivateAsync(ObjectAdapter adapter)
         {

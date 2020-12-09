@@ -19,8 +19,8 @@ namespace ZeroC.Ice.Test.ACM
         private const string TimeFormat = "HH:mm:ss:fff";
 
         private readonly string _name;
-        private readonly List<string> _messages = new List<string>();
-        private readonly object _mutex = new object();
+        private readonly List<string> _messages = new();
+        private readonly object _mutex = new();
         private readonly TextWriter _output;
         private bool _started;
 
@@ -127,7 +127,7 @@ namespace ZeroC.Ice.Test.ACM
     {
         protected bool Closed;
         protected int Heartbeat;
-        protected readonly object Mutex = new object();
+        protected readonly object Mutex = new();
 
         private IRemoteObjectAdapterPrx? _adapter;
         private readonly IRemoteCommunicatorPrx _com;
@@ -141,7 +141,7 @@ namespace ZeroC.Ice.Test.ACM
         private readonly TextWriter _output;
         private int? _serverIdleTimeout;
         private bool? _serverKeepAlive;
-        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new();
         private Thread? _thread;
 
         public TestCase(string name, IRemoteCommunicatorPrx com, TestHelper helper)

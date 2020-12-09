@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Objects
                                                       format: default,
                                                       ae,
                                                       (OutputStream ostr, AlsoEmpty ae) => ostr.WriteClass(ae, null));
-            return new ValueTask<OutgoingResponseFrame>(responseFrame);
+            return new(responseFrame);
         }
     }
 }

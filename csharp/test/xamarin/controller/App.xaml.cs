@@ -11,7 +11,7 @@ namespace controller
         {
             InitializeComponent();
 
-            MainPage = new MainPage(platformAdapter);
+            MainPage = new(platformAdapter);
         }
 
         protected override void OnStart()
