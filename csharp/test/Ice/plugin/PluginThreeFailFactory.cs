@@ -24,7 +24,6 @@ namespace ZeroC.Ice.Test.Plugin
             public override ValueTask DisposeAsync()
             {
                 GC.SuppressFinalize(this);
-                TestHelper.Assert(false);
                 return default;
             }
 

@@ -14,11 +14,7 @@ namespace ZeroC.Ice.Test.Plugin
             public Task ActivateAsync(CancellationToken cancel) =>
                 throw new PluginInitializeFailException();
 
-            public ValueTask DisposeAsync()
-            {
-                TestHelper.Assert(false);
-                return new ValueTask(Task.CompletedTask);
-            }
+            public ValueTask DisposeAsync() => default;
         }
     }
 }

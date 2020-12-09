@@ -19,6 +19,7 @@ namespace ZeroC.Ice.Test.Plugin
             }
         }
     }
+
     public abstract class BasePlugin : IPlugin
     {
         protected Communicator Communicator;
