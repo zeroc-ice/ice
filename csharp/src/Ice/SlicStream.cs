@@ -94,9 +94,8 @@ namespace ZeroC.Ice
             return size;
         }
 
-        protected override async ValueTask ResetAsync(long errorCode)
-        {
-            await _socket.PrepareAndSendFrameAsync(
+        protected override ValueTask ResetAsync(long errorCode) =>
+            new(_socket.PrepareAndSendFrameAsync(
                 SlicDefinitions.FrameType.StreamReset,
                 ostr =>
                 {
@@ -105,8 +104,7 @@ namespace ZeroC.Ice
                         new StreamResetBody((ulong)errorCode).IceWrite(ostr);
                     }
                 },
-                Id).ConfigureAwait(false);
-        }
+                Id));
 
         protected override async ValueTask SendAsync(
             IList<ArraySegment<byte>> buffer,
