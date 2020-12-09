@@ -740,16 +740,11 @@ namespace ZeroC.Ice
                 CancellationToken cancel)
             {
                 cancel.ThrowIfCancellationRequested();
-                InvocationInterceptor? interceptor = null;
+
                 if (i < invocationInterceptors.Count)
                 {
-                    interceptor = invocationInterceptors[i];
-                }
-
-                if (interceptor != null)
-                {
                     // Call the next interceptor in the chain
-                    return await interceptor(
+                    return await invocationInterceptors[i](
                         proxy,
                         request,
                         (target, request, cancel) =>

@@ -240,7 +240,7 @@ namespace ZeroC.Ice
             new ConcurrentDictionary<int, Func<AnyClass>?>();
         private readonly ThreadLocal<SortedDictionary<string, string>> _currentContext
             = new ThreadLocal<SortedDictionary<string, string>>();
-        private volatile IReadOnlyDictionary<string, string> _defaultContext =
+        private volatile ImmutableSortedDictionary<string, string> _defaultContext =
             ImmutableSortedDictionary<string, string>.Empty;
         private volatile ImmutableList<InvocationInterceptor> _defaultInvocationInterceptors =
             ImmutableList<InvocationInterceptor>.Empty;
