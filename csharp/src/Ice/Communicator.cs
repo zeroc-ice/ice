@@ -162,6 +162,11 @@ namespace ZeroC.Ice
         /// was not set during communicator construction.</summary>
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
+        /// <summary>Gets all plug-ins loaded in this communicator. This list can change only during the construction
+        /// of this communicator.</summary>
+        /// <value>A list where each element is a plug-in name and a plug-in.</value>
+        public IReadOnlyList<(string Name, IPlugin Plugin)> Plugins => _plugins;
+
         /// <summary>The output mode or format for ToString on Ice proxies when the protocol is ice1. See
         /// <see cref="Ice.ToStringMode"/>.</summary>
         public ToStringMode ToStringMode { get; }
@@ -209,6 +214,8 @@ namespace ZeroC.Ice
         internal bool WarnUnknownProperties { get; }
 
         private static string[] _emptyArgs = Array.Empty<string>();
+
+        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new();
 
         // Sub-properties for ice1 proxies
         private static readonly string[] _suffixes =
@@ -279,6 +286,8 @@ namespace ZeroC.Ice
 
         private readonly IDictionary<string, (Ice2EndpointParser, Transport)> _ice2TransportNameRegistry =
             new ConcurrentDictionary<string, (Ice2EndpointParser, Transport)>();
+
+        private readonly List<(string Name, IPlugin Plugin)> _plugins = new();
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -1297,6 +1306,39 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Activates the configured plug-ins.</summary>
+        /// <param name="cancel">The cancellation token.</param>
+        /// <returns>A task that completes once all the plug-ins are activated.</returns>
+        private async Task ActivatePluginsAsync(CancellationToken cancel = default)
+        {
+            // Invoke ActivateAsync on the plug-ins, in the order they were loaded.
+            var activatedPlugins = new List<IPlugin>();
+            try
+            {
+                foreach ((string name, IPlugin plugin) in _plugins)
+                {
+                    await plugin.ActivateAsync(cancel).ConfigureAwait(false);
+                    activatedPlugins.Add(plugin);
+                }
+            }
+            catch (Exception)
+            {
+                // Destroy the plug-ins that have been successfully activated, in the reverse order.
+                foreach (IPlugin plugin in Enumerable.Reverse(activatedPlugins))
+                {
+                    try
+                    {
+                        await plugin.DisposeAsync().ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // Ignore.
+                    }
+                }
+                throw;
+            }
+        }
+
         private void AddAllAdminFacets()
         {
             lock (_mutex)
@@ -1401,6 +1443,216 @@ namespace ZeroC.Ice
             catch (PlatformNotSupportedException)
             {
                 // Some platforms like UWP do not support using GetReferencedAssemblies
+            }
+        }
+
+        private void LoadPlugins(ref string[] cmdArgs)
+        {
+            const string prefix = "Ice.Plugin.";
+            Dictionary<string, string> plugins = GetProperties(forPrefix: prefix);
+
+            // Loads the plug-ins defined in the property set with the prefix "Ice.Plugin.". These properties should
+            // have the following format:
+            //
+            // Ice.Plugin.name[.<language>]=entry_point [args]
+            //
+            // If the Ice.PluginLoadOrder property is defined, load the specified plug-ins in the specified order, then
+            // load any remaining plug-ins.
+
+            string[] loadOrder = GetPropertyAsList("Ice.PluginLoadOrder") ?? Array.Empty<string>();
+            foreach (string name in loadOrder)
+            {
+                if (name.Length == 0)
+                {
+                    continue;
+                }
+
+                if (_plugins.Any(p => p.Name == name))
+                {
+                    throw new InvalidConfigurationException($"plug-in `{name}' already loaded");
+                }
+
+                string key = $"Ice.Plugin.{name}.clr";
+                if (!plugins.TryGetValue(key, out string? value))
+                {
+                    key = $"Ice.Plugin.{name}";
+                    plugins.TryGetValue(key, out value);
+                }
+
+                if (value != null)
+                {
+                    LoadPlugin(name, value, ref cmdArgs);
+                    plugins.Remove(key);
+                }
+                else
+                {
+                    throw new InvalidConfigurationException($"plug-in `{name}' not defined");
+                }
+            }
+
+            // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
+            while (plugins.Count > 0)
+            {
+                IEnumerator<KeyValuePair<string, string>> p = plugins.GetEnumerator();
+                p.MoveNext();
+                string key = p.Current.Key;
+                string val = p.Current.Value;
+                string name = key[prefix.Length..];
+
+                int dotPos = name.LastIndexOf('.');
+                if (dotPos != -1)
+                {
+                    string suffix = name[(dotPos + 1)..];
+                    if (suffix == "cpp" || suffix == "java")
+                    {
+                        // Ignored
+                        plugins.Remove(key);
+                    }
+                    else if (suffix == "clr")
+                    {
+                        name = name.Substring(0, dotPos);
+                        LoadPlugin(name, val, ref cmdArgs);
+                        plugins.Remove(key);
+                        plugins.Remove($"Ice.Plugin.{name}");
+                    }
+                    else
+                    {
+                        // Name is just a regular name that happens to contain a dot
+                        dotPos = -1;
+                    }
+                }
+
+                if (dotPos == -1)
+                {
+                    plugins.Remove(key);
+
+                    // Is there a .clr entry?
+                    string clrKey = $"Ice.Plugin.{name}.clr";
+                    if (plugins.ContainsKey(clrKey))
+                    {
+                        val = plugins[clrKey];
+                        plugins.Remove(clrKey);
+                    }
+                    LoadPlugin(name, val, ref cmdArgs);
+                }
+            }
+
+            void LoadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
+            {
+                string[] args = Array.Empty<string>();
+                string? entryPoint = null;
+                if (pluginSpec.Length > 0)
+                {
+                    // Split the entire property value into arguments. An entry point containing spaces must be enclosed
+                    // in quotes.
+                    try
+                    {
+                        args = Options.Split(pluginSpec);
+                    }
+                    catch (FormatException ex)
+                    {
+                        throw new InvalidConfigurationException($"invalid arguments for plug-in `{name}'", ex);
+                    }
+
+                    Debug.Assert(args.Length > 0);
+
+                    entryPoint = args[0];
+
+                    args = args.Skip(1).ToArray();
+
+                    // Convert command-line options into properties. First we convert the options from the plug-in
+                    // configuration, then we convert the options from the application command-line.
+                    var properties = new Dictionary<string, string>();
+                    properties.ParseArgs(ref args, name);
+                    properties.ParseArgs(ref cmdArgs, name);
+                    foreach (KeyValuePair<string, string> p in properties)
+                    {
+                        SetProperty(p.Key, p.Value);
+                    }
+                }
+                Debug.Assert(entryPoint != null);
+                // Always check the static plugin factory table first, it takes precedence over the entryPoint specified
+                // in the plugin property value.
+                if (!_pluginFactories.TryGetValue(name, out IPluginFactory? pluginFactory))
+                {
+                    // Extract the assembly name and the class name.
+                    int sepPos = entryPoint.IndexOf(':');
+                    if (sepPos != -1)
+                    {
+                        const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                        if (entryPoint.Length > 3 &&
+                           sepPos == 1 &&
+                           driveLetters.IndexOf(entryPoint[0]) != -1 &&
+                           (entryPoint[2] == '\\' || entryPoint[2] == '/'))
+                        {
+                            sepPos = entryPoint.IndexOf(':', 3);
+                        }
+                    }
+                    if (sepPos == -1)
+                    {
+                        throw new FormatException($"error loading plug-in `{entryPoint}': invalid entry point format");
+                    }
+
+                    System.Reflection.Assembly? pluginAssembly;
+                    string assemblyName = entryPoint[..sepPos];
+                    string className = entryPoint[(sepPos + 1)..];
+
+                    try
+                    {
+                        // First try to load the assembly using Assembly.Load, which will succeed if a fully-qualified
+                        // name is provided or if a partial name has been qualified in configuration. If that fails, try
+                        // Assembly.LoadFrom(), which will succeed if a file name is configured or a partial name is
+                        // configured and DEVPATH is used.
+                        //
+                        // We catch System.Exception as this can fail with System.ArgumentNullException or
+                        // System.IO.IOException depending of the .NET framework and platform.
+                        try
+                        {
+                            pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
+                        }
+                        catch (Exception ex)
+                        {
+                            try
+                            {
+                                pluginAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
+                            }
+                            catch (System.IO.IOException)
+                            {
+                                throw ExceptionUtil.Throw(ex);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new LoadException(
+                            $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);
+                    }
+
+                    // Instantiate the class.
+                    Type? c;
+                    try
+                    {
+                        c = pluginAssembly.GetType(className, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new LoadException(
+                            $"error loading plug-in `{entryPoint}': cannot find the plugin factory class `{className}'",
+                            ex);
+                    }
+                    Debug.Assert(c != null);
+
+                    try
+                    {
+                        pluginFactory = (IPluginFactory?)Activator.CreateInstance(c);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new LoadException($"error loading plug-in `{entryPoint}'", ex);
+                    }
+                }
+                Debug.Assert(pluginFactory != null);
+                _plugins.Add((name, pluginFactory.Create(this, name, args)));
             }
         }
 
