@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,17 +16,18 @@ namespace ZeroC.Ice.Test.Interceptor
 
             public Task ActivateAsync(CancellationToken cancel)
             {
-                _communicator.AddDispatchInterceptor(
-                    async (request, current, next, cancel) =>
-                    {
-                        current.Context["DispatchPlugin"] = "1";
-                        OutgoingResponseFrame response = await next(request, current, cancel);
-                        if (request.Protocol == Protocol.Ice2)
+                _communicator.DefaultDispatchInterceptors =
+                    _communicator.DefaultDispatchInterceptors.ToImmutableList().Add(
+                        async (request, current, next, cancel) =>
                         {
-                            response.AddBinaryContextEntry(100, 100, (ostr, v) => ostr.WriteInt(v));
-                        }
-                        return response;
-                    });
+                            current.Context["DispatchPlugin"] = "1";
+                            OutgoingResponseFrame response = await next(request, current, cancel);
+                            if (request.Protocol == Protocol.Ice2)
+                            {
+                                response.AddBinaryContextEntry(100, 100, (ostr, v) => ostr.WriteInt(v));
+                            }
+                            return response;
+                        });
 
                 return Task.CompletedTask;
             }

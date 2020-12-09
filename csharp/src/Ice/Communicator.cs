@@ -98,6 +98,15 @@ namespace ZeroC.Ice
             set => _defaultContext = value.ToImmutableSortedDictionary();
         }
 
+        /// <summary>The default dispatch interceptors for object adapters created using this communicator. Changing the
+        /// value of DefaultDispatchInterceptors does not change the dispatch interceptors of previously created object
+        /// adapters.</summary>
+        public IReadOnlyList<DispatchInterceptor> DefaultDispatchInterceptors
+        {
+            get => _defaultDispatchInterceptors;
+            set => _defaultDispatchInterceptors = value.ToImmutableList();
+        }
+
         /// <summary>The default invocation interceptors for proxies created using this communicator. Changing the value
         /// of DefaultInvocationInterceptors does not change the invocation interceptors of previously created proxies.
         /// </summary>
@@ -177,7 +186,6 @@ namespace ZeroC.Ice
         internal CompressionLevel CompressionLevel { get; }
         internal int CompressionMinSize { get; }
 
-        internal IReadOnlyList<DispatchInterceptor> DispatchInterceptors => _dispatchInterceptors;
         internal TimeSpan IdleTimeout { get; }
         internal int IncomingFrameMaxSize { get; }
         internal bool IsDisposed => _disposeTask != null;
@@ -238,7 +246,7 @@ namespace ZeroC.Ice
             ImmutableList<InvocationInterceptor>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
-        private volatile ImmutableList<DispatchInterceptor> _dispatchInterceptors =
+        private volatile ImmutableList<DispatchInterceptor> _defaultDispatchInterceptors =
             ImmutableList<DispatchInterceptor>.Empty;
         private Task? _disposeTask;
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
@@ -786,21 +794,6 @@ namespace ZeroC.Ice
                 }
                 _adminFacets.Add(facet, servant);
                 _adminAdapter?.Add(_adminIdentity, facet, servant);
-            }
-        }
-
-        /// <summary>Adds one or more dispatch interceptors to this communicator.</summary>
-        /// <param name="interceptor">The dispatch interceptor or interceptors to add.</param>
-        public void AddDispatchInterceptor(params DispatchInterceptor[] interceptor)
-        {
-            lock (_mutex)
-            {
-                if (IsDisposed)
-                {
-                    throw new CommunicatorDisposedException();
-                }
-
-                _dispatchInterceptors = _dispatchInterceptors.AddRange(interceptor);
             }
         }
 

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
@@ -33,7 +34,7 @@ namespace ZeroC.Ice.Test.Timeout
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter",
                                                                       taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter.Add("timeout", new Timeout());
-            adapter.AddDispatchInterceptor(
+            adapter.DispatchInterceptors = ImmutableList.Create<DispatchInterceptor>(
                 (request, current, next, cancel) =>
                 {
                     if (current.Operation == "checkDeadline")

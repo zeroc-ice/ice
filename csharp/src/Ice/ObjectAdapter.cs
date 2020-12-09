@@ -32,6 +32,14 @@ namespace ZeroC.Ice
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
 
+        /// <summary>The dispatch interceptors of this object adapter. The default value is
+        /// <see cref="Communicator.DefaultDispatchInterceptors"/></summary>
+        public IReadOnlyList<DispatchInterceptor> DispatchInterceptors
+        {
+            get => _dispatchInterceptors;
+            set => _dispatchInterceptors = value.ToImmutableList();
+        }
+
         /// <summary>Returns the endpoints this object adapter is listening on.</summary>
         /// <returns>The endpoints configured on the object adapter; for IP endpoints, port 0 is substituted by the
         /// actual port selected by the operating system.</returns>
@@ -148,11 +156,12 @@ namespace ZeroC.Ice
         private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new();
         private AcceptorIncomingConnectionFactory? _colocatedConnectionFactory;
         private readonly Dictionary<string, IObject> _defaultServantMap = new();
+        private volatile ImmutableList<DispatchInterceptor> _dispatchInterceptors;
+
         private Task? _disposeTask;
         private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new();
 
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new();
-        private volatile ImmutableList<DispatchInterceptor> _interceptors;
         private readonly InvocationMode _invocationMode = InvocationMode.Twoway;
 
         private ILocatorPrx? _locator;
@@ -321,21 +330,6 @@ namespace ZeroC.Ice
 
                     Communicator.Logger.Trace(TraceLevels.LocatorCategory, sb.ToString());
                 }
-            }
-        }
-
-        /// <summary>Adds one or more dispatch interceptors to this communicator.</summary>
-        /// <param name="interceptor">The dispatch interceptor or interceptors to add.</param>
-        public void AddDispatchInterceptor(params DispatchInterceptor[] interceptor)
-        {
-            lock (_mutex)
-            {
-                if (_disposeTask != null)
-                {
-                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
-                }
-
-                _interceptors = _interceptors.AddRange(interceptor);
             }
         }
 
@@ -718,7 +712,7 @@ namespace ZeroC.Ice
             IncomingFrameMaxSize = communicator.IncomingFrameMaxSize;
             AcceptNonSecure = communicator.AcceptNonSecure;
 
-            _interceptors = Communicator.DispatchInterceptors.ToImmutableList();
+            _dispatchInterceptors = Communicator.DefaultDispatchInterceptors.ToImmutableList();
         }
 
         /// <summary>Constructs a named object adapter.</summary>
@@ -735,7 +729,7 @@ namespace ZeroC.Ice
             Name = name;
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
-            _interceptors = Communicator.DispatchInterceptors.ToImmutableList();
+            _dispatchInterceptors = Communicator.DefaultDispatchInterceptors.ToImmutableList();
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
 
@@ -931,7 +925,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                OutgoingResponseFrame response = await DispatchAsync(_interceptors, 0).ConfigureAwait(false);
+                OutgoingResponseFrame response = await DispatchAsync(_dispatchInterceptors, 0).ConfigureAwait(false);
                 if (!current.IsOneway)
                 {
                     response.Finish();
