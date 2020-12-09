@@ -1164,7 +1164,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[999999110L] = -1.1f;
                 di2[999999120L] = -100.4f;
                 di2[999999130L] = 0.5f;
-                var di3 = new  Dictionary<ulong, float>();
+                var di3 = new Dictionary<ulong, float>();
                 di3[999999140L] = 3.14f;
 
                 dsi1[0] = di1;
