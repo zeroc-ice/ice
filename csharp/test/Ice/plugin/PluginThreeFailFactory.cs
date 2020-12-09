@@ -18,13 +18,12 @@ namespace ZeroC.Ice.Test.Plugin
             {
             }
 
-            public override Task ActivateAsync(PluginActivationContext context, CancellationToken cancel) =>
+            public override Task ActivateAsync(CancellationToken cancel) =>
                 throw new PluginInitializeFailException();
 
             public override ValueTask DisposeAsync()
             {
                 GC.SuppressFinalize(this);
-                TestHelper.Assert(false);
                 return default;
             }
 

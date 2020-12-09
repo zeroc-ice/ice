@@ -19,6 +19,7 @@ namespace ZeroC.Ice.Test.Plugin
             }
         }
     }
+
     public abstract class BasePlugin : IPlugin
     {
         protected Communicator Communicator;
@@ -32,7 +33,7 @@ namespace ZeroC.Ice.Test.Plugin
 
         public bool IsDestroyed() => Destroyed;
 
-        public abstract Task ActivateAsync(PluginActivationContext context, CancellationToken cancel);
+        public abstract Task ActivateAsync(CancellationToken cancel);
         public virtual async ValueTask DisposeAsync()
         {
             GC.SuppressFinalize(this);

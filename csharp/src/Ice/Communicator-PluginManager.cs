@@ -22,28 +22,8 @@ namespace ZeroC.Ice
 
     public sealed partial class Communicator
     {
-        private static readonly List<string> _loadOnInitialization = new();
         private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new();
         private readonly List<(string Name, IPlugin Plugin)> _plugins = new();
-
-        /// <summary>Manually registers a plug-in factory.</summary>
-        /// <param name="name">The name assigned to the plug-in.</param>
-        /// <param name="factory">The factory.</param>
-        /// <param name="loadOnInit">If true, the plug-in is always loaded (created) during communicator
-        /// construction, even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during
-        /// communicator construction only if Ice.Plugin.name is set to a non-empty value
-        /// (e.g.: Ice.Plugin.IceSSL= 1).</param>
-        public static void RegisterPluginFactory(string name, IPluginFactory factory, bool loadOnInit)
-        {
-            if (!_pluginFactories.ContainsKey(name))
-            {
-                _pluginFactories[name] = factory;
-                if (loadOnInit)
-                {
-                    _loadOnInitialization.Add(name);
-                }
-            }
-        }
 
         /// <summary>Installs a new plug-in.</summary>
         /// <param name="name">The plug-in's name.</param>
@@ -106,10 +86,9 @@ namespace ZeroC.Ice
             var activatedPlugins = new List<IPlugin>();
             try
             {
-                using var context = new PluginActivationContext(this);
                 foreach ((string name, IPlugin plugin) in _plugins)
                 {
-                    await plugin.ActivateAsync(context, cancel).ConfigureAwait(false);
+                    await plugin.ActivateAsync(cancel).ConfigureAwait(false);
                     activatedPlugins.Add(plugin);
                 }
             }
@@ -127,7 +106,6 @@ namespace ZeroC.Ice
                         // Ignore.
                     }
                 }
-                _plugins.Clear(); // TODO: is this correct?
                 throw;
             }
         }
@@ -136,30 +114,6 @@ namespace ZeroC.Ice
         {
             const string prefix = "Ice.Plugin.";
             Dictionary<string, string> plugins = GetProperties(forPrefix: prefix);
-
-            // First, load static plugin factories which were setup to load on communicator construction. If a
-            // matching plugin property is set, we load the plugin with the plugin specification. The entryPoint will
-            // be ignored but the rest of the plugin specification might be used.
-            foreach (string name in _loadOnInitialization)
-            {
-                string key = $"Ice.Plugin.{name}.clr";
-                plugins.TryGetValue(key, out string? r);
-                if (r == null)
-                {
-                    key = $"Ice.Plugin.{name}";
-                    plugins.TryGetValue(key, out r);
-                }
-
-                if (r != null)
-                {
-                    LoadPlugin(name, r, ref cmdArgs);
-                    plugins.Remove(key);
-                }
-                else
-                {
-                    LoadPlugin(name, "", ref cmdArgs);
-                }
-            }
 
             // Loads the plug-ins defined in the property set with the prefix "Ice.Plugin.". These properties should
             // have the following format:

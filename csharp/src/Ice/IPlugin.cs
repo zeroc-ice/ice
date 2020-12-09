@@ -12,10 +12,8 @@ namespace ZeroC.Ice
     public interface IPlugin : IAsyncDisposable
     {
         /// <summary>Performs any necessary activation steps.</summary>
-        /// <param name="context">The plug-in activation context allows the registration of invocation and dispatch
-        /// interceptors, and can be used to set the communicator logger.</param>
         /// <param name="cancel">The cancellation token.</param>
         /// <returns>A task that completes once the activation completes.</returns>
-        Task ActivateAsync(PluginActivationContext context, CancellationToken cancel);
+        Task ActivateAsync(CancellationToken cancel);
     }
 }

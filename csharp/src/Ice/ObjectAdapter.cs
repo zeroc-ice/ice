@@ -32,6 +32,14 @@ namespace ZeroC.Ice
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
 
+        /// <summary>The dispatch interceptors of this object adapter. The default value is
+        /// <see cref="Communicator.DefaultDispatchInterceptors"/></summary>
+        public IReadOnlyList<DispatchInterceptor> DispatchInterceptors
+        {
+            get => _dispatchInterceptors;
+            set => _dispatchInterceptors = value.ToImmutableList();
+        }
+
         /// <summary>Returns the endpoints this object adapter is listening on.</summary>
         /// <returns>The endpoints configured on the object adapter; for IP endpoints, port 0 is substituted by the
         /// actual port selected by the operating system.</returns>
@@ -148,11 +156,12 @@ namespace ZeroC.Ice
         private readonly Dictionary<(string Category, string Facet), IObject> _categoryServantMap = new();
         private AcceptorIncomingConnectionFactory? _colocatedConnectionFactory;
         private readonly Dictionary<string, IObject> _defaultServantMap = new();
+        private volatile ImmutableList<DispatchInterceptor> _dispatchInterceptors;
+
         private Task? _disposeTask;
         private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new();
 
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new();
-        private readonly List<DispatchInterceptor> _interceptors = new();
         private readonly InvocationMode _invocationMode = InvocationMode.Twoway;
 
         private ILocatorPrx? _locator;
@@ -166,18 +175,13 @@ namespace ZeroC.Ice
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
         /// set).</summary>
-        /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
-        public void Activate(params DispatchInterceptor[] interceptors) =>
-            ActivateAsync(interceptors).GetAwaiter().GetResult();
+        public void Activate() => ActivateAsync().GetAwaiter().GetResult();
 
         /// <summary>Activates this object adapter. After activation, the object adapter can dispatch requests received
         /// through its endpoints. Also registers this object adapter with the locator (if set).</summary>
-        /// <param name="interceptors">The dispatch interceptors to register with the object adapter.</param>
         /// <param name="cancel">The cancellation token.</param>
         /// <returns>A task that completes when the activation completes.</returns>
-        public async Task ActivateAsync(
-            IEnumerable<DispatchInterceptor> interceptors,
-            CancellationToken cancel = default)
+        public async Task ActivateAsync(CancellationToken cancel = default)
         {
             List<Endpoint>? expandedEndpoints = null;
             if (Endpoints.Any(endpoint => endpoint.HasDnsHost))
@@ -208,9 +212,6 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
-
-                _interceptors.AddRange(Communicator.DispatchInterceptors);
-                _interceptors.AddRange(interceptors);
 
                 if (expandedEndpoints != null)
                 {
@@ -280,7 +281,6 @@ namespace ZeroC.Ice
                                           _publishedEndpoints,
                                           facet: "",
                                           new Identity("dummy", ""),
-                                          invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                           invocationMode: default,
                                           location: ImmutableArray<string>.Empty,
                                           protocol: _publishedEndpoints[0].Protocol));
@@ -332,12 +332,6 @@ namespace ZeroC.Ice
                 }
             }
         }
-
-        /// <summary>Activates this object adapter without providing any additional dispatch interceptor.</summary>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A task that completes when the activation completes.</returns>
-        public Task ActivateAsync(CancellationToken cancel = default) =>
-            ActivateAsync(ImmutableArray<DispatchInterceptor>.Empty, cancel);
 
         /// <summary>Releases resources used by the object adapter.</summary>
         public void Dispose() => DisposeAsync().GetResult();
@@ -669,7 +663,6 @@ namespace ZeroC.Ice
                                                 PublishedEndpoints : ImmutableArray<Endpoint>.Empty,
                                              facet,
                                              identity,
-                                             invocationInterceptors: ImmutableArray<InvocationInterceptor>.Empty,
                                              _invocationMode,
                                              location,
                                              protocol));
@@ -718,6 +711,8 @@ namespace ZeroC.Ice
             Protocol = protocol;
             IncomingFrameMaxSize = communicator.IncomingFrameMaxSize;
             AcceptNonSecure = communicator.AcceptNonSecure;
+
+            _dispatchInterceptors = Communicator.DefaultDispatchInterceptors.ToImmutableList();
         }
 
         /// <summary>Constructs a named object adapter.</summary>
@@ -734,6 +729,7 @@ namespace ZeroC.Ice
             Name = name;
             SerializeDispatch = serializeDispatch;
             TaskScheduler = scheduler;
+            _dispatchInterceptors = Communicator.DefaultDispatchInterceptors.ToImmutableList();
 
             (bool noProps, List<string> unknownProps) = FilterProperties();
 
@@ -895,44 +891,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private (bool NoProps, List<string> UnknownProps) FilterProperties()
-        {
-            // Do not create unknown properties list if Ice prefix, i.e. Ice, Glacier2, etc.
-            bool addUnknown = true;
-            string prefix = $"{Name}.";
-            foreach (string propertyName in PropertyNames.ClassPropertyNames)
-            {
-                if (prefix.StartsWith($"{propertyName}.", StringComparison.Ordinal))
-                {
-                    addUnknown = false;
-                    break;
-                }
-            }
-
-            bool noProps = true;
-            var unknownProps = new List<string>();
-            Dictionary<string, string> props = Communicator.GetProperties(forPrefix: prefix);
-            foreach (string prop in props.Keys)
-            {
-                bool valid = false;
-                for (int i = 0; i < _suffixes.Length; ++i)
-                {
-                    if (prop.Equals(prefix + _suffixes[i]))
-                    {
-                        noProps = false;
-                        valid = true;
-                        break;
-                    }
-                }
-
-                if (!valid && addUnknown)
-                {
-                    unknownProps.Add(prop);
-                }
-            }
-            return (noProps, unknownProps);
-        }
-
         internal async ValueTask<OutgoingResponseFrame> DispatchAsync(
             IncomingRequestFrame request,
             Current current,
@@ -951,12 +909,15 @@ namespace ZeroC.Ice
                     throw new ObjectNotExistException(RetryPolicy.OtherReplica);
                 }
 
-                ValueTask<OutgoingResponseFrame> DispatchAsync(int i)
+                ValueTask<OutgoingResponseFrame> DispatchAsync(IReadOnlyList<DispatchInterceptor> interceptors, int i)
                 {
-                    if (i < _interceptors.Count)
+                    if (i < interceptors.Count)
                     {
-                        DispatchInterceptor interceptor = _interceptors[i++];
-                        return interceptor(request, current, (request, current, cancel) => DispatchAsync(i), cancel);
+                        DispatchInterceptor interceptor = interceptors[i++];
+                        return interceptor(request,
+                                           current,
+                                           (request, current, cancel) => DispatchAsync(interceptors, i),
+                                           cancel);
                     }
                     else
                     {
@@ -964,7 +925,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                OutgoingResponseFrame response = await DispatchAsync(0).ConfigureAwait(false);
+                OutgoingResponseFrame response = await DispatchAsync(_dispatchInterceptors, 0).ConfigureAwait(false);
                 if (!current.IsOneway)
                 {
                     response.Finish();
@@ -1101,6 +1062,44 @@ namespace ZeroC.Ice
             {
                 throw new ArgumentException("identity name cannot be empty", nameof(identity));
             }
+        }
+
+        private (bool NoProps, List<string> UnknownProps) FilterProperties()
+        {
+            // Do not create unknown properties list if Ice prefix, i.e. Ice, Glacier2, etc.
+            bool addUnknown = true;
+            string prefix = $"{Name}.";
+            foreach (string propertyName in PropertyNames.ClassPropertyNames)
+            {
+                if (prefix.StartsWith($"{propertyName}.", StringComparison.Ordinal))
+                {
+                    addUnknown = false;
+                    break;
+                }
+            }
+
+            bool noProps = true;
+            var unknownProps = new List<string>();
+            Dictionary<string, string> props = Communicator.GetProperties(forPrefix: prefix);
+            foreach (string prop in props.Keys)
+            {
+                bool valid = false;
+                for (int i = 0; i < _suffixes.Length; ++i)
+                {
+                    if (prop.Equals(prefix + _suffixes[i]))
+                    {
+                        noProps = false;
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (!valid && addUnknown)
+                {
+                    unknownProps.Add(prop);
+                }
+            }
+            return (noProps, unknownProps);
         }
 
         private void TracePublishedEndpoints()
