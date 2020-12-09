@@ -2064,6 +2064,41 @@ Slice::Module::createStruct(const string& name, NodeType nt)
     return p;
 }
 
+TypeAliasPtr
+Slice::Module::createTypeAlias(const string& name, const TypePtr& type, const StringList& metadata)
+{
+    if (!checkForRedefinition(this, name, "typealias"))
+    {
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the alias anyway.
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': a typealias can only be defined at module scope");
+    }
+
+    // Ensure the type isn't an alias itself. These should already be unwrapped by the grammar.
+    assert(!TypeAliasPtr::dynamicCast(type));
+
+    // Metadata cannot be specified on aliases of classes and interfaces.
+    if (!metadata.empty())
+    {
+        if (ClassDeclPtr::dynamicCast(type))
+        {
+            _unit->error("illegal metadata on `" + name + "': metadata cannot be specified on aliases of classes");
+        }
+        else if (InterfaceDeclPtr::dynamicCast(type))
+        {
+            _unit->error("illegal metadata on `" + name + "': metadata cannot be specified on aliases of interfaces");
+        }
+    }
+
+    TypeAliasPtr alias = new TypeAlias(this, name, type, metadata);
+    _contents.push_back(alias);
+    return alias;
+}
+
 SequencePtr
 Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metadata)
 {
@@ -2398,7 +2433,7 @@ Slice::Module::hasNonClassTypes() const
         }
         else if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content) &&
                  TypePtr::dynamicCast(content))
-         {
+        {
             return true;
         }
         else if (ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
@@ -3407,6 +3442,93 @@ Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     DataMemberContainer(container, name),
     Type(container->unit())
 {
+}
+
+// ----------------------------------------------------------------------
+// TypeAlias
+// ----------------------------------------------------------------------
+
+void
+Slice::TypeAlias::destroy()
+{
+    _underlying = nullptr;
+    SyntaxTreeBase::destroy();
+}
+
+string
+Slice::TypeAlias::typeId() const
+{
+    return _underlying->typeId();
+}
+
+bool
+Slice::TypeAlias::uses(const ContainedPtr& contained) const
+{
+    ContainedPtr contained2 = ContainedPtr::dynamicCast(_underlying);
+    return (contained2 && contained2 == contained);
+}
+
+bool
+Slice::TypeAlias::usesClasses() const
+{
+    return _underlying->usesClasses();
+}
+
+string
+Slice::TypeAlias::kindOf() const
+{
+    return "typealias";
+}
+
+bool
+Slice::TypeAlias::isClassType() const
+{
+    return _underlying->isClassType();
+}
+
+bool
+Slice::TypeAlias::isInterfaceType() const
+{
+    return _underlying->isInterfaceType();
+}
+
+size_t
+Slice::TypeAlias::minWireSize() const
+{
+    return _underlying->minWireSize();
+}
+
+string
+Slice::TypeAlias::getTagFormat() const
+{
+    return _underlying->getTagFormat();
+}
+
+bool
+Slice::TypeAlias::isVariableLength() const
+{
+    return _underlying->isVariableLength();
+}
+
+void
+Slice::TypeAlias::visit(ParserVisitor* visitor, bool)
+{
+    visitor->visitTypeAlias(this);
+}
+
+Slice::TypeAlias::TypeAlias(const ContainerPtr& container, const string& name, const TypePtr& underlying,
+                            const StringList& typeMetadata) :
+    SyntaxTreeBase(container->unit()),
+    Contained(container, name),
+    Type(container->unit()),
+    _underlying(underlying),
+    _typeMetadata(typeMetadata)
+{
+    if (auto optional = OptionalPtr::dynamicCast(_underlying))
+    {
+        _unit->error("`" + name + "': optional types cannot be type-aliased");
+        _underlying = optional->underlying();
+    }
 }
 
 // ----------------------------------------------------------------------

@@ -3335,6 +3335,7 @@ void initScanner()
         {"interface", ICE_INTERFACE},
         {"exception", ICE_EXCEPTION},
         {"struct", ICE_STRUCT},
+        {"using", ICE_USING},
         {"sequence", ICE_SEQUENCE},
         {"dictionary", ICE_DICTIONARY},
         {"enum", ICE_ENUM},
