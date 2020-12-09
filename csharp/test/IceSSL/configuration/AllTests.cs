@@ -24,7 +24,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             if (current.Operation.Equals("ice_ping"))
             {
-                return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
+                return new(OutgoingResponseFrame.WithVoidReturnValue(current));
             }
             else
             {
@@ -36,7 +36,7 @@ namespace ZeroC.IceSSL.Test.Configuration
     public static class AllTests
     {
         private static X509Certificate2 CreateCertificate(string certPEM) =>
-            new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
+            new(System.Text.Encoding.ASCII.GetBytes(certPEM));
 
         private static Dictionary<string, string>
         CreateProperties(Dictionary<string, string> defaultProperties, string? cert = null, string? ca = null)

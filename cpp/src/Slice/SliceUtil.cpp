@@ -656,9 +656,23 @@ Slice::unwrapIfOptional(const TypePtr& type)
     {
         return optional->underlying();
     }
-    else
+    return type;
+}
+
+void
+Slice::unalias(TypePtr& type, StringList& metadata)
+{
+    if (auto alias = TypeAliasPtr::dynamicCast(unwrapIfOptional(type)))
     {
-        return type;
+        appendMetadataInPlace(metadata, alias->typeMetadata());
+        if (OptionalPtr::dynamicCast(type))
+        {
+            type = new Optional(alias->underlying());
+        }
+        else
+        {
+            type = alias->underlying();
+        }
     }
 }
 
@@ -920,4 +934,16 @@ optional<string> Slice::findMetadata(const string& directive, const map<string, 
 {
     auto match = metadata.find(directive);
     return (match != metadata.end() ? make_optional(match->second) : nullopt);
+}
+
+void Slice::appendMetadataInPlace(StringList& m1, const StringList& m2)
+{
+    m1.insert(m1.end(), m2.begin(), m2.end());
+}
+
+StringList Slice::appendMetadata(const StringList& m1, const StringList& m2)
+{
+    StringList result = m1;
+    appendMetadataInPlace(result, m2);
+    return result;
 }

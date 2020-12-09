@@ -1982,13 +1982,19 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     }
 
     TypeList l = unt->lookupTypeNoBuiltin(s, false, true);
-    if(l.empty())
+    if (l.empty())
     {
         out << ref;
     }
     else
     {
-        ContainedPtr cont = ContainedPtr::dynamicCast(l.front());
+        TypePtr type = l.front();
+        if (auto typealias = TypeAliasPtr::dynamicCast(type))
+        {
+            type = typealias->underlying();
+        }
+
+        ContainedPtr cont = ContainedPtr::dynamicCast(unwrapIfOptional(type));
         assert(cont);
         out << getUnqualified(cont) << rest;
     }

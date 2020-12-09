@@ -47,7 +47,7 @@ namespace ZeroC.Ice.Test.Objects
 
         public D GetD(Current current, CancellationToken cancel) => _d;
 
-        public K GetK(Current current, CancellationToken cancel) => new K(new L("l"));
+        public K GetK(Current current, CancellationToken cancel) => new(new L("l"));
 
         public (AnyClass?, AnyClass?) OpClass(AnyClass? v1, Current current, CancellationToken cancel) => (v1, v1);
 
@@ -86,10 +86,9 @@ namespace ZeroC.Ice.Test.Objects
 
         public void Shutdown(Current current, CancellationToken cancel) => _adapter.Communicator.ShutdownAsync();
 
-        public Inner.A GetInnerA(Current current, CancellationToken cancel) => new Inner.A(_b1);
+        public Inner.A GetInnerA(Current current, CancellationToken cancel) => new(_b1);
 
-        public Inner.Sub.A GetInnerSubA(Current current, CancellationToken cancel) =>
-            new Inner.Sub.A(new Inner.A(_b1));
+        public Inner.Sub.A GetInnerSubA(Current current, CancellationToken cancel) => new(new Inner.A(_b1));
 
         public void ThrowInnerEx(Current current, CancellationToken cancel) => throw new Inner.Ex("Inner::Ex");
 
@@ -97,13 +96,12 @@ namespace ZeroC.Ice.Test.Objects
             throw new Inner.Sub.Ex("Inner::Sub::Ex");
 
         public IInitial.GetMBMarshaledReturnValue GetMB(Current current, CancellationToken cancel) =>
-            new IInitial.GetMBMarshaledReturnValue(_b1, current);
+            new(_b1, current);
 
         public ValueTask<IInitial.GetAMDMBMarshaledReturnValue> GetAMDMBAsync(
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<IInitial.GetAMDMBMarshaledReturnValue>(
-                new IInitial.GetAMDMBMarshaledReturnValue(_b1, current));
+            new(new IInitial.GetAMDMBMarshaledReturnValue(_b1, current));
 
         public (M?, M?) OpM(M? v1, Current current, CancellationToken cancel) => (v1, v1);
 

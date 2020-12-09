@@ -72,12 +72,12 @@ class IntegerTok : public GrammarBase
 {
 public:
 
+    IntegerTok() { }
+
     IntegerTok(IceUtil::Int64 value) :
         v(value)
     { }
-    IntegerTok()
-    {
-    }
+
     IceUtil::Int64 v;
     std::string literal;
 };
@@ -105,6 +105,7 @@ public:
     BoolTok(bool value) :
         v(value)
     { }
+
     bool v;
 };
 
@@ -161,6 +162,7 @@ class ConstDefTok : public GrammarBase
 public:
 
     ConstDefTok() { }
+
     ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue, std::string literalValue) :
         v(value),
         valueAsString(stringValue),
@@ -185,6 +187,7 @@ public:
         isTagged(false),
         tag(-1)
     { }
+
     TaggedDefTok(int t) :
         isStream(false),
         isTagged(true),

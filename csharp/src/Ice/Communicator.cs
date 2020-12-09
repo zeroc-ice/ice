@@ -215,8 +215,6 @@ namespace ZeroC.Ice
 
         private static string[] _emptyArgs = Array.Empty<string>();
 
-        private static readonly Dictionary<string, IPluginFactory> _pluginFactories = new();
-
         // Sub-properties for ice1 proxies
         private static readonly string[] _suffixes =
         {
@@ -766,7 +764,11 @@ namespace ZeroC.Ice
                 _activateCalled = true;
             }
 
-            await ActivatePluginsAsync(cancel).ConfigureAwait(false);
+            // Activate all plug-ins, in order.
+            foreach ((string _, IPlugin plugin) in _plugins)
+            {
+                await plugin.ActivateAsync(cancel).ConfigureAwait(false);
+            }
 
             if (_activateLocatorAsync != null)
             {
@@ -1306,39 +1308,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Activates the configured plug-ins.</summary>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>A task that completes once all the plug-ins are activated.</returns>
-        private async Task ActivatePluginsAsync(CancellationToken cancel = default)
-        {
-            // Invoke ActivateAsync on the plug-ins, in the order they were loaded.
-            var activatedPlugins = new List<IPlugin>();
-            try
-            {
-                foreach ((string name, IPlugin plugin) in _plugins)
-                {
-                    await plugin.ActivateAsync(cancel).ConfigureAwait(false);
-                    activatedPlugins.Add(plugin);
-                }
-            }
-            catch (Exception)
-            {
-                // Destroy the plug-ins that have been successfully activated, in the reverse order.
-                foreach (IPlugin plugin in Enumerable.Reverse(activatedPlugins))
-                {
-                    try
-                    {
-                        await plugin.DisposeAsync().ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                        // Ignore.
-                    }
-                }
-                throw;
-            }
-        }
-
         private void AddAllAdminFacets()
         {
             lock (_mutex)
@@ -1571,87 +1540,83 @@ namespace ZeroC.Ice
                     }
                 }
                 Debug.Assert(entryPoint != null);
-                // Always check the static plugin factory table first, it takes precedence over the entryPoint specified
-                // in the plugin property value.
-                if (!_pluginFactories.TryGetValue(name, out IPluginFactory? pluginFactory))
+
+                // Extract the assembly name and the class name.
+                int sepPos = entryPoint.IndexOf(':');
+                if (sepPos != -1)
                 {
-                    // Extract the assembly name and the class name.
-                    int sepPos = entryPoint.IndexOf(':');
-                    if (sepPos != -1)
+                    const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                    if (entryPoint.Length > 3 &&
+                       sepPos == 1 &&
+                       driveLetters.IndexOf(entryPoint[0]) != -1 &&
+                       (entryPoint[2] == '\\' || entryPoint[2] == '/'))
                     {
-                        const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                        if (entryPoint.Length > 3 &&
-                           sepPos == 1 &&
-                           driveLetters.IndexOf(entryPoint[0]) != -1 &&
-                           (entryPoint[2] == '\\' || entryPoint[2] == '/'))
-                        {
-                            sepPos = entryPoint.IndexOf(':', 3);
-                        }
-                    }
-                    if (sepPos == -1)
-                    {
-                        throw new FormatException($"error loading plug-in `{entryPoint}': invalid entry point format");
-                    }
-
-                    System.Reflection.Assembly? pluginAssembly;
-                    string assemblyName = entryPoint[..sepPos];
-                    string className = entryPoint[(sepPos + 1)..];
-
-                    try
-                    {
-                        // First try to load the assembly using Assembly.Load, which will succeed if a fully-qualified
-                        // name is provided or if a partial name has been qualified in configuration. If that fails, try
-                        // Assembly.LoadFrom(), which will succeed if a file name is configured or a partial name is
-                        // configured and DEVPATH is used.
-                        //
-                        // We catch System.Exception as this can fail with System.ArgumentNullException or
-                        // System.IO.IOException depending of the .NET framework and platform.
-                        try
-                        {
-                            pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
-                        }
-                        catch (Exception ex)
-                        {
-                            try
-                            {
-                                pluginAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
-                            }
-                            catch (System.IO.IOException)
-                            {
-                                throw ExceptionUtil.Throw(ex);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new LoadException(
-                            $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);
-                    }
-
-                    // Instantiate the class.
-                    Type? c;
-                    try
-                    {
-                        c = pluginAssembly.GetType(className, true);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new LoadException(
-                            $"error loading plug-in `{entryPoint}': cannot find the plugin factory class `{className}'",
-                            ex);
-                    }
-                    Debug.Assert(c != null);
-
-                    try
-                    {
-                        pluginFactory = (IPluginFactory?)Activator.CreateInstance(c);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new LoadException($"error loading plug-in `{entryPoint}'", ex);
+                        sepPos = entryPoint.IndexOf(':', 3);
                     }
                 }
-                Debug.Assert(pluginFactory != null);
+                if (sepPos == -1)
+                {
+                    throw new FormatException($"error loading plug-in `{entryPoint}': invalid entry point format");
+                }
+
+                Assembly? pluginAssembly;
+                string assemblyName = entryPoint[..sepPos];
+                string className = entryPoint[(sepPos + 1)..];
+
+                try
+                {
+                    // First try to load the assembly using Assembly.Load, which will succeed if a fully-qualified
+                    // name is provided or if a partial name has been qualified in configuration. If that fails, try
+                    // Assembly.LoadFrom(), which will succeed if a file name is configured or a partial name is
+                    // configured and DEVPATH is used.
+                    //
+                    // We catch System.Exception as this can fail with System.ArgumentNullException or
+                    // System.IO.IOException depending of the .NET framework and platform.
+                    try
+                    {
+                        pluginAssembly = Assembly.Load(assemblyName);
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            pluginAssembly = Assembly.LoadFrom(assemblyName);
+                        }
+                        catch (System.IO.IOException)
+                        {
+                            throw ExceptionUtil.Throw(ex);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new LoadException(
+                        $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);
+                }
+
+                // Instantiate the class.
+                Type? c;
+                try
+                {
+                    c = pluginAssembly.GetType(className, true);
+                }
+                catch (Exception ex)
+                {
+                    throw new LoadException(
+                        $"error loading plug-in `{entryPoint}': cannot find the plugin factory class `{className}'",
+                        ex);
+                }
+                Debug.Assert(c != null);
+
+                IPluginFactory pluginFactory;
+                try
+                {
+                    pluginFactory = (IPluginFactory?)Activator.CreateInstance(c)!;
+                }
+                catch (Exception ex)
+                {
+                    throw new LoadException($"error loading plug-in `{entryPoint}'", ex);
+                }
                 _plugins.Add((name, pluginFactory.Create(this, name, args)));
             }
         }

@@ -11,7 +11,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 {
     public class Client : TestHelper
     {
-        private readonly object _mutex = new object();
+        private readonly object _mutex = new();
 
         public class SessionCallback1 : ISessionCallback
         {

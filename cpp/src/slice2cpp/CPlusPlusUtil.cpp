@@ -49,15 +49,7 @@ isOptionalProxyOrClass(const TypePtr& type)
     if (auto optional = OptionalPtr::dynamicCast(type))
     {
         auto underlying = optional->underlying();
-        if (InterfaceDeclPtr::dynamicCast(underlying) || ClassDeclPtr::dynamicCast(underlying))
-        {
-            return true;
-        }
-        auto builtin = BuiltinPtr::dynamicCast(underlying);
-        if (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindAnyClass))
-        {
-            return true;
-        }
+        return (underlying->isInterfaceType() || underlying->isClassType());
     }
     return false;
 }

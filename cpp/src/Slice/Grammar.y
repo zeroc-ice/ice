@@ -152,6 +152,7 @@ const int QUALIFIER_STREAM = 2;
 %token ICE_INTERFACE
 %token ICE_EXCEPTION
 %token ICE_STRUCT
+%token ICE_USING
 %token ICE_SEQUENCE
 %token ICE_DICTIONARY
 %token ICE_ENUM
@@ -345,6 +346,15 @@ opt_semicolon
 | sequence_def
 {
     unit->error("`;' missing after sequence definition");
+}
+| type_alias_def
+{
+    assert($1 == 0 || TypeAliasPtr::dynamicCast($1));
+}
+';'
+| type_alias_def
+{
+    unit->error("`;' missing after type-alias");
 }
 | dictionary_def
 {
@@ -1056,31 +1066,33 @@ class_extends
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     $$ = 0;
-    if(!types.empty())
+    if (!types.empty())
     {
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-        if(!cl)
+        if (!cl)
         {
-            string msg = "`";
-            msg += scoped->v;
-            msg += "' is not a class";
-            unit->error(msg);
+            if (auto alias = TypeAliasPtr::dynamicCast(types.front()))
+            {
+                cl = ClassDeclPtr::dynamicCast(alias->underlying());
+            }
         }
-        else
+
+        if (cl)
         {
             ClassDefPtr def = cl->definition();
-            if(!def)
+            if (!def)
             {
-                string msg = "`";
-                msg += scoped->v;
-                msg += "' has been declared but not defined";
-                unit->error(msg);
+                unit->error("`" + scoped->v + "' has been declared but not defined");
             }
             else
             {
                 cont->checkIntroduced(scoped->v);
                 $$ = def;
             }
+        }
+        else
+        {
+            unit->error("`" + scoped->v + "' is not a class");
         }
     }
 }
@@ -1444,7 +1456,11 @@ operation_list
         // metadata only relevant to the return type would only be set on the return type.
         if (operation->hasSingleReturnType())
         {
-            operation->returnType().front()->setMetadata(metadata->v);
+            MemberPtr returnType = operation->returnType().front();
+            StringList returnMetadata = returnType->getAllMetadata();
+
+            // Merge any metadata specified on the operation into the return type.
+            returnType->setMetadata(appendMetadata(metadata->v, returnMetadata));
         }
     }
 }
@@ -1527,31 +1543,33 @@ interface_list
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
-    if(!types.empty())
+    if (!types.empty())
     {
         InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(types.front());
-        if(!interface)
+        if (!interface)
         {
-            string msg = "`";
-            msg += scoped->v;
-            msg += "' is not an interface";
-            unit->error(msg);
+            if (auto alias = TypeAliasPtr::dynamicCast(types.front()))
+            {
+                interface = InterfaceDeclPtr::dynamicCast(alias->underlying());
+            }
         }
-        else
+
+        if (interface)
         {
             InterfaceDefPtr def = interface->definition();
-            if(!def)
+            if (!def)
             {
-                string msg = "`";
-                msg += scoped->v;
-                msg += "' has been declared but not defined";
-                unit->error(msg);
+                unit->error("`" + scoped->v + "' has been declared but not defined");
             }
             else
             {
                 cont->checkIntroduced(scoped->v);
                 intfs->v.push_front(def);
             }
+        }
+        else
+        {
+            unit->error("`" + scoped->v + "' is not an interface");
         }
     }
     $$ = intfs;
@@ -1562,31 +1580,33 @@ interface_list
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
-    if(!types.empty())
+    if (!types.empty())
     {
         InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(types.front());
-        if(!interface)
+        if (!interface)
         {
-            string msg = "`";
-            msg += scoped->v;
-            msg += "' is not an interface";
-            unit->error(msg); // $$ is a dummy
+            if (auto alias = TypeAliasPtr::dynamicCast(types.front()))
+            {
+                interface = InterfaceDeclPtr::dynamicCast(alias->underlying());
+            }
         }
-        else
+
+        if (interface)
         {
             InterfaceDefPtr def = interface->definition();
-            if(!def)
+            if (!def)
             {
-                string msg = "`";
-                msg += scoped->v;
-                msg += "' has been declared but not defined";
-                unit->error(msg); // $$ is a dummy
+                unit->error("`" + scoped->v + "' has been declared but not defined"); // $$ is a dummy
             }
             else
             {
                 cont->checkIntroduced(scoped->v);
                 intfs->v.push_front(def);
             }
+        }
+        else
+        {
+            unit->error("`" + scoped->v + "' is not an interface"); // $$ is a dummy
         }
     }
     $$ = intfs;
@@ -1668,6 +1688,42 @@ exception
 ;
 
 // ----------------------------------------------------------------------
+type_alias_def
+// ----------------------------------------------------------------------
+: ICE_USING ICE_IDENTIFIER '=' local_metadata type
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($4);
+
+    if (TypePtr type = TypePtr::dynamicCast($5))
+    {
+        if (auto alias = TypeAliasPtr::dynamicCast(type))
+        {
+            appendMetadataInPlace(metadata->v, alias->typeMetadata());
+            type = alias->underlying();
+        }
+
+        ModulePtr cont = unit->currentModule();
+        $$ = cont->createTypeAlias(ident->v, type, metadata->v);
+    }
+    else
+    {
+        $$ = nullptr;
+    }
+}
+| ICE_USING ICE_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    unit->error("missing underlying type for typealias `" + ident->v + "'");
+    $$ = nullptr;
+}
+| ICE_USING error
+{
+    unit->error("unable to resolve underlying type");
+    $$ = nullptr;
+}
+
+// ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
 : ICE_SEQUENCE '<' local_metadata type '>' ICE_IDENTIFIER
@@ -1675,6 +1731,9 @@ sequence_def
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
     StringListTokPtr metadata = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
+
+    unalias(type, metadata->v);
+
     ModulePtr cont = unit->currentModule();
     $$ = cont->createSequence(ident->v, type, metadata->v);
 }
@@ -1683,6 +1742,9 @@ sequence_def
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
     StringListTokPtr metadata = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
+
+    unalias(type, metadata->v);
+
     ModulePtr cont = unit->currentModule();
     $$ = cont->createSequence(ident->v, type, metadata->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
@@ -1699,6 +1761,10 @@ dictionary_def
     TypePtr keyType = TypePtr::dynamicCast($4);
     StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
+
+    unalias(keyType, keyMetadata->v);
+    unalias(valueType, valueMetadata->v);
+
     ModulePtr cont = unit->currentModule();
     $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v);
 }
@@ -1709,6 +1775,10 @@ dictionary_def
     TypePtr keyType = TypePtr::dynamicCast($4);
     StringListTokPtr valueMetadata = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
+
+    unalias(keyType, keyMetadata->v);
+    unalias(valueType, valueMetadata->v);
+
     ModulePtr cont = unit->currentModule();
     $$ = cont->createDictionary(ident->v, keyType, keyMetadata->v, valueType, valueMetadata->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
@@ -1763,7 +1833,19 @@ enum_def
 : enum_id enum_underlying
 {
     EnumPtr en = EnumPtr::dynamicCast($1);
-    en->initUnderlying(TypePtr::dynamicCast($2));
+    TypePtr underlying = TypePtr::dynamicCast($2);
+
+    if (auto alias = TypeAliasPtr::dynamicCast(underlying))
+    {
+        if (!alias->typeMetadata().empty())
+        {
+            unit->error("illegal metadata: typealias metadata `" + alias->typeMetadata().front() +
+                        "' cannot be used in enum declarations");
+        }
+        underlying = alias->underlying();
+    }
+
+    en->initUnderlying(underlying);
     unit->pushContainer(en);
     $$ = en;
 }
@@ -2181,12 +2263,8 @@ type
         {
             YYERROR; // Can't continue, jump to next yyerrok
         }
-        for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
-        {
-            cont->checkIntroduced(scoped->v);
-            *p = new Optional(*p);
-        }
-        $$ = types.front();
+        cont->checkIntroduced(scoped->v);
+        $$ = new Optional(types.front());
     }
     else
     {
@@ -2210,6 +2288,12 @@ tagged_type
         unit->error("only optional types can be tagged");
     }
 
+    if (auto alias = TypeAliasPtr::dynamicCast(type->underlying()))
+    {
+        taggedDef->metadata = alias->typeMetadata();
+        type = new Optional(alias->underlying());
+    }
+
     taggedDef->type = type;
     $$ = taggedDef;
 }
@@ -2224,6 +2308,12 @@ tagged_type
         type = new Optional(TypePtr::dynamicCast($2));
     }
 
+    if (auto alias = TypeAliasPtr::dynamicCast(type->underlying()))
+    {
+        taggedDef->metadata = alias->typeMetadata();
+        type = new Optional(alias->underlying());
+    }
+
     taggedDef->type = type;
     $$ = taggedDef;
 }
@@ -2231,6 +2321,9 @@ tagged_type
 {
     TaggedDefTokPtr taggedDef = new TaggedDefTok;
     taggedDef->type = TypePtr::dynamicCast($1);
+
+    unalias(taggedDef->type, taggedDef->metadata);
+
     $$ = taggedDef;
 }
 ;
@@ -2274,8 +2367,9 @@ member
 }
 | local_metadata member
 {
+    StringListTokPtr metadata = StringListTokPtr::dynamicCast($1);
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast($2);
-    def->metadata = StringListTokPtr::dynamicCast($1)->v;
+    def->metadata = appendMetadata(metadata->v, def->metadata);
     $$ = def;
 }
 ;
@@ -2404,6 +2498,9 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     StringTokPtr ident = StringTokPtr::dynamicCast($4);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($6);
+
+    unalias(const_type, metadata->v);
+
     $$ = unit->currentModule()->createConst(ident->v, const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
@@ -2413,6 +2510,9 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($5);
     unit->error("missing constant name");
+
+    unalias(const_type, metadata->v);
+
     $$ = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metadata->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }

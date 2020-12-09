@@ -72,11 +72,11 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             current.Communicator.ShutdownAsync();
-            return new ValueTask(Task.CompletedTask);
+            return new(Task.CompletedTask);
         }
 
         public ValueTask<bool> SupportsCompressAsync(Current current, CancellationToken cancel) =>
-            new ValueTask<bool>(true);
+            new(true);
 
         public ValueTask OpVoidAsync(Current current, CancellationToken cancel)
         {
@@ -90,11 +90,11 @@ namespace ZeroC.Ice.Test.Operations
 
             _opVoidThread = new Thread_opVoid();
             _opVoidThread.Start();
-            return new ValueTask(_opVoidThread.Task);
+            return new(_opVoidThread.Task);
         }
 
         public ValueTask<(bool, bool)> OpBoolAsync(bool p1, bool p2, Current current, CancellationToken cancel) =>
-            new ValueTask<(bool, bool)>((p2, p1));
+            new((p2, p1));
 
         public ValueTask<(ReadOnlyMemory<bool>, ReadOnlyMemory<bool>)> OpBoolSAsync(
             bool[] p1,
@@ -135,7 +135,7 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(byte, byte)> OpByteAsync(byte p1, byte p2, Current current, CancellationToken cancel) =>
-            new ValueTask<(byte, byte)>((p1, (byte)(p1 ^ p2)));
+            new((p1, (byte)(p1 ^ p2)));
 
         public ValueTask<(IReadOnlyDictionary<byte, bool>, IReadOnlyDictionary<byte, bool>)> OpByteBoolDAsync(
             Dictionary<byte, bool> p1,
@@ -186,7 +186,7 @@ namespace ZeroC.Ice.Test.Operations
             double p2,
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<(double, float, double)>((p2, p1, p2));
+            new((p2, p1, p2));
 
         public ValueTask<(ReadOnlyMemory<double>, ReadOnlyMemory<float>, ReadOnlyMemory<double>)> OpFloatDoubleSAsync(
             float[] p1,
@@ -256,13 +256,13 @@ namespace ZeroC.Ice.Test.Operations
             IMyClassPrx? p1,
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<(IMyClassPrx?, IMyClassPrx?, IMyClassPrx?)>((
+            new((
                 current.Adapter.CreateProxy(current.Identity, IMyClassPrx.Factory),
                 p1,
                 current.Adapter.CreateProxy("noSuchIdentity", IMyClassPrx.Factory)));
 
         public ValueTask<(MyEnum, MyEnum)> OpMyEnumAsync(MyEnum p1, Current current, CancellationToken cancel) =>
-            new ValueTask<(MyEnum, MyEnum)>((MyEnum.enum3, p1));
+            new((MyEnum.enum3, p1));
 
         public ValueTask<(IReadOnlyDictionary<short, int>, IReadOnlyDictionary<short, int>)> OpShortIntDAsync(
             Dictionary<short, int> p1,
@@ -282,7 +282,7 @@ namespace ZeroC.Ice.Test.Operations
             long p3,
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<(long, short, int, long)>((p3, p1, p2, p3));
+            new((p3, p1, p2, p3));
 
         public ValueTask<(ulong, ushort, uint, ulong)> OpUShortUIntULongAsync(
             ushort p1,
@@ -290,13 +290,12 @@ namespace ZeroC.Ice.Test.Operations
             ulong p3,
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<(ulong, ushort, uint, ulong)>((p3, p1, p2, p3));
+            new((p3, p1, p2, p3));
 
-        public ValueTask<int> OpVarIntAsync(int v, Current current, CancellationToken cancel) => new ValueTask<int>(v);
-        public ValueTask<uint> OpVarUIntAsync(uint v, Current current, CancellationToken cancel) => new ValueTask<uint>(v);
-        public ValueTask<long> OpVarLongAsync(long v, Current current, CancellationToken cancel) => new ValueTask<long>(v);
-        public ValueTask<ulong> OpVarULongAsync(ulong v, Current current, CancellationToken cancel) =>
-            new ValueTask<ulong>(v);
+        public ValueTask<int> OpVarIntAsync(int v, Current current, CancellationToken cancel) => new(v);
+        public ValueTask<uint> OpVarUIntAsync(uint v, Current current, CancellationToken cancel) => new(v);
+        public ValueTask<long> OpVarLongAsync(long v, Current current, CancellationToken cancel) => new(v);
+        public ValueTask<ulong> OpVarULongAsync(ulong v, Current current, CancellationToken cancel) => new(v);
 
         public ValueTask<(ReadOnlyMemory<long>,
                           ReadOnlyMemory<short>,
@@ -406,7 +405,7 @@ namespace ZeroC.Ice.Test.Operations
 
         public ValueTask<(string, string)>
         OpStringAsync(string p1, string p2, Current current, CancellationToken cancel) =>
-            new ValueTask<(string, string)>(($"{p1} {p2}", $"{p2} {p1}"));
+            new(($"{p1} {p2}", $"{p2} {p1}"));
 
         public ValueTask<(IReadOnlyDictionary<string, MyEnum>, IReadOnlyDictionary<string, MyEnum>)>
         OpStringMyEnumDAsync(
@@ -711,7 +710,7 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask<IReadOnlyDictionary<string, string>> OpContextAsync(
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<IReadOnlyDictionary<string, string>>(current.Context);
+            new(current.Context);
 
         public ValueTask OpByteSOnewayAsync(byte[] s, Current current, CancellationToken cancel)
         {
@@ -719,7 +718,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 ++_opByteSOnewayCallCount;
             }
-            return new ValueTask(Task.CompletedTask);
+            return new(Task.CompletedTask);
         }
 
         public ValueTask<int> OpByteSOnewayCallCountAsync(Current current, CancellationToken cancel)
@@ -740,7 +739,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 TestHelper.Assert(p2[i] == d);
             }
-            return new ValueTask(Task.CompletedTask);
+            return new(Task.CompletedTask);
         }
 
         public ValueTask<(IEnumerable<string>, IEnumerable<string>)> OpStringSAsync(
@@ -815,7 +814,7 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask OpIdempotentAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return new ValueTask(Task.CompletedTask);
+            return new(Task.CompletedTask);
         }
 
         // "return" exception when called two-way, otherwise succeeds.
@@ -825,65 +824,65 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask OpOnewayMetadataAsync(Current current, CancellationToken cancel) => throw new SomeException();
 
         public ValueTask OpDerivedAsync(Current current, CancellationToken cancel) =>
-            new ValueTask(Task.CompletedTask);
+            new(Task.CompletedTask);
 
         public ValueTask<byte> OpByte1Async(byte value, Current current, CancellationToken cancel) =>
-            new ValueTask<byte>(value);
+            new(value);
 
         public ValueTask<short> OpShort1Async(short value, Current current, CancellationToken cancel) =>
-            new ValueTask<short>(value);
+            new(value);
         public ValueTask<int> OpInt1Async(int value, Current current, CancellationToken cancel) =>
-            new ValueTask<int>(value);
+            new(value);
         public ValueTask<long> OpLong1Async(long value, Current current, CancellationToken cancel) =>
-            new ValueTask<long>(value);
+            new(value);
 
         public ValueTask<ushort> OpUShort1Async(ushort value, Current current, CancellationToken cancel) =>
-            new ValueTask<ushort>(value);
+            new(value);
         public ValueTask<uint> OpUInt1Async(uint value, Current current, CancellationToken cancel) =>
-            new ValueTask<uint>(value);
+            new(value);
         public ValueTask<ulong> OpULong1Async(ulong value, Current current, CancellationToken cancel) =>
-            new ValueTask<ulong>(value);
+            new(value);
 
         public ValueTask<float> OpFloat1Async(float value, Current current, CancellationToken cancel) =>
-            new ValueTask<float>(value);
+            new(value);
 
         public ValueTask<double> OpDouble1Async(double value, Current current, CancellationToken cancel) =>
-            new ValueTask<double>(value);
+            new(value);
 
         public ValueTask<string> OpString1Async(string value, Current current, CancellationToken cancel) =>
-            new ValueTask<string>(value);
+            new(value);
 
         public ValueTask<IEnumerable<string>> OpStringS1Async(
             string[] value,
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<IEnumerable<string>>(value);
+            new(value);
 
         public ValueTask<IReadOnlyDictionary<byte, bool>> OpByteBoolD1Async(
             Dictionary<byte, bool> value,
             Current current,
-            CancellationToken cancel) => new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
+            CancellationToken cancel) => new(value);
 
         public ValueTask<IEnumerable<string>> OpStringS2Async(
             string[] value,
             Current current,
             CancellationToken cancel) =>
-            new ValueTask<IEnumerable<string>>(value);
+            new(value);
 
         public ValueTask<IReadOnlyDictionary<byte, bool>> OpByteBoolD2Async(
             Dictionary<byte, bool> value,
             Current current,
-            CancellationToken cancel) => new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
+            CancellationToken cancel) => new(value);
 
         public ValueTask<MyClass1?> OpMyClass1Async(MyClass1? value, Current current, CancellationToken cancel) =>
-            new ValueTask<MyClass1?>(value);
+            new(value);
 
         public ValueTask<MyStruct1> OpMyStruct1Async(MyStruct1 value, Current current, CancellationToken cancel) =>
-            new ValueTask<MyStruct1>(value);
+            new(value);
 
         public ValueTask<IEnumerable<string>> OpStringLiteralsAsync(Current current, CancellationToken cancel)
         {
-            return new ValueTask<IEnumerable<string>>(new string[]
+            return new(new string[]
             {
                 Constants.s0,
                 Constants.s1,
@@ -923,7 +922,7 @@ namespace ZeroC.Ice.Test.Operations
 
         public ValueTask<IEnumerable<string>> OpWStringLiteralsAsync(Current current, CancellationToken cancel)
         {
-            return new ValueTask<IEnumerable<string>>(new string[]
+            return new(new string[]
             {
                 Constants.s0,
                 Constants.s1,
