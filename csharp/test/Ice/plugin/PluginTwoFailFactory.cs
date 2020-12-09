@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,11 +21,12 @@ namespace ZeroC.Ice.Test.Plugin
 
             public override Task ActivateAsync(CancellationToken cancel)
             {
-                var one = (BasePluginFail?)_communicator.GetPlugin("PluginOneFail");
+                var one = (BasePluginFail?)_communicator.Plugins.FirstOrDefault(p => p.Name == "PluginOneFail").Plugin;
                 TestHelper.Assert(one != null);
                 _one = one;
                 TestHelper.Assert(_one.isInitialized());
-                var three = (BasePluginFail?)_communicator.GetPlugin("PluginThreeFail");
+                var three =
+                    (BasePluginFail?)_communicator.Plugins.FirstOrDefault(p => p.Name == "PluginThreeFail").Plugin;
                 TestHelper.Assert(three != null);
                 _three = three;
                 TestHelper.Assert(!_three.isInitialized());
