@@ -108,7 +108,7 @@ class SequenceHelper
 {
     write(os, v)
     {
-        if(v === null || v.length === 0)
+        if(v === null || v === undefined || v.length === 0)
         {
             os.writeSize(0);
         }
@@ -219,7 +219,7 @@ class DictionaryHelper
 {
     write(os, v)
     {
-        if(v === null || v.size === 0)
+        if(v === null || v == undefined || v.size === 0)
         {
             os.writeSize(0);
         }

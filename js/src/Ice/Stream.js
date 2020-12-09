@@ -2278,7 +2278,7 @@ class EncapsEncoder10 extends EncapsEncoder
         //
         // Object references are encoded as a negative integer in 1.0.
         //
-        if(v !== null)
+        if(v !== null && v !== undefined)
         {
             this._stream.writeInt(-this.registerValue(v));
         }
@@ -2450,7 +2450,7 @@ class EncapsEncoder11 extends EncapsEncoder
     writeValue(v)
     {
         Debug.assert(v !== undefined);
-        if(v === null)
+        if(v === null || v === undefined)
         {
             this._stream.writeSize(0);
         }
@@ -3078,7 +3078,7 @@ class OutputStream
 
     writeBlob(v)
     {
-        if(v === null)
+        if(v === null || v === undefined)
         {
             return;
         }
@@ -3121,7 +3121,7 @@ class OutputStream
 
     writeByteSeq(v)
     {
-        if(v === null || v.length === 0)
+        if(v === null || v === undefined || v.length === 0)
         {
             this.writeSize(0);
         }
@@ -3181,7 +3181,7 @@ class OutputStream
 
     writeString(v)
     {
-        if(v === null || v.length === 0)
+        if(v === null || v === undefined || v.length === 0)
         {
             this.writeSize(0);
         }
@@ -3193,14 +3193,14 @@ class OutputStream
 
     writeProxy(v)
     {
-        if(v !== null)
-        {
-            v._write(this);
-        }
-        else
+        if(v === null || v === undefined)
         {
             const ident = new Ice.Identity();
             ident._write(this);
+        }
+        else
+        {
+            v._write(this);
         }
     }
 
