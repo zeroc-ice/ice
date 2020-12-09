@@ -846,17 +846,15 @@ namespace ZeroC.Ice
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
-        /// implicitly.</summary>
-        public async ValueTask DisposeAsync()
+        /// <summary>Releases resources used by the communicator. This method calls <see cref="ShutdownAsync"/>
+        /// implicitly, and be called multiple times.</summary>
+        public ValueTask DisposeAsync()
         {
-            // If Dispose is in progress just await the _disposeTask, otherwise call PerformDisposeAsync and then await
-            // the _disposeTask.
             lock (_mutex)
             {
                 _disposeTask ??= PerformDisposeAsync();
+                return new(_disposeTask);
             }
-            await _disposeTask.ConfigureAwait(false);
 
             async Task PerformDisposeAsync()
             {
@@ -883,10 +881,9 @@ namespace ZeroC.Ice
                     {
                     }
                 }
-#if DEBUG
+
                 // Ensure all the outgoing connections were removed
                 Debug.Assert(_outgoingConnections.Count == 0);
-#endif
 
                 // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
                 // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.
