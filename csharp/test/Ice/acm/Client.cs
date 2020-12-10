@@ -7,7 +7,7 @@ namespace ZeroC.Ice.Test.ACM
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args) => await AllTests.RunAsync(this);
+        public override Task RunAsync(string[] args) => AllTests.RunAsync(this);
 
         public static async Task<int> Main(string[] args)
         {

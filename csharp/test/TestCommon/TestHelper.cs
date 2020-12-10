@@ -336,8 +336,7 @@ namespace TestNew
                 tlsServerOptions.RequireClientCertificate = value == "ssl";
             }
 
-            var communicator = new Communicator(properties, tlsServerOptions: tlsServerOptions, observer: observer);
-            return communicator;
+            return new Communicator(properties, tlsServerOptions: tlsServerOptions, observer: observer);
         }
 
         public string GetTestEndpoint(int num = 0, string transport = "", bool ephemeral = false) =>
@@ -540,7 +539,5 @@ namespace TestNew
         public virtual void ServerReady()
         {
         }
-
-        protected TestHelper() => Communicator = null!; // Set by RunTestAsync immediately after construction.
     }
 }
