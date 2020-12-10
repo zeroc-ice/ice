@@ -623,14 +623,19 @@ Slice::CsVisitor::writeSuppressNonNullableWarnings(const MemberList& members, un
     for (const auto& p: members)
     {
         TypePtr memberType = p->type();
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-        SequencePtr seq = SequencePtr::dynamicCast(memberType);
-        DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
-
-        if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
+        if (!OptionalPtr::dynamicCast(memberType))
         {
-            // This is to suppress compiler warnings for non-nullable fields.
-            _out << nl << "this." << fixId(fieldName(p), baseTypes) << " = null!;";
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
+
+            if (memberType->isClassType() ||
+                memberType->isInterfaceType() ||
+                SequencePtr::dynamicCast(memberType) ||
+                DictionaryPtr::dynamicCast(memberType) ||
+                (builtin && builtin->kind() == Builtin::KindString))
+            {
+                // This is to suppress compiler warnings for non-nullable fields.
+                _out << nl << "this." << fixId(fieldName(p), baseTypes) << " = null!;";
+            }
         }
     }
 }
