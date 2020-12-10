@@ -29,9 +29,10 @@ class IceBox(ProcessFromBinDir, Server):
                     with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
                             if current.config.framework == "net5.0":
-                                target.write(line.replace("\\net45\\", "\\net5.0\\"))
+                                line = line.replace("\\net45\\", "\\net5.0\\")
                             elif current.config.dotnetcore:
-                                target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework)))
+                                line = line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework))
+                            target.write(line)
                         current.files.append(newConfigFile)
 
     def getExe(self, current):
