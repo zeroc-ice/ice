@@ -323,8 +323,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Constructs a new communicator.</summary>
-        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
-        /// param has precedence over the properties param.</param>
+        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The
+        /// appSettings param has precedence over the properties param.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the Ice run-time.</param>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -349,8 +349,8 @@ namespace ZeroC.Ice
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
-        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
-        /// param has precedence over the properties param.</param>
+        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The
+        /// appSettings param has precedence over the properties param.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -469,7 +469,8 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
 
-                DefaultPreferExistingConnection = this.GetPropertyAsBool("Ice.Default.PreferExistingConnection") ?? true;
+                DefaultPreferExistingConnection =
+                    this.GetPropertyAsBool("Ice.Default.PreferExistingConnection") ?? true;
 
                 // TODO: switch to NonSecure.Never default
                 DefaultPreferNonSecure =

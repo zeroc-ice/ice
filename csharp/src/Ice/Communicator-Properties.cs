@@ -125,7 +125,7 @@ namespace ZeroC.Ice
         // otherwise.
         private bool SetPropertyImpl(string name, string value)
         {
-            // Must be called with a validated property and with mutex locked
+            // Must be called with a validated property and with _mutex locked
 
             name = name.Trim();
             Debug.Assert(name.Length > 0);
