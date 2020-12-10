@@ -12,8 +12,8 @@
     <Compile Include="../../*.cs" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" PrivateAssets="All"/>
-      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01" PrivateAssets="All"/>
+      <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" PrivateAssets="All" />
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" PrivateAssets="All" />
   </ItemGroup>
-  <Import Project="$(MSBuildThisFileDirectory)../../../../msbuild/ice.sign.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)../../../../msbuild/ice.sign.targets" />
 </Project>
