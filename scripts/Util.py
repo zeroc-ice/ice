@@ -519,7 +519,7 @@ class Windows(Platform):
 
     def getDotNetExe(self):
         try:
-            return run("where dotnet").strip()
+            return run("where dotnet").strip().splitlines()[0]
         except:
             return None
 

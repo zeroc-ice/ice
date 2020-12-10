@@ -30,7 +30,7 @@ class IceBox(ProcessFromBinDir, Server):
                         for line in source.readlines():
                             if current.config.framework == "net5.0":
                                 target.write(line.replace("\\net45\\", "\\net5.0\\"))
-                            else:
+                            elif current.config.dotnetcore:
                                 target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework)))
                         current.files.append(newConfigFile)
 
