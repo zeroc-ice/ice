@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace ZeroC.Ice
 {
-    /// <summary>This static class provides property-related extension methods for <see cref="Communicator"/> and
+    /// <summary>Provides property-related extension methods for <see cref="Communicator"/> and
     /// <see cref="Dictionary{TKey, TValue}"/> of strings.</summary>
     public static class Properties
     {
