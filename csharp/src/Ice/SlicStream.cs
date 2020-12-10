@@ -211,16 +211,19 @@ namespace ZeroC.Ice
 
         internal bool ReleaseFlowControlCredit(bool notifyPeer = false)
         {
-            // If the flow control credit is not already released, releases it now.
             if (Interlocked.CompareExchange(ref _flowControlCreditReleased, 1, 0) == 0)
             {
-                _socket.ReleaseFlowControlCredit(this);
-
-                if (IsIncoming && notifyPeer)
+                if (!IsControl)
                 {
-                    // It's important to decrement the stream count before sending the StreamLast frame to prevent
-                    // a race where the peer could start a new stream before the counter is decremented.
-                    _ = _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
+                    // If the flow control credit is not already released, releases it now.
+                    _socket.ReleaseFlowControlCredit(this);
+
+                    if (IsIncoming && notifyPeer)
+                    {
+                        // It's important to decrement the stream count before sending the StreamLast frame to prevent
+                        // a race where the peer could start a new stream before the counter is decremented.
+                        _ = _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
+                    }
                 }
                 return true;
             }

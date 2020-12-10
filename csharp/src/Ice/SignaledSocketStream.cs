@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     /// for receiving data. The socket can easily signal the stream when new data is available.</summary>
     internal abstract class SignaledSocketStream<T> : SocketStream, IValueTaskSource<T>
     {
-        internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
+        internal bool IsSignaled => Thread.VolatileRead(ref _signaled) == 1;
         private volatile Exception? _exception;
         private int _signaled;
         private ManualResetValueTaskSourceCore<T> _source;
@@ -24,17 +24,20 @@ namespace ZeroC.Ice
         /// exception to raise it after the stream consumes the signal and waits for a new signal</summary>
         public override void Abort(Exception ex)
         {
-            _exception ??= ex;
-
-            // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
-            // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
-            // the exception the next time the signal is awaited. This is necessary because
-            // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
-            // call again SetXxx until the source's result or exception is consumed.
-            if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
+            if (_exception == null)
             {
-                _source.RunContinuationsAsynchronously = true;
-                _source.SetException(ex);
+                _exception = ex;
+
+                // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
+                // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
+                // the exception the next time the signal is awaited. This is necessary because
+                // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
+                // call again SetXxx until the source's result or exception is consumed.
+                if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
+                {
+                    _source.RunContinuationsAsynchronously = true;
+                    _source.SetException(ex);
+                }
             }
         }
 

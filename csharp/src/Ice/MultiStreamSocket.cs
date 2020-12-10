@@ -222,10 +222,7 @@ namespace ZeroC.Ice
             bool graceful = _streamsAborted;
 
             // Abort the streams if not already done and wait for all the streams to be completed.
-            if (!_streamsAborted)
-            {
-                AbortStreams(exception);
-            }
+            AbortStreams(exception);
 
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 

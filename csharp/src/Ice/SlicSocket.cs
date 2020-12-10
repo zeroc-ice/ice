@@ -463,11 +463,9 @@ namespace ZeroC.Ice
 
         internal void ReleaseFlowControlCredit(SlicStream stream)
         {
-            if (stream.IsControl)
-            {
-                // Credit isn't acquired for control streams.
-            }
-            else if (stream.IsIncoming)
+            Debug.Assert(!stream.IsControl);
+
+            if (stream.IsIncoming)
             {
                 if (stream.IsBidirectional)
                 {
