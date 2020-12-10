@@ -216,7 +216,10 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            self.defaultNetCoreFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
+            if int(version[0]) == 5:
+                self.defaultFramework = "net5.0"
+            else:
+                self.defaultFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
         except:
             self.nugetPackageCache = None
 
@@ -3426,19 +3429,15 @@ class CSharpMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
+            if self.framework == "":
+                self.framework = "net45" if isinstance(platform, Windows) else platform.defaultFramework
+
             if not self.dotnetcore and not isinstance(platform, Windows):
                 self.dotnetcore = True
 
-            if self.dotnetcore:
-                self.libTargetFramework = "netstandard2.0"
-                self.binTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
-                self.testTargetFramework = platform.defaultNetCoreFramework if self.framework == "" else self.framework
-            else:
-                if self.framework == "":
-                    self.framework = "net45" if isinstance(platform, Windows) else "net5.0"
-                self.libTargetFramework = self.framework if self.framework in ["net5.0", "net45"] else "netstandard2.0"
-                self.binTargetFramework = self.framework
-                self.testTargetFramework = self.framework
+            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net5.0", "net45"] else self.framework
+            self.binTargetFramework = self.framework
+            self.testTargetFramework = self.framework
 
             # Set Xamarin flag if UWP/iOS or Android testing flag is also specified
             if self.uwp or self.android or "iphone" in self.buildPlatform:
