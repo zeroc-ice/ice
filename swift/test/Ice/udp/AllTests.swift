@@ -134,7 +134,13 @@ public func allTests(_ helper: TestHelper) throws {
 
     for _ in 0 ..< 5 {
         replyI.reset()
-        try objMcast.ping(reply)
+        do {
+            try objMcast.ping(reply)
+        } catch is Ice.SocketException where communicator.getProperties().getProperty("Ice.IPv6") == "1" {
+            out.write("(not supported) ")
+            ret = true
+            break
+        }
         ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
         if ret {
             break

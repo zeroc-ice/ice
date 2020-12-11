@@ -194,7 +194,21 @@ public class AllTests
             while(nRetry-- > 0)
             {
                 replyI.reset();
-                objMcast.ping(reply);
+                try
+                {
+                    objMcast.ping(reply);
+                }
+                catch(Ice.SocketException ex)
+                {
+                    if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+                    {
+                        // Multicast IPv6 not supported on the platform. This occurs for example on macOS big_suir
+                        out.print("(not supported) ");
+                        ret = true;
+                        break;
+                    }
+                    throw ex;
+                }
                 ret = replyI.waitReply(numServers, 2000);
                 if(ret)
                 {
