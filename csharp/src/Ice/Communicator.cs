@@ -1136,7 +1136,7 @@ namespace ZeroC.Ice
 
         internal BufWarnSizeInfo GetBufWarnSize(Transport transport)
         {
-            lock (_setBufWarnSize)
+            lock (_mutex)
             {
                 BufWarnSizeInfo info;
                 if (!_setBufWarnSize.ContainsKey(transport))
@@ -1252,7 +1252,7 @@ namespace ZeroC.Ice
         }
         internal void SetRcvBufWarnSize(Transport transport, int size)
         {
-            lock (_setBufWarnSize)
+            lock (_mutex)
             {
                 BufWarnSizeInfo info = GetBufWarnSize(transport);
                 info.RcvWarn = true;
@@ -1263,7 +1263,7 @@ namespace ZeroC.Ice
 
         internal void SetSndBufWarnSize(Transport transport, int size)
         {
-            lock (_setBufWarnSize)
+            lock (_mutex)
             {
                 BufWarnSizeInfo info = GetBufWarnSize(transport);
                 info.SndWarn = true;
