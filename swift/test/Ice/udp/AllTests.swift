@@ -136,15 +136,16 @@ public func allTests(_ helper: TestHelper) throws {
         replyI.reset()
         do {
             try objMcast.ping(reply)
+            ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
         } catch is Ice.SocketException where communicator.getProperties().getProperty("Ice.IPv6") == "1" {
-            out.write("(not supported) ")
+            output.write("(not supported) ")
             ret = true
-            break
         }
-        ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
+
         if ret {
             break
         }
+
         replyI = PingReplyI()
         reply = try uncheckedCast(prx: adapter.addWithUUID(PingReplyDisp(replyI)).ice_datagram(),
                                   type: PingReplyPrx.self)
@@ -158,7 +159,6 @@ public func allTests(_ helper: TestHelper) throws {
 
     output.write("testing udp bi-dir connection... ")
     try obj.ice_getConnection()!.setAdapter(adapter)
-    try objMcast.ice_getConnection()!.setAdapter(adapter)
     for _ in 0 ..< 5 {
         replyI.reset()
         try obj.pingBiDir(reply.ice_getIdentity())
