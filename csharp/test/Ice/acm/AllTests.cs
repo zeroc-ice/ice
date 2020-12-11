@@ -7,7 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.ACM
 {
@@ -161,7 +161,7 @@ namespace ZeroC.Ice.Test.ACM
             Dictionary<string, string> properties = _com.Communicator.GetProperties();
             properties["Ice.IdleTimeout"] = $"{_clientIdleTimeout ?? 2}s";
             properties["Ice.KeepAlive"] = _clientKeepAlive?.ToString() ?? "0";
-            _communicator = _helper.Initialize(properties);
+            _communicator = TestHelper.CreateCommunicator(properties);
             _thread = new Thread(Run);
         }
 
@@ -398,10 +398,9 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
             var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
 
             TextWriter output = helper.Output;
@@ -437,6 +436,7 @@ namespace ZeroC.Ice.Test.ACM
             output.Flush();
             com.Shutdown();
             output.WriteLine("ok");
+            return Task.CompletedTask;
         }
     }
 }
