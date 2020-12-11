@@ -202,7 +202,7 @@ public class AllTests
                 {
                     if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
                     {
-                        // Multicast IPv6 not supported on the platform. This occurs for example on macOS big_suir
+                        // Multicast IPv6 not supported on the platform. This occurs for example on macOS Big Sur
                         out.print("(not supported) ");
                         ret = true;
                         break;
