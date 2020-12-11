@@ -34,7 +34,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    if (_disposeTask != null)
+                    if (_destroyTask != null)
                     {
                         throw new CommunicatorDisposedException();
                     }
@@ -104,7 +104,7 @@ namespace ZeroC.Ice
                                                                         cancel).ConfigureAwait(false);
                     lock (_mutex)
                     {
-                        if (_disposeTask != null)
+                        if (_destroyTask != null)
                         {
                             // If the communicator has been disposed return the connection here and avoid adding the
                             // connection to the outgoing connections map, the connection will be disposed from the
@@ -160,7 +160,7 @@ namespace ZeroC.Ice
                     lock (_mutex)
                     {
                         // Don't modify the pending connections map after the communicator was disposed.
-                        if (_disposeTask == null)
+                        if (_destroyTask == null)
                         {
                             _pendingOutgoingConnections.Remove((endpoint, label));
                         }
@@ -236,7 +236,7 @@ namespace ZeroC.Ice
             // such connections, so that callbacks from the router can be received over such connections.
             lock (_mutex)
             {
-                if (_disposeTask != null)
+                if (_destroyTask != null)
                 {
                     throw new CommunicatorDisposedException();
                 }
