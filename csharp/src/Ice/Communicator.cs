@@ -194,7 +194,7 @@ namespace ZeroC.Ice
 
         internal TimeSpan IdleTimeout { get; }
         internal int IncomingFrameMaxSize { get; }
-        internal bool IsDisposed => _disposeTask != null;
+        internal bool IsDisposed => _destroyTask != null;
         internal bool KeepAlive { get; }
         internal int MaxBidirectionalStreams { get; }
         internal int MaxUnidirectionalStreams { get; }
@@ -242,7 +242,7 @@ namespace ZeroC.Ice
         private volatile IRouterPrx? _defaultRouter;
         private volatile ImmutableList<DispatchInterceptor> _defaultDispatchInterceptors =
             ImmutableList<DispatchInterceptor>.Empty;
-        private Task? _disposeTask;
+        private Task? _destroyTask;
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
@@ -846,24 +846,25 @@ namespace ZeroC.Ice
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Releases resources used by the communicator. This method calls <see cref="ShutdownAsync"/>
-        /// implicitly, and be called multiple times.</summary>
-        public ValueTask DisposeAsync()
+        /// <summary>Releases all resources used by this communicator. This method calls <see cref="ShutdownAsync"/>
+        /// implicitly, and can be called multiple times.</summary>
+        /// <returns>A task that completes when the destruction is complete.</returns>
+        public Task DestroyAsync()
         {
             lock (_mutex)
             {
-                _disposeTask ??= PerformDisposeAsync();
-                return new(_disposeTask);
+                _destroyTask ??= PerformDestroyAsync();
+                return _destroyTask;
             }
 
-            async Task PerformDisposeAsync()
+            async Task PerformDestroyAsync()
             {
                 // Cancel operations that are waiting and using the communicator's cancellation token
                 _cancellationTokenSource.Cancel();
 
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
-                CommunicatorDisposedException disposedException = new();
+                var disposedException = new CommunicatorDisposedException();
                 IEnumerable<Task> closeTasks =
                     _outgoingConnections.Values.SelectMany(connections => connections).Select(
                         connection => connection.GoAwayAsync(disposedException)).Append(ShutdownAsync());
@@ -939,6 +940,11 @@ namespace ZeroC.Ice
         /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
         /// implicitly.</summary>
         public void Dispose() => DisposeAsync().GetResult();
+
+        /// <summary>An alias for <see cref="DestroyAsync"/>, except this method returns a <see cref="ValueTask"/>.
+        /// </summary>
+        /// <returns>A value task constructed using the task returned by DestroyAsync.</returns>
+        public ValueTask DisposeAsync() => new(DestroyAsync());
 
         /// <summary>Returns a facet of the Admin object.</summary>
         /// <param name="facet">The name of the Admin facet.</param>
