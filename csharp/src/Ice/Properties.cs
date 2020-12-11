@@ -13,19 +13,6 @@ namespace ZeroC.Ice
     /// <see cref="Dictionary{TKey, TValue}"/> of strings.</summary>
     public static class Properties
     {
-        // Sub-properties for ice1 proxies
-        private static readonly string[] _suffixes =
-        {
-            "CacheConnection",
-            "InvocationTimeout",
-            "LocatorCacheTimeout",
-            "Locator",
-            "PreferNonSecure",
-            "Relative",
-            "Router",
-            "Context\\..*"
-        };
-
         /// <summary>Gets the value of a property as a bool. If the property is not set, returns null.</summary>
         /// <param name="communicator">The communicator holding the properties.</param>
         /// <param name="name">The property name.</param>
@@ -305,52 +292,6 @@ namespace ZeroC.Ice
             }
 
             args = remaining.ToArray();
-        }
-
-        internal static void CheckForUnknownProperties(this Communicator communicator, string prefix)
-        {
-            // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
-            foreach (string name in PropertyNames.ClassPropertyNames)
-            {
-                if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
-                {
-                    return;
-                }
-            }
-
-            var unknownProps = new List<string>();
-            Dictionary<string, string> props = communicator.GetProperties(forPrefix: $"{prefix}.");
-            foreach (string prop in props.Keys)
-            {
-                bool valid = false;
-                for (int i = 0; i < _suffixes.Length; ++i)
-                {
-                    string pattern = "^" + Regex.Escape(prefix + ".") + _suffixes[i] + "$";
-                    if (new Regex(pattern).Match(prop).Success)
-                    {
-                        valid = true;
-                        break;
-                    }
-                }
-
-                if (!valid)
-                {
-                    unknownProps.Add(prop);
-                }
-            }
-
-            if (unknownProps.Count != 0)
-            {
-                var message = new StringBuilder("found unknown properties for proxy '");
-                message.Append(prefix);
-                message.Append("':");
-                foreach (string s in unknownProps)
-                {
-                    message.Append("\n    ");
-                    message.Append(s);
-                }
-                communicator.Logger.Warning(message.ToString());
-            }
         }
 
         internal static void ValidatePropertyName(this Communicator communicator, string name)
