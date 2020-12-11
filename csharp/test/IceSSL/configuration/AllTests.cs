@@ -998,6 +998,10 @@ public class AllTests
                         {
                             // Chain length too long
                         }
+                        catch(Ice.ConnectionLostException)
+                        {
+                            // Expected
+                        }
                         catch(Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
