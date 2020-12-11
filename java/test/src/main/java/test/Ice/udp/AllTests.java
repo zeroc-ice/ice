@@ -213,7 +213,6 @@ public class AllTests
             out.print("testing udp bi-dir connection... ");
             out.flush();
             obj.ice_getConnection().setAdapter(adapter);
-            objMcast.ice_getConnection().setAdapter(adapter);
             nRetry = 5;
             while(nRetry-- > 0)
             {
