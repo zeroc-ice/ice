@@ -847,7 +847,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Releases all resources used by this communicator. This method calls <see cref="ShutdownAsync"/>
-        /// implicitly, and be called multiple times.</summary>
+        /// implicitly, and can be called multiple times.</summary>
         /// <returns>A task that completes when the destruction is complete.</returns>
         public Task DestroyAsync()
         {
