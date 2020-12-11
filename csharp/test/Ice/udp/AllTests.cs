@@ -149,7 +149,7 @@ namespace Ice
                 //
                 // Use loopback to prevent other machines to answer.
                 //
-                if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+                if(communicator.getProperties().getProperty("Ice.IPv6") == "1")
                 {
                     endpoint.Append("udp -h \"ff15::1:1\"");
                     if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
@@ -174,7 +174,21 @@ namespace Ice
                 while(nRetry-- > 0)
                 {
                     replyI.reset();
-                    objMcast.ping(reply);
+                    try
+                    {
+                        objMcast.ping(reply);
+                    }
+                    catch(Ice.SocketException)
+                    {
+                        if(communicator.getProperties().getProperty("Ice.IPv6") == "1")
+                        {
+                            // Multicast IPv6 not supported on the platform. This occurs for example on macOS big_suir
+                            Console.Out.Write("(not supported) ");
+                            ret = true;
+                            break;
+                        }
+                        throw;
+                    }
                     ret = replyI.waitReply(5, 5000);
                     if(ret)
                     {
@@ -195,7 +209,6 @@ namespace Ice
                 Console.Out.Write("testing udp bi-dir connection... ");
                 Console.Out.Flush();
                 obj.ice_getConnection().setAdapter(adapter);
-                objMcast.ice_getConnection().setAdapter(adapter);
                 nRetry = 5;
                 while(nRetry-- > 0)
                 {
