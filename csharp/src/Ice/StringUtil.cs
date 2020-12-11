@@ -594,10 +594,10 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Concatenates a collection of strings in a format that is compatible with
-        /// <see cref="Communicator.GetPropertyAsList(string)"/>.</summary>
+        /// <see cref="Properties.GetPropertyAsList(Communicator, string)"/>.</summary>
         /// <param name="values">The collection of strings to concatenate.</param>
         /// <returns>The values concatenated in a string that is compatible with
-        /// <see cref="Communicator.GetPropertyAsList(string)"/>.</returns>
+        /// <see cref="Properties.GetPropertyAsList(Communicator, string)"/>.</returns>
         public static string ToPropertyValue(IEnumerable<string> values)
         {
             char[] delimiters = new char[] { ',', ' ', '\n', '\r', '\t' };
