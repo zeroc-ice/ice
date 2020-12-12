@@ -22,21 +22,20 @@ module Ice
 
 #ifdef __SLICE2CS__
 
+    dictionary<varint, ByteSeq> BinaryContext;
+
     /// The priority of this request.
     // TODO: describe semantics.
     unchecked enum Priority : byte
     {
     }
 
-    /// The keys for supported Ice2 connection parameters.
+    /// The keys for supported ice2 connection parameters.
     unchecked enum Ice2ParameterKey : int
     {
         IncomingFrameMaxSize = 0
     }
 
-    /// The body of an ice2 request header. A request header consists of two parts: the frame prologue which contains
-    /// the frame type and frame size, and the request header body that contains the identity, the operation name and
-    /// other optional information.
     [cs:readonly]
     struct Ice2RequestHeaderBody
     {
@@ -47,6 +46,18 @@ module Ice
         bool? \idempotent;       // null equivalent to false
         Priority? priority;      // null equivalent to 0
         varlong deadline;
+    }
+
+    /// Each ice2 request frame has:
+    /// - a frame prologue, with the frame type and the overall frame size.
+    /// - a request header, with the header size, body and binary context.
+    /// - a request payload, whose size is frame size less length of header size less header size
+    [cs:readonly]
+    struct Ice2RequestHeader
+    {
+        varulong headerSize;
+        Ice2RequestHeaderBody body;
+        BinaryContext binaryContext;
     }
 
     /// The type of result carried by an ice2 response frame. The values Success and Failure match the values of OK and

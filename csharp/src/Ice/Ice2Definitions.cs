@@ -21,9 +21,8 @@ namespace ZeroC.Ice
             GoAway = 3
         }
 
-        /// <summary>Writes a request header body without constructing an Ice2RequestHeaderBody instance. This
-        /// implementation is slightly more efficient than the generated code because it avoids the allocation of a
-        /// string[] to write the location.</summary>
+        /// <summary>Writes a request header body This implementation is slightly more efficient than the generated code
+        /// because it avoids the allocation of a string[] to write the location.</summary>
         internal static void WriteIce2RequestHeaderBody(
             this OutputStream ostr,
             Identity identity,

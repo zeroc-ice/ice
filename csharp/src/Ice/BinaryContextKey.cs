@@ -3,7 +3,7 @@
 namespace ZeroC.Ice
 {
     /// <summary>Constants used as keys for BinaryContext entries.</summary>
-    public enum BinaryContext : int
+    public enum BinaryContextKey : int
     {
         /// <summary>Key used to encode the retry policy entry.</summary>
         RetryPolicy = -1

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ZeroC.Ice
@@ -177,6 +178,9 @@ namespace ZeroC.Ice
             }
             else
             {
+                int headerSize = istr.ReadSize();
+                int startPos = istr.Pos;
+
                 var requestHeaderBody = new Ice2RequestHeaderBody(istr);
                 Identity = requestHeaderBody.Identity;
                 Facet = requestHeaderBody.Facet ?? "";
@@ -195,8 +199,12 @@ namespace ZeroC.Ice
 
                 if (Location.Any(segment => segment.Length == 0))
                 {
-                    throw new InvalidDataException("received request with empty location segment");
+                    throw new InvalidDataException("received request with an empty location segment");
                 }
+
+                Debug.Assert(istr.Pos - startPos == headerSize - 1); // temporary
+                // Read binary context from the header (skip it for now)
+                istr.Skip(1);
             }
 
             if (Identity.Name.Length == 0)

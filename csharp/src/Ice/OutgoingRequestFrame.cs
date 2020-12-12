@@ -446,12 +446,15 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice2);
+                OutputStream.Position startPos = ostr.StartFixedLengthSize(2);
                 ostr.WriteIce2RequestHeaderBody(Identity,
                                                 Facet,
                                                 Location,
                                                 Operation,
                                                 IsIdempotent,
                                                 Deadline);
+                ostr.WriteSize(0); // TODO: placeholder for binary context
+                ostr.EndFixedLengthSize(startPos, 2);
             }
             PayloadStart = ostr.Tail;
 

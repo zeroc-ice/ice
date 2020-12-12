@@ -380,7 +380,7 @@ namespace ZeroC.Ice
             }
             else if (Encoding == Encoding.V20 && exception.RetryPolicy.Retryable != Retryable.No)
             {
-                AddBinaryContextEntry((int)BinaryContext.RetryPolicy, exception.RetryPolicy, (ostr, retryPolicy) =>
+                AddBinaryContextEntry((int)BinaryContextKey.RetryPolicy, exception.RetryPolicy, (ostr, retryPolicy) =>
                 {
                     ostr.Write(retryPolicy.Retryable);
                     if (retryPolicy.Retryable == Retryable.AfterDelay)

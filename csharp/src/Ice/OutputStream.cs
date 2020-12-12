@@ -1121,8 +1121,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Computes the amount of data written from the start position to the current position and writes that
-        /// size at the start position (as a fixed-length 4-bytes size). The size does not include its own encoded
-        /// length.</summary>
+        /// size at the start position (as a fixed-length size). The size does not include its own encoded length.
+        /// </summary>
         /// <param name="start">The start position.</param>
         /// <param name="sizeLength">The number of bytes used to marshal the size 1, 2 or 4.</param>
         internal void EndFixedLengthSize(Position start, int sizeLength = DefaultSizeLength)

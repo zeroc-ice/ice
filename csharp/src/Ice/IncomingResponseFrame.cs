@@ -245,7 +245,7 @@ namespace ZeroC.Ice
             {
                 retryPolicy = Ice1Definitions.GetRetryPolicy(this, reference);
             }
-            else if (BinaryContext.TryGetValue((int)Ice.BinaryContext.RetryPolicy,
+            else if (BinaryContext.TryGetValue((int)Ice.BinaryContextKey.RetryPolicy,
                                                out ReadOnlyMemory<byte> value))
             {
                 retryPolicy = value.Read(istr => new RetryPolicy(istr));
