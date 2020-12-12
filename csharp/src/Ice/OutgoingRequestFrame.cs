@@ -18,22 +18,14 @@ namespace ZeroC.Ice
         /// account the invocation timeout and the cancellation token provided by the application.</summary>
         public CancellationToken CancellationToken => _linkedCancellationSource.Token;
 
-        /// <summary>ContextOverride is a writable version of Context, available only for ice2. Its entries are always
-        /// the same as Context's entries.</summary>
+        /// <summary>ContextOverride is a writable version of Context. Its entries are always the same as Context's
+        /// entries.</summary>
         public SortedDictionary<string, string> ContextOverride
         {
             get
             {
-                if (_contextOverride == null)
-                {
-                    if (Protocol == Protocol.Ice1)
-                    {
-                        throw new InvalidOperationException("cannot change the context of an ice1 request frame");
-                    }
-                    // lazy initialization
-                    _contextOverride =
-                        new SortedDictionary<string, string>((IDictionary<string, string>)_initialContext);
-                }
+                // lazy initialization
+                _contextOverride ??= new SortedDictionary<string, string>((IDictionary<string, string>)_initialContext);
                 return _contextOverride;
             }
         }

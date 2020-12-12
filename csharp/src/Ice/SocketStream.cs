@@ -52,11 +52,12 @@ namespace ZeroC.Ice
         public bool IsControl { get; }
 
         /// <summary>The transport header sentinel. Transport implementations that need to add an additional header
-        /// to transmit data over the stream can provide the header data here. This will can improve performances by
-        /// reducing the number of allocation as Ice will allocated buffer space for both the transport header and
+        /// to transmit data over the stream can provide the header data here. This will can improve performance by
+        /// reducing the number of allocations as Ice will allocate buffer space for both the transport header and
         /// the Ice protocol header. If a header is returned here, the implementation of the SendAsync method should
         /// this header to be set at the start of the first segment.</summary>
-        protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
+        // TODO: review summary above!
+        protected virtual ReadOnlyMemory<byte> Header => default;
         protected abstract bool ReceivedEndOfStream { get; }
 
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>

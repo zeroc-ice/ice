@@ -11,7 +11,6 @@ namespace ZeroC.Ice
     /// Ice1 protocol.</summary>
     internal class Ice1NetworkSocketStream : SignaledSocketStream<(Ice1Definitions.FrameType, ArraySegment<byte>)>
     {
-        protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
         internal int RequestId => IsBidirectional ? ((int)(Id >> 2) + 1) : 0;
         private bool _receivedEndOfStream;

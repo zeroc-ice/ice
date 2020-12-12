@@ -12,7 +12,6 @@ namespace ZeroC.Ice
     /// <summary>The SocketStream class for the colocated transport.</summary>
     internal class ColocatedStream : SignaledSocketStream<(object, bool)>
     {
-        protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
 
         private bool _receivedEndOfStream;
