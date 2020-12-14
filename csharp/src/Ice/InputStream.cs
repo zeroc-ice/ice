@@ -1171,6 +1171,18 @@ namespace ZeroC.Ice
             return endpoint;
         }
 
+        internal ReadOnlyMemory<byte> ReadMemory(int size)
+        {
+            if (size < 0 || size > _buffer.Length - Pos)
+            {
+                throw new IndexOutOfRangeException($"cannot read {size} bytes");
+            }
+
+            int start = Pos;
+            Pos += size;
+            return _buffer.Slice(start, size);
+        }
+
         internal void Skip(int size)
         {
             if (size < 0 || size > _buffer.Length - Pos)
