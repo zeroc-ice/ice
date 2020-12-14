@@ -108,7 +108,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
             bool wide = (typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
             if(wide || cpp11)
             {
-                out << (wide ? "L\"" : "\"");
+                out << (wide ? "L\"" : "u8\"");
                 out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, cpp11 ? 0 : 0x9F + 1);
                 out << "\"";
             }
