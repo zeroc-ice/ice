@@ -487,6 +487,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 
         string opName = op->name();
         _out << sp;
+        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
         if(!p->isInterface())
         {
             emitGeneratedCodeAttribute();
@@ -1065,6 +1066,21 @@ Slice::CsVisitor::emitGeneratedCodeAttribute()
 void
 Slice::CsVisitor::emitPartialTypeAttributes()
 {
+    //
+    // We are not supposed to mark an entire partial type with GeneratedCodeAttribute, therefore
+    // FxCop may complain about naming convention violations. These attributes suppress those
+    // warnings, but only when the generated code is compiled with /define:CODE_ANALYSIS.
+    //
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1704\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1707\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1709\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1710\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1711\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1715\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1716\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1720\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1722\")]";
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Naming\", \"CA1724\")]";
 }
 
 string
@@ -1955,37 +1971,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 
     printGeneratedHeader(_out, fileBase + ".ice");
 
-    _out << nl << "#pragma warning disable IDE0022 // Use expression body for methods";
-    _out << nl << "#pragma warning disable IDE0079 // Remove unnecessary suppression";
-    _out << nl << "#pragma warning disable IDE1006 // Naming rule violation";
-
-    _out << nl << "#pragma warning disable CA1011 // Consider passing base types as parameters";
-    _out << nl << "#pragma warning disable CA1012 // Abstract types should not have constructors";
-    _out << nl << "#pragma warning disable CA1032 // Implement standard exception constructors";
-    _out << nl << "#pragma warning disable CA1704 // Identifiers should be spelled correctly";
-    _out << nl << "#pragma warning disable CA1707 // Remove the underscores from member name";
-    _out << nl << "#pragma warning disable CA1709 // Identifiers should be cased correctly";
-    _out << nl << "#pragma warning disable CA1710 // Identifiers should have correct suffix";
-    _out << nl << "#pragma warning disable CA1711 // Identifiers should not have incorrect suffix";
-    _out << nl << "#pragma warning disable CA1715 // Identifiers should have correct prefix";
-    _out << nl << "#pragma warning disable CA1716 // Identifiers should not match keywords";
-    _out << nl << "#pragma warning disable CA1720 // Identifiers should not contain type names";
-    _out << nl << "#pragma warning disable CA1722 // Identifiers should not have incorrect prefix";
-    _out << nl << "#pragma warning disable CA1724 // Type names should not match namespaces";
-    _out << nl << "#pragma warning disable SA1028 // Code should not contain trailing whitespace";
-    _out << nl << "#pragma warning disable SA1201 // Elements should appear in the correct order";
-    _out << nl << "#pragma warning disable SA1300 // Element must begin with upper case letter";
-    _out << nl << "#pragma warning disable SA1302 // Interface names should begin with I";
-    _out << nl << "#pragma warning disable SA1306 // Field names must begin with lower case letter";
-    _out << nl << "#pragma warning disable SA1309 // Field names must not begin with underscore";
-    _out << nl << "#pragma warning disable SA1312 // Variable names must begin with lower case letter";
-    _out << nl << "#pragma warning disable SA1313 // Parameter names must begin with lower case letter";
-    _out << nl << "#pragma warning disable SA1403 // Field my only contain a single namespace";
-    _out << nl << "#pragma warning disable SA1507 // Code should not contain multiple blank lines in a row";
-    _out << nl << "#pragma warning disable SA1513 // Closing brace should be followed by blank line";
-    _out << nl << "#pragma warning disable SA1516 // Elements should be separated by blank line";
-    _out << nl << "#pragma warning disable SA1600 // Elements should be documented";
-    _out << nl << "#pragma warning disable SA1601 // Partial elements should be documented";
+    _out << sp << nl << "using _System = global::System;";
 
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
 
@@ -2066,6 +2052,7 @@ Slice::Gen::generate(const UnitPtr& p)
 void
 Slice::Gen::generateImpl(const UnitPtr& p)
 {
+    _impl << sp << nl << "using _System = global::System;";
     ImplVisitor implVisitor(_impl);
     p->visit(&implVisitor, false);
 }
@@ -2073,6 +2060,7 @@ Slice::Gen::generateImpl(const UnitPtr& p)
 void
 Slice::Gen::generateImplTie(const UnitPtr& p)
 {
+    _impl << sp << nl << "using _System = global::System;";
     ImplTieVisitor implTieVisitor(_impl);
     p->visit(&implTieVisitor, false);
 }
@@ -2380,6 +2368,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         emitComVisibleAttribute();
         emitPartialTypeAttributes();
         _out << nl << "[global::System.Serializable]";
+        if(p->allOperations().size() > 0) // See bug 4747
+        {
+            _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1012\")]";
+        }
         _out << nl << "public ";
         if(p->isLocal() && p->allOperations().size() > 0) // Don't use isAbstract() here - see bug 3739
         {
@@ -2702,6 +2694,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     emitDeprecate(p, 0, _out, "type");
     emitAttributes(p);
     emitComVisibleAttribute();
+    //
+    // Suppress FxCop diagnostic about a missing constructor MyException(String).
+    //
+    _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
     _out << nl << "[global::System.Serializable]";
 
     emitPartialTypeAttributes();
