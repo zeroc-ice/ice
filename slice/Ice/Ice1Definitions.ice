@@ -41,8 +41,7 @@ module Ice
         \Idempotent
     }
 
-    /// The body of an ice1 request header. A request header consists of two parts: a prologue which contains the frame
-    /// type and frame size (and more) and a body which contains the target's identity, operation name and more.
+    /// The body of an ice1 request header.
     [cs:readonly]
     struct Ice1RequestHeaderBody
     {

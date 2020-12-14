@@ -1,6 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -267,6 +269,27 @@ namespace ZeroC.Ice
             };
 
             return (value, buffer[0].ReadVarLongLength());
+        }
+
+        /// <summary>Returns a binary context "view" over this buffer.</summary>
+        internal static IReadOnlyDictionary<int, ReadOnlyMemory<byte>> ToBinaryContext(this ReadOnlyMemory<byte> buffer)
+        {
+            if (buffer.Length > 0)
+            {
+                var istr = new InputStream(buffer, Encoding.V20);
+                int dictionarySize = istr.ReadSize();
+                var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
+                for (int i = 0; i < dictionarySize; ++i)
+                {
+                    (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
+                    binaryContext[key] = value;
+                }
+                return binaryContext;
+            }
+            else
+            {
+                return ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
+            }
         }
 
         internal static void WriteEncapsulationSize(this Span<byte> buffer, int size, Encoding encoding)
