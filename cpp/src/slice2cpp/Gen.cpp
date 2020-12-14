@@ -109,7 +109,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& constType, const
                 case Builtin::KindString:
                 {
                     bool wide = (typeContext & TypeContextUseWstring) || findMetadata(metadata) == "wstring";
-                    out << (wide ? "L\"" : "u8\"");
+                    out << (wide ? "L\"" : "\"");
                     out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, 0);
                     out << "\"";
                     break;
