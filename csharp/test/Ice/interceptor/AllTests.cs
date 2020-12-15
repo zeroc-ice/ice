@@ -90,19 +90,19 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
+                        request.ContextOverride["interceptor-1"] = "interceptor-1";
                         if (ice2)
                         {
-                            request.ContextOverride["interceptor-1"] = "interceptor-1";
                             request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
                         }
                         return next(target, request, cancel);
                     },
                     async (target, request, next, cancel) =>
                     {
+                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                        request.ContextOverride["interceptor-2"] = "interceptor-2";
                         if (ice2)
                         {
-                            TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                            request.ContextOverride["interceptor-2"] = "interceptor-2";
                             request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
                         }
                         IncomingResponseFrame response = await next(target, request, cancel);
@@ -139,10 +139,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        if (ice2)
-                        {
-                            request.ContextOverride["interceptor-1"] = "interceptor-1";
-                        }
+                        request.ContextOverride["interceptor-1"] = "interceptor-1";
                         return next(target, request, cancel);
                     },
                     async (target, request, next, cancel) =>
@@ -328,46 +325,42 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 var communicator = helper.Communicator!;
 
-                if (ice2)
-                {
-                    // This test use ContextOverride not supported with ice1
-                    SortedDictionary<string, string>? context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(!context.ContainsKey("context3"));
-                    prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
-                        (target, request, next, cancel) =>
-                        {
-                            request.ContextOverride["context2"] = "proxy";
-                            request.ContextOverride["context3"] = "proxy";
-                            return next(target, request, cancel);
-                        }).AddRange(communicator.DefaultInvocationInterceptors));
-                    context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(context["context3"] == "proxy");
+                SortedDictionary<string, string>? context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(!context.ContainsKey("context3"));
+                prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
+                    (target, request, next, cancel) =>
+                    {
+                        request.ContextOverride["context2"] = "proxy";
+                        request.ContextOverride["context3"] = "proxy";
+                        return next(target, request, cancel);
+                    }).AddRange(communicator.DefaultInvocationInterceptors));
+                context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(context["context3"] == "proxy");
 
-                    // Calling next twice doesn't change the result
-                    prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
-                        (target, request, next, cancel) =>
-                        {
-                            request.ContextOverride["context2"] = "proxy";
-                            request.ContextOverride["context3"] = "proxy";
-                            _ = next(target, request, cancel);
-                            return next(target, request, cancel);
-                        }).AddRange(communicator.DefaultInvocationInterceptors));
-                    context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(context["context3"] == "proxy");
+                // Calling next twice doesn't change the result
+                prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
+                    (target, request, next, cancel) =>
+                    {
+                        request.ContextOverride["context2"] = "proxy";
+                        request.ContextOverride["context3"] = "proxy";
+                        _ = next(target, request, cancel);
+                        return next(target, request, cancel);
+                    }).AddRange(communicator.DefaultInvocationInterceptors));
+                context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(context["context3"] == "proxy");
 
-                    // Cloning the proxy preserve its interceptors
-                    prx = prx.Clone(invocationTimeout: TimeSpan.FromSeconds(10));
-                    context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(context["context3"] == "proxy");
-                }
+                // Cloning the proxy preserve its interceptors
+                prx = prx.Clone(invocationTimeout: TimeSpan.FromSeconds(10));
+                context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(context["context3"] == "proxy");
 
                 // The server increments the result with each call when using the invocation interceptor we
                 // return a cached response, and we will see the same result with each call.
