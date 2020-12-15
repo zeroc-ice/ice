@@ -360,7 +360,8 @@ namespace ZeroC.Ice
                                                 Location,
                                                 Operation,
                                                 IsIdempotent,
-                                                Deadline);
+                                                Deadline,
+                                                Context);
                 ostr.WriteSize(0); // TODO: placeholder for binary context
                 ostr.EndFixedLengthSize(startPos, 2);
             }

@@ -195,7 +195,7 @@ namespace ZeroC.Ice
                 // The infinite deadline is encoded as -1 and converted to DateTime.MaxValue
                 Deadline = requestHeaderBody.Deadline == -1 ?
                     DateTime.MaxValue : DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
-                Context = null!; // initialized below
+                Context = requestHeaderBody.Context ?? new SortedDictionary<string, string>();
 
                 if (Location.Any(segment => segment.Length == 0))
                 {
@@ -221,22 +221,6 @@ namespace ZeroC.Ice
                 Data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
             Payload = Data.Slice(istr.Pos, size + sizeLength); // the payload is the encapsulation
-
-            if (Protocol == Protocol.Ice2)
-            {
-                // BinaryContext is a computed property that depends on Payload.
-                if (BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
-                {
-                    Context = value.Read(istr => istr.ReadSortedDictionary(minKeySize: 1,
-                                                                           minValueSize: 1,
-                                                                           InputStream.IceReaderIntoString,
-                                                                           InputStream.IceReaderIntoString));
-                }
-                else
-                {
-                    Context = new SortedDictionary<string, string>();
-                }
-            }
 
             if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != data.Count)
             {

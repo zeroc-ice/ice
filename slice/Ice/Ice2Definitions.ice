@@ -12,6 +12,7 @@
 [[python:pkgdir(Ice)]]
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Context.ice>
 #include <Ice/Identity.ice>
 
 [[java:package(com.zeroc)]]
@@ -54,6 +55,7 @@ module Ice
         bool? \idempotent;       // null equivalent to false
         Priority? priority;      // null equivalent to 0
         varlong deadline;
+        Context? context;        // null equivalent to empty context
     }
 
     /// Each ice2 request frame has:

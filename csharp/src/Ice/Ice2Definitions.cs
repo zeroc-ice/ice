@@ -21,10 +21,11 @@ namespace ZeroC.Ice
             IReadOnlyList<string> location,
             string operation,
             bool idempotent,
-            DateTime deadline)
+            DateTime deadline,
+            IReadOnlyDictionary<string, string> context)
         {
             Debug.Assert(ostr.Encoding == Encoding);
-            BitSequence bitSequence = ostr.WriteBitSequence(4); // bit set to true (set) by default
+            BitSequence bitSequence = ostr.WriteBitSequence(5); // bit set to true (set) by default
 
             identity.IceWrite(ostr);
             if (facet.Length > 0)
@@ -61,6 +62,15 @@ namespace ZeroC.Ice
             // DateTime.MaxValue represents an infinite deadline and it is encoded as -1
             ostr.WriteVarLong(
                 deadline == DateTime.MaxValue ? -1 : (long)(deadline - DateTime.UnixEpoch).TotalMilliseconds);
+
+            if (context.Count > 0)
+            {
+                ostr.WriteDictionary(context, OutputStream.IceWriterFromString, OutputStream.IceWriterFromString);
+            }
+            else
+            {
+                bitSequence[4] = false;
+            }
         }
     }
 }
