@@ -11,24 +11,12 @@ namespace ZeroC.Ice
     /// <summary>Represents an ice1 or ice2 request frame sent by the application.</summary>
     public sealed class OutgoingRequestFrame : OutgoingFrame, IDisposable
     {
-        /// <summary>The context of this request frame.</summary>
-        public IReadOnlyDictionary<string, string> Context => _contextOverride ?? _initialContext;
+        /// <summary>The context of this request frame as a read-only dictionary.</summary>
+        public IReadOnlyDictionary<string, string> Context => _writableContext ?? _initialContext;
 
         /// <summary>A cancellation token that receives the cancellation requests. The cancellation token takes into
         /// account the invocation timeout and the cancellation token provided by the application.</summary>
         public CancellationToken CancellationToken => _linkedCancellationSource.Token;
-
-        /// <summary>ContextOverride is a writable version of Context. Its entries are always the same as Context's
-        /// entries.</summary>
-        public SortedDictionary<string, string> ContextOverride
-        {
-            get
-            {
-                // lazy initialization
-                _contextOverride ??= new SortedDictionary<string, string>((IDictionary<string, string>)_initialContext);
-                return _contextOverride;
-            }
-        }
 
         /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
         /// caller is no longer interested in the response and discards the request. The server-side runtime does not
@@ -56,7 +44,18 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        private SortedDictionary<string, string>? _contextOverride;
+        /// <summary>WritableContext is writable version of Context. Its entries are always the same as Context's
+        /// entries.</summary>
+        public SortedDictionary<string, string> WritableContext
+        {
+            get
+            {
+                _writableContext ??= new SortedDictionary<string, string>((IDictionary<string, string>)_initialContext);
+                return _writableContext;
+            }
+        }
+
+        private SortedDictionary<string, string>? _writableContext;
         private readonly ArraySegment<byte> _defaultBinaryContext;
         private readonly IReadOnlyDictionary<string, string> _initialContext;
         private readonly CancellationTokenSource? _invocationTimeoutCancellationSource;

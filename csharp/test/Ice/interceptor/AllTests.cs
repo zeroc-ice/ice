@@ -90,7 +90,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        request.ContextOverride["interceptor-1"] = "interceptor-1";
+                        request.WritableContext["interceptor-1"] = "interceptor-1";
                         if (ice2)
                         {
                             request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
@@ -100,7 +100,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     async (target, request, next, cancel) =>
                     {
                         TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                        request.ContextOverride["interceptor-2"] = "interceptor-2";
+                        request.WritableContext["interceptor-2"] = "interceptor-2";
                         if (ice2)
                         {
                             request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
@@ -139,7 +139,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        request.ContextOverride["interceptor-1"] = "interceptor-1";
+                        request.WritableContext["interceptor-1"] = "interceptor-1";
                         return next(target, request, cancel);
                     },
                     async (target, request, next, cancel) =>
@@ -178,7 +178,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        request.ContextOverride["interceptor-1"] = "interceptor-1";
+                        request.WritableContext["interceptor-1"] = "interceptor-1";
                         return next(target, request, cancel);
                     },
                     (target, request, next, cancel) =>
@@ -332,8 +332,8 @@ namespace ZeroC.Ice.Test.Interceptor
                 prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        request.ContextOverride["context2"] = "proxy";
-                        request.ContextOverride["context3"] = "proxy";
+                        request.WritableContext["context2"] = "proxy";
+                        request.WritableContext["context3"] = "proxy";
                         return next(target, request, cancel);
                     }).AddRange(communicator.DefaultInvocationInterceptors));
                 context = prx.Op2();
@@ -345,8 +345,8 @@ namespace ZeroC.Ice.Test.Interceptor
                 prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        request.ContextOverride["context2"] = "proxy";
-                        request.ContextOverride["context3"] = "proxy";
+                        request.WritableContext["context2"] = "proxy";
+                        request.WritableContext["context3"] = "proxy";
                         _ = next(target, request, cancel);
                         return next(target, request, cancel);
                     }).AddRange(communicator.DefaultInvocationInterceptors));
