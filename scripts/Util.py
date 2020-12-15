@@ -631,6 +631,7 @@ class Mapping(object):
             self.device = ""
             self.avd = ""
             self.phpVersion = "7.1"
+            self.python = sys.executable
 
             parseOptions(self, options, { "config" : "buildConfig", "platform" : "buildPlatform" })
 
@@ -3423,6 +3424,7 @@ class CSharpMapping(Mapping):
         @classmethod
         def usage(self):
             print("")
+            print("C# mapping options:")
             print("--dotnetcore                    Run C# tests using .NET Core")
             print("--framework=<TargetFramework>   Choose the framework used to run .NET tests")
 
@@ -3671,8 +3673,21 @@ class PythonMapping(CppBasedMapping):
         mappingName = "python"
         mappingDesc = "Python"
 
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["python="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("Python mapping options:")
+            print("--python=<interpreter>   Choose the interperter used to run python tests")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+
     def getCommandLine(self, current, process, exe, args):
-        return "\"{0}\"  {1} {2} {3}".format(sys.executable,
+        return "\"{0}\"  {1} {2} {3}".format(current.config.python,
                                              os.path.join(self.path, "test", "TestHelper.py"),
                                              exe,
                                              args)
