@@ -2571,11 +2571,13 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
              << p->scoped() << "\";";
 
         _out << sp;
+        emitGeneratedCodeAttribute();
         _out << nl << "public static new string ice_staticId()";
         _out << sb;
         _out << nl << "return _id;";
         _out << eb;
 
+        emitGeneratedCodeAttribute();
         _out << nl << "public override string ice_id()";
         _out << sb;
         _out << nl << "return _id;";
