@@ -556,6 +556,8 @@ def create_platform_targets(project, platform, bindist)
     #
     unless bindist
         scheme = Xcodeproj::XCScheme.new
+        scheme.add_build_target(iceimpl_target)
+        scheme.add_build_target(ice_target)
         scheme.add_build_target(glacier2_target)
         scheme.add_build_target(icestorm_target)
         scheme.add_build_target(icegrid_target)
