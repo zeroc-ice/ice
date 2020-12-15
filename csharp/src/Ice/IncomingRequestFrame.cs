@@ -44,7 +44,7 @@ namespace ZeroC.Ice
 
         // The optional socket stream. The stream is non-null if there's still data to read over the stream
         // after the reading of the request frame.
-        private SocketStream? _socketStream;
+        internal SocketStream? SocketStream { get; set; }
 
         /// <summary>Constructs an incoming request frame.</summary>
         /// <param name="protocol">The Ice protocol.</param>
@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Releases resources used by the request frame.</summary>
-        public void Dispose() => _socketStream?.TryDispose();
+        public void Dispose() => SocketStream?.TryDispose();
 
         /// <summary>Reads the arguments from the request and makes sure this request carries no argument or only
         /// unknown tagged arguments.</summary>
@@ -67,7 +67,7 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (_socketStream != null)
+            if (SocketStream != null)
             {
                 throw new InvalidDataException("stream data available for operation without stream parameter");
             }
@@ -87,7 +87,7 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (_socketStream != null)
+            if (SocketStream != null)
             {
                 throw new InvalidDataException("stream data available for operation without stream parameter");
             }
@@ -105,16 +105,16 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (_socketStream == null)
+            if (SocketStream == null)
             {
                 throw new InvalidDataException("no stream data available for operation with stream parameter");
             }
 
             Payload.AsReadOnlyMemory().ReadEmptyEncapsulation(Protocol.GetEncoding());
-            T value = reader(_socketStream);
+            T value = reader(SocketStream);
             // Clear the socket stream to ensure it's not disposed with the request frame. It's now the
             // responsibility of the stream parameter object to dispose the socket stream.
-            _socketStream = null;
+            SocketStream = null;
             return value;
         }
 
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (_socketStream == null)
+            if (SocketStream == null)
             {
                 throw new InvalidDataException("no stream data available for operation with stream parameter");
             }
@@ -139,10 +139,10 @@ namespace ZeroC.Ice
                                        Protocol.GetEncoding(),
                                        connection: connection,
                                        startEncapsulation: true);
-            T value = reader(istr, _socketStream);
+            T value = reader(istr, SocketStream);
             // Clear the socket stream to ensure it's not disposed with the request frame. It's now the
             // responsibility of the stream parameter object to dispose the socket stream.
-            _socketStream = null;
+            SocketStream = null;
             istr.CheckEndOfBuffer(skipTaggedParams: true);
             return value;
         }
@@ -160,7 +160,7 @@ namespace ZeroC.Ice
             SocketStream? socketStream)
             : base(data, protocol, maxSize)
         {
-            _socketStream = socketStream;
+            SocketStream = socketStream;
 
             var istr = new InputStream(Data, Protocol.GetEncoding());
 
@@ -247,6 +247,28 @@ namespace ZeroC.Ice
 
             Encoding = encoding;
             HasCompressedPayload = Encoding == Encoding.V20 && Payload[sizeLength + 2] != 0;
+        }
+
+        /// <summary>Constructs an incoming request frame from an outgoing request frame. Used for colocated calls.
+        /// </summary>
+        /// <param name="request">The outgoing request frame.</param>
+        internal IncomingRequestFrame(OutgoingRequestFrame request)
+            : base(request.Data.AsArraySegment(), request.Protocol, int.MaxValue)
+        {
+            Identity = request.Identity;
+            Facet = request.Facet;
+            Location = request.Location;
+            Operation = request.Operation;
+            IsIdempotent = request.IsIdempotent;
+            Context = new Dictionary<string, string>(request.Context); // TODO: revisit
+
+            Priority = default;
+            Deadline = request.Deadline;
+
+            Encoding = request.Encoding;
+
+            Payload = Data.Slice(0, request.Payload.GetByteCount());
+            HasCompressedPayload = request.HasCompressedPayload;
         }
 
         private protected override ArraySegment<byte> GetEncapsulation() => Payload;

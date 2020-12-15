@@ -279,11 +279,10 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
             : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context, cancel)
         {
+            Encoding = request.Encoding;
+
             if (request.Protocol == Protocol)
             {
-                // Finish off current segment
-                Data[^1] = Data[^1].Slice(0, PayloadStart.Offset);
-
                 // We only include the encapsulation.
                 Data.Add(request.Payload);
                 PayloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);

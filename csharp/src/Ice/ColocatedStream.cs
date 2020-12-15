@@ -81,8 +81,102 @@ namespace ZeroC.Ice
             {
                 // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
                 // code which could end up blocking the AcceptStreamAsync task.
-                SignalCompletion((frame, fin), runContinuationAsynchronously: frame is OutgoingResponseFrame);
+                SignalCompletion((frame, fin), runContinuationAsynchronously: frame is IncomingResponseFrame);
             }
+        }
+
+        internal override async ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
+        {
+            (object frameObject, bool fin) = await WaitSignalAsync(cancel).ConfigureAwait(false);
+            var frame = (IncomingRequestFrame)frameObject;
+
+            if (fin)
+            {
+                _receivedEndOfStream = true;
+            }
+            else
+            {
+                frame.SocketStream = this;
+                Interlocked.Increment(ref _useCount);
+            }
+            return frame;
+        }
+
+        internal override async ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
+        {
+            object frameObject;
+            bool fin;
+
+            try
+            {
+                (frameObject, fin) = await WaitSignalAsync(cancel).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                if (_socket.Endpoint.Protocol != Protocol.Ice1)
+                {
+                    await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
+                }
+                throw;
+            }
+
+            var frame = (IncomingResponseFrame)frameObject;
+
+            if (fin)
+            {
+                _receivedEndOfStream = true;
+            }
+            else
+            {
+                frame.SocketStream = this;
+                Interlocked.Increment(ref _useCount);
+            }
+
+            return frame;
+        }
+
+        internal override async ValueTask SendRequestFrameAsync(OutgoingRequestFrame request, CancellationToken cancel)
+        {
+            try
+            {
+                bool fin = request.StreamDataWriter == null;
+                var incomingRequestFrame = new IncomingRequestFrame(request);
+                await _socket.SendFrameAsync(this, incomingRequestFrame, fin, cancel).ConfigureAwait(false);
+
+                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+                {
+                    TraceFrame(request);
+                }
+
+                // If there's a stream data writer, we can start streaming the data.
+                request.StreamDataWriter?.Invoke(this);
+            }
+            catch (OperationCanceledException)
+            {
+                if (IsStarted && _socket.Endpoint.Protocol != Protocol.Ice1)
+                {
+                    await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
+                }
+                throw;
+            }
+        }
+
+        internal override async ValueTask SendResponseFrameAsync(
+            OutgoingResponseFrame response,
+            CancellationToken cancel)
+        {
+            bool fin = response.StreamDataWriter == null;
+            var incomingResponseFrame = new IncomingResponseFrame(response);
+
+            await _socket.SendFrameAsync(this, incomingResponseFrame, fin, cancel).ConfigureAwait(false);
+
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            {
+                TraceFrame(response);
+            }
+
+            // If there's a stream data writer, we can start streaming the data.
+            response.StreamDataWriter?.Invoke(this);
         }
 
         private protected override async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
@@ -95,11 +189,7 @@ namespace ZeroC.Ice
                 _receivedEndOfStream = true;
             }
 
-            if (frame is OutgoingFrame outgoingFrame)
-            {
-                return outgoingFrame.Data.AsArraySegment();
-            }
-            else if (frame is List<ArraySegment<byte>> data)
+            if (frame is List<ArraySegment<byte>> data)
             {
                 // Initialize or GoAway frame.
                 if (_socket.Endpoint.Protocol == Protocol.Ice1)
@@ -136,17 +226,6 @@ namespace ZeroC.Ice
             }
             TryDispose();
             return frame;
-        }
-
-        private protected override async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)
-        {
-            bool fin = frame.StreamDataWriter == null;
-            await _socket.SendFrameAsync(this, frame, fin, cancel).ConfigureAwait(false);
-
-            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-            {
-                TraceFrame(frame);
-            }
         }
     }
 }

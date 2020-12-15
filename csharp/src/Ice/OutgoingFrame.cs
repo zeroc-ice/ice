@@ -26,6 +26,8 @@ namespace ZeroC.Ice
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
 
+        public bool HasCompressedPayload { get; private set; }
+
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
         public bool IsSealed { get; private protected set; }
 
@@ -246,6 +248,8 @@ namespace ZeroC.Ice
                     Protocol.GetEncoding());
 
                 _payload = null; // reset cache
+
+                HasCompressedPayload = true;
 
                 return CompressionResult.Success;
             }

@@ -16,13 +16,13 @@ namespace ZeroC.Ice
         /// <summary>The <see cref="ZeroC.Ice.ResultType"/> of this response frame.</summary>
         public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
 
+        // The optional socket stream. The stream is non-null if there's still data to read over the stream
+        // after the reading of the response frame.
+        internal SocketStream? SocketStream { get; set; }
+
         private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
             _cachedVoidReturnValueFrames =
                 new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
-
-        // The optional socket stream. The stream is non-null if there's still data to read over the stream
-        // after the reading of the response frame.
-        private SocketStream? _socketStream;
 
         /// <summary>Constructs an incoming response frame.</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
@@ -34,7 +34,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Releases resources used by the response frame.</summary>
-        public void Dispose() => _socketStream?.TryDispose();
+        public void Dispose() => SocketStream?.TryDispose();
 
         /// <summary>Reads the return value. If this response frame carries a failure, reads and throws this exception.
         /// </summary>
@@ -51,7 +51,7 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (_socketStream != null)
+            if (SocketStream != null)
             {
                 throw new InvalidDataException("stream data available for operation without stream parameter");
             }
@@ -83,7 +83,7 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                if (_socketStream == null)
+                if (SocketStream == null)
                 {
                     throw new InvalidDataException("no stream data available for operation with stream parameter");
                 }
@@ -92,16 +92,16 @@ namespace ZeroC.Ice
                                            Protocol.GetEncoding(),
                                            reference: proxy?.IceReference,
                                            startEncapsulation: true);
-                T value = reader(istr, _socketStream);
+                T value = reader(istr, SocketStream);
                 // Clear the socket stream to ensure it's not disposed with the response frame. It's now the
                 // responsibility of the stream parameter object to dispose the socket stream.
-                _socketStream = null;
+                SocketStream = null;
                 istr.CheckEndOfBuffer(skipTaggedParams: true);
                 return value;
             }
             else
             {
-                if (_socketStream != null)
+                if (SocketStream != null)
                 {
                     throw new InvalidDataException("stream data available with remote exception result");
                 }
@@ -125,20 +125,20 @@ namespace ZeroC.Ice
 
             if (ResultType == ResultType.Success)
             {
-                if (_socketStream == null)
+                if (SocketStream == null)
                 {
                     throw new InvalidDataException("no stream data available for operation with stream parameter");
                 }
                 Payload.AsReadOnlyMemory(1).ReadEmptyEncapsulation(Protocol.GetEncoding());
-                T value = reader(_socketStream);
+                T value = reader(SocketStream);
                 // Clear the socket stream to ensure it's not disposed with the response frame. It's now the
                 // responsibility of the stream parameter object to dispose the socket stream.
-                _socketStream = null;
+                SocketStream = null;
                 return value;
             }
             else
             {
-                if (_socketStream != null)
+                if (SocketStream != null)
                 {
                     throw new InvalidDataException("stream data available with remote exception result");
                 }
@@ -157,7 +157,7 @@ namespace ZeroC.Ice
                 DecompressPayload();
             }
 
-            if (_socketStream != null)
+            if (SocketStream != null)
             {
                 throw new InvalidDataException("stream data available for operation without stream parameter");
             }
@@ -197,7 +197,7 @@ namespace ZeroC.Ice
             SocketStream? socketStream)
             : base(data, protocol, maxSize)
         {
-            _socketStream = socketStream;
+            SocketStream = socketStream;
 
             bool hasEncapsulation = false;
 
@@ -236,6 +236,17 @@ namespace ZeroC.Ice
             {
                 Payload = Data;
             }
+        }
+
+        /// <summary>Constructs an incoming response frame from an outgoing response frame. Used for colocated calls.
+        /// </summary>
+        /// <param name="response">The outgoing response frame.</param>
+        internal IncomingResponseFrame(OutgoingResponseFrame response)
+            : base(response.Data.AsArraySegment(), response.Protocol, int.MaxValue)
+        {
+            Encoding = response.Encoding;
+            HasCompressedPayload = response.HasCompressedPayload;
+            Payload = Data.Slice(0, response.Payload.GetByteCount());
         }
 
         internal RetryPolicy GetRetryPolicy(Reference reference)

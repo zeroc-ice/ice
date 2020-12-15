@@ -73,7 +73,7 @@ namespace ZeroC.Ice
         private readonly MultiStreamSocket _socket;
         // The use count indicates if the socket stream is being used to process an invocation or dispatch or
         // to process stream parameters. The socket stream is disposed only once this count drops to 0.
-        private int _useCount = 1;
+        private protected int _useCount = 1;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
         /// implementation should abort the pending receive task.</summary>
@@ -283,7 +283,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
+        internal async virtual ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
                 (byte)Ice1FrameType.Request : (byte)Ice2FrameType.Request;
@@ -311,7 +311,7 @@ namespace ZeroC.Ice
             return request;
         }
 
-        internal async ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
+        internal async virtual ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
         {
             ArraySegment<byte> data;
             try
@@ -437,9 +437,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask SendRequestFrameAsync(
-            OutgoingRequestFrame request,
-            CancellationToken cancel)
+        internal virtual async ValueTask SendRequestFrameAsync(OutgoingRequestFrame request, CancellationToken cancel)
         {
             try
             {
@@ -459,7 +457,9 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, CancellationToken cancel)
+        internal virtual async ValueTask SendResponseFrameAsync(
+            OutgoingResponseFrame response,
+            CancellationToken cancel)
         {
             // Send the response frame.
             await SendFrameAsync(response, cancel).ConfigureAwait(false);
