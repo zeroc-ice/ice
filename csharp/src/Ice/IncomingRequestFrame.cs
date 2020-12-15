@@ -10,8 +10,8 @@ namespace ZeroC.Ice
     /// <summary>Represents a request protocol frame received by the application.</summary>
     public sealed class IncomingRequestFrame : IncomingFrame, IDisposable
     {
-        /// <summary>The request context. Its initial value is computed when the request frame is created.</summary>
-        public Dictionary<string, string> Context { get; }
+        /// <summary>The request context.</summary>
+        public SortedDictionary<string, string> Context { get; }
 
         /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
         /// caller is no longer interested in the response and discards the request. The server-side runtime does not
@@ -227,14 +227,14 @@ namespace ZeroC.Ice
                 // BinaryContext is a computed property that depends on Payload.
                 if (BinaryContext.TryGetValue(0, out ReadOnlyMemory<byte> value))
                 {
-                    Context = value.Read(istr => istr.ReadDictionary(minKeySize: 1,
-                                                                     minValueSize: 1,
-                                                                     InputStream.IceReaderIntoString,
-                                                                     InputStream.IceReaderIntoString));
+                    Context = value.Read(istr => istr.ReadSortedDictionary(minKeySize: 1,
+                                                                           minValueSize: 1,
+                                                                           InputStream.IceReaderIntoString,
+                                                                           InputStream.IceReaderIntoString));
                 }
                 else
                 {
-                    Context = new Dictionary<string, string>();
+                    Context = new SortedDictionary<string, string>();
                 }
             }
 
@@ -260,7 +260,7 @@ namespace ZeroC.Ice
             Location = request.Location;
             Operation = request.Operation;
             IsIdempotent = request.IsIdempotent;
-            Context = new Dictionary<string, string>(request.Context); // TODO: revisit
+            Context = new SortedDictionary<string, string>((IDictionary<string, string>)request.Context); // TODO: revisit
 
             Priority = default;
             Deadline = request.Deadline;

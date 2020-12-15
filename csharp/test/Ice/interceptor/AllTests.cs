@@ -331,7 +331,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 if (ice2)
                 {
                     // This test use ContextOverride not supported with ice1
-                    Dictionary<string, string>? context = prx.Op2();
+                    SortedDictionary<string, string>? context = prx.Op2();
                     TestHelper.Assert(context["context1"] == "plug-in");
                     TestHelper.Assert(context["context2"] == "plug-in");
                     TestHelper.Assert(!context.ContainsKey("context3"));

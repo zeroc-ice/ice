@@ -16,5 +16,5 @@
 module Ice
 {
     /// A request context. Each operation has a <code>Context</code> as its implicit final parameter.
-    dictionary<string, string> Context;
+    [cs:generic:SortedDictionary] dictionary<string, string> Context;
 }

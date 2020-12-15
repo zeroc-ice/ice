@@ -1004,16 +1004,16 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing checked cast with context... ");
             output.Flush();
 
-            Dictionary<string, string> c = cl.GetContext();
+            SortedDictionary<string, string> c = cl.GetContext();
             TestHelper.Assert(c == null || c.Count == 0);
 
-            c = new Dictionary<string, string>
+            c = new SortedDictionary<string, string>
             {
                 ["one"] = "hello",
                 ["two"] = "world"
             };
             cl = baseProxy.CheckedCast(IMyClassPrx.Factory, c);
-            Dictionary<string, string> c2 = cl!.GetContext();
+            SortedDictionary<string, string> c2 = cl!.GetContext();
             TestHelper.Assert(c.DictionaryEqual(c2));
             output.WriteLine("ok");
 

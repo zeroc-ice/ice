@@ -19,7 +19,7 @@ namespace ZeroC.Ice
         public Connection Connection { get; }
 
         /// <summary>The request context, as received from the client.</summary>
-        public Dictionary<string, string> Context => IncomingRequestFrame.Context;
+        public SortedDictionary<string, string> Context => IncomingRequestFrame.Context;
 
         /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
         /// caller is no longer interested in the response and discards the request. The server-side runtime does not

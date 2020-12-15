@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Proxy
 {
     internal sealed class MyDerivedClass : IMyDerivedClass
     {
-        private Dictionary<string, string>? _ctx;
+        private SortedDictionary<string, string>? _ctx;
 
         public IObjectPrx? Echo(IObjectPrx? obj, Current c, CancellationToken cancel) => obj;
 

@@ -1758,17 +1758,17 @@ namespace ZeroC.Ice.Test.Operations
                 ctx["three"] = "THREE";
                 {
                     TestHelper.Assert(p.Context.Count == 0);
-                    Dictionary<string, string> r = p.OpContext();
+                    SortedDictionary<string, string> r = p.OpContext();
                     TestHelper.Assert(!r.Equals(ctx));
                 }
                 {
-                    Dictionary<string, string> r = p.OpContext(ctx);
+                    SortedDictionary<string, string> r = p.OpContext(ctx);
                     TestHelper.Assert(r.DictionaryEqual(ctx));
                 }
                 {
                     var p2 = p.Clone(context: ctx);
                     TestHelper.Assert(p2.Context.DictionaryEqual(ctx));
-                    Dictionary<string, string> r = p2.OpContext();
+                    SortedDictionary<string, string> r = p2.OpContext();
                     TestHelper.Assert(r.DictionaryEqual(ctx));
                     r = p2.OpContext(ctx);
                     TestHelper.Assert(r.DictionaryEqual(ctx));
@@ -1784,11 +1784,11 @@ namespace ZeroC.Ice.Test.Operations
                 var p3 = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
                 TestHelper.Assert(p3.OpContext().DictionaryEqual(communicator.CurrentContext));
 
-                var prxContext = new Dictionary<string, string>();
+                var prxContext = new SortedDictionary<string, string>();
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
 
-                var combined = new Dictionary<string, string>(prxContext);
+                var combined = new SortedDictionary<string, string>(prxContext);
                 foreach (KeyValuePair<string, string> e in communicator.CurrentContext)
                 {
                     try

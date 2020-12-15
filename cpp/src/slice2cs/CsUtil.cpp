@@ -433,19 +433,28 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     }
 
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    if(d)
+    if (d)
     {
-        string prefix = "cs:generic:";
-        string meta;
         string typeName;
-        if(d->findMetadata(prefix, meta))
+        if (readOnly)
         {
-            typeName = meta.substr(prefix.size());
+            typeName = "IReadOnlyDictionary";
         }
         else
         {
-            typeName = readOnly ? "IReadOnlyDictionary" : "Dictionary";
+            string prefix = "cs:generic:";
+            string meta;
+
+            if (d->findMetadata(prefix, meta))
+            {
+                typeName = meta.substr(prefix.size());
+            }
+            else
+            {
+                typeName = "Dictionary";
+            }
         }
+
         return "global::System.Collections.Generic." + typeName + "<" +
             typeToString(d->keyType(), package) + ", " +
             typeToString(d->valueType(), package) + ">";
