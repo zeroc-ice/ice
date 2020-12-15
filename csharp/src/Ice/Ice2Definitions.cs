@@ -12,15 +12,6 @@ namespace ZeroC.Ice
     {
         internal static readonly Encoding Encoding = Encoding.V20;
 
-        // ice2 frame types:
-        internal enum FrameType : byte
-        {
-            Initialize = 0,
-            Request = 1,
-            Response = 2,
-            GoAway = 3
-        }
-
         /// <summary>Writes a request header body This implementation is slightly more efficient than the generated code
         /// because it avoids the allocation of a string[] to write the location.</summary>
         internal static void WriteIce2RequestHeaderBody(

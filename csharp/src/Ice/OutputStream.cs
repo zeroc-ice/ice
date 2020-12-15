@@ -1440,7 +1440,7 @@ namespace ZeroC.Ice
         /// <summary>Writes a size on 4 bytes at the given position of the stream.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
-        private void RewriteFixedLengthSize11(int size, Position pos)
+        internal void RewriteFixedLengthSize11(int size, Position pos)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
 

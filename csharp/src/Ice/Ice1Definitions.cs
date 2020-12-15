@@ -9,16 +9,6 @@ namespace ZeroC.Ice
     // Definitions for the ice1 protocol.
     internal static class Ice1Definitions
     {
-        // ice1 frame types:
-        internal enum FrameType : byte
-        {
-            Request = 0,
-            RequestBatch = 1,
-            Reply = 2,
-            ValidateConnection = 3,
-            CloseConnection = 4
-        }
-
         // The encoding of the header for ice1 frames. It is nominally 1.0, but in practice it is identical to 1.1
         // for the subset of the encoding used by the ice1 headers.
         internal static readonly Encoding Encoding = Encoding.V11;
@@ -44,29 +34,16 @@ namespace ZeroC.Ice
                 {
                     Magic[0], Magic[1], Magic[2], Magic[3],
                     ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-                    (byte)FrameType.CloseConnection,
+                    (byte)Ice1FrameType.CloseConnection,
                     0, // Compression status.
                     HeaderSize, 0, 0, 0 // Frame size.
                 }
         };
 
-        internal static readonly byte[] RequestHeaderPrologue = new byte[]
+        internal static readonly byte[] FramePrologue = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.Request,
-            0, // Compression status.
-            0, 0, 0, 0, // Frame size (placeholder).
-            0, 0, 0, 0 // Request ID (placeholder).
-        };
-
-        internal static readonly byte[] ResponseHeaderPrologue = new byte[]
-        {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.Reply,
-            0, // Compression status.
-            0, 0, 0, 0 // Frame size (placeholder).
         };
 
         internal static readonly List<ArraySegment<byte>> ValidateConnectionFrame = new List<ArraySegment<byte>>
@@ -75,7 +52,7 @@ namespace ZeroC.Ice
             {
                 Magic[0], Magic[1], Magic[2], Magic[3],
                 ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-                (byte)FrameType.ValidateConnection,
+                (byte)Ice1FrameType.ValidateConnection,
                 0, // Compression status.
                 HeaderSize, 0, 0, 0 // Frame size.
             }

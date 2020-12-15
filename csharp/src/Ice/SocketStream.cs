@@ -194,7 +194,7 @@ namespace ZeroC.Ice
         internal virtual async ValueTask<((long, long), string)> ReceiveGoAwayFrameAsync()
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.GoAway;
+                (byte)Ice1FrameType.CloseConnection : (byte)Ice2FrameType.GoAway;
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, CancellationToken.None).ConfigureAwait(false);
             if (!ReceivedEndOfStream)
@@ -228,7 +228,7 @@ namespace ZeroC.Ice
         internal virtual async ValueTask ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.ValidateConnection : (byte)Ice2Definitions.FrameType.Initialize;
+                (byte)Ice1FrameType.ValidateConnection : (byte)Ice2FrameType.Initialize;
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
             if (ReceivedEndOfStream)
@@ -286,7 +286,7 @@ namespace ZeroC.Ice
         internal async ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.Request : (byte)Ice2Definitions.FrameType.Request;
+                (byte)Ice1FrameType.Request : (byte)Ice2FrameType.Request;
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
@@ -317,7 +317,7 @@ namespace ZeroC.Ice
             try
             {
                 byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                    (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
+                    (byte)Ice1FrameType.Reply : (byte)Ice2FrameType.Response;
 
                 data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
             }
@@ -362,7 +362,7 @@ namespace ZeroC.Ice
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.CloseConnection);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1FrameType.CloseConnection);
                 }
             }
             else
@@ -373,7 +373,7 @@ namespace ZeroC.Ice
                 {
                     ostr.WriteByteSpan(Header.Span);
                 }
-                ostr.WriteByte((byte)Ice2Definitions.FrameType.GoAway);
+                ostr.WriteByte((byte)Ice2FrameType.GoAway);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
                 var goAwayFrameBody = new Ice2GoAwayBody(
@@ -388,7 +388,7 @@ namespace ZeroC.Ice
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2Definitions.FrameType.GoAway);
+                    TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2FrameType.GoAway);
                 }
             }
         }
@@ -401,7 +401,7 @@ namespace ZeroC.Ice
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.ValidateConnection);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1FrameType.ValidateConnection);
                 }
             }
             else
@@ -412,7 +412,7 @@ namespace ZeroC.Ice
                 {
                     ostr.WriteByteSpan(Header.Span);
                 }
-                ostr.WriteByte((byte)Ice2Definitions.FrameType.Initialize);
+                ostr.WriteByte((byte)Ice2FrameType.Initialize);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
 
@@ -432,7 +432,7 @@ namespace ZeroC.Ice
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice2Definitions.FrameType.Initialize);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice2FrameType.Initialize);
                 }
             }
         }
@@ -490,7 +490,7 @@ namespace ZeroC.Ice
             // Read the Ice2 protocol header (byte frameType, varulong size)
             ArraySegment<byte> buffer = new byte[256];
             await ReceiveFullAsync(buffer.Slice(0, 2), cancel).ConfigureAwait(false);
-            var frameType = (Ice2Definitions.FrameType)buffer[0];
+            var frameType = (Ice2FrameType)buffer[0];
             if ((byte)frameType != expectedFrameType)
             {
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
@@ -518,14 +518,27 @@ namespace ZeroC.Ice
             return buffer;
         }
 
-        private protected virtual async ValueTask SendFrameAsync(
-            OutgoingFrame frame,
-            CancellationToken cancel)
+        private protected virtual async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)
         {
             // The default implementation only supports the Ice2 protocol
             Debug.Assert(_socket.Endpoint.Protocol == Protocol.Ice2);
 
-            if (frame.Size > _socket.PeerIncomingFrameMaxSize)
+            var buffer = new List<ArraySegment<byte>>(frame.Data.Count + 1);
+            var ostr = new OutputStream(Encoding.V20, buffer);
+            ostr.WriteByteSpan(Header.Span); // TODO: rename Header to TransportHeader?
+
+            ostr.Write(frame is OutgoingRequestFrame ? Ice2FrameType.Request : Ice2FrameType.Response);
+            OutputStream.Position start = ostr.StartFixedLengthSize(4);
+            ostr.WriteHeader(frame);
+
+            Debug.Assert(ostr.Tail.Segment == buffer.Count - 1);
+            buffer[^1] = buffer[^1].Slice(0, ostr.Tail.Offset); // TODO: OutputStream should provide a helper for this!!
+
+            buffer.AddRange(frame.Data); // TODO: switch to Payload
+            int frameSize = buffer.GetByteCount() - Header.Length - 1 - 4;
+            ostr.RewriteFixedLengthSize20(frameSize, start, 4);
+
+            if (frameSize > _socket.PeerIncomingFrameMaxSize)
             {
                 if (frame is OutgoingRequestFrame)
                 {
@@ -543,23 +556,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            var data = new List<ArraySegment<byte>>(frame.Data.Count + 1);
-            int headerLength = Header.Length;
-            byte[] headerData = new byte[headerLength + 1 + OutputStream.GetVarLongLength(frame.Size)];
-            Header.CopyTo(headerData);
-            if (frame is OutgoingRequestFrame)
-            {
-                headerData[headerLength] = (byte)Ice2Definitions.FrameType.Request;
-            }
-            else
-            {
-                headerData[headerLength] = (byte)Ice2Definitions.FrameType.Response;
-            }
-            headerData.AsSpan(headerLength + 1).WriteFixedLengthSize20(frame.Size);
-            data.Add(headerData);
-            data.AddRange(frame.Data);
-
-            await SendAsync(data, frame.StreamDataWriter == null, cancel).ConfigureAwait(false);
+            await SendAsync(buffer, frame.StreamDataWriter == null, cancel).ConfigureAwait(false);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {

@@ -391,6 +391,28 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <inheritdoc/>
+        internal override void WriteHeader(OutputStream ostr)
+        {
+            if (ostr.Encoding != Protocol.GetEncoding())
+            {
+                throw new ArgumentException(
+                    @$"cannot write header of {Protocol.GetName()} frame to output stream using the {ostr.Encoding
+                    } encoding",
+                    nameof(ostr));
+            }
+
+            if (Protocol == Protocol.Ice2)
+            {
+                // TODO: write binary context
+            }
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice1);
+                // no header
+            }
+        }
+
         internal OutgoingResponseFrame(
             Protocol protocol,
             Encoding encoding,

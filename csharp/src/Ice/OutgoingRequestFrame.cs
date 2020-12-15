@@ -342,6 +342,36 @@ namespace ZeroC.Ice
             IsSealed = Protocol == Protocol.Ice1;
         }
 
+        /// <inheritdoc/>
+        internal override void WriteHeader(OutputStream ostr)
+        {
+            if (ostr.Encoding != Protocol.GetEncoding())
+            {
+                throw new ArgumentException(
+                    @$"cannot write header of {Protocol.GetName()} frame to output stream using the {ostr.Encoding
+                    } encoding",
+                    nameof(ostr));
+            }
+
+            if (Protocol == Protocol.Ice2)
+            {
+                OutputStream.Position startPos = ostr.StartFixedLengthSize(2);
+                ostr.WriteIce2RequestHeaderBody(Identity,
+                                                Facet,
+                                                Location,
+                                                Operation,
+                                                IsIdempotent,
+                                                Deadline);
+                ostr.WriteSize(0); // TODO: placeholder for binary context
+                ostr.EndFixedLengthSize(startPos, 2);
+            }
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice1);
+                ostr.WriteIce1RequestHeaderBody(Identity, Facet, Operation, IsIdempotent, _initialContext);
+            }
+        }
+
         // Finish prepares the frame for sending and writes the frame's context into slot 0 of the binary context.
         internal override void Finish()
         {
@@ -429,29 +459,11 @@ namespace ZeroC.Ice
                 }
             }
 
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
-
-            if (Protocol == Protocol.Ice1)
-            {
-                ostr.WriteIce1RequestHeaderBody(Identity, Facet, Operation, IsIdempotent, _initialContext);
-            }
-            else
-            {
-                Debug.Assert(Protocol == Protocol.Ice2);
-                OutputStream.Position startPos = ostr.StartFixedLengthSize(2);
-                ostr.WriteIce2RequestHeaderBody(Identity,
-                                                Facet,
-                                                Location,
-                                                Operation,
-                                                IsIdempotent,
-                                                Deadline);
-                ostr.WriteSize(0); // TODO: placeholder for binary context
-                ostr.EndFixedLengthSize(startPos, 2);
-            }
-            PayloadStart = ostr.Tail;
-
+            // TODO: eliminate
+            PayloadStart = default;
             if (writeEmptyArgs)
             {
+                var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
                 PayloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
             }
         }

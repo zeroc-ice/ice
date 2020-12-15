@@ -251,6 +251,11 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Writes the header of a frame. This header does not include the frame's prologue.</summary>
+        /// <param name="ostr">The output stream.</param>
+        /// <remarks>The preferred public method is <see cref="OutgoingFrameHelper.WriteHeader"/>.</remarks>
+        internal abstract void WriteHeader(OutputStream ostr);
+
         private protected OutgoingFrame(
             Protocol protocol,
             bool compress,
@@ -357,5 +362,14 @@ namespace ZeroC.Ice
             _binaryContextKeys ??= new HashSet<int>();
             return _binaryContextKeys.Add(key);
         }
+    }
+
+    public static class OutgoingFrameHelper
+    {
+        /// <summary>Writes the header of a frame. This header does not include the frame's prologue.</summary>
+        /// <param name="ostr">The output stream.</param>
+        /// <param name="frame">The frame.</param>
+        public static void WriteHeader(this OutputStream ostr, OutgoingFrame frame) =>
+            frame.WriteHeader(ostr);
     }
 }

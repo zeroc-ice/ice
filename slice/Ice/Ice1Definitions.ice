@@ -22,6 +22,15 @@ module Ice
 {
     // These definitions help with the encoding of ice1 frames.
 
+    enum Ice1FrameType : byte
+    {
+        Request = 0,
+        RequestBatch = 1,
+        Reply = 2,
+        ValidateConnection = 3,
+        CloseConnection = 4
+    }
+
     /// Determines the retry behavior an invocation in case of a (potentially) recoverable error. OperationMode is
     /// sent with each ice1 request to allow the server to verify the assumptions made by the caller.
     enum OperationMode : byte

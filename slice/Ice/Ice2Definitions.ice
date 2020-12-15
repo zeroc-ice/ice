@@ -22,6 +22,14 @@ module Ice
 
 #ifdef __SLICE2CS__
 
+    enum Ice2FrameType : byte
+    {
+        Initialize = 0,
+        Request = 1,
+        Response = 2,
+        GoAway = 3
+    }
+
     dictionary<varint, ByteSeq> BinaryContext;
 
     /// The priority of this request.
