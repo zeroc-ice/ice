@@ -69,9 +69,6 @@ namespace ZeroC.Ice
         // Position of the end of the payload. With ice1, this is always the end of the frame.
         private protected OutputStream.Position PayloadEnd { get; set; }
 
-        // Position of the start of the payload.
-        private protected OutputStream.Position PayloadStart { get; set; }
-
         private Dictionary<int, Action<OutputStream>>? _binaryContextOverride;
 
         private readonly CompressionLevel _compressionLevel;
@@ -153,22 +150,12 @@ namespace ZeroC.Ice
                     return CompressionResult.PayloadNotCompressible;
                 }
 
-                int start = PayloadStart.Segment;
-
-                if (PayloadStart.Offset > 0)
-                {
-                    // There is non payload bytes in the first payload segment: we move them to their own segment.
-
-                    ArraySegment<byte> segment = Payload[PayloadStart.Segment];
-                    Payload[PayloadStart.Segment] = segment.Slice(0, PayloadStart.Offset);
-                    start += 1;
-                }
+                int start = 0;
 
                 Payload.RemoveRange(start, PayloadEnd.Segment - start + 1);
                 offset += (int)memoryStream.Position;
                 Payload.Insert(start, new ArraySegment<byte>(compressedData, 0, offset));
 
-                PayloadStart = new OutputStream.Position(start, 0);
                 PayloadEnd = new OutputStream.Position(start, offset);
                 Size = Payload.GetByteCount();
 

@@ -100,7 +100,7 @@ namespace ZeroC.Ice
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Payload,
-                                        request.PayloadStart,
+                                        startAt: default,
                                         request.Encoding,
                                         format);
             writer(ostr, args);
@@ -181,7 +181,7 @@ namespace ZeroC.Ice
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Payload,
-                                        request.PayloadStart,
+                                        startAt: default,
                                         request.Encoding,
                                         format);
             writer(ostr, in args);
@@ -224,7 +224,7 @@ namespace ZeroC.Ice
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Payload,
-                                        request.PayloadStart,
+                                        startAt: default,
                                         request.Encoding,
                                         format);
             // TODO: deal with compress, format, and cancel paramters
@@ -298,7 +298,7 @@ namespace ZeroC.Ice
 
                 OutputStream.Position tail =
                     OutputStream.WriteEncapsulationHeader(Payload,
-                                                          PayloadStart,
+                                                          startAt: default,
                                                           Protocol.GetEncoding(),
                                                           request.Payload.Count - sizeLength,
                                                           request.Encoding);
@@ -421,8 +421,6 @@ namespace ZeroC.Ice
                 }
             }
 
-            // TODO: eliminate
-            PayloadStart = default;
             if (writeEmptyArgs)
             {
                 var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Payload);

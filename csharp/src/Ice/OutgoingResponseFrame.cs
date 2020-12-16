@@ -469,7 +469,6 @@ namespace ZeroC.Ice
             Encoding = encoding;
             InitialBinaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
             Size = Payload?.GetByteCount() ?? 0;
-            PayloadStart = default;
         }
     }
 }
