@@ -99,7 +99,7 @@ namespace ZeroC.Ice
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
-                                        request.Data,
+                                        request.Payload,
                                         request.PayloadStart,
                                         request.Encoding,
                                         format);
@@ -180,7 +180,7 @@ namespace ZeroC.Ice
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
-                                        request.Data,
+                                        request.Payload,
                                         request.PayloadStart,
                                         request.Encoding,
                                         format);
@@ -223,7 +223,7 @@ namespace ZeroC.Ice
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
-                                        request.Data,
+                                        request.Payload,
                                         request.PayloadStart,
                                         request.Encoding,
                                         format);
@@ -280,8 +280,8 @@ namespace ZeroC.Ice
             if (request.Protocol == Protocol)
             {
                 // We only include the encapsulation.
-                Data.Add(request.Payload);
-                PayloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);
+                Payload.Add(request.Payload);
+                PayloadEnd = new OutputStream.Position(Payload.Count - 1, request.Payload.Count);
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
@@ -297,22 +297,22 @@ namespace ZeroC.Ice
                 int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : request.Payload[0].ReadSizeLength20();
 
                 OutputStream.Position tail =
-                    OutputStream.WriteEncapsulationHeader(Data,
+                    OutputStream.WriteEncapsulationHeader(Payload,
                                                           PayloadStart,
                                                           Protocol.GetEncoding(),
                                                           request.Payload.Count - sizeLength,
                                                           request.Encoding);
 
                 // Finish off current segment
-                Data[^1] = Data[^1].Slice(0, tail.Offset);
+                Payload[^1] = Payload[^1].Slice(0, tail.Offset);
 
                 // "2" below corresponds to the encoded length of the encoding.
                 if (request.Payload.Count > sizeLength + 2)
                 {
                     // Add encoded bytes, not including the header or binary context.
-                    Data.Add(request.Payload.Slice(sizeLength + 2));
+                    Payload.Add(request.Payload.Slice(sizeLength + 2));
 
-                    PayloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count - sizeLength - 2);
+                    PayloadEnd = new OutputStream.Position(Payload.Count - 1, request.Payload.Count - sizeLength - 2);
                 }
                 else
                 {
@@ -320,7 +320,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            Size = Data.GetByteCount();
+            Size = Payload.GetByteCount();
             IsSealed = Protocol == Protocol.Ice1;
         }
 
@@ -425,7 +425,7 @@ namespace ZeroC.Ice
             PayloadStart = default;
             if (writeEmptyArgs)
             {
-                var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
+                var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Payload);
                 PayloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
             }
         }

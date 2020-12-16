@@ -11,6 +11,7 @@ namespace ZeroC.Ice
     /// <summary>Represents a request protocol frame received by the application.</summary>
     public sealed class IncomingRequestFrame : IncomingFrame, IDisposable
     {
+        /// <inheritdoc/>
         public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; } =
             ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
@@ -246,7 +247,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <param name="request">The outgoing request frame.</param>
         internal IncomingRequestFrame(OutgoingRequestFrame request)
-            : base(request.Data.AsArraySegment(), request.Protocol, int.MaxValue)
+            : base(request.Payload.AsArraySegment(), request.Protocol, int.MaxValue)
         {
             Identity = request.Identity;
             Facet = request.Facet;

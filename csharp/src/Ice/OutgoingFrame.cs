@@ -51,18 +51,6 @@ namespace ZeroC.Ice
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
         public bool IsSealed { get; private protected set; }
 
-        /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
-        /// <remarks>Treat this list as if it was read-only, like an IReadOnlyList{ReadOnlyMemory{byte}}. It is not
-        /// read-only for compatibility with the Socket APIs.</remarks>
-        public IList<ArraySegment<byte>> Payload
-        {
-            get
-            {
-                _payload ??= Data.Slice(PayloadStart, PayloadEnd);
-                return _payload;
-            }
-        }
-
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
@@ -72,7 +60,7 @@ namespace ZeroC.Ice
         // True if Ice1 frames should use protocol compression, false otherwise.
         internal bool Compress { get; }
 
-        internal List<ArraySegment<byte>> Data { get; }
+        public List<ArraySegment<byte>> Payload { get; }
 
         /// <summary>The stream data writer if the request or response has an outgoing stream param. The writer is
         /// called after the request or response frame is sent over a socket stream.</summary>
@@ -88,9 +76,6 @@ namespace ZeroC.Ice
 
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
-
-        // Cached computed payload.
-        private IList<ArraySegment<byte>>? _payload;
 
         /// <summary>Compresses the encapsulation payload using GZip compression. Compressed encapsulation payload is
         /// only supported with the 2.0 encoding.</summary>
@@ -174,25 +159,23 @@ namespace ZeroC.Ice
                 {
                     // There is non payload bytes in the first payload segment: we move them to their own segment.
 
-                    ArraySegment<byte> segment = Data[PayloadStart.Segment];
-                    Data[PayloadStart.Segment] = segment.Slice(0, PayloadStart.Offset);
+                    ArraySegment<byte> segment = Payload[PayloadStart.Segment];
+                    Payload[PayloadStart.Segment] = segment.Slice(0, PayloadStart.Offset);
                     start += 1;
                 }
 
-                Data.RemoveRange(start, PayloadEnd.Segment - start + 1);
+                Payload.RemoveRange(start, PayloadEnd.Segment - start + 1);
                 offset += (int)memoryStream.Position;
-                Data.Insert(start, new ArraySegment<byte>(compressedData, 0, offset));
+                Payload.Insert(start, new ArraySegment<byte>(compressedData, 0, offset));
 
                 PayloadStart = new OutputStream.Position(start, 0);
                 PayloadEnd = new OutputStream.Position(start, offset);
-                Size = Data.GetByteCount();
+                Size = Payload.GetByteCount();
 
                 // Rewrite the encapsulation size
                 compressedData.AsSpan(encapsulationOffset, sizeLength).WriteEncapsulationSize(
                     offset - sizeLength - encapsulationOffset,
                     Protocol.GetEncoding());
-
-                _payload = null; // reset cache
 
                 HasCompressedPayload = true;
 
@@ -233,7 +216,7 @@ namespace ZeroC.Ice
         {
             Protocol = protocol;
             Protocol.CheckSupported();
-            Data = data;
+            Payload = data;
             Compress = compress;
             _compressionLevel = compressionLevel;
             _compressionMinSize = compressionMinSize;
@@ -246,8 +229,8 @@ namespace ZeroC.Ice
         {
             if (!IsSealed)
             {
-                Data[^1] = Data[^1].Slice(0, PayloadEnd.Offset);
-                Size = Data.GetByteCount();
+                Payload[^1] = Payload[^1].Slice(0, PayloadEnd.Offset);
+                Size = Payload.GetByteCount();
                 IsSealed = true;
             }
         }

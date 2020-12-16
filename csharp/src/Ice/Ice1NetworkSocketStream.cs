@@ -92,7 +92,7 @@ namespace ZeroC.Ice
                 throw new NotSupportedException("stream parameters are not supported with ice1");
             }
 
-            var buffer = new List<ArraySegment<byte>>(frame.Data.Count + 1);
+            var buffer = new List<ArraySegment<byte>>(frame.Payload.Count + 1);
             var ostr = new OutputStream(Encoding.V11, buffer);
 
             ostr.WriteByteSpan(Ice1Definitions.FramePrologue);

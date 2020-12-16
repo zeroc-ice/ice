@@ -271,7 +271,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <param name="response">The outgoing response frame.</param>
         internal IncomingResponseFrame(OutgoingResponseFrame response)
-            : base(response.Data.AsArraySegment(), response.Protocol, int.MaxValue)
+            : base(response.Payload.AsArraySegment(), response.Protocol, int.MaxValue)
         {
             if (Protocol == Protocol.Ice2)
             {

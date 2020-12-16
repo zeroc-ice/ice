@@ -523,7 +523,7 @@ namespace ZeroC.Ice
             // The default implementation only supports the Ice2 protocol
             Debug.Assert(_socket.Endpoint.Protocol == Protocol.Ice2);
 
-            var buffer = new List<ArraySegment<byte>>(frame.Data.Count + 1);
+            var buffer = new List<ArraySegment<byte>>(frame.Payload.Count + 1);
             var ostr = new OutputStream(Encoding.V20, buffer);
             ostr.WriteByteSpan(Header.Span); // TODO: rename Header to TransportHeader?
 
@@ -534,7 +534,7 @@ namespace ZeroC.Ice
             Debug.Assert(ostr.Tail.Segment == buffer.Count - 1);
             buffer[^1] = buffer[^1].Slice(0, ostr.Tail.Offset); // TODO: OutputStream should provide a helper for this!!
 
-            buffer.AddRange(frame.Data); // TODO: switch to Payload
+            buffer.AddRange(frame.Payload); // TODO: switch to Payload
             int frameSize = buffer.GetByteCount() - Header.Length - 1 - 4;
             ostr.RewriteFixedLengthSize20(frameSize, start, 4);
 
