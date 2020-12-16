@@ -40,6 +40,7 @@ namespace Test
                 sb.Append("failed:");
                 if (message != null && message.Length > 0)
                 {
+                    sb.Append(" ");
                     sb.Append(message);
                 }
                 sb.Append("\n");
