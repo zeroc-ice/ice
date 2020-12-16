@@ -64,8 +64,8 @@ namespace Test
         static TestHelper()
         {
             // Replace the default trace listeneter that is responsible of displaying the retry/abort dialog
-            // with our custom trace listener that alwways abort upon failure.
-            // see https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.defaulttracelistener?view=net-5.0#remarks
+            // with our custom trace listener that alwways aborts upon failure.
+            // see: https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.defaulttracelistener?view=net-5.0#remarks
             Trace.Listeners.Clear();
             Trace.Listeners.Add(new TestTraceListener());
         }
