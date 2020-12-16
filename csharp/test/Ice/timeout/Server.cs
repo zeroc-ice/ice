@@ -39,7 +39,7 @@ namespace ZeroC.Ice.Test.Timeout
                 {
                     if (current.Operation == "checkDeadline")
                     {
-                        if (request.NewBinaryContext.TryGetValue(10, out ReadOnlyMemory<byte> value))
+                        if (request.BinaryContext.TryGetValue(10, out ReadOnlyMemory<byte> value))
                         {
                             current.Context["deadline"] = value.Read(istr => istr.ReadVarLong()).ToString();
                         }

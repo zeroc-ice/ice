@@ -12,46 +12,12 @@ namespace ZeroC.Ice
     /// <summary>Base class for incoming frames.</summary>
     public abstract class IncomingFrame
     {
-        /// <summary>The binary context is a collection of byte blobs with an associated int key, the dispatch and
-        /// invocation interceptors can use the binary context to marshal arbitrary data within a request.</summary>
-        public IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext
-        {
-            get
-            {
-                if (Protocol == Protocol.Ice1)
-                {
-                    return ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
-                }
-
-                if (_binaryContext == null)
-                {
-                    ArraySegment<byte> buffer = Data.Slice(Payload.Offset + Payload.Count - Data.Offset);
-                    if (buffer.Count > 0)
-                    {
-                        var istr = new InputStream(buffer, Encoding.V20);
-                        int dictionarySize = istr.ReadSize();
-                        var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
-                        for (int i = 0; i < dictionarySize; ++i)
-                        {
-                            (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
-                            binaryContext[key] = value;
-                        }
-
-                        _binaryContext = binaryContext;
-                    }
-                    else
-                    {
-                        _binaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
-                    }
-                }
-                return _binaryContext;
-            }
-        }
-
-        public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> NewBinaryContext { get; }
+        /// <summary>Returns the binary context of this frame.</summary>
+        public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; }
 
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
+
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
         public bool HasCompressedPayload { get; private protected set; }
 
@@ -68,12 +34,10 @@ namespace ZeroC.Ice
         /// <summary>The frame data.</summary>
         internal ArraySegment<byte> Data { get; set; }
 
-        private IReadOnlyDictionary<int, ReadOnlyMemory<byte>>? _binaryContext;
-
         private readonly int _maxSize;
 
-        /// <summary>Decompress the encapsulation payload if it is compressed. Compressed encapsulations are
-        /// only supported with 2.0 encoding.</summary>
+        /// <summary>Decompresses the encapsulation payload if it is compressed. Compressed encapsulations are only
+        /// supported with 2.0 encoding.</summary>
         public void DecompressPayload()
         {
             if (!HasCompressedPayload)

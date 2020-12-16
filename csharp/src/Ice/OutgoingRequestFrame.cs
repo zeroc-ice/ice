@@ -285,7 +285,7 @@ namespace ZeroC.Ice
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
-                    InitialBinaryContext = request.NewBinaryContext;
+                    InitialBinaryContext = request.BinaryContext;
                 }
             }
             else

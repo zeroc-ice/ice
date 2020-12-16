@@ -11,7 +11,7 @@ namespace ZeroC.Ice
     /// <summary>Represents a request protocol frame received by the application.</summary>
     public sealed class IncomingRequestFrame : IncomingFrame, IDisposable
     {
-        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> NewBinaryContext { get; } =
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; } =
             ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
         /// <summary>The request context.</summary>
@@ -201,7 +201,7 @@ namespace ZeroC.Ice
                     DateTime.MaxValue : DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 Context = requestHeaderBody.Context ?? new SortedDictionary<string, string>();
 
-                NewBinaryContext = istr.ReadBinaryContext();
+                BinaryContext = istr.ReadBinaryContext();
 
                 if (istr.Pos - startPos != headerSize)
                 {
@@ -260,7 +260,7 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice2)
             {
-                NewBinaryContext = request.GetBinaryContext();
+                BinaryContext = request.GetBinaryContext();
             }
 
             Encoding = request.Encoding;

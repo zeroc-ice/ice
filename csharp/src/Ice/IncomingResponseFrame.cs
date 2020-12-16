@@ -11,7 +11,8 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame : IncomingFrame, IDisposable
     {
-        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> NewBinaryContext { get; } =
+        /// <inheritdoc/>
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; } =
             ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
         /// <summary>The encoding of the frame payload.</summary>
@@ -236,7 +237,7 @@ namespace ZeroC.Ice
                 var istr = new InputStream(Data, Protocol.GetEncoding());
                 int headerSize = istr.ReadSize();
                 int startPos = istr.Pos;
-                NewBinaryContext = istr.ReadBinaryContext();
+                BinaryContext = istr.ReadBinaryContext();
                 if (istr.Pos - startPos != headerSize)
                 {
                     throw new InvalidDataException(
@@ -274,7 +275,7 @@ namespace ZeroC.Ice
         {
             if (Protocol == Protocol.Ice2)
             {
-                NewBinaryContext = response.GetBinaryContext();
+                BinaryContext = response.GetBinaryContext();
             }
 
             Encoding = response.Encoding;
@@ -289,7 +290,7 @@ namespace ZeroC.Ice
             {
                 retryPolicy = Ice1Definitions.GetRetryPolicy(this, reference);
             }
-            else if (NewBinaryContext.TryGetValue((int)Ice.BinaryContextKey.RetryPolicy,
+            else if (BinaryContext.TryGetValue((int)Ice.BinaryContextKey.RetryPolicy,
                                                   out ReadOnlyMemory<byte> value))
             {
                 retryPolicy = value.Read(istr => new RetryPolicy(istr));

@@ -178,7 +178,7 @@ namespace ZeroC.Ice
                     {
                         // Don't forward RetryPolicy context
                         InitialBinaryContext =
-                            response.NewBinaryContext.ToImmutableDictionary().Remove((int)BinaryContextKey.RetryPolicy);
+                            response.BinaryContext.ToImmutableDictionary().Remove((int)BinaryContextKey.RetryPolicy);
                     }
                 }
             }

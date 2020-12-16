@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         if (response.Protocol == Protocol.Ice2 && response.ResultType == ResultType.Success)
                         {
                             TestHelper.Assert(
-                                response.NewBinaryContext.TryGetValue(100, out ReadOnlyMemory<byte> value) &&
+                                response.BinaryContext.TryGetValue(100, out ReadOnlyMemory<byte> value) &&
                                 value.Read(istr => istr.ReadInt()) == 100);
                         }
                         return response;
