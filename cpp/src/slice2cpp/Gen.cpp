@@ -105,10 +105,9 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
-            bool wide = (typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
-            if(wide || cpp11)
+            if ((typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring") // wide strings
             {
-                out << (wide ? "L\"" : "\"");
+                out << "L\"";
                 out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, cpp11 ? 0 : 0x9F + 1);
                 out << "\"";
             }
