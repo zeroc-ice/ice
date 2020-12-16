@@ -109,10 +109,10 @@ namespace ZeroC.Ice.Test.Interceptor
                         TestHelper.Assert(invocationContext.Value == int.Parse(request.Context["local-user"]));
                         if (ice2)
                         {
-                            TestHelper.Assert(response.BinaryContext.ContainsKey(110));
-                            TestHelper.Assert(response.BinaryContext[110].Read(istr => istr.ReadInt()) == 110);
-                            TestHelper.Assert(response.BinaryContext.ContainsKey(120));
-                            TestHelper.Assert(response.BinaryContext[120].Read(istr => istr.ReadInt()) == 120);
+                            TestHelper.Assert(response.NewBinaryContext.ContainsKey(110));
+                            TestHelper.Assert(response.NewBinaryContext[110].Read(istr => istr.ReadInt()) == 110);
+                            TestHelper.Assert(response.NewBinaryContext.ContainsKey(120));
+                            TestHelper.Assert(response.NewBinaryContext[120].Read(istr => istr.ReadInt()) == 120);
                         }
                         return response;
                     });

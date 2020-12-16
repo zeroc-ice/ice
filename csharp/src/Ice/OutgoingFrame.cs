@@ -277,6 +277,25 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Gets or builds a combined binary context using InitialBinaryContext and _binaryContextOverride.
+        /// This method is used for colocated calls.</summary>
+        internal IReadOnlyDictionary<int, ReadOnlyMemory<byte>> GetBinaryContext()
+        {
+            if (_binaryContextOverride == null)
+            {
+                return InitialBinaryContext;
+            }
+            else
+            {
+                // Need to marshal/unmarshal this binary context
+                var buffer = new List<ArraySegment<byte>>();
+                var ostr = new OutputStream(Encoding.V20, buffer);
+                WriteBinaryContext(ostr);
+                buffer[^1] = buffer[^1].Slice(0, ostr.Tail.Offset);
+                return buffer.AsArraySegment().AsReadOnlyMemory().Read(istr => istr.ReadBinaryContext());
+            }
+        }
+
         /// <summary>Writes the header of a frame. This header does not include the frame's prologue.</summary>
         /// <param name="ostr">The output stream.</param>
         /// <remarks>The preferred public method is <see cref="OutgoingFrameHelper.WriteHeader"/>.</remarks>

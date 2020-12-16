@@ -141,8 +141,8 @@ namespace ZeroC.Ice.Test.Interceptor
                         if (request.Protocol == Protocol.Ice2)
                         {
                             OutgoingResponseFrame response = await next(request, current, cancel);
-                            response.AddBinaryContextEntry(110, 110, (ostr, value) => ostr.WriteInt(value));
-                            response.AddBinaryContextEntry(120, 120, (ostr, value) => ostr.WriteInt(value));
+                            response.BinaryContextOverride.Add(110, ostr => ostr.WriteInt(110));
+                            response.BinaryContextOverride.Add(120, ostr => ostr.WriteInt(120));
                             return response;
                         }
                     }

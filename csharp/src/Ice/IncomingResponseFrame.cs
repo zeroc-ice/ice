@@ -209,7 +209,7 @@ namespace ZeroC.Ice
             ArraySegment<byte> data,
             int maxSize,
             SocketStream? socketStream)
-            : base(protocol == Protocol.Ice2 ? data.Slice(3) : data, protocol, maxSize) // TODO: Slice(3) to slice-off response header
+            : base(data, protocol, maxSize)
         {
             SocketStream = socketStream;
 
@@ -217,7 +217,9 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                ReplyStatus replyStatus = Data[0].AsReplyStatus();
+                Payload = Data;
+
+                ReplyStatus replyStatus = Payload[0].AsReplyStatus();
 
                 if ((byte)replyStatus <= (byte)ReplyStatus.UserException)
                 {
@@ -230,7 +232,21 @@ namespace ZeroC.Ice
             }
             else
             {
-                _ = Data[0].AsResultType(); // just to check the value
+                Debug.Assert(Protocol == Protocol.Ice2);
+                var istr = new InputStream(Data, Protocol.GetEncoding());
+                int headerSize = istr.ReadSize();
+                int startPos = istr.Pos;
+                NewBinaryContext = istr.ReadBinaryContext();
+                if (istr.Pos - startPos != headerSize)
+                {
+                    throw new InvalidDataException(
+                        @$"received invalid response header: expected {headerSize} bytes but read {istr.Pos - startPos
+                        } bytes");
+                }
+
+                Payload = Data.Slice(istr.Pos);
+
+                _ = Payload[0].AsResultType(); // just to check the value
                 hasEncapsulation = true;
             }
 
@@ -241,14 +257,12 @@ namespace ZeroC.Ice
                 int sizeLength;
 
                 (size, sizeLength, Encoding) =
-                    Data.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                    Payload.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
-                Payload = Data.Slice(0, 1 + size + sizeLength);
+                // TODO: temporary
+                Debug.Assert(Payload.Count - 1 == size + sizeLength);
+
                 HasCompressedPayload = Encoding == Encoding.V20 && Payload[1 + sizeLength + 2] != 0;
-            }
-            else
-            {
-                Payload = Data;
             }
         }
 
@@ -258,6 +272,11 @@ namespace ZeroC.Ice
         internal IncomingResponseFrame(OutgoingResponseFrame response)
             : base(response.Data.AsArraySegment(), response.Protocol, int.MaxValue)
         {
+            if (Protocol == Protocol.Ice2)
+            {
+                NewBinaryContext = response.GetBinaryContext();
+            }
+
             Encoding = response.Encoding;
             HasCompressedPayload = response.HasCompressedPayload;
             Payload = Data.Slice(0, response.Payload.GetByteCount());
@@ -270,8 +289,8 @@ namespace ZeroC.Ice
             {
                 retryPolicy = Ice1Definitions.GetRetryPolicy(this, reference);
             }
-            else if (BinaryContext.TryGetValue((int)Ice.BinaryContextKey.RetryPolicy,
-                                               out ReadOnlyMemory<byte> value))
+            else if (NewBinaryContext.TryGetValue((int)Ice.BinaryContextKey.RetryPolicy,
+                                                  out ReadOnlyMemory<byte> value))
             {
                 retryPolicy = value.Read(istr => new RetryPolicy(istr));
             }

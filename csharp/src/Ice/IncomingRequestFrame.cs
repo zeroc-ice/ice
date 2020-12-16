@@ -253,10 +253,15 @@ namespace ZeroC.Ice
             Location = request.Location;
             Operation = request.Operation;
             IsIdempotent = request.IsIdempotent;
-            Context = new SortedDictionary<string, string>((IDictionary<string, string>)request.Context); // TODO: revisit
+            Context = new SortedDictionary<string, string>((IDictionary<string, string>)request.Context);
 
             Priority = default;
             Deadline = request.Deadline;
+
+            if (Protocol == Protocol.Ice2)
+            {
+                NewBinaryContext = request.GetBinaryContext();
+            }
 
             Encoding = request.Encoding;
 

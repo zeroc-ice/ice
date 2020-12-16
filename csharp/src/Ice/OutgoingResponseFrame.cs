@@ -32,8 +32,9 @@ namespace ZeroC.Ice
             var data = new List<ArraySegment<byte>>();
             var ostr = new OutputStream(current.Protocol.GetEncoding(), data);
             ostr.Write(ResultType.Success);
-            _ = ostr.WriteEmptyEncapsulation(current.Encoding);
-            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, ostr.Tail);
+            OutputStream.Position tail = ostr.WriteEmptyEncapsulation(current.Encoding);
+            data[^1] = data[^1].Slice(0, tail.Offset);
+            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, tail);
         }
 
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a non-tuple non-struct
@@ -177,7 +178,12 @@ namespace ZeroC.Ice
 
                     if (forwardBinaryContext)
                     {
-                        _defaultBinaryContext = response.Data.Slice(response.Payload.Count); // can be empty
+                        // Don't forward RetryPolicy context
+                        InitialBinaryContext =
+                            response.NewBinaryContext.ToImmutableDictionary().Remove((int)BinaryContextKey.RetryPolicy);
+
+                        _defaultBinaryContext = response.Payload.Slice(response.Payload.Count); // can be empty
+                        Debug.Assert(_defaultBinaryContext.Count == 0);
                     }
                 }
             }
@@ -375,22 +381,26 @@ namespace ZeroC.Ice
             }
 
             PayloadEnd = ostr.Finish();
+            Data[^1] = Data[^1].Slice(0, PayloadEnd.Offset);
             if (!hasEncapsulation)
             {
-                Data[^1] = Data[^1].Slice(0, PayloadEnd.Offset);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
-            else if (Encoding == Encoding.V20 && exception.RetryPolicy.Retryable != Retryable.No)
+            else if (Protocol == Protocol.Ice2 && exception.RetryPolicy.Retryable != Retryable.No)
             {
-                AddBinaryContextEntry((int)BinaryContextKey.RetryPolicy, exception.RetryPolicy, (ostr, retryPolicy) =>
-                {
-                    ostr.Write(retryPolicy.Retryable);
-                    if (retryPolicy.Retryable == Retryable.AfterDelay)
+                RetryPolicy retryPolicy = exception.RetryPolicy;
+
+                BinaryContextOverride.Add(
+                    (int)BinaryContextKey.RetryPolicy,
+                    ostr =>
                     {
-                        ostr.WriteVarUInt((uint)retryPolicy.Delay.TotalMilliseconds);
-                    }
-                });
+                        ostr.Write(retryPolicy.Retryable);
+                        if (retryPolicy.Retryable == Retryable.AfterDelay)
+                        {
+                            ostr.WriteVarUInt((uint)retryPolicy.Delay.TotalMilliseconds);
+                        }
+                    });
             }
         }
 
@@ -408,8 +418,7 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice2)
             {
                 OutputStream.Position startPos = ostr.StartFixedLengthSize(2);
-                // Placeholder for binary context
-                ostr.WriteByte(0);
+                WriteBinaryContext(ostr);
                 ostr.EndFixedLengthSize(startPos, 2);
             }
             else
