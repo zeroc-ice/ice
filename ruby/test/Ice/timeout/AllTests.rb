@@ -25,7 +25,7 @@ def allTests(helper, communicator)
     rescue
         # Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
         # the test from hanging on exit in case a connection which disables timeouts is still opened.
-        controller.holdAdapter()
+        controller.resumeAdapter()
         raise
     end
 end
