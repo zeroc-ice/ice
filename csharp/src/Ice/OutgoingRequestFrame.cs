@@ -376,27 +376,6 @@ namespace ZeroC.Ice
             }
         }
 
-        // Finish prepares the frame for sending and writes the frame's context into slot 0 of the binary context.
-        internal override void Finish()
-        {
-            if (!IsSealed)
-            {
-                if (Protocol == Protocol.Ice2 && !ContainsKey(0))
-                {
-                    if (Context.Count > 0 || _writeSlot0)
-                    {
-                        // When _writeSlot0 is true, we may write an empty string-string context, thus preventing base
-                        // from writing a non-empty Context.
-                        AddBinaryContextEntry(0, Context, (ostr, dictionary) =>
-                            ostr.WriteDictionary(dictionary,
-                                                 OutputStream.IceWriterFromString,
-                                                 OutputStream.IceWriterFromString));
-                    }
-                }
-                base.Finish();
-            }
-        }
-
         private protected override ArraySegment<byte> GetDefaultBinaryContext() => _defaultBinaryContext;
 
         private OutgoingRequestFrame(
