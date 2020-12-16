@@ -26,7 +26,7 @@ namespace Test
 
     public abstract class TestHelper
     {
-        // A custom trace listener that allways aborts the application upon failure.
+        // A custom trace listener that always aborts the application upon failure.
         internal class TestTraceListener : DefaultTraceListener
         {
             public override void Fail(string message)
