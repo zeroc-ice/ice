@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
@@ -10,6 +11,9 @@ namespace ZeroC.Ice
     /// <summary>Represents a request protocol frame received by the application.</summary>
     public sealed class IncomingRequestFrame : IncomingFrame, IDisposable
     {
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> NewBinaryContext { get; } =
+            ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
+
         /// <summary>The request context.</summary>
         public SortedDictionary<string, string> Context { get; }
 
@@ -197,14 +201,19 @@ namespace ZeroC.Ice
                     DateTime.MaxValue : DateTime.UnixEpoch + TimeSpan.FromMilliseconds(requestHeaderBody.Deadline);
                 Context = requestHeaderBody.Context ?? new SortedDictionary<string, string>();
 
+                NewBinaryContext = istr.ReadBinaryContext();
+
+                if (istr.Pos - startPos != headerSize)
+                {
+                    throw new InvalidDataException(
+                        @$"received invalid request header: expected {headerSize} bytes but read {istr.Pos - startPos
+                        } bytes");
+                }
+
                 if (Location.Any(segment => segment.Length == 0))
                 {
                     throw new InvalidDataException("received request with an empty location segment");
                 }
-
-                Debug.Assert(istr.Pos - startPos == headerSize - 1); // temporary
-                // Read binary context from the header (skip it for now)
-                istr.Skip(1);
             }
 
             if (Identity.Name.Length == 0)

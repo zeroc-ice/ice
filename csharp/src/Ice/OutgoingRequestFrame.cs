@@ -35,6 +35,8 @@ namespace ZeroC.Ice
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
 
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
+
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
 
@@ -288,6 +290,8 @@ namespace ZeroC.Ice
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
+                    InitialBinaryContext = request.NewBinaryContext;
+
                     bool hasSlot0 = request.BinaryContext.ContainsKey(0);
 
                     // If slot 0 is the only slot, we don't set _defaultBinaryContext: this way, Context always
@@ -353,7 +357,7 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice2)
             {
-                OutputStream.Position startPos = ostr.StartFixedLengthSize(2);
+                OutputStream.Position start = ostr.StartFixedLengthSize(2);
                 ostr.WriteIce2RequestHeaderBody(Identity,
                                                 Facet,
                                                 Location,
@@ -361,8 +365,9 @@ namespace ZeroC.Ice
                                                 IsIdempotent,
                                                 Deadline,
                                                 Context);
-                ostr.WriteSize(0); // TODO: placeholder for binary context
-                ostr.EndFixedLengthSize(startPos, 2);
+
+                WriteBinaryContext(ostr);
+                ostr.EndFixedLengthSize(start, 2);
             }
             else
             {
@@ -414,6 +419,7 @@ namespace ZeroC.Ice
             Location = proxy.Location;
             Operation = operation;
             IsIdempotent = idempotent;
+            InitialBinaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
             Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
             Deadline = Protocol == Protocol.Ice1 || proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?

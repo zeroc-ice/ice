@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
@@ -10,6 +11,9 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame : IncomingFrame, IDisposable
     {
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> NewBinaryContext { get; } =
+            ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
+
         /// <summary>The encoding of the frame payload.</summary>
         public override Encoding Encoding { get; }
 

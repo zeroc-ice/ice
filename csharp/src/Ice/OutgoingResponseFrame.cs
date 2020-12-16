@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
@@ -11,6 +12,8 @@ namespace ZeroC.Ice
     {
         /// <summary>The response payload encoding.</summary>
         public override Encoding Encoding { get; }
+
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
 
         /// <summary>The result type; see <see cref="Ice.ResultType"/>.</summary>
         public ResultType ResultType => Data[0][0] == 0 ? ResultType.Success : ResultType.Failure;
@@ -462,6 +465,7 @@ namespace ZeroC.Ice
                    data ?? new List<ArraySegment<byte>>())
         {
             Encoding = encoding;
+            InitialBinaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
             Size = Data?.GetByteCount() ?? 0;
             PayloadStart = default;
         }

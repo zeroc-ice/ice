@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -23,8 +24,27 @@ namespace ZeroC.Ice
     /// <summary>Base class for outgoing frames.</summary>
     public abstract class OutgoingFrame
     {
+        public Dictionary<int, Action<OutputStream>> BinaryContextOverride
+        {
+            get
+            {
+                if (_binaryContextOverride == null)
+                {
+                    if (Protocol == Protocol.Ice1)
+                    {
+                        throw new NotSupportedException("ice1 does not support binary contexts");
+                    }
+
+                    _binaryContextOverride = new Dictionary<int, Action<OutputStream>>();
+                }
+                return _binaryContextOverride;
+            }
+        }
+
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
+
+        public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
 
         public bool HasCompressedPayload { get; private set; }
 
@@ -65,6 +85,8 @@ namespace ZeroC.Ice
         private protected OutputStream.Position PayloadStart { get; set; }
 
         private HashSet<int>? _binaryContextKeys;
+
+        private Dictionary<int, Action<OutputStream>>? _binaryContextOverride;
 
         // OutputStream used to write the binary context.
         private OutputStream? _binaryContextOstr;
@@ -360,6 +382,43 @@ namespace ZeroC.Ice
         }
 
         private protected bool ContainsKey(int key) => _binaryContextKeys?.Contains(key) ?? false;
+
+        private protected void WriteBinaryContext(OutputStream ostr)
+        {
+            Debug.Assert(Protocol == Protocol.Ice2);
+            Debug.Assert(ostr.Encoding == Encoding.V20);
+
+            int sizeLength = InitialBinaryContext.Count + (_binaryContextOverride?.Count ?? 0) < 64 ? 1 : 2;
+
+            int size = 0;
+
+            OutputStream.Position start = ostr.StartFixedLengthSize(sizeLength);
+
+            // First write the overrides, then the InitialBinaryContext entries that were not overridden.
+
+            if (_binaryContextOverride is Dictionary<int, Action<OutputStream>> binaryContextOverride)
+            {
+                foreach ((int key, Action<OutputStream> action) in binaryContextOverride)
+                {
+                    ostr.WriteVarInt(key);
+                    OutputStream.Position startValue = ostr.StartFixedLengthSize(2);
+                    action(ostr);
+                    ostr.EndFixedLengthSize(startValue, 2);
+                    size++;
+                }
+            }
+            foreach ((int key, ReadOnlyMemory<byte> value) in InitialBinaryContext)
+            {
+                if (_binaryContextOverride == null || !_binaryContextOverride.ContainsKey(key))
+                {
+                    ostr.WriteVarInt(key);
+                    ostr.WriteSize(value.Length);
+                    ostr.WriteByteSpan(value.Span);
+                    size++;
+                }
+            }
+            ostr.RewriteFixedLengthSize20(size, start, sizeLength);
+        }
 
         private bool AddKey(int key)
         {

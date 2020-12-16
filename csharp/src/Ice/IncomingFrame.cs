@@ -47,6 +47,9 @@ namespace ZeroC.Ice
                 return _binaryContext;
             }
         }
+
+        public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> NewBinaryContext { get; }
+
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
         /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>

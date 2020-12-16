@@ -1066,8 +1066,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Reads a binary context entry.</summary>
-        /// <returns>The binary context key and value. The readonly memory for the value is backed by the
-        /// input stream's buffer, the data is not copied.</returns>
+        /// <returns>The binary context key and value. The read-only memory for the value is backed by the input
+        /// stream's buffer, the data is not copied.</returns>
         internal (int Key, ReadOnlyMemory<byte> Value) ReadBinaryContextEntry()
         {
             int key = ReadVarInt();
