@@ -178,9 +178,19 @@ namespace ZeroC.Ice
             {
                 var data = new List<ArraySegment<byte>>();
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
+
+                if (key.Protocol == Protocol.Ice2)
+                {
+                    // Response header with empty binary context
+                    OutputStream.Position start = ostr.StartFixedLengthSize(2); // TODO: temporary, should be 1
+                    ostr.WriteSize(0);
+                    ostr.EndFixedLengthSize(start, 2);
+                }
+
                 ostr.Write(ResultType.Success);
-                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                OutputStream.Position tail = ostr.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
+                data[^1] = data[^1].Slice(0, tail.Offset);
                 return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
             });
 
@@ -195,7 +205,7 @@ namespace ZeroC.Ice
             ArraySegment<byte> data,
             int maxSize,
             SocketStream? socketStream)
-            : base(data, protocol, maxSize)
+            : base(protocol == Protocol.Ice2 ? data.Slice(3) : data, protocol, maxSize) // TODO: Slice(3) to slice-off response header
         {
             SocketStream = socketStream;
 

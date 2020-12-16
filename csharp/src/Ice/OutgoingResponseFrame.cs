@@ -404,7 +404,10 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice2)
             {
-                // TODO: write binary context
+                OutputStream.Position startPos = ostr.StartFixedLengthSize(2);
+                // Placeholder for binary context
+                ostr.WriteByte(0);
+                ostr.EndFixedLengthSize(startPos, 2);
             }
             else
             {
