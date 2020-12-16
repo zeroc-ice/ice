@@ -58,14 +58,9 @@ namespace ZeroC.Ice
         }
 
         private SortedDictionary<string, string>? _writableContext;
-        private readonly ArraySegment<byte> _defaultBinaryContext;
         private readonly IReadOnlyDictionary<string, string> _initialContext;
         private readonly CancellationTokenSource? _invocationTimeoutCancellationSource;
         private readonly CancellationTokenSource _linkedCancellationSource;
-
-        // When true, we always write Context in slot 0 of the binary context. This field is always false when
-        // _defaultBinaryContext is empty.
-        private readonly bool _writeSlot0;
 
         /// <inheritdoc/>
         public void Dispose()
@@ -291,21 +286,6 @@ namespace ZeroC.Ice
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
                     InitialBinaryContext = request.NewBinaryContext;
-
-                    bool hasSlot0 = request.BinaryContext.ContainsKey(0);
-
-                    // If slot 0 is the only slot, we don't set _defaultBinaryContext: this way, Context always
-                    // prevails in slot 0, even when it's empty and slot 0 is not written at all.
-
-                    if (!hasSlot0 || request.BinaryContext.Count > 1)
-                    {
-                        _defaultBinaryContext = request.Data.Slice(
-                            request.Payload.Offset - request.Data.Offset + request.Payload.Count);
-
-                        // When slot 0 has an empty value, there is no need to always write it since the default
-                        // (empty Context) is correctly represented by the entry in the _defaultBinaryContext.
-                        _writeSlot0 = hasSlot0 && !request.BinaryContext[0].IsEmpty;
-                    }
                 }
             }
             else
@@ -375,8 +355,6 @@ namespace ZeroC.Ice
                 ostr.WriteIce1RequestHeaderBody(Identity, Facet, Operation, IsIdempotent, Context);
             }
         }
-
-        private protected override ArraySegment<byte> GetDefaultBinaryContext() => _defaultBinaryContext;
 
         private OutgoingRequestFrame(
             IObjectPrx proxy,

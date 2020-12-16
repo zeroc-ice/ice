@@ -44,9 +44,9 @@ namespace ZeroC.Ice
         /// <summary>The encoding of the frame payload.</summary>
         public abstract Encoding Encoding { get; }
 
-        public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
-
         public bool HasCompressedPayload { get; private set; }
+
+        public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
 
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
         public bool IsSealed { get; private protected set; }
@@ -84,55 +84,13 @@ namespace ZeroC.Ice
         // Position of the start of the payload.
         private protected OutputStream.Position PayloadStart { get; set; }
 
-        private HashSet<int>? _binaryContextKeys;
-
         private Dictionary<int, Action<OutputStream>>? _binaryContextOverride;
-
-        // OutputStream used to write the binary context.
-        private OutputStream? _binaryContextOstr;
 
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
 
         // Cached computed payload.
         private IList<ArraySegment<byte>>? _payload;
-
-        /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
-        /// <param name="key">The binary context entry key.</param>
-        /// <param name="value">The binary context entry value.</param>
-        /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
-        /// <exception cref="ArgumentException">If the key is already in use.</exception>
-        public void AddBinaryContextEntry(int key, ReadOnlySpan<byte> value)
-        {
-            OutputStream ostr = StartBinaryContext();
-            if (AddKey(key))
-            {
-                ostr.WriteBinaryContextEntry(key, value);
-            }
-            else
-            {
-                throw new ArgumentException($"key `{key}' is already in use", nameof(key));
-            }
-        }
-
-        /// <summary>Writes a binary context entry to the frame with the given key and value.</summary>
-        /// <param name="key">The binary context entry key.</param>
-        /// <param name="value">The value to marshal as the binary context entry value.</param>
-        /// <param name="writer">The writer used to marshal the value.</param>
-        /// <exception cref="NotSupportedException">If the frame protocol doesn't support binary context.</exception>
-        /// <exception cref="ArgumentException">If the key is already in use.</exception>
-        public void AddBinaryContextEntry<T>(int key, T value, OutputStreamWriter<T> writer)
-        {
-            OutputStream ostr = StartBinaryContext();
-            if (AddKey(key))
-            {
-                ostr.WriteBinaryContextEntry(key, value, writer);
-            }
-            else
-            {
-                throw new ArgumentException($"key `{key}' is already in use", nameof(key));
-            }
-        }
 
         /// <summary>Compresses the encapsulation payload using GZip compression. Compressed encapsulation payload is
         /// only supported with the 2.0 encoding.</summary>
@@ -210,32 +168,6 @@ namespace ZeroC.Ice
                     return CompressionResult.PayloadNotCompressible;
                 }
 
-                int binaryContextLastSegmentOffset = -1;
-
-                if (_binaryContextOstr is OutputStream ostr)
-                {
-                    // If there is a binary context, we make sure it uses its own segment(s).
-                    OutputStream.Position binaryContextEnd = ostr.Tail;
-                    binaryContextLastSegmentOffset = binaryContextEnd.Offset;
-
-                    // When we have a _binaryContextOstr, we wrote at least the size placeholder for the binary context
-                    // dictionary.
-                    Debug.Assert(binaryContextEnd.Segment > PayloadEnd.Segment ||
-                        binaryContextEnd.Offset > PayloadEnd.Offset);
-
-                    // The first segment of the binary context is immediately after the payload
-                    ArraySegment<byte> segment = Data[PayloadEnd.Segment].Slice(PayloadEnd.Offset);
-                    if (segment.Count > 0)
-                    {
-                        Data.Insert(PayloadEnd.Segment + 1, segment);
-                        if (binaryContextEnd.Segment == PayloadEnd.Segment)
-                        {
-                            binaryContextLastSegmentOffset -= PayloadEnd.Offset;
-                        }
-                    }
-                    // else the binary context already starts with its own segment
-                }
-
                 int start = PayloadStart.Segment;
 
                 if (PayloadStart.Offset > 0)
@@ -254,15 +186,6 @@ namespace ZeroC.Ice
                 PayloadStart = new OutputStream.Position(start, 0);
                 PayloadEnd = new OutputStream.Position(start, offset);
                 Size = Data.GetByteCount();
-
-                if (_binaryContextOstr != null)
-                {
-                    // Recreate binary context OutputStream
-                    _binaryContextOstr =
-                        new OutputStream(_binaryContextOstr.Encoding,
-                                         Data,
-                                         new OutputStream.Position(Data.Count - 1, binaryContextLastSegmentOffset));
-                }
 
                 // Rewrite the encapsulation size
                 compressedData.AsSpan(encapsulationOffset, sizeLength).WriteEncapsulationSize(
@@ -316,28 +239,6 @@ namespace ZeroC.Ice
             _compressionMinSize = compressionMinSize;
         }
 
-        private protected abstract ArraySegment<byte> GetDefaultBinaryContext();
-
-        private OutputStream StartBinaryContext()
-        {
-            if (Protocol == Protocol.Ice1)
-            {
-                throw new NotSupportedException("binary context is not supported with ice1 protocol");
-            }
-
-            if (IsSealed)
-            {
-                throw new InvalidOperationException("cannot modify a sealed frame");
-            }
-
-            if (_binaryContextOstr == null)
-            {
-                _binaryContextOstr = new OutputStream(Encoding.V20, Data, PayloadEnd);
-                _binaryContextOstr.WriteByteSpan(stackalloc byte[2]); // 2-bytes size place holder
-            }
-            return _binaryContextOstr;
-        }
-
         // Finish prepares the frame for sending and adjusts the last written segment to match the offset of the written
         // data. If the frame contains a binary context, Finish appends the entries from defaultBinaryContext (if any)
         // and rewrites the binary context dictionary size.
@@ -345,62 +246,11 @@ namespace ZeroC.Ice
         {
             if (!IsSealed)
             {
-                ArraySegment<byte> defaultBinaryContext = GetDefaultBinaryContext();
-
-                if (_binaryContextOstr is OutputStream ostr)
-                {
-                    Debug.Assert(_binaryContextKeys != null);
-                    Data[^1] = Data[^1].Slice(0, ostr.Tail.Offset);
-                    if (defaultBinaryContext.Count > 0)
-                    {
-                        // Add segment for each slot that was not written yet.
-                        var istr = new InputStream(defaultBinaryContext, Encoding.V20);
-                        int dictionarySize = istr.ReadSize();
-                        for (int i = 0; i < dictionarySize; ++i)
-                        {
-                            int startPos = istr.Pos;
-                            int key = istr.ReadVarInt();
-                            int entrySize = istr.ReadSize();
-                            istr.Skip(entrySize);
-                            if (!ContainsKey(key))
-                            {
-                                Data.Add(defaultBinaryContext.Slice(startPos, istr.Pos - startPos));
-                                AddKey(key);
-                            }
-                        }
-                    }
-
-                    ostr.RewriteFixedLengthSize20(_binaryContextKeys.Count, PayloadEnd, 2);
-                }
-                else
-                {
-                    Debug.Assert(_binaryContextKeys == null);
-
-                    // Only when forwarding an ice2 request or response
-                    if (defaultBinaryContext.Count > 0 && Data[^1].Array == defaultBinaryContext.Array)
-                    {
-                        // Just expand the last segment to include the binary context bytes as-is.
-                        Data[^1] = new ArraySegment<byte>(Data[^1].Array!,
-                                                          Data[^1].Offset,
-                                                          Data[^1].Count + defaultBinaryContext.Count);
-                    }
-                    else
-                    {
-                        Data[^1] = Data[^1].Slice(0, PayloadEnd.Offset);
-                        if (defaultBinaryContext.Count > 0)
-                        {
-                            // Can happen if an interceptor compresses the payload
-                            Data.Add(defaultBinaryContext);
-                        }
-                    }
-                }
-
+                Data[^1] = Data[^1].Slice(0, PayloadEnd.Offset);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
         }
-
-        private protected bool ContainsKey(int key) => _binaryContextKeys?.Contains(key) ?? false;
 
         private protected void WriteBinaryContext(OutputStream ostr)
         {
@@ -437,12 +287,6 @@ namespace ZeroC.Ice
                 }
             }
             ostr.RewriteFixedLengthSize20(size, start, sizeLength);
-        }
-
-        private bool AddKey(int key)
-        {
-            _binaryContextKeys ??= new HashSet<int>();
-            return _binaryContextKeys.Add(key);
         }
     }
 

@@ -22,8 +22,6 @@ namespace ZeroC.Ice
         // and the first segment has always at least 2 bytes.
         private static readonly OutputStream.Position EncapsulationStart = new OutputStream.Position(0, 1);
 
-        private readonly ArraySegment<byte> _defaultBinaryContext;
-
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation that returns void.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
@@ -181,9 +179,6 @@ namespace ZeroC.Ice
                         // Don't forward RetryPolicy context
                         InitialBinaryContext =
                             response.NewBinaryContext.ToImmutableDictionary().Remove((int)BinaryContextKey.RetryPolicy);
-
-                        _defaultBinaryContext = response.Payload.Slice(response.Payload.Count); // can be empty
-                        Debug.Assert(_defaultBinaryContext.Count == 0);
                     }
                 }
             }
@@ -434,8 +429,6 @@ namespace ZeroC.Ice
             List<ArraySegment<byte>> data,
             OutputStream.Position encapsulationEnd)
             : this(protocol, encoding, data: data) => PayloadEnd = encapsulationEnd;
-
-        private protected override ArraySegment<byte> GetDefaultBinaryContext() => _defaultBinaryContext;
 
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(
             Current current,
