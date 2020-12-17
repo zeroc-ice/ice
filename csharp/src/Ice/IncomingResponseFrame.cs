@@ -210,7 +210,7 @@ namespace ZeroC.Ice
             ArraySegment<byte> data,
             int maxSize,
             SocketStream? socketStream)
-            : base(data, protocol, maxSize)
+            : base(protocol, maxSize)
         {
             SocketStream = socketStream;
 
@@ -218,7 +218,7 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                Payload = Data;
+                Payload = data;
 
                 ReplyStatus replyStatus = Payload[0].AsReplyStatus();
 
@@ -234,7 +234,7 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice2);
-                var istr = new InputStream(Data, Protocol.GetEncoding());
+                var istr = new InputStream(data, Protocol.GetEncoding());
                 int headerSize = istr.ReadSize();
                 int startPos = istr.Pos;
                 BinaryContext = istr.ReadBinaryContext();
@@ -245,7 +245,7 @@ namespace ZeroC.Ice
                         } bytes");
                 }
 
-                Payload = Data.Slice(istr.Pos);
+                Payload = data.Slice(istr.Pos);
 
                 _ = Payload[0].AsResultType(); // just to check the value
                 hasEncapsulation = true;
@@ -271,7 +271,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <param name="response">The outgoing response frame.</param>
         internal IncomingResponseFrame(OutgoingResponseFrame response)
-            : base(response.Payload.AsArraySegment(), response.Protocol, int.MaxValue)
+            : base(response.Protocol, int.MaxValue)
         {
             if (Protocol == Protocol.Ice2)
             {
@@ -280,7 +280,7 @@ namespace ZeroC.Ice
 
             Encoding = response.Encoding;
             HasCompressedPayload = response.HasCompressedPayload;
-            Payload = Data.Slice(0, response.Payload.GetByteCount());
+            Payload = response.Payload.AsArraySegment();
         }
 
         internal RetryPolicy GetRetryPolicy(Reference reference)

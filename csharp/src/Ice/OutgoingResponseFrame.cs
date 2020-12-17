@@ -20,7 +20,7 @@ namespace ZeroC.Ice
 
         // When a response frame contains an encapsulation, it always starts at position 1 of the first segment,
         // and the first segment has always at least 2 bytes.
-        private static readonly OutputStream.Position EncapsulationStart = new OutputStream.Position(0, 1);
+        private static readonly OutputStream.Position _encapsulationStart = new OutputStream.Position(0, 1);
 
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation that returns void.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
@@ -165,7 +165,7 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice1)
                 {
-                    Payload.Add(response.Data);
+                    Payload.Add(response.Payload);
                 }
                 else
                 {
@@ -214,7 +214,7 @@ namespace ZeroC.Ice
                             // type, -1 byte of the reply status, sizeLength is not included in the encapsulation size.
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Payload,
-                                                                      EncapsulationStart,
+                                                                      _encapsulationStart,
                                                                       Ice1Definitions.Encoding,
                                                                       response.Payload.Count - 1 - sizeLength - 1,
                                                                       Encoding);
@@ -246,7 +246,7 @@ namespace ZeroC.Ice
                             // data, sizeLength is not included in the encapsulation size.
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Payload,
-                                                                      EncapsulationStart,
+                                                                      _encapsulationStart,
                                                                       Ice2Definitions.Encoding,
                                                                       response.Payload.Count - sizeLength,
                                                                       Encoding);
@@ -262,7 +262,7 @@ namespace ZeroC.Ice
                             // encapsulation is the size of the payload +2 bytes for the encapsulations encoding.
                             OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Payload,
-                                                                      EncapsulationStart,
+                                                                      _encapsulationStart,
                                                                       Ice2Definitions.Encoding,
                                                                       response.Payload.Count + 2, // +2 for the encoding
                                                                       Encoding);
@@ -279,7 +279,7 @@ namespace ZeroC.Ice
                     buffer[0] = (byte)response.ResultType;
                     OutputStream.Position tail =
                                 OutputStream.WriteEncapsulationHeader(Payload,
-                                                                      EncapsulationStart,
+                                                                      _encapsulationStart,
                                                                       Protocol.GetEncoding(),
                                                                       response.Payload.Count - 1 - sizeLength,
                                                                       Encoding);
@@ -327,7 +327,7 @@ namespace ZeroC.Ice
 
                 ostr = new OutputStream(Protocol.GetEncoding(),
                                         Payload,
-                                        EncapsulationStart,
+                                        _encapsulationStart,
                                         Encoding,
                                         FormatType.Sliced);
 
@@ -437,7 +437,7 @@ namespace ZeroC.Ice
             response.Payload.Add(buffer);
             var ostr = new OutputStream(response.Protocol.GetEncoding(),
                                         response.Payload,
-                                        EncapsulationStart,
+                                        _encapsulationStart,
                                         response.Encoding,
                                         format);
             return (response, ostr);

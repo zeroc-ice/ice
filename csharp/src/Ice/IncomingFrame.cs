@@ -29,10 +29,7 @@ namespace ZeroC.Ice
         public Protocol Protocol { get; }
 
         /// <summary>The frame byte count.</summary>
-        public int Size => Data.Count;
-
-        /// <summary>The frame data.</summary>
-        internal ArraySegment<byte> Data { get; set; }
+        public int Size => Payload.Count;
 
         private readonly int _maxSize;
 
@@ -57,30 +54,27 @@ namespace ZeroC.Ice
 
                 if (decompressedSize > _maxSize)
                 {
-                    throw new InvalidDataException(@$"decompressed size of {decompressedSize
-                                                   } bytes is greater than the configured IncomingFrameMaxSize value");
+                    throw new InvalidDataException(
+                        @$"decompressed size of {decompressedSize
+                        } bytes is greater than the configured IncomingFrameMaxSize value ({_maxSize} bytes)");
                 }
 
-                // We are going to replace the Data segment with a new Data segment/array that contains a decompressed
-                // encapsulation.
-                byte[] decompressedData = new byte[Data.Count - size + decompressedSize];
+                // We are going to replace the Payload segment with a new Payload segment/array that contains a
+                // decompressed encapsulation.
+                byte[] decompressedPayload = new byte[Payload.Count - size + decompressedSize];
 
                 // Index of the start of the GZip data in Data
-                int gzipIndex = encapsulation.Offset - Data.Offset + sizeLength + 3;
+                int gzipIndex = encapsulation.Offset - Payload.Offset + sizeLength + 3;
 
                 // Copy the data before the encapsulation to the new buffer
-                Data.AsSpan(0, gzipIndex).CopyTo(decompressedData);
-
-                // Copy the binary context (if any) after the encapsulation
-                Data.AsSpan(Payload.Offset + Payload.Count - Data.Offset).CopyTo(
-                    decompressedData.AsSpan(gzipIndex + decompressedSize - 3));
+                Payload.AsSpan(0, gzipIndex).CopyTo(decompressedPayload);
 
                 // Set the compression status to '0' not-compressed
-                decompressedData[gzipIndex - 1] = 0;
+                decompressedPayload[gzipIndex - 1] = 0;
 
-                using var decompressedStream = new MemoryStream(decompressedData,
+                using var decompressedStream = new MemoryStream(decompressedPayload,
                                                                 gzipIndex,
-                                                                decompressedData.Length - gzipIndex);
+                                                                decompressedPayload.Length - gzipIndex);
                 Debug.Assert(encapsulation.Array != null);
                 using var compressed = new GZipStream(
                     new MemoryStream(encapsulation.Array,
@@ -93,15 +87,12 @@ namespace ZeroC.Ice
                 if (decompressedStream.Position + 3 != decompressedSize)
                 {
                     throw new InvalidDataException(
-                        @$"received GZip compressed payload with a decompressed size of only {
-                        decompressedStream.Position} bytes {decompressedSize}");
+                        @$"received GZip compressed payload with a decompressed size of only {decompressedStream.
+                        Position + 3} bytes; expected {decompressedSize} bytes");
                 }
 
-                Payload = new ArraySegment<byte>(decompressedData,
-                                                 Payload.Offset - Data.Offset,
-                                                 Payload.Count - size + decompressedSize);
+                Payload = decompressedPayload;
 
-                Data = decompressedData;
                 // Rewrite the encapsulation size
                 GetEncapsulation().AsSpan(0, sizeLength).WriteEncapsulationSize(decompressedSize,
                                                                                 Protocol.GetEncoding());
@@ -110,12 +101,10 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Constructs a new <see cref="IncomingFrame"/>.</summary>
-        /// <param name="data">The frame data.</param>
         /// <param name="protocol">The frame protocol.</param>
         /// <param name="maxSize">The maximum payload size, checked during decompression.</param>
-        protected IncomingFrame(ArraySegment<byte> data, Protocol protocol, int maxSize)
+        protected IncomingFrame(Protocol protocol, int maxSize)
         {
-            Data = data;
             Protocol = protocol;
             _maxSize = maxSize;
         }

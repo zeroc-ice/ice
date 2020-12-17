@@ -163,11 +163,11 @@ namespace ZeroC.Ice
             ArraySegment<byte> data,
             int maxSize,
             SocketStream? socketStream)
-            : base(data, protocol, maxSize)
+            : base(protocol, maxSize)
         {
             SocketStream = socketStream;
 
-            var istr = new InputStream(Data, Protocol.GetEncoding());
+            var istr = new InputStream(data, Protocol.GetEncoding());
 
             if (Protocol == Protocol.Ice1)
             {
@@ -228,9 +228,9 @@ namespace ZeroC.Ice
             }
 
             (int size, int sizeLength, Encoding encoding) =
-                Data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+                data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
-            Payload = Data.Slice(istr.Pos, size + sizeLength); // the payload is the encapsulation
+            Payload = data.Slice(istr.Pos, size + sizeLength); // the payload is the encapsulation
 
             if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != data.Count)
             {
@@ -247,7 +247,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <param name="request">The outgoing request frame.</param>
         internal IncomingRequestFrame(OutgoingRequestFrame request)
-            : base(request.Payload.AsArraySegment(), request.Protocol, int.MaxValue)
+            : base(request.Protocol, int.MaxValue)
         {
             Identity = request.Identity;
             Facet = request.Facet;
@@ -266,7 +266,7 @@ namespace ZeroC.Ice
 
             Encoding = request.Encoding;
 
-            Payload = Data.Slice(0, request.Payload.GetByteCount());
+            Payload = request.Payload.AsArraySegment();
             HasCompressedPayload = request.HasCompressedPayload;
         }
 
