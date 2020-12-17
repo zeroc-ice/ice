@@ -182,25 +182,10 @@ namespace ZeroC.Ice
             return (size, sizeLength, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
         }
 
-        internal static int ReadFixedLengthSize(this ReadOnlySpan<byte> buffer, Encoding encoding)
-        {
-            if (encoding == Encoding.V11)
-            {
-                return buffer.ReadInt();
-            }
-            else
-            {
-                return buffer.ReadSize20().Size;
-            }
-        }
-
         internal static int ReadInt(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
         internal static ushort ReadUShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToUInt16(buffer);
-
-        internal static (int Size, int SizeLength) ReadSize(this ReadOnlySpan<byte> buffer, Encoding encoding) =>
-            encoding == Encoding.V11 ? buffer.ReadSize11() : buffer.ReadSize20();
 
         /// <summary>Reads a string from a UTF-8 byte buffer. The size of the byte buffer corresponds to the number of
         /// UTF-8 code points in the string.</summary>
@@ -269,27 +254,6 @@ namespace ZeroC.Ice
             };
 
             return (value, buffer[0].ReadVarLongLength());
-        }
-
-        /// <summary>Returns a binary context "view" over this buffer.</summary>
-        internal static IReadOnlyDictionary<int, ReadOnlyMemory<byte>> ToBinaryContext(this ReadOnlyMemory<byte> buffer)
-        {
-            if (buffer.Length > 0)
-            {
-                var istr = new InputStream(buffer, Encoding.V20);
-                int dictionarySize = istr.ReadSize();
-                var binaryContext = new Dictionary<int, ReadOnlyMemory<byte>>(dictionarySize);
-                for (int i = 0; i < dictionarySize; ++i)
-                {
-                    (int key, ReadOnlyMemory<byte> value) = istr.ReadBinaryContextEntry();
-                    binaryContext[key] = value;
-                }
-                return binaryContext;
-            }
-            else
-            {
-                return ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
-            }
         }
 
         internal static void WriteEncapsulationSize(this Span<byte> buffer, int size, Encoding encoding)
