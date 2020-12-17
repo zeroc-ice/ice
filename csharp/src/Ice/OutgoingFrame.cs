@@ -2,11 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -88,21 +86,20 @@ namespace ZeroC.Ice
             }
             else
             {
-                IList<ArraySegment<byte>> payload = Payload;
                 int encapsulationOffset = this is OutgoingResponseFrame ? 1 : 0;
 
                 // The encapsulation always starts in the first segment of the payload (at position 0 or 1).
-                Debug.Assert(encapsulationOffset < payload[0].Count);
+                Debug.Assert(encapsulationOffset < Payload[0].Count);
 
-                int sizeLength = Protocol == Protocol.Ice2 ? payload[0][encapsulationOffset].ReadSizeLength20() : 4;
-                byte compressionStatus = payload.GetByte(encapsulationOffset + sizeLength + 2);
+                int sizeLength = Protocol == Protocol.Ice2 ? Payload[0][encapsulationOffset].ReadSizeLength20() : 4;
+                byte compressionStatus = Payload.GetByte(encapsulationOffset + sizeLength + 2);
 
                 if (compressionStatus != 0)
                 {
                     throw new InvalidOperationException("payload is already compressed");
                 }
 
-                int encapsulationSize = payload.GetByteCount() - encapsulationOffset; // this includes the size length
+                int encapsulationSize = Payload.GetByteCount() - encapsulationOffset; // this includes the size length
                 if (encapsulationSize < _compressionMinSize)
                 {
                     return CompressionResult.PayloadTooSmall;
@@ -113,7 +110,7 @@ namespace ZeroC.Ice
                 // Copy the byte before the encapsulation, if any
                 if (encapsulationOffset == 1)
                 {
-                    compressedData[0] = payload[0][0];
+                    compressedData[0] = Payload[0][0];
                 }
                 // Write the encapsulation header
                 int offset = encapsulationOffset + sizeLength;
@@ -134,7 +131,7 @@ namespace ZeroC.Ice
                 {
                     // The data to compress starts after the compression status byte, + 3 corresponds to (Encoding 2
                     // bytes, Compression status 1 byte)
-                    foreach (ArraySegment<byte> segment in payload.Slice(encapsulationOffset + sizeLength + 3))
+                    foreach (ArraySegment<byte> segment in Payload.Slice(encapsulationOffset + sizeLength + 3))
                     {
                         gzipStream.Write(segment);
                     }
