@@ -154,7 +154,7 @@ abstract public class Communicator extends TreeNode
             provideAdmin(prefix, (admin) ->
                 {
                     final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
-                        com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(admin.ice_facet("Logger"));
+                        com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(getAdminFacet(admin, "Logger"));
                     final String title = getDisplayName() + " Ice log";
                     final String defaultFileName = getDefaultFileName();
 
@@ -193,7 +193,7 @@ abstract public class Communicator extends TreeNode
         provideAdmin(prefix, (admin) ->
             {
                 final com.zeroc.Ice.PropertiesAdminPrx propertiesAdmin =
-                    com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(admin.ice_facet("Properties"));
+                    com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(getAdminFacet(admin, "Properties"));
 
                 propertiesAdmin.getPropertiesForPrefixAsync("").whenComplete((result, ex) ->
                     {
@@ -230,7 +230,7 @@ abstract public class Communicator extends TreeNode
         if(!provideAdmin(prefix, (admin) ->
             {
                 final com.zeroc.IceMX.MetricsAdminPrx metricsAdmin =
-                    com.zeroc.IceMX.MetricsAdminPrx.uncheckedCast(admin.ice_facet("Metrics"));
+                    com.zeroc.IceMX.MetricsAdminPrx.uncheckedCast(getAdminFacet(admin, "Metrics"));
 
                 metricsAdmin.getMetricsViewNamesAsync().whenComplete((result, ex) ->
                     {
@@ -284,6 +284,10 @@ abstract public class Communicator extends TreeNode
     }
 
     protected abstract java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync();
+    protected com.zeroc.Ice.ObjectPrx getAdminFacet(com.zeroc.Ice.ObjectPrx admin, String facet)
+    {
+        return admin != null ? admin.ice_facet(facet) : null;
+    }
     protected abstract String getDisplayName();
     protected String getServerDisplayName()
     {

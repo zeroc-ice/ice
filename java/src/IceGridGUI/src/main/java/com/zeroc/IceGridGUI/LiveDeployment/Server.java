@@ -776,8 +776,7 @@ public class Server extends Communicator
                         // Note that duplicate registrations are ignored
                         //
 
-                        com.zeroc.IceBox.ServiceManagerPrx serviceManager =
-                            com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(getAdminFacet("IceBox.ServiceManager"));
+                        com.zeroc.IceBox.ServiceManagerPrx serviceManager = getServiceManager();
 
                         if(serviceManager != null)
                         {
@@ -1022,17 +1021,9 @@ public class Server extends Communicator
         return null;
     }
 
-    com.zeroc.Ice.ObjectPrx getAdminFacet(String facet)
+    com.zeroc.IceBox.ServiceManagerPrx getServiceManager()
     {
-        com.zeroc.Ice.ObjectPrx admin = getAdmin();
-        if(admin != null)
-        {
-            return admin.ice_facet(facet);
-        }
-        else
-        {
-            return null;
-        }
+        return com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(getAdminFacet(getAdmin(), "IceBox.ServiceManager"));
     }
 
     static private String toolTip(ServerState state, int pid, boolean enabled)
