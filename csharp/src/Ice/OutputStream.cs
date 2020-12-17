@@ -1105,21 +1105,6 @@ namespace ZeroC.Ice
             Encoding = payloadEncoding;
         }
 
-        /// <summary>Finishes writing to the stream, in particular completes the current encapsulation (if any).
-        /// </summary>
-        /// <returns>The tail position that marks the end of the stream.</returns>
-        /// TODO: The stream should not longer be used, how can we enforce it.
-        internal Position Finish()
-        {
-            if (_startPos is Position startPos)
-            {
-                Encoding = _mainEncoding;
-                int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
-                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos);
-            }
-            return _tail;
-        }
-
         /// <summary>Computes the amount of data written from the start position to the current position and writes that
         /// size at the start position (as a fixed-length size). The size does not include its own encoded length.
         /// </summary>
@@ -1136,6 +1121,24 @@ namespace ZeroC.Ice
             {
                 RewriteFixedLengthSize20(Distance(start) - sizeLength, start, sizeLength);
             }
+        }
+
+        /// <summary>Completes the current encapsulation (if any) and finishes off the underlying buffer. You should not
+        /// write additional data to this output stream or its underlying buffer after calling Finish, however rewriting
+        /// previous data (with for example <see cref="EndFixedLengthSize"/>) is fine.</summary>
+        /// <returns>The tail position that marks the end of the underlying buffer.</returns>
+        internal Position Finish()
+        {
+            if (_startPos is Position startPos)
+            {
+                Encoding = _mainEncoding;
+                int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
+                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos);
+            }
+
+            Debug.Assert(_segmentList.Count - 1 == _tail.Segment);
+            _segmentList[^1] = _segmentList[^1].Slice(0, _tail.Offset);
+            return _tail;
         }
 
         /// <summary>Writes a size on a fixed number of bytes at the given position of the stream.</summary>
