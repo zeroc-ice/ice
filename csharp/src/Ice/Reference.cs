@@ -774,7 +774,7 @@ namespace ZeroC.Ice
                     // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
                     // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
                     // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
-                    int requestSize = request.Size;
+                    int requestSize = request.PayloadSize;
                     bool releaseRequestAfterSent =
                         requestSize > communicator.RetryRequestMaxSize ||
                         !communicator.IncRetryBufferSize(requestSize);
@@ -1817,7 +1817,7 @@ namespace ZeroC.Ice
                     // Create the outgoing stream.
                     stream = connection.CreateStream(!oneway);
 
-                    childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
+                    childObserver = observer?.GetChildInvocationObserver(connection, request.PayloadSize);
                     childObserver?.Attach();
 
                     // Send the request and wait for the sending to complete.
@@ -1840,7 +1840,7 @@ namespace ZeroC.Ice
 
                     if (oneway)
                     {
-                        return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
+                        return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.PayloadEncoding);
                     }
 
                     // Wait for the reception of the response.

@@ -22,6 +22,9 @@ namespace ZeroC.Ice
     /// <summary>Base class for outgoing frames.</summary>
     public abstract class OutgoingFrame
     {
+        /// <summary>Returns a dictionary used to override the binary context of this frame. The full binary context
+        /// is a combination of <see cref="InitialBinaryContext"/> plus these overrides.</summary>
+        /// <remarks>The actions set in this dictionary are executed when the frame is sent.</remarks>
         public Dictionary<int, Action<OutputStream>> BinaryContextOverride
         {
             get
@@ -39,22 +42,22 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Returns the encoding of the payload of this frame.</summary>
-        /// <remarks>The header of the frame is always encoded using the frame protocol's encoding.</remarks>
-        public abstract Encoding Encoding { get; }
-
+        /// <summary>Returns true when the payload is compressed; otherwise, return false.</summary>
         public bool HasCompressedPayload { get; private set; }
 
+        /// <summary>Returns the initial binary context set during construction of this frame. See also
+        /// <see cref="BinaryContextOverride"/>.</summary>
         public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
 
         /// <summary>Returns the payload of this frame.</summary>
         public IList<ArraySegment<byte>> Payload { get; } = new List<ArraySegment<byte>>();
 
-        /// <summary>The Ice protocol of this frame.</summary>
-        public Protocol Protocol { get; }
+        /// <summary>Returns the encoding of the payload of this frame.</summary>
+        /// <remarks>The header of the frame is always encoded using the frame protocol's encoding.</remarks>
+        public abstract Encoding PayloadEncoding { get; }
 
-        /// <summary>The frame byte count.</summary>
-        public int Size
+        /// <summary>Returns the number of bytes in the payload.</summary>
+        public int PayloadSize
         {
             get
             {
@@ -65,6 +68,9 @@ namespace ZeroC.Ice
                 return _payloadSize;
             }
         }
+
+        /// <summary>Returns the Ice protocol of this frame.</summary>
+        public Protocol Protocol { get; }
 
         // True if Ice1 frames should use protocol compression, false otherwise.
         internal bool Compress { get; }
@@ -86,9 +92,9 @@ namespace ZeroC.Ice
         /// </returns>
         public CompressionResult CompressPayload()
         {
-            if (Encoding != Encoding.V20)
+            if (PayloadEncoding != Encoding.V20)
             {
-                throw new NotSupportedException("payload compression is only supported with 2.0 encoding");
+                throw new NotSupportedException("payload compression is only supported with the 2.0 encoding");
             }
             else
             {
@@ -120,8 +126,8 @@ namespace ZeroC.Ice
                 }
                 // Write the encapsulation header
                 int offset = encapsulationOffset + sizeLength;
-                compressedData[offset++] = Encoding.Major;
-                compressedData[offset++] = Encoding.Minor;
+                compressedData[offset++] = PayloadEncoding.Major;
+                compressedData[offset++] = PayloadEncoding.Minor;
                 // Set the compression status to '1' GZip compressed
                 compressedData[offset++] = 1;
                 // Write the size of the uncompressed data

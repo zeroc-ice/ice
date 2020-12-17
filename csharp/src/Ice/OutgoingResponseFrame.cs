@@ -10,11 +10,12 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame : OutgoingFrame
     {
-        /// <summary>The response payload encoding.</summary>
-        public override Encoding Encoding { get; }
-
+        /// <inheritdoc/>
         public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; } =
             ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
+
+        /// <inheritdoc/>
+        public override Encoding PayloadEncoding { get; }
 
         /// <summary>The result type; see <see cref="Ice.ResultType"/>.</summary>
         public ResultType ResultType => Payload[0][0] == 0 ? ResultType.Success : ResultType.Failure;
@@ -178,7 +179,7 @@ namespace ZeroC.Ice
                 byte[] buffer = new byte[8];
                 Payload.Add(buffer);
 
-                if (response.ResultType == ResultType.Failure && Encoding == Encoding.V11)
+                if (response.ResultType == ResultType.Failure && PayloadEncoding == Encoding.V11)
                 {
                     // When the response carries a failure encoded with 1.1, we need to perform a small adjustment
                     // between ice1 and ice2 response frames.
@@ -203,7 +204,7 @@ namespace ZeroC.Ice
                             // The size of the new encapsulation is the size of the payload -1 byte of the ice2 result
                             // type, -1 byte of the reply status, sizeLength is not included in the encapsulation size.
 
-                            ostr.WriteEncapsulationHeader(response.Payload.Count - 1 - sizeLength - 1, Encoding);
+                            ostr.WriteEncapsulationHeader(response.Payload.Count - 1 - sizeLength - 1, PayloadEncoding);
                         }
                         // else we are forwarding a system exception encoded using 1.1 and received over ice2 to ice1.
                         // and we include only the reply status
@@ -230,7 +231,7 @@ namespace ZeroC.Ice
                             // create an ice2 encapsulation and write the 1.1 reply status followed by the 1.1 encoded
                             // data, sizeLength is not included in the encapsulation size.
 
-                            ostr.WriteEncapsulationHeader(response.Payload.Count - sizeLength, Encoding);
+                            ostr.WriteEncapsulationHeader(response.Payload.Count - sizeLength, PayloadEncoding);
                             ostr.Write(replyStatus);
                             _ = ostr.Finish();
                             Payload.Add(response.Payload.Slice(1 + sizeLength + 2));
@@ -242,7 +243,7 @@ namespace ZeroC.Ice
                             // includes the 1.1 reply status, followed by the exception). The size of the new
                             // encapsulation is the size of the payload +2 bytes for the encapsulations encoding.
 
-                            ostr.WriteEncapsulationHeader(response.Payload.Count + 2, Encoding);
+                            ostr.WriteEncapsulationHeader(response.Payload.Count + 2, PayloadEncoding);
                             _ = ostr.Finish();
                             Payload.Add(response.Payload);
                         }
@@ -255,7 +256,7 @@ namespace ZeroC.Ice
                     // encapsulation header with the new encoding and keep the rest of the encapsulation data as is.
                     var ostr = new OutputStream(Protocol.GetEncoding(), Payload);
                     ostr.Write(response.ResultType);
-                    ostr.WriteEncapsulationHeader(response.Payload.Count - 1 - sizeLength, Encoding);
+                    ostr.WriteEncapsulationHeader(response.Payload.Count - 1 - sizeLength, PayloadEncoding);
                     _ = ostr.Finish();
                     Payload.Add(response.Payload.Slice(1 + sizeLength + 2));
                 }
@@ -271,7 +272,7 @@ namespace ZeroC.Ice
             : this(request.Protocol, request.Encoding)
         {
             ReplyStatus replyStatus = ReplyStatus.UserException;
-            if (Encoding == Encoding.V11)
+            if (PayloadEncoding == Encoding.V11)
             {
                 replyStatus = exception switch
                 {
@@ -294,10 +295,10 @@ namespace ZeroC.Ice
                 ostr = new OutputStream(Protocol.GetEncoding(),
                                         Payload,
                                         _encapsulationStart,
-                                        Encoding,
+                                        PayloadEncoding,
                                         FormatType.Sliced);
 
-                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
+                if (Protocol == Protocol.Ice2 && PayloadEncoding == Encoding.V11)
                 {
                     // The first byte of the encapsulation data is the actual ReplyStatus
                     ostr.Write(replyStatus);
@@ -311,7 +312,7 @@ namespace ZeroC.Ice
             }
 
             exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
-            if (Encoding == Encoding.V11)
+            if (PayloadEncoding == Encoding.V11)
             {
                 switch (replyStatus)
                 {
@@ -397,7 +398,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(response.Protocol.GetEncoding(),
                                         response.Payload,
                                         _encapsulationStart,
-                                        response.Encoding,
+                                        response.PayloadEncoding,
                                         format);
             return (response, ostr);
         }
@@ -412,6 +413,6 @@ namespace ZeroC.Ice
                    compress,
                    compressionLevel,
                    compressionMinSize) =>
-            Encoding = encoding;
+            PayloadEncoding = encoding;
     }
 }

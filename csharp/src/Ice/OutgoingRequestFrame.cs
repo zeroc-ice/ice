@@ -26,15 +26,13 @@ namespace ZeroC.Ice
         /// on the server-side even though the invocation timeout is usually not infinite.</summary>
         public DateTime Deadline { get; }
 
-        /// <summary>The encoding of the request payload.</summary>
-        public override Encoding Encoding { get; }
-
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
 
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
 
+        /// <inheritdoc/>
         public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
 
         /// <summary>When true, the operation is idempotent.</summary>
@@ -45,6 +43,9 @@ namespace ZeroC.Ice
 
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
+
+        /// <inheritdoc/>
+        public override Encoding PayloadEncoding { get; }
 
         /// <summary>WritableContext is writable version of Context. Its entries are always the same as Context's
         /// entries.</summary>
@@ -101,7 +102,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Payload,
                                         startAt: default,
-                                        request.Encoding,
+                                        request.PayloadEncoding,
                                         format);
             writer(ostr, args);
             _ = ostr.Finish();
@@ -182,7 +183,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Payload,
                                         startAt: default,
-                                        request.Encoding,
+                                        request.PayloadEncoding,
                                         format);
             writer(ostr, in args);
             _ = ostr.Finish();
@@ -225,7 +226,7 @@ namespace ZeroC.Ice
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
                                         request.Payload,
                                         startAt: default,
-                                        request.Encoding,
+                                        request.PayloadEncoding,
                                         format);
             // TODO: deal with compress, format, and cancel paramters
             request.StreamDataWriter = writer(ostr, in args, cancel);
@@ -278,7 +279,7 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
             : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context, cancel)
         {
-            Encoding = request.Encoding;
+            PayloadEncoding = request.Encoding;
 
             if (request.Protocol == Protocol)
             {
@@ -355,7 +356,7 @@ namespace ZeroC.Ice
                    proxy.Communicator.CompressionLevel,
                    proxy.Communicator.CompressionMinSize)
         {
-            Encoding = proxy.Encoding;
+            PayloadEncoding = proxy.Encoding;
             Identity = proxy.Identity;
             Facet = proxy.Facet;
             Location = proxy.Location;

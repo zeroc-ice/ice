@@ -382,9 +382,9 @@ namespace ZeroC.Ice
             if (frame is OutgoingFrame outgoingFrame)
             {
                 framePrefix = "sent";
-                encoding = outgoingFrame.Encoding;
+                encoding = outgoingFrame.PayloadEncoding;
                 frameType = frame is OutgoingRequestFrame ? "Request" : "Response";
-                frameSize = outgoingFrame.Size;
+                frameSize = outgoingFrame.PayloadSize;
             }
             else if (frame is IncomingFrame incomingFrame)
             {

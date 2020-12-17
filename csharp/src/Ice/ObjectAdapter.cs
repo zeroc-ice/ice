@@ -926,7 +926,7 @@ namespace ZeroC.Ice
                 }
 
                 OutgoingResponseFrame response = await DispatchAsync(_dispatchInterceptors, 0).ConfigureAwait(false);
-                dispatchObserver?.Reply(response.Size);
+                dispatchObserver?.Reply(response.PayloadSize);
                 return response;
             }
             catch (Exception ex)
@@ -950,7 +950,7 @@ namespace ZeroC.Ice
                     }
 
                     var response = new OutgoingResponseFrame(request, actualEx);
-                    dispatchObserver?.Reply(response.Size);
+                    dispatchObserver?.Reply(response.PayloadSize);
                     return response;
                 }
                 else

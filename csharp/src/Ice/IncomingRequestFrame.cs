@@ -264,7 +264,7 @@ namespace ZeroC.Ice
                 BinaryContext = request.GetBinaryContext();
             }
 
-            Encoding = request.Encoding;
+            Encoding = request.PayloadEncoding;
 
             Payload = request.Payload.AsArraySegment();
             HasCompressedPayload = request.HasCompressedPayload;

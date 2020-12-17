@@ -39,7 +39,7 @@ namespace ZeroC.Ice.Test.Compress
             OutgoingResponseFrame response = await _servant.DispatchAsync(request, current, cancel);
             if (current.Operation == "opCompressReturn" || current.Operation == "opCompressParamsAndReturn")
             {
-                if (response.Encoding == Encoding.V20)
+                if (response.PayloadEncoding == Encoding.V20)
                 {
                     if (_compressed)
                     {
@@ -56,12 +56,12 @@ namespace ZeroC.Ice.Test.Compress
                     else
                     {
                         // Ensure size is less than Ice.CompressionMinSize
-                        TestHelper.Assert(response.Size < 1024);
+                        TestHelper.Assert(response.PayloadSize < 1024);
                     }
                 }
             }
 
-            if (response.Encoding == Encoding.V20 && current.Operation == "opWithUserException")
+            if (response.PayloadEncoding == Encoding.V20 && current.Operation == "opWithUserException")
             {
                 response.CompressPayload();
             }
