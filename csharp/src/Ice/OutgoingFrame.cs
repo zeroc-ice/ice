@@ -177,7 +177,7 @@ namespace ZeroC.Ice
                 var buffer = new List<ArraySegment<byte>>();
                 var ostr = new OutputStream(Encoding.V20, buffer);
                 WriteBinaryContext(ostr);
-                buffer[^1] = buffer[^1].Slice(0, ostr.Tail.Offset);
+                _ = ostr.Finish();
                 return buffer.AsArraySegment().AsReadOnlyMemory().Read(istr => istr.ReadBinaryContext());
             }
         }

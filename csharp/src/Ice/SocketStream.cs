@@ -382,7 +382,7 @@ namespace ZeroC.Ice
                     reason);
                 goAwayFrameBody.IceWrite(ostr);
                 ostr.EndFixedLengthSize(sizePos);
-                data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
+                _ = ostr.Finish();
 
                 await SendAsync(data, true, cancel).ConfigureAwait(false);
 
@@ -426,7 +426,7 @@ namespace ZeroC.Ice
                                              OutputStream.IceWriterFromVarULong);
 
                 ostr.EndFixedLengthSize(sizePos);
-                data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
+                _ = ostr.Finish();
 
                 await SendAsync(data, false, cancel).ConfigureAwait(false);
 
@@ -530,11 +530,9 @@ namespace ZeroC.Ice
             ostr.Write(frame is OutgoingRequestFrame ? Ice2FrameType.Request : Ice2FrameType.Response);
             OutputStream.Position start = ostr.StartFixedLengthSize(4);
             ostr.WriteHeader(frame);
+            _ = ostr.Finish();
 
-            Debug.Assert(ostr.Tail.Segment == buffer.Count - 1);
-            buffer[^1] = buffer[^1].Slice(0, ostr.Tail.Offset); // TODO: OutputStream should provide a helper for this!!
-
-            buffer.AddRange(frame.Payload); // TODO: switch to Payload
+            buffer.AddRange(frame.Payload);
             int frameSize = buffer.GetByteCount() - Header.Length - 1 - 4;
             ostr.RewriteFixedLengthSize20(frameSize, start, 4);
 

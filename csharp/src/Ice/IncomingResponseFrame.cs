@@ -193,9 +193,9 @@ namespace ZeroC.Ice
                 }
 
                 ostr.Write(ResultType.Success);
-                OutputStream.Position tail = ostr.WriteEmptyEncapsulation(key.Encoding);
+                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                _ = ostr.Finish();
                 Debug.Assert(data.Count == 1);
-                data[^1] = data[^1].Slice(0, tail.Offset);
                 return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
             });
 

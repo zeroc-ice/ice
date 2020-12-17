@@ -104,9 +104,7 @@ namespace ZeroC.Ice
             // it from the send queue to ensure requests are sent in the same order as the request ID values.
             ostr.WriteInt(IsStarted ? RequestId : 0);
             ostr.WriteHeader(frame);
-
-            Debug.Assert(ostr.Tail.Segment == buffer.Count - 1);
-            buffer[^1] = buffer[^1].Slice(0, ostr.Tail.Offset); // TODO: OutputStream should provide a helper for this!!
+            _ = ostr.Finish();
 
             buffer.AddRange(frame.Payload);
             int frameSize = buffer.GetByteCount();
