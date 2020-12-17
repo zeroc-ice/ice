@@ -22,6 +22,7 @@ module Ice
 {
     // These definitions help with the encoding of ice1 frames.
 
+    /// Each ice1 frame has a type identified by this enumeration.
     enum Ice1FrameType : byte
     {
         Request = 0,

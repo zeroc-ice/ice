@@ -1158,9 +1158,9 @@ namespace ZeroC.Ice
                 else
                 {
                     string transportName = transport.ToString().ToLowerInvariant();
-                    throw new InvalidDataException(@$"cannot read endpoint for protocol `{
-                        protocol.GetName()}' and transport `{
-                            transportName}' with endpoint encapsulation encoded with encoding `{encoding}'");
+                    throw new InvalidDataException(
+                        @$"cannot read endpoint for protocol `{protocol.GetName()}' and transport `{transportName
+                        }' with endpoint encapsulation encoded with encoding `{encoding}'");
                 }
             }
             else
@@ -1169,18 +1169,6 @@ namespace ZeroC.Ice
             }
 
             return endpoint;
-        }
-
-        internal ReadOnlyMemory<byte> ReadMemory(int size)
-        {
-            if (size < 0 || size > _buffer.Length - Pos)
-            {
-                throw new IndexOutOfRangeException($"cannot read {size} bytes");
-            }
-
-            int start = Pos;
-            Pos += size;
-            return _buffer.Slice(start, size);
         }
 
         internal void Skip(int size)

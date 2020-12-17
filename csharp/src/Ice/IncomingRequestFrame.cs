@@ -170,13 +170,13 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                var requestHeaderBody = new Ice1RequestHeader(istr);
-                Identity = requestHeaderBody.Identity;
-                Facet = Ice1Definitions.GetFacet(requestHeaderBody.FacetPath);
+                var requestHeader = new Ice1RequestHeader(istr);
+                Identity = requestHeader.Identity;
+                Facet = Ice1Definitions.GetFacet(requestHeader.FacetPath);
                 Location = Array.Empty<string>();
-                Operation = requestHeaderBody.Operation;
-                IsIdempotent = requestHeaderBody.OperationMode != OperationMode.Normal;
-                Context = requestHeaderBody.Context;
+                Operation = requestHeader.Operation;
+                IsIdempotent = requestHeader.OperationMode != OperationMode.Normal;
+                Context = requestHeader.Context;
                 Priority = default;
                 Deadline = DateTime.MaxValue;
             }

@@ -214,6 +214,7 @@ namespace ZeroC.Ice
             Debug.Assert(Protocol == Protocol.Ice2);
             Debug.Assert(ostr.Encoding == Encoding.V20);
 
+            // TODO: add/use helper function for the sizeLength.
             int sizeLength = InitialBinaryContext.Count + (_binaryContextOverride?.Count ?? 0) < 64 ? 1 : 2;
 
             int size = 0;

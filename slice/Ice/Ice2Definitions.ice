@@ -23,6 +23,7 @@ module Ice
 
 #ifdef __SLICE2CS__
 
+    /// Each ice2 frame has a type identified by this enumeration.
     enum Ice2FrameType : byte
     {
         Initialize = 0,

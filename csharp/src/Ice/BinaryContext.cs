@@ -15,6 +15,10 @@ namespace ZeroC.Ice
 
     public static class BinaryContextHelper
     {
+        /// <summary>Reads a binary context from the steam.</summary>
+        /// <param name="istr">The input stream.</param>
+        /// <returns>The binary context as an immutable dictionary.</returns>
+        /// <remarks>The values of the dictionary reference memory in the stream's underlying buffer.</remarks>
         public static ImmutableDictionary<int, ReadOnlyMemory<byte>> ReadBinaryContext(this InputStream istr)
         {
             Debug.Assert(istr.Encoding == Encoding.V20);

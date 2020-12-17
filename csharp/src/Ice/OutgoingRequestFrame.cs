@@ -33,7 +33,8 @@ namespace ZeroC.Ice
         public Identity Identity { get; }
 
         /// <inheritdoc/>
-        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; } =
+            ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
@@ -356,13 +357,12 @@ namespace ZeroC.Ice
                    proxy.Communicator.CompressionLevel,
                    proxy.Communicator.CompressionMinSize)
         {
-            PayloadEncoding = proxy.Encoding;
             Identity = proxy.Identity;
+            IsIdempotent = idempotent;
             Facet = proxy.Facet;
             Location = proxy.Location;
             Operation = operation;
-            IsIdempotent = idempotent;
-            InitialBinaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
+            PayloadEncoding = proxy.Encoding;
 
             Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
             Deadline = Protocol == Protocol.Ice1 || proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
