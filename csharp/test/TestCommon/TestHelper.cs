@@ -26,6 +26,48 @@ namespace Test
 
     public abstract class TestHelper
     {
+        // A custom trace listener that always aborts the application upon failure.
+        internal class TestTraceListener : DefaultTraceListener
+        {
+            public override void Fail(string message)
+            {
+                Fail(message, null);
+            }
+
+            public override void Fail(string message, string detailMessage)
+            {
+                var sb = new StringBuilder();
+                sb.Append("failed:\n");
+                if (message != null && message.Length > 0)
+                {
+                    sb.Append("message: ").Append(message).Append('\n');
+                }
+                if (detailMessage != null && detailMessage.Length > 0)
+                {
+                    sb.Append("details: ").Append(detailMessage).Append('\n');
+                }
+                try
+                {
+                    sb.Append(new StackTrace(fNeedFileInfo: true).ToString()).Append('\n');
+                }
+                catch
+                {
+                }
+
+                Console.WriteLine(sb.ToString());
+                Environment.Exit(1);
+            }
+        }
+
+        static TestHelper()
+        {
+            // Replace the default trace listener that is responsible of displaying the retry/abort dialog
+            // with our custom trace listener that always aborts upon failure.
+            // see: https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.defaulttracelistener?view=net-5.0#remarks
+            Trace.Listeners.Clear();
+            Trace.Listeners.Add(new TestTraceListener());
+        }
+
         public abstract void run(string[] args);
 
         public string getTestEndpoint(int num = 0, string protocol = "")
