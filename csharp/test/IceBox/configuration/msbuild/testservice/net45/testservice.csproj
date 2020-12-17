@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.7.5.2, Culture=neutral, PublicKeyToken=0c5ebb72d74932c6, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.7.5.0, Culture=neutral, PublicKeyToken=0c5ebb72d74932c6, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
       <HintPath>$(IceAssembliesDir)\net45\Ice.dll</HintPath>
@@ -29,7 +29,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="IceBox, Version=3.7.5.2, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="IceBox, Version=3.7.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
       <HintPath>$(IceAssembliesDir)\net45\IceBox.dll</HintPath>
