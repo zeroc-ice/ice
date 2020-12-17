@@ -53,8 +53,7 @@ public class Service extends Communicator
     @Override
     public void start()
     {
-        com.zeroc.IceBox.ServiceManagerPrx serviceManager = com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
-            ((Server)_parent).getAdminFacet("IceBox.ServiceManager"));
+        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server)_parent).getServiceManager();
 
         if(serviceManager != null)
         {
@@ -85,8 +84,7 @@ public class Service extends Communicator
     @Override
     public void stop()
     {
-        com.zeroc.IceBox.ServiceManagerPrx serviceManager = com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
-            ((Server)_parent).getAdminFacet("IceBox.ServiceManager"));
+        com.zeroc.IceBox.ServiceManagerPrx serviceManager = ((Server)_parent).getServiceManager();
 
         if(serviceManager != null)
         {
@@ -245,6 +243,32 @@ public class Service extends Communicator
     }
 
     @Override
+    protected com.zeroc.Ice.ObjectPrx getAdminFacet(com.zeroc.Ice.ObjectPrx admin, String facet)
+    {
+        String facetName = "IceBox.Service." + _id + "." + facet;
+
+        try
+        {
+            if(Integer.valueOf(((Server)_parent).getProperties().get("IceBox.UseSharedCommunicator." + _id)) > 0)
+            {
+                facetName = "IceBox.SharedCommunicator." + facet;
+            }
+        }
+        catch(NumberFormatException ex)
+        {
+        }
+
+        if (admin != null)
+        {
+            return admin.ice_facet(facetName);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    @Override
     protected String getServerDisplayName()
     {
         return "Server " + _parent.getId();
@@ -260,24 +284,6 @@ public class Service extends Communicator
     protected String getDefaultFileName()
     {
         return _parent.getId() + "-" + _id;
-    }
-
-    com.zeroc.Ice.ObjectPrx getAdminFacet(String facet)
-    {
-        String facetName = "IceBox.Service." + _id + "." + facet;
-
-        try
-        {
-            if(Integer.valueOf(((Server)_parent).getProperties().get("IceBox.UseSharedCommunicator." + _id)) > 0)
-            {
-                facetName = "IceBox.SharedCommunicator." + facet;
-            }
-        }
-        catch(NumberFormatException ex)
-        {
-        }
-
-        return ((Server)_parent).getAdminFacet(facetName);
     }
 
     Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
