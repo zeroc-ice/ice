@@ -51,7 +51,7 @@ namespace ZeroC.Ice
         public bool IsSealed { get; private protected set; }
 
         /// <summary>Returns the payload of this frame.</summary>
-        public IList<ArraySegment<byte>> Payload { get; }
+        public IList<ArraySegment<byte>> Payload { get; } = new List<ArraySegment<byte>>();
 
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
@@ -190,12 +190,10 @@ namespace ZeroC.Ice
             Protocol protocol,
             bool compress,
             CompressionLevel compressionLevel,
-            int compressionMinSize,
-            List<ArraySegment<byte>> data)
+            int compressionMinSize)
         {
             Protocol = protocol;
             Protocol.CheckSupported();
-            Payload = data;
             Compress = compress;
             _compressionLevel = compressionLevel;
             _compressionMinSize = compressionMinSize;

@@ -27,8 +27,10 @@ namespace ZeroC.Ice
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithVoidReturnValue(Current current)
         {
-            var payload = new List<ArraySegment<byte>>() { current.Protocol.GetVoidReturnPayload(current.Encoding) };
-            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data: payload);
+            var voidReturnFrame = new OutgoingResponseFrame(current.Protocol, current.Encoding);
+            voidReturnFrame.Payload.Add(current.Protocol.GetVoidReturnPayload(current.Encoding));
+            voidReturnFrame.Size = voidReturnFrame.Payload.GetByteCount(); // TODO
+            return voidReturnFrame;
         }
 
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a non-tuple non-struct
@@ -416,17 +418,15 @@ namespace ZeroC.Ice
             Encoding encoding,
             bool compress = false,
             CompressionLevel compressionLevel = CompressionLevel.Fastest,
-            int compressionMinSize = 100,
-            List<ArraySegment<byte>>? data = null)
+            int compressionMinSize = 100)
             : base(protocol,
                    compress,
                    compressionLevel,
-                   compressionMinSize,
-                   data ?? new List<ArraySegment<byte>>())
+                   compressionMinSize)
         {
             Encoding = encoding;
             InitialBinaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
-            Size = Payload.GetByteCount();
+            Size = 0;
         }
     }
 }

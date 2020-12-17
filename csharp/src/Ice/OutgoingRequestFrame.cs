@@ -251,14 +251,18 @@ namespace ZeroC.Ice
             string operation,
             bool idempotent,
             IReadOnlyDictionary<string, string>? context = null,
-            CancellationToken cancel = default) =>
-            new OutgoingRequestFrame(proxy,
-                                     operation,
-                                     idempotent,
-                                     compress: false,
-                                     context,
-                                     cancel,
-                                     writeEmptyArgs: true);
+            CancellationToken cancel = default)
+        {
+            var emptyArgsFrame = new OutgoingRequestFrame(proxy,
+                                                          operation,
+                                                          idempotent,
+                                                          compress: false,
+                                                          context,
+                                                          cancel);
+            emptyArgsFrame.Payload.Add(proxy.Protocol.GetEmptyArgsPayload(proxy.Encoding));
+            emptyArgsFrame.Size = emptyArgsFrame.Payload.GetByteCount(); // TODO
+            return emptyArgsFrame;
+        }
 
         /// <summary>Constructs an outgoing request frame from the given incoming request frame.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
@@ -349,13 +353,11 @@ namespace ZeroC.Ice
             bool idempotent,
             bool compress,
             IReadOnlyDictionary<string, string>? context,
-            CancellationToken cancel,
-            bool writeEmptyArgs = false)
+            CancellationToken cancel)
             : base(proxy.Protocol,
                    compress,
                    proxy.Communicator.CompressionLevel,
-                   proxy.Communicator.CompressionMinSize,
-                   new List<ArraySegment<byte>>())
+                   proxy.Communicator.CompressionMinSize)
         {
             Encoding = proxy.Encoding;
             Identity = proxy.Identity;
@@ -408,11 +410,6 @@ namespace ZeroC.Ice
                     _initialContext = combinedContext;
                     _writableContext = combinedContext;
                 }
-            }
-
-            if (writeEmptyArgs)
-            {
-                Payload.Add(Protocol.GetEmptyArgsPayload(Encoding));
             }
         }
     }
