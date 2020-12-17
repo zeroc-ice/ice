@@ -57,7 +57,17 @@ namespace ZeroC.Ice
         public Protocol Protocol { get; }
 
         /// <summary>The frame byte count.</summary>
-        public int Size { get; private protected set; }
+        public int Size
+        {
+            get
+            {
+                if (_payloadSize == -1)
+                {
+                    _payloadSize = Payload.GetByteCount();
+                }
+                return _payloadSize;
+            }
+        }
 
         // True if Ice1 frames should use protocol compression, false otherwise.
         internal bool Compress { get; }
@@ -70,6 +80,8 @@ namespace ZeroC.Ice
 
         private readonly CompressionLevel _compressionLevel;
         private readonly int _compressionMinSize;
+
+        private int _payloadSize = -1; // -1 means not initialized
 
         /// <summary>Compresses the encapsulation payload using GZip compression. Compressed encapsulation payload is
         /// only supported with the 2.0 encoding.</summary>
@@ -149,7 +161,7 @@ namespace ZeroC.Ice
                 Payload.Clear();
                 offset += (int)memoryStream.Position;
                 Payload.Add(new ArraySegment<byte>(compressedData, 0, offset));
-                Size = Payload.GetByteCount();
+                _payloadSize = -1; // reset cached value
 
                 // Rewrite the encapsulation size
                 compressedData.AsSpan(encapsulationOffset, sizeLength).WriteEncapsulationSize(
@@ -206,7 +218,6 @@ namespace ZeroC.Ice
         {
             if (!IsSealed)
             {
-                Size = Payload.GetByteCount();
                 IsSealed = true;
             }
         }

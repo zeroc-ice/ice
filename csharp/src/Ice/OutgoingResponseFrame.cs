@@ -13,7 +13,8 @@ namespace ZeroC.Ice
         /// <summary>The response payload encoding.</summary>
         public override Encoding Encoding { get; }
 
-        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; } =
+            ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
         /// <summary>The result type; see <see cref="Ice.ResultType"/>.</summary>
         public ResultType ResultType => Payload[0][0] == 0 ? ResultType.Success : ResultType.Failure;
@@ -29,7 +30,6 @@ namespace ZeroC.Ice
         {
             var voidReturnFrame = new OutgoingResponseFrame(current.Protocol, current.Encoding);
             voidReturnFrame.Payload.Add(current.Protocol.GetVoidReturnPayload(current.Encoding));
-            voidReturnFrame.Size = voidReturnFrame.Payload.GetByteCount(); // TODO
             return voidReturnFrame;
         }
 
@@ -263,7 +263,6 @@ namespace ZeroC.Ice
                 Debug.Assert(Payload.Count == 2);
             }
 
-            Size = Payload.GetByteCount();
             IsSealed = Protocol == Protocol.Ice1;
         }
 
@@ -346,7 +345,6 @@ namespace ZeroC.Ice
 
             if (!hasEncapsulation)
             {
-                Size = Payload.GetByteCount();
                 IsSealed = true;
             }
             else if (Protocol == Protocol.Ice2 && exception.RetryPolicy.Retryable != Retryable.No)
@@ -422,11 +420,7 @@ namespace ZeroC.Ice
             : base(protocol,
                    compress,
                    compressionLevel,
-                   compressionMinSize)
-        {
+                   compressionMinSize) =>
             Encoding = encoding;
-            InitialBinaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
-            Size = 0;
-        }
     }
 }

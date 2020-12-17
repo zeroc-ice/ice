@@ -260,7 +260,6 @@ namespace ZeroC.Ice
                                                           context,
                                                           cancel);
             emptyArgsFrame.Payload.Add(proxy.Protocol.GetEmptyArgsPayload(proxy.Encoding));
-            emptyArgsFrame.Size = emptyArgsFrame.Payload.GetByteCount(); // TODO
             return emptyArgsFrame;
         }
 
@@ -311,7 +310,6 @@ namespace ZeroC.Ice
                 }
             }
 
-            Size = Payload.GetByteCount();
             IsSealed = Protocol == Protocol.Ice1;
         }
 
