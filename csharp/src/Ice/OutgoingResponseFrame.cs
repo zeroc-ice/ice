@@ -30,9 +30,9 @@ namespace ZeroC.Ice
             var data = new List<ArraySegment<byte>>();
             var ostr = new OutputStream(current.Protocol.GetEncoding(), data);
             ostr.Write(ResultType.Success);
-            OutputStream.Position tail = ostr.WriteEmptyEncapsulation(current.Encoding);
-            data[^1] = data[^1].Slice(0, tail.Offset);
-            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data, tail);
+            _ = ostr.WriteEmptyEncapsulation(current.Encoding);
+            _ = ostr.Finish();
+            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data: data);
         }
 
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a non-tuple non-struct
@@ -55,7 +55,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, returnValue);
-            response.PayloadEnd = ostr.Finish();
+            _ = ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
@@ -111,7 +111,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, in returnValue);
-            response.PayloadEnd = ostr.Finish();
+            _ = ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
@@ -140,7 +140,7 @@ namespace ZeroC.Ice
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             // TODO: deal with compress, format and cancellation token
             response.StreamDataWriter = writer(ostr, in returnValue, default);
-            response.PayloadEnd = ostr.Finish();
+            _ = ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
@@ -166,13 +166,11 @@ namespace ZeroC.Ice
                 if (Protocol == Protocol.Ice1)
                 {
                     Payload.Add(response.Data);
-                    PayloadEnd = new OutputStream.Position(0, response.Data.Count);
                 }
                 else
                 {
                     // i.e. result type and encapsulation but not the binary context
                     Payload.Add(response.Payload);
-                    PayloadEnd = new OutputStream.Position(0, response.Payload.Count);
 
                     if (forwardBinaryContext)
                     {
@@ -293,7 +291,6 @@ namespace ZeroC.Ice
                 // source response uses ice1 and does not carry a binary context or the source response uses ice2 and
                 // its binary context cannot be included in the forwarded ice1 response.
                 Debug.Assert(Payload.Count == 2);
-                PayloadEnd = new OutputStream.Position(1, Payload[1].Count);
             }
 
             Size = Payload.GetByteCount();
@@ -375,8 +372,8 @@ namespace ZeroC.Ice
                 ostr.WriteException(exception);
             }
 
-            PayloadEnd = ostr.Finish();
-            Payload[^1] = Payload[^1].Slice(0, PayloadEnd.Offset);
+            _ = ostr.Finish();
+
             if (!hasEncapsulation)
             {
                 Size = Payload.GetByteCount();
@@ -423,13 +420,6 @@ namespace ZeroC.Ice
             }
         }
 
-        internal OutgoingResponseFrame(
-            Protocol protocol,
-            Encoding encoding,
-            List<ArraySegment<byte>> data,
-            OutputStream.Position encapsulationEnd)
-            : this(protocol, encoding, data: data) => PayloadEnd = encapsulationEnd;
-
         private static (OutgoingResponseFrame ResponseFrame, OutputStream Ostr) PrepareReturnValue(
             Current current,
             bool compress,
@@ -468,7 +458,7 @@ namespace ZeroC.Ice
         {
             Encoding = encoding;
             InitialBinaryContext = ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
-            Size = Payload?.GetByteCount() ?? 0;
+            Size = Payload.GetByteCount();
         }
     }
 }

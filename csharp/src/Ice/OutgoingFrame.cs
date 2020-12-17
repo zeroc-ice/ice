@@ -66,9 +66,6 @@ namespace ZeroC.Ice
         /// called after the request or response frame is sent over a socket stream.</summary>
         internal Action<SocketStream>? StreamDataWriter { get; set; }
 
-        // Position of the end of the payload. With ice1, this is always the end of the frame.
-        private protected OutputStream.Position PayloadEnd { get; set; }
-
         private Dictionary<int, Action<OutputStream>>? _binaryContextOverride;
 
         private readonly CompressionLevel _compressionLevel;
@@ -150,13 +147,9 @@ namespace ZeroC.Ice
                     return CompressionResult.PayloadNotCompressible;
                 }
 
-                int start = 0;
-
-                Payload.RemoveRange(start, PayloadEnd.Segment - start + 1);
+                Payload.Clear();
                 offset += (int)memoryStream.Position;
-                Payload.Insert(start, new ArraySegment<byte>(compressedData, 0, offset));
-
-                PayloadEnd = new OutputStream.Position(start, offset);
+                Payload.Add(new ArraySegment<byte>(compressedData, 0, offset));
                 Size = Payload.GetByteCount();
 
                 // Rewrite the encapsulation size
@@ -216,7 +209,6 @@ namespace ZeroC.Ice
         {
             if (!IsSealed)
             {
-                Payload[^1] = Payload[^1].Slice(0, PayloadEnd.Offset);
                 Size = Payload.GetByteCount();
                 IsSealed = true;
             }

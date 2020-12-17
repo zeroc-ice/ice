@@ -104,7 +104,7 @@ namespace ZeroC.Ice
                                         request.Encoding,
                                         format);
             writer(ostr, args);
-            request.PayloadEnd = ostr.Finish();
+            _ = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -185,7 +185,7 @@ namespace ZeroC.Ice
                                         request.Encoding,
                                         format);
             writer(ostr, in args);
-            request.PayloadEnd = ostr.Finish();
+            _ = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -229,7 +229,7 @@ namespace ZeroC.Ice
                                         format);
             // TODO: deal with compress, format, and cancel paramters
             request.StreamDataWriter = writer(ostr, in args, cancel);
-            request.PayloadEnd = ostr.Finish();
+            _ = ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -281,7 +281,6 @@ namespace ZeroC.Ice
             {
                 // We only include the encapsulation.
                 Payload.Add(request.Payload);
-                PayloadEnd = new OutputStream.Position(Payload.Count - 1, request.Payload.Count);
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
@@ -311,12 +310,6 @@ namespace ZeroC.Ice
                 {
                     // Add encoded bytes, not including the header or binary context.
                     Payload.Add(request.Payload.Slice(sizeLength + 2));
-
-                    PayloadEnd = new OutputStream.Position(Payload.Count - 1, request.Payload.Count - sizeLength - 2);
-                }
-                else
-                {
-                    PayloadEnd = tail;
                 }
             }
 
@@ -424,7 +417,8 @@ namespace ZeroC.Ice
             if (writeEmptyArgs)
             {
                 var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Payload);
-                PayloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
+                _ = ostr.WriteEmptyEncapsulation(Encoding);
+                _ = ostr.Finish();
             }
         }
     }
