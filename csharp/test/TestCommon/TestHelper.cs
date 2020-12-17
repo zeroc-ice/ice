@@ -21,7 +21,7 @@ namespace ZeroC.Test
 
         public Communicator Communicator { get; private init; } = null!;
 
-        public ZeroC.Ice.Encoding Encoding => GetTestEncoding(Communicator.GetProperties());
+        public Ice.Encoding Encoding => GetTestEncoding(Communicator.GetProperties());
 
         public string Host => GetTestHost(Communicator.GetProperties());
 
@@ -35,13 +35,46 @@ namespace ZeroC.Test
             set => _writer = value;
         }
 
+        static TestHelper()
+        {
+            // Replace the default trace listener that is responsible of displaying the retry/abort dialog
+            // with our custom trace listener that always aborts upon failure.
+            // see: https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.defaulttracelistener?view=net-5.0#remarks
+            Trace.Listeners.Clear();
+            Trace.Listeners.Add(new TestTraceListener());
+        }
+
         public static void Assert([DoesNotReturnIf(false)] bool b, string message = "")
         {
             if (!b)
             {
-                Debug.Assert(false, message);
-                throw new Exception(message);
+                Fail(message, null);
             }
+        }
+
+        [DoesNotReturn]
+        internal static void Fail(string? message, string? detailMessage)
+        {
+            var sb = new StringBuilder();
+            sb.Append("failed:\n");
+            if (message != null && message.Length > 0)
+            {
+                sb.Append("message: ").Append(message).Append('\n');
+            }
+            if (detailMessage != null && detailMessage.Length > 0)
+            {
+                sb.Append("details: ").Append(detailMessage).Append('\n');
+            }
+            try
+            {
+                sb.Append(new StackTrace(fNeedFileInfo: true).ToString()).Append('\n');
+            }
+            catch
+            {
+            }
+
+            Console.WriteLine(sb.ToString());
+            Environment.Exit(1);
         }
 
         public static Communicator CreateCommunicator(
@@ -200,7 +233,7 @@ namespace ZeroC.Test
             }
         }
 
-        public static ZeroC.Ice.Encoding GetTestEncoding(Dictionary<string, string> properties) =>
+        public static Ice.Encoding GetTestEncoding(Dictionary<string, string> properties) =>
             GetTestProtocol(properties).GetEncoding();
 
         public static string GetTestTransport(Dictionary<string, string> properties)
@@ -269,6 +302,14 @@ namespace ZeroC.Test
         public virtual void ServerReady()
         {
         }
+
+        // A custom trace listener that always aborts the application upon failure.
+        internal class TestTraceListener : DefaultTraceListener
+        {
+            public override void Fail(string? message) => TestHelper.Fail(message, null);
+
+            public override void Fail(string? message, string? detailMessage) => TestHelper.Fail(message, detailMessage);
+        }
     }
 }
 
@@ -313,14 +354,48 @@ namespace Test
             set => _writer = value;
         }
 
+        static TestHelper()
+        {
+            // Replace the default trace listener that is responsible of displaying the retry/abort dialog
+            // with our custom trace listener that always aborts upon failure.
+            // see: https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.defaulttracelistener?view=net-5.0#remarks
+            Trace.Listeners.Clear();
+            Trace.Listeners.Add(new TestTraceListener());
+        }
+
         public static void Assert([DoesNotReturnIf(false)] bool b, string message = "")
         {
             if (!b)
             {
-                Debug.Assert(false, message);
-                throw new Exception(message);
+                Fail(message, null);
             }
         }
+
+        [DoesNotReturn]
+        internal static void Fail(string? message, string? detailMessage)
+        {
+            var sb = new StringBuilder();
+            sb.Append("failed:\n");
+            if (message != null && message.Length > 0)
+            {
+                sb.Append("message: ").Append(message).Append('\n');
+            }
+            if (detailMessage != null && detailMessage.Length > 0)
+            {
+                sb.Append("details: ").Append(detailMessage).Append('\n');
+            }
+            try
+            {
+                sb.Append(new StackTrace(fNeedFileInfo: true).ToString()).Append('\n');
+            }
+            catch
+            {
+            }
+
+            Console.WriteLine(sb.ToString());
+            Environment.Exit(1);
+        }
+
         public abstract Task RunAsync(string[] args);
 
         public string GetTestEndpoint(int num = 0, string transport = "", bool ephemeral = false) =>
@@ -527,6 +602,14 @@ namespace Test
         }
 
         public void ServerReady() => ControllerHelper?.ServerReady();
+
+        // A custom trace listener that always aborts the application upon failure.
+        internal class TestTraceListener : DefaultTraceListener
+        {
+            public override void Fail(string? message) => TestHelper.Fail(message, null);
+
+            public override void Fail(string? message, string? detailMessage) => TestHelper.Fail(message, detailMessage);
+        }
     }
 
     public static class TestDriver

@@ -59,11 +59,11 @@ public:
     ICE_MEMBER(ICEBT_API) virtual ~ConnectionInfo();
 
     ConnectionInfo() :
-        localAddress(u8""),
+        localAddress(""),
         localChannel(-1),
-        remoteAddress(u8""),
+        remoteAddress(""),
         remoteChannel(-1),
-        uuid(u8""),
+        uuid(""),
         rcvSize(0),
         sndSize(0)
     {
