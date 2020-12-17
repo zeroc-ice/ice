@@ -36,21 +36,19 @@ namespace Test
 
             public override void Fail(string message, string detailMessage)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("failed:");
+                var sb = new StringBuilder();
+                sb.Append("failed:\n");
                 if (message != null && message.Length > 0)
                 {
-                    sb.Append(" ");
-                    sb.Append(message);
+                    sb.Append("message: ").Append(message).Append('\n');
                 }
-                sb.Append("\n");
                 if (detailMessage != null && detailMessage.Length > 0)
                 {
-                    sb.Append("details:").Append(detailMessage).Append("\n");
+                    sb.Append("details: ").Append(detailMessage).Append('\n');
                 }
                 try
                 {
-                    sb.Append(new StackTrace(fNeedFileInfo: true).ToString());
+                    sb.Append(new StackTrace(fNeedFileInfo: true).ToString()).Append('\n');
                 }
                 catch
                 {
@@ -63,8 +61,8 @@ namespace Test
 
         static TestHelper()
         {
-            // Replace the default trace listeneter that is responsible of displaying the retry/abort dialog
-            // with our custom trace listener that alwways aborts upon failure.
+            // Replace the default trace listener that is responsible of displaying the retry/abort dialog
+            // with our custom trace listener that always aborts upon failure.
             // see: https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.defaulttracelistener?view=net-5.0#remarks
             Trace.Listeners.Clear();
             Trace.Listeners.Add(new TestTraceListener());
