@@ -774,6 +774,10 @@ namespace ZeroC.Ice
                     // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
                     // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
                     // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
+
+                    // TODO: this "request size" is now just the payload size. Should we rename the property to
+                    // RetryRequestPayloadMaxSize?
+
                     int requestSize = request.PayloadSize;
                     bool releaseRequestAfterSent =
                         requestSize > communicator.RetryRequestMaxSize ||

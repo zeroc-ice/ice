@@ -384,6 +384,8 @@ namespace ZeroC.Ice
                 framePrefix = "sent";
                 encoding = outgoingFrame.PayloadEncoding;
                 frameType = frame is OutgoingRequestFrame ? "Request" : "Response";
+
+                // TODO: fix tracing to trace payload size as opposed to frame size.
                 frameSize = outgoingFrame.PayloadSize;
             }
             else if (frame is IncomingFrame incomingFrame)

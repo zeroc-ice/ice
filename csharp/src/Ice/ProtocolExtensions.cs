@@ -14,8 +14,9 @@ namespace ZeroC.Ice
             {
                 Protocol.Ice1 => Encoding.V11,
                 Protocol.Ice2 => Encoding.V20,
-                _ => throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
-                    }' is not supported by this Ice runtime ({Runtime.StringVersion})")
+                _ => throw new NotSupportedException(
+                    @$"Ice protocol `{protocol.GetName()}' is not supported by this Ice runtime ({Runtime.StringVersion
+                    })")
             };
 
         /// <summary>Returns the name of this protocol in lowercase, e.g. "ice1" or "ice2".</summary>
@@ -56,8 +57,9 @@ namespace ZeroC.Ice
         {
             if (!protocol.IsSupported())
             {
-                throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
-                    }' is not supported by this Ice runtime ({Runtime.StringVersion})");
+                throw new NotSupportedException(
+                    @$"Ice protocol `{protocol.GetName()}' is not supported by this Ice runtime ({Runtime.StringVersion
+                    })");
             }
         }
 
@@ -66,8 +68,9 @@ namespace ZeroC.Ice
             {
                 Protocol.Ice1 => Ice1Definitions.GetEmptyArgsPayload(encoding),
                 Protocol.Ice2 => Ice2Definitions.GetEmptyArgsPayload(encoding),
-                _ => throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
-                }' is not supported by this Ice runtime ({Runtime.StringVersion})"),
+                _ => throw new NotSupportedException(
+                    @$"Ice protocol `{protocol.GetName()}' is not supported by this Ice runtime ({Runtime.StringVersion
+                    })"),
             };
 
         internal static ArraySegment<byte> GetVoidReturnPayload(this Protocol protocol, Encoding encoding) =>
@@ -75,8 +78,9 @@ namespace ZeroC.Ice
             {
                 Protocol.Ice1 => Ice1Definitions.GetVoidReturnPayload(encoding),
                 Protocol.Ice2 => Ice2Definitions.GetVoidReturnPayload(encoding),
-                _ => throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
-                }' is not supported by this Ice runtime ({Runtime.StringVersion})"),
+                _ => throw new NotSupportedException(
+                    @$"Ice protocol `{protocol.GetName()}' is not supported by this Ice runtime ({Runtime.StringVersion
+                    })"),
             };
 
         internal static bool IsSupported(this Protocol protocol) =>
