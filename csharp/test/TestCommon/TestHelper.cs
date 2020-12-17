@@ -31,31 +31,12 @@ namespace Test
         {
             public override void Fail(string message)
             {
-                Fail(message, null);
+                TestHelper.fail(message, null);
             }
 
             public override void Fail(string message, string detailMessage)
             {
-                var sb = new StringBuilder();
-                sb.Append("failed:\n");
-                if (message != null && message.Length > 0)
-                {
-                    sb.Append("message: ").Append(message).Append('\n');
-                }
-                if (detailMessage != null && detailMessage.Length > 0)
-                {
-                    sb.Append("details: ").Append(detailMessage).Append('\n');
-                }
-                try
-                {
-                    sb.Append(new StackTrace(fNeedFileInfo: true).ToString()).Append('\n');
-                }
-                catch
-                {
-                }
-
-                Console.WriteLine(sb.ToString());
-                Environment.Exit(1);
+                TestHelper.fail(message, detailMessage);
             }
         }
 
@@ -176,9 +157,32 @@ namespace Test
         {
             if (!b)
             {
-                Debug.Assert(false);
-                throw new Exception();
+                fail(null, null);
             }
+        }
+
+        internal static void fail(string message, string detailMessage)
+        {
+            var sb = new StringBuilder();
+            sb.Append("failed:\n");
+            if (message != null && message.Length > 0)
+            {
+                sb.Append("message: ").Append(message).Append('\n');
+            }
+            if (detailMessage != null && detailMessage.Length > 0)
+            {
+                sb.Append("details: ").Append(detailMessage).Append('\n');
+            }
+            try
+            {
+                sb.Append(new StackTrace(fNeedFileInfo: true).ToString()).Append('\n');
+            }
+            catch
+            {
+            }
+
+            Console.WriteLine(sb.ToString());
+            Environment.Exit(1);
         }
 
         public void setControllerHelper(ControllerHelper controllerHelper)
