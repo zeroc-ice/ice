@@ -170,8 +170,8 @@ namespace ZeroC.Ice
                             }
                             catch
                             {
-                                // Ignore, the socket no longer accepts new streams because it's being
-                                // closed or the stream has been disposed shortly after being constructed.
+                                // Ignore, the socket no longer accepts new streams because it's being closed or the
+                                // stream has been disposed shortly after being constructed.
                                 stream?.Dispose();
                             }
 

@@ -26,21 +26,16 @@ namespace ZeroC.Ice
             base.Dispose(disposing);
             if (disposing)
             {
-                if (IsSignaled)
+                try
                 {
-                    // If the stream is signaled, it was canceled or discarded. We get the information for the frame
-                    // to receive in order to consume it below.
-                    try
-                    {
-                        ValueTask<(int, bool)> valueTask = WaitSignalAsync(CancellationToken.None);
-                        Debug.Assert(valueTask.IsCompleted);
-                        (_receivedSize, _receivedEndOfStream) = valueTask.Result;
-                        _receivedOffset = 0;
-                    }
-                    catch
-                    {
-                        // Ignore, the stream got aborted and there's nothing to consume.
-                    }
+                    ValueTask<(int, bool)> valueTask = WaitSignalAsync(CancellationToken.None);
+                    Debug.Assert(valueTask.IsCompleted);
+                    (_receivedSize, _receivedEndOfStream) = valueTask.Result;
+                    _receivedOffset = 0;
+                }
+                catch
+                {
+                    // Ignore, there's nothing to consume.
                 }
 
                 // If there's still data pending to be receive for the stream, we notify the socket that

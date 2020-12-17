@@ -93,6 +93,8 @@ namespace ZeroC.Ice
             Task.Run(async () =>
                 {
                     // We use the same default buffer size as System.IO.Stream.CopyToAsync()
+                    // TODO: Should this depend on the transport packet size? (Slic default packet size is 32KB for
+                    // example).
                     int bufferSize = 81920;
                     if (ioStream.CanSeek)
                     {

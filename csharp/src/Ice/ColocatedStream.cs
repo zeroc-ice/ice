@@ -15,15 +15,10 @@ namespace ZeroC.Ice
         protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
 
+        private ConcurrentQueue<ArraySegment<byte>>? _receivedData;
         private bool _receivedEndOfStream;
-        private volatile object? _streamable;
+        private ArraySegment<byte> _receiveSegment;
         private readonly ColocatedSocket _socket;
-
-        public override System.IO.Stream ReceiveDataIntoIOStream() =>
-            ReceiveStreamable() as System.IO.Stream ?? throw new InvalidDataException("unexpected data");
-
-        public override void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel) =>
-            Task.Run(() => _socket.SendFrameAsync(this, frame: ioStream, fin: true, cancel));
 
         protected override void Dispose(bool disposing)
         {
@@ -35,9 +30,40 @@ namespace ZeroC.Ice
             }
         }
 
-        protected override ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel) =>
-            // This is never called because we override the default ReceiveFrameAsync implementation
-            throw new NotImplementedException();
+        protected override async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancel)
+        {
+            int received = 0;
+            while (buffer.Length > 0)
+            {
+                if (_receiveSegment.Count > 0 || (_receivedData?.TryDequeue(out _receiveSegment) ?? false))
+                {
+                    if (_receiveSegment.Count == 0)
+                    {
+                        _receivedEndOfStream = true;
+                        return received;
+                    }
+                    else if (buffer.Length < _receiveSegment.Count)
+                    {
+                        _receiveSegment.Slice(0, buffer.Length).AsMemory().CopyTo(buffer);
+                        received += buffer.Length;
+                        _receiveSegment = _receiveSegment.Slice(buffer.Length);
+                        buffer = buffer[buffer.Length..];
+                    }
+                    else
+                    {
+                        _receiveSegment.AsMemory().CopyTo(buffer);
+                        received += _receiveSegment.Count;
+                        _receiveSegment = new ArraySegment<byte>();
+                        buffer = buffer[_receiveSegment.Count..];
+                    }
+                }
+                else
+                {
+                    await WaitSignalAsync(cancel).ConfigureAwait(false);
+                }
+            }
+            return received;
+        }
 
         protected override ValueTask ResetAsync(long errorCode) =>
             // A null frame indicates a stream reset.
@@ -45,7 +71,7 @@ namespace ZeroC.Ice
             _socket.SendFrameAsync(this, frame: null, fin: true, CancellationToken.None);
 
         protected override ValueTask SendAsync(IList<ArraySegment<byte>> buffer, bool fin, CancellationToken cancel) =>
-            _socket.SendFrameAsync(this, frame: buffer, fin: fin, cancel);
+            _socket.SendFrameAsync(this, frame: new List<ArraySegment<byte>>(buffer), fin: fin, cancel);
 
         /// <summary>Constructor for incoming colocated stream</summary>
         internal ColocatedStream(ColocatedSocket socket, long streamId)
@@ -57,31 +83,28 @@ namespace ZeroC.Ice
 
         internal void ReceivedFrame(object frame, bool fin)
         {
-            if (IsSignaled)
+            if (_receivedData != null)
             {
-                // The frame might already be signaled if the peer sends the request frame and then the request
-                // stream data. SignaledSocketStream can't queue multiple signals so we have to keep track of the
-                // second frame in _streamable here. This can only occur for the stream data and in this case
-                // fin should be true since the data frame is the last frame that will be sent.
-                //
-                // TODO: All this code needs to be revisited to no longer pass around the System.IO.Stream object
-                // from the client side to the server side but instead create a new stream object on the server
-                // side and copy the client stream into it. This will require to handle the queuing of multiple
-                // successive frames for a given stream.
-                Debug.Assert(fin);
-                _streamable = frame;
-
-                // If the signal got consumed by another thread in the meantime, make sure to signal the stream to
-                // ensure the ReceiveFrameAsync will wake-up and return the frame.
-                if (!IsSignaled)
+                Debug.Assert(frame is List<ArraySegment<byte>>);
+                var data = (List<ArraySegment<byte>>)frame;
+                Debug.Assert(data.Count == 1);
+                _receivedData.Enqueue(data[0]);
+                if (fin)
                 {
-                    SignalCompletion((frame, true));
+                    _receivedData.Enqueue(ArraySegment<byte>.Empty);
                 }
             }
-            else
+            else if (frame is OutgoingFrame && !fin)
             {
-                // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
-                // code which could end up blocking the AcceptStreamAsync task.
+                // If it's a request or response and the stream is not finished, create a concurrent queue to
+                // keep track of additional data frames.
+                _receivedData = new ConcurrentQueue<ArraySegment<byte>>();
+            }
+
+            // Run the continuation asynchronously if it's a response to ensure we don't end up calling user
+            // code which could end up blocking the AcceptStreamAsync task.
+            if (!IsSignaled)
+            {
                 SignalCompletion((frame, fin), runContinuationAsynchronously: frame is OutgoingResponseFrame);
             }
         }
@@ -120,23 +143,6 @@ namespace ZeroC.Ice
                 Debug.Assert(false);
                 throw new InvalidDataException("unexpected frame");
             }
-        }
-
-        private object ReceiveStreamable()
-        {
-            object frame;
-            if (_streamable != null)
-            {
-                _receivedEndOfStream = true;
-                frame = _streamable;
-            }
-            else
-            {
-                (frame, _receivedEndOfStream) = WaitSignalAsync().AsTask().Result;
-                Debug.Assert(_receivedEndOfStream);
-            }
-            TryDispose();
-            return frame;
         }
 
         private protected override async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)
