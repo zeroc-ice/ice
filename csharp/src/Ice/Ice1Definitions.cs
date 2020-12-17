@@ -238,11 +238,10 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a request header body without constructing an Ice1RequestHeaderBody instance. This
-        /// implementation is slightly more efficient than the generated code because it avoids the allocation of a
-        /// string[] to write the facet and the allocation of a Dictionary{string, string} to write the context.
-        /// </summary>
-        internal static void WriteIce1RequestHeaderBody(
+        /// <summary>Writes a request header without constructing an Ice1RequestHeader instance. This implementation is
+        /// slightly more efficient than the generated code because it avoids the allocation of a  string[] to write the
+        /// facet and the allocation of a Dictionary{string, string} to write the context.</summary>
+        internal static void WriteIce1RequestHeader(
             this OutputStream ostr,
             Identity identity,
             string facet,

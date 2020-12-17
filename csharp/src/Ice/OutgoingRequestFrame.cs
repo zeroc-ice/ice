@@ -340,7 +340,7 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice1);
-                ostr.WriteIce1RequestHeaderBody(Identity, Facet, Operation, IsIdempotent, Context);
+                ostr.WriteIce1RequestHeader(Identity, Facet, Operation, IsIdempotent, Context);
             }
         }
 

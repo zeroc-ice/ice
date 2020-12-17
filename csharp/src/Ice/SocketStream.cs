@@ -66,14 +66,15 @@ namespace ZeroC.Ice
         /// <summary>Returns true if the stream ID is assigned</summary>
         internal bool IsStarted => _id != -1;
 
+        // The use count indicates if the socket stream is being used to process an invocation or dispatch or
+        // to process stream parameters. The socket stream is disposed only once this count drops to 0.
+        private protected int UseCount = 1;
+
         // Depending on the stream implementation, the _id can be assigned on construction or only once SendAsync
         // is called. Once it's assigned, it's immutable. The specialization of the stream is responsible for not
         // accessing this data member concurrently when it's not safe.
         private long _id = -1;
         private readonly MultiStreamSocket _socket;
-        // The use count indicates if the socket stream is being used to process an invocation or dispatch or
-        // to process stream parameters. The socket stream is disposed only once this count drops to 0.
-        private protected int _useCount = 1;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
         /// implementation should abort the pending receive task.</summary>
@@ -90,7 +91,7 @@ namespace ZeroC.Ice
 
         public virtual void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel)
         {
-            Interlocked.Increment(ref _useCount);
+            Interlocked.Increment(ref UseCount);
             Task.Run(async () =>
                 {
                     // We use the same default buffer size as System.IO.Stream.CopyToAsync()
@@ -299,7 +300,7 @@ namespace ZeroC.Ice
             {
                 // Increment the use count of this stream to ensure it's not going to be disposed before the
                 // stream parameter data is disposed.
-                Interlocked.Increment(ref _useCount);
+                Interlocked.Increment(ref UseCount);
                 request = new IncomingRequestFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, this);
             }
 
@@ -339,7 +340,7 @@ namespace ZeroC.Ice
             {
                 // Increment the use count of this stream to ensure it's not going to be disposed before the
                 // stream parameter data is disposed.
-                Interlocked.Increment(ref _useCount);
+                Interlocked.Increment(ref UseCount);
                 response = new IncomingResponseFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, this);
             }
 
@@ -473,11 +474,11 @@ namespace ZeroC.Ice
 
         internal void TryDispose()
         {
-            if (Interlocked.Decrement(ref _useCount) == 0)
+            if (Interlocked.Decrement(ref UseCount) == 0)
             {
                 Dispose();
             }
-            Debug.Assert(_useCount >= 0);
+            Debug.Assert(UseCount >= 0);
         }
 
         private protected virtual async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(

@@ -97,7 +97,7 @@ namespace ZeroC.Ice
             else
             {
                 frame.SocketStream = this;
-                Interlocked.Increment(ref _useCount);
+                Interlocked.Increment(ref UseCount);
             }
             return frame;
         }
@@ -129,7 +129,7 @@ namespace ZeroC.Ice
             else
             {
                 frame.SocketStream = this;
-                Interlocked.Increment(ref _useCount);
+                Interlocked.Increment(ref UseCount);
             }
 
             return frame;

@@ -50,9 +50,12 @@ module Ice
         \Idempotent
     }
 
-    /// The body of an ice1 request header.
+    /// Each ice1 request frame has:
+    /// - a frame prologue, with the frame type and the overall frame size
+    /// - a request header (below)
+    /// - a request payload
     [cs:readonly]
-    struct Ice1RequestHeaderBody
+    struct Ice1RequestHeader
     {
         Identity identity;
         StringSeq facetPath;

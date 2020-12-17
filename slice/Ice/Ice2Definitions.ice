@@ -45,6 +45,7 @@ module Ice
         IncomingFrameMaxSize = 0
     }
 
+    /// The request header body, see Ice2RequestHeader.
     [cs:readonly]
     struct Ice2RequestHeaderBody
     {
@@ -59,9 +60,9 @@ module Ice
     }
 
     /// Each ice2 request frame has:
-    /// - a frame prologue, with the frame type and the overall frame size.
-    /// - a request header, with the header size, body and binary context.
-    /// - a request payload, whose size is frame size less length of header size less header size.
+    /// - a frame prologue, with the frame type and the overall frame size
+    /// - a request header (below)
+    /// - a request payload
     struct Ice2RequestHeader
     {
         varulong headerSize;
@@ -70,9 +71,9 @@ module Ice
     }
 
     /// Each ice2 response frame has:
-    /// - a frame prologue, with the frame type and the overall frame size.
-    /// - a response header, with the header size and binary context.
-    /// - a response payload, whose size is frame size less length of header size less header size.
+    /// - a frame prologue, with the frame type and the overall frame size
+    /// - a response header (below)
+    /// - a response payload
     struct Ice2ResponseHeader
     {
         varulong headerSize;
@@ -80,8 +81,7 @@ module Ice
     }
 
     /// The type of result carried by an ice2 response frame. The values Success and Failure match the values of OK and
-    /// UserException in {@see ReplyStatus}.
-    /// The result type is always the first byte of an ice2 reponse frame payload.
+    /// UserException in {@see ReplyStatus}. The first byte of an ice2 response frame payload is a ResultType.
     enum ResultType : byte
     {
         /// The request succeeded.

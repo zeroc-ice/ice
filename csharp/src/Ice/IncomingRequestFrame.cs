@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ZeroC.Ice
@@ -171,7 +170,7 @@ namespace ZeroC.Ice
 
             if (Protocol == Protocol.Ice1)
             {
-                var requestHeaderBody = new Ice1RequestHeaderBody(istr);
+                var requestHeaderBody = new Ice1RequestHeader(istr);
                 Identity = requestHeaderBody.Identity;
                 Facet = Ice1Definitions.GetFacet(requestHeaderBody.FacetPath);
                 Location = Array.Empty<string>();
@@ -186,6 +185,7 @@ namespace ZeroC.Ice
                 int headerSize = istr.ReadSize();
                 int startPos = istr.Pos;
 
+                // We use the generated code for the header body and read the rest of the header "by hand".
                 var requestHeaderBody = new Ice2RequestHeaderBody(istr);
                 Identity = requestHeaderBody.Identity;
                 Facet = requestHeaderBody.Facet ?? "";
