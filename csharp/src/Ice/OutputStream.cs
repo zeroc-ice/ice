@@ -1045,19 +1045,6 @@ namespace ZeroC.Ice
         /// <return>The number of bytes needed to encode the long value as a varlong</return>
         internal static int GetVarLongLength(long value) => 1 << GetEncodedSize(value);
 
-        // TODO: Move to ByteBufferExtensions?
-        internal static Position WriteEncapsulationHeader(
-            IList<ArraySegment<byte>> data,
-            Position startAt,
-            Encoding encoding,
-            int size,
-            Encoding payloadEncoding)
-        {
-            var ostr = new OutputStream(encoding, data, startAt);
-            ostr.WriteEncapsulationHeader(size, payloadEncoding);
-            return ostr.Tail;
-        }
-
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
         {
@@ -1472,7 +1459,7 @@ namespace ZeroC.Ice
         /// <param name="size">The size of the encapsulation, in bytes. This size does not include the length of the
         /// encoded size itself.</param>
         /// <param name="encoding">The encoding of the new encapsulation.</param>
-        private void WriteEncapsulationHeader(int size, Encoding encoding)
+        internal void WriteEncapsulationHeader(int size, Encoding encoding)
         {
             if (OldEncoding)
             {

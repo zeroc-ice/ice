@@ -295,15 +295,9 @@ namespace ZeroC.Ice
 
                 int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : request.Payload[0].ReadSizeLength20();
 
-                OutputStream.Position tail =
-                    OutputStream.WriteEncapsulationHeader(Payload,
-                                                          startAt: default,
-                                                          Protocol.GetEncoding(),
-                                                          request.Payload.Count - sizeLength,
-                                                          request.Encoding);
-
-                // Finish off current segment
-                Payload[^1] = Payload[^1].Slice(0, tail.Offset);
+                var ostr = new OutputStream(Protocol.GetEncoding(), Payload);
+                ostr.WriteEncapsulationHeader(request.Payload.Count - sizeLength, request.Encoding);
+                _ = ostr.Finish();
 
                 // "2" below corresponds to the encoded length of the encoding.
                 if (request.Payload.Count > sizeLength + 2)
