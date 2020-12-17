@@ -27,12 +27,8 @@ namespace ZeroC.Ice
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithVoidReturnValue(Current current)
         {
-            var data = new List<ArraySegment<byte>>();
-            var ostr = new OutputStream(current.Protocol.GetEncoding(), data);
-            ostr.Write(ResultType.Success);
-            _ = ostr.WriteEmptyEncapsulation(current.Encoding);
-            _ = ostr.Finish();
-            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data: data);
+            var payload = new List<ArraySegment<byte>>() { current.Protocol.GetVoidReturnPayload(current.Encoding) };
+            return new OutgoingResponseFrame(current.Protocol, current.Encoding, data: payload);
         }
 
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a non-tuple non-struct

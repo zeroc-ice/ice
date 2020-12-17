@@ -179,25 +179,9 @@ namespace ZeroC.Ice
 
         /// <summary>Returns an <see cref="IncomingResponseFrame"/> that represents a oneway pseudo response.</summary>
         internal static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
-            _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
-            {
-                var data = new List<ArraySegment<byte>>();
-                var ostr = new OutputStream(key.Protocol.GetEncoding(), data);
-
-                if (key.Protocol == Protocol.Ice2)
-                {
-                    // Response header with empty binary context
-                    OutputStream.Position start = ostr.StartFixedLengthSize(2); // TODO: temporary, should be 1
-                    ostr.WriteSize(0);
-                    ostr.EndFixedLengthSize(start, 2);
-                }
-
-                ostr.Write(ResultType.Success);
-                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
-                _ = ostr.Finish();
-                Debug.Assert(data.Count == 1);
-                return new IncomingResponseFrame(key.Protocol, data[0], int.MaxValue);
-            });
+            _cachedVoidReturnValueFrames.GetOrAdd(
+                (protocol, encoding),
+                key => new IncomingResponseFrame(key.Protocol, key.Encoding));
 
         /// <summary>Constructs an incoming response frame.</summary>
         /// <param name="protocol">The Ice protocol of this frame.</param>
@@ -302,10 +286,12 @@ namespace ZeroC.Ice
             return retryPolicy;
         }
 
+        // Constructor for oneway response pseudo frame.
         private IncomingResponseFrame(Protocol protocol, Encoding encoding)
             : base(protocol, int.MaxValue)
         {
             Encoding = encoding;
+            Payload = protocol.GetVoidReturnPayload(encoding);
         }
 
         private Exception ReadException(IObjectPrx proxy)
