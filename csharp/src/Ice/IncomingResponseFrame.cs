@@ -260,8 +260,12 @@ namespace ZeroC.Ice
                 (size, sizeLength, Encoding) =
                     Payload.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
-                // TODO: temporary
-                Debug.Assert(Payload.Count - 1 == size + sizeLength);
+                if (Payload.Count - 1 != size + sizeLength)
+                {
+                    throw new InvalidDataException(
+                        @$"received {Protocol.GetName()} response frame with a {size
+                        } bytes encapsulation but expected {Payload.Count - 1 - sizeLength} bytes");
+                }
 
                 HasCompressedPayload = Encoding == Encoding.V20 && Payload[1 + sizeLength + 2] != 0;
             }
@@ -291,7 +295,7 @@ namespace ZeroC.Ice
                 retryPolicy = Ice1Definitions.GetRetryPolicy(this, reference);
             }
             else if (BinaryContext.TryGetValue((int)Ice.BinaryContextKey.RetryPolicy,
-                                                  out ReadOnlyMemory<byte> value))
+                                               out ReadOnlyMemory<byte> value))
             {
                 retryPolicy = value.Read(istr => new RetryPolicy(istr));
             }

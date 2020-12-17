@@ -163,21 +163,12 @@ namespace ZeroC.Ice
         {
             if (Protocol == response.Protocol)
             {
-                if (Protocol == Protocol.Ice1)
+                Payload.Add(response.Payload);
+                if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
-                    Payload.Add(response.Payload);
-                }
-                else
-                {
-                    // i.e. result type and encapsulation but not the binary context
-                    Payload.Add(response.Payload);
-
-                    if (forwardBinaryContext)
-                    {
-                        // Don't forward RetryPolicy context
-                        InitialBinaryContext =
-                            response.BinaryContext.ToImmutableDictionary().Remove((int)BinaryContextKey.RetryPolicy);
-                    }
+                    // Don't forward RetryPolicy context
+                    InitialBinaryContext =
+                        response.BinaryContext.ToImmutableDictionary().Remove((int)BinaryContextKey.RetryPolicy);
                 }
             }
             else
