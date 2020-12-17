@@ -298,13 +298,6 @@ namespace ZeroC.Ice
             return retryPolicy;
         }
 
-        private protected override ArraySegment<byte> GetEncapsulation()
-        {
-            // Can only be called for a frame with an encapsulation:
-            Debug.Assert(Protocol == Protocol.Ice2 || Payload[0] <= (byte)ReplyStatus.UserException);
-            return Payload.Slice(1);
-        }
-
         private Exception ReadException(IObjectPrx proxy)
         {
             Debug.Assert(ResultType != ResultType.Success);

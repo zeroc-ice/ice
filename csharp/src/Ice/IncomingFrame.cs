@@ -43,9 +43,9 @@ namespace ZeroC.Ice
             }
             else
             {
-                ArraySegment<byte> encapsulation = GetEncapsulation();
+                int encapsulationOffset = this is IncomingResponseFrame ? 1 : 0;
 
-                ReadOnlySpan<byte> buffer = encapsulation.AsReadOnlySpan();
+                ReadOnlySpan<byte> buffer = Payload.Slice(encapsulationOffset);
                 (int size, int sizeLength, Encoding _) = buffer.ReadEncapsulationHeader(Protocol.GetEncoding());
 
                 // Read the decompressed size that is written after the compression status byte when the payload is
@@ -63,8 +63,8 @@ namespace ZeroC.Ice
                 // decompressed encapsulation.
                 byte[] decompressedPayload = new byte[Payload.Count - size + decompressedSize];
 
-                // Index of the start of the GZip data in Data
-                int gzipIndex = encapsulation.Offset - Payload.Offset + sizeLength + 3;
+                // Index of the start of the GZip data in Payload
+                int gzipIndex = encapsulationOffset + sizeLength + 3;
 
                 // Copy the data before the encapsulation to the new buffer
                 Payload.AsSpan(0, gzipIndex).CopyTo(decompressedPayload);
@@ -75,11 +75,11 @@ namespace ZeroC.Ice
                 using var decompressedStream = new MemoryStream(decompressedPayload,
                                                                 gzipIndex,
                                                                 decompressedPayload.Length - gzipIndex);
-                Debug.Assert(encapsulation.Array != null);
+                Debug.Assert(Payload.Array != null);
                 using var compressed = new GZipStream(
-                    new MemoryStream(encapsulation.Array,
-                                     encapsulation.Offset + sizeLength + 3 + decompressedSizeLength,
-                                     encapsulation.Count - sizeLength - 3 - decompressedSizeLength),
+                    new MemoryStream(Payload.Array,
+                                     Payload.Offset + gzipIndex + decompressedSizeLength,
+                                     Payload.Count - gzipIndex - decompressedSizeLength),
                     CompressionMode.Decompress);
                 compressed.CopyTo(decompressedStream);
                 // +3 corresponds to (Encoding 2 bytes and Compression status 1 byte), that are part of the
@@ -94,8 +94,8 @@ namespace ZeroC.Ice
                 Payload = decompressedPayload;
 
                 // Rewrite the encapsulation size
-                GetEncapsulation().AsSpan(0, sizeLength).WriteEncapsulationSize(decompressedSize,
-                                                                                Protocol.GetEncoding());
+                Payload.AsSpan(encapsulationOffset, sizeLength).WriteEncapsulationSize(decompressedSize,
+                                                                                       Protocol.GetEncoding());
                 HasCompressedPayload = false;
             }
         }
@@ -108,8 +108,5 @@ namespace ZeroC.Ice
             Protocol = protocol;
             _maxSize = maxSize;
         }
-
-        // Returns the subset of Payload that represents the encapsulation.
-        private protected abstract ArraySegment<byte> GetEncapsulation();
     }
 }

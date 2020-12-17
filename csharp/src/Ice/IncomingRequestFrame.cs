@@ -269,7 +269,5 @@ namespace ZeroC.Ice
             Payload = request.Payload.AsArraySegment();
             HasCompressedPayload = request.HasCompressedPayload;
         }
-
-        private protected override ArraySegment<byte> GetEncapsulation() => Payload;
     }
 }
