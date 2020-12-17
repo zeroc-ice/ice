@@ -58,8 +58,6 @@ namespace ZeroC.Ice
             }
         };
 
-        private static readonly byte[] _emptyArgs11 = new byte[] { 6, 0, 0, 0, 1, 1 };
-        private static readonly byte[] _emptyArgs20 = new byte[] { 7, 0, 0, 0, 2, 0, 0 };
         private static readonly byte[] _voidReturn11 = new byte[] { 0, 6, 0, 0, 0, 1, 1 };
         private static readonly byte[] _voidReturn20 = new byte[] { 0, 7, 0, 0, 0, 2, 0, 0 };
 
@@ -93,11 +91,8 @@ namespace ZeroC.Ice
         /// using ice1's header encoding (1.1).</param>
         /// <returns>The payload.</returns>
         /// <remarks>The 2.0 encoding has an extra byte for the compression status.</remarks>
-        internal static ArraySegment<byte> GetEmptyArgsPayload(Encoding encoding)
-        {
-            encoding.CheckSupported();
-            return encoding == Encoding.V11 ? _emptyArgs11 : _emptyArgs20;
-        }
+        internal static ArraySegment<byte> GetEmptyArgsPayload(Encoding encoding) =>
+            GetVoidReturnPayload(encoding).Slice(1);
 
         internal static string GetFacet(string[] facetPath)
         {
