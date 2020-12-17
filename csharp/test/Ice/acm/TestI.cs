@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.ACM
 {
@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.ACM
         public ITestIntfPrx GetTestIntf(Current current, CancellationToken cancel) => _testIntf;
 
         public void Deactivate(Current current, CancellationToken cancel) =>
-            _adapter.Communicator.DisposeAsync().AsTask();
+            _adapter.Communicator.DestroyAsync();
     }
 
     public class TestIntf : ITestIntf

@@ -194,7 +194,7 @@ namespace ZeroC.Ice
 
         internal TimeSpan IdleTimeout { get; }
         internal int IncomingFrameMaxSize { get; }
-        internal bool IsDisposed => _disposeTask != null;
+        internal bool IsDisposed => _destroyTask != null;
         internal bool KeepAlive { get; }
         internal int MaxBidirectionalStreams { get; }
         internal int MaxUnidirectionalStreams { get; }
@@ -216,18 +216,6 @@ namespace ZeroC.Ice
 
         private static string[] _emptyArgs = Array.Empty<string>();
 
-        // Sub-properties for ice1 proxies
-        private static readonly string[] _suffixes =
-        {
-            "CacheConnection",
-            "InvocationTimeout",
-            "LocatorCacheTimeout",
-            "Locator",
-            "PreferNonSecure",
-            "Relative",
-            "Router",
-            "Context\\..*"
-        };
         private static readonly object _staticMutex = new object();
         private bool _activateCalled;
         private readonly Func<CancellationToken, Task>? _activateLocatorAsync;
@@ -254,7 +242,7 @@ namespace ZeroC.Ice
         private volatile IRouterPrx? _defaultRouter;
         private volatile ImmutableList<DispatchInterceptor> _defaultDispatchInterceptors =
             ImmutableList<DispatchInterceptor>.Empty;
-        private Task? _disposeTask;
+        private Task? _destroyTask;
         private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
@@ -335,8 +323,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Constructs a new communicator.</summary>
-        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
-        /// param has precedence over the properties param.</param>
+        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The
+        /// appSettings param has precedence over the properties param.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the Ice run-time.</param>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -361,8 +349,8 @@ namespace ZeroC.Ice
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="args">An array of command-line arguments used to set or override Ice.* properties.</param>
-        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The appSettings
-        /// param has precedence over the properties param.</param>
+        /// <param name="appSettings">Collection of settings to configure the new communicator properties. The
+        /// appSettings param has precedence over the properties param.</param>
         /// <param name="logger">The logger used by the new communicator.</param>
         /// <param name="observer">The communicator observer used by the new communicator.</param>
         /// <param name="properties">The properties of the new communicator.</param>
@@ -467,7 +455,7 @@ namespace ZeroC.Ice
                     else if (Runtime.Logger is Logger)
                     {
                         // Ice.ConsoleListener is enabled by default.
-                        Logger = new TraceLogger(programName, GetPropertyAsBool("Ice.ConsoleListener") ?? true);
+                        Logger = new TraceLogger(programName, this.GetPropertyAsBool("Ice.ConsoleListener") ?? true);
                     }
                     // else already set to process logger
                 }
@@ -475,17 +463,18 @@ namespace ZeroC.Ice
                 TraceLevels = new TraceLevels(this);
 
                 DefaultInvocationTimeout =
-                    GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? TimeSpan.FromSeconds(60);
+                    this.GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? TimeSpan.FromSeconds(60);
                 if (DefaultInvocationTimeout == TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
                 }
 
-                DefaultPreferExistingConnection = GetPropertyAsBool("Ice.Default.PreferExistingConnection") ?? true;
+                DefaultPreferExistingConnection =
+                    this.GetPropertyAsBool("Ice.Default.PreferExistingConnection") ?? true;
 
                 // TODO: switch to NonSecure.Never default
                 DefaultPreferNonSecure =
-                    GetPropertyAsEnum<NonSecure>("Ice.Default.PreferNonSecure") ?? NonSecure.Always;
+                    this.GetPropertyAsEnum<NonSecure>("Ice.Default.PreferNonSecure") ?? NonSecure.Always;
 
                 if (GetProperty("Ice.Default.SourceAddress") is string address)
                 {
@@ -502,84 +491,84 @@ namespace ZeroC.Ice
 
                 // For locator cache timeout, 0 means disable locator cache.
                 DefaultLocatorCacheTimeout =
-                    GetPropertyAsTimeSpan("Ice.Default.LocatorCacheTimeout") ?? Timeout.InfiniteTimeSpan;
+                    this.GetPropertyAsTimeSpan("Ice.Default.LocatorCacheTimeout") ?? Timeout.InfiniteTimeSpan;
 
-                CloseTimeout = GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(10);
+                CloseTimeout = this.GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(10);
                 if (CloseTimeout == TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.CloseTimeout");
                 }
 
-                ConnectTimeout = GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(10);
+                ConnectTimeout = this.GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(10);
                 if (ConnectTimeout == TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.ConnectTimeout");
                 }
 
-                IdleTimeout = GetPropertyAsTimeSpan("Ice.IdleTimeout") ?? TimeSpan.FromSeconds(60);
+                IdleTimeout = this.GetPropertyAsTimeSpan("Ice.IdleTimeout") ?? TimeSpan.FromSeconds(60);
                 if (IdleTimeout == TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException("0 is not a valid value for Ice.IdleTimeout");
                 }
 
-                KeepAlive = GetPropertyAsBool("Ice.KeepAlive") ?? false;
+                KeepAlive = this.GetPropertyAsBool("Ice.KeepAlive") ?? false;
 
                 ServerName = GetProperty("Ice.ServerName") ?? Dns.GetHostName();
 
-                MaxBidirectionalStreams = GetPropertyAsInt("Ice.MaxBidirectionalStreams") ?? 100;
+                MaxBidirectionalStreams = this.GetPropertyAsInt("Ice.MaxBidirectionalStreams") ?? 100;
                 if (MaxBidirectionalStreams < 1)
                 {
                     throw new InvalidConfigurationException(
                         $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxBidirectionalStreams");
                 }
 
-                MaxUnidirectionalStreams = GetPropertyAsInt("Ice.MaxUnidirectionalStreams") ?? 100;
+                MaxUnidirectionalStreams = this.GetPropertyAsInt("Ice.MaxUnidirectionalStreams") ?? 100;
                 if (MaxUnidirectionalStreams < 1)
                 {
                     throw new InvalidConfigurationException(
                         $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxUnidirectionalStreams");
                 }
 
-                SlicPacketMaxSize = GetPropertyAsByteSize("Ice.Slic.PacketMaxSize") ?? 32 * 1024;
+                SlicPacketMaxSize = this.GetPropertyAsByteSize("Ice.Slic.PacketMaxSize") ?? 32 * 1024;
                 if (SlicPacketMaxSize < 1024)
                 {
                     throw new InvalidConfigurationException("Ice.Slic.PacketMaxSize can't be inferior to 1KB");
                 }
 
-                int frameMaxSize = GetPropertyAsByteSize("Ice.IncomingFrameMaxSize") ?? 1024 * 1024;
+                int frameMaxSize = this.GetPropertyAsByteSize("Ice.IncomingFrameMaxSize") ?? 1024 * 1024;
                 IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
                 if (IncomingFrameMaxSize < 1024)
                 {
                     throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
                 }
 
-                InvocationMaxAttempts = GetPropertyAsInt("Ice.InvocationMaxAttempts") ?? 5;
+                InvocationMaxAttempts = this.GetPropertyAsInt("Ice.InvocationMaxAttempts") ?? 5;
 
                 if (InvocationMaxAttempts <= 0)
                 {
                     throw new InvalidConfigurationException($"Ice.InvocationMaxAttempts must be greater than 0");
                 }
                 InvocationMaxAttempts = Math.Min(InvocationMaxAttempts, 5);
-                RetryBufferMaxSize = GetPropertyAsByteSize("Ice.RetryBufferMaxSize") ?? 1024 * 1024 * 100;
-                RetryRequestMaxSize = GetPropertyAsByteSize("Ice.RetryRequestMaxSize") ?? 1024 * 1024;
+                RetryBufferMaxSize = this.GetPropertyAsByteSize("Ice.RetryBufferMaxSize") ?? 1024 * 1024 * 100;
+                RetryRequestMaxSize = this.GetPropertyAsByteSize("Ice.RetryRequestMaxSize") ?? 1024 * 1024;
 
-                WarnConnections = GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-                WarnDatagrams = GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
-                WarnDispatch = GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
-                WarnUnknownProperties = GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true;
+                WarnConnections = this.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
+                WarnDatagrams = this.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
+                WarnDispatch = this.GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
+                WarnUnknownProperties = this.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true;
 
                 CompressionLevel =
-                    GetPropertyAsEnum<CompressionLevel>("Ice.CompressionLevel") ?? CompressionLevel.Fastest;
-                CompressionMinSize = GetPropertyAsByteSize("Ice.CompressionMinSize") ?? 100;
+                    this.GetPropertyAsEnum<CompressionLevel>("Ice.CompressionLevel") ?? CompressionLevel.Fastest;
+                CompressionMinSize = this.GetPropertyAsByteSize("Ice.CompressionMinSize") ?? 100;
 
                 // TODO: switch to NonSecure.Never default (see ObjectAdapter also)
-                AcceptNonSecure = GetPropertyAsEnum<NonSecure>("Ice.AcceptNonSecure") ?? NonSecure.Always;
-                int classGraphMaxDepth = GetPropertyAsInt("Ice.ClassGraphMaxDepth") ?? 100;
+                AcceptNonSecure = this.GetPropertyAsEnum<NonSecure>("Ice.AcceptNonSecure") ?? NonSecure.Always;
+                int classGraphMaxDepth = this.GetPropertyAsInt("Ice.ClassGraphMaxDepth") ?? 100;
                 ClassGraphMaxDepth = classGraphMaxDepth < 1 ? int.MaxValue : classGraphMaxDepth;
 
-                ToStringMode = GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
+                ToStringMode = this.GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
 
-                _backgroundLocatorCacheUpdates = GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
+                _backgroundLocatorCacheUpdates = this.GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
 
                 NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
 
@@ -622,7 +611,7 @@ namespace ZeroC.Ice
                                       WSEndpoint.ParseIce2Endpoint,
                                       IPEndpoint.DefaultIPPort);
 
-                if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
+                if (this.GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
                     LoadAssemblies();
                 }
@@ -640,11 +629,11 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    _adminEnabled = GetPropertyAsBool("Ice.Admin.Enabled") ?? false;
+                    _adminEnabled = this.GetPropertyAsBool("Ice.Admin.Enabled") ?? false;
                 }
 
                 _adminFacetFilter = new HashSet<string>(
-                    (GetPropertyAsList("Ice.Admin.Facets") ?? Array.Empty<string>()).Distinct());
+                    (this.GetPropertyAsList("Ice.Admin.Facets") ?? Array.Empty<string>()).Distinct());
 
                 if (_adminEnabled)
                 {
@@ -712,7 +701,7 @@ namespace ZeroC.Ice
                     {
                         try
                         {
-                            _defaultLocator = GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
+                            _defaultLocator = this.GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
                         }
                         catch (FormatException ex)
                         {
@@ -723,7 +712,7 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    _defaultRouter ??= GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
+                    _defaultRouter ??= this.GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
                 }
                 catch (FormatException ex)
                 {
@@ -733,7 +722,7 @@ namespace ZeroC.Ice
                 // Show process id if requested (but only once).
                 lock (_mutex)
                 {
-                    if (!_printProcessIdDone && (GetPropertyAsBool("Ice.PrintProcessId") ?? false))
+                    if (!_printProcessIdDone && (this.GetPropertyAsBool("Ice.PrintProcessId") ?? false))
                     {
                         using var p = System.Diagnostics.Process.GetCurrentProcess();
                         Console.WriteLine(p.Id);
@@ -857,24 +846,25 @@ namespace ZeroC.Ice
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Releases resources used by the communicator. This method calls <see cref="ShutdownAsync"/>
-        /// implicitly, and be called multiple times.</summary>
-        public ValueTask DisposeAsync()
+        /// <summary>Releases all resources used by this communicator. This method calls <see cref="ShutdownAsync"/>
+        /// implicitly, and can be called multiple times.</summary>
+        /// <returns>A task that completes when the destruction is complete.</returns>
+        public Task DestroyAsync()
         {
             lock (_mutex)
             {
-                _disposeTask ??= PerformDisposeAsync();
-                return new(_disposeTask);
+                _destroyTask ??= PerformDestroyAsync();
+                return _destroyTask;
             }
 
-            async Task PerformDisposeAsync()
+            async Task PerformDestroyAsync()
             {
                 // Cancel operations that are waiting and using the communicator's cancellation token
                 _cancellationTokenSource.Cancel();
 
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
-                CommunicatorDisposedException disposedException = new();
+                var disposedException = new CommunicatorDisposedException();
                 IEnumerable<Task> closeTasks =
                     _outgoingConnections.Values.SelectMany(connections => connections).Select(
                         connection => connection.GoAwayAsync(disposedException)).Append(ShutdownAsync());
@@ -910,7 +900,7 @@ namespace ZeroC.Ice
                     await adminLogger.DisposeAsync().ConfigureAwait(false);
                 }
 
-                if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
+                if (this.GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
                 {
                     List<string> unusedProperties = GetUnusedProperties();
                     if (unusedProperties.Count != 0)
@@ -950,6 +940,11 @@ namespace ZeroC.Ice
         /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
         /// implicitly.</summary>
         public void Dispose() => DisposeAsync().GetResult();
+
+        /// <summary>An alias for <see cref="DestroyAsync"/>, except this method returns a <see cref="ValueTask"/>.
+        /// </summary>
+        /// <returns>A value task constructed using the task returned by DestroyAsync.</returns>
+        public ValueTask DisposeAsync() => new(DestroyAsync());
 
         /// <summary>Returns a facet of the Admin object.</summary>
         /// <param name="facet">The name of the Admin facet.</param>
@@ -1147,7 +1142,7 @@ namespace ZeroC.Ice
 
         internal BufWarnSizeInfo GetBufWarnSize(Transport transport)
         {
-            lock (_setBufWarnSize)
+            lock (_mutex)
             {
                 BufWarnSizeInfo info;
                 if (!_setBufWarnSize.ContainsKey(transport))
@@ -1263,7 +1258,7 @@ namespace ZeroC.Ice
         }
         internal void SetRcvBufWarnSize(Transport transport, int size)
         {
-            lock (_setBufWarnSize)
+            lock (_mutex)
             {
                 BufWarnSizeInfo info = GetBufWarnSize(transport);
                 info.RcvWarn = true;
@@ -1274,7 +1269,7 @@ namespace ZeroC.Ice
 
         internal void SetSndBufWarnSize(Transport transport, int size)
         {
-            lock (_setBufWarnSize)
+            lock (_mutex)
             {
                 BufWarnSizeInfo info = GetBufWarnSize(transport);
                 info.SndWarn = true;
@@ -1349,13 +1344,13 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidConfigurationException("IPv6 only is not supported with SOCKS4 proxies");
                 }
-                return new SOCKSNetworkProxy(proxyHost, GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 1080);
+                return new SOCKSNetworkProxy(proxyHost, this.GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 1080);
             }
 
             proxyHost = GetProperty("Ice.HTTPProxyHost");
             if (proxyHost != null)
             {
-                return new HTTPNetworkProxy(proxyHost, GetPropertyAsInt("Ice.HTTPProxyPort") ?? 1080);
+                return new HTTPNetworkProxy(proxyHost, this.GetPropertyAsInt("Ice.HTTPProxyPort") ?? 1080);
             }
 
             return null;

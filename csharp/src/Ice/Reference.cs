@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,6 +56,20 @@ namespace ZeroC.Ice
         internal Protocol Protocol { get; }
 
         internal RouterInfo? RouterInfo { get; }
+
+        // Sub-properties for ice1 proxies
+        private static readonly string[] _suffixes =
+        {
+            "CacheConnection",
+            "InvocationTimeout",
+            "LocatorCacheTimeout",
+            "Locator",
+            "PreferNonSecure",
+            "Relative",
+            "Router",
+            "Context\\..*"
+        };
+
         private int _hashCode;
 
         private volatile Connection? _connection; // readonly when IsFixed is true
@@ -186,7 +201,7 @@ namespace ZeroC.Ice
                     // Warn about unknown properties.
                     if (communicator.WarnUnknownProperties)
                     {
-                        communicator.CheckForUnknownProperties(propertyPrefix);
+                        CheckForUnknownProperties(propertyPrefix, communicator);
                     }
 
                     cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.CacheConnection");
@@ -1557,6 +1572,52 @@ namespace ZeroC.Ice
                 {
                     ostr.WriteSequence(Endpoints, (ostr, endpoint) => ostr.WriteEndpoint(endpoint));
                 }
+            }
+        }
+
+        private static void CheckForUnknownProperties(string prefix, Communicator communicator)
+        {
+            // Do not warn about unknown properties if Ice prefix, i.e. Ice, Glacier2, etc.
+            foreach (string name in PropertyNames.ClassPropertyNames)
+            {
+                if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
+                {
+                    return;
+                }
+            }
+
+            var unknownProps = new List<string>();
+            Dictionary<string, string> props = communicator.GetProperties(forPrefix: $"{prefix}.");
+            foreach (string prop in props.Keys)
+            {
+                bool valid = false;
+                for (int i = 0; i < _suffixes.Length; ++i)
+                {
+                    string pattern = "^" + Regex.Escape(prefix + ".") + _suffixes[i] + "$";
+                    if (new Regex(pattern).Match(prop).Success)
+                    {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (!valid)
+                {
+                    unknownProps.Add(prop);
+                }
+            }
+
+            if (unknownProps.Count != 0)
+            {
+                var message = new StringBuilder("found unknown properties for proxy '");
+                message.Append(prefix);
+                message.Append("':");
+                foreach (string s in unknownProps)
+                {
+                    message.Append("\n    ");
+                    message.Append(s);
+                }
+                communicator.Logger.Warning(message.ToString());
             }
         }
 

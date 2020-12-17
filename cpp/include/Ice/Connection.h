@@ -503,9 +503,9 @@ public:
     ICE_MEMBER(ICE_API) virtual ~IPConnectionInfo();
 
     IPConnectionInfo() :
-        localAddress(u8""),
+        localAddress(""),
         localPort(-1),
-        remoteAddress(u8""),
+        remoteAddress(""),
         remotePort(-1)
     {
     }
