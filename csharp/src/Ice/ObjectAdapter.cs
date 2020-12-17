@@ -926,10 +926,6 @@ namespace ZeroC.Ice
                 }
 
                 OutgoingResponseFrame response = await DispatchAsync(_dispatchInterceptors, 0).ConfigureAwait(false);
-                if (!current.IsOneway)
-                {
-                    response.Finish();
-                }
                 dispatchObserver?.Reply(response.Size);
                 return response;
             }
@@ -954,7 +950,6 @@ namespace ZeroC.Ice
                     }
 
                     var response = new OutgoingResponseFrame(request, actualEx);
-                    response.Finish();
                     dispatchObserver?.Reply(response.Size);
                     return response;
                 }

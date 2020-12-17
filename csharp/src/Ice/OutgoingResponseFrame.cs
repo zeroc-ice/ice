@@ -262,8 +262,6 @@ namespace ZeroC.Ice
 
                 Debug.Assert(Payload.Count == 2);
             }
-
-            IsSealed = Protocol == Protocol.Ice1;
         }
 
         /// <summary>Constructs a response frame that represents a failure and contains an exception.</summary>
@@ -284,7 +282,6 @@ namespace ZeroC.Ice
                 };
             }
 
-            bool hasEncapsulation;
             OutputStream ostr;
             if (Protocol == Protocol.Ice2 || replyStatus == ReplyStatus.UserException)
             {
@@ -305,14 +302,12 @@ namespace ZeroC.Ice
                     // The first byte of the encapsulation data is the actual ReplyStatus
                     ostr.Write(replyStatus);
                 }
-                hasEncapsulation = true;
             }
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice1 && (byte)replyStatus > (byte)ReplyStatus.UserException);
                 ostr = new OutputStream(Ice1Definitions.Encoding, Payload); // not an encapsulation
                 ostr.Write(replyStatus);
-                hasEncapsulation = false;
             }
 
             exception.Origin = new RemoteExceptionOrigin(request.Identity, request.Facet, request.Operation);
@@ -343,11 +338,7 @@ namespace ZeroC.Ice
 
             _ = ostr.Finish();
 
-            if (!hasEncapsulation)
-            {
-                IsSealed = true;
-            }
-            else if (Protocol == Protocol.Ice2 && exception.RetryPolicy.Retryable != Retryable.No)
+            if (Protocol == Protocol.Ice2 && exception.RetryPolicy.Retryable != Retryable.No)
             {
                 RetryPolicy retryPolicy = exception.RetryPolicy;
 

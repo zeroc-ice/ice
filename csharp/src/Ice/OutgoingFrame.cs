@@ -47,9 +47,6 @@ namespace ZeroC.Ice
 
         public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; }
 
-        /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
-        public bool IsSealed { get; private protected set; }
-
         /// <summary>Returns the payload of this frame.</summary>
         public IList<ArraySegment<byte>> Payload { get; } = new List<ArraySegment<byte>>();
 
@@ -89,11 +86,6 @@ namespace ZeroC.Ice
         /// </returns>
         public CompressionResult CompressPayload()
         {
-            if (IsSealed)
-            {
-                throw new InvalidOperationException("cannot modify a sealed frame");
-            }
-
             if (Encoding != Encoding.V20)
             {
                 throw new NotSupportedException("payload compression is only supported with 2.0 encoding");
@@ -209,17 +201,6 @@ namespace ZeroC.Ice
             Compress = compress;
             _compressionLevel = compressionLevel;
             _compressionMinSize = compressionMinSize;
-        }
-
-        // Finish prepares the frame for sending and adjusts the last written segment to match the offset of the written
-        // data. If the frame contains a binary context, Finish appends the entries from defaultBinaryContext (if any)
-        // and rewrites the binary context dictionary size.
-        internal virtual void Finish()
-        {
-            if (!IsSealed)
-            {
-                IsSealed = true;
-            }
         }
 
         private protected void WriteBinaryContext(OutputStream ostr)

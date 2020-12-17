@@ -301,7 +301,6 @@ namespace ZeroC.Ice.Test.Interceptor
                 {
                 }
                 using IncomingResponseFrame response = prx.InvokeAsync(request).Result;
-                TestHelper.Assert(request.IsSealed);
             }
             output.WriteLine("ok");
 

@@ -769,7 +769,6 @@ namespace ZeroC.Ice
                 else
                 {
                     // After we went down the interceptor chain make the invocation.
-                    request.Finish();
                     Reference reference = proxy.IceReference;
                     Communicator communicator = reference.Communicator;
                     // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request

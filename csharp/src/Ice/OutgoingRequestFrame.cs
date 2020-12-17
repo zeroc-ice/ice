@@ -309,8 +309,6 @@ namespace ZeroC.Ice
                     Payload.Add(request.Payload.Slice(sizeLength + 2));
                 }
             }
-
-            IsSealed = Protocol == Protocol.Ice1;
         }
 
         /// <inheritdoc/>
