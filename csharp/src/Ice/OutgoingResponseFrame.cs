@@ -197,23 +197,20 @@ namespace ZeroC.Ice
                         // header.
                         ReplyStatus replyStatus = response.Payload[1 + sizeLength + 2].AsReplyStatus();
 
-                        buffer[0] = (byte)replyStatus;
+                        var ostr = new OutputStream(Ice1Definitions.Encoding, Payload);
+                        ostr.Write(replyStatus);
                         if (replyStatus == ReplyStatus.UserException)
                         {
                             // We are forwarding a user exception encoded using 1.1 and received over ice2 to ice1.
                             // The size of the new encapsulation is the size of the payload -1 byte of the ice2 result
                             // type, -1 byte of the reply status, sizeLength is not included in the encapsulation size.
 
-                            var ostr =
-                                new OutputStream(Ice1Definitions.Encoding, Payload, startAt: _encapsulationStart);
                             ostr.WriteEncapsulationHeader(response.Payload.Count - 1 - sizeLength - 1, Encoding);
-                            _ = ostr.Finish();
                         }
-                        else
-                        {
-                            // We are forwarding a system exception encoded using 1.1 and received over ice2 to ice1.
-                            Payload[0] = Payload[0].Slice(0, 1); // Just the 1.1 reply status
-                        }
+                        // else we are forwarding a system exception encoded using 1.1 and received over ice2 to ice1.
+                        // and we include only the reply status
+
+                        _ = ostr.Finish();
 
                         // We need to get rid of the extra reply status byte and the start of the encapsulation added
                         // when 1.1 exceptions are marshaled using ice2.
@@ -225,15 +222,16 @@ namespace ZeroC.Ice
                     else
                     {
                         Debug.Assert(response.Protocol == Protocol.Ice1);
-                        buffer[0] = (byte)ResultType.Failure;
+                        var ostr = new OutputStream(Ice2Definitions.Encoding, Payload);
+                        ostr.Write(ResultType.Failure);
+
                         var replyStatus = (ReplyStatus)response.Payload[0];
                         if (replyStatus == ReplyStatus.UserException)
                         {
                             // We are forwarding a user exception encoded using 1.1 and received over ice1 to ice2. We
                             // create an ice2 encapsulation and write the 1.1 reply status followed by the 1.1 encoded
                             // data, sizeLength is not included in the encapsulation size.
-                            var ostr =
-                                new OutputStream(Ice2Definitions.Encoding, Payload, startAt: _encapsulationStart);
+
                             ostr.WriteEncapsulationHeader(response.Payload.Count - sizeLength, Encoding);
                             ostr.Write(replyStatus);
                             _ = ostr.Finish();
@@ -246,8 +244,6 @@ namespace ZeroC.Ice
                             // includes the 1.1 reply status, followed by the exception). The size of the new
                             // encapsulation is the size of the payload +2 bytes for the encapsulations encoding.
 
-                            var ostr =
-                                new OutputStream(Ice2Definitions.Encoding, Payload, startAt: _encapsulationStart);
                             ostr.WriteEncapsulationHeader(response.Payload.Count + 2, Encoding);
                             _ = ostr.Finish();
                             Payload.Add(response.Payload);
@@ -259,10 +255,8 @@ namespace ZeroC.Ice
                     // In this case we always have an encapsulation it is either an ice1 response with result type
                     // success or an ice2 response that always uses an encapsulation. We just need to rewrite the
                     // encapsulation header with the new encoding and keep the rest of the encapsulation data as is.
-                    buffer[0] = (byte)response.ResultType;
-
-                    var ostr =
-                        new OutputStream(Protocol.GetEncoding(), Payload, startAt: _encapsulationStart);
+                    var ostr = new OutputStream(Protocol.GetEncoding(), Payload);
+                    ostr.Write(response.ResultType);
                     ostr.WriteEncapsulationHeader(response.Payload.Count - 1 - sizeLength, Encoding);
                     _ = ostr.Finish();
                     Payload.Add(response.Payload.Slice(1 + sizeLength + 2));
