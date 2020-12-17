@@ -279,7 +279,7 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
             : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context, cancel)
         {
-            PayloadEncoding = request.Encoding;
+            PayloadEncoding = request.PayloadEncoding;
 
             if (request.Protocol == Protocol)
             {
@@ -300,7 +300,7 @@ namespace ZeroC.Ice
                 int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : request.Payload[0].ReadSizeLength20();
 
                 var ostr = new OutputStream(Protocol.GetEncoding(), Payload);
-                ostr.WriteEncapsulationHeader(request.Payload.Count - sizeLength, request.Encoding);
+                ostr.WriteEncapsulationHeader(request.Payload.Count - sizeLength, request.PayloadEncoding);
                 _ = ostr.Finish();
 
                 // "2" below corresponds to the encoded length of the encoding.

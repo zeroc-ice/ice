@@ -15,8 +15,8 @@ namespace ZeroC.Ice
         public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; } =
             ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
-        /// <summary>The encoding of the frame payload.</summary>
-        public override Encoding Encoding { get; }
+        /// <inheritdoc/>
+        public override Encoding PayloadEncoding { get; }
 
         /// <summary>The <see cref="ZeroC.Ice.ResultType"/> of this response frame.</summary>
         public ResultType ResultType => Payload[0] == 0 ? ResultType.Success : ResultType.Failure;
@@ -212,7 +212,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    Encoding = Encoding.V11;
+                    PayloadEncoding = Encoding.V11;
                 }
             }
             else
@@ -241,7 +241,7 @@ namespace ZeroC.Ice
                 int size;
                 int sizeLength;
 
-                (size, sizeLength, Encoding) =
+                (size, sizeLength, PayloadEncoding) =
                     Payload.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
 
                 if (Payload.Count - 1 != size + sizeLength)
@@ -251,7 +251,7 @@ namespace ZeroC.Ice
                         } bytes encapsulation but expected {Payload.Count - 1 - sizeLength} bytes");
                 }
 
-                HasCompressedPayload = Encoding == Encoding.V20 && Payload[1 + sizeLength + 2] != 0;
+                HasCompressedPayload = PayloadEncoding == Encoding.V20 && Payload[1 + sizeLength + 2] != 0;
             }
         }
 
@@ -266,7 +266,7 @@ namespace ZeroC.Ice
                 BinaryContext = response.GetBinaryContext();
             }
 
-            Encoding = response.PayloadEncoding;
+            PayloadEncoding = response.PayloadEncoding;
             HasCompressedPayload = response.HasCompressedPayload;
             Payload = response.Payload.AsArraySegment();
         }
@@ -274,7 +274,7 @@ namespace ZeroC.Ice
         internal RetryPolicy GetRetryPolicy(Reference reference)
         {
             RetryPolicy retryPolicy = RetryPolicy.NoRetry;
-            if (Encoding == Encoding.V11)
+            if (PayloadEncoding == Encoding.V11)
             {
                 retryPolicy = Ice1Definitions.GetRetryPolicy(this, reference);
             }
@@ -290,7 +290,7 @@ namespace ZeroC.Ice
         private IncomingResponseFrame(Protocol protocol, Encoding encoding)
             : base(protocol, int.MaxValue)
         {
-            Encoding = encoding;
+            PayloadEncoding = encoding;
             Payload = protocol.GetVoidReturnPayload(encoding);
         }
 
@@ -309,19 +309,19 @@ namespace ZeroC.Ice
                                        reference: proxy.IceReference,
                                        startEncapsulation: true);
 
-                if (Protocol == Protocol.Ice2 && Encoding == Encoding.V11)
+                if (Protocol == Protocol.Ice2 && PayloadEncoding == Encoding.V11)
                 {
                     replyStatus = istr.ReadReplyStatus();
                 }
             }
             else
             {
-                Debug.Assert(Protocol == Protocol.Ice1 && Encoding == Encoding.V11);
+                Debug.Assert(Protocol == Protocol.Ice1 && PayloadEncoding == Encoding.V11);
                 istr = new InputStream(Payload.Slice(1), Encoding.V11);
             }
 
             Exception exception;
-            if (Encoding == Encoding.V11 && replyStatus != ReplyStatus.UserException)
+            if (PayloadEncoding == Encoding.V11 && replyStatus != ReplyStatus.UserException)
             {
                 exception = istr.ReadIce1SystemException(replyStatus);
                 istr.CheckEndOfBuffer(skipTaggedParams: false);

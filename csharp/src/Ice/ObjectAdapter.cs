@@ -898,7 +898,7 @@ namespace ZeroC.Ice
         {
             IDispatchObserver? dispatchObserver = Communicator.Observer?.GetDispatchObserver(current,
                                                                                              current.StreamId,
-                                                                                             request.Size);
+                                                                                             request.PayloadSize);
             dispatchObserver?.Attach();
             try
             {

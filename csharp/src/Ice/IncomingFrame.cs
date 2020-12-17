@@ -15,21 +15,24 @@ namespace ZeroC.Ice
         /// <summary>Returns the binary context of this frame.</summary>
         public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; }
 
-        /// <summary>The encoding of the frame payload.</summary>
-        public abstract Encoding Encoding { get; }
-
-        /// <summary>True if the encapsulation has a compressed payload, false otherwise.</summary>
+        /// <summary>Returns true this payload holds a compressed encapsulation payload; otherwise, returns false.
+        /// </summary>
         public bool HasCompressedPayload { get; private protected set; }
 
         /// <summary>The payload of this frame. The bytes inside the data should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; private protected set; }
 
+        /// <summary>Returns the number of bytes in the payload.</summary>
+        /// <remarks>Provided for consistency with <see cref="OutgoingFrame.PayloadSize"/>.</remarks>
+        public int PayloadSize => Payload.Count;
+
+        /// <summary>Returns the encoding of the payload of this frame.</summary>
+        /// <remarks>The header of the frame is always encoded using the frame protocol's encoding.</remarks>
+        public abstract Encoding PayloadEncoding { get; }
+
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
-
-        /// <summary>The frame byte count.</summary>
-        public int Size => Payload.Count;
 
         private readonly int _maxSize;
 
@@ -39,7 +42,7 @@ namespace ZeroC.Ice
         {
             if (!HasCompressedPayload)
             {
-                throw new InvalidOperationException("the payload is not compressed");
+                throw new InvalidOperationException("the encapsulation's payload is not compressed");
             }
             else
             {

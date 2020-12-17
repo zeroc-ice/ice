@@ -30,7 +30,7 @@ namespace ZeroC.Ice
         public DateTime Deadline => IncomingRequestFrame.Deadline;
 
         /// <summary>The encoding used by the request.</summary>
-        public Encoding Encoding => IncomingRequestFrame.Encoding;
+        public Encoding Encoding => IncomingRequestFrame.PayloadEncoding;
 
         /// <summary>The Ice object facet.</summary>
         public string Facet => IncomingRequestFrame.Facet;

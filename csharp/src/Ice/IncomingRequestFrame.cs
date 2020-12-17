@@ -26,9 +26,6 @@ namespace ZeroC.Ice
         /// on the server-side even though the invocation timeout is usually not infinite.</summary>
         public DateTime Deadline { get; }
 
-        /// <summary>The encoding of the frame payload.</summary>
-        public override Encoding Encoding { get; }
-
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
 
@@ -43,6 +40,9 @@ namespace ZeroC.Ice
 
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
+
+        /// <inheritdoc/>
+        public override Encoding PayloadEncoding { get; }
 
         /// <summary>The priority of this request.</summary>
         public Priority Priority { get; }
@@ -239,8 +239,8 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"invalid request encapsulation size: {size}");
             }
 
-            Encoding = encoding;
-            HasCompressedPayload = Encoding == Encoding.V20 && Payload[sizeLength + 2] != 0;
+            PayloadEncoding = encoding;
+            HasCompressedPayload = PayloadEncoding == Encoding.V20 && Payload[sizeLength + 2] != 0;
         }
 
         /// <summary>Constructs an incoming request frame from an outgoing request frame. Used for colocated calls.
@@ -264,7 +264,7 @@ namespace ZeroC.Ice
                 BinaryContext = request.GetBinaryContext();
             }
 
-            Encoding = request.PayloadEncoding;
+            PayloadEncoding = request.PayloadEncoding;
 
             Payload = request.Payload.AsArraySegment();
             HasCompressedPayload = request.HasCompressedPayload;

@@ -26,13 +26,13 @@ namespace ZeroC.Ice.Test.Compress
         {
             if (current.Operation == "opCompressParams" || current.Operation == "opCompressParamsAndReturn")
             {
-                if (request.Encoding == Encoding.V20)
+                if (request.PayloadEncoding == Encoding.V20)
                 {
                     TestHelper.Assert(request.HasCompressedPayload == _compressed);
                     if (!_compressed)
                     {
-                        // Ensure size is less than Ice.CompressionMinSize
-                        TestHelper.Assert(request.Size < 1024);
+                        // Ensure payload count is less than Ice.CompressionMinSize
+                        TestHelper.Assert(request.PayloadSize < 1024);
                     }
                 }
             }

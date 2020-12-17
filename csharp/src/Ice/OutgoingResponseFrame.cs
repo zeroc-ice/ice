@@ -158,7 +158,7 @@ namespace ZeroC.Ice
             IncomingRequestFrame request,
             IncomingResponseFrame response,
             bool forwardBinaryContext = true)
-            : this(request.Protocol, response.Encoding)
+            : this(request.Protocol, response.PayloadEncoding)
         {
             if (Protocol == response.Protocol)
             {
@@ -269,7 +269,7 @@ namespace ZeroC.Ice
         /// <param name="request">The incoming request for which this constructor creates a response.</param>
         /// <param name="exception">The exception to store into the frame's payload.</param>
         public OutgoingResponseFrame(IncomingRequestFrame request, RemoteException exception)
-            : this(request.Protocol, request.Encoding)
+            : this(request.Protocol, request.PayloadEncoding)
         {
             ReplyStatus replyStatus = ReplyStatus.UserException;
             if (PayloadEncoding == Encoding.V11)

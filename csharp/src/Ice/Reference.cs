@@ -1846,7 +1846,7 @@ namespace ZeroC.Ice
                     // Wait for the reception of the response.
                     response = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
 
-                    childObserver?.Reply(response.Size);
+                    childObserver?.Reply(response.PayloadSize);
 
                     // If success, just return the response!
                     if (response.ResultType == ResultType.Success)

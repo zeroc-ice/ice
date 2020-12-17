@@ -105,7 +105,7 @@ namespace ZeroC.Ice
 
         internal static RetryPolicy GetRetryPolicy(IncomingResponseFrame response, Reference reference)
         {
-            Debug.Assert(response.Encoding == Encoding.V11);
+            Debug.Assert(response.PayloadEncoding == Encoding.V11);
             if (response.ResultType == ResultType.Failure)
             {
                 var replyStatus = (ReplyStatus)response.Payload[0]; // can be reassigned below
