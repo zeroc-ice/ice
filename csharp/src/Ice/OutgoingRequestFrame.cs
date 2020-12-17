@@ -399,20 +399,20 @@ namespace ZeroC.Ice
                 else
                 {
                     var combinedContext = new SortedDictionary<string, string>(
-                            (IDictionary<string, string>)currentContext);
+                        (IDictionary<string, string>)currentContext);
+
                     foreach ((string key, string value) in proxy.Context)
                     {
                         combinedContext[key] = value; // the proxy Context entry prevails.
                     }
                     _initialContext = combinedContext;
+                    _writableContext = combinedContext;
                 }
             }
 
             if (writeEmptyArgs)
             {
-                var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Payload);
-                _ = ostr.WriteEmptyEncapsulation(Encoding);
-                _ = ostr.Finish();
+                Payload.Add(Protocol.GetEmptyArgsPayload(Encoding));
             }
         }
     }

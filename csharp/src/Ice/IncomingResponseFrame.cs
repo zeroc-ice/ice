@@ -302,6 +302,12 @@ namespace ZeroC.Ice
             return retryPolicy;
         }
 
+        private IncomingResponseFrame(Protocol protocol, Encoding encoding)
+            : base(protocol, int.MaxValue)
+        {
+            Encoding = encoding;
+        }
+
         private Exception ReadException(IObjectPrx proxy)
         {
             Debug.Assert(ResultType != ResultType.Success);

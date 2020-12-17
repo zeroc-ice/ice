@@ -1198,7 +1198,7 @@ namespace ZeroC.Ice
             WriteEncapsulationHeader(size: encoding == Encoding.V20 ? 3 : 2, encoding);
             if (encoding == Encoding.V20)
             {
-                WriteByte(0); // The compression status, 0 not-compressed
+                WriteByte(0); // The compression status, 0 = not-compressed
             }
             return _tail;
         }

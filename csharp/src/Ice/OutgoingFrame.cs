@@ -39,7 +39,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>The encoding of the frame payload.</summary>
+        /// <summary>Returns the encoding of the payload of this frame.</summary>
+        /// <remarks>The header of the frame is always encoded using the frame protocol's encoding.</remarks>
         public abstract Encoding Encoding { get; }
 
         public bool HasCompressedPayload { get; private set; }
@@ -49,6 +50,9 @@ namespace ZeroC.Ice
         /// <summary>True for a sealed frame, false otherwise, a sealed frame does not change its contents.</summary>
         public bool IsSealed { get; private protected set; }
 
+        /// <summary>Returns the payload of this frame.</summary>
+        public IList<ArraySegment<byte>> Payload { get; }
+
         /// <summary>The Ice protocol of this frame.</summary>
         public Protocol Protocol { get; }
 
@@ -57,8 +61,6 @@ namespace ZeroC.Ice
 
         // True if Ice1 frames should use protocol compression, false otherwise.
         internal bool Compress { get; }
-
-        public List<ArraySegment<byte>> Payload { get; }
 
         /// <summary>The stream data writer if the request or response has an outgoing stream param. The writer is
         /// called after the request or response frame is sent over a socket stream.</summary>

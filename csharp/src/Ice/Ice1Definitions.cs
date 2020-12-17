@@ -58,6 +58,11 @@ namespace ZeroC.Ice
             }
         };
 
+        private static readonly byte[] _emptyArgs11 = new byte[] { 6, 0, 0, 0, 1, 1 };
+        private static readonly byte[] _emptyArgs20 = new byte[] { 7, 0, 0, 0, 2, 0, 0 };
+        private static readonly byte[] _voidReturn11 = new byte[] { 0, 6, 0, 0, 0, 1, 1 };
+        private static readonly byte[] _voidReturn20 = new byte[] { 0, 7, 0, 0, 0, 2, 0, 0 };
+
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
         internal static void CheckHeader(ReadOnlySpan<byte> header)
         {
@@ -81,6 +86,17 @@ namespace ZeroC.Ice
                 throw new InvalidDataException(
                     $"received ice1 protocol frame with protocol encoding set to {header[2]}.{header[3]}");
             }
+        }
+
+        /// <summary>Returns the payload of an ice1 request frame for an operation with no argument.</summary>
+        /// <param name="encoding">The encoding of this empty args payload. The header of this payload is always encoded
+        /// using ice1's header encoding (1.1).</param>
+        /// <returns>The payload.</returns>
+        /// <remarks>The 2.0 encoding has an extra byte for the compression status.</remarks>
+        internal static ArraySegment<byte> GetEmptyArgsPayload(Encoding encoding)
+        {
+            encoding.CheckSupported();
+            return encoding == Encoding.V11 ? _emptyArgs11 : _emptyArgs20;
         }
 
         internal static string GetFacet(string[] facetPath)
@@ -144,6 +160,16 @@ namespace ZeroC.Ice
                 }
             }
             return RetryPolicy.NoRetry;
+        }
+
+        /// <summary>Returns the payload of an ice1 response frame for an operation returning void.</summary>
+        /// <param name="encoding">The encoding of this void return. The header of this payload is always encoded
+        /// using ice1's header encoding (1.1).</param>
+        /// <returns>The payload.</returns>
+        internal static ArraySegment<byte> GetVoidReturnPayload(Encoding encoding)
+        {
+            encoding.CheckSupported();
+            return encoding == Encoding.V11 ? _voidReturn11 : _voidReturn20;
         }
 
         /// <summary>Reads a facet in the old ice1 format from the stream.</summary>
