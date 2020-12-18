@@ -61,12 +61,12 @@ namespace ZeroC.Ice
         internal int OutgoingStreamCount => Thread.VolatileRead(ref _outgoingStreamCount);
 
         private int _incomingStreamCount;
-        // The mutex provides thread-safety for the _observer and LastActivity data members.
+        // The mutex provides thread-safety for the _observer, _streamsAborted and LastActivity data members.
         private readonly object _mutex = new();
         private IConnectionObserver? _observer;
         private int _outgoingStreamCount;
         private readonly ConcurrentDictionary<long, SocketStream> _streams = new();
-        private volatile bool _streamsAborted;
+        private bool _streamsAborted;
         private volatile TaskCompletionSource? _streamsEmptySource;
 
         /// <summary>Aborts the socket.</summary>
@@ -122,15 +122,11 @@ namespace ZeroC.Ice
         /// unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Dispose of the control streams. It's possible that non-control streams are still left in the dictionary
-            // if they are being created and added while this socket is being disposed. AddStream will remove them
-            // from the dictionary and throw in this case once it checks for _streamsAborted.
+            // Dispose of the control streams.
             foreach (SocketStream stream in _streams.Values)
             {
-                if (stream.IsControl)
-                {
-                    stream.Dispose();
-                }
+                Debug.Assert(stream.IsControl);
+                stream.Dispose();
             }
         }
 
@@ -219,13 +215,16 @@ namespace ZeroC.Ice
             Abort();
 
             // Consider the abort as graceful if the streams were already aborted.
-            bool graceful = _streamsAborted;
-
-            // Abort the streams if not already done and wait for all the streams to be completed.
-            if (!_streamsAborted)
+            bool graceful;
+            lock (_mutex)
             {
-                AbortStreams(exception);
+                graceful = _streamsAborted;
             }
+
+            // Abort the streams if not already done and wait for all the streams to be completed. It's important to
+            // call this again even if has already been called previously by graceful connection closure. Not all the
+            // streams might have been aborted and at this point we want to make sure all the streams are aborted.
+            AbortStreams(exception);
 
             await WaitForEmptyStreamsAsync().ConfigureAwait(false);
 
@@ -255,8 +254,12 @@ namespace ZeroC.Ice
 
         internal virtual (long, long) AbortStreams(Exception exception, Func<SocketStream, bool>? predicate = null)
         {
-            // Set the _streamsAborted flag to prevent addition of new streams to the _streams collection.
-            _streamsAborted = true;
+            lock (_mutex)
+            {
+                // Set the _streamsAborted flag to prevent addition of new streams by AddStream. No more streams will
+                // be added to _streams once this flag is true.
+                _streamsAborted = true;
+            }
 
             // Cancel the streams based on the given predicate. Control streams are not canceled since they are
             // still needed for sending and receiving GoAway frames.
@@ -285,20 +288,18 @@ namespace ZeroC.Ice
 
         internal void AddStream(long id, SocketStream stream, bool control)
         {
-            _streams[id] = stream;
+            lock (_mutex)
+            {
+                if (_streamsAborted)
+                {
+                    throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
+                }
+                _streams[id] = stream;
+            }
 
             if (!control)
             {
                 Interlocked.Increment(ref stream.IsIncoming ? ref _incomingStreamCount : ref _outgoingStreamCount);
-            }
-
-            // If the socket streams are aborted, we remove the stream from the dictionary and throw. It's important
-            // to do this check after adding the stream to the dictionary since AbortStreams sets this flag before
-            // looping over the streams to abort them.
-            if (_streamsAborted)
-            {
-                RemoveStream(id);
-                throw new ConnectionClosedException(isClosedByPeer: false, RetryPolicy.AfterDelay(TimeSpan.Zero));
             }
         }
 
@@ -455,6 +456,14 @@ namespace ZeroC.Ice
             {
                 s.Append("\nstream ID = ");
                 s.Append(streamId);
+                s.Append((streamId % 4) switch
+                {
+                    0 => " (client-initiated, bidirectional)",
+                    1 => " (server-initiated, bidirectional)",
+                    2 => " (client-initiated, unidirectional)",
+                    3 => " (server-initiated, unidirectional)",
+                    _ => throw new InvalidArgumentException(nameof(streamId))
+                });
             }
             else if (frameType == "Request" || frameType == "Response")
             {
@@ -553,20 +562,23 @@ namespace ZeroC.Ice
                 s.Append("\nnumber of requests = ");
                 s.Append(data.AsReadOnlySpan().ReadInt());
             }
-            else if (protocol == Protocol.Ice2 && frameType == "GoAway")
+            else if (frameType == "GoAway")
             {
-                var istr = new InputStream(data, encoding);
-                s.Append("\nlast bidirectional stream ID = ");
-                s.Append(istr.ReadVarLong());
-                s.Append("\nlast unidirectional stream ID = ");
-                s.Append(istr.ReadVarLong());
-                s.Append("\nmessage from peer = ");
-                s.Append(istr.ReadString());
-            }
-            else
-            {
-                s.Append("\nlast request ID = ");
-                s.Append((int)(LastResponseStreamId >> 2) + 1);
+                if (protocol == Protocol.Ice2)
+                {
+                    var istr = new InputStream(data, encoding);
+                    s.Append("\nlast bidirectional stream ID = ");
+                    s.Append(istr.ReadVarULong());
+                    s.Append("\nlast unidirectional stream ID = ");
+                    s.Append(istr.ReadVarULong());
+                    s.Append("\nmessage from peer = ");
+                    s.Append(istr.ReadString());
+                }
+                else
+                {
+                    s.Append("\nlast request ID = ");
+                    s.Append((int)(LastResponseStreamId >> 2) + 1);
+                }
             }
 
             s.Append('\n');

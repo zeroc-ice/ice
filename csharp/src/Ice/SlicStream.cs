@@ -26,21 +26,16 @@ namespace ZeroC.Ice
             base.Dispose(disposing);
             if (disposing)
             {
-                if (IsSignaled)
+                try
                 {
-                    // If the stream is signaled, it was canceled or discarded. We get the information for the frame
-                    // to receive in order to consume it below.
-                    try
-                    {
-                        ValueTask<(int, bool)> valueTask = WaitSignalAsync(CancellationToken.None);
-                        Debug.Assert(valueTask.IsCompleted);
-                        (_receivedSize, _receivedEndOfStream) = valueTask.Result;
-                        _receivedOffset = 0;
-                    }
-                    catch
-                    {
-                        // Ignore, the stream got aborted and there's nothing to consume.
-                    }
+                    ValueTask<(int, bool)> valueTask = WaitSignalAsync(CancellationToken.None);
+                    Debug.Assert(valueTask.IsCompleted);
+                    (_receivedSize, _receivedEndOfStream) = valueTask.Result;
+                    _receivedOffset = 0;
+                }
+                catch
+                {
+                    // Ignore, there's nothing to consume.
                 }
 
                 // If there's still data pending to be receive for the stream, we notify the socket that
@@ -51,9 +46,10 @@ namespace ZeroC.Ice
                     _socket.FinishedReceivedStreamData(Id, _receivedOffset, _receivedSize, _receivedEndOfStream);
                 }
 
-                // Only release incoming streams on Dispose. Slic outgoing streams are released when the StreamLast
-                // frame is received and it can be received after the stream is disposed (e.g.: for oneway requests
-                // we dispose of the stream as soon as the request is sent and before receiving the StreamLast frame).
+                // Only release the flow control credit for incoming streams on Dispose. Flow control for Slic outgoing
+                // streams are released when the StreamLast frame is received and it can be received after the stream
+                // is disposed (e.g.: for oneway requests we dispose the stream as soon as the request is sent and
+                // before receiving the StreamLast frame).
                 if (IsIncoming)
                 {
                     ReleaseFlowControlCredit(notifyPeer: true);
@@ -93,9 +89,8 @@ namespace ZeroC.Ice
             return size;
         }
 
-        protected override async ValueTask ResetAsync(long errorCode)
-        {
-            await _socket.PrepareAndSendFrameAsync(
+        protected override ValueTask ResetAsync(long errorCode) =>
+            new(_socket.PrepareAndSendFrameAsync(
                 SlicDefinitions.FrameType.StreamReset,
                 ostr =>
                 {
@@ -104,8 +99,7 @@ namespace ZeroC.Ice
                         new StreamResetBody((ulong)errorCode).IceWrite(ostr);
                     }
                 },
-                Id).ConfigureAwait(false);
-        }
+                Id));
 
         protected override async ValueTask SendAsync(
             IList<ArraySegment<byte>> buffer,
@@ -117,11 +111,12 @@ namespace ZeroC.Ice
 
             int size = buffer.GetByteCount();
 
-            // If the protocol buffer is larger than the configure Slic packet size, send it over multiple Slic packets.
+            // If the protocol buffer is larger than the configured Slic packet size, send the buffer with multiple
+            // Slic stream frames.
             int packetMaxSize = _socket.Endpoint.Communicator.SlicPacketMaxSize;
             if (size > packetMaxSize)
             {
-                // The send buffer for the Slic packet.
+                // The send buffer for the Slic stream frame.
                 var sendBuffer = new List<ArraySegment<byte>>(buffer.Count);
 
                 // The amount of data sent so far.
@@ -137,13 +132,13 @@ namespace ZeroC.Ice
                     int sendSize = 0;
                     if (offset > 0)
                     {
-                        // If it's not the first Slic packet, we re-use the space reserved for Slic header in the first
-                        // segment of the protocol buffer.
+                        // If it's not the first Slic stream frame, we re-use the space reserved for the Slic header in
+                        // the first segment of the protocol buffer.
                         sendBuffer.Add(buffer[0].Slice(0, Header.Length));
                         sendSize += sendBuffer[0].Count;
                     }
 
-                    // Append data until we reach the Slic packet size or the end of the protocol buffer.
+                    // Append data until we reach the Slic packet size or the end of the buffer to send.
                     bool lastBuffer = false;
                     for (int i = start.Segment; i < buffer.Count; ++i)
                     {
@@ -163,19 +158,19 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    // Send the Slic packet.
+                    // Send the Slic stream frame.
                     offset += sendSize;
-                    await _socket.SendStreamPacketAsync(this,
-                                                        sendSize,
-                                                        lastBuffer && fin,
-                                                        sendBuffer,
-                                                        cancel).ConfigureAwait(false);
+                    await _socket.SendStreamFrameAsync(this,
+                                                       sendSize,
+                                                       lastBuffer && fin,
+                                                       sendBuffer,
+                                                       cancel).ConfigureAwait(false);
                 }
             }
             else
             {
-                // If the protocol buffer is small enough to fit in a single Slic packet, send it directly.
-                await _socket.SendStreamPacketAsync(this, size, fin, buffer, cancel).ConfigureAwait(false);
+                // If the buffer to send is small enough to fit in a single Slic stream frame, send it directly.
+                await _socket.SendStreamFrameAsync(this, size, fin, buffer, cancel).ConfigureAwait(false);
             }
         }
 
@@ -209,76 +204,21 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Send a Slic packet. The first segment of the given buffer always contain space reserved for
-        /// the Slic header.</summary>
-        internal async Task SendPacketAsync(
-            int packetSize,
-            bool fin,
-            IList<ArraySegment<byte>> buffer,
-            CancellationToken cancel)
+        internal bool ReleaseFlowControlCredit(bool notifyPeer = false)
         {
-            // The incoming bidirectional stream is considered completed once no more data will be written on
-            // the stream. It's important to release the flow control credit here before the peer receives the
-            // last stream frame to prevent a race where the peer could start a new stream before the credit
-            // counter is released. If the credit is already released, this indicates that the stream got reset.
-            // In this case, we return since an empty stream last frame has been sent already.
-            if (IsIncoming && fin && !ReleaseFlowControlCredit())
-            {
-                return;
-            }
-
-            // The given buffer includes space for the Slic header, we subtract the header size from the given
-            // frame size.
-            Debug.Assert(packetSize >= Header.Length);
-            packetSize -= Header.Length;
-
-            // Compute how much space the size and stream ID require to figure out the start of the Slic header.
-            int sizeLength = OutputStream.GetVarLongLength(packetSize);
-            int streamIdLength = OutputStream.GetVarLongLength(Id);
-            packetSize += streamIdLength;
-
-            SlicDefinitions.FrameType frameType =
-                fin ? SlicDefinitions.FrameType.StreamLast : SlicDefinitions.FrameType.Stream;
-
-            // Write the Slic frame header (frameType - byte, frameSize - varint, streamId - varlong). Since
-            // we might not need the full space reserved for the header, we modify the send buffer to ensure
-            // the first element points at the start of the Slic header. We'll restore the send buffer once
-            // the send is complete (it's important for the tracing code which might rely on the encoded
-            // data).
-            ArraySegment<byte> previous = buffer[0];
-            ArraySegment<byte> headerData = buffer[0].Slice(Header.Length - sizeLength - streamIdLength - 1);
-            headerData[0] = (byte)frameType;
-            headerData.AsSpan(1, sizeLength).WriteFixedLengthSize20(packetSize);
-            headerData.AsSpan(1 + sizeLength, streamIdLength).WriteFixedLengthVarLong(Id);
-            buffer[0] = headerData;
-
-            if (_socket.Endpoint.Communicator.TraceLevels.Transport > 2)
-            {
-                _socket.TraceTransportFrame("sending ", frameType, packetSize, Id);
-            }
-
-            try
-            {
-                await _socket.SendFrameAsync(buffer, cancel).ConfigureAwait(false);
-            }
-            finally
-            {
-                buffer[0] = previous; // Restore the original value of the send buffer.
-            }
-        }
-
-        private bool ReleaseFlowControlCredit(bool notifyPeer = false)
-        {
-            // If the flow control credit is not already released, releases it now.
             if (Interlocked.CompareExchange(ref _flowControlCreditReleased, 1, 0) == 0)
             {
-                _socket.ReleaseFlowControlCredit(this);
-
-                if (IsIncoming && notifyPeer)
+                if (!IsControl)
                 {
-                    // It's important to decrement the stream count before sending the StreamLast frame to prevent
-                    // a race where the peer could start a new stream before the counter is decremented.
-                    _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
+                    // If the flow control credit is not already released, releases it now.
+                    _socket.ReleaseFlowControlCredit(this);
+
+                    if (IsIncoming && notifyPeer)
+                    {
+                        // It's important to decrement the stream count before sending the StreamLast frame to prevent
+                        // a race where the peer could start a new stream before the counter is decremented.
+                        _ = _socket.PrepareAndSendFrameAsync(SlicDefinitions.FrameType.StreamLast, streamId: Id);
+                    }
                 }
                 return true;
             }

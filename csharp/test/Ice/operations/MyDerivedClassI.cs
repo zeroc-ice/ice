@@ -1002,30 +1002,18 @@ namespace ZeroC.Ice.Test.Operations
         public void OpSendStream1(Stream p1, Current current, CancellationToken cancel) =>
             CompareStreams(File.OpenRead("AllTests.cs"), p1);
 
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public void OpSendStream2(string p1, Stream p2, Current current, CancellationToken cancel) =>
             CompareStreams(File.OpenRead(p1), p2);
 
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public Stream OpGetStream1(Current current, CancellationToken cancel) =>
             File.OpenRead("AllTests.cs");
 
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>Named tuple with the following fields:</returns>
         public (string R1, Stream R2) OpGetStream2(Current current, CancellationToken cancel) =>
             ("AllTests.cs", File.OpenRead("AllTests.cs"));
 
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public Stream OpSendAndGetStream1(Stream p1, Current current, CancellationToken cancel) =>
             p1;
 
-        /// <param name="current">The Current object for the dispatch.</param>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        /// <returns>Named tuple with the following fields:</returns>
         public (string R1, Stream R2) OpSendAndGetStream2(
             string p1,
             Stream p2,

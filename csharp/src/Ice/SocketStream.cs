@@ -93,6 +93,8 @@ namespace ZeroC.Ice
             Task.Run(async () =>
                 {
                     // We use the same default buffer size as System.IO.Stream.CopyToAsync()
+                    // TODO: Should this depend on the transport packet size? (Slic default packet size is 32KB for
+                    // example).
                     int bufferSize = 81920;
                     if (ioStream.CanSeek)
                     {
@@ -450,6 +452,8 @@ namespace ZeroC.Ice
             }
             catch (OperationCanceledException)
             {
+                // If the stream is not started, there's no need to send a stream reset frame. The stream ID wasn't
+                // allocated and the peer doesn't know about this stream.
                 if (IsStarted && _socket.Endpoint.Protocol != Protocol.Ice1)
                 {
                     await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
