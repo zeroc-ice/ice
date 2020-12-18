@@ -106,7 +106,7 @@ namespace ZeroC.Ice
                                         request.PayloadEncoding,
                                         format);
             writer(ostr, args);
-            _ = ostr.Finish();
+            ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -187,7 +187,7 @@ namespace ZeroC.Ice
                                         request.PayloadEncoding,
                                         format);
             writer(ostr, in args);
-            _ = ostr.Finish();
+            ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -231,7 +231,7 @@ namespace ZeroC.Ice
                                         format);
             // TODO: deal with compress, format, and cancel paramters
             request.StreamDataWriter = writer(ostr, in args, cancel);
-            _ = ostr.Finish();
+            ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -284,7 +284,6 @@ namespace ZeroC.Ice
 
             if (request.Protocol == Protocol)
             {
-                // We only include the encapsulation.
                 Payload.Add(request.Payload);
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
@@ -294,20 +293,19 @@ namespace ZeroC.Ice
             }
             else
             {
-                // We forward the encapsulation and the string-string context. The context was marshaled by the
-                // constructor (when Protocol == Ice1) or will be written by Finish (when Protocol == Ice2).
-                // The payload encoding must remain the same since we cannot transcode the encoded bytes.
+                // We forward the payload (encapsulation) after rewriting the encapsulation header. The encoded bytes
+                // of the encapsulation must remain the same since we cannot transcode the encoded bytes.
 
                 int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : request.Payload[0].ReadSizeLength20();
 
                 var ostr = new OutputStream(Protocol.GetEncoding(), Payload);
                 ostr.WriteEncapsulationHeader(request.Payload.Count - sizeLength, request.PayloadEncoding);
-                _ = ostr.Finish();
+                ostr.Finish();
 
                 // "2" below corresponds to the encoded length of the encoding.
                 if (request.Payload.Count > sizeLength + 2)
                 {
-                    // Add encoded bytes, not including the header or binary context.
+                    // Add encoded bytes, not including the encapsulation header (size + encoding).
                     Payload.Add(request.Payload.Slice(sizeLength + 2));
                 }
             }
@@ -316,13 +314,7 @@ namespace ZeroC.Ice
         /// <inheritdoc/>
         internal override void WriteHeader(OutputStream ostr)
         {
-            if (ostr.Encoding != Protocol.GetEncoding())
-            {
-                throw new ArgumentException(
-                    @$"cannot write header of {Protocol.GetName()} frame to output stream using the {ostr.Encoding
-                    } encoding",
-                    nameof(ostr));
-            }
+            Debug.Assert(ostr.Encoding == Protocol.GetEncoding());
 
             if (Protocol == Protocol.Ice2)
             {

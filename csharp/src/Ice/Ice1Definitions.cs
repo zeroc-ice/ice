@@ -58,8 +58,8 @@ namespace ZeroC.Ice
             }
         };
 
-        private static readonly byte[] _voidReturn11 = new byte[] { 0, 6, 0, 0, 0, 1, 1 };
-        private static readonly byte[] _voidReturn20 = new byte[] { 0, 7, 0, 0, 0, 2, 0, 0 };
+        private static readonly byte[] _voidReturnValuePayload11 = new byte[] { 0, 6, 0, 0, 0, 1, 1 };
+        private static readonly byte[] _voidReturnValuePayload20 = new byte[] { 0, 7, 0, 0, 0, 2, 0, 0 };
 
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
         internal static void CheckHeader(ReadOnlySpan<byte> header)
@@ -92,7 +92,7 @@ namespace ZeroC.Ice
         /// <returns>The payload.</returns>
         /// <remarks>The 2.0 encoding has an extra byte for the compression status.</remarks>
         internal static ArraySegment<byte> GetEmptyArgsPayload(Encoding encoding) =>
-            GetVoidReturnPayload(encoding).Slice(1);
+            GetVoidReturnValuePayload(encoding).Slice(1);
 
         internal static string GetFacet(string[] facetPath)
         {
@@ -161,10 +161,10 @@ namespace ZeroC.Ice
         /// <param name="encoding">The encoding of this void return. The header of this payload is always encoded
         /// using ice1's header encoding (1.1).</param>
         /// <returns>The payload.</returns>
-        internal static ArraySegment<byte> GetVoidReturnPayload(Encoding encoding)
+        internal static ArraySegment<byte> GetVoidReturnValuePayload(Encoding encoding)
         {
             encoding.CheckSupported();
-            return encoding == Encoding.V11 ? _voidReturn11 : _voidReturn20;
+            return encoding == Encoding.V11 ? _voidReturnValuePayload11 : _voidReturnValuePayload20;
         }
 
         /// <summary>Reads a facet in the old ice1 format from the stream.</summary>

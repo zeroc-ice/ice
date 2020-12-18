@@ -12,8 +12,8 @@ namespace ZeroC.Ice
     {
         internal static readonly Encoding Encoding = Encoding.V20;
 
-        private static readonly byte[] _voidReturn11 = new byte[] { 0, 8, 1, 1 }; // size 2 encoded as 2 * 4
-        private static readonly byte[] _voidReturn20 = new byte[] { 0, 12, 2, 0, 0 }; // size 3 encoded as 3 * 4
+        private static readonly byte[] _voidReturnValuePayload11 = new byte[] { 0, 8, 1, 1 }; // size 2 encoded as 2 * 4
+        private static readonly byte[] _voidReturnValuePayload20 = new byte[] { 0, 12, 2, 0, 0 };
 
         /// <summary>Returns the payload of an ice2 request frame for an operation with no argument.</summary>
         /// <param name="encoding">The encoding of this empty args payload. The header of this payload is always encoded
@@ -21,16 +21,16 @@ namespace ZeroC.Ice
         /// <returns>The payload.</returns>
         /// <remarks>The 2.0 encoding has an extra byte for the compression status.</remarks>
         internal static ArraySegment<byte> GetEmptyArgsPayload(Encoding encoding) =>
-            GetVoidReturnPayload(encoding).Slice(1);
+            GetVoidReturnValuePayload(encoding).Slice(1);
 
         /// <summary>Returns the payload of an ice2 response frame for an operation returning void.</summary>
         /// <param name="encoding">The encoding of this void return. The header of this payload is always encoded
         /// using ice2's header encoding (2.0).</param>
         /// <returns>The payload.</returns>
-        internal static ArraySegment<byte> GetVoidReturnPayload(Encoding encoding)
+        internal static ArraySegment<byte> GetVoidReturnValuePayload(Encoding encoding)
         {
             encoding.CheckSupported();
-            return encoding == Encoding.V11 ? _voidReturn11 : _voidReturn20;
+            return encoding == Encoding.V11 ? _voidReturnValuePayload11 : _voidReturnValuePayload20;
         }
 
         /// <summary>Writes a request header body This implementation is slightly more efficient than the generated code
@@ -46,7 +46,9 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string> context)
         {
             Debug.Assert(ostr.Encoding == Encoding);
-            BitSequence bitSequence = ostr.WriteBitSequence(5); // bit set to true (set) by default
+
+            // All bits are set to true by default, and true means the corresponding value is set.
+            BitSequence bitSequence = ostr.WriteBitSequence(5);
 
             identity.IceWrite(ostr);
             if (facet.Length > 0)

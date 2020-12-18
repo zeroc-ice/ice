@@ -76,8 +76,8 @@ namespace ZeroC.Ice
         internal static ArraySegment<byte> GetVoidReturnPayload(this Protocol protocol, Encoding encoding) =>
             protocol switch
             {
-                Protocol.Ice1 => Ice1Definitions.GetVoidReturnPayload(encoding),
-                Protocol.Ice2 => Ice2Definitions.GetVoidReturnPayload(encoding),
+                Protocol.Ice1 => Ice1Definitions.GetVoidReturnValuePayload(encoding),
+                Protocol.Ice2 => Ice2Definitions.GetVoidReturnValuePayload(encoding),
                 _ => throw new NotSupportedException(
                     @$"Ice protocol `{protocol.GetName()}' is not supported by this Ice runtime ({Runtime.StringVersion
                     })"),

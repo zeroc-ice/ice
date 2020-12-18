@@ -102,8 +102,8 @@ namespace ZeroC.Ice
             // Note: we don't write the request ID here if the stream ID is not allocated yet. We want to allocate
             // it from the send queue to ensure requests are sent in the same order as the request ID values.
             ostr.WriteInt(IsStarted ? RequestId : 0);
-            ostr.WriteHeader(frame);
-            _ = ostr.Finish();
+            frame.WriteHeader(ostr);
+            ostr.Finish();
 
             buffer.AddRange(frame.Payload);
             int frameSize = buffer.GetByteCount();

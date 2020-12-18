@@ -23,7 +23,7 @@ namespace ZeroC.Ice
     public abstract class OutgoingFrame
     {
         /// <summary>Returns a dictionary used to override the binary context of this frame. The full binary context
-        /// is a combination of <see cref="InitialBinaryContext"/> plus these overrides.</summary>
+        /// is a combination of the <see cref="InitialBinaryContext"/> plus these overrides.</summary>
         /// <remarks>The actions set in this dictionary are executed when the frame is sent.</remarks>
         public Dictionary<int, Action<OutputStream>> BinaryContextOverride
         {
@@ -186,14 +186,13 @@ namespace ZeroC.Ice
                 var buffer = new List<ArraySegment<byte>>();
                 var ostr = new OutputStream(Encoding.V20, buffer);
                 WriteBinaryContext(ostr);
-                _ = ostr.Finish();
+                ostr.Finish();
                 return buffer.AsArraySegment().AsReadOnlyMemory().Read(istr => istr.ReadBinaryContext());
             }
         }
 
         /// <summary>Writes the header of a frame. This header does not include the frame's prologue.</summary>
         /// <param name="ostr">The output stream.</param>
-        /// <remarks>The preferred public method is <see cref="OutgoingFrameHelper.WriteHeader"/>.</remarks>
         internal abstract void WriteHeader(OutputStream ostr);
 
         private protected OutgoingFrame(
@@ -246,14 +245,5 @@ namespace ZeroC.Ice
             }
             ostr.RewriteFixedLengthSize20(size, start, sizeLength);
         }
-    }
-
-    public static class OutgoingFrameHelper
-    {
-        /// <summary>Writes the header of a frame. This header does not include the frame's prologue.</summary>
-        /// <param name="ostr">The output stream.</param>
-        /// <param name="frame">The frame.</param>
-        public static void WriteHeader(this OutputStream ostr, OutgoingFrame frame) =>
-            frame.WriteHeader(ostr);
     }
 }

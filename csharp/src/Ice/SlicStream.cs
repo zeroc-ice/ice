@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     /// <summary>The stream implementation for Slic.</summary>
     internal class SlicStream : SignaledSocketStream<(int, bool)>
     {
-        protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
+        protected override ReadOnlyMemory<byte> TransportHeader => SlicDefinitions.FrameHeader;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
         private int _flowControlCreditReleased;
         private int _receivedOffset;
@@ -113,7 +113,7 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             // Ensure the caller reserved space for the Slic header by checking for the sentinel header.
-            Debug.Assert(Header.Span.SequenceEqual(buffer[0].Slice(0, Header.Length)));
+            Debug.Assert(TransportHeader.Span.SequenceEqual(buffer[0].Slice(0, TransportHeader.Length)));
 
             int size = buffer.GetByteCount();
 
@@ -139,7 +139,7 @@ namespace ZeroC.Ice
                     {
                         // If it's not the first Slic packet, we re-use the space reserved for Slic header in the first
                         // segment of the protocol buffer.
-                        sendBuffer.Add(buffer[0].Slice(0, Header.Length));
+                        sendBuffer.Add(buffer[0].Slice(0, TransportHeader.Length));
                         sendSize += sendBuffer[0].Count;
                     }
 
@@ -229,8 +229,8 @@ namespace ZeroC.Ice
 
             // The given buffer includes space for the Slic header, we subtract the header size from the given
             // frame size.
-            Debug.Assert(packetSize >= Header.Length);
-            packetSize -= Header.Length;
+            Debug.Assert(packetSize >= TransportHeader.Length);
+            packetSize -= TransportHeader.Length;
 
             // Compute how much space the size and stream ID require to figure out the start of the Slic header.
             int sizeLength = OutputStream.GetVarLongLength(packetSize);
@@ -246,7 +246,7 @@ namespace ZeroC.Ice
             // the send is complete (it's important for the tracing code which might rely on the encoded
             // data).
             ArraySegment<byte> previous = buffer[0];
-            ArraySegment<byte> headerData = buffer[0].Slice(Header.Length - sizeLength - streamIdLength - 1);
+            ArraySegment<byte> headerData = buffer[0].Slice(TransportHeader.Length - sizeLength - streamIdLength - 1);
             headerData[0] = (byte)frameType;
             headerData.AsSpan(1, sizeLength).WriteFixedLengthSize20(packetSize);
             headerData.AsSpan(1 + sizeLength, streamIdLength).WriteFixedLengthVarLong(Id);

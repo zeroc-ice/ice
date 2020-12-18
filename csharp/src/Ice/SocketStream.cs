@@ -51,14 +51,15 @@ namespace ZeroC.Ice
         /// <summary>Returns True if the stream is a control stream, False otherwise.</summary>
         public bool IsControl { get; }
 
+        protected abstract bool ReceivedEndOfStream { get; }
+
         /// <summary>The transport header sentinel. Transport implementations that need to add an additional header
         /// to transmit data over the stream can provide the header data here. This can improve performance by reducing
         /// the number of allocations as Ice will allocate buffer space for both the transport header and the Ice
         /// protocol header. If a header is returned here, the implementation of the SendAsync method should this header
         /// to be set at the start of the first segment.</summary>
         // TODO: review summary above!
-        protected virtual ReadOnlyMemory<byte> Header => default;
-        protected abstract bool ReceivedEndOfStream { get; }
+        protected virtual ReadOnlyMemory<byte> TransportHeader => default;
 
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>
         internal event Action<long>? Reset;
@@ -115,11 +116,11 @@ namespace ZeroC.Ice
                         {
                             try
                             {
-                                Header.CopyTo(receiveBuffer);
-                                received = await ioStream.ReadAsync(receiveBuffer.Slice(Header.Length),
+                                TransportHeader.CopyTo(receiveBuffer);
+                                received = await ioStream.ReadAsync(receiveBuffer.Slice(TransportHeader.Length),
                                                                     cancel).ConfigureAwait(false);
 
-                                sendBuffers[0] = receiveBuffer.Slice(0, Header.Length + received);
+                                sendBuffers[0] = receiveBuffer.Slice(0, TransportHeader.Length + received);
                                 await SendAsync(sendBuffers, received == 0, cancel).ConfigureAwait(false);
                             }
                             catch
@@ -370,9 +371,9 @@ namespace ZeroC.Ice
             {
                 var data = new List<ArraySegment<byte>>() { new byte[1024] };
                 var ostr = new OutputStream(Ice2Definitions.Encoding, data);
-                if (!Header.IsEmpty)
+                if (!TransportHeader.IsEmpty)
                 {
-                    ostr.WriteByteSpan(Header.Span);
+                    ostr.WriteByteSpan(TransportHeader.Span);
                 }
                 ostr.WriteByte((byte)Ice2FrameType.GoAway);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
@@ -383,7 +384,7 @@ namespace ZeroC.Ice
                     reason);
                 goAwayFrameBody.IceWrite(ostr);
                 ostr.EndFixedLengthSize(sizePos);
-                _ = ostr.Finish();
+                ostr.Finish();
 
                 await SendAsync(data, true, cancel).ConfigureAwait(false);
 
@@ -409,9 +410,9 @@ namespace ZeroC.Ice
             {
                 var data = new List<ArraySegment<byte>>() { new byte[1024] };
                 var ostr = new OutputStream(Ice2Definitions.Encoding, data);
-                if (!Header.IsEmpty)
+                if (!TransportHeader.IsEmpty)
                 {
-                    ostr.WriteByteSpan(Header.Span);
+                    ostr.WriteByteSpan(TransportHeader.Span);
                 }
                 ostr.WriteByte((byte)Ice2FrameType.Initialize);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
@@ -427,7 +428,7 @@ namespace ZeroC.Ice
                                              OutputStream.IceWriterFromVarULong);
 
                 ostr.EndFixedLengthSize(sizePos);
-                _ = ostr.Finish();
+                ostr.Finish();
 
                 await SendAsync(data, false, cancel).ConfigureAwait(false);
 
@@ -526,15 +527,15 @@ namespace ZeroC.Ice
 
             var buffer = new List<ArraySegment<byte>>(frame.Payload.Count + 1);
             var ostr = new OutputStream(Encoding.V20, buffer);
-            ostr.WriteByteSpan(Header.Span); // TODO: rename Header to TransportHeader?
+            ostr.WriteByteSpan(TransportHeader.Span);
 
             ostr.Write(frame is OutgoingRequestFrame ? Ice2FrameType.Request : Ice2FrameType.Response);
             OutputStream.Position start = ostr.StartFixedLengthSize(4);
-            ostr.WriteHeader(frame);
-            _ = ostr.Finish();
+            frame.WriteHeader(ostr);
+            ostr.Finish();
 
             buffer.AddRange(frame.Payload);
-            int frameSize = buffer.GetByteCount() - Header.Length - 1 - 4;
+            int frameSize = buffer.GetByteCount() - TransportHeader.Length - 1 - 4;
             ostr.RewriteFixedLengthSize20(frameSize, start, 4);
 
             if (frameSize > _socket.PeerIncomingFrameMaxSize)

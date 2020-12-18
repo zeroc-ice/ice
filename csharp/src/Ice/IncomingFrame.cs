@@ -14,7 +14,7 @@ namespace ZeroC.Ice
         /// <summary>Returns the binary context of this frame.</summary>
         public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; }
 
-        /// <summary>Returns true this payload holds a compressed encapsulation payload; otherwise, returns false.
+        /// <summary>Returns true if this payload holds a compressed encapsulation payload; otherwise, returns false.
         /// </summary>
         public bool HasCompressedPayload { get; private protected set; }
 

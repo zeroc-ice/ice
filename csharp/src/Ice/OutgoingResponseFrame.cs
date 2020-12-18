@@ -29,9 +29,9 @@ namespace ZeroC.Ice
         /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithVoidReturnValue(Current current)
         {
-            var voidReturnFrame = new OutgoingResponseFrame(current.Protocol, current.Encoding);
-            voidReturnFrame.Payload.Add(current.Protocol.GetVoidReturnPayload(current.Encoding));
-            return voidReturnFrame;
+            var response = new OutgoingResponseFrame(current.Protocol, current.Encoding);
+            response.Payload.Add(current.Protocol.GetVoidReturnPayload(current.Encoding));
+            return response;
         }
 
         /// <summary>Creates a new <see cref="OutgoingResponseFrame"/> for an operation with a non-tuple non-struct
@@ -54,7 +54,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, returnValue);
-            _ = ostr.Finish();
+            ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
@@ -110,7 +110,7 @@ namespace ZeroC.Ice
         {
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             writer(ostr, in returnValue);
-            _ = ostr.Finish();
+            ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
@@ -139,7 +139,7 @@ namespace ZeroC.Ice
             (OutgoingResponseFrame response, OutputStream ostr) = PrepareReturnValue(current, compress, format);
             // TODO: deal with compress, format and cancellation token
             response.StreamDataWriter = writer(ostr, in returnValue, default);
-            _ = ostr.Finish();
+            ostr.Finish();
             if (compress && current.Encoding == Encoding.V20)
             {
                 response.CompressPayload();
@@ -209,7 +209,7 @@ namespace ZeroC.Ice
                         // else we are forwarding a system exception encoded using 1.1 and received over ice2 to ice1.
                         // and we include only the reply status
 
-                        _ = ostr.Finish();
+                        ostr.Finish();
 
                         // We need to get rid of the extra reply status byte and the start of the encapsulation added
                         // when 1.1 exceptions are marshaled using ice2.
@@ -233,7 +233,7 @@ namespace ZeroC.Ice
 
                             ostr.WriteEncapsulationHeader(response.Payload.Count - sizeLength, PayloadEncoding);
                             ostr.Write(replyStatus);
-                            _ = ostr.Finish();
+                            ostr.Finish();
                             Payload.Add(response.Payload.Slice(1 + sizeLength + 2));
                         }
                         else
@@ -244,7 +244,7 @@ namespace ZeroC.Ice
                             // encapsulation is the size of the payload +2 bytes for the encapsulations encoding.
 
                             ostr.WriteEncapsulationHeader(response.Payload.Count + 2, PayloadEncoding);
-                            _ = ostr.Finish();
+                            ostr.Finish();
                             Payload.Add(response.Payload);
                         }
                     }
@@ -257,7 +257,7 @@ namespace ZeroC.Ice
                     var ostr = new OutputStream(Protocol.GetEncoding(), Payload);
                     ostr.Write(response.ResultType);
                     ostr.WriteEncapsulationHeader(response.Payload.Count - 1 - sizeLength, PayloadEncoding);
-                    _ = ostr.Finish();
+                    ostr.Finish();
                     Payload.Add(response.Payload.Slice(1 + sizeLength + 2));
                 }
 
@@ -337,7 +337,7 @@ namespace ZeroC.Ice
                 ostr.WriteException(exception);
             }
 
-            _ = ostr.Finish();
+            ostr.Finish();
 
             if (Protocol == Protocol.Ice2 && exception.RetryPolicy.Retryable != Retryable.No)
             {
@@ -359,13 +359,7 @@ namespace ZeroC.Ice
         /// <inheritdoc/>
         internal override void WriteHeader(OutputStream ostr)
         {
-            if (ostr.Encoding != Protocol.GetEncoding())
-            {
-                throw new ArgumentException(
-                    @$"cannot write header of {Protocol.GetName()} frame to output stream using the {ostr.Encoding
-                    } encoding",
-                    nameof(ostr));
-            }
+            Debug.Assert(ostr.Encoding == Protocol.GetEncoding());
 
             if (Protocol == Protocol.Ice2)
             {

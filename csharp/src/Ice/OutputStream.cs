@@ -1113,8 +1113,7 @@ namespace ZeroC.Ice
         /// <summary>Completes the current encapsulation (if any) and finishes off the underlying buffer. You should not
         /// write additional data to this output stream or its underlying buffer after calling Finish, however rewriting
         /// previous data (with for example <see cref="EndFixedLengthSize"/>) is fine.</summary>
-        /// <returns>The tail position that marks the end of the underlying buffer.</returns>
-        internal Position Finish()
+        internal void Finish()
         {
             if (_startPos is Position startPos)
             {
@@ -1125,7 +1124,6 @@ namespace ZeroC.Ice
 
             Debug.Assert(_segmentList.Count - 1 == _tail.Segment);
             _segmentList[^1] = _segmentList[^1].Slice(0, _tail.Offset);
-            return _tail;
         }
 
         /// <summary>Writes a size on a fixed number of bytes at the given position of the stream.</summary>

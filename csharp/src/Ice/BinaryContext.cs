@@ -15,7 +15,7 @@ namespace ZeroC.Ice
 
     public static class BinaryContextHelper
     {
-        /// <summary>Reads a binary context from the steam.</summary>
+        /// <summary>Reads a binary context from the stream.</summary>
         /// <param name="istr">The input stream.</param>
         /// <returns>The binary context as an immutable dictionary.</returns>
         /// <remarks>The values of the dictionary reference memory in the stream's underlying buffer.</remarks>

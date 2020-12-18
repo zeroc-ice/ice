@@ -434,7 +434,7 @@ namespace ZeroC.Ice
             writer?.Invoke(ostr);
             int frameSize = ostr.Tail.Offset - sizePos.Offset - 4;
             ostr.EndFixedLengthSize(sizePos, 4);
-            _ = ostr.Finish();
+            ostr.Finish();
 
             if (Endpoint.Communicator.TraceLevels.Transport > 2)
             {
