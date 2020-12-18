@@ -44,9 +44,9 @@ namespace ZeroC.Ice
                     }
                     else if (buffer.Length < _receiveSegment.Count)
                     {
-                        _receiveSegment.Slice(0, buffer.Length).AsMemory().CopyTo(buffer);
+                        _receiveSegment[0..buffer.Length].AsMemory().CopyTo(buffer);
                         received += buffer.Length;
-                        _receiveSegment = _receiveSegment.Slice(buffer.Length);
+                        _receiveSegment = _receiveSegment[buffer.Length..];
                         buffer = buffer[buffer.Length..];
                     }
                     else
@@ -134,7 +134,7 @@ namespace ZeroC.Ice
                 else
                 {
                     Debug.Assert(expectedFrameType == data[0][0]);
-                    (int size, int sizeLength) = data[0].Slice(1).AsReadOnlySpan().ReadSize20();
+                    (int size, int sizeLength) = data[0][1..].AsReadOnlySpan().ReadSize20();
                     return data[0].Slice(1 + sizeLength, size);
                 }
             }

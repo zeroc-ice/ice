@@ -543,7 +543,7 @@ namespace ZeroC.Ice
             }
 
             // Once we acquired the send semaphore, the sending is no longer cancellable. We can't interrupt a
-            // a send on the underlying socket and we want to make sure that once a stream is started, the peer
+            // send on the underlying socket and we want to make sure that once a stream is started, the peer
             // will always receive at least one stream frame.
 
             try
