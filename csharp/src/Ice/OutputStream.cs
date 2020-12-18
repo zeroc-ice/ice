@@ -1040,9 +1040,11 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Returns the minimum number of bytes needed to encoded a long using the 2.0 size/varulong encoding.
-        /// The parameter is a long and not a varulong because these size and size-like values are usually passed
-        /// around as signed integers.</summary>
+        /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the 2.0 encoding.
+        /// </summary>
+        /// <remarks>The parameter is a long and not a varulong because sizes and size-like values are usually passed
+        /// around as signed integers, even though sizes cannot be negative and are encoded like varulong values.
+        /// </remarks>
         internal static int GetSizeLength20(long size)
         {
             Debug.Assert(size >= 0);
