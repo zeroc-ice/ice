@@ -88,6 +88,7 @@ namespace ZeroC.Ice
         internal override async ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
         {
             (object frameObject, bool fin) = await WaitSignalAsync(cancel).ConfigureAwait(false);
+            Debug.Assert(frameObject is IncomingRequestFrame);
             var frame = (IncomingRequestFrame)frameObject;
 
             if (fin)
@@ -120,6 +121,7 @@ namespace ZeroC.Ice
                 throw;
             }
 
+            Debug.Assert(frameObject is IncomingResponseFrame);
             var frame = (IncomingResponseFrame)frameObject;
 
             if (fin)

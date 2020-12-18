@@ -63,29 +63,45 @@ namespace ZeroC.Ice
 
                 // We are going to replace the Payload segment with a new Payload segment/array that contains a
                 // decompressed encapsulation.
-                byte[] decompressedPayload = new byte[Payload.Count - size + decompressedSize];
+                byte[] decompressedPayload = new byte[encapsulationOffset + decompressedSizeLength + decompressedSize];
 
-                // Index of the start of the GZip data in Payload
-                int gzipIndex = encapsulationOffset + sizeLength + 3;
+                // Write the result type and the encapsulation header "by hand" in decompressedPayload.
+                if (encapsulationOffset == 1)
+                {
+                    decompressedPayload[0] = Payload[0]; // copy the result type.
+                }
 
-                // Copy the data before the encapsulation to the new buffer
-                Payload.AsSpan(0, gzipIndex).CopyTo(decompressedPayload);
+                decompressedPayload.AsSpan(encapsulationOffset, decompressedSizeLength).WriteEncapsulationSize(
+                    decompressedSize,
+                    Protocol.GetEncoding());
 
-                // Set the compression status to '0' not-compressed
-                decompressedPayload[gzipIndex - 1] = 0;
+                int compressedIndex = encapsulationOffset + sizeLength;
+                int decompressedIndex = encapsulationOffset + decompressedSizeLength;
+
+                // Keep same encoding
+                decompressedPayload[decompressedIndex++] = Payload[compressedIndex++];
+                decompressedPayload[decompressedIndex++] = Payload[compressedIndex++];
+
+                // Set the compression status to '0', meaning not-compressed.
+                decompressedPayload[decompressedIndex++] = 0;
+                Debug.Assert(Payload[compressedIndex] != 0); // i.e. HasCompressedPayload was computed correctly
+                // TODO: reject non-gzip compressed payloads
 
                 using var decompressedStream = new MemoryStream(decompressedPayload,
-                                                                gzipIndex,
-                                                                decompressedPayload.Length - gzipIndex);
+                                                                decompressedIndex,
+                                                                decompressedPayload.Length - decompressedIndex);
+
+                // Skip compression status and decompressed size in compressed payload.
+                compressedIndex += 1 + decompressedSizeLength;
+
                 Debug.Assert(Payload.Array != null);
                 using var compressed = new GZipStream(
-                    new MemoryStream(Payload.Array,
-                                     Payload.Offset + gzipIndex + decompressedSizeLength,
-                                     Payload.Count - gzipIndex - decompressedSizeLength),
+                    new MemoryStream(Payload.Array, Payload.Offset + compressedIndex, Payload.Count - compressedIndex),
                     CompressionMode.Decompress);
                 compressed.CopyTo(decompressedStream);
-                // +3 corresponds to (Encoding 2 bytes and Compression status 1 byte), that are part of the
-                // decompressed size, but are not GZip compressed.
+
+                // "3" corresponds to (Encoding 2 bytes and Compression status 1 byte), that are part of the
+                // decompressedSize but are not GZip compressed.
                 if (decompressedStream.Position + 3 != decompressedSize)
                 {
                     throw new InvalidDataException(
@@ -94,10 +110,6 @@ namespace ZeroC.Ice
                 }
 
                 Payload = decompressedPayload;
-
-                // Rewrite the encapsulation size
-                Payload.AsSpan(encapsulationOffset, sizeLength).WriteEncapsulationSize(decompressedSize,
-                                                                                       Protocol.GetEncoding());
                 HasCompressedPayload = false;
             }
         }
