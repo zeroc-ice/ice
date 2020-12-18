@@ -28,13 +28,10 @@ namespace ZeroC.Ice
         private long _lastUnidirectionalId;
         private readonly int _maxBidirectionalStreams;
         private readonly int _maxUnidirectionalStreams;
-        // The mutex is used to protect the next stream IDs and the send queue. It's also used to ensure the
-        // stream ID assignment and the sending of the first packet are atomic.
-        private readonly object _mutex = new();
         private long _nextBidirectionalId;
         private long _nextUnidirectionalId;
         private readonly ManualResetValueTaskCompletionSource<int> _receiveStreamCompletionTaskSource = new();
-        private Task _sendTask = Task.CompletedTask;
+        private readonly AsyncSemaphore _sendSemaphore = new AsyncSemaphore(1);
         private readonly BufferedReceiveOverSingleStreamSocket _socket;
         private int _unidirectionalStreamCount;
         private AsyncSemaphore? _unidirectionalStreamSemaphore;
@@ -173,8 +170,8 @@ namespace ZeroC.Ice
                             }
                             catch
                             {
-                                // Ignore, the socket no longer accepts new streams because it's being
-                                // closed or the stream has been disposed shortly after being constructed.
+                                // Ignore, the socket no longer accepts new streams because it's being closed or the
+                                // stream has been disposed shortly after being constructed.
                                 stream?.Dispose();
                             }
 
@@ -417,7 +414,7 @@ namespace ZeroC.Ice
             _receiveStreamCompletionTaskSource.SetResult(frameSize - frameOffset);
         }
 
-        internal Task PrepareAndSendFrameAsync(
+        internal async Task PrepareAndSendFrameAsync(
             SlicDefinitions.FrameType type,
             Action<OutputStream>? writer = null,
             long? streamId = null,
@@ -441,14 +438,24 @@ namespace ZeroC.Ice
                 TraceTransportFrame("sending ", type, frameSize, streamId);
             }
 
-            return SendFrameAsync(data, cancel);
+            // Wait for other packets to be sent.
+            await _sendSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+
+            try
+            {
+                await SendPacketAsync(data).ConfigureAwait(false);
+            }
+            finally
+            {
+                _sendSemaphore.Release();
+            }
         }
 
         internal async ValueTask ReceiveDataAsync(Memory<byte> buffer, CancellationToken cancel)
         {
             for (int offset = 0; offset != buffer.Length;)
             {
-                int received = await _socket.ReceiveAsync(buffer.Slice(offset), cancel).ConfigureAwait(false);
+                int received = await _socket.ReceiveAsync(buffer[offset..], cancel).ConfigureAwait(false);
                 offset += received;
                 Received(received);
             }
@@ -456,11 +463,9 @@ namespace ZeroC.Ice
 
         internal void ReleaseFlowControlCredit(SlicStream stream)
         {
-            if (stream.IsControl)
-            {
-                // Credit isn't acquired for control streams.
-            }
-            else if (stream.IsIncoming)
+            Debug.Assert(!stream.IsControl);
+
+            if (stream.IsIncoming)
             {
                 if (stream.IsBidirectional)
                 {
@@ -471,7 +476,7 @@ namespace ZeroC.Ice
                     Interlocked.Decrement(ref _unidirectionalStreamCount);
                 }
             }
-            else if (stream.IsStarted)
+            else
             {
                 if (stream.IsBidirectional)
                 {
@@ -484,76 +489,66 @@ namespace ZeroC.Ice
             }
         }
 
-        internal Task SendFrameAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
+        internal async ValueTask SendPacketAsync(IList<ArraySegment<byte>> buffer)
         {
-            cancel.ThrowIfCancellationRequested();
-
-            // Synchronization is required here because this might be called concurrently by the connection code
-            lock (_mutex)
-            {
-                ValueTask sendTask = QueueAsync(buffer, cancel);
-                _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
-                return _sendTask;
-            }
-
-            async ValueTask QueueAsync(IList<ArraySegment<byte>> buffer, CancellationToken cancel)
-            {
-                try
-                {
-                    // Wait for the previous send to complete
-                    await _sendTask.WaitAsync(cancel).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    // Ignore if it got canceled.
-                }
-
-                // If the send got cancelled, throw to notify the stream of the cancellation. This isn't a fatal
-                // connection error, the next pending frame will be sent.
-                cancel.ThrowIfCancellationRequested();
-
-                // Perform the write
-                int sent = await _socket.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-                Debug.Assert(sent == buffer.GetByteCount());
-                Sent(sent);
-            }
+            // Perform the write
+            int sent = await _socket.SendAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+            Debug.Assert(sent == buffer.GetByteCount());
+            Sent(sent);
         }
 
-        internal async Task SendStreamPacketAsync(
+        internal async ValueTask SendStreamFrameAsync(
             SlicStream stream,
             int packetSize,
             bool fin,
             IList<ArraySegment<byte>> buffer,
             CancellationToken cancel)
         {
-            if (stream.IsStarted)
+            if (stream.IsStarted || stream.IsControl)
             {
-                await stream.SendPacketAsync(packetSize, fin, buffer, cancel).ConfigureAwait(false);
+                // Wait for queued packets to be sent. If this is canceled, the caller is responsible for
+                // ensuring that the flow control credit is released. If it's an incoming stream, the
+                // flow control is released by SlicStream.Dispose(). For outgoing streams, the flow
+                // control will be released once the peer send the StreamLast frame after receiving the
+                // stream reset frame.
+                await _sendSemaphore.WaitAsync(cancel).ConfigureAwait(false);
             }
             else
             {
+                // If the outgoing stream isn't started, we need to acquire flow control credit to ensure
+                // we don't open more streams than the peer allows. The semaphore provides FIFO guarantee
+                // to ensure that the sending of requests is serialized.
                 Debug.Assert(!stream.IsIncoming);
-
-                if (!stream.IsControl)
+                if (stream.IsBidirectional)
                 {
-                    // If the outgoing stream isn't started, it's the first send call. We need to acquire flow
-                    // control credit to ensure we don't open more streams than the peer allows. The semaphore
-                    // provides FIFO guarantee to ensure that the sending of requests is serialized.
-                    if (stream.IsBidirectional)
-                    {
-                        await _bidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await _unidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
-                    }
+                    await _bidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
+                }
+                else
+                {
+                    await _unidirectionalStreamSemaphore!.WaitAsync(cancel).ConfigureAwait(false);
                 }
 
-                // Ensure we allocate and queue for sending the first packet atomically to ensure the receiver
-                // won't receive stream frames with out-of-order stream IDs. The ID assignment will throw if
-                // the connection is being closed and no new streams can be created.
-                Task task;
-                lock (_mutex)
+                // Wait for queued packets to be sent.
+                try
+                {
+                    await _sendSemaphore.WaitAsync(cancel).ConfigureAwait(false);
+                }
+                catch
+                {
+                    // The stream isn't started so we're responsible for releasing the flow control we just acquired
+                    // above. No stream reset will be sent to the peer for streams which are not started.
+                    stream.ReleaseFlowControlCredit();
+                    throw;
+                }
+            }
+
+            // Once we acquired the send semaphore, the sending is no longer cancellable. We can't interrupt a
+            // send on the underlying socket and we want to make sure that once a stream is started, the peer
+            // will always receive at least one stream frame.
+
+            try
+            {
+                if (!stream.IsStarted)
                 {
                     // Allocate a new ID according to the Quic numbering scheme.
                     if (stream.IsBidirectional)
@@ -566,9 +561,61 @@ namespace ZeroC.Ice
                         stream.Id = _nextUnidirectionalId;
                         _nextUnidirectionalId += 4;
                     }
-                    task = stream.SendPacketAsync(packetSize, fin, buffer, cancel);
                 }
-                await task.ConfigureAwait(false);
+
+                // The incoming bidirectional stream is considered completed once no more data will be written on
+                // the stream. It's important to release the flow control credit here before the peer receives the
+                // last stream frame to prevent a race where the peer could start a new stream before the credit
+                // counter is released. If the credit is already released, this indicates that the stream got reset.
+                // In this case, we return since an empty stream last frame has been sent already.
+                if (stream.IsIncoming && fin && !stream.ReleaseFlowControlCredit())
+                {
+                    return;
+                }
+
+                // The given buffer includes space for the Slic header, we subtract the header size from the given
+                // frame size.
+                Debug.Assert(packetSize >= SlicDefinitions.FrameHeader.Length);
+                packetSize -= SlicDefinitions.FrameHeader.Length;
+
+                // Compute how much space the size and stream ID require to figure out the start of the Slic header.
+                int sizeLength = OutputStream.GetVarLongLength(packetSize);
+                int streamIdLength = OutputStream.GetVarLongLength(stream.Id);
+                packetSize += streamIdLength;
+
+                SlicDefinitions.FrameType frameType =
+                    fin ? SlicDefinitions.FrameType.StreamLast : SlicDefinitions.FrameType.Stream;
+
+                // Write the Slic frame header (frameType - byte, frameSize - varint, streamId - varlong). Since
+                // we might not need the full space reserved for the header, we modify the send buffer to ensure
+                // the first element points at the start of the Slic header. We'll restore the send buffer once
+                // the send is complete (it's important for the tracing code which might rely on the encoded
+                // data).
+                ArraySegment<byte> previous = buffer[0];
+                ArraySegment<byte> headerData =
+                    buffer[0].Slice(SlicDefinitions.FrameHeader.Length - sizeLength - streamIdLength - 1);
+                headerData[0] = (byte)frameType;
+                headerData.AsSpan(1, sizeLength).WriteFixedLengthSize20(packetSize);
+                headerData.AsSpan(1 + sizeLength, streamIdLength).WriteFixedLengthVarLong(stream.Id);
+                buffer[0] = headerData;
+
+                if (Endpoint.Communicator.TraceLevels.Transport > 2)
+                {
+                    TraceTransportFrame("sending ", frameType, packetSize, stream.Id);
+                }
+
+                try
+                {
+                    await SendPacketAsync(buffer).ConfigureAwait(false);
+                }
+                finally
+                {
+                    buffer[0] = previous; // Restore the original value of the send buffer.
+                }
+            }
+            finally
+            {
+                _sendSemaphore.Release();
             }
         }
 

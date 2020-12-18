@@ -188,8 +188,8 @@ namespace ZeroC.Ice
                     if (!stream.IsControl)
                     {
                         // If serialization is enabled on the adapter, we wait on the semaphore to ensure that no more
-                        // than one stream is active. The wait is done the client side to ensure the sent callback for
-                        // the request isn't called until the adapter is ready to dispatch a new request.
+                        // than one stream is active. The wait is done on the client side to ensure the sent callback
+                        // for the request isn't called until the adapter is ready to dispatch a new request.
                         AsyncSemaphore? semaphore = stream.IsBidirectional ?
                             _bidirectionalSerializeSemaphore : _unidirectionalSerializeSemaphore;
                         if (semaphore != null)
@@ -214,6 +214,10 @@ namespace ZeroC.Ice
                             stream.Id = _nextUnidirectionalId;
                             _nextUnidirectionalId += 4;
                         }
+
+                        // The write is not cancelable here, we want to make sure that at this point the peer
+                        // receives the frame in order for the serialization semaphore to be released (otherwise,
+                        // the peer would receive a reset for a stream for which it never received a frame).
                         task = _writer.WriteAsync((stream.Id, frame, fin), cancel);
                     }
                     await task.ConfigureAwait(false);

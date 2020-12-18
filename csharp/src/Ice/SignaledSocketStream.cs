@@ -13,28 +13,33 @@ namespace ZeroC.Ice
     /// for receiving data. The socket can easily signal the stream when new data is available.</summary>
     internal abstract class SignaledSocketStream<T> : SocketStream, IValueTaskSource<T>
     {
-        internal bool IsSignaled => _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
+        internal bool IsSignaled => Thread.VolatileRead(ref _signaled) == 1;
         private volatile Exception? _exception;
         private int _signaled;
         private ManualResetValueTaskSourceCore<T> _source;
         private CancellationTokenRegistration _tokenRegistration;
+        private static readonly Exception _disposedException =
+            new ObjectDisposedException(nameof(SignaledSocketStream<T>));
 
         /// <summary>Aborts the stream. If the stream is waiting to be signaled and the stream is not signaled
         /// already, the stream will be signaled with the exception. If the stream is signaled, we save the
         /// exception to raise it after the stream consumes the signal and waits for a new signal</summary>
         public override void Abort(Exception ex)
         {
-            _exception ??= ex;
-
-            // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
-            // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
-            // the exception the next time the signal is awaited. This is necessary because
-            // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
-            // call again SetXxx until the source's result or exception is consumed.
-            if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
+            if (_exception == null)
             {
-                _source.RunContinuationsAsynchronously = true;
-                _source.SetException(ex);
+                _exception = ex;
+
+                // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
+                // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
+                // the exception the next time the signal is awaited. This is necessary because
+                // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
+                // call again SetXxx until the source's result or exception is consumed.
+                if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
+                {
+                    _source.RunContinuationsAsynchronously = true;
+                    _source.SetException(ex);
+                }
             }
         }
 
@@ -53,16 +58,19 @@ namespace ZeroC.Ice
             base.Dispose(disposing);
             if (disposing)
             {
+                // Ensure the stream signaling fails after disposal
+                Abort(_disposedException);
+
+                // Unregister the cancellation token callback
                 _tokenRegistration.Dispose();
             }
         }
 
         protected void SignalCompletion(T result, bool runContinuationAsynchronously = false)
         {
-            // If the source isn't already signaled, signal completion by setting the result. Otherwise if it's
-            // already signaled, it's because the stream got aborted and the exception is set on the source.
             if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
             {
+                // If the source isn't already signaled, signal completion by setting the result.
                 _source.RunContinuationsAsynchronously = runContinuationAsynchronously;
                 _source.SetResult(result);
             }
@@ -104,9 +112,9 @@ namespace ZeroC.Ice
             T result = _source.GetResult(token);
 
             // Reset the source to allow the stream to be signaled again.
-            _source.Reset();
             _tokenRegistration.Dispose();
             _tokenRegistration = default;
+            _source.Reset();
             int value = Interlocked.CompareExchange(ref _signaled, 0, 1);
             Debug.Assert(value == 1);
 
