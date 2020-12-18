@@ -48,7 +48,7 @@ namespace ZeroC.Ice
         /// <inheritdoc/>
         public override Encoding PayloadEncoding { get; }
 
-        /// <summary>WritableContext is writable version of Context. Its entries are always the same as Context's
+        /// <summary>WritableContext is a writable version of Context. Its entries are always the same as Context's
         /// entries.</summary>
         public SortedDictionary<string, string> WritableContext
         {
