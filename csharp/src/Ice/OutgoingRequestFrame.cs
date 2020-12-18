@@ -11,32 +11,12 @@ namespace ZeroC.Ice
     /// <summary>Represents an ice1 or ice2 request frame sent by the application.</summary>
     public sealed class OutgoingRequestFrame : OutgoingFrame, IDisposable
     {
-        /// <summary>The context of this request frame.</summary>
-        public IReadOnlyDictionary<string, string> Context => _contextOverride ?? _initialContext;
+        /// <summary>The context of this request frame as a read-only dictionary.</summary>
+        public IReadOnlyDictionary<string, string> Context => _writableContext ?? _initialContext;
 
         /// <summary>A cancellation token that receives the cancellation requests. The cancellation token takes into
         /// account the invocation timeout and the cancellation token provided by the application.</summary>
         public CancellationToken CancellationToken => _linkedCancellationSource.Token;
-
-        /// <summary>ContextOverride is a writable version of Context, available only for ice2. Its entries are always
-        /// the same as Context's entries.</summary>
-        public SortedDictionary<string, string> ContextOverride
-        {
-            get
-            {
-                if (_contextOverride == null)
-                {
-                    if (Protocol == Protocol.Ice1)
-                    {
-                        throw new InvalidOperationException("cannot change the context of an ice1 request frame");
-                    }
-                    // lazy initialization
-                    _contextOverride =
-                        new SortedDictionary<string, string>((IDictionary<string, string>)_initialContext);
-                }
-                return _contextOverride;
-            }
-        }
 
         /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
         /// caller is no longer interested in the response and discards the request. The server-side runtime does not
@@ -46,14 +26,15 @@ namespace ZeroC.Ice
         /// on the server-side even though the invocation timeout is usually not infinite.</summary>
         public DateTime Deadline { get; }
 
-        /// <summary>The encoding of the request payload.</summary>
-        public override Encoding Encoding { get; }
-
         /// <summary>The facet of the target Ice object.</summary>
         public string Facet { get; }
 
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity { get; }
+
+        /// <inheritdoc/>
+        public override IReadOnlyDictionary<int, ReadOnlyMemory<byte>> InitialBinaryContext { get; } =
+            ImmutableDictionary<int, ReadOnlyMemory<byte>>.Empty;
 
         /// <summary>When true, the operation is idempotent.</summary>
         public bool IsIdempotent { get; }
@@ -64,15 +45,24 @@ namespace ZeroC.Ice
         /// <summary>The operation called on the Ice object.</summary>
         public string Operation { get; }
 
-        private SortedDictionary<string, string>? _contextOverride;
-        private readonly ArraySegment<byte> _defaultBinaryContext;
+        /// <inheritdoc/>
+        public override Encoding PayloadEncoding { get; }
+
+        /// <summary>WritableContext is a writable version of Context. Its entries are always the same as Context's
+        /// entries.</summary>
+        public SortedDictionary<string, string> WritableContext
+        {
+            get
+            {
+                _writableContext ??= new SortedDictionary<string, string>((IDictionary<string, string>)_initialContext);
+                return _writableContext;
+            }
+        }
+
+        private SortedDictionary<string, string>? _writableContext;
         private readonly IReadOnlyDictionary<string, string> _initialContext;
         private readonly CancellationTokenSource? _invocationTimeoutCancellationSource;
         private readonly CancellationTokenSource _linkedCancellationSource;
-
-        // When true, we always write Context in slot 0 of the binary context. This field is always false when
-        // _defaultBinaryContext is empty.
-        private readonly bool _writeSlot0;
 
         /// <inheritdoc/>
         public void Dispose()
@@ -111,12 +101,12 @@ namespace ZeroC.Ice
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
-                                        request.Data,
-                                        request.PayloadStart,
-                                        request.Encoding,
+                                        request.Payload,
+                                        startAt: default,
+                                        request.PayloadEncoding,
                                         format);
             writer(ostr, args);
-            request.PayloadEnd = ostr.Finish();
+            ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -192,12 +182,12 @@ namespace ZeroC.Ice
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
-                                        request.Data,
-                                        request.PayloadStart,
-                                        request.Encoding,
+                                        request.Payload,
+                                        startAt: default,
+                                        request.PayloadEncoding,
                                         format);
             writer(ostr, in args);
-            request.PayloadEnd = ostr.Finish();
+            ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -235,13 +225,13 @@ namespace ZeroC.Ice
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, compress, context, cancel);
             var ostr = new OutputStream(proxy.Protocol.GetEncoding(),
-                                        request.Data,
-                                        request.PayloadStart,
-                                        request.Encoding,
+                                        request.Payload,
+                                        startAt: default,
+                                        request.PayloadEncoding,
                                         format);
             // TODO: deal with compress, format, and cancel paramters
             request.StreamDataWriter = writer(ostr, in args, cancel);
-            request.PayloadEnd = ostr.Finish();
+            ostr.Finish();
             if (compress && proxy.Encoding == Encoding.V20)
             {
                 request.CompressPayload();
@@ -263,14 +253,17 @@ namespace ZeroC.Ice
             string operation,
             bool idempotent,
             IReadOnlyDictionary<string, string>? context = null,
-            CancellationToken cancel = default) =>
-            new OutgoingRequestFrame(proxy,
-                                     operation,
-                                     idempotent,
-                                     compress: false,
-                                     context,
-                                     cancel,
-                                     writeEmptyArgs: true);
+            CancellationToken cancel = default)
+        {
+            var emptyArgsFrame = new OutgoingRequestFrame(proxy,
+                                                          operation,
+                                                          idempotent,
+                                                          compress: false,
+                                                          context,
+                                                          cancel);
+            emptyArgsFrame.Payload.Add(proxy.Protocol.GetEmptyArgsPayload(proxy.Encoding));
+            return emptyArgsFrame;
+        }
 
         /// <summary>Constructs an outgoing request frame from the given incoming request frame.</summary>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet
@@ -287,91 +280,65 @@ namespace ZeroC.Ice
             CancellationToken cancel = default)
             : this(proxy, request.Operation, request.IsIdempotent, compress: false, request.Context, cancel)
         {
+            PayloadEncoding = request.PayloadEncoding;
+
             if (request.Protocol == Protocol)
             {
-                // Finish off current segment
-                Data[^1] = Data[^1].Slice(0, PayloadStart.Offset);
-
-                // We only include the encapsulation.
-                Data.Add(request.Payload);
-                PayloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count);
+                Payload.Add(request.Payload);
 
                 if (Protocol == Protocol.Ice2 && forwardBinaryContext)
                 {
-                    bool hasSlot0 = request.BinaryContext.ContainsKey(0);
-
-                    // If slot 0 is the only slot, we don't set _defaultBinaryContext: this way, Context always
-                    // prevails in slot 0, even when it's empty and slot 0 is not written at all.
-
-                    if (!hasSlot0 || request.BinaryContext.Count > 1)
-                    {
-                        _defaultBinaryContext = request.Data.Slice(
-                            request.Payload.Offset - request.Data.Offset + request.Payload.Count);
-
-                        // When slot 0 has an empty value, there is no need to always write it since the default
-                        // (empty Context) is correctly represented by the entry in the _defaultBinaryContext.
-                        _writeSlot0 = hasSlot0 && !request.BinaryContext[0].IsEmpty;
-                    }
+                    InitialBinaryContext = request.BinaryContext;
                 }
             }
             else
             {
-                // We forward the encapsulation and the string-string context. The context was marshaled by the
-                // constructor (when Protocol == Ice1) or will be written by Finish (when Protocol == Ice2).
-                // The payload encoding must remain the same since we cannot transcode the encoded bytes.
+                // We forward the payload (encapsulation) after rewriting the encapsulation header. The encoded bytes
+                // of the encapsulation must remain the same since we cannot transcode the encoded bytes.
 
                 int sizeLength = request.Protocol == Protocol.Ice1 ? 4 : request.Payload[0].ReadSizeLength20();
 
-                OutputStream.Position tail =
-                    OutputStream.WriteEncapsulationHeader(Data,
-                                                          PayloadStart,
-                                                          Protocol.GetEncoding(),
-                                                          request.Payload.Count - sizeLength,
-                                                          request.Encoding);
-
-                // Finish off current segment
-                Data[^1] = Data[^1].Slice(0, tail.Offset);
+                var ostr = new OutputStream(Protocol.GetEncoding(), Payload);
+                ostr.WriteEncapsulationHeader(request.Payload.Count - sizeLength, request.PayloadEncoding);
+                ostr.Finish();
 
                 // "2" below corresponds to the encoded length of the encoding.
                 if (request.Payload.Count > sizeLength + 2)
                 {
-                    // Add encoded bytes, not including the header or binary context.
-                    Data.Add(request.Payload.Slice(sizeLength + 2));
-
-                    PayloadEnd = new OutputStream.Position(Data.Count - 1, request.Payload.Count - sizeLength - 2);
-                }
-                else
-                {
-                    PayloadEnd = tail;
+                    // Add encoded bytes, not including the encapsulation header (size + encoding).
+                    Payload.Add(request.Payload.Slice(sizeLength + 2));
                 }
             }
-
-            Size = Data.GetByteCount();
-            IsSealed = Protocol == Protocol.Ice1;
         }
 
-        // Finish prepares the frame for sending and writes the frame's context into slot 0 of the binary context.
-        internal override void Finish()
+        /// <inheritdoc/>
+        internal override IncomingFrame ToIncoming() => new IncomingRequestFrame(this);
+
+        /// <inheritdoc/>
+        internal override void WriteHeader(OutputStream ostr)
         {
-            if (!IsSealed)
+            Debug.Assert(ostr.Encoding == Protocol.GetEncoding());
+
+            if (Protocol == Protocol.Ice2)
             {
-                if (Protocol == Protocol.Ice2 && !ContainsKey(0))
-                {
-                    if (Context.Count > 0 || _writeSlot0)
-                    {
-                        // When _writeSlot0 is true, we may write an empty string-string context, thus preventing base
-                        // from writing a non-empty Context.
-                        AddBinaryContextEntry(0, Context, (ostr, dictionary) =>
-                            ostr.WriteDictionary(dictionary,
-                                                 OutputStream.IceWriterFromString,
-                                                 OutputStream.IceWriterFromString));
-                    }
-                }
-                base.Finish();
+                OutputStream.Position start = ostr.StartFixedLengthSize(2);
+                ostr.WriteIce2RequestHeaderBody(Identity,
+                                                Facet,
+                                                Location,
+                                                Operation,
+                                                IsIdempotent,
+                                                Deadline,
+                                                Context);
+
+                WriteBinaryContext(ostr);
+                ostr.EndFixedLengthSize(start, 2);
+            }
+            else
+            {
+                Debug.Assert(Protocol == Protocol.Ice1);
+                ostr.WriteIce1RequestHeader(Identity, Facet, Operation, IsIdempotent, Context);
             }
         }
-
-        private protected override ArraySegment<byte> GetDefaultBinaryContext() => _defaultBinaryContext;
 
         private OutgoingRequestFrame(
             IObjectPrx proxy,
@@ -379,20 +346,18 @@ namespace ZeroC.Ice
             bool idempotent,
             bool compress,
             IReadOnlyDictionary<string, string>? context,
-            CancellationToken cancel,
-            bool writeEmptyArgs = false)
+            CancellationToken cancel)
             : base(proxy.Protocol,
                    compress,
                    proxy.Communicator.CompressionLevel,
-                   proxy.Communicator.CompressionMinSize,
-                   new List<ArraySegment<byte>>())
+                   proxy.Communicator.CompressionMinSize)
         {
-            Encoding = proxy.Encoding;
             Identity = proxy.Identity;
+            IsIdempotent = idempotent;
             Facet = proxy.Facet;
             Location = proxy.Location;
             Operation = operation;
-            IsIdempotent = idempotent;
+            PayloadEncoding = proxy.Encoding;
 
             Debug.Assert(proxy.InvocationTimeout != TimeSpan.Zero);
             Deadline = Protocol == Protocol.Ice1 || proxy.InvocationTimeout == Timeout.InfiniteTimeSpan ?
@@ -428,36 +393,15 @@ namespace ZeroC.Ice
                 else
                 {
                     var combinedContext = new SortedDictionary<string, string>(
-                            (IDictionary<string, string>)currentContext);
+                        (IDictionary<string, string>)currentContext);
+
                     foreach ((string key, string value) in proxy.Context)
                     {
                         combinedContext[key] = value; // the proxy Context entry prevails.
                     }
                     _initialContext = combinedContext;
+                    _writableContext = combinedContext;
                 }
-            }
-
-            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data);
-
-            if (Protocol == Protocol.Ice1)
-            {
-                ostr.WriteIce1RequestHeaderBody(Identity, Facet, Operation, IsIdempotent, _initialContext);
-            }
-            else
-            {
-                Debug.Assert(Protocol == Protocol.Ice2);
-                ostr.WriteIce2RequestHeaderBody(Identity,
-                                                Facet,
-                                                Location,
-                                                Operation,
-                                                IsIdempotent,
-                                                Deadline);
-            }
-            PayloadStart = ostr.Tail;
-
-            if (writeEmptyArgs)
-            {
-                PayloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
             }
         }
     }

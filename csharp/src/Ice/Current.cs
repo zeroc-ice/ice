@@ -19,7 +19,7 @@ namespace ZeroC.Ice
         public Connection Connection { get; }
 
         /// <summary>The request context, as received from the client.</summary>
-        public Dictionary<string, string> Context => IncomingRequestFrame.Context;
+        public SortedDictionary<string, string> Context => IncomingRequestFrame.Context;
 
         /// <summary>The deadline corresponds to the request's expiration time. Once the deadline is reached, the
         /// caller is no longer interested in the response and discards the request. The server-side runtime does not
@@ -30,7 +30,7 @@ namespace ZeroC.Ice
         public DateTime Deadline => IncomingRequestFrame.Deadline;
 
         /// <summary>The encoding used by the request.</summary>
-        public Encoding Encoding => IncomingRequestFrame.Encoding;
+        public Encoding Encoding => IncomingRequestFrame.PayloadEncoding;
 
         /// <summary>The Ice object facet.</summary>
         public string Facet => IncomingRequestFrame.Facet;

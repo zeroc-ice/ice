@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     /// <summary>The stream implementation for Slic.</summary>
     internal class SlicStream : SignaledSocketStream<(int, bool)>
     {
-        protected override ReadOnlyMemory<byte> Header => SlicDefinitions.FrameHeader;
+        protected override ReadOnlyMemory<byte> TransportHeader => SlicDefinitions.FrameHeader;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
         private int _flowControlCreditReleased;
         private int _receivedOffset;
@@ -107,7 +107,7 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             // Ensure the caller reserved space for the Slic header by checking for the sentinel header.
-            Debug.Assert(Header.Span.SequenceEqual(buffer[0].Slice(0, Header.Length)));
+            Debug.Assert(TransportHeader.Span.SequenceEqual(buffer[0].Slice(0, TransportHeader.Length)));
 
             int size = buffer.GetByteCount();
 
@@ -134,7 +134,7 @@ namespace ZeroC.Ice
                     {
                         // If it's not the first Slic stream frame, we re-use the space reserved for the Slic header in
                         // the first segment of the protocol buffer.
-                        sendBuffer.Add(buffer[0].Slice(0, Header.Length));
+                        sendBuffer.Add(buffer[0].Slice(0, TransportHeader.Length));
                         sendSize += sendBuffer[0].Count;
                     }
 

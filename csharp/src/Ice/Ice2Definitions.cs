@@ -12,18 +12,29 @@ namespace ZeroC.Ice
     {
         internal static readonly Encoding Encoding = Encoding.V20;
 
-        // ice2 frame types:
-        internal enum FrameType : byte
+        private static readonly byte[] _voidReturnValuePayload11 = new byte[] { 0, 8, 1, 1 }; // size 2 encoded as 2 * 4
+        private static readonly byte[] _voidReturnValuePayload20 = new byte[] { 0, 12, 2, 0, 0 };
+
+        /// <summary>Returns the payload of an ice2 request frame for an operation with no argument.</summary>
+        /// <param name="encoding">The encoding of this empty args payload. The header of this payload is always encoded
+        /// using ice2's header encoding (2.0).</param>
+        /// <returns>The payload.</returns>
+        /// <remarks>The 2.0 encoding has an extra byte for the compression status.</remarks>
+        internal static ArraySegment<byte> GetEmptyArgsPayload(Encoding encoding) =>
+            GetVoidReturnValuePayload(encoding).Slice(1);
+
+        /// <summary>Returns the payload of an ice2 response frame for an operation returning void.</summary>
+        /// <param name="encoding">The encoding of this void return. The header of this payload is always encoded
+        /// using ice2's header encoding (2.0).</param>
+        /// <returns>The payload.</returns>
+        internal static ArraySegment<byte> GetVoidReturnValuePayload(Encoding encoding)
         {
-            Initialize = 0,
-            Request = 1,
-            Response = 2,
-            GoAway = 3
+            encoding.CheckSupported();
+            return encoding == Encoding.V11 ? _voidReturnValuePayload11 : _voidReturnValuePayload20;
         }
 
-        /// <summary>Writes a request header body without constructing an Ice2RequestHeaderBody instance. This
-        /// implementation is slightly more efficient than the generated code because it avoids the allocation of a
-        /// string[] to write the location.</summary>
+        /// <summary>Writes a request header body This implementation is slightly more efficient than the generated code
+        /// because it avoids the allocation of a string[] to write the location.</summary>
         internal static void WriteIce2RequestHeaderBody(
             this OutputStream ostr,
             Identity identity,
@@ -31,10 +42,13 @@ namespace ZeroC.Ice
             IReadOnlyList<string> location,
             string operation,
             bool idempotent,
-            DateTime deadline)
+            DateTime deadline,
+            IReadOnlyDictionary<string, string> context)
         {
             Debug.Assert(ostr.Encoding == Encoding);
-            BitSequence bitSequence = ostr.WriteBitSequence(4); // bit set to true (set) by default
+
+            // All bits are set to true by default, and true means the corresponding value is set.
+            BitSequence bitSequence = ostr.WriteBitSequence(5);
 
             identity.IceWrite(ostr);
             if (facet.Length > 0)
@@ -71,6 +85,15 @@ namespace ZeroC.Ice
             // DateTime.MaxValue represents an infinite deadline and it is encoded as -1
             ostr.WriteVarLong(
                 deadline == DateTime.MaxValue ? -1 : (long)(deadline - DateTime.UnixEpoch).TotalMilliseconds);
+
+            if (context.Count > 0)
+            {
+                ostr.WriteDictionary(context, OutputStream.IceWriterFromString, OutputStream.IceWriterFromString);
+            }
+            else
+            {
+                bitSequence[4] = false;
+            }
         }
     }
 }

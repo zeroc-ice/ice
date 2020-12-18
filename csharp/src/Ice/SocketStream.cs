@@ -51,13 +51,15 @@ namespace ZeroC.Ice
         /// <summary>Returns True if the stream is a control stream, False otherwise.</summary>
         public bool IsControl { get; }
 
-        /// <summary>The transport header sentinel. Transport implementations that need to add an additional header
-        /// to transmit data over the stream can provide the header data here. This will can improve performances by
-        /// reducing the number of allocation as Ice will allocated buffer space for both the transport header and
-        /// the Ice protocol header. If a header is returned here, the implementation of the SendAsync method should
-        /// this header to be set at the start of the first segment.</summary>
-        protected virtual ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected abstract bool ReceivedEndOfStream { get; }
+
+        /// <summary>The transport header sentinel. Transport implementations that need to add an additional header
+        /// to transmit data over the stream can provide the header data here. This can improve performance by reducing
+        /// the number of allocations as Ice will allocate buffer space for both the transport header and the Ice
+        /// protocol header. If a header is returned here, the implementation of the SendAsync method should this header
+        /// to be set at the start of the first segment.</summary>
+        // TODO: review summary above!
+        protected virtual ReadOnlyMemory<byte> TransportHeader => default;
 
         /// <summary>The Reset event is triggered when a reset frame is received.</summary>
         internal event Action<long>? Reset;
@@ -65,14 +67,15 @@ namespace ZeroC.Ice
         /// <summary>Returns true if the stream ID is assigned</summary>
         internal bool IsStarted => _id != -1;
 
+        // The use count indicates if the socket stream is being used to process an invocation or dispatch or
+        // to process stream parameters. The socket stream is disposed only once this count drops to 0.
+        private protected int UseCount = 1;
+
         // Depending on the stream implementation, the _id can be assigned on construction or only once SendAsync
         // is called. Once it's assigned, it's immutable. The specialization of the stream is responsible for not
         // accessing this data member concurrently when it's not safe.
         private long _id = -1;
         private readonly MultiStreamSocket _socket;
-        // The use count indicates if the socket stream is being used to process an invocation or dispatch or
-        // to process stream parameters. The socket stream is disposed only once this count drops to 0.
-        private int _useCount = 1;
 
         /// <summary>Aborts the stream. This is called by the connection when it's being closed. If needed, the stream
         /// implementation should abort the pending receive task.</summary>
@@ -89,7 +92,7 @@ namespace ZeroC.Ice
 
         public virtual void SendDataFromIOStream(System.IO.Stream ioStream, CancellationToken cancel)
         {
-            Interlocked.Increment(ref _useCount);
+            Interlocked.Increment(ref UseCount);
             Task.Run(async () =>
                 {
                     // We use the same default buffer size as System.IO.Stream.CopyToAsync()
@@ -115,11 +118,11 @@ namespace ZeroC.Ice
                         {
                             try
                             {
-                                Header.CopyTo(receiveBuffer);
-                                received = await ioStream.ReadAsync(receiveBuffer.Slice(Header.Length),
+                                TransportHeader.CopyTo(receiveBuffer);
+                                received = await ioStream.ReadAsync(receiveBuffer.Slice(TransportHeader.Length),
                                                                     cancel).ConfigureAwait(false);
 
-                                sendBuffers[0] = receiveBuffer.Slice(0, Header.Length + received);
+                                sendBuffers[0] = receiveBuffer.Slice(0, TransportHeader.Length + received);
                                 await SendAsync(sendBuffers, received == 0, cancel).ConfigureAwait(false);
                             }
                             catch
@@ -195,7 +198,7 @@ namespace ZeroC.Ice
         internal virtual async ValueTask<((long, long), string)> ReceiveGoAwayFrameAsync()
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.CloseConnection : (byte)Ice2Definitions.FrameType.GoAway;
+                (byte)Ice1FrameType.CloseConnection : (byte)Ice2FrameType.GoAway;
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, CancellationToken.None).ConfigureAwait(false);
             if (!ReceivedEndOfStream)
@@ -229,7 +232,7 @@ namespace ZeroC.Ice
         internal virtual async ValueTask ReceiveInitializeFrameAsync(CancellationToken cancel)
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.ValidateConnection : (byte)Ice2Definitions.FrameType.Initialize;
+                (byte)Ice1FrameType.ValidateConnection : (byte)Ice2FrameType.Initialize;
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
             if (ReceivedEndOfStream)
@@ -284,10 +287,10 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
+        internal async virtual ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
         {
             byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                (byte)Ice1Definitions.FrameType.Request : (byte)Ice2Definitions.FrameType.Request;
+                (byte)Ice1FrameType.Request : (byte)Ice2FrameType.Request;
 
             ArraySegment<byte> data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
 
@@ -300,7 +303,7 @@ namespace ZeroC.Ice
             {
                 // Increment the use count of this stream to ensure it's not going to be disposed before the
                 // stream parameter data is disposed.
-                Interlocked.Increment(ref _useCount);
+                Interlocked.Increment(ref UseCount);
                 request = new IncomingRequestFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, this);
             }
 
@@ -312,13 +315,13 @@ namespace ZeroC.Ice
             return request;
         }
 
-        internal async ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
+        internal async virtual ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
         {
             ArraySegment<byte> data;
             try
             {
                 byte frameType = _socket.Endpoint.Protocol == Protocol.Ice1 ?
-                    (byte)Ice1Definitions.FrameType.Reply : (byte)Ice2Definitions.FrameType.Response;
+                    (byte)Ice1FrameType.Reply : (byte)Ice2FrameType.Response;
 
                 data = await ReceiveFrameAsync(frameType, cancel).ConfigureAwait(false);
             }
@@ -340,7 +343,7 @@ namespace ZeroC.Ice
             {
                 // Increment the use count of this stream to ensure it's not going to be disposed before the
                 // stream parameter data is disposed.
-                Interlocked.Increment(ref _useCount);
+                Interlocked.Increment(ref UseCount);
                 response = new IncomingResponseFrame(_socket.Endpoint.Protocol, data, _socket.IncomingFrameMaxSize, this);
             }
 
@@ -363,18 +366,18 @@ namespace ZeroC.Ice
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.CloseConnection);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1FrameType.CloseConnection);
                 }
             }
             else
             {
                 var data = new List<ArraySegment<byte>>() { new byte[1024] };
                 var ostr = new OutputStream(Ice2Definitions.Encoding, data);
-                if (!Header.IsEmpty)
+                if (!TransportHeader.IsEmpty)
                 {
-                    ostr.WriteByteSpan(Header.Span);
+                    ostr.WriteByteSpan(TransportHeader.Span);
                 }
-                ostr.WriteByte((byte)Ice2Definitions.FrameType.GoAway);
+                ostr.WriteByte((byte)Ice2FrameType.GoAway);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
                 var goAwayFrameBody = new Ice2GoAwayBody(
@@ -383,13 +386,13 @@ namespace ZeroC.Ice
                     reason);
                 goAwayFrameBody.IceWrite(ostr);
                 ostr.EndFixedLengthSize(sizePos);
-                data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
+                ostr.Finish();
 
                 await SendAsync(data, true, cancel).ConfigureAwait(false);
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2Definitions.FrameType.GoAway);
+                    TraceFrame(data.Slice(pos, ostr.Tail), (byte)Ice2FrameType.GoAway);
                 }
             }
         }
@@ -402,18 +405,18 @@ namespace ZeroC.Ice
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1Definitions.FrameType.ValidateConnection);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice1FrameType.ValidateConnection);
                 }
             }
             else
             {
                 var data = new List<ArraySegment<byte>>() { new byte[1024] };
                 var ostr = new OutputStream(Ice2Definitions.Encoding, data);
-                if (!Header.IsEmpty)
+                if (!TransportHeader.IsEmpty)
                 {
-                    ostr.WriteByteSpan(Header.Span);
+                    ostr.WriteByteSpan(TransportHeader.Span);
                 }
-                ostr.WriteByte((byte)Ice2Definitions.FrameType.Initialize);
+                ostr.WriteByte((byte)Ice2FrameType.Initialize);
                 OutputStream.Position sizePos = ostr.StartFixedLengthSize();
                 OutputStream.Position pos = ostr.Tail;
 
@@ -427,20 +430,18 @@ namespace ZeroC.Ice
                                              OutputStream.IceWriterFromVarULong);
 
                 ostr.EndFixedLengthSize(sizePos);
-                data[^1] = data[^1].Slice(0, ostr.Finish().Offset);
+                ostr.Finish();
 
                 await SendAsync(data, false, cancel).ConfigureAwait(false);
 
                 if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice2Definitions.FrameType.Initialize);
+                    TraceFrame(new List<ArraySegment<byte>>(), (byte)Ice2FrameType.Initialize);
                 }
             }
         }
 
-        internal async ValueTask SendRequestFrameAsync(
-            OutgoingRequestFrame request,
-            CancellationToken cancel)
+        internal async ValueTask SendRequestFrameAsync(OutgoingRequestFrame request, CancellationToken cancel)
         {
             try
             {
@@ -462,7 +463,9 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask SendResponseFrameAsync(OutgoingResponseFrame response, CancellationToken cancel)
+        internal async ValueTask SendResponseFrameAsync(
+            OutgoingResponseFrame response,
+            CancellationToken cancel)
         {
             // Send the response frame.
             await SendFrameAsync(response, cancel).ConfigureAwait(false);
@@ -476,11 +479,11 @@ namespace ZeroC.Ice
 
         internal void TryDispose()
         {
-            if (Interlocked.Decrement(ref _useCount) == 0)
+            if (Interlocked.Decrement(ref UseCount) == 0)
             {
                 Dispose();
             }
-            Debug.Assert(_useCount >= 0);
+            Debug.Assert(UseCount >= 0);
         }
 
         private protected virtual async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
@@ -493,7 +496,7 @@ namespace ZeroC.Ice
             // Read the Ice2 protocol header (byte frameType, varulong size)
             ArraySegment<byte> buffer = new byte[256];
             await ReceiveFullAsync(buffer.Slice(0, 2), cancel).ConfigureAwait(false);
-            var frameType = (Ice2Definitions.FrameType)buffer[0];
+            var frameType = (Ice2FrameType)buffer[0];
             if ((byte)frameType != expectedFrameType)
             {
                 throw new InvalidDataException($"received frame type {frameType} but expected {expectedFrameType}");
@@ -521,14 +524,25 @@ namespace ZeroC.Ice
             return buffer;
         }
 
-        private protected virtual async ValueTask SendFrameAsync(
-            OutgoingFrame frame,
-            CancellationToken cancel)
+        private protected virtual async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)
         {
             // The default implementation only supports the Ice2 protocol
             Debug.Assert(_socket.Endpoint.Protocol == Protocol.Ice2);
 
-            if (frame.Size > _socket.PeerIncomingFrameMaxSize)
+            var buffer = new List<ArraySegment<byte>>(frame.Payload.Count + 1);
+            var ostr = new OutputStream(Encoding.V20, buffer);
+            ostr.WriteByteSpan(TransportHeader.Span);
+
+            ostr.Write(frame is OutgoingRequestFrame ? Ice2FrameType.Request : Ice2FrameType.Response);
+            OutputStream.Position start = ostr.StartFixedLengthSize(4);
+            frame.WriteHeader(ostr);
+            ostr.Finish();
+
+            buffer.AddRange(frame.Payload);
+            int frameSize = buffer.GetByteCount() - TransportHeader.Length - 1 - 4;
+            ostr.RewriteFixedLengthSize20(frameSize, start, 4);
+
+            if (frameSize > _socket.PeerIncomingFrameMaxSize)
             {
                 if (frame is OutgoingRequestFrame)
                 {
@@ -546,23 +560,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            var data = new List<ArraySegment<byte>>(frame.Data.Count + 1);
-            int headerLength = Header.Length;
-            byte[] headerData = new byte[headerLength + 1 + OutputStream.GetVarLongLength(frame.Size)];
-            Header.CopyTo(headerData);
-            if (frame is OutgoingRequestFrame)
-            {
-                headerData[headerLength] = (byte)Ice2Definitions.FrameType.Request;
-            }
-            else
-            {
-                headerData[headerLength] = (byte)Ice2Definitions.FrameType.Response;
-            }
-            headerData.AsSpan(headerLength + 1).WriteFixedLengthSize20(frame.Size);
-            data.Add(headerData);
-            data.AddRange(frame.Data);
-
-            await SendAsync(data, frame.StreamDataWriter == null, cancel).ConfigureAwait(false);
+            await SendAsync(buffer, fin: frame.StreamDataWriter == null, cancel).ConfigureAwait(false);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {

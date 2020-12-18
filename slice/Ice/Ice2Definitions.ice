@@ -12,6 +12,7 @@
 [[python:pkgdir(Ice)]]
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Context.ice>
 #include <Ice/Identity.ice>
 
 [[java:package(com.zeroc)]]
@@ -22,21 +23,30 @@ module Ice
 
 #ifdef __SLICE2CS__
 
+    /// Each ice2 frame has a type identified by this enumeration.
+    enum Ice2FrameType : byte
+    {
+        Initialize = 0,
+        Request = 1,
+        Response = 2,
+        GoAway = 3
+    }
+
+    dictionary<varint, ByteSeq> BinaryContext;
+
     /// The priority of this request.
     // TODO: describe semantics.
     unchecked enum Priority : byte
     {
     }
 
-    /// The keys for supported Ice2 connection parameters.
+    /// The keys for supported ice2 connection parameters.
     unchecked enum Ice2ParameterKey : int
     {
         IncomingFrameMaxSize = 0
     }
 
-    /// The body of an ice2 request header. A request header consists of two parts: the frame prologue which contains
-    /// the frame type and frame size, and the request header body that contains the identity, the operation name and
-    /// other optional information.
+    /// The request header body, see Ice2RequestHeader.
     [cs:readonly]
     struct Ice2RequestHeaderBody
     {
@@ -47,10 +57,32 @@ module Ice
         bool? \idempotent;       // null equivalent to false
         Priority? priority;      // null equivalent to 0
         varlong deadline;
+        Context? context;        // null equivalent to empty context
+    }
+
+    /// Each ice2 request frame has:
+    /// - a frame prologue, with the frame type and the overall frame size
+    /// - a request header (below)
+    /// - a request payload
+    struct Ice2RequestHeader
+    {
+        varulong headerSize;
+        Ice2RequestHeaderBody body;
+        BinaryContext binaryContext;
+    }
+
+    /// Each ice2 response frame has:
+    /// - a frame prologue, with the frame type and the overall frame size
+    /// - a response header (below)
+    /// - a response payload
+    struct Ice2ResponseHeader
+    {
+        varulong headerSize;
+        BinaryContext binaryContext;
     }
 
     /// The type of result carried by an ice2 response frame. The values Success and Failure match the values of OK and
-    /// UserException in {@see ReplyStatus}.
+    /// UserException in {@see ReplyStatus}. The first byte of an ice2 response frame payload is a ResultType.
     enum ResultType : byte
     {
         /// The request succeeded.

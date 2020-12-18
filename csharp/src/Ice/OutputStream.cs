@@ -1045,19 +1045,6 @@ namespace ZeroC.Ice
         /// <return>The number of bytes needed to encode the long value as a varlong</return>
         internal static int GetVarLongLength(long value) => 1 << GetEncodedSize(value);
 
-        // TODO: Move to ByteBufferExtensions?
-        internal static Position WriteEncapsulationHeader(
-            IList<ArraySegment<byte>> data,
-            Position startAt,
-            Encoding encoding,
-            int size,
-            Encoding payloadEncoding)
-        {
-            var ostr = new OutputStream(encoding, data, startAt);
-            ostr.WriteEncapsulationHeader(size, payloadEncoding);
-            return ostr.Tail;
-        }
-
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
         {
@@ -1105,24 +1092,9 @@ namespace ZeroC.Ice
             Encoding = payloadEncoding;
         }
 
-        /// <summary>Finishes writing to the stream, in particular completes the current encapsulation (if any).
-        /// </summary>
-        /// <returns>The tail position that marks the end of the stream.</returns>
-        /// TODO: The stream should not longer be used, how can we enforce it.
-        internal Position Finish()
-        {
-            if (_startPos is Position startPos)
-            {
-                Encoding = _mainEncoding;
-                int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
-                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos);
-            }
-            return _tail;
-        }
-
         /// <summary>Computes the amount of data written from the start position to the current position and writes that
-        /// size at the start position (as a fixed-length 4-bytes size). The size does not include its own encoded
-        /// length.</summary>
+        /// size at the start position (as a fixed-length size). The size does not include its own encoded length.
+        /// </summary>
         /// <param name="start">The start position.</param>
         /// <param name="sizeLength">The number of bytes used to marshal the size 1, 2 or 4.</param>
         internal void EndFixedLengthSize(Position start, int sizeLength = DefaultSizeLength)
@@ -1136,6 +1108,22 @@ namespace ZeroC.Ice
             {
                 RewriteFixedLengthSize20(Distance(start) - sizeLength, start, sizeLength);
             }
+        }
+
+        /// <summary>Completes the current encapsulation (if any) and finishes off the underlying buffer. You should not
+        /// write additional data to this output stream or its underlying buffer after calling Finish, however rewriting
+        /// previous data (with for example <see cref="EndFixedLengthSize"/>) is fine.</summary>
+        internal void Finish()
+        {
+            if (_startPos is Position startPos)
+            {
+                Encoding = _mainEncoding;
+                int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
+                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos);
+            }
+
+            Debug.Assert(_segmentList.Count - 1 == _tail.Segment);
+            _segmentList[^1] = _segmentList[^1].Slice(0, _tail.Offset);
         }
 
         /// <summary>Writes a size on a fixed number of bytes at the given position of the stream.</summary>
@@ -1208,7 +1196,7 @@ namespace ZeroC.Ice
             WriteEncapsulationHeader(size: encoding == Encoding.V20 ? 3 : 2, encoding);
             if (encoding == Encoding.V20)
             {
-                WriteByte(0); // The compression status, 0 not-compressed
+                WriteByte(0); // The compression status, 0 = not-compressed
             }
             return _tail;
         }
@@ -1440,7 +1428,7 @@ namespace ZeroC.Ice
         /// <summary>Writes a size on 4 bytes at the given position of the stream.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
-        private void RewriteFixedLengthSize11(int size, Position pos)
+        internal void RewriteFixedLengthSize11(int size, Position pos)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
 
@@ -1469,7 +1457,7 @@ namespace ZeroC.Ice
         /// <param name="size">The size of the encapsulation, in bytes. This size does not include the length of the
         /// encoded size itself.</param>
         /// <param name="encoding">The encoding of the new encapsulation.</param>
-        private void WriteEncapsulationHeader(int size, Encoding encoding)
+        internal void WriteEncapsulationHeader(int size, Encoding encoding)
         {
             if (OldEncoding)
             {

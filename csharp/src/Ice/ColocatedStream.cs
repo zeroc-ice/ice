@@ -12,7 +12,6 @@ namespace ZeroC.Ice
     /// <summary>The SocketStream class for the colocated transport.</summary>
     internal class ColocatedStream : SignaledSocketStream<(object, bool)>
     {
-        protected override ReadOnlyMemory<byte> Header => ArraySegment<byte>.Empty;
         protected override bool ReceivedEndOfStream => _receivedEndOfStream;
 
         private ConcurrentQueue<ArraySegment<byte>>? _receivedData;
@@ -94,7 +93,7 @@ namespace ZeroC.Ice
                     _receivedData.Enqueue(ArraySegment<byte>.Empty);
                 }
             }
-            else if (frame is OutgoingFrame && !fin)
+            else if (frame is IncomingFrame && !fin)
             {
                 // If it's a request or response and the stream is not finished, create a concurrent queue to
                 // keep track of additional data frames.
@@ -105,8 +104,60 @@ namespace ZeroC.Ice
             // code which could end up blocking the AcceptStreamAsync task.
             if (!IsSignaled)
             {
-                SignalCompletion((frame, fin), runContinuationAsynchronously: frame is OutgoingResponseFrame);
+                SignalCompletion((frame, fin), runContinuationAsynchronously: frame is IncomingResponseFrame);
             }
+        }
+
+        internal override async ValueTask<IncomingRequestFrame> ReceiveRequestFrameAsync(CancellationToken cancel)
+        {
+            (object frameObject, bool fin) = await WaitSignalAsync(cancel).ConfigureAwait(false);
+            Debug.Assert(frameObject is IncomingRequestFrame);
+            var frame = (IncomingRequestFrame)frameObject;
+
+            if (fin)
+            {
+                _receivedEndOfStream = true;
+            }
+            else
+            {
+                frame.SocketStream = this;
+                Interlocked.Increment(ref UseCount);
+            }
+            return frame;
+        }
+
+        internal override async ValueTask<IncomingResponseFrame> ReceiveResponseFrameAsync(CancellationToken cancel)
+        {
+            object frameObject;
+            bool fin;
+
+            try
+            {
+                (frameObject, fin) = await WaitSignalAsync(cancel).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                if (_socket.Endpoint.Protocol != Protocol.Ice1)
+                {
+                    await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
+                }
+                throw;
+            }
+
+            Debug.Assert(frameObject is IncomingResponseFrame);
+            var frame = (IncomingResponseFrame)frameObject;
+
+            if (fin)
+            {
+                _receivedEndOfStream = true;
+            }
+            else
+            {
+                frame.SocketStream = this;
+                Interlocked.Increment(ref UseCount);
+            }
+
+            return frame;
         }
 
         private protected override async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
@@ -119,11 +170,7 @@ namespace ZeroC.Ice
                 _receivedEndOfStream = true;
             }
 
-            if (frame is OutgoingFrame outgoingFrame)
-            {
-                return outgoingFrame.Data.AsArraySegment();
-            }
-            else if (frame is List<ArraySegment<byte>> data)
+            if (frame is List<ArraySegment<byte>> data)
             {
                 // Initialize or GoAway frame.
                 if (_socket.Endpoint.Protocol == Protocol.Ice1)
@@ -147,8 +194,8 @@ namespace ZeroC.Ice
 
         private protected override async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)
         {
-            bool fin = frame.StreamDataWriter == null;
-            await _socket.SendFrameAsync(this, frame, fin, cancel).ConfigureAwait(false);
+            await _socket.SendFrameAsync(this, frame.ToIncoming(), fin: frame.StreamDataWriter == null, cancel).
+                ConfigureAwait(false);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {

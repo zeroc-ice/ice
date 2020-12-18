@@ -383,16 +383,18 @@ namespace ZeroC.Ice
             if (frame is OutgoingFrame outgoingFrame)
             {
                 framePrefix = "sent";
-                encoding = outgoingFrame.Encoding;
+                encoding = outgoingFrame.PayloadEncoding;
                 frameType = frame is OutgoingRequestFrame ? "Request" : "Response";
-                frameSize = outgoingFrame.Size;
+
+                // TODO: fix tracing to trace payload size as opposed to frame size.
+                frameSize = outgoingFrame.PayloadSize;
             }
             else if (frame is IncomingFrame incomingFrame)
             {
                 framePrefix = "received";
-                encoding = incomingFrame.Encoding;
+                encoding = incomingFrame.PayloadEncoding;
                 frameType = frame is IncomingRequestFrame ? "Request" : "Response";
-                frameSize = incomingFrame.Size;
+                frameSize = incomingFrame.PayloadSize;
             }
             else
             {
@@ -416,21 +418,21 @@ namespace ZeroC.Ice
 
                 if (protocol == Protocol.Ice2)
                 {
-                    frameType = (Ice2Definitions.FrameType)type switch
+                    frameType = (Ice2FrameType)type switch
                     {
-                        Ice2Definitions.FrameType.Initialize => "Initialize",
-                        Ice2Definitions.FrameType.GoAway => "GoAway",
+                        Ice2FrameType.Initialize => "Initialize",
+                        Ice2FrameType.GoAway => "GoAway",
                         _ => "Unknown"
                     };
                     encoding = Ice2Definitions.Encoding;
                 }
                 else
                 {
-                    frameType = (Ice1Definitions.FrameType)type switch
+                    frameType = (Ice1FrameType)type switch
                     {
-                        Ice1Definitions.FrameType.ValidateConnection => "ValidateConnection",
-                        Ice1Definitions.FrameType.CloseConnection => "CloseConnection",
-                        Ice1Definitions.FrameType.RequestBatch => "RequestBatch",
+                        Ice1FrameType.ValidateConnection => "ValidateConnection",
+                        Ice1FrameType.CloseConnection => "CloseConnection",
+                        Ice1FrameType.RequestBatch => "RequestBatch",
                         _ => "Unknown"
                     };
                     encoding = Ice1Definitions.Encoding;

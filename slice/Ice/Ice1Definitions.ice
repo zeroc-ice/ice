@@ -22,6 +22,16 @@ module Ice
 {
     // These definitions help with the encoding of ice1 frames.
 
+    /// Each ice1 frame has a type identified by this enumeration.
+    enum Ice1FrameType : byte
+    {
+        Request = 0,
+        RequestBatch = 1,
+        Reply = 2,
+        ValidateConnection = 3,
+        CloseConnection = 4
+    }
+
     /// Determines the retry behavior an invocation in case of a (potentially) recoverable error. OperationMode is
     /// sent with each ice1 request to allow the server to verify the assumptions made by the caller.
     enum OperationMode : byte
@@ -41,10 +51,12 @@ module Ice
         \Idempotent
     }
 
-    /// The body of an ice1 request header. A request header consists of two parts: a prologue which contains the frame
-    /// type and frame size (and more) and a body which contains the target's identity, operation name and more.
+    /// Each ice1 request frame has:
+    /// - a frame prologue, with the frame type and the overall frame size
+    /// - a request header (below)
+    /// - a request payload
     [cs:readonly]
-    struct Ice1RequestHeaderBody
+    struct Ice1RequestHeader
     {
         Identity identity;
         StringSeq facetPath;

@@ -769,13 +769,16 @@ namespace ZeroC.Ice
                 else
                 {
                     // After we went down the interceptor chain make the invocation.
-                    request.Finish();
                     Reference reference = proxy.IceReference;
                     Communicator communicator = reference.Communicator;
                     // If the request size is greater than Ice.RetryRequestSizeMax or the size of the request
                     // would increase the buffer retry size beyond Ice.RetryBufferSizeMax we release the request
                     // after it was sent to avoid holding too much memory and we wont retry in case of a failure.
-                    int requestSize = request.Size;
+
+                    // TODO: this "request size" is now just the payload size. Should we rename the property to
+                    // RetryRequestPayloadMaxSize?
+
+                    int requestSize = request.PayloadSize;
                     bool releaseRequestAfterSent =
                         requestSize > communicator.RetryRequestMaxSize ||
                         !communicator.IncRetryBufferSize(requestSize);
@@ -1818,7 +1821,7 @@ namespace ZeroC.Ice
                     // Create the outgoing stream.
                     stream = connection.CreateStream(!oneway);
 
-                    childObserver = observer?.GetChildInvocationObserver(connection, request.Size);
+                    childObserver = observer?.GetChildInvocationObserver(connection, request.PayloadSize);
                     childObserver?.Attach();
 
                     // Send the request and wait for the sending to complete.
@@ -1841,13 +1844,13 @@ namespace ZeroC.Ice
 
                     if (oneway)
                     {
-                        return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
+                        return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.PayloadEncoding);
                     }
 
                     // Wait for the reception of the response.
                     response = await stream.ReceiveResponseFrameAsync(cancel).ConfigureAwait(false);
 
-                    childObserver?.Reply(response.Size);
+                    childObserver?.Reply(response.PayloadSize);
 
                     // If success, just return the response!
                     if (response.ResultType == ResultType.Success)

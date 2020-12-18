@@ -898,7 +898,7 @@ namespace ZeroC.Ice
         {
             IDispatchObserver? dispatchObserver = Communicator.Observer?.GetDispatchObserver(current,
                                                                                              current.StreamId,
-                                                                                             request.Size);
+                                                                                             request.PayloadSize);
             dispatchObserver?.Attach();
             try
             {
@@ -926,11 +926,7 @@ namespace ZeroC.Ice
                 }
 
                 OutgoingResponseFrame response = await DispatchAsync(_dispatchInterceptors, 0).ConfigureAwait(false);
-                if (!current.IsOneway)
-                {
-                    response.Finish();
-                }
-                dispatchObserver?.Reply(response.Size);
+                dispatchObserver?.Reply(response.PayloadSize);
                 return response;
             }
             catch (Exception ex)
@@ -954,8 +950,7 @@ namespace ZeroC.Ice
                     }
 
                     var response = new OutgoingResponseFrame(request, actualEx);
-                    response.Finish();
-                    dispatchObserver?.Reply(response.Size);
+                    dispatchObserver?.Reply(response.PayloadSize);
                     return response;
                 }
                 else

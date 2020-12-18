@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Interceptor
                             OutgoingResponseFrame response = await next(request, current, cancel);
                             if (request.Protocol == Protocol.Ice2)
                             {
-                                response.AddBinaryContextEntry(100, 100, (ostr, v) => ostr.WriteInt(v));
+                                response.BinaryContextOverride.Add(100, ostr => ostr.WriteInt(100));
                             }
                             return response;
                         });

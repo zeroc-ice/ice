@@ -101,13 +101,13 @@ namespace ZeroC.Ice
 
                 // Parse the received frame and translate it into a stream ID, frame type and frame data. The returned
                 // stream ID can be negative if the Ice1 frame is no longer supported (batch requests).
-                (long streamId, Ice1Definitions.FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
+                (long streamId, Ice1FrameType frameType, ArraySegment<byte> frame) = ParseFrame(buffer);
                 if (streamId >= 0)
                 {
                     if (TryGetStream(streamId, out Ice1NetworkSocketStream? stream))
                     {
                         // If this is a known stream, pass the data to the stream.
-                        if (frameType == Ice1Definitions.FrameType.ValidateConnection)
+                        if (frameType == Ice1FrameType.ValidateConnection)
                         {
                             // Except for the validate connection frame, subsequent validate connection messages are
                             // heartbeats sent by the peer. We just handle it here and don't pass it over the control
@@ -124,7 +124,7 @@ namespace ZeroC.Ice
                             // Ignore, the stream has been aborted
                         }
                     }
-                    else if (frameType == Ice1Definitions.FrameType.Request)
+                    else if (frameType == Ice1FrameType.Request)
                     {
                         // Create a new input stream for the request. If serialization is enabled, ensure we acquire
                         // the semaphore first to serialize the dispatching.
@@ -146,7 +146,7 @@ namespace ZeroC.Ice
                             stream?.Dispose();
                         }
                     }
-                    else if (frameType == Ice1Definitions.FrameType.ValidateConnection)
+                    else if (frameType == Ice1FrameType.ValidateConnection)
                     {
                         // If we received a connection validation frame and the stream is not known, it's the first
                         // received connection validation message, create the control stream and return it.
@@ -197,7 +197,7 @@ namespace ZeroC.Ice
             {
                 TraceFrame(0,
                            ImmutableList<ArraySegment<byte>>.Empty,
-                           (byte)Ice1Definitions.FrameType.ValidateConnection);
+                           (byte)Ice1FrameType.ValidateConnection);
             }
         }
 
@@ -277,7 +277,7 @@ namespace ZeroC.Ice
                 if (stream != null && !stream.IsStarted)
                 {
                     stream.Id = AllocateId(stream.IsBidirectional);
-                    if (buffer[0][8] == (byte)Ice1Definitions.FrameType.Request)
+                    if (buffer[0][8] == (byte)Ice1FrameType.Request)
                     {
                         buffer[0].AsSpan(Ice1Definitions.HeaderSize).WriteInt(stream.RequestId);
                     }
@@ -355,10 +355,10 @@ namespace ZeroC.Ice
             return id;
         }
 
-        private (long, Ice1Definitions.FrameType, ArraySegment<byte>) ParseFrame(ArraySegment<byte> readBuffer)
+        private (long, Ice1FrameType, ArraySegment<byte>) ParseFrame(ArraySegment<byte> readBuffer)
         {
             // The magic and version fields have already been checked.
-            var frameType = (Ice1Definitions.FrameType)readBuffer[8];
+            var frameType = (Ice1FrameType)readBuffer[8];
             byte compressionStatus = readBuffer[9];
             if (compressionStatus == 2)
             {
@@ -374,7 +374,7 @@ namespace ZeroC.Ice
 
             switch (frameType)
             {
-                case Ice1Definitions.FrameType.CloseConnection:
+                case Ice1FrameType.CloseConnection:
                 {
                     if (Endpoint.IsDatagram)
                     {
@@ -387,7 +387,7 @@ namespace ZeroC.Ice
                     return (IsIncoming ? 2 : 3, frameType, default);
                 }
 
-                case Ice1Definitions.FrameType.Request:
+                case Ice1FrameType.Request:
                 {
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
 
@@ -405,13 +405,13 @@ namespace ZeroC.Ice
                     return (streamId, frameType, readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                 }
 
-                case Ice1Definitions.FrameType.RequestBatch:
+                case Ice1FrameType.RequestBatch:
                 {
                     if (Endpoint.Communicator.TraceLevels.Protocol >= 1)
                     {
                         TraceFrame(0,
                                    readBuffer.Slice(Ice1Definitions.HeaderSize),
-                                   (byte)Ice1Definitions.FrameType.RequestBatch);
+                                   (byte)Ice1FrameType.RequestBatch);
                     }
                     int invokeNum = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     if (invokeNum < 0)
@@ -422,14 +422,14 @@ namespace ZeroC.Ice
                     return (-1, frameType, default);
                 }
 
-                case Ice1Definitions.FrameType.Reply:
+                case Ice1FrameType.Reply:
                 {
                     int requestId = readBuffer.AsReadOnlySpan(Ice1Definitions.HeaderSize, 4).ReadInt();
                     long streamId = ((requestId - 1) << 2) + (IsIncoming ? 1 : 0);
                     return (streamId, frameType, readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                 }
 
-                case Ice1Definitions.FrameType.ValidateConnection:
+                case Ice1FrameType.ValidateConnection:
                 {
                     // Notify the control stream of the reception of a Ping frame.
                     ReceivedPing();

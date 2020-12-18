@@ -90,20 +90,20 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
+                        request.WritableContext["interceptor-1"] = "interceptor-1";
                         if (ice2)
                         {
-                            request.ContextOverride["interceptor-1"] = "interceptor-1";
-                            request.AddBinaryContextEntry(110, 110, (ostr, v) => ostr.WriteInt(v));
+                            request.BinaryContextOverride.Add(110, ostr => ostr.WriteInt(110));
                         }
                         return next(target, request, cancel);
                     },
                     async (target, request, next, cancel) =>
                     {
+                        TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
+                        request.WritableContext["interceptor-2"] = "interceptor-2";
                         if (ice2)
                         {
-                            TestHelper.Assert(request.Context["interceptor-1"] == "interceptor-1");
-                            request.ContextOverride["interceptor-2"] = "interceptor-2";
-                            request.AddBinaryContextEntry(120, 120, (ostr, v) => ostr.WriteInt(v));
+                            request.BinaryContextOverride.Add(120, ostr => ostr.WriteInt(120));
                         }
                         IncomingResponseFrame response = await next(target, request, cancel);
                         TestHelper.Assert(invocationContext.Value == int.Parse(request.Context["local-user"]));
@@ -139,10 +139,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        if (ice2)
-                        {
-                            request.ContextOverride["interceptor-1"] = "interceptor-1";
-                        }
+                        request.WritableContext["interceptor-1"] = "interceptor-1";
                         return next(target, request, cancel);
                     },
                     async (target, request, next, cancel) =>
@@ -181,7 +178,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
-                        request.ContextOverride["interceptor-1"] = "interceptor-1";
+                        request.WritableContext["interceptor-1"] = "interceptor-1";
                         return next(target, request, cancel);
                     },
                     (target, request, next, cancel) =>
@@ -226,35 +223,15 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                         context: null,
                                                                         token,
                                                                         Token.IceWriter);
-                        request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                        request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                        request.AddBinaryContextEntry(
+                        request.BinaryContextOverride.Add(1, ostr => ostr.WriteStruct(token));
+                        request.BinaryContextOverride.Add(3, ostr => ostr.WriteShort((short)size));
+                        request.BinaryContextOverride.Add(
                             2,
-                            Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                            (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
-
-                        // Adding the same key twice throws ArgumentException
-                        try
-                        {
-                            request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                            TestHelper.Assert(false);
-                        }
-                        catch (ArgumentException)
-                        {
-                        }
+                            ostr => ostr.WriteSequence(
+                                Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                (ostr, s) => ostr.WriteString(s)));
 
                         using IncomingResponseFrame response = prx.InvokeAsync(request).Result;
-
-                        TestHelper.Assert(request.IsSealed);
-                        // Adding to a sealed frame throws InvalidOperationException
-                        try
-                        {
-                            request.AddBinaryContextEntry(10, token, Token.IceWriter);
-                            TestHelper.Assert(false);
-                        }
-                        catch (InvalidOperationException)
-                        {
-                        }
                     }
 
                     {
@@ -267,12 +244,14 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                                            context: null,
                                                                                            token,
                                                                                            Token.IceWriter);
-                        request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                        request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                        request.AddBinaryContextEntry(
+                        request.BinaryContextOverride.Add(1, ostr => ostr.WriteStruct(token));
+                        request.BinaryContextOverride.Add(3, ostr => ostr.WriteShort((short)size));
+                        request.BinaryContextOverride.Add(
                             2,
-                            Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                            (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
+                            ostr => ostr.WriteSequence(
+                                Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                (ostr, s) => ostr.WriteString(s)));
+
                         TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
                         using IncomingResponseFrame response = prx.InvokeAsync(request).Result;
                     }
@@ -289,12 +268,15 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                                            Token.IceWriter);
 
                         TestHelper.Assert(request.CompressPayload() == CompressionResult.Success);
-                        request.AddBinaryContextEntry(1, token, Token.IceWriter);
-                        request.AddBinaryContextEntry(3, (short)size, (ostr, value) => ostr.WriteShort(value));
-                        request.AddBinaryContextEntry(
+
+                        request.BinaryContextOverride.Add(1, ostr => ostr.WriteStruct(token));
+                        request.BinaryContextOverride.Add(3, ostr => ostr.WriteShort((short)size));
+                        request.BinaryContextOverride.Add(
                             2,
-                            Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
-                            (ostr, seq) => ostr.WriteSequence(seq, (ostr, s) => ostr.WriteString(s)));
+                            ostr => ostr.WriteSequence(
+                                Enumerable.Range(0, 10).Select(i => $"string-{i}").ToArray(),
+                                (ostr, s) => ostr.WriteString(s)));
+
                         using IncomingResponseFrame response = prx.InvokeAsync(request).Result;
                     }
                 }
@@ -312,14 +294,13 @@ namespace ZeroC.Ice.Test.Interceptor
                                                                   Token.IceWriter);
                 try
                 {
-                    request.AddBinaryContextEntry(1, token, Token.IceWriter);
+                    request.BinaryContextOverride.Add(1, ostr => ostr.WriteStruct(token));
                     TestHelper.Assert(false);
                 }
                 catch (NotSupportedException)
                 {
                 }
                 using IncomingResponseFrame response = prx.InvokeAsync(request).Result;
-                TestHelper.Assert(request.IsSealed);
             }
             output.WriteLine("ok");
 
@@ -328,46 +309,42 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 var communicator = helper.Communicator!;
 
-                if (ice2)
-                {
-                    // This test use ContextOverride not supported with ice1
-                    Dictionary<string, string>? context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(!context.ContainsKey("context3"));
-                    prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
-                        (target, request, next, cancel) =>
-                        {
-                            request.ContextOverride["context2"] = "proxy";
-                            request.ContextOverride["context3"] = "proxy";
-                            return next(target, request, cancel);
-                        }).AddRange(communicator.DefaultInvocationInterceptors));
-                    context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(context["context3"] == "proxy");
+                SortedDictionary<string, string>? context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(!context.ContainsKey("context3"));
+                prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
+                    (target, request, next, cancel) =>
+                    {
+                        request.WritableContext["context2"] = "proxy";
+                        request.WritableContext["context3"] = "proxy";
+                        return next(target, request, cancel);
+                    }).AddRange(communicator.DefaultInvocationInterceptors));
+                context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(context["context3"] == "proxy");
 
-                    // Calling next twice doesn't change the result
-                    prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
-                        (target, request, next, cancel) =>
-                        {
-                            request.ContextOverride["context2"] = "proxy";
-                            request.ContextOverride["context3"] = "proxy";
-                            _ = next(target, request, cancel);
-                            return next(target, request, cancel);
-                        }).AddRange(communicator.DefaultInvocationInterceptors));
-                    context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(context["context3"] == "proxy");
+                // Calling next twice doesn't change the result
+                prx = prx.Clone(invocationInterceptors: ImmutableList.Create<InvocationInterceptor>(
+                    (target, request, next, cancel) =>
+                    {
+                        request.WritableContext["context2"] = "proxy";
+                        request.WritableContext["context3"] = "proxy";
+                        _ = next(target, request, cancel);
+                        return next(target, request, cancel);
+                    }).AddRange(communicator.DefaultInvocationInterceptors));
+                context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(context["context3"] == "proxy");
 
-                    // Cloning the proxy preserve its interceptors
-                    prx = prx.Clone(invocationTimeout: TimeSpan.FromSeconds(10));
-                    context = prx.Op2();
-                    TestHelper.Assert(context["context1"] == "plug-in");
-                    TestHelper.Assert(context["context2"] == "plug-in");
-                    TestHelper.Assert(context["context3"] == "proxy");
-                }
+                // Cloning the proxy preserve its interceptors
+                prx = prx.Clone(invocationTimeout: TimeSpan.FromSeconds(10));
+                context = prx.Op2();
+                TestHelper.Assert(context["context1"] == "plug-in");
+                TestHelper.Assert(context["context2"] == "plug-in");
+                TestHelper.Assert(context["context3"] == "proxy");
 
                 // The server increments the result with each call when using the invocation interceptor we
                 // return a cached response, and we will see the same result with each call.

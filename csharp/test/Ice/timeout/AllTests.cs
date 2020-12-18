@@ -147,9 +147,9 @@ namespace ZeroC.Ice.Test.Timeout
                     comm1.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                             (target, request, next, cancel) =>
                             {
-                                request.AddBinaryContextEntry(10, request.Deadline, (ostr, value) =>
+                                request.BinaryContextOverride.Add(10, ostr =>
                                 {
-                                    var deadline = (value - DateTime.UnixEpoch).TotalMilliseconds;
+                                    var deadline = (request.Deadline - DateTime.UnixEpoch).TotalMilliseconds;
                                     ostr.WriteVarLong((long)deadline);
                                 });
                                 return next(target, request, cancel);

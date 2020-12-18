@@ -21,12 +21,10 @@ namespace ZeroC.Ice.Test.Interceptor
                 _communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     async (target, request, next, cancel) =>
                     {
-                        if (request.Protocol == Protocol.Ice2)
-                        {
-                            request.ContextOverride["context1"] = "plug-in";
-                            request.ContextOverride["context2"] = "plug-in";
-                            request.ContextOverride["InvocationPlugin"] = "1";
-                        }
+                        request.WritableContext["context1"] = "plug-in";
+                        request.WritableContext["context2"] = "plug-in";
+                        request.WritableContext["InvocationPlugin"] = "1";
+
                         IncomingResponseFrame response = await next(target, request, cancel);
                         if (response.Protocol == Protocol.Ice2 && response.ResultType == ResultType.Success)
                         {

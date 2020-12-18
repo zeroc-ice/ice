@@ -9,16 +9,6 @@ namespace ZeroC.Ice
     // Definitions for the ice1 protocol.
     internal static class Ice1Definitions
     {
-        // ice1 frame types:
-        internal enum FrameType : byte
-        {
-            Request = 0,
-            RequestBatch = 1,
-            Reply = 2,
-            ValidateConnection = 3,
-            CloseConnection = 4
-        }
-
         // The encoding of the header for ice1 frames. It is nominally 1.0, but in practice it is identical to 1.1
         // for the subset of the encoding used by the ice1 headers.
         internal static readonly Encoding Encoding = Encoding.V11;
@@ -44,29 +34,16 @@ namespace ZeroC.Ice
                 {
                     Magic[0], Magic[1], Magic[2], Magic[3],
                     ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-                    (byte)FrameType.CloseConnection,
+                    (byte)Ice1FrameType.CloseConnection,
                     0, // Compression status.
                     HeaderSize, 0, 0, 0 // Frame size.
                 }
         };
 
-        internal static readonly byte[] RequestHeaderPrologue = new byte[]
+        internal static readonly byte[] FramePrologue = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.Request,
-            0, // Compression status.
-            0, 0, 0, 0, // Frame size (placeholder).
-            0, 0, 0, 0 // Request ID (placeholder).
-        };
-
-        internal static readonly byte[] ResponseHeaderPrologue = new byte[]
-        {
-            Magic[0], Magic[1], Magic[2], Magic[3],
-            ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte)FrameType.Reply,
-            0, // Compression status.
-            0, 0, 0, 0 // Frame size (placeholder).
         };
 
         internal static readonly List<ArraySegment<byte>> ValidateConnectionFrame = new List<ArraySegment<byte>>
@@ -75,11 +52,14 @@ namespace ZeroC.Ice
             {
                 Magic[0], Magic[1], Magic[2], Magic[3],
                 ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-                (byte)FrameType.ValidateConnection,
+                (byte)Ice1FrameType.ValidateConnection,
                 0, // Compression status.
                 HeaderSize, 0, 0, 0 // Frame size.
             }
         };
+
+        private static readonly byte[] _voidReturnValuePayload11 = new byte[] { 0, 6, 0, 0, 0, 1, 1 };
+        private static readonly byte[] _voidReturnValuePayload20 = new byte[] { 0, 7, 0, 0, 0, 2, 0, 0 };
 
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
         internal static void CheckHeader(ReadOnlySpan<byte> header)
@@ -106,6 +86,14 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Returns the payload of an ice1 request frame for an operation with no argument.</summary>
+        /// <param name="encoding">The encoding of this empty args payload. The header of this payload is always encoded
+        /// using ice1's header encoding (1.1).</param>
+        /// <returns>The payload.</returns>
+        /// <remarks>The 2.0 encoding has an extra byte for the compression status.</remarks>
+        internal static ArraySegment<byte> GetEmptyArgsPayload(Encoding encoding) =>
+            GetVoidReturnValuePayload(encoding).Slice(1);
+
         internal static string GetFacet(string[] facetPath)
         {
             if (facetPath.Length > 1)
@@ -117,7 +105,7 @@ namespace ZeroC.Ice
 
         internal static RetryPolicy GetRetryPolicy(IncomingResponseFrame response, Reference reference)
         {
-            Debug.Assert(response.Encoding == Encoding.V11);
+            Debug.Assert(response.PayloadEncoding == Encoding.V11);
             if (response.ResultType == ResultType.Failure)
             {
                 var replyStatus = (ReplyStatus)response.Payload[0]; // can be reassigned below
@@ -167,6 +155,16 @@ namespace ZeroC.Ice
                 }
             }
             return RetryPolicy.NoRetry;
+        }
+
+        /// <summary>Returns the payload of an ice1 response frame for an operation returning void.</summary>
+        /// <param name="encoding">The encoding of this void return. The header of this payload is always encoded
+        /// using ice1's header encoding (1.1).</param>
+        /// <returns>The payload.</returns>
+        internal static ArraySegment<byte> GetVoidReturnValuePayload(Encoding encoding)
+        {
+            encoding.CheckSupported();
+            return encoding == Encoding.V11 ? _voidReturnValuePayload11 : _voidReturnValuePayload20;
         }
 
         /// <summary>Reads a facet in the old ice1 format from the stream.</summary>
@@ -240,11 +238,10 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a request header body without constructing an Ice1RequestHeaderBody instance. This
-        /// implementation is slightly more efficient than the generated code because it avoids the allocation of a
-        /// string[] to write the facet and the allocation of a Dictionary{string, string} to write the context.
-        /// </summary>
-        internal static void WriteIce1RequestHeaderBody(
+        /// <summary>Writes a request header without constructing an Ice1RequestHeader instance. This implementation is
+        /// slightly more efficient than the generated code because it avoids the allocation of a  string[] to write the
+        /// facet and the allocation of a Dictionary{string, string} to write the context.</summary>
+        internal static void WriteIce1RequestHeader(
             this OutputStream ostr,
             Identity identity,
             string facet,

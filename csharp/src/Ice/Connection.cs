@@ -556,7 +556,6 @@ namespace ZeroC.Ice
                         // Send the exception as the response instead of sending the response from the dispatch
                         // if sending raises a remote exception.
                         response = new OutgoingResponseFrame(request, ex);
-                        response.Finish();
                         await stream.SendResponseFrameAsync(response, cancel).ConfigureAwait(false);
                     }
                 }

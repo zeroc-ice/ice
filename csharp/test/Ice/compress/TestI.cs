@@ -26,20 +26,20 @@ namespace ZeroC.Ice.Test.Compress
         {
             if (current.Operation == "opCompressParams" || current.Operation == "opCompressParamsAndReturn")
             {
-                if (request.Encoding == Encoding.V20)
+                if (request.PayloadEncoding == Encoding.V20)
                 {
                     TestHelper.Assert(request.HasCompressedPayload == _compressed);
                     if (!_compressed)
                     {
-                        // Ensure size is less than Ice.CompressionMinSize
-                        TestHelper.Assert(request.Size < 1024);
+                        // Ensure payload count is less than Ice.CompressionMinSize
+                        TestHelper.Assert(request.PayloadSize < 1024);
                     }
                 }
             }
             OutgoingResponseFrame response = await _servant.DispatchAsync(request, current, cancel);
             if (current.Operation == "opCompressReturn" || current.Operation == "opCompressParamsAndReturn")
             {
-                if (response.Encoding == Encoding.V20)
+                if (response.PayloadEncoding == Encoding.V20)
                 {
                     if (_compressed)
                     {
@@ -56,12 +56,12 @@ namespace ZeroC.Ice.Test.Compress
                     else
                     {
                         // Ensure size is less than Ice.CompressionMinSize
-                        TestHelper.Assert(response.Size < 1024);
+                        TestHelper.Assert(response.PayloadSize < 1024);
                     }
                 }
             }
 
-            if (response.Encoding == Encoding.V20 && current.Operation == "opWithUserException")
+            if (response.PayloadEncoding == Encoding.V20 && current.Operation == "opWithUserException")
             {
                 response.CompressPayload();
             }
