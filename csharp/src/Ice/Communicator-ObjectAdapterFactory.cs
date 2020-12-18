@@ -26,16 +26,18 @@ namespace ZeroC.Ice
 
             async Task PerformShutdownAsync(List<ObjectAdapter> adapters)
             {
+                // Ensure the code below is not ran synchronously to avoid deadlocks and to avoid calling
+                // the wait for shutdown continuation from the calling thread.
+                await Task.Yield();
+
                 try
                 {
-                    // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
                     await Task.WhenAll(
                         adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
                 }
                 finally
                 {
-                    // Don't call SetResult directly to avoid continuations running synchronously
-                    _ = Task.Run(() => _waitForShutdownCompletionSource?.SetResult(null));
+                    _waitForShutdownCompletionSource?.SetResult(null);
                 }
             }
         }
@@ -90,6 +92,11 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
+                if (_shutdownTask != null)
+                {
+                    throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
+                }
+
                 var adapter = new ObjectAdapter(this, serializeDispatch, taskScheduler, protocol);
                 _adapters.Add(adapter);
                 return adapter;
@@ -253,6 +260,10 @@ namespace ZeroC.Ice
                 if (IsDisposed)
                 {
                     throw new CommunicatorDisposedException();
+                }
+                if (_shutdownTask != null)
+                {
+                    throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
                 }
 
                 if (!_adapterNamesInUse.Add(name))
