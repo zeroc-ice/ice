@@ -2,7 +2,8 @@
 #
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
-outfilters = [re.compile("warning: server activation failed"),
+outfilters = [re.compile("cannot find the file specified"),
+              re.compile("warning: server activation failed"),
               re.compile("cannot execute"),
               re.compile("cannot change working directory")]
 

@@ -628,11 +628,14 @@ allTests(Test::TestHelper* helper)
             try
             {
                 obj->ice_ping();
-                test(IceUtil::Time::now() - now >= IceUtil::Time::seconds(2));
+                test(IceUtil::Time::now() - now >= IceUtil::Time::seconds(3));
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
-                break; // Success
+                if (!admin->isServerEnabled("server2"))
+                {
+                    break; // Success
+                }
             }
         }
         test(!admin->isServerEnabled("server2"));

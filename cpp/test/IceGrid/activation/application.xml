@@ -40,7 +40,7 @@
 
     <node name="localnode">
       <server-instance template="IceGridNode" id="node-1" disable-on-failure="-1"/>
-      <server-instance template="IceGridNode" id="node-2" disable-on-failure="2"/>
+      <server-instance template="IceGridNode" id="node-2" disable-on-failure="3"/>
 
       <server-instance template="Server" id="server"/>
       <server-instance template="Server" id="server-manual" activation="manual"/>
