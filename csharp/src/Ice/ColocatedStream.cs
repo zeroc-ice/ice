@@ -135,50 +135,6 @@ namespace ZeroC.Ice
             return frame;
         }
 
-        internal override async ValueTask SendRequestFrameAsync(OutgoingRequestFrame request, CancellationToken cancel)
-        {
-            try
-            {
-                bool fin = request.StreamDataWriter == null;
-                var incomingRequestFrame = new IncomingRequestFrame(request);
-                await _socket.SendFrameAsync(this, incomingRequestFrame, fin, cancel).ConfigureAwait(false);
-
-                if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-                {
-                    TraceFrame(request);
-                }
-
-                // If there's a stream data writer, we can start streaming the data.
-                request.StreamDataWriter?.Invoke(this);
-            }
-            catch (OperationCanceledException)
-            {
-                if (IsStarted && _socket.Endpoint.Protocol != Protocol.Ice1)
-                {
-                    await ResetAsync((long)StreamResetErrorCode.RequestCanceled).ConfigureAwait(false);
-                }
-                throw;
-            }
-        }
-
-        internal override async ValueTask SendResponseFrameAsync(
-            OutgoingResponseFrame response,
-            CancellationToken cancel)
-        {
-            bool fin = response.StreamDataWriter == null;
-            var incomingResponseFrame = new IncomingResponseFrame(response);
-
-            await _socket.SendFrameAsync(this, incomingResponseFrame, fin, cancel).ConfigureAwait(false);
-
-            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
-            {
-                TraceFrame(response);
-            }
-
-            // If there's a stream data writer, we can start streaming the data.
-            response.StreamDataWriter?.Invoke(this);
-        }
-
         private protected override async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(
             byte expectedFrameType,
             CancellationToken cancel)
@@ -208,6 +164,17 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(false);
                 throw new InvalidDataException("unexpected frame");
+            }
+        }
+
+        private protected override async ValueTask SendFrameAsync(OutgoingFrame frame, CancellationToken cancel)
+        {
+            await _socket.SendFrameAsync(this, frame.ToIncoming(), fin: frame.StreamDataWriter == null, cancel).
+                ConfigureAwait(false);
+
+            if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
+            {
+                TraceFrame(frame);
             }
         }
 

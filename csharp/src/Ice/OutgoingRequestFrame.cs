@@ -312,6 +312,9 @@ namespace ZeroC.Ice
         }
 
         /// <inheritdoc/>
+        internal override IncomingFrame ToIncoming() => new IncomingRequestFrame(this);
+
+        /// <inheritdoc/>
         internal override void WriteHeader(OutputStream ostr)
         {
             Debug.Assert(ostr.Encoding == Protocol.GetEncoding());

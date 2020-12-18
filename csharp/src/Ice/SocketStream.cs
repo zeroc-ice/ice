@@ -439,7 +439,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask SendRequestFrameAsync(OutgoingRequestFrame request, CancellationToken cancel)
+        internal async ValueTask SendRequestFrameAsync(OutgoingRequestFrame request, CancellationToken cancel)
         {
             try
             {
@@ -459,7 +459,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal virtual async ValueTask SendResponseFrameAsync(
+        internal async ValueTask SendResponseFrameAsync(
             OutgoingResponseFrame response,
             CancellationToken cancel)
         {
@@ -556,7 +556,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            await SendAsync(buffer, frame.StreamDataWriter == null, cancel).ConfigureAwait(false);
+            await SendAsync(buffer, fin: frame.StreamDataWriter == null, cancel).ConfigureAwait(false);
 
             if (_socket.Endpoint.Communicator.TraceLevels.Protocol >= 1)
             {

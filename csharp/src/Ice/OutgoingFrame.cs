@@ -172,6 +172,10 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Returns a new incoming frame built from this outgoing frame. This method is used for colocated
+        /// calls.</summary>
+        internal abstract IncomingFrame ToIncoming();
+
         /// <summary>Gets or builds a combined binary context using InitialBinaryContext and _binaryContextOverride.
         /// This method is used for colocated calls.</summary>
         internal IReadOnlyDictionary<int, ReadOnlyMemory<byte>> GetBinaryContext()
