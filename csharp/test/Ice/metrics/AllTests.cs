@@ -514,9 +514,9 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 else
                 {
-                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 44); // ice_ping request
+                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 43); // ice_ping request
                     TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 16); // ice_ping response
-                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 44);
+                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 43);
                     TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 16);
                 }
 
@@ -540,9 +540,8 @@ namespace ZeroC.Ice.Test.Metrics
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-                // 1 additional bytes with ice2 and Encoding2 for the sequence size
-                int sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 1;
-
+                // TODO: explanation
+                int sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 2;
                 TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
                 TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
                 TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == requestSz + bs.Length + sizeLengthIncrease);
@@ -558,7 +557,7 @@ namespace ZeroC.Ice.Test.Metrics
                 sm2 = GetServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
                 // TODO: explanation!
-                sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 2;
+                sizeLengthIncrease = helper.Encoding == Encoding.V11 ? 4 : 3;
                 if (!ice1 && metrics.GetCachedConnection() is IPConnection)
                 {
                     sizeLengthIncrease += 1921; // 1921 additional bytes for the Slic frame fragmentation.

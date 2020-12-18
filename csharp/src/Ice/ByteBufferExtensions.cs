@@ -267,55 +267,35 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
-        /// <param name="buffer">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
+        /// <param name="buffer">The destination byte buffer, which must be 1, 2, 4 or 8 bytes long.</param>
         /// <param name="size">The size to write.</param>
-        internal static void WriteFixedLengthSize20(this Span<byte> buffer, int size)
+        internal static void WriteFixedLengthSize20(this Span<byte> buffer, long size)
         {
             int sizeLength = buffer.Length;
-            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
+            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4 || sizeLength == 8);
 
-            (uint encodedSize, uint maxSize) = sizeLength switch
+            (uint encodedSizeExponent, long maxSize) = sizeLength switch
             {
-                1 => (0x00u, 63u), // 2^6 - 1
-                2 => (0x01u, 16_383u), // 2^14 - 1
-                _ => (0x02u, 1_073_741_823u) // 2^30 - 1
+                1 => (0x00u, 63), // 2^6 - 1
+                2 => (0x01u, 16_383), // 2^14 - 1
+                4 => (0x02u, 1_073_741_823), // 2^30 - 1
+                _ => (0x03u, (long)EncodingDefinitions.VarULongMaxValue)
             };
 
             if (size < 0 || size > maxSize)
             {
-                throw new ArgumentOutOfRangeException("size is out of range", nameof(size));
+                throw new ArgumentOutOfRangeException(
+                    $"size `{size}' cannot be encoded on {sizeLength} bytes",
+                    nameof(size));
             }
 
-            Span<byte> uintBuf = stackalloc byte[4];
-            uint v = (uint)size;
+            Span<byte> ulongBuf = stackalloc byte[8];
+            ulong v = (ulong)size;
             v <<= 2;
 
-            v |= encodedSize;
-            MemoryMarshal.Write(uintBuf, ref v);
-            uintBuf.Slice(0, sizeLength).CopyTo(buffer);
-        }
-
-        /// <summary>Writes a varlong into a span of bytes using a fixed number of bytes.</summary>
-        /// <param name="buffer">The destination byte buffer, which must be 1, 2, 4 or 8 bytes long.</param>
-        /// <param name="value">The value to write.</param>
-        internal static void WriteFixedLengthVarLong(this Span<byte> buffer, long value)
-        {
-            Debug.Assert(buffer.Length >= OutputStream.GetVarLongLength(value));
-
-            Span<byte> longBuf = stackalloc byte[8];
-            long v = value;
-            v <<= 2;
-            uint encodedSize = buffer.Length switch
-            {
-                1 => 0x00,
-                2 => 0x01,
-                4 => 0x02,
-                _ => 0x03
-            };
-            v |= encodedSize;
-
-            MemoryMarshal.Write(longBuf, ref v);
-            longBuf.Slice(0, buffer.Length).CopyTo(buffer);
+            v |= encodedSizeExponent;
+            MemoryMarshal.Write(ulongBuf, ref v);
+            ulongBuf.Slice(0, sizeLength).CopyTo(buffer);
         }
 
         internal static void WriteInt(this Span<byte> buffer, int v) => MemoryMarshal.Write(buffer, ref v);
