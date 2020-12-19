@@ -38,7 +38,7 @@ namespace ZeroC.Ice
         private readonly int _maxSize;
 
         /// <summary>Decompresses the encapsulation payload if it is compressed. Compressed encapsulations are only
-        /// supported with 2.0 encoding.</summary>
+        /// supported with the 2.0 encoding.</summary>
         public void DecompressPayload()
         {
             if (PayloadCompressionFormat == CompressionFormat.Decompressed)
@@ -47,15 +47,14 @@ namespace ZeroC.Ice
             }
             else if (PayloadCompressionFormat != CompressionFormat.GZip)
             {
-                throw new NotSupportedException(
-                    $"cannot decompress a payload compressed with compression format {PayloadCompressionFormat}");
+                throw new NotSupportedException($"cannot decompress compression format `{PayloadCompressionFormat}'");
             }
             else
             {
                 int encapsulationOffset = this is IncomingResponseFrame ? 1 : 0;
 
                 ReadOnlySpan<byte> buffer = Payload.Slice(encapsulationOffset);
-                (int size, int sizeLength, Encoding _) = buffer.ReadEncapsulationHeader(Protocol.GetEncoding());
+                (int _, int sizeLength, Encoding _) = buffer.ReadEncapsulationHeader(Protocol.GetEncoding());
 
                 // Read the decompressed size that is written after the compression status byte when the payload is
                 // compressed +3 corresponds to (Encoding 2 bytes, Compression status 1 byte)
