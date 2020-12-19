@@ -13,8 +13,10 @@ namespace ZeroC.Ice
     {
         /// <summary>The payload was successfully compressed.</summary>
         Success,
+
         /// <summary>The payload size is smaller than the configured compression threshold.</summary>
         PayloadTooSmall,
+
         /// <summary>The payload was not compressed, compressing it would increase its size.</summary>
         PayloadNotCompressible
     }
@@ -42,8 +44,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Returns true when the payload is compressed; otherwise, return false.</summary>
-        public bool HasCompressedPayload { get; private set; }
+        /// <summary>Returns true when the payload is compressed; otherwise, returns false.</summary>
+        public bool HasCompressedPayload => PayloadCompressionFormat != CompressionFormat.Decompressed;
 
         /// <summary>Returns the initial binary context set during construction of this frame. See also
         /// <see cref="BinaryContextOverride"/>.</summary>
@@ -51,6 +53,9 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the payload of this frame.</summary>
         public IList<ArraySegment<byte>> Payload { get; } = new List<ArraySegment<byte>>();
+
+        /// <summary>Returns the payload's compression format.</summary>
+        public CompressionFormat PayloadCompressionFormat { get; private set; }
 
         /// <summary>Returns the encoding of the payload of this frame.</summary>
         /// <remarks>The header of the frame is always encoded using the frame protocol's encoding.</remarks>
@@ -86,11 +91,11 @@ namespace ZeroC.Ice
 
         private int _payloadSize = -1; // -1 means not initialized
 
-        /// <summary>Compresses the encapsulation payload using GZip compression. Compressed encapsulation payload is
-        /// only supported with the 2.0 encoding.</summary>
+        /// <summary>Compresses the encapsulation payload using the specified compression format (by default, gzip).
+        /// Compressed encapsulation payload is only supported with the 2.0 encoding.</summary>
         /// <returns>A <see cref="CompressionResult"/> value indicating the result of the compression operation.
         /// </returns>
-        public CompressionResult CompressPayload()
+        public CompressionResult CompressPayload(CompressionFormat format = CompressionFormat.GZip)
         {
             if (PayloadEncoding != Encoding.V20)
             {
@@ -98,18 +103,27 @@ namespace ZeroC.Ice
             }
             else
             {
+                if (PayloadCompressionFormat != CompressionFormat.Decompressed)
+                {
+                    throw new InvalidOperationException("the payload is already compressed");
+                }
+                if (format == CompressionFormat.Decompressed)
+                {
+                    throw new ArgumentException("invalid compression format", nameof(format));
+                }
+                else if (format != CompressionFormat.GZip)
+                {
+                    throw new NotSupportedException($"cannot compress payload with compression format {format}");
+                }
+
                 int encapsulationOffset = this is OutgoingResponseFrame ? 1 : 0;
 
                 // The encapsulation always starts in the first segment of the payload (at position 0 or 1).
                 Debug.Assert(encapsulationOffset < Payload[0].Count);
 
                 int sizeLength = Protocol == Protocol.Ice2 ? Payload[0][encapsulationOffset].ReadSizeLength20() : 4;
-                byte compressionStatus = Payload.GetByte(encapsulationOffset + sizeLength + 2);
 
-                if (compressionStatus != 0)
-                {
-                    throw new InvalidOperationException("payload is already compressed");
-                }
+                Debug.Assert(Payload.GetByte(encapsulationOffset + sizeLength + 2) == 0); // i.e. Decompressed
 
                 int encapsulationSize = Payload.GetByteCount() - encapsulationOffset; // this includes the size length
                 if (encapsulationSize < _compressionMinSize)
@@ -166,7 +180,7 @@ namespace ZeroC.Ice
                     offset - sizeLength - encapsulationOffset,
                     Protocol.GetEncoding());
 
-                HasCompressedPayload = true;
+                PayloadCompressionFormat = CompressionFormat.GZip;
 
                 return CompressionResult.Success;
             }

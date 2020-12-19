@@ -63,6 +63,16 @@ namespace ZeroC.Ice.Test.Compress
 
             if (response.PayloadEncoding == Encoding.V20 && current.Operation == "opWithUserException")
             {
+                try
+                {
+                    response.CompressPayload((CompressionFormat)2);
+                    TestHelper.Assert(false);
+                }
+                catch (NotSupportedException)
+                {
+                    // expected.
+                }
+
                 response.CompressPayload();
             }
             return response;

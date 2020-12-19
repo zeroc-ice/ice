@@ -14,13 +14,15 @@ namespace ZeroC.Ice
         /// <summary>Returns the binary context of this frame.</summary>
         public abstract IReadOnlyDictionary<int, ReadOnlyMemory<byte>> BinaryContext { get; }
 
-        /// <summary>Returns true if this payload holds a compressed encapsulation payload; otherwise, returns false.
-        /// </summary>
-        public bool HasCompressedPayload { get; private protected set; }
+        /// <summary>Returns true when the payload is compressed; otherwise, returns false.</summary>
+        public bool HasCompressedPayload => PayloadCompressionFormat != CompressionFormat.Decompressed;
 
         /// <summary>The payload of this frame. The bytes inside the data should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; private protected set; }
+
+        /// <summary>Returns the payload's compression format.</summary>
+        public CompressionFormat PayloadCompressionFormat { get; private protected set; }
 
         /// <summary>Returns the number of bytes in the payload.</summary>
         /// <remarks>Provided for consistency with <see cref="OutgoingFrame.PayloadSize"/>.</remarks>
@@ -39,9 +41,14 @@ namespace ZeroC.Ice
         /// supported with 2.0 encoding.</summary>
         public void DecompressPayload()
         {
-            if (!HasCompressedPayload)
+            if (PayloadCompressionFormat == CompressionFormat.Decompressed)
             {
                 throw new InvalidOperationException("the encapsulation's payload is not compressed");
+            }
+            else if (PayloadCompressionFormat != CompressionFormat.GZip)
+            {
+                throw new NotSupportedException(
+                    $"cannot decompress a payload compressed with compression format {PayloadCompressionFormat}");
             }
             else
             {
@@ -82,10 +89,11 @@ namespace ZeroC.Ice
                 decompressedPayload[decompressedIndex++] = Payload[compressedIndex++];
                 decompressedPayload[decompressedIndex++] = Payload[compressedIndex++];
 
-                // Set the compression status to '0', meaning not-compressed.
-                decompressedPayload[decompressedIndex++] = 0;
-                Debug.Assert(Payload[compressedIndex] != 0); // i.e. HasCompressedPayload was computed correctly
-                // TODO: reject non-gzip compressed payloads
+                // Set the payload's compression format to Decompressed.
+                decompressedPayload[decompressedIndex++] = (byte)CompressionFormat.Decompressed;
+
+                // Verify PayloadCompressionFormat was set correctly.
+                Debug.Assert(Payload[compressedIndex] == (byte)CompressionFormat.GZip);
 
                 using var decompressedStream = new MemoryStream(decompressedPayload,
                                                                 decompressedIndex,
@@ -110,7 +118,7 @@ namespace ZeroC.Ice
                 }
 
                 Payload = decompressedPayload;
-                HasCompressedPayload = false;
+                PayloadCompressionFormat = CompressionFormat.Decompressed;
             }
         }
 
