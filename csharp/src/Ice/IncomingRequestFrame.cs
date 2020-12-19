@@ -234,7 +234,7 @@ namespace ZeroC.Ice
 
             if (istr.Pos + size - 2 != data.Count) // - 2 for the encoding encoded on 2 bytes
             {
-                // The payload holds an encapsulation and the encapsulation must use up the full buffer,=.
+                // The payload holds an encapsulation and the encapsulation must use up the full buffer.
                 throw new InvalidDataException($"invalid request encapsulation size: {size}");
             }
 
