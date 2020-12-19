@@ -845,9 +845,9 @@ Slice::getBitSequenceSize(const MemberList& members)
 namespace
 {
 
-bool opCompress(const OperationPtr& op, bool params)
+bool opCompress(const OperationPtr& op, bool args)
 {
-    string direction = params ? "params" : "return";
+    string direction = args ? "args" : "return";
     string prefix = "compress:";
     string compress = op->findMetadataWithPrefix(prefix);
 
@@ -862,7 +862,7 @@ bool opCompress(const OperationPtr& op, bool params)
 
 }
 
-bool Slice::opCompressParams(const OperationPtr& op)
+bool Slice::opCompressArgs(const OperationPtr& op)
 {
     return opCompress(op, true);
 }

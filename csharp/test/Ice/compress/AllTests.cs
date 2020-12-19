@@ -16,9 +16,9 @@ namespace ZeroC.Ice.Test.Compress
             for (int size = 1024; size <= 4096; size *= 2)
             {
                 byte[] p1 = Enumerable.Range(0, size).Select(i => (byte)i).ToArray();
-                prx1.OpCompressParams(size, p1);
+                prx1.OpCompressArgs(size, p1);
 
-                byte[] p2 = prx1.OpCompressParamsAndReturn(p1);
+                byte[] p2 = prx1.OpCompressArgsAndReturn(p1);
                 TestHelper.Assert(p1.SequenceEqual(p2));
 
                 p2 = prx1.OpCompressReturn(size);
@@ -38,9 +38,9 @@ namespace ZeroC.Ice.Test.Compress
             for (int size = 2; size < 1024; size *= 2)
             {
                 byte[] p1 = Enumerable.Range(0, size).Select(i => (byte)i).ToArray();
-                prx2.OpCompressParams(size, p1);
+                prx2.OpCompressArgs(size, p1);
 
-                byte[] p2 = prx2.OpCompressParamsAndReturn(p1);
+                byte[] p2 = prx2.OpCompressArgsAndReturn(p1);
                 TestHelper.Assert(p1.SequenceEqual(p2));
 
                 p2 = prx2.OpCompressReturn(size);

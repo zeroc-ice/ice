@@ -51,7 +51,7 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(IObjectPrx proxy, InputStreamReader<T> reader)
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -81,7 +81,7 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(IObjectPrx proxy, InputStreamReaderWithStreamable<T> reader)
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -123,7 +123,7 @@ namespace ZeroC.Ice
         /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(IObjectPrx proxy, Func<SocketStream, T> reader)
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -157,7 +157,7 @@ namespace ZeroC.Ice
         /// </param>
         public void ReadVoidReturnValue(IObjectPrx proxy)
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -251,7 +251,10 @@ namespace ZeroC.Ice
                         } bytes encapsulation but expected {Payload.Count - 1 - sizeLength} bytes");
                 }
 
-                HasCompressedPayload = PayloadEncoding == Encoding.V20 && Payload[1 + sizeLength + 2] != 0;
+                if (PayloadEncoding == Encoding.V20)
+                {
+                    PayloadCompressionFormat = Payload[1 + sizeLength + 2].AsCompressionFormat();
+                }
             }
         }
 
@@ -267,7 +270,7 @@ namespace ZeroC.Ice
             }
 
             PayloadEncoding = response.PayloadEncoding;
-            HasCompressedPayload = response.HasCompressedPayload;
+            PayloadCompressionFormat = response.PayloadCompressionFormat;
             Payload = response.Payload.AsArraySegment();
         }
 

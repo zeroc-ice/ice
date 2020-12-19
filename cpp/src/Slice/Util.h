@@ -96,8 +96,8 @@ MemberList getClassTypeMembers(const MemberList& members);
 // Returns the size of the bit sequence used to encode the optional elements in this member list.
 size_t getBitSequenceSize(const MemberList&);
 
-// Returns true if the compress:params metadata is set for the operation
-bool opCompressParams(const OperationPtr& op);
+// Returns true if the compress:args metadata is set for the operation
+bool opCompressArgs(const OperationPtr& op);
 
 // Returns true if the compress:return metadata is set for the operation
 bool opCompressReturn(const OperationPtr& op);
