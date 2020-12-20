@@ -149,37 +149,6 @@ namespace ZeroC.Ice
         internal static ReadOnlySpan<T> AsReadOnlySpan<T>(this ArraySegment<T> segment, int start, int length) =>
             segment.AsSpan(start, length);
 
-        internal static (int Size, int SizeLength, Encoding Encoding) ReadEncapsulationHeader(
-            this ReadOnlySpan<byte> buffer,
-            Encoding encoding)
-        {
-            int sizeLength;
-            int size;
-
-            if (encoding == Encoding.V11)
-            {
-                sizeLength = 4;
-                size = buffer.ReadInt() - sizeLength; // Remove the size length which is included with the 1.1 encoding.
-                if (size < 0)
-                {
-                    throw new InvalidDataException(
-                        $"the 1.1 encapsulation's size ({size + sizeLength}) is too small");
-                }
-            }
-            else
-            {
-                (size, sizeLength) = buffer.ReadSize20();
-            }
-
-            if (sizeLength + size > buffer.Length)
-            {
-                throw new InvalidDataException(
-                    $"the encapsulation's size ({size}) extends beyond the end of the buffer");
-            }
-
-            return (size, sizeLength, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
-        }
-
         internal static int ReadInt(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);

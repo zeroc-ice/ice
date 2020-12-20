@@ -1081,8 +1081,29 @@ namespace ZeroC.Ice
         /// <returns>The encapsulation header read from the stream.</returns>
         internal (int Size, Encoding Encoding) ReadEncapsulationHeader()
         {
-            (int size, int sizeLength, Encoding encoding) = _buffer.Span.Slice(Pos).ReadEncapsulationHeader(Encoding);
-            Pos += 2 + sizeLength; // 2 for encoding
+            int size;
+
+            if (OldEncoding)
+            {
+                size = ReadInt() - 4; // remove the size length which is included with the 1.1 encoding.
+                if (size < 0)
+                {
+                    // add back size length to print the value that was read.
+                    throw new InvalidDataException($"the 1.1 encapsulation's size ({size + 4}) is too small");
+                }
+            }
+            else
+            {
+                size = ReadSize20();
+            }
+
+            if (Pos + size > _buffer.Length)
+            {
+                throw new InvalidDataException(
+                    $"the encapsulation's size ({size}) extends beyond the end of the buffer");
+            }
+
+            var encoding = new Encoding(this);
             return (size, encoding);
         }
 
