@@ -307,12 +307,12 @@ namespace ZeroC.Ice
         /// <param name="v">The long to write to the stream. It must be in the range [-2^61..2^61 - 1].</param>
         public void WriteVarLong(long v)
         {
-            int encodedSize = GetEncodedSize(v);
+            int encodedSizeExponent = GetVarLongEncodedSizeExponent(v);
             v <<= 2;
-            v |= (uint)encodedSize;
+            v |= (uint)encodedSizeExponent;
             Span<byte> data = stackalloc byte[sizeof(long)];
             MemoryMarshal.Write(data, ref v);
-            WriteByteSpan(data.Slice(0, 1 << encodedSize));
+            WriteByteSpan(data.Slice(0, 1 << encodedSizeExponent));
         }
 
         /// <summary>Writes a uint to stream, using Ice's variable-size integer encoding.</summary>
@@ -324,12 +324,12 @@ namespace ZeroC.Ice
         /// <param name="v">The ulong to write to the stream. It must be in the range [0..2^62 - 1].</param>
         public void WriteVarULong(ulong v)
         {
-            int encodedSize = GetEncodedSize(v);
+            int encodedSizeExponent = GetVarULongEncodedSizeExponent(v);
             v <<= 2;
-            v |= (uint)encodedSize;
+            v |= (uint)encodedSizeExponent;
             Span<byte> data = stackalloc byte[sizeof(ulong)];
             MemoryMarshal.Write(data, ref v);
-            WriteByteSpan(data.Slice(0, 1 << encodedSize));
+            WriteByteSpan(data.Slice(0, 1 << encodedSizeExponent));
         }
 
         // Write methods for constructed types except class and exception
@@ -712,7 +712,7 @@ namespace ZeroC.Ice
         {
             if (v is long value)
             {
-                var format = (EncodingDefinitions.TagFormat)GetEncodedSize(value);
+                var format = (EncodingDefinitions.TagFormat)GetVarLongEncodedSizeExponent(value);
                 WriteTaggedParamHeader(tag, format);
                 WriteVarLong(value);
             }
@@ -730,7 +730,7 @@ namespace ZeroC.Ice
         {
             if (v is ulong value)
             {
-                var format = (EncodingDefinitions.TagFormat)GetEncodedSize(value);
+                var format = (EncodingDefinitions.TagFormat)GetVarULongEncodedSizeExponent(value);
                 WriteTaggedParamHeader(tag, format);
                 WriteVarULong(value);
             }
@@ -1040,10 +1040,16 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Get the number of bytes required to encode the given value as a varlong</summary>
-        /// <param name="value">The long value to encode</param>
-        /// <return>The number of bytes needed to encode the long value as a varlong</return>
-        internal static int GetVarLongLength(long value) => 1 << GetEncodedSize(value);
+        /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the 2.0 encoding.
+        /// </summary>
+        /// <remarks>The parameter is a long and not a varulong because sizes and size-like values are usually passed
+        /// around as signed integers, even though sizes cannot be negative and are encoded like varulong values.
+        /// </remarks>
+        internal static int GetSizeLength20(long size)
+        {
+            Debug.Assert(size >= 0);
+            return 1 << GetVarULongEncodedSizeExponent((ulong)size);
+        }
 
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, IList<ArraySegment<byte>> data, Position startAt = default)
@@ -1285,11 +1291,11 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
+        /// <summary>Gets the minimum number of bytes needed to encode a long value with the varlong encoding as an
+        /// exponent of 2.</summary>
         /// <param name="value">The value to encode.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
-        /// </returns>
-        private static int GetEncodedSize(long value)
+        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's varlong encoding.</returns>
+        private static int GetVarLongEncodedSizeExponent(long value)
         {
             if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
             {
@@ -1305,11 +1311,11 @@ namespace ZeroC.Ice
             };
         }
 
-        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
+        /// <summary>Gets the mimimum number of bytes needed to encode a long value with the varulong encoding as an
+        /// exponent of 2.</summary>
         /// <param name="value">The value to encode.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
-        /// </returns>
-        private static int GetEncodedSize(ulong value)
+        /// <returns>N where 2^N is the number of bytes needed to encode value with varulong encoding.</returns>
+        private static int GetVarULongEncodedSizeExponent(ulong value)
         {
             if (value > EncodingDefinitions.VarULongMaxValue)
             {
@@ -1374,17 +1380,7 @@ namespace ZeroC.Ice
         /// encoding.</summary>
         /// <param name="size">The size.</param>
         /// <returns>The minimum number of bytes.</returns>
-        private int GetSizeLength(int size)
-        {
-            if (OldEncoding)
-            {
-                return size < 255 ? 1 : 5;
-            }
-            else
-            {
-                return 1 << GetEncodedSize((ulong)size);
-            }
-        }
+        private int GetSizeLength(int size) => OldEncoding ? (size < 255 ? 1 : 5) : GetSizeLength20(size);
 
         /// <summary>Writes a byte at a given position of the stream.</summary>
         /// <param name="v">The byte value to write.</param>

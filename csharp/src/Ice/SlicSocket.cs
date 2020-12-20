@@ -579,9 +579,9 @@ namespace ZeroC.Ice
                 packetSize -= SlicDefinitions.FrameHeader.Length;
 
                 // Compute how much space the size and stream ID require to figure out the start of the Slic header.
-                int sizeLength = OutputStream.GetVarLongLength(packetSize);
-                int streamIdLength = OutputStream.GetVarLongLength(stream.Id);
+                int streamIdLength = OutputStream.GetSizeLength20(stream.Id);
                 packetSize += streamIdLength;
+                int sizeLength = OutputStream.GetSizeLength20(packetSize);
 
                 SlicDefinitions.FrameType frameType =
                     fin ? SlicDefinitions.FrameType.StreamLast : SlicDefinitions.FrameType.Stream;
@@ -596,7 +596,7 @@ namespace ZeroC.Ice
                     buffer[0].Slice(SlicDefinitions.FrameHeader.Length - sizeLength - streamIdLength - 1);
                 headerData[0] = (byte)frameType;
                 headerData.AsSpan(1, sizeLength).WriteFixedLengthSize20(packetSize);
-                headerData.AsSpan(1 + sizeLength, streamIdLength).WriteFixedLengthVarLong(stream.Id);
+                headerData.AsSpan(1 + sizeLength, streamIdLength).WriteFixedLengthSize20(stream.Id);
                 buffer[0] = headerData;
 
                 if (Endpoint.Communicator.TraceLevels.Transport > 2)
