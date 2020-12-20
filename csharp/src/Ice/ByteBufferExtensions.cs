@@ -161,22 +161,6 @@ namespace ZeroC.Ice
         internal static string ReadString(this ReadOnlySpan<byte> buffer) =>
             buffer.IsEmpty ? "" : _utf8.GetString(buffer);
 
-        private static (int Size, int SizeLength) ReadSize11(this ReadOnlySpan<byte> buffer)
-        {
-            byte b = buffer[0];
-            if (b < 255)
-            {
-                return (b, 1);
-            }
-
-            int size = buffer.Slice(1, 4).ReadInt();
-            if (size < 0)
-            {
-                throw new InvalidDataException($"read invalid size: {size}");
-            }
-            return (size, 5);
-        }
-
         internal static (int Size, int SizeLength) ReadSize20(this ReadOnlySpan<byte> buffer)
         {
             ulong size = (buffer[0] & 0x03) switch
@@ -208,6 +192,7 @@ namespace ZeroC.Ice
             return (value, buffer[0].ReadVarLongLength());
         }
 
+        // Applies to all var type: varlong, varulong etc.
         internal static int ReadVarLongLength(this byte b) => 1 << (b & 0x03);
 
         internal static (ulong Value, int ValueLength) ReadVarULong(this ReadOnlySpan<byte> buffer)
