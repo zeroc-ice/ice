@@ -1311,7 +1311,7 @@ namespace ZeroC.Ice
             };
         }
 
-        /// <summary>Gets the mimimum number of bytes needed to encode a long value with the varlong encoding as an
+        /// <summary>Gets the mimimum number of bytes needed to encode a long value with the varulong encoding as an
         /// exponent of 2.</summary>
         /// <param name="value">The value to encode.</param>
         /// <returns>N where 2^N is the number of bytes needed to encode value with varulong encoding.</returns>
