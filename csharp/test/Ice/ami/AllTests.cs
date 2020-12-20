@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.AMI
 {
@@ -98,10 +98,10 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             bool ice1 = helper.Protocol == Protocol.Ice1;
 
             var p = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
@@ -293,7 +293,7 @@ namespace ZeroC.Ice.Test.AMI
                     TestHelper.Assert(ex.InnerException is NoEndpointException);
                 }
 
-                Communicator ic = helper.Initialize(communicator.GetProperties());
+                Communicator ic = TestHelper.CreateCommunicator(communicator.GetProperties());
                 var p2 = ITestIntfPrx.Parse(p.ToString()!, ic);
                 ic.Dispose();
 
@@ -881,6 +881,7 @@ namespace ZeroC.Ice.Test.AMI
             output.WriteLine("ok");
 
             p.Shutdown();
+            return Task.CompletedTask;
         }
     }
 }
