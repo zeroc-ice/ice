@@ -2309,7 +2309,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << nl << "proxy,"
                      << nl << "\"" << operation->name() << "\","
                      << nl << "idempotent: " << (operation->isIdempotent() ? "true" : "false") << ","
-                     << nl << "compress: " << (opCompressParams(operation) ? "true" : "false") << ","
+                     << nl << "compress: " << (opCompressArgs(operation) ? "true" : "false") << ","
                      << nl << "format: " << opFormatTypeToString(operation) << ","
                      << nl << "context,"
                      << nl << (inValue ? "in " : "") << "args,"

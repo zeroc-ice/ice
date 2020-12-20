@@ -66,7 +66,7 @@ namespace ZeroC.Ice
         /// unknown tagged arguments.</summary>
         public void ReadEmptyArgs()
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -86,7 +86,7 @@ namespace ZeroC.Ice
         /// <returns>The request arguments.</returns>
         public T ReadArgs<T>(Connection connection, InputStreamReader<T> reader)
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -104,7 +104,7 @@ namespace ZeroC.Ice
         /// <returns>The request argument.</returns>
         public T ReadArgs<T>(Func<SocketStream, T> reader)
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -129,7 +129,7 @@ namespace ZeroC.Ice
         /// <returns>The request arguments.</returns>
         public T ReadArgs<T>(Connection connection, InputStreamReaderWithStreamable<T> reader)
         {
-            if (HasCompressedPayload)
+            if (PayloadCompressionFormat != CompressionFormat.Decompressed)
             {
                 DecompressPayload();
             }
@@ -227,20 +227,21 @@ namespace ZeroC.Ice
                 throw new InvalidDataException("received request with empty operation name");
             }
 
-            (int size, int sizeLength, Encoding encoding) =
-                data.Slice(istr.Pos).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
+            Payload = data.Slice(istr.Pos);
 
-            Payload = data.Slice(istr.Pos, size + sizeLength); // the payload is the encapsulation
+            int size;
+            (size, PayloadEncoding) = istr.ReadEncapsulationHeader();
 
-            if (protocol == Protocol.Ice1 && size + 4 + istr.Pos != data.Count)
+            if (istr.Pos + size - 2 != data.Count) // - 2 for the encoding encoded on 2 bytes
             {
-                // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
-                // "4" corresponds to fixed-length size with the 1.1 encoding.
+                // The payload holds an encapsulation and the encapsulation must use up the full buffer.
                 throw new InvalidDataException($"invalid request encapsulation size: {size}");
             }
 
-            PayloadEncoding = encoding;
-            HasCompressedPayload = PayloadEncoding == Encoding.V20 && Payload[sizeLength + 2] != 0;
+            if (PayloadEncoding == Encoding.V20)
+            {
+                PayloadCompressionFormat = istr.ReadCompressionFormat();
+            }
         }
 
         /// <summary>Constructs an incoming request frame from an outgoing request frame. Used for colocated calls.
@@ -267,7 +268,7 @@ namespace ZeroC.Ice
             PayloadEncoding = request.PayloadEncoding;
 
             Payload = request.Payload.AsArraySegment();
-            HasCompressedPayload = request.HasCompressedPayload;
+            PayloadCompressionFormat = request.PayloadCompressionFormat;
         }
     }
 }

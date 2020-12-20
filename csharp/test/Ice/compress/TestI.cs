@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Compress
             Current current,
             CancellationToken cancel)
         {
-            if (current.Operation == "opCompressParams" || current.Operation == "opCompressParamsAndReturn")
+            if (current.Operation == "opCompressArgs" || current.Operation == "opCompressArgsAndReturn")
             {
                 if (request.PayloadEncoding == Encoding.V20)
                 {
@@ -37,7 +37,7 @@ namespace ZeroC.Ice.Test.Compress
                 }
             }
             OutgoingResponseFrame response = await _servant.DispatchAsync(request, current, cancel);
-            if (current.Operation == "opCompressReturn" || current.Operation == "opCompressParamsAndReturn")
+            if (current.Operation == "opCompressReturn" || current.Operation == "opCompressArgsAndReturn")
             {
                 if (response.PayloadEncoding == Encoding.V20)
                 {
@@ -63,6 +63,16 @@ namespace ZeroC.Ice.Test.Compress
 
             if (response.PayloadEncoding == Encoding.V20 && current.Operation == "opWithUserException")
             {
+                try
+                {
+                    response.CompressPayload((CompressionFormat)2);
+                    TestHelper.Assert(false);
+                }
+                catch (NotSupportedException)
+                {
+                    // expected.
+                }
+
                 response.CompressPayload();
             }
             return response;
@@ -71,7 +81,7 @@ namespace ZeroC.Ice.Test.Compress
 
     public sealed class TestIntf : ITestIntf
     {
-        public void OpCompressParams(int size, byte[] p1, Current current, CancellationToken cancel)
+        public void OpCompressArgs(int size, byte[] p1, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(size == p1.Length);
             for (int i = 0; i < size; ++i)
@@ -80,7 +90,7 @@ namespace ZeroC.Ice.Test.Compress
             }
         }
 
-        public ReadOnlyMemory<byte> OpCompressParamsAndReturn(byte[] p1, Current current, CancellationToken cancel) =>
+        public ReadOnlyMemory<byte> OpCompressArgsAndReturn(byte[] p1, Current current, CancellationToken cancel) =>
             p1;
 
         public ReadOnlyMemory<byte> OpCompressReturn(int size, Current current, CancellationToken cancel) =>
