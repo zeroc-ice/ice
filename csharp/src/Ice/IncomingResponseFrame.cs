@@ -236,19 +236,7 @@ namespace ZeroC.Ice
             {
                 // Read encapsulation header, in particular the payload encoding.
 
-                int startPos = istr.Pos;
-                int size;
-                (size, PayloadEncoding) = istr.ReadEncapsulationHeader();
-
-                int sizeLength = istr.Pos - startPos - 2; // - 2 is for the 2 bytes of the encoding.
-
-                // The encapsulation starts at Payload[1], hence - 1.
-                if (size != Payload.Count - 1 - sizeLength)
-                {
-                    throw new InvalidDataException(
-                        @$"received {Protocol.GetName()} response frame with a {size
-                        } bytes encapsulation but expected {Payload.Count - 1 - sizeLength} bytes");
-                }
+                PayloadEncoding = istr.ReadEncapsulationHeader(checkFullBuffer: true).Encoding;
 
                 if (PayloadEncoding == Encoding.V20)
                 {
