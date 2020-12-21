@@ -442,8 +442,7 @@ namespace ZeroC.Ice
                     else
                     {
                         // Cache the resolved location
-                        TimeSpan insertionTime = Time.Elapsed;
-                        _locationCache[(location, protocol)] = (insertionTime, endpoints);
+                        _locationCache[(location, protocol)] = (Time.Elapsed, endpoints);
                         return endpoints;
                     }
                 }
