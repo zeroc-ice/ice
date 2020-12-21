@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Exceptions
 {
     public static class AllTests
     {
-        public static async ValueTask<IThrowerPrx> RunAsync(TestHelper helper)
+        public static async Task<IThrowerPrx> RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);

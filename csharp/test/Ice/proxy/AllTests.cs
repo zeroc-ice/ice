@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Proxy
 {
     public static class AllTests
     {
-        public static async ValueTask<IMyClassPrx> RunAsync(TestHelper helper)
+        public static async Task<IMyClassPrx> RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);

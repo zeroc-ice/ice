@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Facets
 {
     public static class AllTests
     {
-        public static async ValueTask<IGPrx> RunAsync(TestHelper helper)
+        public static async Task<IGPrx> RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
