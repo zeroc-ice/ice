@@ -172,11 +172,6 @@ namespace ZeroC.Ice
 
         private readonly RouterInfo? _routerInfo;
 
-        /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
-        /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
-        /// set).</summary>
-        public void Activate() => ActivateAsync().GetAwaiter().GetResult();
-
         /// <summary>Activates this object adapter. After activation, the object adapter can dispatch requests received
         /// through its endpoints. Also registers this object adapter with the locator (if set).</summary>
         /// <param name="cancel">The cancellation token.</param>

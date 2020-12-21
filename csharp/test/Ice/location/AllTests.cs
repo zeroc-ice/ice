@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Location
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -601,7 +601,7 @@ namespace ZeroC.Ice.Test.Location
                 output.Flush();
                 hello = IHelloPrx.Parse(ice1 ? "hello" : "ice:hello", communicator);
                 obj1.MigrateHello();
-                hello.GetConnection().GoAwayAsync();
+                _ = hello.GetConnection().GoAwayAsync();
                 hello.SayHello();
                 obj1.MigrateHello();
                 hello.SayHello();
@@ -652,7 +652,7 @@ namespace ZeroC.Ice.Test.Location
 
             var id = new Identity(Guid.NewGuid().ToString(), "");
             adapter.Add(id, new Hello());
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
             // Ensure that calls on the well-known proxy is collocated.
             IHelloPrx? helloPrx;

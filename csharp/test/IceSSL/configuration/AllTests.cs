@@ -75,7 +75,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         CreateServerFactoryPrx(string factoryRef, Communicator communicator) =>
             IServerFactoryPrx.Parse(factoryRef, communicator).Clone(preferNonSecure: NonSecure.Always);
 
-        public static IServerFactoryPrx Run(TestHelper helper, string testDir)
+        public static async Task<IServerFactoryPrx> RunAsync(TestHelper helper, string testDir)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -276,7 +276,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     ObjectAdapter adapter = serverCommunicator.CreateObjectAdapterWithEndpoints(
                             "MyAdapter", ice1 ? $"ssl -h {host}" : $"ice+tcp://{host}:0");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
-                    adapter.Activate();
+                    await adapter.ActivateAsync();
                     prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
                     prx.IcePing();
                 }
@@ -322,7 +322,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     ObjectAdapter adapter = serverCommunicator.CreateObjectAdapterWithEndpoints(
                         "MyAdapter", ice1 ? $"ssl -h {host}" : $"ice+tcp://{host}:0");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
-                    adapter.Activate();
+                    await adapter.ActivateAsync();
                     prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
                     prx.IcePing();
                     TestHelper.Assert(clientCertificateValidationCallbackCalled);

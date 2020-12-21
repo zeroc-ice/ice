@@ -173,7 +173,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 IRouterPrx router = obj.Clone(IRouterPrx.Factory, label: "rc", identity: routerId);
                 {
                     await using var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    adapter.Activate();
+                    await adapter.ActivateAsync();
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
                     string endpointsStr = adapter.PublishedEndpoints[0].ToString();
                     TestHelper.Assert(endpointsStr == "tcp -h localhost -p 23456 -t 60000");
@@ -184,7 +184,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                     routerId = new Identity("test", "");
                     router = obj.Clone(IRouterPrx.Factory, identity: routerId);
                     await using var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    adapter.Activate();
+                    await adapter.ActivateAsync();
                     TestHelper.Assert(false);
                 }
                 catch (OperationNotExistException)
@@ -196,7 +196,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 {
                     router = IRouterPrx.Parse(helper.GetTestProxy("test", 1), communicator);
                     await using var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    adapter.Activate();
+                    await adapter.ActivateAsync();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectFailedException)

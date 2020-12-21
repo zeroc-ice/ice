@@ -465,7 +465,7 @@ namespace ZeroC.Ice.Test.Binding
                 {
                     using var serverCommunicator = new Communicator(p);
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapter("Adapter");
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
                     try
@@ -486,7 +486,7 @@ namespace ZeroC.Ice.Test.Binding
                     using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::0");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     try
                     {
@@ -517,7 +517,7 @@ namespace ZeroC.Ice.Test.Binding
                     using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6Only" : "?ipv6-only=true");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     // 0.0.0.0 can still be bound if ::0 is IPv6 only
                     {
@@ -545,7 +545,7 @@ namespace ZeroC.Ice.Test.Binding
                     using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::ffff:127.0.0.1");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     try
                     {

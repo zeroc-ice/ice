@@ -205,7 +205,7 @@ namespace ZeroC.Glacier2
             {
                 Debug.Assert(_adapter == null);
                 _adapter = _communicator.CreateObjectAdapterWithRouter(router);
-                _adapter.Activate();
+                _adapter.ActivateAsync().GetAwaiter().GetResult();
             }
 
             string category = router.GetCategoryForClient();

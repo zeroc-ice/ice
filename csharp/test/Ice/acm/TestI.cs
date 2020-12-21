@@ -8,9 +8,9 @@ using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.ACM
 {
-    public class RemoteCommunicator : IRemoteCommunicator
+    public class RemoteCommunicator : IAsyncRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx CreateObjectAdapter(
+        public async ValueTask<IRemoteObjectAdapterPrx> CreateObjectAdapterAsync(
             int idleTimeout,
             bool keepAlive,
             Current current,
@@ -30,11 +30,15 @@ namespace ZeroC.Ice.Test.ACM
                 endpoint,
                 taskScheduler: schedulerPair.ExclusiveScheduler);
 
+            await adapter.ActivateAsync(cancel);
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
-        public void Shutdown(Current current, CancellationToken cancel) =>
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
+        {
             _ = current.Communicator.ShutdownAsync();
+            return default;
+        }
     }
 
     public class RemoteObjectAdapter : IRemoteObjectAdapter
@@ -46,7 +50,6 @@ namespace ZeroC.Ice.Test.ACM
         {
             _adapter = adapter;
             _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
-            _adapter.Activate();
         }
 
         public ITestIntfPrx GetTestIntf(Current current, CancellationToken cancel) => _testIntf;

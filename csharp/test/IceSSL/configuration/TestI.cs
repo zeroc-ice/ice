@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
 
@@ -62,17 +63,18 @@ namespace ZeroC.IceSSL.Test.Configuration
         private readonly Communicator _communicator;
     }
 
-    internal sealed class ServerFactory : IServerFactory
+    internal sealed class ServerFactory : IAsyncServerFactory
     {
         private readonly string _defaultDir;
         private readonly Dictionary<Identity, SSLServer> _servers = new();
 
         public ServerFactory(string defaultDir) => _defaultDir = defaultDir;
 
-        public IServerPrx CreateServer(
+        public async ValueTask<IServerPrx> CreateServerAsync(
             Dictionary<string, string> properties,
             bool requireClientCertificate,
-            Current current, CancellationToken cancel)
+            Current current,
+            CancellationToken cancel)
         {
             properties["IceSSL.DefaultDir"] = _defaultDir;
             var communicator = new Communicator(
@@ -95,23 +97,25 @@ namespace ZeroC.IceSSL.Test.Configuration
             var server = new SSLServer(communicator);
             IServerPrx prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;
-            adapter.Activate();
+            await adapter.ActivateAsync(cancel);
             return prx;
         }
 
-        public void DestroyServer(IServerPrx? srv, Current current, CancellationToken cancel)
+        public ValueTask DestroyServerAsync(IServerPrx? srv, Current current, CancellationToken cancel)
         {
             if (_servers.TryGetValue(srv!.Identity, out SSLServer? server))
             {
                 server.Destroy();
                 _servers.Remove(srv.Identity);
             }
+            return default;
         }
 
-        public void Shutdown(Current current, CancellationToken cancel)
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(_servers.Count == 0);
-            current.Communicator.ShutdownAsync();
+            _ = current.Communicator.ShutdownAsync();
+            return default;
         }
     }
 }

@@ -24,7 +24,7 @@ interface RemoteObjectAdapter
 
 interface RemoteCommunicator
 {
-    RemoteObjectAdapter* createObjectAdapter(int idleTimeout, bool keepAlive);
+    RemoteObjectAdapter createObjectAdapter(int idleTimeout, bool keepAlive);
     void shutdown();
 }
 
