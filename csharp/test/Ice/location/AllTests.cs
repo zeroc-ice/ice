@@ -252,7 +252,7 @@ namespace ZeroC.Ice.Test.Location
             IObjectPrx.Parse(ice1 ? "test" : "ice:test", communicator)
                 .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(2)).IcePing(); // 2s timeout
             TestHelper.Assert(count == locator.GetRequestCount());
-            System.Threading.Thread.Sleep(1300); // 1300ms
+            Thread.Sleep(1300); // 1300ms
             IObjectPrx.Parse(ice1 ? "test" : "ice:test", communicator)
                 .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout
             count += 2;

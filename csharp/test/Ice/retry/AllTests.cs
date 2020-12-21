@@ -187,7 +187,7 @@ namespace ZeroC.Ice.Test.Retry
                 try
                 {
                     // No retries before timeout kicks-in
-                    retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(500)).OpAfterDelay(2, 600);
+                    retry1.Clone(invocationTimeout: TimeSpan.FromMilliseconds(400)).OpAfterDelay(2, 600);
                     TestHelper.Assert(false);
                 }
                 catch (OperationCanceledException)

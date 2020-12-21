@@ -128,13 +128,7 @@ namespace ZeroC.Ice.Test.Discovery
 
                 proxies[1].AddObject("oa", "object");
                 IObjectPrx.Parse(ice1 ? "object @ oa2" : "ice:oa2//object", communicator).IcePing();
-
-                if (ice1)
-                {
-                    // TODO: this currently does not work with ice2 because the previous object (in oa1) is still in
-                    // the cache and we don't retry on ONE.
-                    IObjectPrx.Parse("object", communicator).IcePing();
-                }
+                IObjectPrx.Parse(ice1 ? "object" : "ice:object", communicator).IcePing();
                 proxies[1].RemoveObject("oa", "object");
 
                 try
