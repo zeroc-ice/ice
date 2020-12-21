@@ -1082,7 +1082,7 @@ namespace ZeroC.Ice
             if (OldEncoding)
             {
                 size = ReadInt();
-                if (size < 0)
+                if (size < 4)
                 {
                     throw new InvalidDataException($"the 1.1 encapsulation's size ({size}) is too small");
                 }
