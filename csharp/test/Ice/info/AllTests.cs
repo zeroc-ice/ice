@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Authentication;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Info
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -95,7 +96,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint.Host == serverName);
                 TestHelper.Assert(tcpEndpoint.Port > 0);
                 TestHelper.Assert(tcpEndpoint["timeout"] is string value && int.Parse(value) == 15000);
-                adapter.Dispose();
+                await adapter.DisposeAsync();
 
                 int port = helper.BasePort + 1;
 
@@ -118,7 +119,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint.Host == "127.0.0.1");
                 TestHelper.Assert(tcpEndpoint.Port == port);
 
-                adapter.Dispose();
+                await adapter.DisposeAsync();
             }
             output.WriteLine("ok");
 
@@ -257,9 +258,7 @@ namespace ZeroC.Ice.Test.Info
             output.WriteLine("ok");
 
             testIntf.Shutdown();
-
-            communicator.ShutdownAsync();
-            communicator.WaitForShutdownAsync();
+            await communicator.ShutdownAsync();
         }
     }
 }

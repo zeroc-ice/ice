@@ -16,7 +16,7 @@ interface TestIntf
 
 interface RemoteObjectAdapter
 {
-    TestIntf* getTestIntf();
+    TestIntf getTestIntf();
 
     void deactivate();
 }
@@ -26,7 +26,7 @@ interface RemoteCommunicator
     RemoteObjectAdapter createObjectAdapter(string name, string transport);
     RemoteObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
-    void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
+    void deactivateObjectAdapter(RemoteObjectAdapter adapter);
 
     void shutdown();
 }

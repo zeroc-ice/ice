@@ -17,7 +17,7 @@ namespace ZeroC.Ice
     /// <summary>The object adapter provides an up-call interface from the Ice run time to the implementation of Ice
     /// objects. The object adapter is responsible for receiving requests from endpoints, and for mapping between
     /// servants, identities, and proxies.</summary>
-    public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
+    public sealed class ObjectAdapter : IAsyncDisposable
     {
         /// <summary>Indicates under what circumstances the object adapter accepts non-secure incoming connections. This
         /// property corresponds to the object adapter's AcceptNonSecure property. If not set then the value of
@@ -332,9 +332,6 @@ namespace ZeroC.Ice
                 }
             }
         }
-
-        /// <summary>Releases resources used by the object adapter.</summary>
-        public void Dispose() => DisposeAsync().GetResult();
 
         /// <summary>Releases resources used by the object adapter.</summary>
         public async ValueTask DisposeAsync()

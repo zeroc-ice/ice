@@ -18,7 +18,8 @@ namespace ZeroC.Ice.Test.Facets
             adapter.Add("d#facetABCD", d);
             adapter.Add("d#facetEF", new F());
             adapter.Add("d#facetGH", new H(communicator));
-            AllTests.Run(this);
+
+            _ = await AllTests.RunAsync(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

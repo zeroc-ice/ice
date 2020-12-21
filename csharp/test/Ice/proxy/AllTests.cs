@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Proxy
 {
     public static class AllTests
     {
-        public static IMyClassPrx Run(TestHelper helper)
+        public static async ValueTask<IMyClassPrx> RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -1083,7 +1084,7 @@ namespace ZeroC.Ice.Test.Proxy
                 // The Clone(encoding: Encoding.V20) are only for ice1; with ice2, it's the default encoding. We need
                 // to marshal all relative proxies with the 2.0 encoding.
 
-                using ObjectAdapter oa = communicator.CreateObjectAdapter(protocol: helper.Protocol);
+                await using ObjectAdapter oa = communicator.CreateObjectAdapter(protocol: helper.Protocol);
                 cl.GetConnection().Adapter = oa;
                 ICallbackPrx callback = oa.AddWithUUID(
                     new Callback((relativeTest, current, cancel) =>
@@ -1224,12 +1225,10 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
             {
                 var com = new Communicator();
-                com.ShutdownAsync();
-                com.WaitForShutdownAsync();
-                com.Dispose();
-                com.ShutdownAsync();
-                com.WaitForShutdownAsync();
-                com.Dispose();
+                await com.ShutdownAsync();
+                await com.DisposeAsync();
+                await com.ShutdownAsync();
+                await com.DisposeAsync();
             }
             output.WriteLine("ok");
 
