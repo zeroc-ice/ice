@@ -179,19 +179,6 @@ namespace ZeroC.Ice
 
         internal static int ReadSizeLength20(this byte b) => b.ReadVarLongLength();
 
-        internal static (long Value, int ValueLength) ReadVarLong(this ReadOnlySpan<byte> buffer)
-        {
-            long value = (buffer[0] & 0x03) switch
-            {
-                0 => buffer[0] >> 2,
-                1 => BitConverter.ToInt16(buffer) >> 2,
-                2 => BitConverter.ToInt32(buffer) >> 2,
-                _ => BitConverter.ToInt64(buffer) >> 2
-            };
-
-            return (value, buffer[0].ReadVarLongLength());
-        }
-
         // Applies to all var type: varlong, varulong etc.
         internal static int ReadVarLongLength(this byte b) => 1 << (b & 0x03);
 

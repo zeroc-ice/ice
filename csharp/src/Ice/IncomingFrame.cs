@@ -54,7 +54,7 @@ namespace ZeroC.Ice
                 int encapsulationOffset = this is IncomingResponseFrame ? 1 : 0;
 
                 ReadOnlySpan<byte> buffer = Payload.Slice(encapsulationOffset);
-                int sizeLength = Protocol == Protocol.Ice1 ? 4 : buffer[0].ReadSizeLength20();
+                int sizeLength = Protocol == Protocol.Ice2 buffer[0].ReadSizeLength20() : 4;
 
                 // Read the decompressed size that is written after the compression status byte when the payload is
                 // compressed +3 corresponds to (Encoding 2 bytes, Compression status 1 byte)
