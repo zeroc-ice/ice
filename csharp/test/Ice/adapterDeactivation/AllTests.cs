@@ -3,16 +3,17 @@
 using System;
 using System.IO;
 using System.Linq;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public static class AllTests
     {
-        public static ITestIntfPrx Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
             TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
@@ -251,7 +252,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             {
                 output.WriteLine("ok");
             }
-            return obj;
+            return Task.CompletedTask;
         }
     }
 }

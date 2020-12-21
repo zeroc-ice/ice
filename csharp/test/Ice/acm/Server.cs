@@ -11,9 +11,11 @@ namespace ZeroC.Ice.Test.ACM
         {
             await Communicator.ActivateAsync();
             Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+
             ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("communicator", new RemoteCommunicator());
             await adapter.ActivateAsync();
+
             ServerReady();
             Communicator.SetProperty("Ice.PrintAdapterReady", "0");
             await Communicator.WaitForShutdownAsync();

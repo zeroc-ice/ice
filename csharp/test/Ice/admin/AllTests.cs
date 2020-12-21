@@ -4,7 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Admin
 {
@@ -120,10 +121,10 @@ namespace ZeroC.Ice.Test.Admin
             }
         }
 
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             TextWriter output = helper.Output;
             bool ice1 = helper.Protocol == Protocol.Ice1;
 
@@ -620,6 +621,7 @@ namespace ZeroC.Ice.Test.Admin
             output.WriteLine("ok");
 
             factory.Shutdown();
+            return Task.CompletedTask;
         }
 
         private class RemoteLogger : IRemoteLogger

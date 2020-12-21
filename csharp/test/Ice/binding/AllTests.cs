@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Binding
 {
@@ -33,11 +33,11 @@ namespace ZeroC.Ice.Test.Binding
             }
         }
 
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
+            Communicator communicator = helper.Communicator;
             bool ice1 = helper.Protocol == Protocol.Ice1;
-            TestHelper.Assert(communicator != null);
+
             var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
             string testTransport = helper.Transport;
 
@@ -574,6 +574,7 @@ namespace ZeroC.Ice.Test.Binding
             }
 
             com.Shutdown();
+            return Task.CompletedTask;
         }
     }
 }
