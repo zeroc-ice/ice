@@ -1020,26 +1020,19 @@ namespace ZeroC.Ice
 
             if (startEncapsulation)
             {
-                (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
-
                 // When startEncapsulation is true, the buffer must extend until the end of the encapsulation - it
                 // cannot include extra bytes.
-                if (Pos + size - 2 != _buffer.Length)
-                {
-                    throw new InvalidDataException(
-                        $"{_buffer.Length - Pos - size - 2} bytes left in buffer after the encapsulation");
-                }
+                Encoding = ReadEncapsulationHeader(checkFullBuffer: true).Encoding;
+                Encoding.CheckSupported();
 
                 // We slice the provided buffer to the encapsulation (minus its header).
                 _buffer = buffer.Slice(Pos);
                 Pos = 0;
-                Encoding = encapsEncoding;
-                Encoding.CheckSupported();
 
-                if (encapsEncoding == Encoding.V20)
+                if (Encoding == Encoding.V20)
                 {
-                    byte compressionStatus = ReadByte();
-                    if (compressionStatus != 0)
+                    CompressionFormat compressionFormat = this.ReadCompressionFormat();
+                    if (compressionFormat != CompressionFormat.Decompressed)
                     {
                         throw new InvalidDataException("the buffer encapsulation is compressed");
                     }
@@ -1078,11 +1071,43 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Reads an encapsulation header from the stream.</summary>
-        /// <returns>The encapsulation header read from the stream.</returns>
-        internal (int Size, Encoding Encoding) ReadEncapsulationHeader()
+        /// <param name="checkFullBuffer">When true, the encapsulation is expected to consume all the bytes of the
+        /// current buffer. When false, bytes can remain in the buffer after the encapsulation.</param>
+        /// <returns>The encapsulation header read from the stream. The size does not include the bytes to the size
+        /// length; it does however include the two byte for the encoding.</returns>
+        internal (int Size, Encoding Encoding) ReadEncapsulationHeader(bool checkFullBuffer)
         {
-            (int size, int sizeLength, Encoding encoding) = _buffer.Span.Slice(Pos).ReadEncapsulationHeader(Encoding);
-            Pos += 2 + sizeLength; // 2 for encoding
+            int size;
+
+            if (OldEncoding)
+            {
+                size = ReadInt();
+                if (size < 4)
+                {
+                    throw new InvalidDataException($"the 1.1 encapsulation's size ({size}) is too small");
+                }
+                size -= 4; // remove the size length which is included with the 1.1 encoding
+            }
+            else
+            {
+                size = ReadSize20();
+            }
+
+            if (checkFullBuffer)
+            {
+                if (size != _buffer.Length - Pos)
+                {
+                    throw new InvalidDataException(
+                        $"expected an encapsulation size of {_buffer.Length - Pos} bytes, but read {size}");
+                }
+            }
+            else if (size > _buffer.Length - Pos)
+            {
+                throw new InvalidDataException(
+                    $"the encapsulation's size ({size}) extends beyond the end of the buffer");
+            }
+
+            var encoding = new Encoding(this);
             return (size, encoding);
         }
 
@@ -1097,7 +1122,7 @@ namespace ZeroC.Ice
             if (protocol == Protocol.Ice1 || OldEncoding)
             {
                 Transport transport = this.ReadTransport();
-                (int size, Encoding encoding) = ReadEncapsulationHeader();
+                (int size, Encoding encoding) = ReadEncapsulationHeader(checkFullBuffer: false);
 
                 Ice1EndpointFactory? ice1Factory = protocol == Protocol.Ice1 && encoding.IsSupported ?
                     Communicator.FindIce1EndpointFactory(transport) : null;

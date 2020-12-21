@@ -229,15 +229,7 @@ namespace ZeroC.Ice
 
             Payload = data.Slice(istr.Pos);
 
-            int size;
-            (size, PayloadEncoding) = istr.ReadEncapsulationHeader();
-
-            if (istr.Pos + size - 2 != data.Count) // - 2 for the encoding encoded on 2 bytes
-            {
-                // The payload holds an encapsulation and the encapsulation must use up the full buffer.
-                throw new InvalidDataException($"invalid request encapsulation size: {size}");
-            }
-
+            PayloadEncoding = istr.ReadEncapsulationHeader(checkFullBuffer: true).Encoding;
             if (PayloadEncoding == Encoding.V20)
             {
                 PayloadCompressionFormat = istr.ReadCompressionFormat();

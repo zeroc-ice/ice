@@ -198,15 +198,14 @@ namespace ZeroC.Ice
         {
             SocketStream = socketStream;
 
-            bool hasEncapsulation = false;
+            var istr = new InputStream(data, Protocol.GetEncoding());
 
+            bool hasEncapsulation = false;
             if (Protocol == Protocol.Ice1)
             {
-                Payload = data;
+                Payload = data; // there is no response frame header with ice1
 
-                ReplyStatus replyStatus = Payload[0].AsReplyStatus();
-
-                if ((byte)replyStatus <= (byte)ReplyStatus.UserException)
+                if ((byte)istr.ReadReplyStatus() <= (byte)ReplyStatus.UserException)
                 {
                     hasEncapsulation = true;
                 }
@@ -218,7 +217,6 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(Protocol == Protocol.Ice2);
-                var istr = new InputStream(data, Protocol.GetEncoding());
                 int headerSize = istr.ReadSize();
                 int startPos = istr.Pos;
                 BinaryContext = istr.ReadBinaryContext();
@@ -230,30 +228,19 @@ namespace ZeroC.Ice
                 }
 
                 Payload = data.Slice(istr.Pos);
-
-                _ = Payload[0].AsResultType(); // just to check the value
+                _ = istr.ReadResultType(); // just to check the value
                 hasEncapsulation = true;
             }
 
-            // Read encapsulation header, in particular the payload encoding.
             if (hasEncapsulation)
             {
-                int size;
-                int sizeLength;
+                // Read encapsulation header, in particular the payload encoding.
 
-                (size, sizeLength, PayloadEncoding) =
-                    Payload.Slice(1).AsReadOnlySpan().ReadEncapsulationHeader(Protocol.GetEncoding());
-
-                if (Payload.Count - 1 != size + sizeLength)
-                {
-                    throw new InvalidDataException(
-                        @$"received {Protocol.GetName()} response frame with a {size
-                        } bytes encapsulation but expected {Payload.Count - 1 - sizeLength} bytes");
-                }
+                PayloadEncoding = istr.ReadEncapsulationHeader(checkFullBuffer: true).Encoding;
 
                 if (PayloadEncoding == Encoding.V20)
                 {
-                    PayloadCompressionFormat = Payload[1 + sizeLength + 2].AsCompressionFormat();
+                    PayloadCompressionFormat = istr.ReadCompressionFormat();
                 }
             }
         }

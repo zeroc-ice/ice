@@ -149,37 +149,6 @@ namespace ZeroC.Ice
         internal static ReadOnlySpan<T> AsReadOnlySpan<T>(this ArraySegment<T> segment, int start, int length) =>
             segment.AsSpan(start, length);
 
-        internal static (int Size, int SizeLength, Encoding Encoding) ReadEncapsulationHeader(
-            this ReadOnlySpan<byte> buffer,
-            Encoding encoding)
-        {
-            int sizeLength;
-            int size;
-
-            if (encoding == Encoding.V11)
-            {
-                sizeLength = 4;
-                size = buffer.ReadInt() - sizeLength; // Remove the size length which is included with the 1.1 encoding.
-                if (size < 0)
-                {
-                    throw new InvalidDataException(
-                        $"the 1.1 encapsulation's size ({size + sizeLength}) is too small");
-                }
-            }
-            else
-            {
-                (size, sizeLength) = buffer.ReadSize20();
-            }
-
-            if (sizeLength + size > buffer.Length)
-            {
-                throw new InvalidDataException(
-                    $"the encapsulation's size ({size}) extends beyond the end of the buffer");
-            }
-
-            return (size, sizeLength, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
-        }
-
         internal static int ReadInt(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(this ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
@@ -191,22 +160,6 @@ namespace ZeroC.Ice
         /// <returns>The string read from the buffer.</returns>
         internal static string ReadString(this ReadOnlySpan<byte> buffer) =>
             buffer.IsEmpty ? "" : _utf8.GetString(buffer);
-
-        private static (int Size, int SizeLength) ReadSize11(this ReadOnlySpan<byte> buffer)
-        {
-            byte b = buffer[0];
-            if (b < 255)
-            {
-                return (b, 1);
-            }
-
-            int size = buffer.Slice(1, 4).ReadInt();
-            if (size < 0)
-            {
-                throw new InvalidDataException($"read invalid size: {size}");
-            }
-            return (size, 5);
-        }
 
         internal static (int Size, int SizeLength) ReadSize20(this ReadOnlySpan<byte> buffer)
         {
@@ -226,19 +179,7 @@ namespace ZeroC.Ice
 
         internal static int ReadSizeLength20(this byte b) => b.ReadVarLongLength();
 
-        internal static (long Value, int ValueLength) ReadVarLong(this ReadOnlySpan<byte> buffer)
-        {
-            long value = (buffer[0] & 0x03) switch
-            {
-                0 => buffer[0] >> 2,
-                1 => BitConverter.ToInt16(buffer) >> 2,
-                2 => BitConverter.ToInt32(buffer) >> 2,
-                _ => BitConverter.ToInt64(buffer) >> 2
-            };
-
-            return (value, buffer[0].ReadVarLongLength());
-        }
-
+        // Applies to all var type: varlong, varulong etc.
         internal static int ReadVarLongLength(this byte b) => 1 << (b & 0x03);
 
         internal static (ulong Value, int ValueLength) ReadVarULong(this ReadOnlySpan<byte> buffer)
