@@ -21,6 +21,7 @@ namespace ZeroC.Ice
             lock (_mutex)
             {
                 _shutdownSemaphore ??= new SemaphoreSlim(1);
+                _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
             }
 
             // The first thread that acquires the semaphore is the one that calls Dispose on the adapters.
@@ -28,7 +29,7 @@ namespace ZeroC.Ice
 
             try
             {
-                // _adapters is immutable once _shutdownSemaphore is non-null.
+                // _adapters can only be changed by this thread once _shutdownSemaphore is non-null.
                 await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
             }
             finally
@@ -61,22 +62,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_shutdownSemaphore == null)
-                {
-                    _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
-                }
+                _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
             }
-
-            if (_waitForShutdownCompletionSource != null)
-            {
-                await _waitForShutdownCompletionSource.Task.ConfigureAwait(false);
-            }
-            else
-            {
-                // Wait for the shutdown to complete if shutdown has been initiated.
-                await _shutdownSemaphore.WaitAsync().ConfigureAwait(false);
-                _shutdownSemaphore.Release();
-            }
+            await _waitForShutdownCompletionSource.Task.ConfigureAwait(false);
         }
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be
