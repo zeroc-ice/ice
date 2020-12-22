@@ -11,36 +11,35 @@ namespace ZeroC.Ice
 {
     public sealed partial class Communicator
     {
-        /// <summary>Shuts down this communicator's server functionality. This triggers the deactivation of all
-        /// object adapters. After this method returns, no new requests are processed. However, requests that have
-        /// been started before ShutdownAsync was called might still be active until the returned task completes. You
-        /// can also await the task returned by <see cref="WaitForShutdownAsync"/> to wait for the completion of all
-        /// requests.</summary>
+        /// <summary>Shuts down this communicator's server functionality. This triggers the disposal of all object
+        /// adapters. After this method returns, no new requests are processed. However, requests that have been started
+        /// before ShutdownAsync was called might still be active until the returned task completes.</summary>
         public async Task ShutdownAsync()
         {
             lock (_mutex)
             {
-                _shutdownSemaphore ??= new SemaphoreSlim(1);
+                // _shutdownSemaphore != null means "shutdown in progress". Once shutdown is in progress, other methods
+                // cannot modify _adapters.
+                _shutdownSemaphore ??= new SemaphoreSlim(1, 1);
                 _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
             }
 
-            // The first thread that acquires the semaphore is the one that calls Dispose on the adapters.
+            // The first call that acquires the semaphore is the one that calls DisposeAsync on the adapters.
             await _shutdownSemaphore.WaitAsync().ConfigureAwait(false);
 
             try
             {
-                // _adapters can only be changed by this thread once _shutdownSemaphore is non-null.
+                // _adapters can only be changed by the first call that acquires the semaphore.
                 await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
             }
             finally
             {
-                // Prevent other threads that are waiting on the semaphore from calling Dispose again on the adapters.
+                // Prevent other calls that are waiting on the semaphore from calling DisposeAsync again on the
+                // adapters.
                 _adapters.Clear();
 
                 _shutdownSemaphore.Release();
-
-                // This must be called after releasing the semaphore since the continuation might run synchronously.
-                _waitForShutdownCompletionSource?.TrySetResult(null);
+                _waitForShutdownCompletionSource.TrySetResult(null);
             }
         }
 
@@ -52,12 +51,11 @@ namespace ZeroC.Ice
         /// application.</summary>
         public void WaitForShutdown() => WaitForShutdownAsync().GetAwaiter().GetResult();
 
-        /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
-        /// task returned by this operation completes once all executing operations have completed. On the client side,
-        /// the task simply completes once <see cref="ShutdownAsync"/> has been called. A typical use of this method is
-        /// to await the returned task from the main thread of a server, which will be completed once the shutdown
-        /// process completes, and then the caller can do some cleanup work before calling <see cref="Dispose"/> to
-        /// dispose the runtime and finally exists the application.</summary>
+        /// <summary>Returns a task that completes when the communicator is fully shut down: see
+        /// <see cref="ShutdownAsync"/>. A typical use of this method is to await the returned task from the main thread
+        /// of a server, and then perform some cleanup work before calling <see cref="DisposeAsync"/> on the
+        /// communicator. The application can make remote invocations using a communicator that is shut down but not
+        /// disposed.</summary>
         public async Task WaitForShutdownAsync()
         {
             lock (_mutex)
