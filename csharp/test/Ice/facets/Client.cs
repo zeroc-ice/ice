@@ -10,7 +10,8 @@ namespace ZeroC.Ice.Test.Facets
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            AllTests.Run(this).Shutdown();
+            IGPrx prx = await AllTests.RunAsync(this);
+            await prx.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

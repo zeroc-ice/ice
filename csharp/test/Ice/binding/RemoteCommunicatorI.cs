@@ -1,15 +1,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Threading;
+using System.Threading.Tasks;
 using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Binding
 {
-    public class RemoteCommunicator : IRemoteCommunicator
+    public class RemoteCommunicator : IAsyncRemoteCommunicator
     {
         private int _nextPort = 10;
 
-        public IRemoteObjectAdapterPrx CreateObjectAdapter(
+        public async ValueTask<IRemoteObjectAdapterPrx> CreateObjectAdapterAsync(
             string name,
             string transport,
             Current current,
@@ -29,8 +30,10 @@ namespace ZeroC.Ice.Test.Binding
                         current.Communicator.SetProperty($"{name}.AcceptNonSecure", "Always");
                     }
                     ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
-                    return current.Adapter.AddWithUUID(
-                        new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
+                    await adapter.ActivateAsync(cancel);
+
+                    return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter),
+                                                       IRemoteObjectAdapterPrx.Factory);
                 }
                 catch (TransportException)
                 {
@@ -42,24 +45,29 @@ namespace ZeroC.Ice.Test.Binding
             }
         }
 
-        public IRemoteObjectAdapterPrx CreateObjectAdapterWithEndpoints(
+        public async ValueTask<IRemoteObjectAdapterPrx> CreateObjectAdapterWithEndpointsAsync(
             string name,
             string endpoints,
             Current current,
             CancellationToken cancel)
         {
             ObjectAdapter adapter = current.Communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
+            await adapter.ActivateAsync(cancel);
+
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
-        // Collocated call.
-        public void DeactivateObjectAdapter(
-            IRemoteObjectAdapterPrx? adapter,
+        // Colocated call.
+        public ValueTask DeactivateObjectAdapterAsync(
+            IRemoteObjectAdapterPrx adapter,
             Current current,
             CancellationToken cancel) =>
-            adapter!.Deactivate(cancel: cancel);
+            new(adapter.DeactivateAsync(cancel: cancel));
 
-        public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Communicator.ShutdownAsync();
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
+        {
+            _ = current.Communicator.ShutdownAsync(); // only initiate shutdown
+            return default;
+        }
     }
 }

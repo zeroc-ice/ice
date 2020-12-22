@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
 
@@ -9,7 +10,7 @@ namespace ZeroC.IceGrid.Test.Simple
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -75,7 +76,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     TestHelper.Assert(iceGridLocator.GetLocalQuery() != null);
 
                     ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                    adapter.Activate();
+                    await adapter.ActivateAsync();
                 }
                 // Now, ensure that locator discovery correctly handles failure to find a locator.
                 {
@@ -113,8 +114,8 @@ namespace ZeroC.IceGrid.Test.Simple
                     {
                     }
 
-                    using ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                    adapter.Activate();
+                    await using ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
+                    await adapter.ActivateAsync();
                 }
 
                 string multicast;

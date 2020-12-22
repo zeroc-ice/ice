@@ -2,13 +2,14 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Facets
 {
     public static class AllTests
     {
-        public static IGPrx Run(TestHelper helper)
+        public static async Task<IGPrx> RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -55,7 +56,7 @@ namespace ZeroC.Ice.Test.Facets
             adapter.Remove("d#facetABCD"); // multiple Remove are fine as of Ice 4.0
             output.WriteLine("ok");
 
-            adapter.Dispose();
+            await adapter.DisposeAsync();
 
             var prx = IObjectPrx.Parse(helper.GetTestProxy("d", 0), communicator);
             IDPrx? d;

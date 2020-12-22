@@ -51,7 +51,7 @@ namespace ZeroC.Ice.Test.Timeout
 
             ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
-            controllerAdapter.Activate();
+            await controllerAdapter.ActivateAsync();
 
             ServerReady();
             await communicator.WaitForShutdownAsync();

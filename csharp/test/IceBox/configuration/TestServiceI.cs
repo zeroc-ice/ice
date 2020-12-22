@@ -10,7 +10,7 @@ namespace ZeroC.IceBox.Test.Configuration
         {
             ObjectAdapter adapter = communicator.CreateObjectAdapter(name + "OA");
             adapter.Add("test", new TestIntf(args));
-            adapter.Activate();
+            adapter.ActivateAsync().GetAwaiter().GetResult(); // TODO: temporary
         }
 
         public void Stop()

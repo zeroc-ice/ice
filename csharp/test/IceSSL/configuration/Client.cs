@@ -21,7 +21,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
 
             IServerFactoryPrx factory;
-            factory = AllTests.Run(this, args[0]);
+            factory = await AllTests.RunAsync(this, args[0]);
             await factory.ShutdownAsync();
         }
 

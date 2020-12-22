@@ -182,7 +182,7 @@ namespace ZeroC.Glacier2.Test.Router
                 Console.Out.Flush();
                 communicator.SetProperty("Ice.PrintAdapterReady", "0");
                 adapter = communicator.CreateObjectAdapterWithRouter("CallbackReceiverAdapter", router);
-                adapter.Activate();
+                await adapter.ActivateAsync();
                 Console.Out.WriteLine("ok");
             }
 

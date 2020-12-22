@@ -2,10 +2,11 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Binding
 {
-    public class RemoteObjectAdapter : IRemoteObjectAdapter
+    public class RemoteObjectAdapter : IAsyncRemoteObjectAdapter
     {
         private readonly ObjectAdapter _adapter;
         private readonly ITestIntfPrx _testIntf;
@@ -14,20 +15,11 @@ namespace ZeroC.Ice.Test.Binding
         {
             _adapter = adapter;
             _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
-            _adapter.Activate();
         }
 
-        public ITestIntfPrx GetTestIntf(Current current, CancellationToken cancel) => _testIntf;
+        public ValueTask<ITestIntfPrx> GetTestIntfAsync(Current current, CancellationToken cancel) =>
+            new(_testIntf);
 
-        public void Deactivate(Current current, CancellationToken cancel)
-        {
-            try
-            {
-                _adapter.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
-        }
+        public ValueTask DeactivateAsync(Current current, CancellationToken cancel) => _adapter.DisposeAsync();
     }
 }
