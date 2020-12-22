@@ -39,6 +39,9 @@ namespace ZeroC.Ice
                 _adapters.Clear();
 
                 _shutdownSemaphore.Release();
+
+                // This must be called after releasing the semaphore since the continuation can run synchronously and
+                // (try to) acquire the semaphore.
                 _waitForShutdownCompletionSource.TrySetResult(null);
             }
         }
