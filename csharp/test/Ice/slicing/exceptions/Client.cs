@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            ITestIntfPrx test = AllTests.Run(this);
+            ITestIntfPrx test = await AllTests.RunAsync(this);
             await test.ShutdownAsync();
         }
 

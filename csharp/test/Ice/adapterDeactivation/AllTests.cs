@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public static class AllTests
     {
-        public static Task RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator;
 
@@ -25,7 +25,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 output.Write("creating/destroying/recreating object adapter... ");
                 output.Flush();
                 {
-                    using var adapter = communicator.CreateObjectAdapterWithEndpoints(
+                    await using var adapter = communicator.CreateObjectAdapterWithEndpoints(
                         "TransientTestAdapter",
                         helper.GetTestEndpoint(1));
                     try
@@ -41,7 +41,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 
                 // Use a different port than the first adapter to avoid an "address already in use" error.
                 {
-                    using var adapter = communicator.CreateObjectAdapterWithEndpoints(
+                    await using var adapter = communicator.CreateObjectAdapterWithEndpoints(
                         "TransientTestAdapter",
                         helper.GetTestEndpoint(2));
                 }
@@ -60,7 +60,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 for (int i = 0; i < 10; ++i)
                 {
                     using var comm = new Communicator(communicator.GetProperties());
-                    IObjectPrx.Parse(helper.GetTestProxy("test", 0), communicator).IcePingAsync();
+                    _ = IObjectPrx.Parse(helper.GetTestProxy("test", 0), communicator).IcePingAsync();
                 }
                 output.WriteLine("ok");
             }
@@ -108,7 +108,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                         "DAdapter.Endpoints",
                         ice1 ? "tcp -h \"::0\" -p 0" : "ice+tcp://[::0]:0");
 
-                    using var adapter = communicator.CreateObjectAdapter("DAdapter");
+                    await using var adapter = communicator.CreateObjectAdapter("DAdapter");
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
                     Endpoint publishedEndpoint = adapter.PublishedEndpoints[0];
                     TestHelper.Assert(publishedEndpoint.Host == testHost);
@@ -119,7 +119,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                         ice1 ? $"{helper.GetTestEndpoint(1)}:{helper.GetTestEndpoint(2)}" :
                             $"{helper.GetTestEndpoint(1)}?alt-endpoint={helper.GetTestEndpoint(2)}");
 
-                    using var adapter = communicator.CreateObjectAdapter("DAdapter");
+                    await using var adapter = communicator.CreateObjectAdapter("DAdapter");
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 2);
                     Endpoint publishedEndpoint0 = adapter.PublishedEndpoints[0];
                     TestHelper.Assert(publishedEndpoint0.Host == testHost);
@@ -136,7 +136,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             {
                 communicator.SetProperty("PAdapter.PublishedEndpoints",
                     ice1 ? "tcp -h localhost -p 12345 -t 30000" : "ice+tcp://localhost:12345");
-                using var adapter = communicator.CreateObjectAdapter("PAdapter");
+                await using var adapter = communicator.CreateObjectAdapter("PAdapter");
                 TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
                 Endpoint? endpt = adapter.PublishedEndpoints[0];
                 TestHelper.Assert(endpt != null);
@@ -159,7 +159,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 ObjectAdapter adapter = communicator.CreateObjectAdapter();
                 connection.Adapter = adapter;
                 connection.Adapter = null;
-                adapter.Dispose();
+                await adapter.DisposeAsync();
                 // Setting a deactivated adapter on a connection no longer raise ObjectAdapterDeactivatedException
                 connection.Adapter = adapter;
                 output.WriteLine("ok");
@@ -172,8 +172,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 var routerId = new Identity("router", "");
                 IRouterPrx router = obj.Clone(IRouterPrx.Factory, label: "rc", identity: routerId);
                 {
-                    using var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    adapter.Activate();
+                    await using var adapter = communicator.CreateObjectAdapterWithRouter(router);
+                    await adapter.ActivateAsync();
                     TestHelper.Assert(adapter.PublishedEndpoints.Count == 1);
                     string endpointsStr = adapter.PublishedEndpoints[0].ToString();
                     TestHelper.Assert(endpointsStr == "tcp -h localhost -p 23456 -t 60000");
@@ -183,8 +183,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 {
                     routerId = new Identity("test", "");
                     router = obj.Clone(IRouterPrx.Factory, identity: routerId);
-                    using var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    adapter.Activate();
+                    await using var adapter = communicator.CreateObjectAdapterWithRouter(router);
+                    await adapter.ActivateAsync();
                     TestHelper.Assert(false);
                 }
                 catch (OperationNotExistException)
@@ -195,8 +195,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 try
                 {
                     router = IRouterPrx.Parse(helper.GetTestProxy("test", 1), communicator);
-                    using var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    adapter.Activate();
+                    await using var adapter = communicator.CreateObjectAdapterWithRouter(router);
+                    await adapter.ActivateAsync();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectFailedException)
@@ -207,7 +207,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             {
                 try
                 {
-                    using var adapter = communicator.CreateObjectAdapterWithRouter(
+                    await using var adapter = communicator.CreateObjectAdapterWithRouter(
                         obj.Clone(IRouterPrx.Factory, label: "rc", identity: new Identity("router", "")));
 
                     TestHelper.Assert(false);
@@ -222,8 +222,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Write("testing object adapter creation with port in use... ");
             output.Flush();
             {
-                using var adapter1 = communicator.CreateObjectAdapterWithEndpoints("Adpt1",
-                                                                                   helper.GetTestEndpoint(10));
+                await using var adapter1 = communicator.CreateObjectAdapterWithEndpoints("Adpt1",
+                                                                                         helper.GetTestEndpoint(10));
                 try
                 {
                     communicator.CreateObjectAdapterWithEndpoints("Adpt2", helper.GetTestEndpoint(10));
@@ -252,7 +252,6 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             {
                 output.WriteLine("ok");
             }
-            return Task.CompletedTask;
         }
     }
 }

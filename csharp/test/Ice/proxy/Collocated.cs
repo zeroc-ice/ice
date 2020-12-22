@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Proxy
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClass());
             // Don't activate OA to ensure collocation is used.
-            AllTests.Run(this);
+            await AllTests.RunAsync(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.UDP
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.SndSize"] = "16K";
             await using Communicator communicator = Initialize(properties);
-            AllTests.Run(this);
+            await AllTests.RunAsync(this);
 
             int num;
             try

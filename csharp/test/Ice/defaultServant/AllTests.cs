@@ -2,13 +2,14 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.DefaultServant
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             TextWriter output = helper.Output;
             Communicator? communicator = helper.Communicator;
@@ -16,7 +17,7 @@ namespace ZeroC.Ice.Test.DefaultServant
 
             ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA",
                 helper.GetTestEndpoint(ephemeral: true));
-            oa.Activate();
+            await oa.ActivateAsync();
 
             output.Write("testing single category... ");
             output.Flush();

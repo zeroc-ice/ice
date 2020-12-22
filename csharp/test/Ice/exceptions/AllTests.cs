@@ -2,13 +2,14 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
     public static class AllTests
     {
-        public static IThrowerPrx Run(TestHelper helper)
+        public static async Task<IThrowerPrx> RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -52,14 +53,14 @@ namespace ZeroC.Ice.Test.Exceptions
                 {
                     // Expected
                 }
-                first.Dispose();
+                await first.DisposeAsync();
                 output.WriteLine("ok");
             }
 
             {
                 output.Write("testing servant registration exceptions... ");
                 communicator.SetProperty("TestAdapter1.Endpoints", helper.GetTestEndpoint(ephemeral: true));
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter1");
+                await using ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter1");
                 var obj = new Empty();
                 adapter.Add("x", obj);
                 try
@@ -82,7 +83,6 @@ namespace ZeroC.Ice.Test.Exceptions
 
                 adapter.Remove("x");
                 adapter.Remove("x"); // as of Ice 4.0, Remove succeeds with multiple removals
-                adapter.Dispose();
                 output.WriteLine("ok");
             }
 

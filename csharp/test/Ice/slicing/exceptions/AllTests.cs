@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
@@ -34,7 +35,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 throw new ClientPrivateException("ClientPrivate");
         }
 
-        public static ITestIntfPrx Run(TestHelper helper)
+        public static async Task<ITestIntfPrx> RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -767,9 +768,9 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     TestHelper.Assert(slices[0].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved2"));
                 }
 
-                ObjectAdapter adapter = communicator.CreateObjectAdapter(protocol: helper.Protocol);
+                await using var adapter = communicator.CreateObjectAdapter(protocol: helper.Protocol);
                 IRelayPrx relay = adapter.AddWithUUID(new Relay(), IRelayPrx.Factory);
-                adapter.Activate();
+                await adapter.ActivateAsync();
                 testPrx.GetConnection().Adapter = adapter;
 
                 try
@@ -871,8 +872,6 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 {
                     TestHelper.Assert(false);
                 }
-
-                adapter.Dispose();
             }
             output.WriteLine("ok");
 

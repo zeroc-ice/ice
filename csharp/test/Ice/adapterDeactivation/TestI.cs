@@ -6,24 +6,24 @@ using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.AdapterDeactivation
 {
-    public sealed class TestIntf : ITestIntf
+    public sealed class TestIntf : IAsyncTestIntf
     {
-        public void Transient(Current current, CancellationToken cancel)
+        public async ValueTask TransientAsync(Current current, CancellationToken cancel)
         {
             bool ice1 = TestHelper.GetTestProtocol(current.Communicator.GetProperties()) == Protocol.Ice1;
             var transport = TestHelper.GetTestTransport(current.Communicator.GetProperties());
             var endpoint = ice1 ? $"{transport} -h \"::0\"" : $"ice+{transport}://[::0]:0";
 
-            using ObjectAdapter adapter =
+            await using ObjectAdapter adapter =
                 current.Communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", endpoint);
-            adapter.Activate();
+            await adapter.ActivateAsync(cancel);
         }
 
-        public void Deactivate(Current current, CancellationToken cancel)
+        public async ValueTask DeactivateAsync(Current current, CancellationToken cancel)
         {
             _ = current.Adapter.DisposeAsync().AsTask();
-            Thread.Sleep(100);
-            Task.Delay(100, cancel).ContinueWith(t => current.Communicator.ShutdownAsync(), TaskScheduler.Current);
+            await Task.Delay(100, cancel);
+            _ = current.Communicator.ShutdownAsync();
         }
     }
 }

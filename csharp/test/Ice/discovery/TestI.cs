@@ -2,15 +2,16 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Discovery
 {
-    public sealed class Controller : IController
+    public sealed class Controller : IAsyncController
     {
         private readonly Dictionary<string, ObjectAdapter> _adapters = new();
 
-        public void ActivateObjectAdapter(
+        public async ValueTask ActivateObjectAdapterAsync(
             string name,
             string adapterId,
             string replicaGroupId,
@@ -29,29 +30,42 @@ namespace ZeroC.Ice.Test.Discovery
             communicator.SetProperty($"{name}.ServerName", "localhost");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
-            oa.Activate();
+            await oa.ActivateAsync(cancel);
         }
 
-        public void DeactivateObjectAdapter(string name, Current current, CancellationToken cancel)
+        public async ValueTask DeactivateObjectAdapterAsync(string name, Current current, CancellationToken cancel)
         {
-            _adapters[name].Dispose();
+            await _adapters[name].DisposeAsync();
             _adapters.Remove(name);
         }
 
-        public void AddObject(string oaName, string identityAndFacet, Current current, CancellationToken cancel)
+        public ValueTask AddObjectAsync(
+            string oaName,
+            string identityAndFacet,
+            Current current,
+            CancellationToken cancel)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
             _adapters[oaName].Add(identityAndFacet, new TestIntf());
+            return default;
         }
 
-        public void RemoveObject(string oaName, string identityAndFacet, Current current, CancellationToken cancel)
+        public ValueTask RemoveObjectAsync(
+            string oaName,
+            string identityAndFacet,
+            Current current,
+            CancellationToken cancel)
         {
             TestHelper.Assert(_adapters.ContainsKey(oaName));
             _adapters[oaName].Remove(identityAndFacet);
+            return default;
         }
 
-        public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Communicator.ShutdownAsync();
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
+        {
+            _ = current.Communicator.ShutdownAsync();
+            return default;
+        }
     }
 
     public sealed class TestIntf : ITestIntf

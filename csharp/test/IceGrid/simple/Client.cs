@@ -18,7 +18,7 @@ namespace ZeroC.IceGrid.Test.Simple
             }
             else
             {
-                AllTests.Run(this);
+                await AllTests.RunAsync(this);
             }
         }
 
