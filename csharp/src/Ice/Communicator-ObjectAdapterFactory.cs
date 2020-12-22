@@ -20,23 +20,27 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                _shutdownTask ??= PerformShutdownAsync(new List<ObjectAdapter>(_adapters));
+                _shutdownSemaphore ??= new SemaphoreSlim(1);
+                _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
             }
-            await _shutdownTask.ConfigureAwait(false);
 
-            async Task PerformShutdownAsync(List<ObjectAdapter> adapters)
+            // The first thread that acquires the semaphore is the one that calls Dispose on the adapters.
+            await _shutdownSemaphore.WaitAsync().ConfigureAwait(false);
+
+            try
             {
-                try
-                {
-                    // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
-                    await Task.WhenAll(
-                        adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
-                }
-                finally
-                {
-                    // Don't call SetResult directly to avoid continuations running synchronously
-                    _ = Task.Run(() => _waitForShutdownCompletionSource?.SetResult(null));
-                }
+                // _adapters can only be changed by this thread once _shutdownSemaphore is non-null.
+                await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
+            }
+            finally
+            {
+                // Prevent other threads that are waiting on the semaphore from calling Dispose again on the adapters.
+                _adapters.Clear();
+
+                _shutdownSemaphore.Release();
+
+                // This must be called after releasing the semaphore since the continuation might run synchronously.
+                _waitForShutdownCompletionSource?.TrySetResult(null);
             }
         }
 
@@ -56,20 +60,11 @@ namespace ZeroC.Ice
         /// dispose the runtime and finally exists the application.</summary>
         public async Task WaitForShutdownAsync()
         {
-            Task shutdownTask;
             lock (_mutex)
             {
-                if (_shutdownTask == null)
-                {
-                    _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
-                    shutdownTask = _waitForShutdownCompletionSource.Task;
-                }
-                else
-                {
-                    shutdownTask = _shutdownTask;
-                }
+                _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
             }
-            await shutdownTask.ConfigureAwait(false);
+            await _waitForShutdownCompletionSource.Task.ConfigureAwait(false);
         }
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be
@@ -90,6 +85,11 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
+                if (_shutdownSemaphore != null)
+                {
+                    throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
+                }
+
                 var adapter = new ObjectAdapter(this, serializeDispatch, taskScheduler, protocol);
                 _adapters.Add(adapter);
                 return adapter;
@@ -228,10 +228,13 @@ namespace ZeroC.Ice
             // Called by the object adapter to remove itself once destroyed.
             lock (_mutex)
             {
-                _adapters.Remove(adapter);
-                if (adapter.Name.Length > 0)
+                if (_shutdownSemaphore == null)
                 {
-                    _adapterNamesInUse.Remove(adapter.Name);
+                    _adapters.Remove(adapter);
+                    if (adapter.Name.Length > 0)
+                    {
+                        _adapterNamesInUse.Remove(adapter.Name);
+                    }
                 }
                 // TODO clear outgoging connections adapter?
             }
@@ -253,6 +256,10 @@ namespace ZeroC.Ice
                 if (IsDisposed)
                 {
                     throw new CommunicatorDisposedException();
+                }
+                if (_shutdownSemaphore != null)
+                {
+                    throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
                 }
 
                 if (!_adapterNamesInUse.Add(name))
