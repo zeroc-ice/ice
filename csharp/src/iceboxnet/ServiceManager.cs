@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -50,11 +51,7 @@ namespace ZeroC.IceBox
         {
             lock (_mutex)
             {
-                try
-                {
-                    _observers.Add(observer);
-                }
-                catch (ArgumentException)
+                if (!_observers.Add(observer))
                 {
                     return default; // ignore duplicates.
                 }
@@ -131,7 +128,7 @@ namespace ZeroC.IceBox
                 await info.StopServiceAsync();
 
                 // We notify the observers even if this call did not actually stop the service.
-                ServicesStopped(new string[] { name });
+                ServiceStopped(name);
             }
             catch (Exception ex)
             {
@@ -371,10 +368,9 @@ namespace ZeroC.IceBox
             }
         }
 
-        private void ServiceStarted(string service)
+        private void ServiceStarted(string name)
         {
-            string[] services = new string[] { service };
-
+            var services = ImmutableList.Create(name);
             IServiceObserverPrx[] observers;
             lock (_mutex)
             {
@@ -385,7 +381,7 @@ namespace ZeroC.IceBox
                 _ = StartedAsync(observer, services);
             }
 
-            async Task StartedAsync(IServiceObserverPrx observer, string[] services)
+            async Task StartedAsync(IServiceObserverPrx observer, IEnumerable<string> services)
             {
                 try
                 {
@@ -398,9 +394,11 @@ namespace ZeroC.IceBox
             }
         }
 
-        private void ServicesStopped(ICollection<string> services)
+        private void ServiceStopped(string name) => ServicesStopped(ImmutableList.Create(name));
+
+        private void ServicesStopped(IEnumerable<string> services)
         {
-            if (services.Count > 0)
+            if (services.Any())
             {
                 IServiceObserverPrx[] observers;
                 lock (_mutex)
@@ -783,12 +781,21 @@ namespace ZeroC.IceBox
 
                     if (waitTask != null)
                     {
-                        await waitTask.Value.WaitAsync(cancel);
+                        try
+                        {
+                            await waitTask.Value.WaitAsync(cancel);
+                        }
+                        catch
+                        {
+                            // If the await failed because this cancel was canceled, we want to throw, else we ignore
+                            // the exception and loop back.
+                            cancel.ThrowIfCancellationRequested();
+                        }
                     }
                 }
                 while (performTask == null);
 
-                await performTask.Value;
+                await performTask.Value.WaitAsync(cancel);
             }
 
             internal async Task StopServiceAsync()
@@ -852,7 +859,14 @@ namespace ZeroC.IceBox
 
                     if (waitTask != null)
                     {
-                        await waitTask.Value;
+                        try
+                        {
+                            await waitTask.Value;
+                        }
+                        catch
+                        {
+                            // ignore exception
+                        }
                     }
                 }
                 while (performTask == null);

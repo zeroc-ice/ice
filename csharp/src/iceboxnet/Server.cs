@@ -25,7 +25,6 @@ namespace ZeroC.IceBox
                 };
 
                 // RunAsync will activate the communicator.
-
                 return await RunAsync(communicator, args, cancellationSource.Token);
             }
             catch (Exception ex)

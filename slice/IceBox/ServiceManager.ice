@@ -37,7 +37,7 @@ module IceBox
     {
     }
 
-    /// This is exception is thrown when a service fails to start or stop.
+    /// This exception is thrown when a service fails to start or stop.
     exception ServiceException
     {
     }
