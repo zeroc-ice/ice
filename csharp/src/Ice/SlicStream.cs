@@ -191,7 +191,7 @@ namespace ZeroC.Ice
             }
 
             // Ensure to run the continuation asynchronously in case the continuation ends up calling user-code.
-            SignalCompletion((size, fin), runContinuationAsynchronously: true);
+            SignalCompletion((size, fin));
         }
 
         internal override void ReceivedReset(long errorCode)

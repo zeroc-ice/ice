@@ -56,12 +56,8 @@ namespace ZeroC.Ice
                 {
                     _socket.LastResponseStreamId = Id;
                 }
-                SignalCompletion((frameType, frame), runContinuationAsynchronously: true);
             }
-            else
-            {
-                SignalCompletion((frameType, frame), runContinuationAsynchronously: false);
-            }
+            SignalCompletion((frameType, frame));
         }
 
         private protected override async ValueTask<ArraySegment<byte>> ReceiveFrameAsync(

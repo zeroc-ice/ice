@@ -104,7 +104,7 @@ namespace ZeroC.Ice
             // code which could end up blocking the AcceptStreamAsync task.
             if (!IsSignaled)
             {
-                SignalCompletion((frame, fin), runContinuationAsynchronously: frame is IncomingResponseFrame);
+                SignalCompletion((frame, fin));
             }
         }
 
