@@ -104,8 +104,9 @@ namespace ZeroC.IceBox
             {
                 await info.StartServiceAsync(_sharedCommunicator, cancel);
 
-                // We call ServiceStarted even if this call does not start the service - this is a way to refresh
-                // the status of this service in the observers.
+                // We call ServiceStarted even if this call does not start the service (for example because the service
+                // was already started, or was started by a concurrent call). This way, we refresh the status of this
+                // service in the observers.
                 ServiceStarted(name);
             }
             catch (Exception ex)
@@ -127,7 +128,8 @@ namespace ZeroC.IceBox
             {
                 await info.StopServiceAsync();
 
-                // We notify the observers even if this call did not actually stop the service.
+                // We notify the observers even if this call did not actually stop the service because it was already
+                // stopped.
                 ServiceStopped(name);
             }
             catch (Exception ex)
@@ -396,9 +398,9 @@ namespace ZeroC.IceBox
 
         private void ServiceStopped(string name) => ServicesStopped(ImmutableList.Create(name));
 
-        private void ServicesStopped(IEnumerable<string> services)
+        private void ServicesStopped(ICollection<string> services)
         {
-            if (services.Any())
+            if (services.Count > 0)
             {
                 IServiceObserverPrx[] observers;
                 lock (_mutex)
