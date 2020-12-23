@@ -135,7 +135,7 @@ namespace ZeroC.Ice
                 bool expired = CheckExpired(endpointsAge, reference.LocatorCacheTimeout);
                 if (endpoints.Count == 0 ||
                     (!_background && expired) ||
-                    endpointsAge > endpointsMaxAge ||
+                    endpointsAge >= endpointsMaxAge ||
                     (reference.IsWellKnown && locationAge <= endpointsAge))
                 {
                     try
