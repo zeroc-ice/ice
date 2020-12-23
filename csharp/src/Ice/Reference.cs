@@ -1419,7 +1419,7 @@ namespace ZeroC.Ice
                 Communicator.CancellationToken);
             cancel = linkedCancellationSource.Token;
             TimeSpan endpointsAge = TimeSpan.Zero;
-            TimeSpan endpointsMaxAge = Timeout.InfiniteTimeSpan;
+            TimeSpan endpointsMaxAge = TimeSpan.MaxValue;
             List<Endpoint>? endpoints = null;
             if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
             {
@@ -1432,11 +1432,12 @@ namespace ZeroC.Ice
                 }
             }
 
-            while (connection == null && endpointsMaxAge == Timeout.InfiniteTimeSpan)
+            while (connection == null)
             {
                 if (endpoints == null)
                 {
-                    (endpoints, endpointsAge) = await ComputeEndpointsAsync(endpointsMaxAge, cancel).ConfigureAwait(false);
+                    (endpoints, endpointsAge) = await ComputeEndpointsAsync(endpointsMaxAge,
+                                                                            cancel).ConfigureAwait(false);
                 }
 
                 Endpoint last = endpoints[^1];
@@ -1459,9 +1460,11 @@ namespace ZeroC.Ice
                         // Ignore the exception unless this is the last endpoint.
                         if (ReferenceEquals(endpoint, last))
                         {
-                            if (IsIndirect && endpointsAge != TimeSpan.Zero)
+                            if (IsIndirect && endpointsMaxAge == TimeSpan.MaxValue)
                             {
                                 endpointsMaxAge = endpointsAge;
+                                endpoints = null;
+                                break;
                             }
                             else
                             {
@@ -1756,7 +1759,7 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             Connection? connection = _connection;
-            TimeSpan endpointsMaxAge = Timeout.InfiniteTimeSpan;
+            TimeSpan endpointsMaxAge = TimeSpan.MaxValue;
             TimeSpan endpointsAge = TimeSpan.Zero;
             List<Endpoint>? endpoints = null;
 
