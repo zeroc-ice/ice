@@ -1,5 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
+using System.Threading.Tasks;
+
 using ZeroC.Ice;
 
 namespace ZeroC.IceBox.Test.Admin
@@ -21,12 +24,9 @@ namespace ZeroC.IceBox.Test.Admin
             }
         }
 
-        public void Start(string name, Communicator communicator, string[] args)
-        {
-        }
+        public Task StartAsync(string name, Communicator communicator, string[] args, CancellationToken cancel) =>
+            Task.CompletedTask;
 
-        public void Stop()
-        {
-        }
+        public Task StopAsync() => Task.CompletedTask;
     }
 }
