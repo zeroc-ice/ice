@@ -1853,7 +1853,12 @@ IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallback
         //
         keyType->unmarshal(is, keyCB, Qnil, 0, false);
         assert(!NIL_P(keyCB->key));
-
+        if (valueType->usesClasses())
+        {
+            // Temporarily set the entry with a Qnil value to ensure the key is not GC
+            // while unmarshaling a value class
+            callRuby(rb_hash_aset, hash, keyCB->key, Qnil);
+        }
         //
         // The callback will set the dictionary entry with the unmarshaled value,
         // so we pass it the key.
