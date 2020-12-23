@@ -105,7 +105,11 @@ namespace ZeroC.IceBox
 
             try
             {
-                await info.StartServiceAsync(this, _sharedCommunicator, cancel);
+                await info.StartServiceAsync(_sharedCommunicator, cancel);
+
+                // We call ServiceStarted even if this call does not start the service - this is a way to refresh
+                // the status of this service in the observers.
+                ServiceStarted(name);
             }
             catch (Exception ex)
             {
@@ -124,7 +128,10 @@ namespace ZeroC.IceBox
 
             try
             {
-                await info.StopServiceAsync(this, notifyObservers: true);
+                await info.StopServiceAsync();
+
+                // We notify the observers even if this call did not actually stop the service.
+                ServicesStopped(new string[] { name });
             }
             catch (Exception ex)
             {
@@ -153,8 +160,9 @@ namespace ZeroC.IceBox
                         "IceBox.ServiceManager: configuration must include at least one IceBox service");
                 }
 
-                string[] loadOrder = (_communicator.GetPropertyAsList("IceBox.LoadOrder") ?? Array.Empty<string>()).Where(
-                    s => s.Length > 0).ToArray();
+                string[] loadOrder =
+                    (_communicator.GetPropertyAsList("IceBox.LoadOrder") ?? Array.Empty<string>()).Where(
+                        s => s.Length > 0).ToArray();
                 var servicesInfo = new List<StartServiceInfo>();
                 foreach (string name in loadOrder)
                 {
@@ -620,7 +628,7 @@ namespace ZeroC.IceBox
             {
                 try
                 {
-                    await info.StopServiceAsync(this, notifyObservers: false);
+                    await info.StopServiceAsync();
                     stoppedServices.Add(info.Name);
                 }
                 catch (Exception ex)
@@ -704,10 +712,7 @@ namespace ZeroC.IceBox
                 _startTask = new(Task.CompletedTask); // ServiceInfo is created after the initial successful start
             }
 
-            internal async Task StartServiceAsync(
-                ServiceManager serviceManager,
-                Communicator? sharedCommunicator,
-                CancellationToken cancel)
+            internal async Task StartServiceAsync(Communicator? sharedCommunicator, CancellationToken cancel)
             {
                 // We use lazy tasks to avoid calling Service.StartAsync and Service.StopAsync with _mutex locked
                 // because StartAsync/StopAsync can potentially acquire synchronously other mutexes and create an
@@ -740,7 +745,7 @@ namespace ZeroC.IceBox
                             {
                                 waitTask = stopTask; // we need to wait until this task is complete
                             }
-                            // else stopTask completed successfully and we replace it by a new startTask below.
+                            // else stopTask completed successfully and we replace it with a new startTask below.
                         }
                         else if (_startTask is Lazy<Task> startTask)
                         {
@@ -766,16 +771,11 @@ namespace ZeroC.IceBox
                             // StartAsync throws an exception synchronously.
                             // Note that StartAsync is not executed immediately with _mutex locked.
                             _startTask = new(
-                                    async () =>
-                                    {
-                                        await _service.StartAsync(
-                                            Name,
-                                            Communicator ?? sharedCommunicator!,
-                                            _args,
-                                            cancel).ConfigureAwait(false);
-
-                                        serviceManager.ServiceStarted(Name);
-                                    });
+                                    async () => await _service.StartAsync(
+                                                    Name,
+                                                    Communicator ?? sharedCommunicator!,
+                                                    _args,
+                                                    cancel).ConfigureAwait(false));
 
                             performTask = _startTask;
                         }
@@ -791,7 +791,7 @@ namespace ZeroC.IceBox
                 await performTask.Value;
             }
 
-            internal async Task StopServiceAsync(ServiceManager serviceManager, bool notifyObservers)
+            internal async Task StopServiceAsync()
             {
                 Lazy<Task>? performTask = null;
 
@@ -830,7 +830,7 @@ namespace ZeroC.IceBox
                             {
                                 waitTask = startTask; // we need to wait until this task is complete
                             }
-                            // else, startTask completed successfully and we replace it by a stopTask below.
+                            // else, startTask completed successfully and we replace it with a stopTask below.
                         }
                         else
                         {
@@ -841,16 +841,11 @@ namespace ZeroC.IceBox
                         if (waitTask == null && performTask == null)
                         {
                             _startTask = null;
-                            _stopTask = new(
-                                async () =>
-                                {
-                                    await _service.StopAsync();
-                                    if (notifyObservers)
-                                    {
-                                        serviceManager.ServicesStopped(new string[] { Name });
-                                    }
-                                });
 
+                            // The async/await ensures we get a Task (i.e. successful lazy initialization) even if
+                            // StopAsync throws an exception synchronously.
+                            // Note that StopAsync is not executed immediately with _mutex locked.
+                            _stopTask = new(async () => await _service.StopAsync());
                             performTask = _stopTask;
                         }
                     }

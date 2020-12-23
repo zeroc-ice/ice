@@ -33,7 +33,7 @@ namespace ZeroC.Ice.Test.Binding
             }
         }
 
-        public static Task RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator;
             bool ice1 = helper.Protocol == Protocol.Ice1;
@@ -340,7 +340,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter82"));
-                        obj.GetConnection().GoAwayAsync();
+                        _ = obj.GetConnection().GoAwayAsync();
                     }
 
                     ITestIntfPrx testNonSecure = obj.Clone(preferNonSecure: NonSecure.Always);
@@ -354,7 +354,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter81"));
-                        obj.GetConnection().GoAwayAsync();
+                        _ = obj.GetConnection().GoAwayAsync();
                     }
 
                     // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
@@ -365,7 +365,7 @@ namespace ZeroC.Ice.Test.Binding
                         for (int i = 0; i < 5; i++)
                         {
                             TestHelper.Assert(obj.GetAdapterName().Equals("Adapter83"));
-                            obj.GetConnection().GoAwayAsync();
+                            _ = obj.GetConnection().GoAwayAsync();
                         }
                     }
 
@@ -465,7 +465,7 @@ namespace ZeroC.Ice.Test.Binding
                 {
                     using var serverCommunicator = new Communicator(p);
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapter("Adapter");
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
                     try
@@ -486,13 +486,13 @@ namespace ZeroC.Ice.Test.Binding
                     using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::0");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     try
                     {
-                        using ObjectAdapter ipv4OA =
+                        await using ObjectAdapter ipv4OA =
                             serverCommunicator.CreateObjectAdapterWithEndpoints(getEndpoint("0.0.0.0"));
-                        ipv4OA.Activate();
+                        await ipv4OA.ActivateAsync();
                         TestHelper.Assert(false);
                     }
                     catch (TransportException)
@@ -517,13 +517,14 @@ namespace ZeroC.Ice.Test.Binding
                     using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6Only" : "?ipv6-only=true");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     // 0.0.0.0 can still be bound if ::0 is IPv6 only
                     {
                         string ipv4Endpoint = getEndpoint("0.0.0.0");
-                        using ObjectAdapter ipv4OA = serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
-                        ipv4OA.Activate();
+                        await using ObjectAdapter ipv4OA =
+                            serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
+                        await ipv4OA.ActivateAsync();
                     }
 
                     try
@@ -544,13 +545,14 @@ namespace ZeroC.Ice.Test.Binding
                     using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::ffff:127.0.0.1");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
-                    oa.Activate();
+                    await oa.ActivateAsync();
 
                     try
                     {
                         string ipv4Endpoint = getEndpoint("127.0.0.1");
-                        using ObjectAdapter ipv4OA = serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
-                        ipv4OA.Activate();
+                        await using ObjectAdapter ipv4OA =
+                            serverCommunicator.CreateObjectAdapterWithEndpoints(ipv4Endpoint);
+                        await ipv4OA.ActivateAsync();
                         TestHelper.Assert(false);
                     }
                     catch (TransportException)
@@ -574,7 +576,6 @@ namespace ZeroC.Ice.Test.Binding
             }
 
             com.Shutdown();
-            return Task.CompletedTask;
         }
     }
 }

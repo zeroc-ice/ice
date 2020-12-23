@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Exceptions
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("thrower", new Thrower());
-            AllTests.Run(this);
+            _ = await AllTests.RunAsync(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

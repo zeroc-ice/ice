@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.UDP
@@ -58,7 +59,7 @@ namespace ZeroC.Ice.Test.UDP
             private int _replies;
         }
 
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -68,7 +69,7 @@ namespace ZeroC.Ice.Test.UDP
             var replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: NonSecure.Always);
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();
@@ -125,7 +126,7 @@ namespace ZeroC.Ice.Test.UDP
                 // TransportException will be thrown when we try to send a larger packet.
                 TestHelper.Assert(seq.Length > 16384);
             }
-            obj.GetConnection().GoAwayAsync();
+            _ = obj.GetConnection().GoAwayAsync();
             communicator.SetProperty("Ice.UDP.SndSize", "64K");
             seq = new byte[50000];
             try

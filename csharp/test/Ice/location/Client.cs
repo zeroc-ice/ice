@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Location
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Default.Locator"] = GetTestProxy("locator", properties, 0);
             await using Communicator communicator = Initialize(properties);
-            AllTests.Run(this);
+            await AllTests.RunAsync(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

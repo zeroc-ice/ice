@@ -2,11 +2,12 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Location
 {
-    public class ServerManager : IServerManager
+    public class ServerManager : IAsyncServerManager
     {
         private readonly ServerLocatorRegistry _registry;
         private readonly List<Communicator> _communicators = new();
@@ -19,11 +20,11 @@ namespace ZeroC.Ice.Test.Location
             _helper = helper;
         }
 
-        public void StartServer(Current current, CancellationToken cancel)
+        public async ValueTask StartServerAsync(Current current, CancellationToken cancel)
         {
-            foreach (Communicator? c in _communicators)
+            foreach (Communicator c in _communicators)
             {
-                c.WaitForShutdownAsync().Wait(cancel);
+                await c.WaitForShutdownAsync();
                 c.Dispose();
             }
             _communicators.Clear();
@@ -64,8 +65,8 @@ namespace ZeroC.Ice.Test.Location
                     _registry.AddObject(adapter.Add("test2", testI, IObjectPrx.Factory));
                     adapter.Add("test3", testI);
 
-                    adapter.Activate();
-                    adapter2.Activate();
+                    await adapter.ActivateAsync(cancel);
+                    await adapter2.ActivateAsync(cancel);
                     break;
                 }
                 catch (TransportException)
@@ -77,20 +78,27 @@ namespace ZeroC.Ice.Test.Location
 
                     // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
                     // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-                    adapter?.Dispose();
-                    adapter2?.Dispose();
+                    if (adapter != null)
+                    {
+                        await adapter.DisposeAsync();
+                    }
+                    if (adapter2 != null)
+                    {
+                        await adapter2.DisposeAsync();
+                    }
                 }
             }
         }
 
-        public void Shutdown(Current current, CancellationToken cancel)
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             foreach (Communicator c in _communicators)
             {
                 c.Dispose();
             }
             _communicators.Clear();
-            current.Communicator.ShutdownAsync();
+            _ = current.Communicator.ShutdownAsync();
+            return default;
         }
     }
 }

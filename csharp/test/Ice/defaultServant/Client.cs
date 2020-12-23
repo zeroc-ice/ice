@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.DefaultServant
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            AllTests.Run(this);
+            await AllTests.RunAsync(this);
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
