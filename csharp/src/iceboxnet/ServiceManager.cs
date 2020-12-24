@@ -647,17 +647,17 @@ namespace ZeroC.IceBox
             {
                 get
                 {
-                    if (_pendingTask is Lazy<Task> pendingTask && pendingTask.IsValueCreated)
+                    if (_pendingTask is Task pendingTask)
                     {
                         // We clear _pendingTask if it's completed; when get returns, _pendingTask is null or still
                         // running.
 
-                        if (pendingTask.Value.IsCompletedSuccessfully)
+                        if (pendingTask.IsCompletedSuccessfully)
                         {
                             _started = !_started;
                             _pendingTask = null;
                         }
-                        else if (_pendingTask.Value.IsFaulted || _pendingTask.Value.IsCanceled)
+                        else if (_pendingTask.IsFaulted || _pendingTask.IsCanceled)
                         {
                             _pendingTask = null; // _started remains the same
                         }
@@ -672,7 +672,7 @@ namespace ZeroC.IceBox
             private readonly string[] _args;
 
             // A task that is changing _started to its opposite value.
-            private Lazy<Task>? _pendingTask;
+            private Task? _pendingTask;
 
             private readonly IService _service;
 
@@ -693,75 +693,34 @@ namespace ZeroC.IceBox
             /// <return>A task that completes successfully when the service is fully started.</return>
             internal async Task StartAsync(ServiceManager serviceManager, CancellationToken cancel)
             {
-                // We use lazy tasks to avoid calling _service.StartAsync and _service.StopAsync with _mutex locked
-                // because StartAsync/StopAsync can potentially acquire synchronously other mutexes and create an
-                // out-of-order lock acquisition deadlock.
-
-                Lazy<Task>? startTask = null;
+                Task? startTask = null;
 
                 do
                 {
                     // We may need to wait until the pending stop task completes
-                    Lazy<Task>? stopTask = null;
+                    Task? stopTask = null;
 
                     lock (serviceManager._mutex)
                     {
                         if (IsStarted)
                         {
-                            if (_pendingTask is Lazy<Task> pendingTask)
+                            if (_pendingTask is Task pendingTask)
                             {
-                                // It's currently being stopped, we are going to wait for stop to complete
+                                // It's currently being stopped, we are going to wait for stop to complete.
                                 stopTask = pendingTask;
                             }
                             else
                             {
                                 // already started
-                                startTask = new(Task.CompletedTask);
+                                startTask = Task.CompletedTask;
                             }
                         }
                         else
                         {
-                            if (_pendingTask is Lazy<Task> pendingTask)
-                            {
-                                // It's currently being started, we piggy-back on this start
-                                startTask = pendingTask;
-                            }
-                            else
-                            {
-                                // We create a start task.
-                                // The async/await ensures we get a Task (i.e. successful lazy initialization) even if
-                                // StartAsync throws an exception synchronously.
-                                // Note that this task is not executed immediately but later when mutex is no longer
-                                // locked.
-                                startTask = new(
-                                    async () =>
-                                    {
-                                        try
-                                        {
-                                            await _service.StartAsync(
-                                                Name,
-                                                Communicator ?? serviceManager._sharedCommunicator!,
-                                                _args,
-                                                cancel);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            var sb = new StringBuilder(
-                                                "IceBox.ServiceManager: exception while starting service `");
-                                            sb.Append(Name);
-                                            sb.Append("':\n");
-                                            sb.Append(ex);
-                                            serviceManager._logger.Warning(sb.ToString());
-                                            throw new ServiceException($"service {Name} failed to start", ex);
-                                        }
-
-                                        // We send the notification (without waiting for the response) just before the
-                                        // task completes successfully, to ensure proper ordering of notifications.
-                                        // While the task is still running, it cannot get replaced by a new task.
-                                        serviceManager.ServiceStarted(Name);
-                                    });
-                                _pendingTask = startTask;
-                            }
+                            // If it's currently being started, we piggy-back on this start, else we create a new start
+                            // task.
+                            _pendingTask ??= PerformStartAsync();
+                            startTask = _pendingTask;
                         }
                     }
 
@@ -769,7 +728,7 @@ namespace ZeroC.IceBox
                     {
                         try
                         {
-                            await stopTask.Value.WaitAsync(cancel);
+                            await stopTask.WaitAsync(cancel);
                         }
                         catch
                         {
@@ -781,7 +740,34 @@ namespace ZeroC.IceBox
                 }
                 while (startTask == null);
 
-                await startTask.Value.WaitAsync(cancel);
+                await startTask.WaitAsync(cancel);
+
+                async Task PerformStartAsync()
+                {
+                    // Make sure we execute _service.StartAsync asynchronously because we don't want to call it while
+                    // holding a lock on serviceManager._mutex.
+                    await Task.Yield();
+
+                    try
+                    {
+                        await _service.StartAsync(
+                            Name,
+                            Communicator ?? serviceManager._sharedCommunicator!,
+                            _args,
+                            cancel);
+                    }
+                    catch (Exception ex)
+                    {
+                        serviceManager._logger.Warning(
+                            $"IceBox.ServiceManager: exception while starting service `{Name}':\n{ex}");
+                        throw new ServiceException($"service {Name} failed to start", ex);
+                    }
+
+                    // We send the notification (without waiting for the response) just before the task completes
+                    // successfully, to ensure proper ordering of notifications. While the task is still running, it
+                    // cannot get replaced by a new task.
+                    serviceManager.ServiceStarted(Name);
+                }
             }
 
             /// <summary>Stops this service.</summary>
@@ -791,67 +777,33 @@ namespace ZeroC.IceBox
             /// <return>A task that completes successfully when the service is fully stopped.</return>
             internal async Task StopAsync(ServiceManager serviceManager, bool notifyObservers)
             {
-                Lazy<Task>? stopTask = null;
+                Task? stopTask = null;
 
                 do
                 {
                     // We may need to wait until the current start task completes.
-                    Lazy<Task>? startTask = null;
+                    Task? startTask = null;
 
                     lock (serviceManager._mutex)
                     {
                         if (IsStarted)
                         {
-                            if (_pendingTask is Lazy<Task> pendingTask)
-                            {
-                                // It's currently being stopped, we are going to piggy-back on this stop
-                                stopTask = pendingTask;
-                            }
-                            else
-                            {
-                                // It's fully started, we create a new stop task.
-                                // The async/await ensures we get a Task (i.e. successful lazy initialization) even if
-                                // StopAsync throws an exception synchronously.
-                                stopTask = new(
-                                    async () =>
-                                    {
-                                        try
-                                        {
-                                            await _service.StopAsync();
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            var sb = new StringBuilder(
-                                                "IceBox.ServiceManager: exception while stopping service `");
-                                            sb.Append(Name);
-                                            sb.Append("':\n");
-                                            sb.Append(ex);
-                                            serviceManager._logger.Warning(sb.ToString());
-                                            throw new ServiceException($"service {Name} failed to stop", ex);
-                                        }
-
-                                        if (notifyObservers)
-                                        {
-                                            // We send the notification (without waiting for the response) before the
-                                            // task completes successfully, to ensure proper ordering of notifications.
-                                            // While the task is still running, it cannot get replaced by a new task.
-                                            serviceManager.ServiceStopped(Name);
-                                        }
-                                    });
-                                _pendingTask = stopTask;
-                            }
+                            // If it's currently being stopped, we piggy-back on this stop, else we create a new stop
+                            // task.
+                            _pendingTask ??= PerformStopAsync();
+                            stopTask = _pendingTask;
                         }
                         else
                         {
-                            if (_pendingTask is Lazy<Task> pendingTask)
+                            if (_pendingTask is Task pendingTask)
                             {
                                 // It's currently being started, we wait for this start to complete.
-                                startTask = _pendingTask;
+                                startTask = pendingTask;
                             }
                             else
                             {
                                 // It's already stopped, nothing more to do.
-                                stopTask = new(Task.CompletedTask);
+                                stopTask = Task.CompletedTask;
                             }
                         }
                     }
@@ -860,7 +812,7 @@ namespace ZeroC.IceBox
                     {
                         try
                         {
-                            await startTask.Value;
+                            await startTask;
                         }
                         catch
                         {
@@ -870,7 +822,33 @@ namespace ZeroC.IceBox
                 }
                 while (stopTask == null);
 
-                await stopTask.Value;
+                await stopTask;
+
+                async Task PerformStopAsync()
+                {
+                    // Make sure we execute _service.StopAsync asynchronously because we don't want to call it while
+                    // holding a lock on serviceManager._mutex.
+                    await Task.Yield();
+
+                    try
+                    {
+                        await _service.StopAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        serviceManager._logger.Warning(
+                            $"IceBox.ServiceManager: exception while stopping service `{Name}':\n{ex}");
+                        throw new ServiceException($"service {Name} failed to stop", ex);
+                    }
+
+                    if (notifyObservers)
+                    {
+                        // We send the notification (without waiting for the response) before the task completes
+                        // successfully, to ensure proper ordering of notifications. While the task is still running, it
+                        // cannot get replaced by a new task.
+                        serviceManager.ServiceStopped(Name);
+                    }
+                }
             }
         }
 
