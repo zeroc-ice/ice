@@ -94,6 +94,9 @@ Ice[iphonesimulator]_system_libs := $(Ice[iphoneos]_system_libs)
 IceSSL[iphonesimulator]_system_libs := $(IceSSL[iphoneos]_system_libs)
 IceIAP[iphonesimulator]_system_libs := $(IceIAP[iphoneos]_system_libs)
 
+icegridadmin[macosx]_system_libs := -ledit -lncurses
+icestormadmin[macosx]_system_libs := -ledit -lncurses
+
 Glacier2CryptPermissionsVerifier[macosx]_system_libs := $(IceSSL[macosx]_system_libs)
 Glacier2CryptPermissionsVerifier[iphoneos]_system_libs := $(IceSSL[iphoneos]_system_libs)
 Glacier2CryptPermissionsVerifier[iphonesimulator]_system_libs := $(IceSSL[iphonesimulator]_system_libs)

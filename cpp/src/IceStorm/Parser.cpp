@@ -9,9 +9,8 @@
 #include <IceStorm/IceStormInternal.h>
 #include <algorithm>
 
-#ifdef HAVE_READLINE
-#   include <readline/readline.h>
-#   include <readline/history.h>
+#ifdef __APPLE__
+#    include <editline/readline.h>
 #endif
 
 extern FILE* yyin;
@@ -445,7 +444,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
     }
     else
     {
-#ifdef HAVE_READLINE
+#ifdef __APPLE__
 
         const char* prompt = parser->getPrompt();
         char* line = readline(const_cast<char*>(prompt));
