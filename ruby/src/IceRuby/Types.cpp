@@ -1857,6 +1857,12 @@ IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallback
         {
             // Temporarily set the entry with a Qnil value to ensure the key is not GC
             // while unmarshaling a value class
+            if (RB_TYPE_P(keyCB->key, T_STRING))
+            {
+                // For string keys create a frozen string to ensure that the key used
+                // in the map matches the one keep in the closure
+                keyCB->key = rb_str_new_frozen(keyCB->key);
+            }
             callRuby(rb_hash_aset, hash, keyCB->key, Qnil);
         }
         //
@@ -2749,7 +2755,10 @@ IceRuby::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
             ex.expectedType = _info->id;
             throw ex;
         }
-
+#ifndef NDEBUG
+        // With debug builds we force a GC to ensure that all data members are correctly keep alive.
+        rb_gc();
+#endif
         _cb->unmarshaled(obj, _target, _closure);
     }
     else
