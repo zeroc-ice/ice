@@ -98,23 +98,23 @@ namespace ZeroC.Ice
             Debug.Assert(reference.IsIndirect);
 
             EndpointList endpoints = ImmutableArray<Endpoint>.Empty;
-            TimeSpan locationAge = TimeSpan.Zero;
+            TimeSpan wellKnownLocationAge = TimeSpan.Zero;
 
             Location location = reference.Location;
             if (reference.IsWellKnown)
             {
                 // First, we check the cache.
-                (endpoints, location, locationAge) = GetResolvedWellKnownProxyFromCache(reference);
-                bool expired = CheckExpired(locationAge, reference.LocatorCacheTimeout);
+                (endpoints, location, wellKnownLocationAge) = GetResolvedWellKnownProxyFromCache(reference);
+                bool expired = CheckExpired(wellKnownLocationAge, reference.LocatorCacheTimeout);
                 // If no endpoints are returned from the cache, or if the cache returned an expired endpoint and
                 // background updates are disabled, or if the caller is requesting a more recent endpoint than the
                 // one returned from the cache, we try to resolve the endpoint again.
                 if ((endpoints.Count == 0 && location.Count == 0) ||
                     (!_background && expired) ||
-                    locationAge >= endpointsMaxAge)
+                    wellKnownLocationAge >= endpointsMaxAge)
                 {
                     (endpoints, location) = await ResolveWellKnownProxyAsync(reference, cancel).ConfigureAwait(false);
-                    locationAge = TimeSpan.Zero; // Not cached
+                    wellKnownLocationAge = TimeSpan.Zero; // Not cached
                 }
                 else if (_background && expired)
                 {
@@ -136,7 +136,7 @@ namespace ZeroC.Ice
                 if (endpoints.Count == 0 ||
                     (!_background && expired) ||
                     endpointsAge >= endpointsMaxAge ||
-                    (reference.IsWellKnown && locationAge <= endpointsAge))
+                    (reference.IsWellKnown && wellKnownLocationAge <= endpointsAge))
                 {
                     try
                     {
@@ -162,11 +162,6 @@ namespace ZeroC.Ice
                     // not block the caller.
                     _ = ResolveLocationAsync(location, reference.Protocol, reference.Communicator, cancel: default);
                 }
-
-                if (!reference.IsWellKnown)
-                {
-                    locationAge = endpointsAge;
-                }
             }
 
             if (reference.Communicator.TraceLevels.Locator >= 1)
@@ -175,7 +170,7 @@ namespace ZeroC.Ice
                 {
                     if (reference.IsWellKnown)
                     {
-                        Trace(locationAge != TimeSpan.Zero ?
+                        Trace(wellKnownLocationAge != TimeSpan.Zero ?
                                 $"found entry for well-known proxy in locator cache" :
                                 $"resolved well-known proxy using locator, adding to locator cache",
                               reference,
@@ -211,7 +206,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            return (endpoints, locationAge);
+            return (endpoints, reference.IsWellKnown ? wellKnownLocationAge : endpointsAge);
         }
 
         internal async Task<ILocatorRegistryPrx?> GetLocatorRegistryAsync(CancellationToken cancel)
