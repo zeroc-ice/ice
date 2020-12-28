@@ -104,7 +104,10 @@ namespace ZeroC.Ice
             if (reference.IsWellKnown)
             {
                 // First, we check the cache.
-                (endpoints, location, wellKnownLocationAge) = GetResolvedWellKnownProxyFromCache(reference);
+                if (reference.LocatorCacheTimeout != TimeSpan.Zero)
+                {
+                    (endpoints, location, wellKnownLocationAge) = GetResolvedWellKnownProxyFromCache(reference);
+                }
                 bool expired = CheckExpired(wellKnownLocationAge, reference.LocatorCacheTimeout);
                 // If no endpoints are returned from the cache, or if the cache returned an expired endpoint and
                 // background updates are disabled, or if the caller is requesting a more recent endpoint than the
@@ -118,8 +121,9 @@ namespace ZeroC.Ice
                 }
                 else if (_background && expired)
                 {
-                    // Entry is returned from the cache but TTL was reached, if backgrounds updates are configured,
-                    // we make a new resolution to refresh the cache but use the stale info to not block the caller.
+                    // Entry is returned from the cache but endpoints MaxAge was reached, if backgrounds updates are
+                    // configured, we make a new resolution to refresh the cache but use the stale info to not block
+                    // the caller.
                     _ = ResolveWellKnownProxyAsync(reference, cancel: default);
                 }
             }
@@ -129,9 +133,11 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(endpoints.Count == 0);
 
-                (endpoints, endpointsAge) = GetResolvedLocationFromCache(location,
-                                                                        reference.Protocol,
-                                                                        reference.LocatorCacheTimeout);
+                if (reference.LocatorCacheTimeout != TimeSpan.Zero)
+                {
+                    (endpoints, endpointsAge) = GetResolvedLocationFromCache(location, reference.Protocol);
+                }
+
                 bool expired = CheckExpired(endpointsAge, reference.LocatorCacheTimeout);
                 if (endpoints.Count == 0 ||
                     (!_background && expired) ||
@@ -157,9 +163,9 @@ namespace ZeroC.Ice
                 }
                 else if (expired && _background)
                 {
-                    // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
-                    // are configured, we obtain new endpoints but continue using the stale endpoints to
-                    // not block the caller.
+                    // Endpoints are returned from the cache but endpoints MaxAge was reached, if backgrounds updates
+                    // are configured, we obtain new endpoints but continue using the stale endpoints to not block the
+                    // caller.
                     _ = ResolveLocationAsync(location, reference.Protocol, reference.Communicator, cancel: default);
                 }
             }
@@ -236,8 +242,8 @@ namespace ZeroC.Ice
             return locatorRegistry;
         }
 
-        private static bool CheckExpired(TimeSpan age, TimeSpan ttl) =>
-            ttl != Timeout.InfiniteTimeSpan && age > ttl;
+        private static bool CheckExpired(TimeSpan age, TimeSpan maxAge) =>
+            maxAge != Timeout.InfiniteTimeSpan && age > maxAge;
 
         private static void Trace(
             string msg,
@@ -311,10 +317,9 @@ namespace ZeroC.Ice
 
         private (EndpointList Endpoints, TimeSpan EndpointsAge) GetResolvedLocationFromCache(
             Location location,
-            Protocol protocol,
-            TimeSpan ttl)
+            Protocol protocol)
         {
-            if (ttl != TimeSpan.Zero && _locationCache.TryGetValue(
+            if (_locationCache.TryGetValue(
                 (location, protocol),
                 out (TimeSpan InsertionTime, EndpointList Endpoints) entry))
             {
@@ -329,8 +334,7 @@ namespace ZeroC.Ice
         private (EndpointList Endpoints, Location Location, TimeSpan LocationAge) GetResolvedWellKnownProxyFromCache(
             Reference reference)
         {
-            if (reference.LocatorCacheTimeout != TimeSpan.Zero &&
-                _wellKnownProxyCache.TryGetValue(
+            if (_wellKnownProxyCache.TryGetValue(
                     (reference.Identity, reference.Facet, reference.Protocol),
                     out (TimeSpan InsertionTime, EndpointList Endpoints, Location Location) entry))
             {

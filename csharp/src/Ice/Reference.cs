@@ -1464,7 +1464,6 @@ namespace ZeroC.Ice
                             {
                                 endpointsMaxAge = endpointsAge;
                                 endpoints = null;
-                                break;
                             }
                             else
                             {
