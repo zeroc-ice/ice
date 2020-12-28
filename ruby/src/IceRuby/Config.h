@@ -60,6 +60,9 @@
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wunused-parameter"
+// BUGFIX Workaround G++ 10 problem with ruby headers
+// see https://bugs.ruby-lang.org/issues/16930
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #include <ruby.h>
