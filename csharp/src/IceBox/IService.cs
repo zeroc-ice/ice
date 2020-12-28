@@ -1,20 +1,30 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace ZeroC.IceBox
 {
-    /// <summary>An application service managed by a <see cref="IServiceManager"/>.</summary>
+    /// <summary>An application service created, started and stopped by the IceBox service manager. The IceBox service
+    /// manager serializes calls to StartAsync and StopAsync. For example, it will not call StartAsync on a service
+    /// when a StartAsync is already in progress for that service.</summary>
     public interface IService
     {
-        /// <summary>Start the service. The given communicator is created by the ServiceManager for use by the service.
-        /// This communicator may also be used by other services, depending on the service configuration. The
-        /// ServiceManager owns this communicator, and is responsible for destroying it.</summary>
+        /// <summary>Starts the service.</summary>
         /// <param name="name">The service's name, as determined by the configuration.</param>
-        /// <param name="communicator">A communicator for use by the service.</param>
-        /// <param name="args">The service arguments that were not converted into properties.</param>
-        /// <exception name="FailureException">Raised if start failed.</exception>
-        void Start(string name, Ice.Communicator communicator, string[] args);
+        /// <param name="communicator">A communicator for use by the service. This communicator is created and destroyed
+        /// by the IceBox service manager.</param>
+        /// <param name="args">The service arguments.</param>
+        /// <param name="cancel">The cancellation token.</param>
+        /// <return>A task that completes when the service is started.</return>
+        /// <remarks>If StartAsync throws an exception, the service manager considers the service remains stopped.
+        /// An exception thrown during the IceBox startup causes IceBox to exit.</remarks>
+        Task StartAsync(string name, Ice.Communicator communicator, string[] args, CancellationToken cancel);
 
-        /// <summary>Stop the service.</summary>
-        void Stop();
+        /// <summary>Stops the service.</summary>
+        /// <return>A task that completes once the service is stopped.</return>
+        /// <remarks>If StopAsync throws an exception, the service manager consider the service remains in the started
+        /// started.</remarks>
+        Task StopAsync();
     }
 }
