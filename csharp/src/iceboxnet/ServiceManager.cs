@@ -79,6 +79,8 @@ namespace ZeroC.IceBox
                     // We don't want to forward the cancel of a dispatch that has already completed.
                     // The sending / queueing is done with _mutex locked, so barring a connection failure + retry, it
                     // will reach the observer before subsequent state change notifications.
+                    // Note: _mutex is locked when services is marshaled, which is necessary in case IsStarted is only
+                    // evaluated at that time.
                     await observer.ServicesStartedAsync(services, cancel: default);
                 }
                 catch (Exception ex)
@@ -231,6 +233,10 @@ namespace ZeroC.IceBox
             {
                 // Expected if the communicator or ObjectAdater are disposed
             }
+            catch (OperationCanceledException)
+            {
+                // Expected if ActivateAsync is canceled through Ctrl+C.
+            }
             catch (Exception ex)
             {
                 _logger.Error($"IceBox.ServiceManager: caught exception:\n{ex}");
@@ -238,9 +244,48 @@ namespace ZeroC.IceBox
             }
             finally
             {
-                await StopAllAsync();
-            }
+                await _communicator.ShutdownAsync(); // often no-op since the communicator is usually already shut down.
 
+                // When this code executes, the server is fully shut down, so no concurrent dispatch to
+                // StartServiceAsync etc.
+
+                // For each service, we call stop on the service and flush its database environment to the disk.
+                // Services are stopped in the reverse order of the order they were started.
+                _services.Reverse();
+                var stoppedServices = new List<string>();
+                foreach (ServiceInfo info in _services)
+                {
+                    try
+                    {
+                        await info.StopAsync(this, notifyObservers: false);
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+
+                    if (info.Communicator is Communicator serviceCommunicator)
+                    {
+                        await DestroyServiceCommunicatorAsync(info.Name, serviceCommunicator);
+                    }
+                }
+
+                if (_sharedCommunicator is Communicator sharedCommunicator)
+                {
+                    RemoveAdminFacets("IceBox.SharedCommunicator.");
+
+                    try
+                    {
+                        await sharedCommunicator.DisposeAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Warning(
+                            $"IceBox.ServiceManager: exception while destroying shared communicator:\n{ex}");
+                    }
+                }
+                ServicesStopped(stoppedServices);
+            }
             return 0;
         }
 
@@ -592,48 +637,6 @@ namespace ZeroC.IceBox
             }
 
             _services.Add(new ServiceInfo(serviceName, service, serviceCommunicator, args));
-        }
-
-        private async Task StopAllAsync()
-        {
-            // When this method executes, the server is fully shut down, so no concurrent dispatch to StartServiceAsync
-            // etc.
-
-            // For each service, we call stop on the service and flush its database environment to the disk. Services
-            // are stopped in the reverse order of the order they were started.
-            _services.Reverse();
-            var stoppedServices = new List<string>();
-            foreach (ServiceInfo info in _services)
-            {
-                try
-                {
-                    await info.StopAsync(this, notifyObservers: false);
-                }
-                catch
-                {
-                    // ignore
-                }
-
-                if (info.Communicator is Communicator serviceCommunicator)
-                {
-                    await DestroyServiceCommunicatorAsync(info.Name, serviceCommunicator);
-                }
-            }
-
-            if (_sharedCommunicator is Communicator sharedCommunicator)
-            {
-                RemoveAdminFacets("IceBox.SharedCommunicator.");
-
-                try
-                {
-                    await sharedCommunicator.DisposeAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warning($"IceBox.ServiceManager: exception while destroying shared communicator:\n{ex}");
-                }
-            }
-            ServicesStopped(stoppedServices);
         }
 
         private class ServiceInfo
