@@ -29,7 +29,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <summary>Waits for the task to complete and allows the wait to be canceled.</summary>
         /// <param name="task">The task to wait for.</param>
         /// <param name="cancel">The cancellation token.</param>
         internal static async ValueTask WaitAsync(this ValueTask task, CancellationToken cancel)
@@ -49,7 +49,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <summary>Waits for the task to complete and allows the wait to be canceled.</summary>
         /// <param name="task">The task to wait for.</param>
         /// <param name="cancel">The cancellation token.</param>
         public static async Task WaitAsync(this Task task, CancellationToken cancel)
@@ -64,7 +64,7 @@ namespace ZeroC.Ice
             await task.ConfigureAwait(false);
         }
 
-        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <summary>Waits for the task to complete and allows the wait to be canceled.</summary>
         /// <param name="task">The task to wait for.</param>
         /// <param name="cancel">The cancellation token.</param>
         internal static async ValueTask<T> WaitAsync<T>(this ValueTask<T> task, CancellationToken cancel)
@@ -84,7 +84,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <summary>Waits for the task to complete and allows the wait to be canceled.</summary>
         /// <param name="task">The task to wait for.</param>
         /// <param name="cancel">The cancellation token.</param>
         internal static async Task<T> WaitAsync<T>(this Task<T> task, CancellationToken cancel)
