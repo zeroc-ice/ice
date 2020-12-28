@@ -25,7 +25,10 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    _lock.Exit(lockTaken);
+                    if (lockTaken)
+                    {
+                        _lock.Exit();
+                    }
                 }
             }
         }
@@ -65,7 +68,10 @@ namespace ZeroC.Ice
             }
             finally
             {
-                _lock.Exit(lockTaken);
+                if (lockTaken)
+                {
+                    _lock.Exit();
+                }
             }
         }
 
@@ -108,7 +114,10 @@ namespace ZeroC.Ice
             }
             finally
             {
-                _lock.Exit(lockTaken);
+                if (lockTaken)
+                {
+                    _lock.Exit();
+                }
             }
         }
 
@@ -149,7 +158,10 @@ namespace ZeroC.Ice
             }
             finally
             {
-                _lock.Exit(lockTaken);
+                if (lockTaken)
+                {
+                    _lock.Exit();
+                }
             }
         }
 
