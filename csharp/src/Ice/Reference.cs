@@ -1460,8 +1460,10 @@ namespace ZeroC.Ice
                         // Ignore the exception unless this is the last endpoint.
                         if (ReferenceEquals(endpoint, last))
                         {
-                            if (IsIndirect && endpointsMaxAge == TimeSpan.MaxValue)
+                            if (IsIndirect && endpointsAge != TimeSpan.Zero && endpointsMaxAge == TimeSpan.MaxValue)
                             {
+                                // If the first lookup for an indirect reference returns an endpoint from the cache, set
+                                // endpointsMaxAge to force a new locator lookup for a fresher endpoint.
                                 endpointsMaxAge = endpointsAge;
                                 endpoints = null;
                             }
