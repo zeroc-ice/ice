@@ -2122,7 +2122,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         // Skip the test if OpenSSL was build without SSL3 support
         //
-#if !defined(OPENSSL_NO_SSL3_METHOD)
+#if !defined(OPENSSL_NO_SSL3_METHOD) && defined(SSL3_VERSION)
         //
         // This should fail because the client only accept SSLv3 and the server
         // use the default protocol set that disables SSLv3
