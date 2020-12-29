@@ -2889,6 +2889,7 @@ IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 IceRuby::ExceptionReader::~ExceptionReader()
     throw()
 {
+    rb_gc_unregister_address(&_ex);
 }
 
 string
@@ -2924,6 +2925,7 @@ IceRuby::ExceptionReader::_read(Ice::InputStream* is)
     is->startException();
 
     const_cast<VALUE&>(_ex) = _info->unmarshal(is);
+    rb_gc_register_address(&_ex);
 
     const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
 }
