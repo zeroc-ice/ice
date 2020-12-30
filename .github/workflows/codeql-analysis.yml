@@ -1,14 +1,3 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
 name: "CodeQL"
 
 on:
@@ -29,9 +18,6 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'cpp', 'csharp', 'java', 'javascript', 'python' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
-        # Learn more:
-        # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
 
     steps:
     - name: Checkout repository
@@ -50,9 +36,35 @@ jobs:
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 https://git.io/JvXDl
 
-    - run: |
-       sudo apt-get update && sudo apt-get install libmcpp-dev libssl-dev libexpat1-dev libbz2-dev liblmdb-dev python3-dev
-       make LANGUAGES="cpp java java-compat python js" CONFIGS="shared cpp11-shared" V=1 -j8
+    - if: matrix.language == 'cpp'
+      run: |
+        sudo apt-get update && sudo apt-get install libmcpp-dev libssl-dev libexpat1-dev libbz2-dev liblmdb-dev
+        make LANGUAGES="cpp" OPTIMIZE=no CONFIGS="shared cpp11-shared" V=1 -j8
+
+    - if: matrix.language == 'java'
+      run: |
+       sudo apt-get update && sudo apt-get install libmcpp-dev
+       make -C ./cpp slice2java -j8
+       make -C ./java V=1
+       make -C ./java-compact V=1
+
+    - if: matrix.language == 'csharp'
+      run: |
+       sudo apt-get update && sudo apt-get install libmcpp-dev
+       make -C ./cpp slice2cs -j8
+       make -C ./csharp
+
+    - if: matrix.language == 'javascript'
+      run: |
+       sudo apt-get update && sudo apt-get install libmcpp-dev
+       make -C ./cpp slice2js -j8
+       make -C ./js
+
+    - if: matrix.language == 'python'
+      run: |
+       sudo apt-get update && sudo apt-get install libmcpp-dev libssl-dev libbz2-dev
+       make -C ./cpp slice2py IceSSL IceDiscovery IceLocatorDiscovery -j8
+       make -C ./python
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
