@@ -252,6 +252,12 @@ function Init()
                                     filePath);
                     }
                 }
+                else if(filePath.indexOf("..") != -1 || ["/test/", "/assets/"].some(prefix => filePath.startsWith(prefix)))
+                {
+                    res.writeHead(403);
+                    res.end("403 Forbiden");
+                    console.log("HTTP/403 (Forbiden) " + req.method + " " + req.url.pathname + " -> " + filePath);
+                }
                 else
                 {
                     if(!stats.isFile())
