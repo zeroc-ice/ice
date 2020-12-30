@@ -156,6 +156,14 @@ function Init()
             }
 
             var filePath = req.url.pathname;
+            if(filePath.indexOf("..") != -1 || !["/test/", "/assets/", "/lib"].some(
+                prefix => filePath.startsWith(prefix)))
+            {
+                res.writeHead(403);
+                res.end("403 Forbiden");
+                console.log("HTTP/403 (Forbiden) " + req.method + " " + req.url.pathname + " -> " + filePath);
+                return;
+            }
             var sourceMap;
             if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != ".js")
             {
@@ -195,12 +203,6 @@ function Init()
                 res.end();
                 console.log("HTTP/302 (Found) " + req.method + " " + req.url.pathname + " -> " +
                             "/test/Ice/acm/index.html");
-            }
-            else if(filePath.indexOf("..") != -1 || ["/test/", "/assets/"].some(prefix => filePath.startsWith(prefix)))
-            {
-                res.writeHead(403);
-                res.end("403 Forbiden");
-                console.log("HTTP/403 (Forbiden) " + req.method + " " + req.url.pathname + " -> " + filePath);
             }
             else if((ext == "js" || ext == "css" || ext == "map") && req.headers["accept-encoding"].indexOf("gzip") !== -1)
             {
@@ -251,12 +253,6 @@ function Init()
                         console.log("HTTP/500 (Internal Server Error) " + req.method + " " + req.url.pathname + " -> " +
                                     filePath);
                     }
-                }
-                else if(filePath.indexOf("..") != -1 || ["/test/", "/assets/"].some(prefix => filePath.startsWith(prefix)))
-                {
-                    res.writeHead(403);
-                    res.end("403 Forbiden");
-                    console.log("HTTP/403 (Forbiden) " + req.method + " " + req.url.pathname + " -> " + filePath);
                 }
                 else
                 {
