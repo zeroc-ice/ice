@@ -39,20 +39,19 @@ jobs:
     - if: matrix.language == 'cpp'
       run: |
         sudo apt-get update && sudo apt-get install libmcpp-dev libssl-dev libexpat1-dev libbz2-dev liblmdb-dev
-        make LANGUAGES="cpp" OPTIMIZE=no CONFIGS="shared cpp11-shared" V=1 -j8
+        make LANGUAGES=cpp OPTIMIZE=no V=1 -j8
 
     - if: matrix.language == 'java'
       run: |
        sudo apt-get update && sudo apt-get install libmcpp-dev
        make -C ./cpp slice2java -j8
        make -C ./java V=1
-       make -C ./java-compact V=1
+       make -C ./java-compat V=1
 
     - if: matrix.language == 'csharp'
       run: |
        sudo apt-get update && sudo apt-get install libmcpp-dev
-       make -C ./cpp slice2cs -j8
-       make -C ./csharp
+       dotnet msbuild csharp/msbuild/ice.proj /t:Net5Build /p:Configuration=Debug
 
     - if: matrix.language == 'javascript'
       run: |
