@@ -807,7 +807,8 @@ class Mapping(object):
     @classmethod
     def getByName(self, name):
         if not name in self.mappings:
-            raise RuntimeError("unknown mapping `{0}', available mappings `{1}'".format(name, self.mappings))
+            raise RuntimeError("unknown mapping: `{0}', known mappings: `{1}'".format(
+                name, list(self.mappings)))
         return self.mappings.get(name)
 
     @classmethod
