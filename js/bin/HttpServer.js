@@ -62,7 +62,7 @@ function Init()
 
     HttpServer.prototype.processRequest = function(req, res)
     {
-        var matchController = req.url.pathname.match("^\/test/(.*)/controller\.html");
+        var matchController = req.url.pathname.match("^\/test/(.*)/controller\\.html");
         if(matchController)
         {
             var es5 = matchController[1].indexOf("es5/") !== -1;
@@ -186,12 +186,28 @@ function Init()
 
             var ext = path.extname(filePath).slice(1);
 
-            //
-            // When the browser asks for a .js or .css file and it has support for gzip content
-            // check if a gzip version (.js.gz or .css.gz) of the file exists and use that instead.
-            //
-            if((ext == "js" || ext == "css" || ext == "map") && req.headers["accept-encoding"].indexOf("gzip") !== -1)
+            if(req.url.pathname === '/')
             {
+                res.writeHead(302,
+                              {
+                                  "Location": "/test/Ice/acm/index.html"
+                              });
+                res.end();
+                console.log("HTTP/302 (Found) " + req.method + " " + req.url.pathname + " -> " +
+                            "/test/Ice/acm/index.html");
+            }
+            else if(filePath.indexOf("..") != -1 || ["/test/", "/assets/"].some(prefix => filePath.startsWith(prefix)))
+            {
+                res.writeHead(403);
+                res.end("403 Forbiden");
+                console.log("HTTP/403 (Forbiden) " + req.method + " " + req.url.pathname + " -> " + filePath);
+            }
+            else if((ext == "js" || ext == "css" || ext == "map") && req.headers["accept-encoding"].indexOf("gzip") !== -1)
+            {
+                //
+                // When the browser asks for a .js or .css file and it has support for gzip content
+                // check if a gzip version (.js.gz or .css.gz) of the file exists and use that instead.
+                //
                 fs.stat(filePath + ".gz",
                         function(err, stats)
                         {
@@ -238,17 +254,7 @@ function Init()
                 }
                 else
                 {
-                    if(req.url.pathname === '/')
-                    {
-                        res.writeHead(302,
-                        {
-                            "Location": "/test/Ice/acm/index.html"
-                        });
-                        res.end();
-                        console.log("HTTP/302 (Found) " + req.method + " " + req.url.pathname + " -> " +
-                                    "/test/Ice/acm/index.html");
-                    }
-                    else if(!stats.isFile())
+                    if(!stats.isFile())
                     {
                         res.writeHead(403);
                         res.end("403 Forbiden");
