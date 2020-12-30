@@ -4398,12 +4398,12 @@ public class SessionKeeper
         builder.border(Borders.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
-        builder.addSeparator("Fingerprints");
+        builder.addSeparator("Fingerprint");
         builder.nextLine();
 
-        String sha1Fingerprint = "";
+        String sha256Fingerprint = "";
         {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] der = cert.getEncoded();
             md.update(der);
             byte[] digest = md.digest();
@@ -4427,42 +4427,11 @@ public class SessionKeeper
             {
                 formatter.close();
             }
-            sha1Fingerprint = sb.toString().toUpperCase();
+            sha256Fingerprint = sb.toString().toUpperCase();
         }
 
-        builder.append(new JLabel("<html><b>SHA-1 Fingerprint:</b></html>"),
-                        new JLabel(sha1Fingerprint));
-        builder.nextLine();
-
-        String md5Fingerprint = "";
-        {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] der = cert.getEncoded();
-            md.update(der);
-            byte[] digest = md.digest();
-
-            StringBuilder sb = new StringBuilder(digest.length * 2);
-
-            Formatter formatter = new Formatter(sb);
-            try
-            {
-                for(int i = 0; i < digest.length;)
-                {
-                    formatter.format("%02x", digest[i]);
-                    i++;
-                    if(i < digest.length)
-                    {
-                        sb.append(":");
-                    }
-                }
-            }
-            finally
-            {
-                formatter.close();
-            }
-            md5Fingerprint = sb.toString().toUpperCase();
-        }
-        builder.append(new JLabel("<html><b>MD5 Fingerprint:</b></html>"), new JLabel(md5Fingerprint));
+        builder.append(new JLabel("<html><b>SHA-256 Fingerprint:</b></html>"),
+                        new JLabel(sha256Fingerprint));
         builder.nextLine();
 
         return builder.getPanel();
