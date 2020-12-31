@@ -156,7 +156,7 @@ function Init()
             }
 
             var filePath = req.url.pathname;
-            if(filePath.indexOf("..") != -1 || !["/test/", "/assets/", "/lib"].some(
+            if(filePath.indexOf("..") != -1 || !["/test/", "/assets/", "/lib", "/node_modules"].some(
                 prefix => filePath.startsWith(prefix)))
             {
                 res.writeHead(403);
