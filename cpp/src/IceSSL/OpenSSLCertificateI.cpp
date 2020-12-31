@@ -215,15 +215,14 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
     //
     // Windows doesn't support the re-entrant _r versions.
     //
-#if defined(_MSC_VER)
-#   pragma warning(disable:4996) // localtime is depercated
-#endif
     time_t tzone;
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mut);
         time_t now = time(0);
 #if defined(_MSC_VER)
+#   pragma warning(disable:4996) // localtime is depercated
         tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
+#   pragma warning(default:4996) // localtime is depercated
 #else
         struct tm localTime;
         struct tm gmTime;
@@ -232,9 +231,6 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
         tzone = mktime(&localTime) - mktime(&gmTime);
 #endif
     }
-#if defined(_MSC_VER)
-#   pragma warning(default:4996) // localtime is depercated
-#endif
 
     IceUtil::Time time = IceUtil::Time::seconds(mktime(&tm) - IceUtil::Int64(offset) * 60 + tzone);
 
