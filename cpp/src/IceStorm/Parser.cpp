@@ -9,7 +9,7 @@
 #include <IceStorm/IceStormInternal.h>
 #include <algorithm>
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
 #endif
 
@@ -444,8 +444,8 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
     }
     else
     {
-#ifdef __APPLE__
 
+#if defined(__APPLE__) || defined(__linux__)
         const char* prompt = parser->getPrompt();
         char* line = readline(const_cast<char*>(prompt));
         if(!line)
@@ -473,9 +473,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 free(line);
             }
         }
-
 #else
-
         consoleOut << parser->getPrompt() << flush;
 
         string line;
