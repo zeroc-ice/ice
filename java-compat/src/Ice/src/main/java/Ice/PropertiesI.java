@@ -315,10 +315,9 @@ public final class PropertiesI implements Properties
         if(System.getProperty("os.name").startsWith("Windows") &&
            (file.startsWith("HKCU\\") || file.startsWith("HKLM\\")))
         {
-            String regQuery = "reg query " + file;
             try
             {
-                java.lang.Process process = Runtime.getRuntime().exec(regQuery);
+                java.lang.Process process = Runtime.getRuntime().exec(new String[] {"reg", "query", file});
                 process.waitFor();
                 if(process.exitValue() != 0)
                 {

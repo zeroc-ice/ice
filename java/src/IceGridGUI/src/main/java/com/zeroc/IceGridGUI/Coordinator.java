@@ -3487,10 +3487,10 @@ public class Coordinator
         if(System.getProperty("os.name").startsWith("Windows"))
         {
             String regKey = "\"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\"";
-            String regQuery = "reg query " + regKey + " /v Personal";
             try
             {
-                java.lang.Process process = Runtime.getRuntime().exec(regQuery);
+                java.lang.Process process = Runtime.getRuntime().exec(
+                    new String[] {"reg", "query", regKey, "/v", "Personal"});
                 process.waitFor();
                 if(process.exitValue() != 0)
                 {
