@@ -222,7 +222,15 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mut);
         time_t now = time(0);
+#if defined(_MSC_VER)
         tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
+#else
+        struct tm localTime;
+        struct tm gmTime;
+        localtime_r(&now, &localTime);
+        gmtime_r(&now, &gmTime);
+        tzone = mktime(&localTime) - mktime(&gmTime);
+#endif
     }
 #if defined(_MSC_VER)
 #   pragma warning(default:4996) // localtime is depercated
