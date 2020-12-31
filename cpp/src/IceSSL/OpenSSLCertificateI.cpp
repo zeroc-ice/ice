@@ -219,17 +219,16 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mut);
         time_t now = time(0);
-#if defined(_MSC_VER)
-#   pragma warning(disable:4996) // localtime is depercated
-        tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
-#   pragma warning(default:4996) // localtime is depercated
-#else
         struct tm localTime;
         struct tm gmTime;
+#if defined(_MSC_VER)
+        localtime_s(&localTime, &now);
+        gmtime_s(&gmTime, &now);
+#else
         localtime_r(&now, &localTime);
         gmtime_r(&now, &gmTime);
-        tzone = mktime(&localTime) - mktime(&gmTime);
 #endif
+        tzone = mktime(&localTime) - mktime(&gmTime);
     }
 
     IceUtil::Time time = IceUtil::Time::seconds(mktime(&tm) - IceUtil::Int64(offset) * 60 + tzone);
