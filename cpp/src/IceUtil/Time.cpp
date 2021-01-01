@@ -280,17 +280,15 @@ IceUtil::Time::toString(const std::string& format) const
 {
     time_t time = static_cast<long>(_usec / 1000000);
 
-    struct tm* t;
-#ifdef _WIN32
-    t = localtime(&time);
-#else
     struct tm tr;
+#ifdef _MSC_VER
+    localtime_s(&tr, &time);
+#else
     localtime_r(&time, &tr);
-    t = &tr;
 #endif
 
     char buf[32];
-    if(strftime(buf, sizeof(buf), format.c_str(), t) == 0)
+    if(strftime(buf, sizeof(buf), format.c_str(), &tr) == 0)
     {
         return std::string();
     }
