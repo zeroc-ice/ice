@@ -209,12 +209,6 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
     }
 #  undef g2
 
-    //
-    // If timegm was on all systems this code could be
-    // return IceUtil::Time::seconds(timegm(&tm) - offset*60);
-    //
-    // Windows doesn't support the re-entrant _r versions.
-    //
     time_t tzone;
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mut);
