@@ -62,7 +62,7 @@ function Init()
 
     HttpServer.prototype.processRequest = function(req, res)
     {
-        var matchController = req.url.pathname.match("^\/test/(.*)/controller\.html");
+        var matchController = req.url.pathname.match("^\/test/(.*)/controller\\.html");
         if(matchController)
         {
             var es5 = matchController[1].indexOf("es5/") !== -1;
