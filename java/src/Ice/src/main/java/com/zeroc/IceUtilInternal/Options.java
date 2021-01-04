@@ -287,7 +287,7 @@ public final class Options
                             j < i + 3 && j < line.length() && hexDigits.indexOf(c = line.charAt(j)) != -1;
                             ++j)
                         {
-                            s *= 16;
+                            s *= (short)16;
                             if(Character.isDigit(c))
                             {
                                 s += (short)(c - '0');

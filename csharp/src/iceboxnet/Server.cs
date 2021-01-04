@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.IceBox
@@ -12,15 +13,19 @@ namespace ZeroC.IceBox
         {
             try
             {
-                using var communicator = new Ice.Communicator(ref args);
+                await using var communicator = new Ice.Communicator(ref args);
 
-                Console.CancelKeyPress += async (sender, eventArgs) =>
+                using var cancellationSource = new CancellationTokenSource();
+
+                Console.CancelKeyPress += (sender, eventArgs) =>
                 {
+                    cancellationSource.Cancel();
                     eventArgs.Cancel = true;
-                    await communicator.ShutdownAsync().ConfigureAwait(false);
+                    _ = communicator.ShutdownAsync();
                 };
 
-                return await RunAsync(communicator, args).ConfigureAwait(false);
+                // RunAsync will activate the communicator.
+                return await RunAsync(communicator, args, cancellationSource.Token);
             }
             catch (Exception ex)
             {
@@ -37,7 +42,7 @@ namespace ZeroC.IceBox
             Console.Error.WriteLine("-v, --version        Display the Ice version.");
         }
 
-        private static async Task<int> RunAsync(Ice.Communicator communicator, string[] args)
+        private static async Task<int> RunAsync(Ice.Communicator communicator, string[] args, CancellationToken cancel)
         {
             const string prefix = "IceBox.Service.";
             Dictionary<string, string> services = communicator.GetProperties(forPrefix: prefix);
@@ -70,7 +75,7 @@ namespace ZeroC.IceBox
             }
 
             var serviceManager = new ServiceManager(communicator, args);
-            return await serviceManager.RunAsync().ConfigureAwait(false);
+            return await serviceManager.RunAsync(cancel);
         }
     }
 }

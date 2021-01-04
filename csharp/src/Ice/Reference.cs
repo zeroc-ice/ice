@@ -1331,7 +1331,8 @@ namespace ZeroC.Ice
             }
         }
 
-        private async ValueTask<(List<Endpoint> Endpoints, bool Cached)> ComputeEndpointsAsync(
+        private async ValueTask<(List<Endpoint> Endpoints, TimeSpan EndpointsAge)> ComputeEndpointsAsync(
+            TimeSpan endpointsMaxAge,
             CancellationToken cancel)
         {
             Debug.Assert(!IsFixed);
@@ -1340,7 +1341,7 @@ namespace ZeroC.Ice
             if (InvocationMode != InvocationMode.Datagram &&
                 Communicator.GetColocatedEndpoint(this) is Endpoint colocatedEndpoint)
             {
-                return (new List<Endpoint>() { colocatedEndpoint }, false);
+                return (new List<Endpoint>() { colocatedEndpoint }, TimeSpan.Zero);
             }
 
             IReadOnlyList<Endpoint>? endpoints = ImmutableArray<Endpoint>.Empty;
@@ -1350,7 +1351,7 @@ namespace ZeroC.Ice
                 endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
             }
 
-            bool cached = false;
+            TimeSpan endpointsAge = TimeSpan.Zero;
             if (endpoints.Count == 0)
             {
                 // Get the proxy's endpoint or query the locator to get endpoints
@@ -1360,13 +1361,15 @@ namespace ZeroC.Ice
                 }
                 else if (LocatorInfo != null)
                 {
-                    (endpoints, cached) =
-                        await LocatorInfo.ResolveIndirectReferenceAsync(this, cancel).ConfigureAwait(false);
+                    (endpoints, endpointsAge) =
+                        await LocatorInfo.ResolveIndirectReferenceAsync(this,
+                                                                        endpointsMaxAge,
+                                                                        cancel).ConfigureAwait(false);
                 }
             }
 
             // Apply overrides and filter endpoints
-            List<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
+            var filteredEndpoints = endpoints.Where(endpoint =>
             {
                 // Filter out opaque and universal endpoints
                 if (endpoint is OpaqueEndpoint || endpoint is UniversalEndpoint)
@@ -1400,7 +1403,7 @@ namespace ZeroC.Ice
             {
                 filteredEndpoints = Communicator.OrderEndpointsByTransportFailures(filteredEndpoints);
             }
-            return (filteredEndpoints, cached);
+            return (filteredEndpoints, endpointsAge);
         }
         internal Connection? GetCachedConnection() => _connection;
 
@@ -1415,12 +1418,13 @@ namespace ZeroC.Ice
                 cancel,
                 Communicator.CancellationToken);
             cancel = linkedCancellationSource.Token;
-            bool cached;
+            TimeSpan endpointsAge = TimeSpan.Zero;
+            TimeSpan endpointsMaxAge = TimeSpan.MaxValue;
             List<Endpoint>? endpoints = null;
             if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
             {
                 // No cached connection, so now check if there is an existing connection that we can reuse.
-                (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                (endpoints, endpointsAge) = await ComputeEndpointsAsync(endpointsMaxAge, cancel).ConfigureAwait(false);
                 connection = Communicator.GetConnection(endpoints, PreferNonSecure, Label);
                 if (CacheConnection)
                 {
@@ -1428,11 +1432,12 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (connection == null)
+            while (connection == null)
             {
                 if (endpoints == null)
                 {
-                    (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                    (endpoints, endpointsAge) = await ComputeEndpointsAsync(endpointsMaxAge,
+                                                                            cancel).ConfigureAwait(false);
                 }
 
                 Endpoint last = endpoints[^1];
@@ -1453,10 +1458,19 @@ namespace ZeroC.Ice
                     catch
                     {
                         // Ignore the exception unless this is the last endpoint.
-                        // TODO retry with non cached endpoints
                         if (ReferenceEquals(endpoint, last))
                         {
-                            throw;
+                            if (IsIndirect && endpointsAge != TimeSpan.Zero && endpointsMaxAge == TimeSpan.MaxValue)
+                            {
+                                // If the first lookup for an indirect reference returns an endpoint from the cache, set
+                                // endpointsMaxAge to force a new locator lookup for a fresher endpoint.
+                                endpointsMaxAge = endpointsAge;
+                                endpoints = null;
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
                     }
                 }
@@ -1746,13 +1760,14 @@ namespace ZeroC.Ice
             CancellationToken cancel)
         {
             Connection? connection = _connection;
-            bool cached = false;
+            TimeSpan endpointsMaxAge = TimeSpan.MaxValue;
+            TimeSpan endpointsAge = TimeSpan.Zero;
             List<Endpoint>? endpoints = null;
 
             if ((connection == null || (!IsFixed && !connection.IsActive)) && PreferExistingConnection)
             {
                 // No cached connection, so now check if there is an existing connection that we can reuse.
-                (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                (endpoints, endpointsAge) = await ComputeEndpointsAsync(endpointsMaxAge, cancel).ConfigureAwait(false);
                 connection = Communicator.GetConnection(endpoints, PreferNonSecure, Label);
                 if (CacheConnection)
                 {
@@ -1779,15 +1794,16 @@ namespace ZeroC.Ice
                     {
                         if (endpoints == null)
                         {
+                            Debug.Assert(nextEndpoint == 0);
                             // ComputeEndpointsAsync throws if it can't figure out the endpoints
-                            // TODO ComputeEndpointsAsync should return a integer indicating the locator cache version,
-                            // -1 indicates the locator was not contacted.
-                            (endpoints, cached) = await ComputeEndpointsAsync(cancel).ConfigureAwait(false);
+                            (endpoints, endpointsAge) = await ComputeEndpointsAsync(endpointsMaxAge,
+                                                                                    cancel).ConfigureAwait(false);
                             if (excludedEndpoints != null)
                             {
                                 endpoints = endpoints.Except(excludedEndpoints).ToList();
                                 if (endpoints.Count == 0)
                                 {
+                                    endpoints = null;
                                     throw new NoEndpointException();
                                 }
                             }
@@ -1859,7 +1875,7 @@ namespace ZeroC.Ice
                     }
                     observer?.RemoteException();
                 }
-                catch (NoEndpointException ex) when (!cached)
+                catch (NoEndpointException ex) when (endpointsAge == TimeSpan.Zero)
                 {
                     // If we get NoEndpointException while using non cached endpoints, either all endpoints
                     // have been excluded or the proxy has no endpoints. we cannot retry, return here to
@@ -1887,28 +1903,26 @@ namespace ZeroC.Ice
 
                 // With the retry-policy OtherReplica we add the current endpoint to the list of excluded
                 // endpoints this prevents the endpoints to be tried again during the current retry sequence.
-                if (retryPolicy == RetryPolicy.OtherReplica)
+                if (retryPolicy == RetryPolicy.OtherReplica &&
+                    (endpoints?[nextEndpoint] ?? connection?.Endpoint) is Endpoint endpoint)
                 {
-                    if ((endpoints?[nextEndpoint] ?? connection?.Endpoint) is Endpoint endpoint)
-                    {
-                        excludedEndpoints ??= new();
-                        excludedEndpoints.Add(endpoint);
-                    }
+                    excludedEndpoints ??= new();
+                    excludedEndpoints.Add(endpoint);
                 }
 
                 if (endpoints != null && (connection == null || retryPolicy == RetryPolicy.OtherReplica))
                 {
                     // If connection establishment failed or if the endpoint was excluded, try the next endpoint
                     nextEndpoint = ++nextEndpoint % endpoints.Count;
-
                     if (nextEndpoint == 0)
                     {
                         // nextendpoint == 0 indicates that we already tried all the endpoints.
-                        if (cached)
+                        if (endpointsAge != TimeSpan.Zero)
                         {
-                            // If we were using cached endpoints, we clear the endpoints to trigger a new endpoint
-                            // lookup.
+                            // If we were using cached endpoints, we clear the endpoints, and set endpointsMaxAge to
+                            // request a fresher endpoint.
                             endpoints = null;
+                            endpointsMaxAge = endpointsAge;
                         }
                         else
                         {
@@ -1981,11 +1995,12 @@ namespace ZeroC.Ice
 
                     observer?.Retried();
 
-                    // TODO remove this when we implement the locator cache serial, that will retrieve a fresh endpoint
-                    // based on the previous serial.
-                    if (cached && IsIndirect)
+                    // If an indirect reference is using a endpoint from the cache, set endpointsMaxAge to force
+                    // a new locator lookup.
+                    if (IsIndirect && endpointsAge != TimeSpan.Zero)
                     {
-                        LocatorInfo?.ClearCache(this);
+                        endpointsMaxAge = endpointsAge;
+                        endpoints = null;
                     }
 
                     if (!IsFixed && connection != null)
@@ -2001,7 +2016,7 @@ namespace ZeroC.Ice
             observer?.Failed(exception?.GetType().FullName ?? "System.Exception");
             Debug.Assert(response != null || exception != null);
             Debug.Assert(response == null || response.ResultType == ResultType.Failure);
-            return response ?? throw exception!;
+            return response ?? throw ExceptionUtil.Throw(exception!);
 
             void TraceRetry(string message, int attempt = 0, RetryPolicy? policy = null, Exception? exception = null)
             {

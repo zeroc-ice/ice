@@ -1,0 +1,62 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "master" ]
+  schedule:
+    - cron: '34 18 * * 3'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp', 'csharp', 'java', 'javascript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
+        # queries: ./path/to/local/query, your-org/your-repo/queries@main
+
+    # ℹ️ Command-line programs to run using the OS shell.
+    # 📚 https://git.io/JvXDl
+
+    - if: matrix.language == 'cpp'
+      run: |
+        sudo apt-get update && sudo apt-get install libmcpp-dev libssl-dev libexpat1-dev libbz2-dev liblmdb-dev
+        make LANGUAGES=cpp OPTIMIZE=no V=1 -j8 srcs
+
+    - if: matrix.language == 'java'
+      run: |
+       sudo apt-get update && sudo apt-get install libmcpp-dev
+       make -C ./cpp slice2java -j8
+       make -C ./java V=1
+
+    - if: matrix.language == 'csharp'
+      run: |
+       sudo apt-get update && sudo apt-get install libmcpp-dev
+       make -C ./csharp
+
+    - if: matrix.language == 'javascript'
+      run: |
+       sudo apt-get update && sudo apt-get install libmcpp-dev
+       make -C ./cpp slice2js -j8
+       make -C ./js
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1

@@ -1,20 +1,25 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System.Threading;
+using System.Threading.Tasks;
+
 using ZeroC.Ice;
 
 namespace ZeroC.IceBox.Test.Configuration
 {
     public class TestService : IService
     {
-        public void Start(string name, Communicator communicator, string[] args)
+        public async Task StartAsync(
+            string name,
+            Communicator communicator,
+            string[] args,
+            CancellationToken cancel)
         {
             ObjectAdapter adapter = communicator.CreateObjectAdapter(name + "OA");
             adapter.Add("test", new TestIntf(args));
-            adapter.ActivateAsync().GetAwaiter().GetResult(); // TODO: temporary
+            await adapter.ActivateAsync(cancel);
         }
 
-        public void Stop()
-        {
-        }
+        public Task StopAsync() => Task.CompletedTask;
     }
 }

@@ -37,49 +37,45 @@ module IceBox
     {
     }
 
+    /// This exception is thrown when a service fails to start or stop.
+    exception ServiceException
+    {
+    }
+
     /// An Observer interface implemented by admin clients interested in the status of services.
-    ///
     /// @see ServiceManager
     interface ServiceObserver
     {
         /// Receives the names of the services that were started.
-        ///
         /// @param services The names of the services.
         void servicesStarted(Ice::StringSeq services);
 
         /// Receives the names of the services that were stopped.
-        ///
         /// @param services The names of the services.
         void servicesStopped(Ice::StringSeq services);
     }
 
     /// Administers a set of {@link Service} instances.
-    ///
     /// @see Service
     interface ServiceManager
     {
         /// Starts an individual service.
-        ///
         /// @param service The service name.
-        ///
         /// @throws AlreadyStartedException If the service is already running.
         /// @throws NoSuchServiceException If no service could be found with the given name.
         void startService(string service)
             throws AlreadyStartedException, NoSuchServiceException;
 
         /// Stops an individual service.
-        ///
         /// @param service The service name.
-        ///
         /// @throws AlreadyStoppedException If the service is already stopped.
         /// @throws NoSuchServiceException If no service could be found with the given name.
         void stopService(string service)
             throws AlreadyStoppedException, NoSuchServiceException;
 
         /// Registers a new observer with the ServiceManager.
-        ///
         /// @param observer The new observer.
-        void addObserver(ServiceObserver* observer);
+        void addObserver(ServiceObserver observer);
 
         /// Shuts down all services. This causes stop to be invoked on all configured services.
         void shutdown();
