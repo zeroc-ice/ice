@@ -13,9 +13,8 @@
 #include <IceGrid/DescriptorHelper.h>
 #include <IceBox/IceBox.h>
 
-#ifdef HAVE_READLINE
-#   include <readline/readline.h>
-#   include <readline/history.h>
+#if defined(__APPLE__) || defined(__linux__)
+#    include <editline/readline.h>
 #endif
 
 #include <iterator>
@@ -2573,8 +2572,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
     }
     else
     {
-#ifdef HAVE_READLINE
-
+#if defined(__APPLE__) || defined(__linux__)
         const char* prompt = parser->getPrompt();
         char* line = readline(const_cast<char*>(prompt));
         if(!line)
