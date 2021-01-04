@@ -38,7 +38,7 @@ jobs:
 
     - if: matrix.language == 'cpp'
       run: |
-        sudo apt-get update && sudo apt-get install libmcpp-dev libssl-dev libexpat1-dev libbz2-dev liblmdb-dev
+        sudo apt-get update && sudo apt-get install libedit-dev libmcpp-dev libssl-dev libexpat1-dev libbz2-dev liblmdb-dev
         make LANGUAGES=cpp OPTIMIZE=no V=1 -j8
 
     - if: matrix.language == 'java'
