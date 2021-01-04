@@ -156,6 +156,14 @@ function Init()
             }
 
             var filePath = req.url.pathname;
+            if(filePath.indexOf("..") != -1 || !["/test/", "/assets/", "/lib", "/node_modules"].some(
+                prefix => filePath.startsWith(prefix)))
+            {
+                res.writeHead(403);
+                res.end("403 Forbiden");
+                console.log("HTTP/403 (Forbiden) " + req.method + " " + req.url.pathname + " -> " + filePath);
+                return;
+            }
             var sourceMap;
             if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != ".js")
             {
