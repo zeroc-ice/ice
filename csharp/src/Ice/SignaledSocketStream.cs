@@ -13,9 +13,30 @@ namespace ZeroC.Ice
     /// for receiving data. The socket can easily signal the stream when new data is available.</summary>
     internal abstract class SignaledSocketStream<T> : SocketStream, IValueTaskSource<T>
     {
-        internal bool IsSignaled => Thread.VolatileRead(ref _signaled) == 1;
-        private volatile Exception? _exception;
-        private int _signaled;
+        internal bool IsSignaled
+        {
+            get
+            {
+                bool lockTaken = false;
+                try
+                {
+                    _lock.Enter(ref lockTaken);
+                    return _source.GetStatus(_source.Version) != ValueTaskSourceStatus.Pending;
+                }
+                finally
+                {
+                    if (lockTaken)
+                    {
+                        _lock.Exit();
+                    }
+                }
+            }
+        }
+
+        private Exception? _exception;
+        // Provide thread safety using a spin lock to avoid having to create another object on the heap. The lock
+        // is used to protect the setting of the signal value or exception with the manual reset value task source.
+        private SpinLock _lock;
         private ManualResetValueTaskSourceCore<T> _source;
         private CancellationTokenRegistration _tokenRegistration;
         private static readonly Exception _disposedException =
@@ -26,32 +47,39 @@ namespace ZeroC.Ice
         /// exception to raise it after the stream consumes the signal and waits for a new signal</summary>
         public override void Abort(Exception ex)
         {
-            if (_exception == null)
+            bool lockTaken = false;
+            try
             {
-                _exception = ex;
-
-                // If the source isn't already signaled, signal completion by setting the exception. Otherwise if it's
-                // already signaled, a result is pending. In this case, we keep track of the exception and we'll raise
-                // the exception the next time the signal is awaited. This is necessary because
-                // ManualResetValueTaskSourceCore is not thread safe and once an exception or result is set we can't
-                // call again SetXxx until the source's result or exception is consumed.
-                if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
+                _lock.Enter(ref lockTaken);
+                if (_exception == null)
                 {
-                    _source.RunContinuationsAsynchronously = true;
-                    _source.SetException(ex);
+                    _exception = ex;
+
+                    // If the source isn't already signaled, signal completion by setting the exception. Otherwise
+                    // if it's already signaled, a result is pending. In this case, we'll raise the exception the
+                    // next time the signal is awaited. This is necessary because ManualResetValueTaskSourceCore is
+                    // not thread safe and once an exception or result is set we can't call again SetXxx until the
+                    // source's result or exception is consumed.
+                    if (_source.GetStatus(_source.Version) == ValueTaskSourceStatus.Pending)
+                    {
+                        _source.SetException(ex);
+                    }
+                }
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    _lock.Exit();
                 }
             }
         }
 
         protected SignaledSocketStream(MultiStreamSocket socket, long streamId)
-            : base(socket, streamId)
-        {
-        }
+            : base(socket, streamId) => _source.RunContinuationsAsynchronously = true;
 
         protected SignaledSocketStream(MultiStreamSocket socket, bool bidirectional, bool control)
-            : base(socket, bidirectional, control)
-        {
-        }
+            : base(socket, bidirectional, control) => _source.RunContinuationsAsynchronously = true;
 
         protected override void Dispose(bool disposing)
         {
@@ -66,19 +94,30 @@ namespace ZeroC.Ice
             }
         }
 
-        protected void SignalCompletion(T result, bool runContinuationAsynchronously = false)
+        protected void SignalCompletion(T result)
         {
-            if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
+            bool lockTaken = false;
+            try
             {
-                // If the source isn't already signaled, signal completion by setting the result.
-                _source.RunContinuationsAsynchronously = runContinuationAsynchronously;
-                _source.SetResult(result);
+                _lock.Enter(ref lockTaken);
+                if (_source.GetStatus(_source.Version) == ValueTaskSourceStatus.Pending)
+                {
+                    // If the source isn't already signaled, signal completion by setting the result.
+                    _source.SetResult(result);
+                }
+                else
+                {
+                    // The stream is already signaled because it got aborted.
+                    Debug.Assert(_exception != null);
+                    throw new InvalidOperationException("the stream is already signaled");
+                }
             }
-            else
+            finally
             {
-                // The stream is already signaled because it got aborted.
-                Debug.Assert(_exception != null);
-                throw new InvalidOperationException("the stream is already signaled");
+                if (lockTaken)
+                {
+                    _lock.Exit();
+                }
             }
         }
 
@@ -88,46 +127,42 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_tokenRegistration == default);
                 cancel.ThrowIfCancellationRequested();
-                _tokenRegistration = cancel.Register(() =>
-                {
-                    try
-                    {
-                        _tokenRegistration.Token.ThrowIfCancellationRequested();
-                    }
-                    catch (Exception ex)
-                    {
-                        Abort(ex);
-                    }
-                });
+                _tokenRegistration = cancel.Register(() => Abort(new OperationCanceledException(cancel)));
             }
             return new ValueTask<T>(this, _source.Version);
         }
 
         T IValueTaskSource<T>.GetResult(short token)
         {
-            Debug.Assert(token == _source.Version);
-
-            // Get the result. This will throw if the stream has been aborted. In this case, we let the
-            // exception go through and don't reset the source.
-            T result = _source.GetResult(token);
-
-            // Reset the source to allow the stream to be signaled again.
-            _tokenRegistration.Dispose();
-            _tokenRegistration = default;
-            _source.Reset();
-            int value = Interlocked.CompareExchange(ref _signaled, 0, 1);
-            Debug.Assert(value == 1);
-
-            // If an exception is set, we try to set it on the source if it wasn't signaled in the meantime.
-            if (_exception != null)
+            bool lockTaken = false;
+            try
             {
-                if (Interlocked.CompareExchange(ref _signaled, 1, 0) == 0)
+                _lock.Enter(ref lockTaken);
+                Debug.Assert(token == _source.Version);
+
+                // Get the result. This will throw if the stream has been aborted. In this case, we let the
+                // exception go through and don't reset the source.
+                T result = _source.GetResult(token);
+
+                // Reset the source to allow the stream to be signaled again.
+                _tokenRegistration.Dispose();
+                _tokenRegistration = default;
+                _source.Reset();
+
+                // If an exception is set, we set it on the source.
+                if (_exception != null)
                 {
-                    _source.RunContinuationsAsynchronously = true;
                     _source.SetException(_exception);
                 }
+                return result;
             }
-            return result;
+            finally
+            {
+                if (lockTaken)
+                {
+                    _lock.Exit();
+                }
+            }
         }
 
         ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token)
