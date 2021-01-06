@@ -427,7 +427,7 @@ Returns:
             else:
                 result = coro.send(value)
 
-            if result == None:
+            if result is None:
                 # The result can be None if the coroutine performs a bare yield (such as asyncio.sleep(0))
                 cb.response(None)
             elif isinstance(result, Future) or callable(getattr(result, "add_done_callback", None)):
