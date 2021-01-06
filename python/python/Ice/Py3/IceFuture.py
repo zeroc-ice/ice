@@ -8,6 +8,7 @@
 
 import asyncio
 
+
 #
 # This class defines an __await__ method so that coroutines can call 'await <future>'.
 #
@@ -19,6 +20,7 @@ class FutureBase(object):
             yield self
         return self.result()
 
+
 def wrap_future(future, *, loop=None):
     '''Wrap Ice.Future object into an asyncio.Future.'''
     if isinstance(future, asyncio.Future):
@@ -26,18 +28,23 @@ def wrap_future(future, *, loop=None):
 
     assert isinstance(future, FutureBase), 'Ice.Future is expected, got {!r}'.format(future)
 
-    if loop is None:
-        loop = asyncio.get_event_loop()
+    def forwardCompletion(sourceFuture, targetFuture):
+        if not targetFuture.done():
+            if sourceFuture.cancelled():
+                targetFuture.cancel()
+            elif sourceFuture.exception():
+                targetFuture.set_exception(sourceFuture.exception())
+            else:
+                targetFuture.set_result(sourceFuture.result())
 
-    af = asyncio.Future()
+    asyncioFuture = asyncio.Future()
 
-    def callback():
-        if future.cancelled():
-            af.cancel()
-        elif future.exception():
-            af.set_exception(future.exception())
-        else:
-            af.set_result(future.result())
+    if future.done():
+        forwardCompletion(future, asyncioFuture)
+    else:
+        if loop is None:
+            loop = asyncio.get_event_loop()
+        asyncioFuture.add_done_callback(lambda f: forwardCompletion(asyncioFuture, future))
+        future.add_done_callback(lambda f: loop.call_soon_threadsafe(forwardCompletion, future, asyncioFuture))
 
-    future.add_done_callback(lambda f: loop.call_soon_threadsafe(callback))
-    return af
+    return asyncioFuture
