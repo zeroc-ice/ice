@@ -1100,7 +1100,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError, boo
         {
             if (printError && !ignoreUndefined)
             {
-                _unit->error("`" + sc + "' is not defined");
+                _unit->error("type `" + sc + "' is not defined");
             }
             return TypeList();
         }

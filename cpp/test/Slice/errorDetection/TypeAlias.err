@@ -1,11 +1,11 @@
-TypeAlias.ice:33: `foo' is not defined
+TypeAlias.ice:33: type `foo' is not defined
 TypeAlias.ice:33: unable to resolve underlying type
 TypeAlias.ice:34: `optintAlias': optional types cannot be type-aliased
 TypeAlias.ice:35: missing underlying type for typealias `missingType'
 TypeAlias.ice:38: `;' missing after type-alias
-TypeAlias.ice:39: `C1' is not defined
+TypeAlias.ice:39: type `C1' is not defined
 TypeAlias.ice:39: unable to resolve underlying type
-TypeAlias.ice:47: `C1' is not defined
+TypeAlias.ice:47: type `C1' is not defined
 TypeAlias.ice:47: unable to resolve underlying type
 TypeAlias.ice:56: redefinition of typealias `C0Alias'
 TypeAlias.ice:38: note: typealias `C0Alias' was originally defined here

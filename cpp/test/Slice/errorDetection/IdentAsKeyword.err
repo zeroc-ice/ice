@@ -37,6 +37,8 @@ IdentAsKeyword.ice:55: keyword `long' cannot be used as enumerator
 IdentAsKeyword.ice:55: keyword `byte' cannot be used as enumerator
 IdentAsKeyword.ice:58: keyword `module' cannot be used as operation name
 IdentAsKeyword.ice:61: keyword `exception' cannot be used as operation name
-IdentAsKeyword.ice:64: syntax error
+IdentAsKeyword.ice:64: type `op' is not defined
 IdentAsKeyword.ice:67: keyword `byte' cannot be used as an identifier
 IdentAsKeyword.ice:70: keyword `byte' cannot be used as an identifier
+IdentAsKeyword.ice:73: syntax error
+IdentAsKeyword.ice:74: syntax error

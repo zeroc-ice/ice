@@ -70,6 +70,9 @@ interface i8 { void op(double BYTE); }
 interface i9 { void op(out double byte); }
 interface i10 { void op(out double BYTE); }
 
+interface i11 { enum op(); }
+interface i12 { out enum op(); }
+
 interface \true {}     // OK, escaped keyword
 
 }
