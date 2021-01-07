@@ -427,8 +427,12 @@ Returns:
             else:
                 result = coro.send(value)
 
-            # Calling 'await <future>' will return the future. Check if we've received a future.
-            if isinstance(result, Future) or callable(getattr(result, "add_done_callback", None)):
+            if result is None:
+                # The result can be None if the coroutine performs a bare yield (such as asyncio.sleep(0))
+                cb.response(None)
+            elif isinstance(result, Future) or callable(getattr(result, "add_done_callback", None)):
+                # If we've received a future from the coroutine setup a done callback to continue the dispatching
+                # when the future completes.
                 def handler(future):
                     try:
                         self._iceDispatchCoroutine(cb, coro, value=future.result())
