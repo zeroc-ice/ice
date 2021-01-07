@@ -37,13 +37,13 @@ def wrap_future(future, *, loop=None):
             else:
                 targetFuture.set_result(sourceFuture.result())
 
-    asyncioFuture = asyncio.Future()
+    if loop is None:
+        loop = asyncio.get_event_loop()
+    asyncioFuture = loop.create_future()
 
     if future.done():
         forwardCompletion(future, asyncioFuture)
     else:
-        if loop is None:
-            loop = asyncio.get_event_loop()
         asyncioFuture.add_done_callback(lambda f: forwardCompletion(asyncioFuture, future))
         future.add_done_callback(lambda f: loop.call_soon_threadsafe(forwardCompletion, future, asyncioFuture))
 
