@@ -159,6 +159,7 @@
   <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions Condition="'$(DefaultPlatformToolset)' == 'v141' OR '$(DefaultPlatformToolset)' == 'v142'">/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
 
     <ResourceCompile>

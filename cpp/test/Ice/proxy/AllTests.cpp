@@ -366,7 +366,9 @@ allTests(Test::TestHelper* helper)
     test(id == id2);
 
     // More unicode characters
-#ifdef ICE_CPP11_MAPPING
+#if defined(ICE_CPP11_MAPPING) && (!defined(_MSC_VER) || (_MSC_VER >= 1911))
+    // To use unicode string literals with Visual Studio we need to build with /utf8
+    // compiler option require Visual Studio 2017 or later
     id.name = "banana \016-\U0001F34C\U000020AC\u00a2\u0024";
     id.category = "greek \U0001016A";
 
