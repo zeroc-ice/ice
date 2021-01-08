@@ -53,6 +53,7 @@ Ice has dependencies on a number of third-party libraries:
 
  - [bzip2][3] 1.0
  - [expat][4] 2.1 or later
+ - [libedit][12] (Linux and macOS)
  - [LMDB][5] 0.9 (LMDB is not required with the C++11 mapping)
  - [mcpp][6] 2.7.2 with patches
  - [OpenSSL][7] 1.0.0 or later (on AIX and Linux)
@@ -75,7 +76,7 @@ xlc_r, together with header files and other development files.
 
 #### Linux
 
-Bzip, Expat and OpenSSL are included with most Linux distributions.
+Bzip, Expat, Libedit and OpenSSL are included with most Linux distributions.
 
 ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions
 that do not include them. You can install these packages as shown below:
@@ -122,7 +123,7 @@ from BlueZ 5.43.*
 
 #### macOS
 
-Expat and bzip are included with your system.
+bzip, expat and libedit are included with your system.
 
 You can install LMDB and mcpp using Homebrew:
 ```
@@ -551,3 +552,4 @@ failure, the tests abort with `failed`.
 [9]: https://www.freedesktop.org/wiki/Software/pkg-config
 [10]: https://www.freedesktop.org/wiki/Software/dbus
 [11]: http://www.bluez.org
+[12]: https://thrysoee.dk/editline/
