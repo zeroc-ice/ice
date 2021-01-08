@@ -21,7 +21,7 @@ class InitialI(Test.Initial):
         raise Test.OptionalException(False, a, b, o)
 
     def opDerivedException(self, a, b, o, current=None):
-        raise Test.DerivedException(False, a, b, o, b, o)
+        raise Test.DerivedException(False, a, b, o, "d1", b, o, "d2")
 
     def opRequiredException(self, a, b, o, current=None):
         e = Test.RequiredException()

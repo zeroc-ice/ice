@@ -142,8 +142,10 @@ exception OptionalException
 
 exception DerivedException extends OptionalException
 {
+    string d1 = "d1";
     optional(600) string ss = "test";
     optional(601) OneOptional o2;
+    string d2 = "d2";
 }
 
 exception RequiredException extends OptionalException

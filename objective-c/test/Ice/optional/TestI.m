@@ -22,7 +22,7 @@
 }
 -(void) opDerivedException:(id)a b:(id)b o:(id)o current:(ICECurrent *)__unused current
 {
-    @throw [TestOptionalDerivedException derivedException:NO a:a b:b o:o ss:b o2:o];
+    @throw [TestOptionalDerivedException derivedException:NO a:a b:b o:o d1:@"d1" ss:b o2:o d2:@"d2"];
 }
 -(void) opRequiredException:(id)a b:(id)b o:(id)o current:(ICECurrent *)__unused current
 {

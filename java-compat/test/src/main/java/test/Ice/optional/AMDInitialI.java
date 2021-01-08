@@ -78,6 +78,8 @@ public final class AMDInitialI extends _InitialDisp
             ex.setO(o.get());
             ex.setO2(o.get());
         }
+        ex.d1 = "d1";
+        ex.d2 = "d2";
         cb.ice_exception(ex);
     }
 

@@ -26,7 +26,7 @@ class InitialI: Initial {
                             b: String?,
                             o: OneOptional?,
                             current _: Ice.Current) throws {
-        throw DerivedException(req: false, a: a, b: b, o: o, ss: b, o2: o)
+        throw DerivedException(req: false, a: a, b: b, o: o, d1: "d1", ss: b, o2: o, d2: "d2")
     }
 
     func opRequiredException(a: Int32?,

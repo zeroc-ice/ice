@@ -75,6 +75,8 @@ public final class InitialI extends _InitialDisp
             ex.setO(o.get());
             ex.setO2(o.get());
         }
+        ex.d1 = "d1";
+        ex.d2 = "d2";
         throw ex;
     }
 

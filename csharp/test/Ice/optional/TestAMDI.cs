@@ -40,7 +40,7 @@ namespace Ice
                                         Ice.Optional<Test.OneOptional> o,
                                         Ice.Current c)
                 {
-                    throw new Test.DerivedException(false, a, b, o, b, o);
+                    throw new Test.DerivedException(false, a, b, o, "d1", b, o, "d2");
                 }
 
                 public override Task

@@ -65,6 +65,8 @@ InitialI::opDerivedException(ICE_IN(Optional<Int>) a,
     ex.o = o;
     ex.ss = b;
     ex.o2 = o;
+    ex.d1 = "d1";
+    ex.d2 = "d2";
     throw ex;
 }
 

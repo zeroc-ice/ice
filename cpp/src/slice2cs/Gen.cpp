@@ -3004,8 +3004,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
+            if(!(*q)->optional())
+            {
+                writeMarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), ns);
+            }
+        }
+
+        for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+        {
             writeMarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), ns);
         }
+
         _out << nl << "ostr_.endSlice();";
         if(base)
         {
@@ -3020,6 +3029,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "istr_.startSlice();";
 
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            if(!(*q)->optional())
+            {
+                writeUnmarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), ns);
+            }
+        }
+
+        for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
         {
             writeUnmarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception), ns);
         }

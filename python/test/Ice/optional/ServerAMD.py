@@ -24,7 +24,7 @@ class InitialI(Test.Initial):
 
     def opDerivedException(self, a, b, o, current=None):
         f = Ice.Future()
-        f.set_exception(Test.DerivedException(False, a, b, o, b, o))
+        f.set_exception(Test.DerivedException(False, a, b, o, "d1", b, o, "d2"))
         return f
 
     def opRequiredException(self, a, b, o, current=None):

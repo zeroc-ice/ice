@@ -50,7 +50,7 @@ InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::str
                                   ::std::function<void()>,
                                   ::std::function<void(::std::exception_ptr)> ex, const Ice::Current&)
 {
-    ex(make_exception_ptr(DerivedException(false, a, b, o, b, o)));
+    ex(make_exception_ptr(DerivedException(false, a, b, o, "d1", b, o, "d2")));
 }
 
 void
@@ -595,6 +595,8 @@ InitialI::opDerivedException_async(const ::Test::AMD_Initial_opDerivedExceptionP
     ex.o = o;
     ex.ss = b;
     ex.o2 = o;
+    ex.d1 = "d1";
+    ex.d2 = "d2";
     cb->ice_exception(ex);
 }
 

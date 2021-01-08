@@ -775,6 +775,8 @@ def allTests(helper, communicator):
         test(ex.o is Ice.Unset)
         test(ex.ss is Ice.Unset)
         test(ex.o2 is Ice.Unset)
+        test(ex.d1 == "d1");
+        test(ex.d2 == "d2");
 
     try:
         initial.opDerivedException(30, "test2", Test.OneOptional(53))
@@ -784,6 +786,8 @@ def allTests(helper, communicator):
         test(ex.o.a == 53)
         test(ex.ss == "test2")
         test(ex.o2 == ex.o)
+        test(ex.d1 == "d1");
+        test(ex.d2 == "d2");
 
     try:
         initial.opRequiredException(Ice.Unset, Ice.Unset, Ice.Unset)

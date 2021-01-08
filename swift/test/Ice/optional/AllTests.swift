@@ -3253,6 +3253,8 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(ex.o == nil)
         try test(ex.ss == nil)
         try test(ex.o2 == nil)
+        try test(ex.d1 == "d1")
+        try test(ex.d2 == "d2")
     }
 
     do {
@@ -3263,6 +3265,8 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(ex.o!.a == 53)
         try test(ex.ss == "test2")
         try test(ex.o2!.a == 53)
+        try test(ex.d1 == "d1")
+        try test(ex.d2 == "d2")
     }
 
     do {
