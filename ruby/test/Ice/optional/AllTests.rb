@@ -711,6 +711,8 @@ def allTests(helper, communicator)
         test(ex.o == Ice::Unset)
         test(ex.ss == Ice::Unset)
         test(ex.o2 == Ice::Unset)
+        test(ex.d1 == "d1")
+        test(ex.d2 == "d2")
     end
 
     begin
@@ -721,6 +723,8 @@ def allTests(helper, communicator)
         test(ex.o.a == 53)
         test(ex.ss == "test")
         test(ex.o2 == ex.o)
+        test(ex.d1 == "d1")
+        test(ex.d2 == "d2")
     end
 
     begin

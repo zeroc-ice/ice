@@ -2098,6 +2098,8 @@ public class AllTests
                 test(!ex.hasO());
                 test(!ex.hasSs());
                 test(!ex.hasO2());
+                test(ex.d1.equals("d1"));
+                test(ex.d2.equals("d2"));
             }
             catch(OptionalException ex)
             {
@@ -2118,6 +2120,8 @@ public class AllTests
                 test(ex.getO().getA() == 53);
                 test(ex.getSs().equals("test2"));
                 test(ex.getO2().getA() == 53);
+                test(ex.d1.equals("d1"));
+                test(ex.d2.equals("d2"));
             }
             catch(OptionalException ex)
             {

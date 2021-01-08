@@ -1672,6 +1672,8 @@ optionalAllTests(id<ICECommunicator> communicator)
             test(![ex hasO]);
             test(![ex hasSs]);
             test(![ex hasO2]);
+            test([ex.d1 isEqualToString:@"d1"]);
+            test([ex.d2 isEqualToString:@"d2"]);
         }
         @catch(TestOptionalOptionalException* ex)
         {
@@ -1693,6 +1695,8 @@ optionalAllTests(id<ICECommunicator> communicator)
             test(ex.o.a == 53);
             test([ex.ss isEqualToString:@"test2"]);
             test(ex.o2.a == 53);
+            test([ex.d1 isEqualToString:@"d1"]);
+            test([ex.d2 isEqualToString:@"d2"]);
         }
         @catch(TestOptionalOptionalException* ex)
         {

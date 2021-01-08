@@ -27,7 +27,7 @@ class InitialI: Initial {
 
     func opDerivedExceptionAsync(a: Int32?, b: String?, o: OneOptional?, current _: Current) -> Promise<Void> {
         return Promise { seal in
-            seal.reject(DerivedException(req: false, a: a, b: b, o: o, ss: b, o2: o))
+            seal.reject(DerivedException(req: false, a: a, b: b, o: o, d1: "d1", ss: b, o2: o, d2: "d2"))
         }
     }
 

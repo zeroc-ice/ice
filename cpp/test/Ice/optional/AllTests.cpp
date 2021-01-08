@@ -2074,6 +2074,8 @@ allTests(Test::TestHelper* helper, bool)
             test(!ex.o);
             test(!ex.ss);
             test(!ex.o2);
+            test(ex.d1 == "d1");
+            test(ex.d2 == "d2");
         }
         catch(const OptionalException&)
         {
@@ -2095,6 +2097,8 @@ allTests(Test::TestHelper* helper, bool)
             test((*ex.o)->a == 53);
             test(ex.ss == string("test2"));
             test((*ex.o2)->a == 53);
+            test(ex.d1 == "d1");
+            test(ex.d2 == "d2");
         }
         catch(const OptionalException&)
         {

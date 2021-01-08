@@ -2208,6 +2208,8 @@ namespace Ice
                         test(!ex.o.HasValue);
                         test(!ex.ss.HasValue);
                         test(!ex.o2.HasValue);
+                        test(ex.d1 == "d1");
+                        test(ex.d2 == "d2");
                     }
 
                     try
@@ -2224,6 +2226,8 @@ namespace Ice
                         test(ex.o.Value.a.Value == 53);
                         test(ex.ss.Value.Equals("test2"));
                         test(ex.o2.Value.a.Value == 53);
+                        test(ex.d1 == "d1");
+                        test(ex.d2 == "d2");
                     }
 
                     try

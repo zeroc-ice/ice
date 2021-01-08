@@ -799,6 +799,8 @@ classdef AllTests
                 assert(ex.o == Ice.Unset);
                 assert(ex.ss == Ice.Unset);
                 assert(ex.o2 == Ice.Unset);
+                assert(strcmp(ex.d1, 'd1'));
+                assert(strcmp(ex.d2, 'd2'));
             end
 
             try
@@ -810,6 +812,8 @@ classdef AllTests
                 assert(ex.o.a == 53);
                 assert(strcmp(ex.ss, 'test2'));
                 assert(ex.o2 == ex.o);
+                assert(strcmp(ex.d1, 'd1'));
+                assert(strcmp(ex.d2, 'd2'));
             end
 
             try

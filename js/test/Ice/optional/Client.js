@@ -716,6 +716,8 @@
                 test(ex.o === undefined);
                 test(ex.ss === undefined);
                 test(ex.o2 === undefined);
+                test(ex.d1 == "d1");
+                test(ex.d2 == "d2");
             }
 
             try
