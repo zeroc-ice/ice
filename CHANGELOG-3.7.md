@@ -72,10 +72,52 @@ These are the changes since Ice 3.7.4.
   The property `Ice.AcceptClassCycles` can be set to a value greater than `0`
   to change this behavior.
 
+- Add support for readline in `icegridadmin` and `icestormadmin`, this feature is only supported
+  with macOS and Linux platforms.
+
+- Fixed IceGridGUI bug where service metrics were missing [#1203](https://github.com/zeroc-ice/ice/issues/1203)
+
+## C++ Changes
+
+- string literals using the narrow string mapping are no longer map to u8 string literals, instead
+  they are map to a regular string with unicode characters encoded in utf-8 using octal escape
+  sequences.
+
+## C# Changes
+
+- Add .NET 5.0 support, Ice for C# assemblies are now build for .NET 5.0, .NET Standard 2.1 and .NET 4.5.
+
+- Fixed disposal of FileLogger which can result in log files not correctly close.
+
+- Fixed slice2cs to disable FxCop warnings in the generated code, some generated methods didn't include
+  the required attributes to disable FxCop warnings.
+
 ## JS Changes
 
 - Add default constructor for Promise derived objects, this works around problems with
   JavaScript frameworks that don't support Symbol.species with their Promise implementations.
+
+- Fix JavaScript OutputStream to better handle undefined values, see [#1170](https://github.com/zeroc-ice/ice/pull/1188)
+
+## PHP Changes
+
+- Add support for PHP 8.0
+
+## Python Changes
+
+- Fix Python 3.9 build failures
+
+## Ruby Changes
+
+- Fix a bug that can result in a segmentation fault when unmarshal a dictionary
+  with a class value type see [#1220](https://github.com/zeroc-ice/ice/pull/1220)
+
+- Fix a bug that can result in a segmentation fault when unmarshal an exception
+  with a class data member see [#1224](https://github.com/zeroc-ice/ice/issues/1224)
+
+## Swift Changes
+
+- Fix XCode 12 build failures
 
 # Changes in Ice 3.7.4
 
