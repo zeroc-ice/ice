@@ -139,7 +139,7 @@ public:
         static const string prefix = "java:";
 
         //
-        // Validate global metadata in the top-level file and all included files.
+        // Validate file metadata in the top-level file and all included files.
         //
         StringList files = p->allFiles();
 
@@ -166,7 +166,7 @@ public:
                     }
                     else
                     {
-                        dc->warning(InvalidMetaData, file, "",  "ignoring invalid global metadata `" + s + "'");
+                        dc->warning(InvalidMetaData, file, "",  "ignoring invalid file metadata `" + s + "'");
                         globalMetaData.remove(s);
                         continue;
                     }
@@ -953,7 +953,7 @@ Slice::JavaCompatGenerator::getPackagePrefix(const ContainedPtr& cont) const
     assert(m);
 
     //
-    // The java:package metadata can be defined as global metadata or applied to a top-level module.
+    // The java:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
     //
     static const string prefix = "java:package:";
@@ -3433,7 +3433,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
     assert(m);
 
     //
-    // The java:package metadata can be defined as global metadata or applied to a top-level module.
+    // The java:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
     //
     static const string prefix = "java:package:";

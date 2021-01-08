@@ -685,7 +685,7 @@ Slice::Python::compile(const vector<string>& argv)
                         }
 
                         //
-                        // Check if the file contains the python:pkgdir global metadata.
+                        // Check if the file contains the python:pkgdir file metadata.
                         //
                         const string pkgdir = getPackageDirectory(icecpp->getFileName(), u);
 

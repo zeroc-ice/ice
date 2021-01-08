@@ -76,7 +76,7 @@ usage(const string& n)
         "--impl                   Generate sample implementations.\n"
         "--impl-tie               Generate sample tie implementations. (Java Compat Only)\n"
         "--checksum CLASS         Generate checksums for Slice definitions into CLASS.\n"
-        "--meta META              Define global metadata directive META.\n"
+        "--meta META              Define file metadata directive META.\n"
         "--list-generated         Emit list of generated files in XML format.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
