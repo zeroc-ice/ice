@@ -3330,6 +3330,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     emitDeprecate(p, 0, _out, "type");
+    writeDocComment(p, getDeprecateReason(p, 0, "type"));
     emitAttributes(p);
     emitGeneratedCodeAttribute();
     _out << nl << "public enum " << name;
@@ -3340,6 +3341,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             _out << ',';
         }
+        writeDocComment(*en, "");
         _out << nl << fixId((*en)->name());
         if(explicitValue)
         {
