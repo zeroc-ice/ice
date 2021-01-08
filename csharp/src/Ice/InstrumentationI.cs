@@ -291,7 +291,7 @@ namespace IceInternal
                     add("operation", cl.GetMethod("getCurrent"), clc.GetField("operation"));
                     add("identity", cl.GetMethod("getIdentity"));
                     add("facet", cl.GetMethod("getCurrent"), clc.GetField("facet"));
-                    add("current", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
+                    add("requestId", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
                     add("mode", cl.GetMethod("getMode"));
                 }
                 catch(Exception)
