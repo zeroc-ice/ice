@@ -714,12 +714,12 @@ Slice::Gen::generate(const UnitPtr& p)
     printGeneratedHeader(_jsout, _fileBase + ".ice");
 
     //
-    // Check for global "js:module:ice" metadata. If this is set then we are building Ice.
+    // Check for file "js:module:ice" metadata. If this is set then we are building Ice.
     //
     bool icejs = module == "ice";
 
     //
-    // Check for global "js:es6-module" metadata. If this is set we are using es6 module mapping
+    // Check for file "js:es6-module" metadata. If this is set we are using es6 module mapping
     //
     bool es6module = dc->findMetaData("js:es6-module") == "js:es6-module";
 

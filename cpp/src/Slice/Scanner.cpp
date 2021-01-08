@@ -2524,7 +2524,7 @@ int checkIdentifier(string& id)
     {
         DefinitionContextPtr dc = unit->currentDefinitionContext();
         assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' global metadata
+        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
         {
             unit->error("illegal underscore in identifier `" + name + "'");
         }

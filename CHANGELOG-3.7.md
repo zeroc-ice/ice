@@ -503,7 +503,7 @@ These are the changes since Ice 3.7.0.
 ## Java Changes
 
 - The java:package metadata can now be applied to modules. It can still
-  be used as global metadata, in which case it serves as the default
+  be used as file metadata, in which case it serves as the default
   directive unless overridden by module metadata.
 
 ## JavaScript Changes
@@ -528,7 +528,7 @@ These are the changes since Ice 3.7.0.
 ## Python Changes
 
 - The python:package metadata can now be applied to modules. It can still
-  be used as global metadata, in which case it serves as the default
+  be used as file metadata, in which case it serves as the default
   directive unless overridden by module metadata.
 
 - Fixed a bug that caused Python to crash on exit when the extension is
@@ -788,7 +788,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Replaced `Ice::NoObjectFactoryException` with `Ice::NoValueFactoryException`.
 
 - The Slice compiler options `--ice` and `--underscore` are now deprecated, and
-  replaced by the global Slice metadata `ice-prefix` and `underscore`.
+  replaced by the file Slice metadata `ice-prefix` and `underscore`.
 
 - Renamed local interface metadata `async` to `async-oneway`.
 
@@ -828,7 +828,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   https://github.com/zeroc-ice/freeze.
 
 - Added support for suppressing Slice warnings using the `[["suppress-warning"]]`
-  global metadata directive. If one or more categories are specified (for
+  file metadata directive. If one or more categories are specified (for
   example `"suppress-warning:invalid-metadata"` or
   `"suppress-warning:deprecated, invalid-metadata"`) only warnings matching these
   categories are suppressed, otherwise all warnings are suppressed.
@@ -854,7 +854,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   creates a `Communicator` in its constructor and destroys it in its destructor.
 
 - The `--dll-export` option of `slice2cpp` is now deprecated, and replaced by
-  the global Slice metadata `cpp:dll-export:SYMBOL`.
+  the file Slice metadata `cpp:dll-export:SYMBOL`.
 
 - The UDP and WS transports are no longer enabled by default with static builds
   of the Ice library. You need to register them explicitly with the
@@ -1003,7 +1003,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - `Ice.HashMap` API has been aligned with the API of JavaScript `Map` type.
 
 - Added support to map Slice modules to JavaScript native modules this requires
-  using the global metadata `[["js:es6-module"]]`.
+  using the file metadata `[["js:es6-module"]]`.
 
 - The `["amd"]` metadata is now ignored in JavaScript. An operation can now be
   be dispatched asynchronously by just returning a JavaScript Promise object.
@@ -1034,7 +1034,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   trigger an assert on marshaling.
 
 - The `--dll-export` option of `slice2objc` is now deprecated, and replaced by
-  the global Slice metadata `objc:dll-export:SYMBOL`.
+  the file Slice metadata `objc:dll-export:SYMBOL`.
 
 - Added `objc:scoped` metadata for enums. The generated Objective-C enumerators
   for a "scoped enum" are prefixed with the enumeration's name. For example:

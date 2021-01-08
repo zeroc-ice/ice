@@ -214,7 +214,7 @@ string
 Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
 {
     //
-    // Check if the file contains the js:module global metadata.
+    // Check if the file contains the js:module file metadata.
     //
     DefinitionContextPtr dc = p->definitionContext();
     assert(dc);

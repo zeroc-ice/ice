@@ -1,14 +1,14 @@
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:header-ext:hh': directive can appear only once per file
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:source-ext:cc': directive can appear only once per file
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:dll-export:Test': directive can appear only once per file
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:header-ext'
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:header-ext:'
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:source-ext'
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:source-ext:'
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:dll-export'
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:dll-export:'
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:include'
-WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:include:'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:header-ext:hh': directive can appear only once per file
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:source-ext:cc': directive can appear only once per file
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:dll-export:Test': directive can appear only once per file
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:header-ext'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:header-ext:'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:source-ext'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:source-ext:'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:dll-export'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:dll-export:'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:include'
+WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:include:'
 WarningInvalidMetaData.ice:32: warning: ignoring metadata `cpp:noexcept' for non local interface
 WarningInvalidMetaData.ice:35: warning: ignoring invalid metadata `cpp:type:std::list< ::std::string>' for operation with void return type
 WarningInvalidMetaData.ice:38: warning: ignoring invalid metadata `cpp:view-type:std::experimental::string_view' for operation with void return type

@@ -329,7 +329,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 else
                 {
                     warning(InvalidMetaData, "", "", string("invalid category `") + s +
-                            "' in global metadata suppress-warning");
+                            "' in file metadata suppress-warning");
                 }
             }
         }
@@ -2716,7 +2716,7 @@ Slice::Container::mergeModules()
             }
 
             //
-            // Compare the global metadata of the two modules being merged.
+            // Compare the file metadata of the two modules being merged.
             //
             DefinitionContextPtr dc2 = mod2->definitionContext();
             assert(dc2);
@@ -2725,7 +2725,7 @@ Slice::Container::mergeModules()
             metaData2.unique();
             if(!checkGlobalMetaData(metaData1, metaData2))
             {
-                unit()->warning(All, "global metadata mismatch for module `" + mod1->name() + "' in files " +
+                unit()->warning(All, "file metadata mismatch for module `" + mod1->name() + "' in files " +
                                 dc1->filename() + " and " + dc2->filename());
             }
 
@@ -3065,7 +3065,7 @@ bool
 Slice::Container::checkGlobalMetaData(const StringList& m1, const StringList& m2)
 {
     //
-    // Not all global metadata mismatches represent actual problems. We are only concerned about
+    // Not all file metadata mismatches represent actual problems. We are only concerned about
     // the prefixes listed below (also see bug 2766).
     //
     static const char* prefixes[] =
@@ -6546,12 +6546,12 @@ Slice::Unit::addGlobalMetaData(const StringList& metaData)
     assert(dc);
     if(dc->seenDefinition())
     {
-        error("global metadata must appear before any definitions");
+        error("file metadata must appear before any definitions");
     }
     else
     {
         //
-        // Append the global metadata to any existing metadata (e.g., default global metadata).
+        // Append the file metadata to any existing metadata (e.g., default file metadata).
         //
         StringList l = dc->getMetaData();
         copy(metaData.begin(), metaData.end(), back_inserter(l));

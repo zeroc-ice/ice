@@ -739,7 +739,7 @@ Slice::Gen::generate(const UnitPtr& p)
     string file = p->topLevelFile();
 
     //
-    // Give precedence to header-ext/source-ext global metadata.
+    // Give precedence to header-ext/source-ext file metadata.
     //
     string headerExtension = getHeaderExt(file, p);
     if(!headerExtension.empty())
@@ -987,7 +987,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << md << "'";
+                    ostr << "ignoring invalid file metadata `" << md << "'";
                     dc->warning(InvalidMetaData, file, -1, ostr.str());
                     globalMetaData.remove(md);
                 }
@@ -1001,7 +1001,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << md << "'";
+                    ostr << "ignoring invalid file metadata `" << md << "'";
                     dc->warning(InvalidMetaData, file, -1, ostr.str());
                     globalMetaData.remove(md);
                 }
@@ -5363,7 +5363,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
     static const string prefix = "cpp:";
 
     //
-    // Validate global metadata in the top-level file and all included files.
+    // Validate file metadata in the top-level file and all included files.
     // Note that these metadata can only be cpp:, never cpp98: or cpp11:
     //
     StringList files = p->allFiles();
@@ -5403,7 +5403,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     if(headerExtension > 1)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid global metadata `" << s
+                        ostr << "ignoring invalid file metadata `" << s
                              << "': directive can appear only once per file";
                         dc->warning(InvalidMetaData, file, -1, ostr.str());
                         globalMetaData.remove(s);
@@ -5416,7 +5416,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     if(sourceExtension > 1)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid global metadata `" << s
+                        ostr << "ignoring invalid file metadata `" << s
                              << "': directive can appear only once per file";
                         dc->warning(InvalidMetaData, file, -1, ostr.str());
                         globalMetaData.remove(s);
@@ -5429,7 +5429,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     if(dllExport > 1)
                     {
                         ostringstream ostr;
-                        ostr << "ignoring invalid global metadata `" << s
+                        ostr << "ignoring invalid file metadata `" << s
                              << "': directive can appear only once per file";
                         dc->warning(InvalidMetaData, file, -1, ostr.str());
 
@@ -5443,7 +5443,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 }
 
                 ostringstream ostr;
-                ostr << "ignoring invalid global metadata `" << s << "'";
+                ostr << "ignoring invalid file metadata `" << s << "'";
                 dc->warning(InvalidMetaData, file, -1, ostr.str());
                 globalMetaData.remove(s);
             }
@@ -5856,7 +5856,7 @@ Slice::Gen::NormalizeMetaDataVisitor::normalize(const StringList& metaData)
     //             + transform "cpp98:" into "cpp:" in front
 
     //
-    // Note: global metadata like header-ext exists only in cpp:
+    // Note: file metadata like header-ext exists only in cpp:
     // form and are not processed at all
     //
 

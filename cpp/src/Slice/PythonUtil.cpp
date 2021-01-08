@@ -2852,7 +2852,7 @@ Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
     //
 
     //
-    // Check if the file contains the python:pkgdir global metadata.
+    // Check if the file contains the python:pkgdir file metadata.
     //
     DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
@@ -2877,7 +2877,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
     //
 
     //
-    // Check if the file contains the python:pkgdir global metadata.
+    // Check if the file contains the python:pkgdir file metadata.
     //
     string pkgdir = getPackageDirectory(file, ut);
     if(!pkgdir.empty())
@@ -3034,7 +3034,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     assert(m);
 
     //
-    // The python:package metadata can be defined as global metadata or applied to a top-level module.
+    // The python:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
     //
     static const string prefix = "python:package:";
@@ -3101,7 +3101,7 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
     static const string prefix = "python:";
 
     //
-    // Validate global metadata in the top-level file and all included files.
+    // Validate file metadata in the top-level file and all included files.
     //
     StringList files = p->allFiles();
     for(StringList::iterator q = files.begin(); q != files.end(); ++q)
@@ -3126,7 +3126,7 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                     continue;
                 }
 
-                dc->warning(InvalidMetaData, file, "", "ignoring invalid global metadata `" + s + "'");
+                dc->warning(InvalidMetaData, file, "", "ignoring invalid file metadata `" + s + "'");
                 globalMetaData.remove(s);
             }
         }
