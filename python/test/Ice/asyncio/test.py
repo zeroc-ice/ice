@@ -3,8 +3,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-# This test doesn't support running with IceSSL, the Router object in the client process uses
-# the client certificate and fails with "unsupported certificate purpose"
+# This test requires asyncio methods which are only available with Python 3.7
 
-if sys.version_info >= (3, 5):
+if sys.version_info >= (3, 7):
     TestSuite(__name__)
