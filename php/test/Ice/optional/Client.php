@@ -740,6 +740,8 @@ function allTests($helper)
         test($ex->o == $none);
         test($ex->ss == $none);
         test($ex->o2 == $none);
+        test($ex->d1 == "d1");
+        test($ex->d2 == "d2");
     }
 
     try
@@ -753,6 +755,8 @@ function allTests($helper)
         test($ex->o->a == 53);
         test($ex->ss == "test");
         test($ex->o2 == $ex->o);
+        test($ex->d1 == "d1");
+        test($ex->d2 == "d2");
     }
 
     try
