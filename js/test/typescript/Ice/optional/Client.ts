@@ -792,6 +792,8 @@ export class Client extends TestHelper
             test(ex.o === undefined);
             test(ex.ss === undefined);
             test(ex.o2 === undefined);
+            test(ex.d1 == "d1");
+            test(ex.d2 == "d2");
         }
 
         try
@@ -807,6 +809,8 @@ export class Client extends TestHelper
             test(ex.o.a === 53);
             test(ex.ss == "test2");
             test(ex.o2.a === 53);
+            test(ex.d1 == "d1");
+            test(ex.d2 == "d2");
         }
 
         out.writeLine("ok");

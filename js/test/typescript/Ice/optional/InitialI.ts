@@ -64,6 +64,8 @@ export class InitialI extends Test.Initial
             ex.o = o;
             ex.o2 = o;
         }
+        ex.d1 = "d1";
+        ex.d2 = "d2";
         throw ex;
     }
 
