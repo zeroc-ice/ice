@@ -4,8 +4,10 @@
 
 supported-platforms             = macosx iphoneos iphonesimulator
 
+macos_arch                      ?= $(shell uname -m)
+
 macosx_ar                       = libtool
-macosx_cppflags                 = -mmacosx-version-min=10.14 -arch x86_64
+macosx_cppflags                 = -mmacosx-version-min=10.14 -arch $(macos_arch)
 macosx_ldflags                  = $(macosx_cppflags) \
                                   $(if $(filter yes, $(allow-undefined-symbols)),-undefined dynamic_lookup,)
 macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
@@ -21,7 +23,7 @@ iphoneos_targetdir              = $(if $(filter %/build,$5),/iphoneos)
 iphonesimulator_ar              = libtool
 iphonesimulator_cc              = xcrun -sdk iphonesimulator clang
 iphonesimulator_cxx             = xcrun -sdk iphonesimulator clang++
-iphonesimulator_cppflags        = -mios-simulator-version-min=8.0 -arch i386 -arch x86_64
+iphonesimulator_cppflags        = -mios-simulator-version-min=8.0 -arch $(macos_arch)
 iphonesimulator_ldflags         = $(iphonesimulator_cppflags)
 iphonesimulator_configs         = %xcodesdk
 iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
