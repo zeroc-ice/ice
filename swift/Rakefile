@@ -652,7 +652,7 @@ def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix:
         EOF
         rule.input_files = find_files(srcPrefix, ["*.ice"]).map { |p| "$SRCROOT/#{srcPrefix}/#{p}" }
         rule.output_files = ["$(DERIVED_FILE_DIR)/#{projectPrefix}_$(INPUT_FILE_BASE).swift"]
-        rule.dependency_file = "$(DERIVED_FILE_DIR)/#{projectPrefix}/$(INPUT_FILE_BASE).d"
+        rule.dependency_file = "$(DERIVED_FILE_DIR)/#{projectPrefix}_$(INPUT_FILE_BASE).d"
     end
     target.build_rules << rule
 end
