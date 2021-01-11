@@ -84,6 +84,9 @@ These are the changes since Ice 3.7.4.
 
 - Fixed IceGridGUI bug where service metrics were missing [#1203](https://github.com/zeroc-ice/ice/issues/1203)
 
+- Fixed a bug in the marshaling of exceptions optional data members, that affects Swift and C# mappings,
+  other language mappings where not affected. See [#889](https://github.com/zeroc-ice/ice/issues/889)
+
 ## C++ Changes
 
 - string literals using the narrow string mapping are no longer map to u8 string literals, instead
