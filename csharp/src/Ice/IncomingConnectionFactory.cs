@@ -30,8 +30,8 @@ namespace ZeroC.Ice
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new();
-        private bool _disposed;
         private readonly object _mutex = new();
+        private bool _shutdown;
 
         public override string ToString() => _acceptor.ToString()!;
 
@@ -61,7 +61,7 @@ namespace ZeroC.Ice
             // synchronously new connections from this thread.
             lock (_mutex)
             {
-                Debug.Assert(!_disposed);
+                Debug.Assert(!_shutdown);
                 _acceptTask = Task.Factory.StartNew(AcceptAsync,
                                                     default,
                                                     TaskCreationOptions.None,
@@ -73,7 +73,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (!_disposed)
+                if (!_shutdown)
                 {
                     _connections.Remove(connection);
                 }
@@ -94,7 +94,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                _disposed = true;
+                _shutdown = true;
                 _acceptor.Dispose();
             }
 
@@ -142,7 +142,7 @@ namespace ZeroC.Ice
 
                     lock (_mutex)
                     {
-                        if (_disposed)
+                        if (_shutdown)
                         {
                             throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
                         }
@@ -163,7 +163,7 @@ namespace ZeroC.Ice
                     {
                         await connection.GoAwayAsync(exception);
                     }
-                    if (_disposed)
+                    if (_shutdown)
                     {
                         return;
                     }
