@@ -626,7 +626,7 @@ def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix:
         rule.script = <<~EOF
             #{slic2swift}
             "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" \
-                --depend --depend-file $DERIVED_FILE_DIR/$INPUT_FILE_BASE.d "$INPUT_FILE_PATH"
+                --depend --depend-file "$DERIVED_FILE_DIR/$INPUT_FILE_BASE.d" "$INPUT_FILE_PATH"
 
             echo "$INPUT_FILE_BASE.ice: $SLICE2SWIFT" >> "$DERIVED_FILE_DIR/$INPUT_FILE_BASE.d"
 
@@ -642,7 +642,7 @@ def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix:
             BASENAME="${BASENAME%.*}"
             mkdir -p "$DERIVED_FILE_DIR/#{projectPrefix}"
             "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" \
-                --depend --depend-file $DERIVED_FILE_DIR/#{projectPrefix}_$INPUT_FILE_BASE.d "$INPUT_FILE_PATH"
+                --depend --depend-file "$DERIVED_FILE_DIR/#{projectPrefix}_$INPUT_FILE_BASE.d" "$INPUT_FILE_PATH"
 
             echo "$INPUT_FILE_BASE.ice: $SLICE2SWIFT" >> "$DERIVED_FILE_DIR/#{projectPrefix}_$INPUT_FILE_BASE.d"
 
