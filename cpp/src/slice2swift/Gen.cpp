@@ -434,6 +434,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList members = p->dataMembers();
     const DataMemberList allMembers = p->allDataMembers();
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
+    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     StringPairList extraParams;
     if(p->isLocal())
@@ -489,7 +490,17 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             << (!base ? "true" : "false") << ")";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), true, (*i)->tag());
+            DataMemberPtr member = *i;
+            if(!member->optional())
+            {
+                writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
+            }
+        }
+
+        for(DataMemberList::const_iterator i = optionalMembers.begin(); i != optionalMembers.end(); ++i)
+        {
+            DataMemberPtr member = *i;
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
         }
         out << nl << "ostr.endSlice()";
         if(base)
@@ -505,8 +516,19 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "_ = try istr.startSlice()";
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            writeMarshalUnmarshalCode(out, (*i)->type(), p, "self." + fixIdent((*i)->name()), false, (*i)->tag());
+            DataMemberPtr member = *i;
+            if(!member->optional())
+            {
+                writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
+            }
         }
+
+        for(DataMemberList::const_iterator i = optionalMembers.begin(); i != optionalMembers.end(); ++i)
+        {
+            DataMemberPtr member = *i;
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
+        }
+
         out << nl << "try istr.endSlice()";
         if(base)
         {
