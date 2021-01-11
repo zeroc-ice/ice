@@ -259,7 +259,7 @@ namespace ZeroC.Ice
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<Transport, BufWarnSizeInfo> _setBufWarnSize =
             new Dictionary<Transport, BufWarnSizeInfo>();
-        private SemaphoreSlim? _shutdownSemaphore;
+        private bool _shutdown;
         private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
 
         private readonly IDictionary<Transport, Ice1EndpointFactory> _ice1TransportRegistry =

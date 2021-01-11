@@ -17,30 +17,17 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // _shutdownSemaphore != null means "shutdown in progress". Once shutdown is in progress, other methods
-                // cannot modify _adapters.
-                _shutdownSemaphore ??= new SemaphoreSlim(1, 1);
+                _shutdown = true;
                 _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
             }
 
-            // The first call that acquires the semaphore is the one that calls DisposeAsync on the adapters.
-            await _shutdownSemaphore.WaitAsync().ConfigureAwait(false);
-
             try
             {
-                // _adapters can only be changed by the first call that acquires the semaphore.
+                // _adapters can only be updated when _shutdown is false
                 await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
             }
             finally
             {
-                // Prevent other calls that are waiting on the semaphore from calling DisposeAsync again on the
-                // adapters.
-                _adapters.Clear();
-
-                _shutdownSemaphore.Release();
-
-                // This must be called after releasing the semaphore since the continuation can run synchronously and
-                // (try to) acquire the semaphore.
                 _waitForShutdownCompletionSource.TrySetResult(null);
             }
         }
@@ -85,7 +72,7 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
-                if (_shutdownSemaphore != null)
+                if (_shutdown)
                 {
                     throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
                 }
@@ -228,7 +215,7 @@ namespace ZeroC.Ice
             // Called by the object adapter to remove itself once destroyed.
             lock (_mutex)
             {
-                if (_shutdownSemaphore == null)
+                if (!_shutdown)
                 {
                     _adapters.Remove(adapter);
                     if (adapter.Name.Length > 0)
@@ -236,7 +223,7 @@ namespace ZeroC.Ice
                         _adapterNamesInUse.Remove(adapter.Name);
                     }
                 }
-                // TODO clear outgoging connections adapter?
+                // TODO clear outgoing connections adapter?
             }
         }
 
@@ -257,7 +244,7 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
-                if (_shutdownSemaphore != null)
+                if (_shutdown)
                 {
                     throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
                 }
