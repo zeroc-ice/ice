@@ -2,6 +2,18 @@
 
 require 'xcodeproj'
 
+module Xcodeproj
+  class Project
+    module Object
+      # This class represents a custom build rule of a Target.
+      #
+        class PBXBuildRule < AbstractObject
+            attribute :dependency_file, String
+        end
+    end
+  end
+end
+
 $projectVersion = "3.7.5"
 $macOSDeploymentTarget = "10.14"
 $iOSDeploymentTarget = "12.0"
@@ -613,21 +625,34 @@ def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix:
     if test then
         rule.script = <<~EOF
             #{slic2swift}
+            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" \
+                --depend --depend-file "$DERIVED_FILE_DIR/$INPUT_FILE_BASE.d" "$INPUT_FILE_PATH"
+
+            echo "$INPUT_FILE_BASE.ice: $SLICE2SWIFT" >> "$DERIVED_FILE_DIR/$INPUT_FILE_BASE.d"
+
             "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR" "$INPUT_FILE_PATH"
         EOF
         rule.input_files = find_files(srcPrefix, ["*.ice"]).map { |p| "#{srcPrefix}/#{p}" }
         rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
+        rule.dependency_file = "$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).d"
     else
         rule.script = <<~EOF
             #{slic2swift}
             BASENAME=$(basename -- "$INPUT_FILE_PATH")
             BASENAME="${BASENAME%.*}"
             mkdir -p "$DERIVED_FILE_DIR/#{projectPrefix}"
-            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR/#{projectPrefix}" "$INPUT_FILE_PATH"
+            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" \
+                --depend --depend-file "$DERIVED_FILE_DIR/#{projectPrefix}_$INPUT_FILE_BASE.d" "$INPUT_FILE_PATH"
+
+            echo "$INPUT_FILE_BASE.ice: $SLICE2SWIFT" >> "$DERIVED_FILE_DIR/#{projectPrefix}_$INPUT_FILE_BASE.d"
+
+            "$SLICE2SWIFT" -I"$SRCROOT/../slice" -I"$INPUT_FILE_DIR" --output-dir "$DERIVED_FILE_DIR/#{projectPrefix}" \
+                "$INPUT_FILE_PATH"
             mv "$DERIVED_FILE_DIR/#{projectPrefix}/$BASENAME.swift" "$DERIVED_FILE_DIR/#{projectPrefix}_$BASENAME.swift"
         EOF
         rule.input_files = find_files(srcPrefix, ["*.ice"]).map { |p| "$SRCROOT/#{srcPrefix}/#{p}" }
         rule.output_files = ["$(DERIVED_FILE_DIR)/#{projectPrefix}_$(INPUT_FILE_BASE).swift"]
+        rule.dependency_file = "$(DERIVED_FILE_DIR)/#{projectPrefix}_$(INPUT_FILE_BASE).d"
     end
     target.build_rules << rule
 end
@@ -659,7 +684,16 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
         BASENAME=$(basename -- "$INPUT_FILE_PATH")
         BASENAME="${BASENAME%.*}"
         mkdir -p "$DERIVED_FILE_DIR/#{prefix}"
-        $SLICE2CPP -I"$SRCROOT/../slice" -D ICE_SWIFT --include-dir #{prefix} --output-dir "$DERIVED_FILE_DIR/#{prefix}" "$INPUT_FILE_PATH"
+        $SLICE2CPP -I"$SRCROOT/../slice" -D ICE_SWIFT --include-dir #{prefix} \
+            --output-dir "$DERIVED_FILE_DIR/#{prefix}" \
+            --depend --depend-file "$DERIVED_FILE_DIR/#{prefix}/$INPUT_FILE_BASE.d" \
+            "$INPUT_FILE_PATH"
+
+        echo "$INPUT_FILE_BASE.ice: $SLICE2CPP" >> "$DERIVED_FILE_DIR/#{prefix}/$INPUT_FILE_BASE.d"
+
+        $SLICE2CPP -I"$SRCROOT/../slice" -D ICE_SWIFT --include-dir #{prefix} \
+            --output-dir "$DERIVED_FILE_DIR/#{prefix}" \
+            "$INPUT_FILE_PATH"
         mkdir -p "$SYMROOT/$PLATFORM_NAME/include/#{prefix}"
         mv "$DERIVED_FILE_DIR/#{prefix}/$BASENAME.h" "$SYMROOT/$PLATFORM_NAME/include/#{prefix}/$BASENAME.h"
     EOF
@@ -669,6 +703,7 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     rule.input_files = inputs.map { |p|
         "$SRCROOT/../slice/#{prefix}/#{p}.ice"
     }
+    rule.dependency_file= "$(DERIVED_FILE_DIR)/#{prefix}/$(INPUT_FILE_BASE).d"
     target.build_rules << rule
 end
 
