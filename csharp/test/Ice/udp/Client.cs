@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.UDP
 {
@@ -11,10 +11,6 @@ namespace ZeroC.Ice.Test.UDP
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
-            properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.UDP.SndSize"] = "16K";
-            await using Communicator communicator = Initialize(properties);
             await AllTests.RunAsync(this);
 
             int num;
@@ -29,10 +25,19 @@ namespace ZeroC.Ice.Test.UDP
 
             for (int i = 0; i < num; ++i)
             {
-                ITestIntfPrx.Parse(GetTestProxy("control", i, Transport), communicator).Shutdown();
+                ITestIntfPrx.Parse(GetTestProxy("control", i, Transport), Communicator).Shutdown();
             }
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Warn.Connections"] = "0";
+            properties["Ice.UDP.SndSize"] = "16K";
+
+            await using var communicator = CreateCommunicator(properties);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

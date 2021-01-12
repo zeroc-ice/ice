@@ -1,16 +1,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.IO;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.NetworkProxy
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             string sref = helper.GetTestProxy("test", 0);
             var testPrx = ITestIntfPrx.Parse(sref, communicator);
 
@@ -53,6 +54,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
                 }
             }
             output.WriteLine("ok");
+            return Task.CompletedTask;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Threading
 {
@@ -10,23 +10,22 @@ namespace ZeroC.Ice.Test.Threading
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            await communicator.ActivateAsync();
+            await Communicator.ActivateAsync();
 
-            ObjectAdapter? adapter = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
+            ObjectAdapter? adapter = Communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter.Add("test", new TestIntf(TaskScheduler.Default));
             await adapter.ActivateAsync();
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 5);
 
-            ObjectAdapter? adapter2 = communicator.CreateObjectAdapterWithEndpoints(
+            ObjectAdapter? adapter2 = Communicator.CreateObjectAdapterWithEndpoints(
                 "TestAdapterExclusiveTS",
                 GetTestEndpoint(1),
                 taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter2.Add("test", new TestIntf(schedulerPair.ExclusiveScheduler));
             await adapter2.ActivateAsync();
 
-            ObjectAdapter? adapter3 = communicator.CreateObjectAdapterWithEndpoints(
+            ObjectAdapter? adapter3 = Communicator.CreateObjectAdapterWithEndpoints(
                 "TestAdapteConcurrentTS",
                 GetTestEndpoint(2),
                 taskScheduler: schedulerPair.ConcurrentScheduler);
@@ -42,9 +41,13 @@ namespace ZeroC.Ice.Test.Threading
             ThreadPool.SetMaxThreads(20, 4);
 
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await Communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

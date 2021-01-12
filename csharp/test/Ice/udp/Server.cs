@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.UDP
 {
@@ -12,12 +12,9 @@ namespace ZeroC.Ice.Test.UDP
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
-            properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.UDP.RcvSize"] = "16K";
+            await Communicator.ActivateAsync();
 
-            await using Communicator communicator = Initialize(properties);
-            await communicator.ActivateAsync();
+            Dictionary<string, string> properties = Communicator.GetProperties();
             int num = 0;
             try
             {
@@ -27,16 +24,16 @@ namespace ZeroC.Ice.Test.UDP
             {
             }
 
-            communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num, Transport));
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
+            Communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num, Transport));
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add("control", new TestIntf());
             await adapter.ActivateAsync();
             ServerReady();
             if (num == 0)
             {
-                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(num, "udp"));
-                communicator.SetProperty("TestAdapter.AcceptNonSecure", "Always");
-                ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter");
+                Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(num, "udp"));
+                Communicator.SetProperty("TestAdapter.AcceptNonSecure", "Always");
+                ObjectAdapter adapter2 = Communicator.CreateObjectAdapter("TestAdapter");
                 adapter2.Add("test", new TestIntf());
                 await adapter2.ActivateAsync();
             }
@@ -64,15 +61,24 @@ namespace ZeroC.Ice.Test.UDP
             }
             endpoint.Append(" -p ");
             endpoint.Append(GetTestBasePort(properties) + 10);
-            communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
-            communicator.SetProperty("McastTestAdapter.AcceptNonSecure", "Always");
-            ObjectAdapter mcastAdapter = communicator.CreateObjectAdapter("McastTestAdapter");
+            Communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
+            Communicator.SetProperty("McastTestAdapter.AcceptNonSecure", "Always");
+            ObjectAdapter mcastAdapter = Communicator.CreateObjectAdapter("McastTestAdapter");
             mcastAdapter.Add("test", new TestIntf());
             await mcastAdapter.ActivateAsync();
 
-            await communicator.WaitForShutdownAsync();
+            ServerReady();
+            await Communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Warn.Connections"] = "0";
+            properties["Ice.UDP.RcvSize"] = "16K";
+
+            await using var communicator = CreateCommunicator(properties);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

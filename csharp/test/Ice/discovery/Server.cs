@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Discovery
 {
@@ -10,9 +10,6 @@ namespace ZeroC.Ice.Test.Discovery
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            await communicator.ActivateAsync();
-
             int num = 0;
             try
             {
@@ -22,17 +19,23 @@ namespace ZeroC.Ice.Test.Discovery
             {
             }
 
-            communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num));
-            communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num));
+            Communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
 
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add($"controller{num}", new Controller());
             adapter.Add($"faceted-controller{num}#abc", new Controller());
             await adapter.ActivateAsync();
 
-            await communicator.WaitForShutdownAsync();
+            ServerReady();
+            await Communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

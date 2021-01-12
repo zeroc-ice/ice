@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Retry
 {
@@ -28,8 +28,9 @@ namespace ZeroC.Ice.Test.Retry
     }
     public static class AllTests
     {
-        public static IRetryPrx Run(TestHelper helper, Communicator communicator, bool colocated)
+        public static async Task RunAsync(TestHelper helper, bool colocated)
         {
+            Communicator communicator = helper.Communicator;
             bool ice1 = helper.Protocol == Protocol.Ice1;
 
             TextWriter output = helper.Output;
@@ -264,7 +265,7 @@ namespace ZeroC.Ice.Test.Retry
                     output.Write("testing retry request size max... ");
                     output.Flush();
                     {
-                        Dictionary<string, string>? properties = communicator.GetProperties();
+                        Dictionary<string, string> properties = communicator.GetProperties();
                         properties["Ice.RetryRequestMaxSize"] = "1024";
                         using var communicator2 = new Communicator(properties);
                         var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
@@ -289,7 +290,7 @@ namespace ZeroC.Ice.Test.Retry
                     output.Write("testing retry buffer size max... ");
                     output.Flush();
                     {
-                        Dictionary<string, string>? properties = communicator.GetProperties();
+                        Dictionary<string, string> properties = communicator.GetProperties();
                         properties["Ice.RetryBufferMaxSize"] = "2048";
                         using var communicator2 = new Communicator(properties);
                         var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
@@ -320,7 +321,7 @@ namespace ZeroC.Ice.Test.Retry
                     output.WriteLine("ok");
                 }
             }
-            return retry1;
+            await retry1.ShutdownAsync();
         }
     }
 }

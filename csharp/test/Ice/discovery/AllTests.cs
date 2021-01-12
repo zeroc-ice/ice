@@ -3,17 +3,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Discovery
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper, int num)
+        public static Task RunAsync(TestHelper helper, int num)
         {
             TextWriter output = helper.Output;
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             var proxies = new List<IControllerPrx>();
             var facetedProxies = new List<IControllerPrx>();
             var indirectProxies = new List<IControllerPrx>();
@@ -307,6 +308,7 @@ namespace ZeroC.Ice.Test.Discovery
                 prx.Shutdown();
             }
             output.WriteLine("ok");
+            return Task.CompletedTask;
         }
     }
 }

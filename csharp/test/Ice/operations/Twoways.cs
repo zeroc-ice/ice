@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
@@ -11,8 +11,8 @@ namespace ZeroC.Ice.Test.Operations
     {
         internal static void Run(TestHelper helper, IMyClassPrx p)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             string[] literals = p.OpStringLiterals();
 
             TestHelper.Assert(Constants.s0.Equals("\\") &&

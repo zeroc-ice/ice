@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
@@ -10,17 +10,24 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
-            properties["Ice.Warn.Dispatch"] = "0";
-            await using Communicator communicator = Initialize(properties);
-            await communicator.ActivateAsync();
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("Test", new TestIntf());
             await adapter.ActivateAsync();
-            await communicator.WaitForShutdownAsync();
+
+            ServerReady();
+            await Communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Warn.Dispatch"] = "0";
+
+            await using var communicator = CreateCommunicator(properties);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

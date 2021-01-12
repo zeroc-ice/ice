@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Threading
 {
@@ -96,10 +96,9 @@ namespace ZeroC.Ice.Test.Threading
             TestHelper.Assert(TaskScheduler.Current == TaskScheduler.Default);
         }
 
-        public static async Task<ITestIntfPrx> Run(TestHelper helper, bool collocated)
+        public static async Task RunAsync(TestHelper helper, bool collocated)
         {
             Communicator communicator = helper.Communicator!;
-            TestHelper.Assert(communicator != null);
 
             var schedulers = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 2);
             Dictionary<string, string> properties = communicator.GetProperties();
@@ -167,7 +166,7 @@ namespace ZeroC.Ice.Test.Threading
             }
             output.WriteLine("ok");
 
-            return ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+            await ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator).ShutdownAsync();
         }
     }
 }

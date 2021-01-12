@@ -2,22 +2,19 @@
 
 using System;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args)
-        {
-            await using Communicator? communicator = Initialize(ref args);
-            IMyClassPrx myClass = AllTests.Run(this, false);
-            Console.Out.Write("shutting down server... ");
-            Console.Out.Flush();
-            await myClass.ShutdownAsync();
-            Console.Out.WriteLine("ok");
-        }
+        public override Task RunAsync(string[] args) => AllTests.RunAsync(this, false);
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

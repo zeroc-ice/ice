@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Threading
 {
@@ -9,11 +9,9 @@ namespace ZeroC.Ice.Test.Threading
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
             try
             {
-                ITestIntfPrx server = await AllTests.Run(this, false);
-                await server.ShutdownAsync();
+                await AllTests.RunAsync(this, false);
             }
             catch (TestFailedException ex)
             {
@@ -23,6 +21,11 @@ namespace ZeroC.Ice.Test.Threading
             }
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

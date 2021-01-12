@@ -3,7 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Slicing.Objects
 {
@@ -26,11 +27,11 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 
     public static class AllTests
     {
-        public static ITestIntfPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
-            TextWriter? output = helper.Output;
+            Communicator communicator = helper.Communicator;
+
+            TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
@@ -1894,7 +1895,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             }
 
             output.WriteLine("ok");
-            return testPrx;
+            await testPrx.ShutdownAsync();
         }
     }
 }

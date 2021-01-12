@@ -25,6 +25,7 @@ namespace ZeroC.Ice.Test.Binding
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.ServerIdleTime"] = "30";
+
             await using var communicator = CreateCommunicator(properties);
             return await RunTestAsync<Server>(communicator, args);
         }

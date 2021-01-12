@@ -1,13 +1,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.ProtocolBridging
 {
     public static class AllTests
     {
-        public static ITestIntfPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator!;
 
@@ -47,7 +48,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             _ = TestProxy(newPrx);
             output.WriteLine("ok");
 
-            return forwardSamePrx;
+            await forwardSamePrx.ShutdownAsync();
         }
 
         private static ITestIntfPrx TestProxy(ITestIntfPrx prx)

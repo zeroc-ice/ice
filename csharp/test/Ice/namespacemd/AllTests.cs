@@ -1,15 +1,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.NamespaceMD
 {
     public static class AllTests
     {
-        public static IInitialPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             System.IO.TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
@@ -85,7 +86,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
                     output.WriteLine("ok");
                 }
             }
-            return initial;
+            await initial.ShutdownAsync();
         }
     }
 }

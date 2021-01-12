@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Proxy
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
 
             await using Communicator communicator = Initialize(properties);

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.ProtocolBridging
 {
@@ -10,42 +10,41 @@ namespace ZeroC.Ice.Test.ProtocolBridging
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            await communicator.ActivateAsync();
-            communicator.SetProperty("TestAdapterForwarder.Endpoints", GetTestEndpoint(0));
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapterForwarder.Endpoints", GetTestEndpoint(0));
 
             var ice1Endpoint = TestHelper.GetTestEndpoint(
                 new Dictionary<string, string>
                 {
-                    ["Test.Host"] = communicator.GetProperty("Test.Host")!,
+                    ["Test.Host"] = Communicator.GetProperty("Test.Host")!,
                     ["Test.Protocol"] = "ice1",
-                    ["Test.Transport"] = communicator.GetProperty("Test.Transport")!,
+                    ["Test.Transport"] = Communicator.GetProperty("Test.Transport")!,
                 },
                 ephemeral: true);
 
             var ice2Endpoint = TestHelper.GetTestEndpoint(
                 new Dictionary<string, string>
                 {
-                    ["Test.Host"] = communicator.GetProperty("Test.Host")!,
+                    ["Test.Host"] = Communicator.GetProperty("Test.Host")!,
                     ["Test.Protocol"] = "ice2",
-                    ["Test.Transport"] = communicator.GetProperty("Test.Transport")!,
+                    ["Test.Transport"] = Communicator.GetProperty("Test.Transport")!,
                 },
                 ephemeral: true);
 
             if (Protocol == Protocol.Ice1)
             {
-                communicator.SetProperty("TestAdapterSame.Endpoints", ice1Endpoint);
-                communicator.SetProperty("TestAdapterOther.Endpoints", ice2Endpoint);
+                Communicator.SetProperty("TestAdapterSame.Endpoints", ice1Endpoint);
+                Communicator.SetProperty("TestAdapterOther.Endpoints", ice2Endpoint);
             }
             else
             {
-                communicator.SetProperty("TestAdapterSame.Endpoints", ice2Endpoint);
-                communicator.SetProperty("TestAdapterOther.Endpoints", ice1Endpoint);
+                Communicator.SetProperty("TestAdapterSame.Endpoints", ice2Endpoint);
+                Communicator.SetProperty("TestAdapterOther.Endpoints", ice1Endpoint);
             }
 
-            ObjectAdapter adapterForwarder = communicator.CreateObjectAdapter("TestAdapterForwarder");
-            ObjectAdapter adapterSame = communicator.CreateObjectAdapter("TestAdapterSame");
-            ObjectAdapter adapterOther = communicator.CreateObjectAdapter("TestAdapterOther");
+            ObjectAdapter adapterForwarder = Communicator.CreateObjectAdapter("TestAdapterForwarder");
+            ObjectAdapter adapterSame = Communicator.CreateObjectAdapter("TestAdapterSame");
+            ObjectAdapter adapterOther = Communicator.CreateObjectAdapter("TestAdapterOther");
 
             ITestIntfPrx samePrx = adapterSame.Add("TestSame", new TestI(), ITestIntfPrx.Factory);
             ITestIntfPrx otherPrx = adapterOther.Add("TestOther", new TestI(), ITestIntfPrx.Factory);
@@ -56,10 +55,15 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             await adapterForwarder.ActivateAsync();
             await adapterSame.ActivateAsync();
             await adapterOther.ActivateAsync();
+
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await Communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

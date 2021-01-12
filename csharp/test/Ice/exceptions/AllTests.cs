@@ -3,16 +3,16 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
     public static class AllTests
     {
-        public static async Task<IThrowerPrx> RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             bool ice1 = helper.Protocol == Protocol.Ice1;
             TextWriter output = helper.Output;
             {
@@ -1128,8 +1128,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 }
             }
             output.WriteLine("ok");
-
-            return thrower;
+            await thrower.ShutdownAsync();
         }
     }
 }

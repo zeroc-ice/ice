@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Slicing.Objects
 {
@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Communicator.ShutdownAsync();
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<AnyClass?> SBaseAsObjectAsync(Current current, CancellationToken cancel) =>
@@ -39,7 +39,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             {
                 throw new Exception();
             }
-            return new ValueTask();
+            return default;
         }
 
         public ValueTask<SBase?> SBSUnknownDerivedAsSBaseCompactAsync(Current current, CancellationToken cancel) =>
@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             TestHelper.Assert(obj != null);
             var su = (SUnknown)obj;
             TestHelper.Assert(su.Su.Equals("SUnknown.su"));
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<B?> OneElementCycleAsync(Current current, CancellationToken cancel)
@@ -277,7 +277,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             TestHelper.Assert(pu.Psu.Equals("unknown"));
             TestHelper.Assert(pu.Graph == null);
             TestHelper.Assert(pu.Cl != null && pu.Cl.I == 15);
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<Preserved?> PBSUnknownAsPreservedWithGraphAsync(Current current, CancellationToken cancel)
@@ -301,7 +301,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             TestHelper.Assert(pu.Graph != pu.Graph!.Next);
             TestHelper.Assert(pu.Graph.Next != pu.Graph!.Next!.Next);
             TestHelper.Assert(pu.Graph!.Next!.Next!.Next == pu.Graph);
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<Preserved?> PBSUnknown2AsPreservedWithGraphAsync(Current current, CancellationToken cancel)
@@ -318,7 +318,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             TestHelper.Assert(pu.Pi == 5);
             TestHelper.Assert(pu.Ps.Equals("preserved"));
             TestHelper.Assert(pu.Pb == pu);
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<PNode?> ExchangePNodeAsync(PNode? pn, Current current, CancellationToken cancel) => new(pn);

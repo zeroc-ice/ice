@@ -4,25 +4,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args)
+        public override Task RunAsync(string[] args)
         {
-            Dictionary<string, string> properties = CreateTestProperties(ref args);
-            properties["Ice.Warn.Connections"] = "0";
-            await using Communicator communicator = Initialize(properties);
             var ports = args.Select(v => int.Parse(v)).ToList();
             if (ports.Count == 0)
             {
                 throw new ArgumentException("Client: no ports specified");
             }
-            AllTests.Run(this, ports);
+            return AllTests.RunAsync(this, ports);
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Warn.Connections"] = "0";
+
+            await using var communicator = CreateCommunicator(properties);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

@@ -2,7 +2,8 @@
 
 using System;
 using System.Reflection;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -12,27 +13,25 @@ namespace ZeroC.Ice.Test.Impl
 {
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using (var communicator = initialize(ref args))
-            {
-                //
-                // We don't want connection warnings because of the timeout test.
-                //
-                communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
+            Communicator.ActivateAsync();
+            // We don't want connection warnings because of the timeout test.
+            Communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
+            Communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
 
-                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                adapter.add(Ice.Util.stringToIdentity("test"), new MyDerivedClassI());
-                adapter.activate();
+            Ice.ObjectAdapter adapter = Communicator.createObjectAdapter("TestAdapter");
+            adapter.add(Ice.Util.stringToIdentity("test"), new MyDerivedClassI());
+            adapter.activate();
 
-                communicator.waitForShutdown();
-            }
+            ServerReady();
+            Communicator.waitForShutdown();
         }
 
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            return TestDriver.runTest<Server>(args);
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Server>(communicator, args);
         }
     }
 }

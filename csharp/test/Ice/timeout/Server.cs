@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Timeout
 {
@@ -13,25 +13,12 @@ namespace ZeroC.Ice.Test.Timeout
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
-
-            // This test kills connections, so we don't want warnings.
-            properties["Ice.Warn.Connections"] = "0";
-
-            // The client sends large messages to cause the transport buffers to fill up.
-            properties["Ice.IncomingFrameMaxSize"] = "20M";
-
-            // Limit the recv buffer size, this test relies on the socket send() blocking after sending a given
-            // amount of data.
-            properties["Ice.TCP.RcvSize"] = "50K";
-
-            await using Communicator communicator = Initialize(properties);
-            await communicator.ActivateAsync();
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            Communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter",
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter",
                                                                       taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter.Add("timeout", new Timeout());
             adapter.DispatchInterceptors = ImmutableList.Create<DispatchInterceptor>(
@@ -49,15 +36,28 @@ namespace ZeroC.Ice.Test.Timeout
 
             await adapter.ActivateAsync();
 
-            ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
+            ObjectAdapter controllerAdapter = Communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
             await controllerAdapter.ActivateAsync();
 
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await Communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            // This test kills connections, so we don't want warnings.
+            properties["Ice.Warn.Connections"] = "0";
+            // The client sends large messages to cause the transport buffers to fill up.
+            properties["Ice.IncomingFrameMaxSize"] = "20M";
+            // Limit the recv buffer size, this test relies on the socket send() blocking after sending a given
+            // amount of data.
+            properties["Ice.TCP.RcvSize"] = "50K";
+
+            await using var communicator = CreateCommunicator(properties);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 
     internal class Controller : IController

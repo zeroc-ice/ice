@@ -2,7 +2,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             _ = current.Communicator.ShutdownAsync();
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask BaseAsBaseAsync(Current current, CancellationToken cancel) => throw new Base("Base.b");

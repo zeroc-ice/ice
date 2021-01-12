@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.DefaultServant
 {
@@ -12,8 +12,7 @@ namespace ZeroC.Ice.Test.DefaultServant
         public static async Task RunAsync(TestHelper helper)
         {
             TextWriter output = helper.Output;
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
 
             ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA",
                 helper.GetTestEndpoint(ephemeral: true));

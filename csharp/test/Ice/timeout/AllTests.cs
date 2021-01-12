@@ -3,16 +3,17 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Timeout
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             var controller = IControllerPrx.Parse(helper.GetTestProxy("controller", 1), communicator);
             try
             {
@@ -25,12 +26,13 @@ namespace ZeroC.Ice.Test.Timeout
                 controller.ResumeAdapter();
                 throw;
             }
+            return Task.CompletedTask;
         }
 
         public static void RunWithController(TestHelper helper, IControllerPrx controller)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             bool ice1 = TestHelper.GetTestProtocol(communicator.GetProperties()) == Protocol.Ice1;
 
             var timeout = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), communicator);
@@ -39,7 +41,7 @@ namespace ZeroC.Ice.Test.Timeout
             output.Write("testing connect timeout... ");
             output.Flush();
             {
-                Dictionary<string, string>? properties = communicator.GetProperties();
+                Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.ConnectTimeout"] = "100ms";
                 using var comm = new Communicator(properties);
 
