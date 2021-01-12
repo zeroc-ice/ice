@@ -272,7 +272,7 @@ namespace ZeroC.Ice
         private readonly Dictionary<Transport, BufWarnSizeInfo> _setBufWarnSize = new();
 
         private bool _shutdown;
-        private TaskCompletionSource<object?> _shutdownCompleteSource = new();
+        private readonly TaskCompletionSource<object?> _shutdownCompleteSource = new();
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="properties">The properties of the new communicator.</param>
