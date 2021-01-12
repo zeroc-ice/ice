@@ -42,7 +42,7 @@ def wrap_future(future, *, loop=None):
     asyncioFuture = loop.create_future()
 
     if future.done():
-        # As long as no don callbacks are registered, completing the asyncio future should be thread safe
+        # As long as no done callbacks are registered, completing the asyncio future should be thread safe
         # even if the future is constructed with a loop which isn't the current thread's loop.
         forwardCompletion(future, asyncioFuture)
     else:
