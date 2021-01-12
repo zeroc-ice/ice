@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.DictMapping
             adapter.Add("test", new AsyncMyClass());
             await adapter.ActivateAsync();
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);

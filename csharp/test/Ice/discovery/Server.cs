@@ -30,7 +30,7 @@ namespace ZeroC.Ice.Test.Discovery
             adapter.Add($"faceted-controller{num}#abc", new Controller());
             await adapter.ActivateAsync();
 
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

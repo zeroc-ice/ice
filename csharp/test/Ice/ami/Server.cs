@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.AMI
             await adapter2.ActivateAsync();
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

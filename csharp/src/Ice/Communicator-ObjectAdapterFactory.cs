@@ -10,6 +10,13 @@ namespace ZeroC.Ice
 {
     public sealed partial class Communicator
     {
+        /// <summary>Returns a task that completes when the communicator's shutdown is complete: see
+        /// <see cref="ShutdownAsync"/>. This property can be retrieved before shutdown is initiated. A typical use-case
+        /// is to call <c>await communicator.ShutdownComplete;</c> in the Main method of a server to prevent the server
+        /// from exiting immediately. Once this task completes, the server can still make remote invocations since a
+        /// communicator that is shut down (but not disposed) remains usable for remote invocations.</summary>
+        public Task ShutdownComplete => _shutdownCompleteSource.Task;
+
         /// <summary>Shuts down this communicator's server functionality. This triggers the disposal of all object
         /// adapters. After this method returns, no new requests are processed. However, requests that have been started
         /// before ShutdownAsync was called might still be active until the returned task completes.</summary>
@@ -18,7 +25,6 @@ namespace ZeroC.Ice
             lock (_mutex)
             {
                 _shutdown = true;
-                _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
             }
 
             try
@@ -28,30 +34,8 @@ namespace ZeroC.Ice
             }
             finally
             {
-                _waitForShutdownCompletionSource.TrySetResult(null);
+                _shutdownCompleteSource.TrySetResult(null);
             }
-        }
-
-        /// <summary>Block the calling thread until the communicator has been shutdown. On the server side, the
-        /// operation completes once all executing operations have completed. On the client side, it completes once
-        /// <see cref="ShutdownAsync"/> has been called. A typical use of this method is to call it from the main
-        /// thread of a server, which will be completed once the shutdown process completes, and then the caller can
-        /// do some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally exists the
-        /// application.</summary>
-        public void WaitForShutdown() => WaitForShutdownAsync().GetAwaiter().GetResult();
-
-        /// <summary>Returns a task that completes when the communicator is fully shut down: see
-        /// <see cref="ShutdownAsync"/>. A typical use of this method is to await the returned task from the main thread
-        /// of a server, and then perform some cleanup work before calling <see cref="DisposeAsync"/> on the
-        /// communicator. The application can make remote invocations using a communicator that is shut down but not
-        /// disposed.</summary>
-        public async Task WaitForShutdownAsync()
-        {
-            lock (_mutex)
-            {
-                _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
-            }
-            await _waitForShutdownCompletionSource.Task.ConfigureAwait(false);
         }
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be

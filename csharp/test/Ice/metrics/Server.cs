@@ -37,7 +37,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
             await controllerAdapter.ActivateAsync();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

@@ -70,7 +70,7 @@ namespace ZeroC.Ice.Test.UDP
             mcastAdapter.Add("test", new TestIntf());
             await mcastAdapter.ActivateAsync();
 
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

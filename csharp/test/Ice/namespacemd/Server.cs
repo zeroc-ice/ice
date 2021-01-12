@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
             adapter.Add("initial", new Initial());
             await adapter.ActivateAsync();
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

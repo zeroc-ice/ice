@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("Test", new AsyncTestIntf());
             await adapter.ActivateAsync();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);

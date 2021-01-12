@@ -23,7 +23,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
             await adapter.ActivateAsync();
 
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

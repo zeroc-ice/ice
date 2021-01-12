@@ -40,7 +40,7 @@ namespace ZeroC.Ice.Test.Exceptions
             await forwarderAdapter.ActivateAsync();
 
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);

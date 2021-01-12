@@ -20,7 +20,7 @@ namespace ZeroC.IceGrid.Test.Simple
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
             await adapter.ActivateAsync();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
