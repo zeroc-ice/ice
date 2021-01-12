@@ -51,8 +51,8 @@ endef
 #
 define make-xcode-project-with-config
 
-$1/.translator.dep: $$($$($1_slicecompiler)_path)
-	$(Q)if [ -f $1/.translator.dep ]; \
+$1/.translator-$2-$3.dep: $$($$($1_slicecompiler)_path)
+	$(Q)if [ -f $1/.translator-$2-$3.dep ]; \
 	then \
 	    xcodebuild -sdk $2 \
 	           -project "$1/$$(call $1_project,$2,$3)" \
@@ -61,9 +61,9 @@ $1/.translator.dep: $$($$($1_slicecompiler)_path)
 		   $(if $(V),,-quiet) SYMROOT=./build-$2-$3 OBJROOT=./objs-$2-$3 \
 		   clean; \
 	fi
-	touch $1/.translator.dep
+	touch $1/.translator-$2-$3.dep
 
-$1[$2-$3]: $$($1_dependencies) $1/.translator.dep
+$1[$2-$3]: $$($1_dependencies) $1/.translator-$2-$3.dep
 	$(E) "Running xcodebuild for $1 scheme=\"$$(call $1_scheme,$2,$3)\""
 	$(Q)xcodebuild -sdk $2 \
 	           -project "$1/$$(call $1_project,$2,$3)" \
