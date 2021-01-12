@@ -23,7 +23,7 @@ namespace ZeroC.Ice
 
             try
             {
-                // _adapters can only be updated when _shutdown is false
+                // _adapters can only be updated when _shutdown is false so no need to lock _mutex.
                 await Task.WhenAll(_adapters.Select(adapter => adapter.ShutdownAsync())).ConfigureAwait(false);
             }
             finally

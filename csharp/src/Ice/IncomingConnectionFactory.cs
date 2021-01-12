@@ -98,7 +98,7 @@ namespace ZeroC.Ice
                 _acceptor.Dispose();
             }
 
-            // The connection set is immutable once _disposed = true
+            // The connection set is immutable once _shutdown is true
             var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
             IEnumerable<Task> tasks = _connections.Select(connection => connection.GoAwayAsync(exception));
 
