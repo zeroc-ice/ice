@@ -25,7 +25,7 @@ namespace ZeroC.Ice.Test.Location
             foreach (Communicator c in _communicators)
             {
                 await c.ShutdownComplete;
-                c.Dispose();
+                await c.DisposeAsync();
             }
             _communicators.Clear();
 
@@ -90,15 +90,14 @@ namespace ZeroC.Ice.Test.Location
             }
         }
 
-        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
+        public async ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             foreach (Communicator c in _communicators)
             {
-                c.Dispose();
+                await c.DisposeAsync();
             }
             _communicators.Clear();
             _ = current.Communicator.ShutdownAsync();
-            return default;
         }
     }
 }

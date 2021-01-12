@@ -270,9 +270,8 @@ namespace ZeroC.Ice
         private int _retryBufferSize;
         private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable = new();
         private readonly Dictionary<Transport, BufWarnSizeInfo> _setBufWarnSize = new();
-
-        private bool _shutdown;
         private readonly TaskCompletionSource<object?> _shutdownCompleteSource = new();
+        private Lazy<Task>? _shutdownTask;
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="properties">The properties of the new communicator.</param>

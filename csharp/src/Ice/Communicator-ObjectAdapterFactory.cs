@@ -20,21 +20,25 @@ namespace ZeroC.Ice
         /// <summary>Shuts down this communicator's server functionality. This triggers the disposal of all object
         /// adapters. After this method returns, no new requests are processed. However, requests that have been started
         /// before ShutdownAsync was called might still be active until the returned task completes.</summary>
-        public async Task ShutdownAsync()
+        public Task ShutdownAsync()
         {
             lock (_mutex)
             {
-                _shutdown = true;
+                _shutdownTask ??= new Lazy<Task>(() => PerformShutdownAsync());
             }
+            return _shutdownTask.Value;
 
-            try
+            async Task PerformShutdownAsync()
             {
-                // _adapters can only be updated when _shutdown is false so no need to lock _mutex.
-                await Task.WhenAll(_adapters.Select(adapter => adapter.ShutdownAsync())).ConfigureAwait(false);
-            }
-            finally
-            {
-                _shutdownCompleteSource.TrySetResult(null);
+                try
+                {
+                    // _adapters can only be updated when _shutdownTask is null so no need to lock _mutex.
+                    await Task.WhenAll(_adapters.Select(adapter => adapter.ShutdownAsync())).ConfigureAwait(false);
+                }
+                finally
+                {
+                    _shutdownCompleteSource.TrySetResult(null);
+                }
             }
         }
 
@@ -56,7 +60,7 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
-                if (_shutdown)
+                if (_shutdownTask != null)
                 {
                     throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
                 }
@@ -199,7 +203,7 @@ namespace ZeroC.Ice
             // Called by the object adapter to remove itself once destroyed.
             lock (_mutex)
             {
-                if (!_shutdown)
+                if (_shutdownTask == null)
                 {
                     _adapters.Remove(adapter);
                     if (adapter.Name.Length > 0)
@@ -228,7 +232,7 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDisposedException();
                 }
-                if (_shutdown)
+                if (_shutdownTask != null)
                 {
                     throw new InvalidOperationException("ShutdownAsync has been called on this communicator");
                 }

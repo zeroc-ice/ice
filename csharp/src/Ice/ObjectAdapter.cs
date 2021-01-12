@@ -648,7 +648,7 @@ namespace ZeroC.Ice
             // synchronously) after releasing the lock.
             lock (_mutex)
             {
-                _shutdownTask ??= new Lazy<Task>(PerformShutdownAsync());
+                _shutdownTask ??= new Lazy<Task>(() => PerformShutdownAsync());
             }
             return _shutdownTask.Value;
 
@@ -661,11 +661,12 @@ namespace ZeroC.Ice
                     // dispatched. Calling ToArray is important here to ensure that all the ShutdownAsync calls are
                     // executed before we eventually hit an await (we want to make that once ShutdownAsync returns a
                     // Task, all the connections started closing).
-                    // Once _shutdown is true, _incomingConnectionfactories cannot change, so no need to lock _mutex.
+                    // Once _shutdownTask is non null, _incomingConnectionfactories cannot change, so no need to lock
+                    // _mutex.
                     Task[] tasks = _incomingConnectionFactories.Select(factory => factory.ShutdownAsync()).ToArray();
 
                     // Wait for activation to complete. This is necessary avoid out of order locator updates.
-                    // _activateTask is readonly once _shutdown is true.
+                    // _activateTask is readonly once _shutdownTask is non null.
                     if (_activateTask != null)
                     {
                         try
@@ -692,7 +693,7 @@ namespace ZeroC.Ice
                         await _colocatedConnectionFactory.ShutdownAsync().ConfigureAwait(false);
                     }
 
-                    // Wait for the incoming connection factories to be disposed.
+                    // Wait for the incoming connection factories to be shut down.
                     await Task.WhenAll(tasks).ConfigureAwait(false);
 
                     // TODO jose: Clear the outgoing connections adapter?
