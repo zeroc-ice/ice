@@ -8,15 +8,14 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal abstract class IncomingConnectionFactory : IAsyncDisposable
+    internal abstract class IncomingConnectionFactory
     {
         internal abstract Endpoint Endpoint { get; }
-
-        public abstract ValueTask DisposeAsync();
-
         internal abstract void Activate();
 
         internal bool IsLocal(Endpoint endpoint) => endpoint.IsLocal(Endpoint);
+
+        internal abstract Task ShutdownAsync();
 
         internal abstract void UpdateConnectionObservers();
     }
@@ -31,49 +30,8 @@ namespace ZeroC.Ice
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new();
-        private bool _disposed;
         private readonly object _mutex = new();
-
-        public override async ValueTask DisposeAsync()
-        {
-            if (_communicator.TraceLevels.Transport >= 1)
-            {
-                _communicator.Logger.Trace(TraceLevels.TransportCategory,
-                    $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
-            }
-
-            // Dispose of the acceptor and close the connections. It's important to perform this synchronously without
-            // any await in between to guarantee that once Communicator.ShutdownAsync returns the communicator no
-            // longer accepts any requests.
-
-            lock (_mutex)
-            {
-                _disposed = true;
-                _acceptor.Dispose();
-            }
-
-            // The connection set is immutable once _disposed = true
-            var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
-            IEnumerable<Task> tasks = _connections.Select(connection => connection.GoAwayAsync(exception));
-
-            // Wait for AcceptAsync and the connection closure to return.
-            if (_acceptTask != null)
-            {
-                await _acceptTask.ConfigureAwait(false);
-            }
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-        }
-
-        public void Remove(Connection connection)
-        {
-            lock (_mutex)
-            {
-                if (!_disposed)
-                {
-                    _connections.Remove(connection);
-                }
-            }
-        }
+        private bool _shutdown;
 
         public override string ToString() => _acceptor.ToString()!;
 
@@ -103,12 +61,53 @@ namespace ZeroC.Ice
             // synchronously new connections from this thread.
             lock (_mutex)
             {
-                Debug.Assert(!_disposed);
+                Debug.Assert(!_shutdown);
                 _acceptTask = Task.Factory.StartNew(AcceptAsync,
                                                     default,
                                                     TaskCreationOptions.None,
                                                     _adapter.TaskScheduler ?? TaskScheduler.Default);
             }
+        }
+
+        internal void Remove(Connection connection)
+        {
+            lock (_mutex)
+            {
+                if (!_shutdown)
+                {
+                    _connections.Remove(connection);
+                }
+            }
+        }
+
+        internal override async Task ShutdownAsync()
+        {
+            if (_communicator.TraceLevels.Transport >= 1)
+            {
+                _communicator.Logger.Trace(TraceLevels.TransportCategory,
+                    $"stopping to accept {Endpoint.TransportName} connections at {_acceptor}");
+            }
+
+            // Dispose of the acceptor and close the connections. It's important to perform this synchronously without
+            // any await in between to guarantee that once Communicator.ShutdownAsync returns the communicator no
+            // longer accepts any requests.
+
+            lock (_mutex)
+            {
+                _shutdown = true;
+                _acceptor.Dispose();
+            }
+
+            // The connection set is immutable once _shutdown is true
+            var exception = new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
+            IEnumerable<Task> tasks = _connections.Select(connection => connection.GoAwayAsync(exception));
+
+            // Wait for AcceptAsync and the connection closure to return.
+            if (_acceptTask != null)
+            {
+                await _acceptTask.ConfigureAwait(false);
+            }
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         internal override void UpdateConnectionObservers()
@@ -143,7 +142,7 @@ namespace ZeroC.Ice
 
                     lock (_mutex)
                     {
-                        if (_disposed)
+                        if (_shutdown)
                         {
                             throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}");
                         }
@@ -164,7 +163,7 @@ namespace ZeroC.Ice
                     {
                         await connection.GoAwayAsync(exception);
                     }
-                    if (_disposed)
+                    if (_shutdown)
                     {
                         return;
                     }
@@ -187,13 +186,6 @@ namespace ZeroC.Ice
 
         private readonly Connection _connection;
 
-        public override async ValueTask DisposeAsync()
-        {
-            var exception =
-                new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_connection.Adapter!.Name}");
-            await _connection.GoAwayAsync(exception).ConfigureAwait(false);
-        }
-
         public override string ToString() => _connection.ToString()!;
 
         internal DatagramIncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint)
@@ -205,6 +197,13 @@ namespace ZeroC.Ice
 
         internal override void Activate()
         {
+        }
+
+        internal override Task ShutdownAsync()
+        {
+            var exception =
+                new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_connection.Adapter!.Name}");
+            return _connection.GoAwayAsync(exception);
         }
 
         internal override void UpdateConnectionObservers() => _connection.UpdateObserver();

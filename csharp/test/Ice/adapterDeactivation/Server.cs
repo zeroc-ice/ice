@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             await adapter.ActivateAsync();
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

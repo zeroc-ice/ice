@@ -216,24 +216,27 @@ namespace ZeroC.Ice
 
         private static string[] _emptyArgs = Array.Empty<string>();
 
+        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new();
+
+        private static bool _oneOffDone;
+
+        private static bool _printProcessIdDone;
+
         private static readonly object _staticMutex = new object();
         private bool _activateCalled;
         private readonly Func<CancellationToken, Task>? _activateLocatorAsync;
-        private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
-        private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
+        private readonly HashSet<string> _adapterNamesInUse = new();
+        private readonly List<ObjectAdapter> _adapters = new();
         private ObjectAdapter? _adminAdapter;
         private readonly bool _adminEnabled;
-        private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
-        private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
+        private readonly HashSet<string> _adminFacetFilter = new();
+        private readonly Dictionary<string, IObject> _adminFacets = new();
         private Identity _adminIdentity;
         private readonly bool _backgroundLocatorCacheUpdates;
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly ConcurrentDictionary<string, Func<AnyClass>?> _classFactoryCache =
-            new ConcurrentDictionary<string, Func<AnyClass>?>();
-        private readonly ConcurrentDictionary<int, Func<AnyClass>?> _compactIdCache =
-            new ConcurrentDictionary<int, Func<AnyClass>?>();
-        private readonly ThreadLocal<SortedDictionary<string, string>> _currentContext
-            = new ThreadLocal<SortedDictionary<string, string>>();
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
+        private readonly ConcurrentDictionary<string, Func<AnyClass>?> _classFactoryCache = new();
+        private readonly ConcurrentDictionary<int, Func<AnyClass>?> _compactIdCache = new();
+        private readonly ThreadLocal<SortedDictionary<string, string>> _currentContext = new();
         private volatile ImmutableSortedDictionary<string, string> _defaultContext =
             ImmutableSortedDictionary<string, string>.Empty;
         private volatile ImmutableList<InvocationInterceptor> _defaultInvocationInterceptors =
@@ -243,38 +246,33 @@ namespace ZeroC.Ice
         private volatile ImmutableList<DispatchInterceptor> _defaultDispatchInterceptors =
             ImmutableList<DispatchInterceptor>.Empty;
         private Task? _destroyTask;
-        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
-        private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
-            new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
-
-        private volatile ILogger _logger;
-
-        private readonly object _mutex = new object();
-        private static bool _oneOffDone;
-        private static bool _printProcessIdDone;
-        private readonly ConcurrentDictionary<
-            string, Func<string?, RemoteExceptionOrigin?, RemoteException>?> _remoteExceptionFactoryCache = new();
-        private int _retryBufferSize;
-        private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
-            new ConcurrentDictionary<IRouterPrx, RouterInfo>();
-        private readonly Dictionary<Transport, BufWarnSizeInfo> _setBufWarnSize =
-            new Dictionary<Transport, BufWarnSizeInfo>();
-        private SemaphoreSlim? _shutdownSemaphore;
-        private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
 
         private readonly IDictionary<Transport, Ice1EndpointFactory> _ice1TransportRegistry =
             new ConcurrentDictionary<Transport, Ice1EndpointFactory>();
 
-        private readonly IDictionary<Transport, (Ice2EndpointFactory, Ice2EndpointParser)> _ice2TransportRegistry =
-            new ConcurrentDictionary<Transport, (Ice2EndpointFactory, Ice2EndpointParser)>();
-
         private readonly IDictionary<string, (Ice1EndpointParser, Transport)> _ice1TransportNameRegistry =
             new ConcurrentDictionary<string, (Ice1EndpointParser, Transport)>();
+
+        private readonly IDictionary<Transport, (Ice2EndpointFactory, Ice2EndpointParser)> _ice2TransportRegistry =
+            new ConcurrentDictionary<Transport, (Ice2EndpointFactory, Ice2EndpointParser)>();
 
         private readonly IDictionary<string, (Ice2EndpointParser, Transport)> _ice2TransportNameRegistry =
             new ConcurrentDictionary<string, (Ice2EndpointParser, Transport)>();
 
+        private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap = new();
+
+        private volatile ILogger _logger;
+        private readonly object _mutex = new object();
         private readonly List<(string Name, IPlugin Plugin)> _plugins = new();
+
+        private readonly ConcurrentDictionary<string, Func<string?, RemoteExceptionOrigin?, RemoteException>?> _remoteExceptionFactoryCache =
+            new();
+        private int _retryBufferSize;
+        private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable = new();
+        private readonly Dictionary<Transport, BufWarnSizeInfo> _setBufWarnSize = new();
+        private readonly TaskCompletionSource<object?> _shutdownCompleteSource =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private Lazy<Task>? _shutdownTask;
 
         /// <summary>Constructs a new communicator.</summary>
         /// <param name="properties">The properties of the new communicator.</param>

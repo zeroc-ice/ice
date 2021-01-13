@@ -111,6 +111,11 @@ namespace ZeroC.Ice
         /// <value>The serialize dispatch value.</value>
         public bool SerializeDispatch { get; }
 
+        /// <summary>Returns a task that completes when the object adapter's shutdown is complete: see
+        /// <see cref="ShutdownAsync"/>. This property can be retrieved before shutdown is initiated. See also
+        /// <see cref="Communicator.ShutdownComplete"/>.</summary>
+        public Task ShutdownComplete => _shutdownCompleteSource.Task;
+
         /// <summary>Returns the TaskScheduler used to dispatch requests.</summary>
         public TaskScheduler? TaskScheduler { get; }
 
@@ -157,7 +162,6 @@ namespace ZeroC.Ice
         private readonly Dictionary<string, IObject> _defaultServantMap = new();
         private volatile ImmutableList<DispatchInterceptor> _dispatchInterceptors;
 
-        private Task? _disposeTask;
         private readonly Dictionary<(Identity Identity, string Facet), IObject> _identityServantMap = new();
 
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories = new();
@@ -170,6 +174,11 @@ namespace ZeroC.Ice
         private IReadOnlyList<Endpoint> _publishedEndpoints = ImmutableArray<Endpoint>.Empty;
 
         private readonly RouterInfo? _routerInfo;
+
+        private readonly TaskCompletionSource<object?> _shutdownCompleteSource =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        private Lazy<Task>? _shutdownTask;
 
         /// <summary>Activates this object adapter. After activation, the object adapter can dispatch requests received
         /// through its endpoints. Also registers this object adapter with the locator (if set).</summary>
@@ -196,7 +205,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_disposeTask != null)
+                if (_shutdownTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
@@ -327,60 +336,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Releases resources used by the object adapter.</summary>
-        public async ValueTask DisposeAsync()
-        {
-            lock (_mutex)
-            {
-                _disposeTask ??= PerformDisposeAsync();
-            }
-            await _disposeTask.ConfigureAwait(false);
-
-            async Task PerformDisposeAsync()
-            {
-                // Synchronously Dispose of the incoming connection factories to stop accepting new incoming requests
-                // or connections. This ensures that once DisposeAsync returns, no new requests will be dispatched.
-                // Calling ToArray is important here to ensure that all the DisposeAsync calls are executed before we
-                // eventually hit an await (we want to make that once DisposeAsync returns a Task, all the connections
-                // started closing).
-                Task[] tasks =
-                    _incomingConnectionFactories.Select(factory => factory.DisposeAsync().AsTask()).ToArray();
-
-                // Wait for activation to complete. This is necessary avoid out of order locator updates.
-                if (_activateTask != null)
-                {
-                    try
-                    {
-                        await _activateTask.ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                        // Ignore
-                    }
-                }
-
-                try
-                {
-                    await UnregisterEndpointsAsync(default).ConfigureAwait(false);
-                }
-                catch
-                {
-                    // We can't throw exceptions in deactivate so we ignore failures to unregister endpoints
-                }
-
-                if (_colocatedConnectionFactory != null)
-                {
-                    await _colocatedConnectionFactory.DisposeAsync().ConfigureAwait(false);
-                }
-
-                // Wait for the incoming connection factories to be disposed.
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-
-                // TODO jose: Clear the outgoing connections adapter?
-                Communicator.EraseRouterInfo(_routerInfo?.Router);
-                Communicator.RemoveObjectAdapter(this);
-            }
-        }
+        /// <inheritdoc/>
+        public ValueTask DisposeAsync() => new(ShutdownAsync());
 
         /// <summary>Finds a servant in the Active Servant Map (ASM), taking into account the servants and default
         /// servants currently in the ASM.</summary>
@@ -444,7 +401,7 @@ namespace ZeroC.Ice
                 // We check for deactivation here because we don't want to keep this servant when the adapter is being
                 // deactivated or destroyed. In other languages, notably C++, keeping such a servant could lead to
                 // circular references and leaks.
-                if (_disposeTask != null)
+                if (_shutdownTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
@@ -554,7 +511,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_disposeTask != null)
+                if (_shutdownTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
@@ -594,7 +551,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_disposeTask != null)
+                if (_shutdownTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
@@ -638,7 +595,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_disposeTask != null)
+                if (_shutdownTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
@@ -683,6 +640,76 @@ namespace ZeroC.Ice
         {
             (Identity identity, string facet) = UriParser.ParseIdentityAndFacet(identityAndFacet);
             return CreateProxy(identity, facet, factory);
+        }
+
+        /// <summary>Shuts down this object adapter. Once shut down, an object adapter is disposed and can no longer be
+        /// used. This method can be safely called multiple times and always returns the same task.</summary>
+        public Task ShutdownAsync()
+        {
+            // We create the lazy shutdown task with the mutex locked then we create the actual task immediately (and
+            // synchronously) after releasing the lock.
+            lock (_mutex)
+            {
+                _shutdownTask ??= new Lazy<Task>(() => PerformShutdownAsync());
+            }
+            return _shutdownTask.Value;
+
+            async Task PerformShutdownAsync()
+            {
+                try
+                {
+                    // Synchronously shuts down the incoming connection factories to stop accepting new incoming
+                    // requests or connections. This ensures that once ShutdownAsync returns, no new requests will be
+                    // dispatched. Calling ToArray is important here to ensure that all the ShutdownAsync calls are
+                    // executed before we eventually hit an await (we want to make that once ShutdownAsync returns a
+                    // Task, all the connections started closing).
+                    // Once _shutdownTask is non null, _incomingConnectionfactories cannot change, so no need to lock
+                    // _mutex.
+                    Task[] tasks = _incomingConnectionFactories.Select(factory => factory.ShutdownAsync()).ToArray();
+
+                    // Wait for activation to complete. This is necessary avoid out of order locator updates.
+                    // _activateTask is readonly once _shutdownTask is non null.
+                    if (_activateTask != null)
+                    {
+                        try
+                        {
+                            await _activateTask.ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            // Ignore
+                        }
+                    }
+
+                    try
+                    {
+                        await UnregisterEndpointsAsync(default).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // We can't throw exceptions in deactivate so we ignore failures to unregister endpoints
+                    }
+
+                    if (_colocatedConnectionFactory != null)
+                    {
+                        await _colocatedConnectionFactory.ShutdownAsync().ConfigureAwait(false);
+                    }
+
+                    // Wait for the incoming connection factories to be shut down.
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                    // TODO jose: Clear the outgoing connections adapter?
+                    Communicator.EraseRouterInfo(_routerInfo?.Router);
+                    Communicator.RemoveObjectAdapter(this);
+                }
+                finally
+                {
+                    // The continuation is executed asynchronously (see _shutdownCompleteSource's construction). This
+                    // way, even if the continuation blocks waiting on ShutdownAsync to complete (with incorrect code
+                    // using Result or Wait()), ShutdownAsync will complete.
+                    _shutdownCompleteSource.TrySetResult(null);
+                }
+            }
         }
 
         /// <summary>Constructs a nameless object adapter.</summary>
@@ -980,7 +1007,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_disposeTask != null)
+                if (_shutdownTask != null)
                 {
                     throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                 }
@@ -1020,7 +1047,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    if (_disposeTask != null)
+                    if (_shutdownTask != null)
                     {
                         throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
                     }
