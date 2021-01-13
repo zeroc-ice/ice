@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("Test", new TestIntf());
             await adapter.ActivateAsync();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

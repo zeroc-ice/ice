@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.Retry
             adapter2.Add("replicated", new Replicated(false));
             await adapter2.ActivateAsync();
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

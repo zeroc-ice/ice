@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.ProtocolBridging
             await adapterSame.ActivateAsync();
             await adapterOther.ActivateAsync();
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

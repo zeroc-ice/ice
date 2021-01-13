@@ -42,7 +42,7 @@ namespace ZeroC.Ice.Test.Admin
 
         // Note that we are executing in a thread of the *main* communicator, not the one that is being shut down.
         public void WaitForShutdown(Current current, CancellationToken cancel) =>
-            _communicator.WaitForShutdownAsync().Wait(cancel);
+            _communicator.ShutdownComplete.Wait(cancel);
 
         public void Destroy(Current current, CancellationToken cancel) => _communicator.Dispose();
 

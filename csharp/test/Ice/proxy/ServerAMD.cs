@@ -22,7 +22,7 @@ namespace ZeroC.Ice.Test.Proxy
             adapter.Add("test", new AsyncMyDerivedClass());
             await adapter.ActivateAsync();
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);

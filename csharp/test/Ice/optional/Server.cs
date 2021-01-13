@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Optional
             adapter.Add("test", new Test());
             await adapter.ActivateAsync();
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

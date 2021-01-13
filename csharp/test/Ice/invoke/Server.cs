@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Invoke
             adapter.AddDefault(new BlobjectI());
             await adapter.ActivateAsync();
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
