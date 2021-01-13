@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace ZeroC.Ice.Discovery
 {
     /// <summary>Servant class that implements the Slice interface Ice::LocatorRegistry.</summary>
-    internal class LocatorRegistry : ILocatorRegistry
+    internal class LocatorRegistry : IAsyncLocatorRegistry
     {
         private readonly IObjectPrx _dummyIce1Proxy;
         private readonly IObjectPrx _dummyIce2Proxy;
@@ -22,7 +22,7 @@ namespace ZeroC.Ice.Discovery
 
         private readonly Dictionary<(string AdapterId, Protocol Protocol), HashSet<string>> _replicaGroups = new();
 
-        public void RegisterAdapterEndpoints(
+        public ValueTask RegisterAdapterEndpointsAsync(
             string adapterId,
             string replicaGroupId,
             EndpointData[] endpoints,
@@ -35,16 +35,17 @@ namespace ZeroC.Ice.Discovery
             }
 
             RegisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice2, endpoints, _ice2Adapters);
+            return default;
         }
 
-        public void SetAdapterDirectProxy(
+        public ValueTask SetAdapterDirectProxyAsync(
             string adapterId,
             IObjectPrx? proxy,
             Current current,
             CancellationToken cancel) =>
-            SetReplicatedAdapterDirectProxy(adapterId, "", proxy, current, cancel);
+            SetReplicatedAdapterDirectProxyAsync(adapterId, "", proxy, current, cancel);
 
-        public void SetReplicatedAdapterDirectProxy(
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(
            string adapterId,
            string replicaGroupId,
            IObjectPrx? proxy,
@@ -59,23 +60,24 @@ namespace ZeroC.Ice.Discovery
             {
                 UnregisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice1, _ice1Adapters);
             }
+            return default;
         }
 
-        public void SetServerProcessProxy(
+        public ValueTask SetServerProcessProxyAsync(
             string serverId,
             IProcessPrx process,
             Current current,
-            CancellationToken cancel)
-        {
-            // Ignored
-        }
+            CancellationToken cancel) => default; // Ignored
 
-        public void UnregisterAdapterEndpoints(
+        public ValueTask UnregisterAdapterEndpointsAsync(
             string adapterId,
             string replicaGroupId,
             Current current,
-            CancellationToken cancel) =>
+            CancellationToken cancel)
+        {
             UnregisterAdapterEndpoints(adapterId, replicaGroupId, Protocol.Ice2, _ice2Adapters);
+            return default;
+        }
 
         internal LocatorRegistry(Communicator communicator)
         {
