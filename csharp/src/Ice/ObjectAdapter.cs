@@ -175,7 +175,9 @@ namespace ZeroC.Ice
 
         private readonly RouterInfo? _routerInfo;
 
-        private readonly TaskCompletionSource<object?> _shutdownCompleteSource = new();
+        private readonly TaskCompletionSource<object?> _shutdownCompleteSource =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
         private Lazy<Task>? _shutdownTask;
 
         /// <summary>Activates this object adapter. After activation, the object adapter can dispatch requests received
@@ -702,6 +704,9 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
+                    // The continuation is executed asynchronously (see _shutdownCompleteSource's construction). This
+                    // way, even if the continuation blocks waiting on ShutdownAsync to complete (with incorrect code
+                    // using Result or Wait()), ShutdownAsync will complete.
                     _shutdownCompleteSource.TrySetResult(null);
                 }
             }

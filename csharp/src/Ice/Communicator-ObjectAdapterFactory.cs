@@ -37,6 +37,9 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
+                    // The continuation is executed asynchronously (see _shutdownCompleteSource's construction). This
+                    // way, even if the continuation blocks waiting on ShutdownAsync to complete (with incorrect code
+                    // using Result or Wait()), ShutdownAsync will complete.
                     _shutdownCompleteSource.TrySetResult(null);
                 }
             }
