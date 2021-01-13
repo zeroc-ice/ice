@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Facets
             await adapter.ActivateAsync();
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

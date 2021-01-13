@@ -68,7 +68,7 @@ namespace ZeroC.Ice.Test.UDP
             await mcastAdapter.ActivateAsync();
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

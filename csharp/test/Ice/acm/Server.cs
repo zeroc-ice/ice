@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.ACM
 
             ServerReady();
             Communicator.SetProperty("Ice.PrintAdapterReady", "0");
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

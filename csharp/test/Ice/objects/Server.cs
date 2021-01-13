@@ -21,7 +21,7 @@ namespace ZeroC.Ice.Test.Objects
             await adapter.ActivateAsync();
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

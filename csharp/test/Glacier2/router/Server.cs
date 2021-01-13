@@ -31,7 +31,7 @@ namespace ZeroC.Glacier2.Test.Router
             // The test allows the prefixed userid.
             adapter.Add("_userid/callback", new Callback());
             await adapter.ActivateAsync();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);

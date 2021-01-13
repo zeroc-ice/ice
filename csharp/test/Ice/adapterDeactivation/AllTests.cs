@@ -41,9 +41,13 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 
                 // Use a different port than the first adapter to avoid an "address already in use" error.
                 {
-                    await using var adapter = communicator.CreateObjectAdapterWithEndpoints(
+                    var adapter = communicator.CreateObjectAdapterWithEndpoints(
                         "TransientTestAdapter",
                         helper.GetTestEndpoint(2));
+
+                    TestHelper.Assert(!adapter.ShutdownComplete.IsCompleted);
+                    await adapter.DisposeAsync();
+                    TestHelper.Assert(adapter.ShutdownComplete.IsCompletedSuccessfully);
                 }
                 output.WriteLine("ok");
             }

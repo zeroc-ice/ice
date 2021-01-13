@@ -41,7 +41,7 @@ namespace ZeroC.Ice.Test.Timeout
             await controllerAdapter.ActivateAsync();
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

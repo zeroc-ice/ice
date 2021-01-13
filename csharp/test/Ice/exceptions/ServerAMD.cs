@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.Exceptions
             await adapter2.ActivateAsync();
             await adapter3.ActivateAsync();
 
-            using var communicator2 = new Communicator(properties);
+            await using var communicator2 = new Communicator(properties);
             communicator2.SetProperty("ForwarderAdapter.Endpoints", GetTestEndpoint(3));
             communicator2.SetProperty("ForwarderAdapter.IncomingFrameMaxSize", "0");
             ObjectAdapter forwarderAdapter = communicator2.CreateObjectAdapter("ForwarderAdapter");
@@ -37,7 +37,7 @@ namespace ZeroC.Ice.Test.Exceptions
             await forwarderAdapter.ActivateAsync();
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

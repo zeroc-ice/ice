@@ -41,7 +41,7 @@ namespace ZeroC.Ice.Test.Threading
             ThreadPool.SetMaxThreads(20, 4);
 
             ServerReady();
-            await Communicator.WaitForShutdownAsync();
+            await Communicator.ShutdownComplete;
         }
 
         public static async Task<int> Main(string[] args)

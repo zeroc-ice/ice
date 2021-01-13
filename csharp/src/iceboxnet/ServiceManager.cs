@@ -227,7 +227,7 @@ namespace ZeroC.IceBox
                     Console.Out.WriteLine($"{bundleName} ready");
                 }
 
-                await _communicator.WaitForShutdownAsync();
+                await _communicator.ShutdownComplete;
             }
             catch (ObjectDisposedException)
             {

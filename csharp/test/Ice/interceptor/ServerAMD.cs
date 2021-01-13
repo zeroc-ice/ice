@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.Interceptor
             adapter.Add("test", new AsyncMyObject());
             await DispatchInterceptors.ActivateAsync(adapter);
             ServerReady();
-            await communicator.WaitForShutdownAsync();
+            await communicator.ShutdownComplete;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);
