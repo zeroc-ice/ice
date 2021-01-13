@@ -1,17 +1,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Scope
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+            TextWriter output = helper.Output;
+
+            output.Write("test using same type name in different Slice modules... ");
+            output.Flush();
             {
                 var i = IIPrx.Parse(helper.GetTestProxy("i1"), communicator);
                 var s1 = new S(0);
@@ -332,6 +336,9 @@ namespace ZeroC.Ice.Test.Scope
             {
                 IIPrx.Parse(helper.GetTestProxy("i1"), communicator).Shutdown();
             }
+
+            output.WriteLine("ok");
+            return Task.CompletedTask;
         }
     }
 }

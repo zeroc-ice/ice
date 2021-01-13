@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Invoke
 {
@@ -8,10 +9,10 @@ namespace ZeroC.Ice.Test.Invoke
     {
         private const string TestString = "This is a test string";
 
-        public static IMyClassPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             bool ice1 = helper.Protocol == Protocol.Ice1;
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             IMyClassPrx oneway = cl.Clone(oneway: true);
@@ -73,7 +74,7 @@ namespace ZeroC.Ice.Test.Invoke
             }
 
             output.WriteLine("ok");
-            return cl;
+            await cl.ShutdownAsync();
         }
     }
 }

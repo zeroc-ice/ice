@@ -4,16 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper, List<int> ports)
+        public static Task RunAsync(TestHelper helper, List<int> ports)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
@@ -107,6 +108,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
             {
                 output.WriteLine("ok");
             }
+            return Task.CompletedTask;
         }
     }
 }

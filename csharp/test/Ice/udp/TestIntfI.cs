@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Threading;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.UDP
 {

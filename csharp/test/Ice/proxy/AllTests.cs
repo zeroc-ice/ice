@@ -6,16 +6,16 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Proxy
 {
     public static class AllTests
     {
-        public static async Task<IMyClassPrx> RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             bool ice1 = helper.Protocol == Protocol.Ice1;
             System.IO.TextWriter output = helper.Output;
             output.Write("testing proxy parsing... ");
@@ -1315,7 +1315,7 @@ namespace ZeroC.Ice.Test.Proxy
             }
             output.WriteLine("ok");
 
-            return cl;
+            await cl.ShutdownAsync();
         }
     }
 

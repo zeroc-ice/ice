@@ -3,16 +3,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Tagged
 {
     public static class AllTests
     {
-        public static IInitialPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
 
             TextWriter output = helper.Output;
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
@@ -1793,8 +1793,7 @@ namespace ZeroC.Ice.Test.Tagged
                 }
             }
             output.WriteLine("ok");
-
-            return initial;
+            await initial.ShutdownAsync();
         }
     }
 }

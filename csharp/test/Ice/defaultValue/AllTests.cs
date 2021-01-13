@@ -1,13 +1,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.IO;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.DefaultValue
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static Task RunAsync(TestHelper helper)
         {
             TextWriter output = helper.Output;
             output.Write("testing default values... ");
@@ -106,6 +107,7 @@ namespace ZeroC.Ice.Test.DefaultValue
             }
 
             output.WriteLine("ok");
+            return Task.CompletedTask;
         }
     }
 }

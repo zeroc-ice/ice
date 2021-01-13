@@ -4,18 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Optional
 {
     internal static class AllTests
     {
-        internal static ITestPrx Run(TestHelper helper)
+        // We need a separate, non-async function here, since Span<T> can't be used in async contexts.
+        internal static void RunTest(ITestPrx test, TextWriter output)
         {
-            Communicator communicator = helper.Communicator!;
-            var test = ITestPrx.Parse(helper.GetTestProxy("test", 0), communicator);
-
-            TextWriter output = helper.Output;
             output.Write("testing BitSequence and ReadOnlyBitSequence... ");
 
             Span<byte> span1 = stackalloc byte[7];
@@ -235,7 +233,17 @@ namespace ZeroC.Ice.Test.Optional
             }
 
             output.WriteLine("ok");
-            return test;
+        }
+
+        internal static async Task RunAsync(TestHelper helper)
+        {
+            Communicator communicator = helper.Communicator;
+
+            TextWriter output = helper.Output;
+            var test = ITestPrx.Parse(helper.GetTestProxy("test", 0), communicator);
+            RunTest(test, output);
+
+            await test.ShutdownAsync();
         }
     }
 }

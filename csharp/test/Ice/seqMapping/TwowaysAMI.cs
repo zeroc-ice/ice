@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {

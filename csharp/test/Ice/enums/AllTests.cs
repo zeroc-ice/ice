@@ -1,17 +1,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Linq;
-
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Enums
 {
     public static class AllTests
     {
-        public static ITestIntfPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             var proxy = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             System.IO.TextWriter output = helper.Output;
 
@@ -545,7 +545,7 @@ namespace ZeroC.Ice.Test.Enums
             }
 
             output.WriteLine("ok");
-            return proxy;
+            await proxy.ShutdownAsync();
         }
     }
 }

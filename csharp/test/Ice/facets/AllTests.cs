@@ -3,16 +3,16 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Facets
 {
     public static class AllTests
     {
-        public static async Task<IGPrx> RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             TextWriter output = helper.Output;
             output.Write("testing Ice.Admin.Facets property... ");
             TestHelper.Assert(communicator.GetPropertyAsList("Ice.Admin.Facets") == null);
@@ -133,7 +133,8 @@ namespace ZeroC.Ice.Test.Facets
             TestHelper.Assert(hf.CallG().Equals("G"));
             TestHelper.Assert(hf.CallH().Equals("H"));
             output.WriteLine("ok");
-            return gf;
+
+            await gf.ShutdownAsync();
         }
     }
 }

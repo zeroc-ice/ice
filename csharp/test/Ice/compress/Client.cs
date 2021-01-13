@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Compress
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             Output.Write("testing operations using compression... ");
             Output.Flush();
             {

@@ -3,7 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Objects
 {
@@ -35,11 +36,11 @@ namespace ZeroC.Ice.Test.Objects
 
     public static class AllTests
     {
-        public static IInitialPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
-            TextWriter? output = helper.Output;
+            Communicator communicator = helper.Communicator;
+
+            TextWriter output = helper.Output;
 
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
             TestHelper.Assert(initial != null);
@@ -332,7 +333,7 @@ namespace ZeroC.Ice.Test.Objects
             }
             output.WriteLine("ok");
 
-            return initial;
+            await initial.ShutdownAsync();
         }
     }
 }

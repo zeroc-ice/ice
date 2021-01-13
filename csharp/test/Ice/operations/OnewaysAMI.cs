@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
@@ -47,8 +47,7 @@ namespace ZeroC.Ice.Test.Operations
 
         internal static void Run(TestHelper helper, IMyClassPrx proxy)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
             IMyClassPrx p = proxy.Clone(oneway: true);
 
             {

@@ -3901,7 +3901,8 @@ from LocalDriver import *
 def runTestsWithPath(path):
     mappings = Mapping.getAllByPath(path)
     if not mappings:
-        print("couldn't find mapping for `{0}' (is this mapping supported on this platform?)".format(path))
+        dirname = os.path.basename(os.path.dirname(os.path.abspath(path)))
+        print("couldn't find mapping for `{0}' (is this mapping supported on this platform?)".format(dirname))
         sys.exit(0)
     runTests(mappings)
 

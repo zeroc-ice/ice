@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
@@ -35,11 +35,11 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 throw new ClientPrivateException("ClientPrivate");
         }
 
-        public static async Task<ITestIntfPrx> RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
-            TextWriter? output = helper.Output;
+            Communicator communicator = helper.Communicator;
+
+            TextWriter output = helper.Output;
             output.Write("testing stringToProxy... ");
             output.Flush();
             var testPrx = ITestIntfPrx.Parse(helper.GetTestProxy("Test", 0), communicator);
@@ -874,8 +874,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 }
             }
             output.WriteLine("ok");
-
-            return testPrx;
+            await testPrx.ShutdownAsync();
         }
     }
 }

@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
@@ -9,14 +9,20 @@ namespace ZeroC.Ice.Test.DictMapping
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyClass());
             // Don't activate OA to ensure collocation is used.
-            AllTests.Run(this, true);
+
+            await AllTests.RunAsync(this, true);
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Collocated>(communicator, args);
+        }
     }
 }

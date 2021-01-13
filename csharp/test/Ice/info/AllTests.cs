@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Info
 {
@@ -14,8 +14,8 @@ namespace ZeroC.Ice.Test.Info
     {
         public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             bool ice1 = helper.Protocol == Protocol.Ice1;
             string transport = helper.Transport;
             TextWriter output = helper.Output;

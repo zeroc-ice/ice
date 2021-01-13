@@ -4,7 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Perf
 {
@@ -53,10 +54,10 @@ namespace ZeroC.Ice.Test.Perf
             RunTest(output, repetitions, name, () => invocation(size), () => invocation(0));
         }
 
-        public static IPerformancePrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator!;
-            TestHelper.Assert(communicator != null);
+
             System.IO.TextWriter output = helper.Output;
 
 #if DEBUG
@@ -69,7 +70,7 @@ namespace ZeroC.Ice.Test.Perf
             RunTest<byte>(output, 1000, "sending byte sequence", v => perf.SendBytes(v), Constants.ByteSeqSize);
             RunTest<byte>(output, 1000, "received byte sequence", sz => perf.ReceiveBytes(sz), Constants.ByteSeqSize);
 
-            return perf;
+            await perf.ShutdownAsync();
         }
     }
 }

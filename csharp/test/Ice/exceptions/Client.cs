@@ -2,23 +2,27 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args)
+        public override Task RunAsync(string[] args)
+        {
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            return AllTests.RunAsync(this);
+        }
+
+        public static async Task<int> Main(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.IncomingFrameMaxSize"] = "10K";
-            await using Communicator communicator = Initialize(properties);
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            IThrowerPrx thrower = await AllTests.RunAsync(this);
-            await thrower.ShutdownAsync();
-        }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+            await using var communicator = CreateCommunicator(properties);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }
