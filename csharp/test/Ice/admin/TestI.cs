@@ -80,7 +80,7 @@ namespace ZeroC.Ice.Test.Admin
             // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
             var servant = new RemoteCommunicator(communicator);
 
-            if (communicator.FindAdminFacet("Properties") is IPropertiesAdmin admin)
+            if (communicator.FindAdminFacet("Properties") is IAsyncPropertiesAdmin admin)
             {
                 admin.Updated += (_, updates) => servant.Updated(updates);
             }

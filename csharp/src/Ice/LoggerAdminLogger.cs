@@ -35,7 +35,7 @@ namespace ZeroC.Ice
             Log(logMessage);
         }
 
-        public ILoggerAdmin GetFacet() => _loggerAdmin;
+        public IAsyncLoggerAdmin GetFacet() => _loggerAdmin;
 
         public void Print(string message)
         {
