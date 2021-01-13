@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Test;
 
-namespace ZeroC.Slice.Test.Alias
+namespace ZeroC.Ice.Test.Alias
 {
     public sealed class Interface2 : IInterface2
     {

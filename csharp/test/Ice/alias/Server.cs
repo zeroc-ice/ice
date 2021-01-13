@@ -2,9 +2,8 @@
 
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice;
 
-namespace ZeroC.Slice.Test.Alias
+namespace ZeroC.Ice.Test.Alias
 {
     public class Server : TestHelper
     {

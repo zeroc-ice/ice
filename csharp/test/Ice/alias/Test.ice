@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-module ZeroC::Slice::Test::Alias
+module ZeroC::Ice::Test::Alias
 {
     struct Struct1
     {
