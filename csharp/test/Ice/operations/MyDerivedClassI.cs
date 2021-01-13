@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Operations
@@ -16,28 +17,31 @@ namespace ZeroC.Ice.Test.Operations
         private int _opByteSOnewayCallCount;
 
         // Override the Object "pseudo" operations to verify the operation mode.
-        public bool IceIsA(string id, Current current, CancellationToken cancel)
+        public ValueTask<bool> IceIsAAsync(string id, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(id);
+            return new(typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(id));
         }
 
-        public void IcePing(Current current, CancellationToken cancel) => TestHelper.Assert(current.IsIdempotent);
-
-        public IEnumerable<string> IceIds(Current current, CancellationToken cancel)
+        public ValueTask IcePingAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(IMyDerivedClass).GetAllIceTypeIds();
+            return default;
         }
 
-        public string IceId(Current current, CancellationToken cancel)
+        public ValueTask<IEnumerable<string>> IceIdsAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(IMyDerivedClass).GetIceTypeId()!;
+            return new(typeof(IMyDerivedClass).GetAllIceTypeIds());
         }
 
-        public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Communicator.ShutdownAsync();
+        public ValueTask<string> IceIdAsync(Current current, CancellationToken cancel)
+        {
+            TestHelper.Assert(current.IsIdempotent);
+            return new(typeof(IMyDerivedClass).GetIceTypeId()!);
+        }
+
+        public void Shutdown(Current current, CancellationToken cancel) => current.Communicator.ShutdownAsync();
 
         // TODO check if compress is supported.
         public bool SupportsCompress(Current current, CancellationToken cancel) => false;
