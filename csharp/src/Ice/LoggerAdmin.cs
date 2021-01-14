@@ -94,7 +94,7 @@ namespace ZeroC.Ice
         }
     }
 
-    internal sealed class LoggerAdmin : ILoggerAdmin, IAsyncDisposable
+    internal sealed class LoggerAdmin : IAsyncLoggerAdmin, IAsyncDisposable
     {
         internal int TraceLevel { get; }
         internal const string TraceCategory = "Admin.Logger";
@@ -111,7 +111,7 @@ namespace ZeroC.Ice
         private Communicator? _sendLogCommunicator;
         private int _traceCount;
 
-        public void AttachRemoteLogger(
+        public ValueTask AttachRemoteLoggerAsync(
             IRemoteLoggerPrx? prx,
             LogMessageType[] types,
             string[] categories,
@@ -121,7 +121,7 @@ namespace ZeroC.Ice
         {
             if (prx == null)
             {
-                return; // can't send this null RemoteLogger anything!
+                return default; // can't send this null RemoteLogger anything!
             }
 
             var messageTypes = new HashSet<LogMessageType>(types);
@@ -178,13 +178,17 @@ namespace ZeroC.Ice
             }
 
             logForwarder.Queue("init", _logger, prx => prx.InitAsync(_logger.Prefix, initLogMessages.ToArray()));
+            return default;
         }
 
-        public bool DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current, CancellationToken cancel)
+        public ValueTask<bool> DetachRemoteLoggerAsync(
+            IRemoteLoggerPrx? remoteLogger,
+            Current current,
+            CancellationToken cancel)
         {
             if (remoteLogger == null)
             {
-                return false;
+                return new(false);
             }
 
             bool found = RemoveLogForwarder(remoteLogger.Identity);
@@ -201,10 +205,10 @@ namespace ZeroC.Ice
                 }
             }
 
-            return found;
+            return new(found);
         }
 
-        public (IEnumerable<LogMessage>, string) GetLog(
+        public ValueTask<(IEnumerable<LogMessage>, string)> GetLogAsync(
             LogMessageType[] types,
             string[] categories,
             int messageMax,
@@ -230,7 +234,7 @@ namespace ZeroC.Ice
                 var traceCategories = new HashSet<string>(categories);
                 FilterLogMessages(logMessages, messageTypes, traceCategories, messageMax);
             }
-            return (logMessages.ToArray(), _logger.Prefix);
+            return new((logMessages.ToArray(), _logger.Prefix));
         }
 
         internal LoggerAdmin(Communicator communicator, LoggerAdminLogger logger)

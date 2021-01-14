@@ -2773,13 +2773,13 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     _out << sp;
-    _out << nl << "string ZeroC.Ice.IObject.IceId("
+    _out << nl << "global::System.Threading.Tasks.ValueTask<string> ZeroC.Ice.IObject.IceIdAsync("
          << "ZeroC.Ice.Current current, "
-         << "global::System.Threading.CancellationToken cancel) => _iceTypeId;";
+         << "global::System.Threading.CancellationToken cancel) => new(_iceTypeId);";
     _out << sp;
-    _out << nl << "global::System.Collections.Generic.IEnumerable<string> "
-         << "ZeroC.Ice.IObject.IceIds(ZeroC.Ice.Current current, "
-         << "global::System.Threading.CancellationToken cancel) => _iceAllTypeIds;";
+    _out << nl << "global::System.Threading.Tasks.ValueTask<global::System.Collections.Generic.IEnumerable<string>> "
+         << "ZeroC.Ice.IObject.IceIdsAsync(ZeroC.Ice.Current current, "
+         << "global::System.Threading.CancellationToken cancel) => new(_iceAllTypeIds);";
 
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.ValueTask<ZeroC.Ice.OutgoingResponseFrame> ZeroC.Ice.IObject"

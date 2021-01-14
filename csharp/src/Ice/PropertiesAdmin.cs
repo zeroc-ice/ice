@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    // This partial interface extends the IPropertieAdmin interface generated from the Slice interface PropertiesAdmin.
-    public partial interface IPropertiesAdmin
+    // This partial interface extends the IAsyncPropertieAdmin interface generated from the Slice interface
+    // PropertiesAdmin.
+    public partial interface IAsyncPropertiesAdmin
     {
         /// <summary>The Updated event is triggered when the communicator's properties are updated through a remote call
         /// to the setProperties operation implemented by this Properties admin facet. The event's args include only the
@@ -16,7 +18,7 @@ namespace ZeroC.Ice
     }
 
     // Default implementation of the Properties Admin facet.
-    internal sealed class PropertiesAdmin : IPropertiesAdmin
+    internal sealed class PropertiesAdmin : IAsyncPropertiesAdmin
     {
         public event EventHandler<IReadOnlyDictionary<string, string>>? Updated;
 
@@ -24,16 +26,19 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly ILogger _logger;
 
-        public string GetProperty(string key, Current current, CancellationToken cancel) =>
-            _communicator.GetProperty(key) ?? "";
+        public ValueTask<string> GetPropertyAsync(string key, Current current, CancellationToken cancel) =>
+            new(_communicator.GetProperty(key) ?? "");
 
-        public IReadOnlyDictionary<string, string> GetPropertiesForPrefix(
+        public ValueTask<IReadOnlyDictionary<string, string>> GetPropertiesForPrefixAsync(
             string prefix,
             Current current,
             CancellationToken cancel) =>
-            _communicator.GetProperties(forPrefix: prefix);
+            new(_communicator.GetProperties(forPrefix: prefix));
 
-        public void SetProperties(Dictionary<string, string> newProperties, Current current, CancellationToken cancel)
+        public ValueTask SetPropertiesAsync(
+            Dictionary<string, string> newProperties,
+            Current current,
+            CancellationToken cancel)
         {
             int? traceLevel = _communicator.GetPropertyAsInt("Ice.Trace.Admin.Properties");
 
@@ -73,6 +78,7 @@ namespace ZeroC.Ice
             }
 
             Updated?.Invoke(_communicator, newProperties);
+            return default;
         }
 
         internal PropertiesAdmin(Communicator communicator)

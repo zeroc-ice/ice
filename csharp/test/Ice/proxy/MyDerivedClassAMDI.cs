@@ -29,10 +29,10 @@ namespace ZeroC.Ice.Test.Proxy
             CancellationToken cancel) =>
             new(_ctx!);
 
-        public bool IceIsA(string typeId, Current current, CancellationToken cancel)
+        public ValueTask<bool> IceIsAAsync(string typeId, Current current, CancellationToken cancel)
         {
             _ctx = current.Context;
-            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
+            return new(typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId));
         }
 
         public async ValueTask<IRelativeTestPrx> OpRelativeAsync(

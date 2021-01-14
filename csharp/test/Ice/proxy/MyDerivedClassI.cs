@@ -3,6 +3,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+
 using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Proxy
@@ -20,10 +22,10 @@ namespace ZeroC.Ice.Test.Proxy
 
         public IReadOnlyDictionary<string, string> GetContext(Current current, CancellationToken cancel) => _ctx!;
 
-        public bool IceIsA(string typeId, Current current, CancellationToken cancel)
+        public ValueTask<bool> IceIsAAsync(string typeId, Current current, CancellationToken cancel)
         {
             _ctx = current.Context;
-            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
+            return new(typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId));
         }
 
         public IRelativeTestPrx OpRelative(ICallbackPrx callback, Current current, CancellationToken cancel)

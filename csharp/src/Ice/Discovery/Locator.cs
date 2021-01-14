@@ -307,7 +307,7 @@ namespace ZeroC.Ice.Discovery
                     // If the timeout was canceled we delay the completion of the request to give a chance to other
                     // members of this replica group to reply
                     return await
-                        replyServant.WaitForReplicaGroupRepliesAsync(start, _latencyMultiplier).ConfigureAwait(false);
+                        replyServant.GetReplicaGroupRepliesAsync(start, _latencyMultiplier).ConfigureAwait(false);
                 }
                 // else timeout, so we retry until _retryCount
             }
@@ -338,9 +338,7 @@ namespace ZeroC.Ice.Discovery
             _replyAdapter.Remove(Identity);
         }
 
-        internal void SetEmptyResult() => _completionSource.SetResult(_emptyResult);
-
-        internal async Task<TResult> WaitForReplicaGroupRepliesAsync(TimeSpan start, int latencyMultiplier)
+        internal async Task<TResult> GetReplicaGroupRepliesAsync(TimeSpan start, int latencyMultiplier)
         {
             // This method is called by InvokeAsync after the first reply from a replica group to wait for additional
             // replies from the replica group.
@@ -354,6 +352,8 @@ namespace ZeroC.Ice.Discovery
             SetResult(CollectReplicaReplies());
             return await Task.ConfigureAwait(false);
         }
+
+        internal void SetEmptyResult() => _completionSource.SetResult(_emptyResult);
 
         private protected ReplyServant(TResult emptyResult, ObjectAdapter replyAdapter)
         {
@@ -378,12 +378,12 @@ namespace ZeroC.Ice.Discovery
     }
 
     /// <summary>Servant class that implements the Slice interface FindAdapterByIdReply.</summary>
-    internal sealed class FindAdapterByIdReply : ReplyServant<IObjectPrx?>, IFindAdapterByIdReply
+    internal sealed class FindAdapterByIdReply : ReplyServant<IObjectPrx?>, IAsyncFindAdapterByIdReply
     {
         private readonly object _mutex = new();
         private readonly HashSet<IObjectPrx> _proxies = new();
 
-        public void FoundAdapterById(
+        public ValueTask FoundAdapterByIdAsync(
             string adapterId,
             IObjectPrx proxy,
             bool isReplicaGroup,
@@ -407,6 +407,7 @@ namespace ZeroC.Ice.Discovery
             {
                 SetResult(proxy);
             }
+            return default;
         }
 
         internal FindAdapterByIdReply(ObjectAdapter replyAdapter)
@@ -431,10 +432,13 @@ namespace ZeroC.Ice.Discovery
     }
 
     /// <summary>Servant class that implements the Slice interface FindObjectByIdReply.</summary>
-    internal class FindObjectByIdReply : ReplyServant<IObjectPrx?>, IFindObjectByIdReply
+    internal class FindObjectByIdReply : ReplyServant<IObjectPrx?>, IAsyncFindObjectByIdReply
     {
-        public void FoundObjectById(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel) =>
+        public ValueTask FoundObjectByIdAsync(Identity id, IObjectPrx proxy, Current current, CancellationToken cancel)
+        {
             SetResult(proxy);
+            return default;
+        }
 
         internal FindObjectByIdReply(ObjectAdapter replyAdapter)
             : base(emptyResult: null, replyAdapter)
@@ -443,12 +447,12 @@ namespace ZeroC.Ice.Discovery
     }
 
     /// <summary>Servant class that implements the Slice interface ResolveAdapterIdReply.</summary>
-    internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IResolveAdapterIdReply
+    internal sealed class ResolveAdapterIdReply : ReplyServant<IReadOnlyList<EndpointData>>, IAsyncResolveAdapterIdReply
     {
         private readonly object _mutex = new();
         private readonly HashSet<EndpointData> _endpointDataSet = new();
 
-        public void FoundAdapterId(
+        public ValueTask FoundAdapterIdAsync(
             EndpointData[] endpoints,
             bool isReplicaGroup,
             Current current,
@@ -471,6 +475,7 @@ namespace ZeroC.Ice.Discovery
             {
                 SetResult(endpoints);
             }
+            return default;
         }
 
         internal ResolveAdapterIdReply(ObjectAdapter replyAdapter)
@@ -489,10 +494,13 @@ namespace ZeroC.Ice.Discovery
     }
 
     /// <summary>Servant class that implements the Slice interface ResolveWellKnownProxyReply.</summary>
-    internal class ResolveWellKnownProxyReply : ReplyServant<string>, IResolveWellKnownProxyReply
+    internal class ResolveWellKnownProxyReply : ReplyServant<string>, IAsyncResolveWellKnownProxyReply
     {
-        public void FoundWellKnownProxy(string adapterId, Current current, CancellationToken cancel) =>
+        public ValueTask FoundWellKnownProxyAsync(string adapterId, Current current, CancellationToken cancel)
+        {
             SetResult(adapterId);
+            return default;
+        }
 
         internal ResolveWellKnownProxyReply(ObjectAdapter replyAdapter)
             : base(emptyResult: "", replyAdapter)

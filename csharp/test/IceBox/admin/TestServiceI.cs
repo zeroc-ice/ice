@@ -18,7 +18,7 @@ namespace ZeroC.IceBox.Test.Admin
 
             // The TestFacetI servant also implements PropertiesAdminUpdateCallback. Set the callback on the admin facet.
             IObject? propFacet = serviceManagerCommunicator.FindAdminFacet("IceBox.Service.TestService.Properties");
-            if (propFacet is IPropertiesAdmin admin)
+            if (propFacet is IAsyncPropertiesAdmin admin)
             {
                 admin.Updated += (_, updates) => facet.Updated(updates);
             }

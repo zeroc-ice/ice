@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+[[suppress-warning(reserved-identifier)]]
+
 module ZeroC::Ice::Test::Alias
 {
     struct Struct1

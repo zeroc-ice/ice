@@ -43,24 +43,28 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         // Override the Object "pseudo" operations to verify the operation mode.
-        public bool IceIsA(string id, Current current, CancellationToken cancel)
+        public ValueTask<bool> IceIsAAsync(string id, Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(id);
+            return new(typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(id));
         }
 
-        public void IcePing(Current current, CancellationToken cancel) => TestHelper.Assert(current.IsIdempotent);
-
-        public IEnumerable<string> IceIds(Current current, CancellationToken cancel)
+        public ValueTask IcePingAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(IMyDerivedClass).GetAllIceTypeIds();
+            return default;
         }
 
-        public string IceId(Current current, CancellationToken cancel)
+        public ValueTask<IEnumerable<string>> IceIdsAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(IMyDerivedClass).GetIceTypeId()!;
+            return new(typeof(IMyDerivedClass).GetAllIceTypeIds());
+        }
+
+        public ValueTask<string> IceIdAsync(Current current, CancellationToken cancel)
+        {
+            TestHelper.Assert(current.IsIdempotent);
+            return new(typeof(IMyDerivedClass).GetIceTypeId()!);
         }
 
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)

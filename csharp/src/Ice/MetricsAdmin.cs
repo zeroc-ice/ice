@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using ZeroC.IceMX;
 
 namespace ZeroC.Ice
@@ -417,7 +418,7 @@ namespace ZeroC.Ice
         }
     }
 
-    internal class MetricsAdmin : IMetricsAdmin
+    internal class MetricsAdmin : IAsyncMetricsAdmin
     {
         internal ILogger Logger { get; }
 
@@ -438,7 +439,7 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private Dictionary<string, MetricsView> _views = new Dictionary<string, MetricsView>();
 
-        public void DisableMetricsView(string name, Current current, CancellationToken cancel)
+        public ValueTask DisableMetricsViewAsync(string name, Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -446,9 +447,10 @@ namespace ZeroC.Ice
                 _communicator.SetProperty($"IceMX.Metrics.{name}.Disabled", "1");
             }
             UpdateViews();
+            return default;
         }
 
-        public void EnableMetricsView(string name, Current current, CancellationToken cancel)
+        public ValueTask EnableMetricsViewAsync(string name, Current current, CancellationToken cancel)
         {
             lock (_mutex)
             {
@@ -456,9 +458,10 @@ namespace ZeroC.Ice
                 _communicator.SetProperty($"IceMX.Metrics.{name}.Disabled", "0");
             }
             UpdateViews();
+            return default;
         }
 
-        public IEnumerable<MetricsFailures> GetMapMetricsFailures(
+        public ValueTask<IEnumerable<MetricsFailures>> GetMapMetricsFailuresAsync(
             string viewName,
             string mapName,
             Current current,
@@ -466,12 +469,12 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                return GetMetricsView(viewName) is MetricsView view ?
-                    view.GetFailures(mapName) : Array.Empty<MetricsFailures>();
+                return new(GetMetricsView(viewName) is MetricsView view ?
+                    view.GetFailures(mapName) : Array.Empty<MetricsFailures>());
             }
         }
 
-        public MetricsFailures GetMetricsFailures(
+        public ValueTask<MetricsFailures> GetMetricsFailuresAsync(
             string viewName,
             string mapName,
             string id,
@@ -480,13 +483,13 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                return GetMetricsView(viewName) is MetricsView view &&
+                return new(GetMetricsView(viewName) is MetricsView view &&
                     view.GetFailures(mapName, id) is MetricsFailures failures ?
-                        failures : new MetricsFailures(id, new Dictionary<string, int>());
+                        failures : new MetricsFailures(id, new Dictionary<string, int>()));
             }
         }
 
-        public (IReadOnlyDictionary<string, Metrics?[]>, long) GetMetricsView(
+        public ValueTask<(IReadOnlyDictionary<string, Metrics?[]>, long)> GetMetricsViewAsync(
             string viewName,
             Current current,
             CancellationToken cancel)
@@ -495,22 +498,23 @@ namespace ZeroC.Ice
             {
                 if (GetMetricsView(viewName) is MetricsView view)
                 {
-                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>, (long)Time.Elapsed.TotalMilliseconds);
+                    return new(
+                        (view.GetMetrics() as Dictionary<string, Metrics?[]>, (long)Time.Elapsed.TotalMilliseconds));
                 }
                 else
                 {
-                    return (ImmutableDictionary<string, Metrics?[]>.Empty, (long)Time.Elapsed.TotalMilliseconds);
+                    return new((ImmutableDictionary<string, Metrics?[]>.Empty, (long)Time.Elapsed.TotalMilliseconds));
                 }
             }
         }
 
-        public (IEnumerable<string>, IEnumerable<string>) GetMetricsViewNames(
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> GetMetricsViewNamesAsync(
             Current current,
             CancellationToken cancel)
         {
             lock (_mutex)
             {
-                return (_views.Keys.ToArray(), _disabledViews.ToArray());
+                return new((_views.Keys.ToArray(), _disabledViews.ToArray()));
             }
         }
 

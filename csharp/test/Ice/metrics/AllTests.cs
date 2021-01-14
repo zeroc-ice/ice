@@ -396,7 +396,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(serverProps != null && serverMetrics != null);
 
             var update = new UpdateCallbackI(serverProps);
-            ((IPropertiesAdmin)communicator.FindAdminFacet("Properties")!).Updated += (_, u) => update.Updated();
+            ((IAsyncPropertiesAdmin)communicator.FindAdminFacet("Properties")!).Updated += (_, u) => update.Updated();
 
             var props = new Dictionary<string, string>();
 
