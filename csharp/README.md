@@ -82,4 +82,7 @@ On Windows, the command is:
 python allTests.py --config=Debug --platform=x64
 ```
 
+This executes all the tests for the ice2 protocol using the tcp transport. Add `--all` to execute the tests for both
+ice1 and ice2 with various transports. Pass `--help` to allTests.py to see additional options.
+
 If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
