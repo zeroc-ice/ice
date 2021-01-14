@@ -3,7 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.Exceptions
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Communicator.ShutdownAsync();
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<bool> SupportsAssertExceptionAsync(Current current, CancellationToken cancel) => new(false);
@@ -77,14 +77,14 @@ namespace ZeroC.Ice.Test.Exceptions
         public ValueTask ThrowAssertExceptionAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(false);
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask ThrowLocalExceptionIdempotentAsync(Current current, CancellationToken cancel) =>
             throw new ConnectionClosedException();
 
         // Not supported with C# AMD API
-        public ValueTask ThrowAfterResponseAsync(Current current, CancellationToken cancel) => new(Task.CompletedTask);
+        public ValueTask ThrowAfterResponseAsync(Current current, CancellationToken cancel) => default;
 
         // Not supported with C# AMD API
         public ValueTask ThrowAfterExceptionAsync(Current current, CancellationToken cancel) => throw new A();

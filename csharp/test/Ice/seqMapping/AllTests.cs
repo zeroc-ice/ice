@@ -1,17 +1,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.IO;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {
     public static class AllTests
     {
-        public static IMyClassPrx Run(TestHelper helper, bool collocated)
+        public static async Task RunAsync(TestHelper helper, bool collocated)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
             TextWriter output = helper.Output;
+
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             output.Write("testing twoway operations... ");
             output.Flush();
@@ -25,7 +26,11 @@ namespace ZeroC.Ice.Test.SeqMapping
                 TwowaysAMI.Run(communicator, cl);
                 output.WriteLine("ok");
             }
-            return cl;
+
+            output.Write("shutting down server... ");
+            output.Flush();
+            await cl.ShutdownAsync();
+            output.WriteLine("ok");
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Tagged
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Communicator.ShutdownAsync();
-            return new(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<AnyClass?> PingPongAsync(AnyClass? obj, Current current, CancellationToken cancel) =>
@@ -227,10 +227,9 @@ namespace ZeroC.Ice.Test.Tagged
             Current current,
             CancellationToken cancel) => new((p1, p1));
 
-        public ValueTask OpClassAndUnknownTaggedAsync(A? p, Current current, CancellationToken cancel) =>
-            new(Task.CompletedTask);
+        public ValueTask OpClassAndUnknownTaggedAsync(A? p, Current current, CancellationToken cancel) => default;
 
-        public ValueTask OpVoidAsync(Current current, CancellationToken cancel) => new(Task.CompletedTask);
+        public ValueTask OpVoidAsync(Current current, CancellationToken cancel) => default;
 
         public async ValueTask<IInitial.OpMStruct1MarshaledReturnValue> OpMStruct1Async(
             Current current,

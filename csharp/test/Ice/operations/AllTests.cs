@@ -1,15 +1,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
     public static class AllTests
     {
-        public static IMyClassPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
             System.IO.TextWriter output = helper.Output;
 
             var cl = IMyClassPrx.Parse(helper.GetTestProxy("test", 0), communicator);
@@ -38,7 +38,7 @@ namespace ZeroC.Ice.Test.Operations
             OnewaysAMI.Run(helper, cl);
             output.WriteLine("ok");
 
-            return cl;
+            await cl.ShutdownAsync();
         }
     }
 }

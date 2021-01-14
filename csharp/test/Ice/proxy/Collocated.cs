@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Proxy
 {
@@ -10,18 +10,23 @@ namespace ZeroC.Ice.Test.Proxy
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
-            properties["Ice.Warn.Dispatch"] = "0";
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
-            await using Communicator communicator = Initialize(properties);
-            await communicator.ActivateAsync();
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClass());
             // Don't activate OA to ensure collocation is used.
+
             await AllTests.RunAsync(this);
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Warn.Dispatch"] = "0";
+
+            await using var communicator = CreateCommunicator(properties);
+            return await RunTestAsync<Collocated>(communicator, args);
+        }
     }
 }

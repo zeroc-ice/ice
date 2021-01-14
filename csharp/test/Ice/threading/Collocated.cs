@@ -2,7 +2,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Threading
 {
@@ -10,21 +10,20 @@ namespace ZeroC.Ice.Test.Threading
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            await communicator.ActivateAsync();
+            await Communicator.ActivateAsync();
 
-            ObjectAdapter adapter1 = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
+            ObjectAdapter adapter1 = Communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter1.Add("test", new TestIntf(TaskScheduler.Default));
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 5);
 
-            ObjectAdapter? adapter2 = communicator.CreateObjectAdapterWithEndpoints(
+            ObjectAdapter? adapter2 = Communicator.CreateObjectAdapterWithEndpoints(
                 "TestAdapterExclusiveTS",
                 GetTestEndpoint(1),
                 taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter2.Add("test", new TestIntf(schedulerPair.ExclusiveScheduler));
 
-            ObjectAdapter? adapter3 = communicator.CreateObjectAdapterWithEndpoints(
+            ObjectAdapter? adapter3 = Communicator.CreateObjectAdapterWithEndpoints(
                 "TestAdapteConcurrentTS",
                 GetTestEndpoint(2),
                 taskScheduler: schedulerPair.ConcurrentScheduler);
@@ -40,7 +39,7 @@ namespace ZeroC.Ice.Test.Threading
 
             try
             {
-                await AllTests.Run(this, true);
+                await AllTests.RunAsync(this, true);
             }
             catch (TestFailedException ex)
             {
@@ -50,6 +49,10 @@ namespace ZeroC.Ice.Test.Threading
             }
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Collocated>(communicator, args);
+        }
     }
 }

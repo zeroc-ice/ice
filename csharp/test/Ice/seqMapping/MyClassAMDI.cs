@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.SeqMapping
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Communicator.ShutdownAsync();
-            return new(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> OpAByteSAsync(

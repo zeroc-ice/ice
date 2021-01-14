@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.DictMapping
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
             current.Communicator.ShutdownAsync();
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<(IReadOnlyDictionary<int, int>, IReadOnlyDictionary<int, int>)> OpNVAsync(

@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Scope
 {
@@ -111,19 +111,24 @@ namespace ZeroC.Ice.Test.Scope
 
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            await communicator.ActivateAsync();
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("i1", new I1());
             adapter.Add("i2", new I2());
             adapter.Add("i3", new I3());
             adapter.Add("i4", new I4());
             await adapter.ActivateAsync();
+
             ServerReady();
-            await communicator.ShutdownComplete;
+            await Communicator.ShutdownComplete;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

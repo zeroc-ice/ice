@@ -45,7 +45,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 session.Destroy();
 
                 // Ensure locator discovery can discover the registries and make sure locator requests are forwarded.
-                Dictionary<string, string>? properties = communicator.GetProperties();
+                Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.Default.Locator"] = "LocatorDiscovery";
                 properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
                 properties["AdapterForDiscoveryTest.Endpoints"] = $"{helper.Transport} -h 127.0.0.1";

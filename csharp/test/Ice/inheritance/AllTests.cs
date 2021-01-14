@@ -1,15 +1,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Inheritance
 {
     public static class AllTests
     {
-        public static IInitialPrx Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             System.IO.TextWriter output = helper.Output;
             var initial = IInitialPrx.Parse(helper.GetTestProxy("initial", 0), communicator);
 
@@ -113,7 +114,7 @@ namespace ZeroC.Ice.Test.Inheritance
             ico = ic.Icop(ic);
             TestHelper.Assert(ico!.Equals(ic));
             output.WriteLine("ok");
-            return initial;
+            await initial.ShutdownAsync();
         }
     }
 }

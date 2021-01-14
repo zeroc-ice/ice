@@ -2,29 +2,27 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Timeout
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args)
-        {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
+        public override Task RunAsync(string[] args) => AllTests.RunAsync(this);
 
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             // For this test, we want to disable retries.
             properties["Ice.RetryIntervals"] = "-1";
-
             // This test kills connections, so we don't want warnings.
             properties["Ice.Warn.Connections"] = "0";
-
             // Limit the send buffer size, this test relies on the socket send() blocking after sending a given amount
             // of data.
             properties["Ice.TCP.SndSize"] = "50K";
-            await using Communicator communicator = Initialize(properties);
-            AllTests.Run(this);
-        }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+            await using var communicator = CreateCommunicator(properties);
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

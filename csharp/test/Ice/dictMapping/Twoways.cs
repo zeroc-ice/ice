@@ -2,7 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {
@@ -37,7 +38,7 @@ namespace ZeroC.Ice.Test.DictMapping
 
     public static class Twoways
     {
-        internal static void Run(IMyClassPrx p)
+        internal static Task RunAsync(IMyClassPrx p)
         {
             {
                 var i = new Dictionary<int, int>
@@ -155,6 +156,7 @@ namespace ZeroC.Ice.Test.DictMapping
                 TestHelper.Assert(o.DictionaryEqual(i, SequenceComparer<string>.AllElements));
                 TestHelper.Assert(r.DictionaryEqual(i, SequenceComparer<string>.AllElements));
             }
+            return Task.CompletedTask;
         }
     }
 }

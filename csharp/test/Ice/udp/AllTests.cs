@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.UDP
 {
@@ -61,8 +61,8 @@ namespace ZeroC.Ice.Test.UDP
 
         public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+
             communicator.SetProperty("ReplyAdapter.Endpoints", helper.GetTestEndpoint(0, "udp", true));
             communicator.SetProperty("ReplyAdapter.AcceptNonSecure", "Always");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");

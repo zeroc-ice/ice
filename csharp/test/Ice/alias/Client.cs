@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Slice.Test.Alias
+namespace ZeroC.Ice.Test.Alias
 {
     public class Client : TestHelper
     {

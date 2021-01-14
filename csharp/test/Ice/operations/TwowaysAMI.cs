@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
@@ -13,8 +13,7 @@ namespace ZeroC.Ice.Test.Operations
     {
         internal static void Run(TestHelper helper, IMyClassPrx p)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
 
             {
                 p.IcePingAsync().Wait();

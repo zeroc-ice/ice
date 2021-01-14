@@ -2,7 +2,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.NetworkProxy
 {
@@ -16,15 +16,21 @@ namespace ZeroC.Ice.Test.NetworkProxy
 
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            await communicator.ActivateAsync();
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
             await adapter.ActivateAsync();
-            await communicator.ShutdownComplete;
+
+            ServerReady();
+            await Communicator.ShutdownComplete;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

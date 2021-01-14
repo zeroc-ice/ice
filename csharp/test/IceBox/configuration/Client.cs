@@ -11,7 +11,7 @@ namespace ZeroC.IceBox.Test.Configuration
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string>? properties = CreateTestProperties(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             await using Communicator communicator = Initialize(properties);
             AllTests.Run(this);
             // Shutdown the IceBox server.

@@ -3,17 +3,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Hash
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args)
+        public override Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
-            Console.Error.Flush();
+            Output.Write("testing proxy & endpoint hash algorithm collisions... ");
+            Output.Flush();
             var seenProxy = new Dictionary<int, IObjectPrx>();
             var seenEndpoint = new Dictionary<int, Endpoint>();
             int proxyCollisions = 0;
@@ -30,7 +29,7 @@ namespace ZeroC.Ice.Test.Hash
                 {
                     string proxyString = $"ice+tcp://host-{rand.Next(100)}:{rand.Next(65536)}/{i}";
 
-                    var obj = IObjectPrx.Parse(proxyString, communicator);
+                    var obj = IObjectPrx.Parse(proxyString, Communicator);
                     var endpoints = new List<Endpoint>(obj.Endpoints);
 
                     if (seenProxy.ContainsKey(obj.GetHashCode()))
@@ -75,7 +74,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         string proxyString = $"ice+tcp://host-{rand.Next(100)}:{rand.Next(65536)}/{i}";
 
-                        var obj = IObjectPrx.Parse(proxyString, communicator);
+                        var obj = IObjectPrx.Parse(proxyString, Communicator);
 
                         if (seenProxy.ContainsKey(ProxyComparer.Identity.GetHashCode(obj)))
                         {
@@ -100,7 +99,7 @@ namespace ZeroC.Ice.Test.Hash
                 {
                     string proxyString = $"ice+tcp://host-{rand.Next(100)}:{rand.Next(65536)}/{i}#facet";
 
-                    var obj = IObjectPrx.Parse(proxyString, communicator);
+                    var obj = IObjectPrx.Parse(proxyString, Communicator);
 
                     if (seenProxy.ContainsKey(ProxyComparer.IdentityAndFacet.GetHashCode(obj)))
                     {
@@ -117,12 +116,12 @@ namespace ZeroC.Ice.Test.Hash
                 Assert(proxyCollisions < maxCollisions);
             }
 
-            var prx1 = IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010", communicator);
-            var prx2 = IObjectPrx.Parse("Glacier2/router:udp -h localhost -p 10012", communicator);
-            var prx3 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator);
-            var prx4 = IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator);
-            var prx5 = IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010 -t 10000", communicator);
-            var prx6 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator);
+            var prx1 = IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010", Communicator);
+            var prx2 = IObjectPrx.Parse("Glacier2/router:udp -h localhost -p 10012", Communicator);
+            var prx3 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", Communicator);
+            var prx4 = IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", Communicator);
+            var prx5 = IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010 -t 10000", Communicator);
+            var prx6 = IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", Communicator);
 
             var proxyMap = new Dictionary<string, int>
             {
@@ -134,16 +133,16 @@ namespace ZeroC.Ice.Test.Hash
                 ["prx6"] = prx6.GetHashCode()
             };
 
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010", communicator).GetHashCode() == proxyMap["prx1"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:udp -h localhost -p 10012", communicator).GetHashCode() == proxyMap["prx2"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator).GetHashCode() ==
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010", Communicator).GetHashCode() == proxyMap["prx1"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:udp -h localhost -p 10012", Communicator).GetHashCode() == proxyMap["prx2"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", Communicator).GetHashCode() ==
                    proxyMap["prx3"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator).GetHashCode() ==
+            Assert(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", Communicator).GetHashCode() ==
                    proxyMap["prx4"]);
-            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010 -t 10000", communicator).GetHashCode() ==
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h localhost -p 10010 -t 10000", Communicator).GetHashCode() ==
                    proxyMap["prx5"]);
             Assert(
-                IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator).GetHashCode() ==
+                IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", Communicator).GetHashCode() ==
                 proxyMap["prx6"]);
 
             Assert(ProxyComparer.Identity.GetHashCode(prx1) == ProxyComparer.Identity.GetHashCode(prx1));
@@ -170,9 +169,9 @@ namespace ZeroC.Ice.Test.Hash
             Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx6) ==
                    ProxyComparer.IdentityAndFacet.GetHashCode(prx6));
 
-            Console.Error.WriteLine("ok");
+            Output.WriteLine("ok");
 
-            Console.Error.Write("testing exceptions hash algorithm collisions... ");
+            Output.Write("testing exceptions hash algorithm collisions... ");
 
             {
                 var seenException = new Dictionary<int, OtherException>();
@@ -275,9 +274,9 @@ namespace ZeroC.Ice.Test.Hash
                 }
                 Assert(exceptionCollisions < maxCollisions);
             }
-            Console.Error.WriteLine("ok");
+            Output.WriteLine("ok");
 
-            Console.Error.Write("testing struct hash algorithm collisions... ");
+            Output.Write("testing struct hash algorithm collisions... ");
             {
                 var seenPointF = new Dictionary<int, PointF>();
                 var rand = new Random();
@@ -437,9 +436,15 @@ namespace ZeroC.Ice.Test.Hash
                 }
                 Assert(structCollisions < maxCollisions);
             }
-            Console.Error.WriteLine("ok");
+            Output.WriteLine("ok");
+            return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

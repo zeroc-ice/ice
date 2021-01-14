@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
@@ -76,7 +76,7 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             current.Communicator.ShutdownAsync();
-            return new(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<bool> SupportsCompressAsync(Current current, CancellationToken cancel) =>
@@ -722,7 +722,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 ++_opByteSOnewayCallCount;
             }
-            return new(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<int> OpByteSOnewayCallCountAsync(Current current, CancellationToken cancel)
@@ -743,7 +743,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 TestHelper.Assert(p2[i] == d);
             }
-            return new(Task.CompletedTask);
+            return default;
         }
 
         public ValueTask<(IEnumerable<string>, IEnumerable<string>)> OpStringSAsync(
@@ -818,7 +818,7 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask OpIdempotentAsync(Current current, CancellationToken cancel)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return new(Task.CompletedTask);
+            return default;
         }
 
         // "return" exception when called two-way, otherwise succeeds.
@@ -827,8 +827,7 @@ namespace ZeroC.Ice.Test.Operations
         // "return" exception when called two-way, otherwise succeeds.
         public ValueTask OpOnewayMetadataAsync(Current current, CancellationToken cancel) => throw new SomeException();
 
-        public ValueTask OpDerivedAsync(Current current, CancellationToken cancel) =>
-            new(Task.CompletedTask);
+        public ValueTask OpDerivedAsync(Current current, CancellationToken cancel) => default;
 
         public ValueTask<byte> OpByte1Async(byte value, Current current, CancellationToken cancel) =>
             new(value);
