@@ -369,6 +369,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\disco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\discovery\msbuild\server\server.csproj", "{98720339-215C-40F4-AD2F-D1982BA14378}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "parser", "parser", "{04085957-DC20-4418-95EA-E6061BA30B30}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\parser\msbuild\client\client.csproj", "{0DC7DD23-FF8D-42BF-AD84-A0E05A628EA4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -859,6 +863,10 @@ Global
 		{98720339-215C-40F4-AD2F-D1982BA14378}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98720339-215C-40F4-AD2F-D1982BA14378}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98720339-215C-40F4-AD2F-D1982BA14378}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DC7DD23-FF8D-42BF-AD84-A0E05A628EA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DC7DD23-FF8D-42BF-AD84-A0E05A628EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DC7DD23-FF8D-42BF-AD84-A0E05A628EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DC7DD23-FF8D-42BF-AD84-A0E05A628EA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1046,6 +1054,8 @@ Global
 		{A1434DB6-CCB7-4F06-ABF2-4C1DF372F8E3} = {293F634B-26D0-40BC-AD0C-AD00796E06AD}
 		{66FF0ACD-1A09-4B2F-8BFB-8D5773CAD295} = {A1434DB6-CCB7-4F06-ABF2-4C1DF372F8E3}
 		{98720339-215C-40F4-AD2F-D1982BA14378} = {A1434DB6-CCB7-4F06-ABF2-4C1DF372F8E3}
+		{04085957-DC20-4418-95EA-E6061BA30B30} = {F5752A39-0291-43F6-B99F-182379177C29}
+		{0DC7DD23-FF8D-42BF-AD84-A0E05A628EA4} = {04085957-DC20-4418-95EA-E6061BA30B30}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C303944B-910E-4582-A486-92B97B399B11}
