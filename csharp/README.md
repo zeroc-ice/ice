@@ -28,7 +28,7 @@ For a release build, execute:
 msbuild msbuild\ice.proj /p:UseSharedCompilation=false /nr:false /m
 ```
 
-#### Authenticode Signatures
+### Authenticode Signatures
 
 You can sign the Ice binaries with Authenticode by setting the following environment variables before building these
 assemblies:
@@ -51,16 +51,18 @@ Open a terminal and change to the `csharp` directory:
 cd csharp
 ```
 
-Then run:
+Then execute:
 ```
-make
+OPTIMIZE=no make
 ```
+to create a debug build.
 
-To create a debug build, set the environment variable OPTIMIZE to no before building, e.g.:
+Or just:
+
 ```
-export OPTIMIZE=no
 make
 ```
+for a release build.
 
 ## Running the Tests
 
