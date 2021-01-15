@@ -58,7 +58,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        internal void Destroy() => _communicator.Dispose();
+        internal Task DestroyAsync() => _communicator.DestroyAsync();
 
         private readonly Communicator _communicator;
     }
@@ -101,14 +101,13 @@ namespace ZeroC.IceSSL.Test.Configuration
             return prx;
         }
 
-        public ValueTask DestroyServerAsync(IServerPrx? srv, Current current, CancellationToken cancel)
+        public async ValueTask DestroyServerAsync(IServerPrx? srv, Current current, CancellationToken cancel)
         {
             if (_servers.TryGetValue(srv!.Identity, out SSLServer? server))
             {
-                server.Destroy();
+                await server.DestroyAsync();
                 _servers.Remove(srv.Identity);
             }
-            return default;
         }
 
         public ValueTask ShutdownAsync(Current current, CancellationToken cancel)

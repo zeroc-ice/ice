@@ -98,7 +98,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public static Task RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator;
 
@@ -295,7 +295,7 @@ namespace ZeroC.Ice.Test.AMI
 
                 Communicator ic = TestHelper.CreateCommunicator(communicator.GetProperties());
                 var p2 = ITestIntfPrx.Parse(p.ToString()!, ic);
-                ic.Dispose();
+                await ic.DisposeAsync();
 
                 try
                 {
@@ -698,14 +698,14 @@ namespace ZeroC.Ice.Test.AMI
                 // Set the value on the servant to 20 and sleep for 500ms. We send a large payload to fill up the
                 // send buffer and ensure other requests won't be sent.
                 serialized.Set(20);
-                serialized.SleepAsync(400);
+                _ = serialized.SleepAsync(400);
                 var payload = new byte[5 * 1024 * 1024];
-                serialized.OpWithPayloadAsync(payload);
-                serialized.OpWithPayloadAsync(payload);
-                serialized.OpWithPayloadAsync(payload);
-                serialized.OpWithPayloadAsync(payload);
-                serialized.OpWithPayloadAsync(payload);
-                serialized.OpWithPayloadAsync(payload);
+                _ = serialized.OpWithPayloadAsync(payload);
+                _ = serialized.OpWithPayloadAsync(payload);
+                _ = serialized.OpWithPayloadAsync(payload);
+                _ = serialized.OpWithPayloadAsync(payload);
+                _ = serialized.OpWithPayloadAsync(payload);
+                _ = serialized.OpWithPayloadAsync(payload);
 
                 // The send queue is blocked, we send 4 set requests and cancel 2 of them. We make sure that the
                 // requests are canceled and not sent by checking the response of set which sends the previous set
@@ -765,7 +765,7 @@ namespace ZeroC.Ice.Test.AMI
                         }
 
                         var cb = new ProgressCallback();
-                        p.CloseAsync(CloseMode.Gracefully, progress: cb);
+                        _ = p.CloseAsync(CloseMode.Gracefully, progress: cb);
 
                         if (!cb.Sent)
                         {
@@ -832,13 +832,13 @@ namespace ZeroC.Ice.Test.AMI
                 {
                     // Local case: start an operation and then close the connection forcefully on the client side.
                     // There will be no retry and we expect the invocation to fail with ConnectionClosedLocallyException.
-                    p.IcePing();
+                    await p.IcePingAsync();
                     Connection con = p.GetConnection();
                     var cb = new CallbackBase();
                     Task t = p.StartDispatchAsync(
                         progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check(); // Ensure the request was sent before we close the connection.
-                    con.AbortAsync();
+                    _ = con.AbortAsync();
                     try
                     {
                         t.Wait();
@@ -880,8 +880,7 @@ namespace ZeroC.Ice.Test.AMI
             }
             output.WriteLine("ok");
 
-            p.Shutdown();
-            return Task.CompletedTask;
+            await p.ShutdownAsync();
         }
     }
 }

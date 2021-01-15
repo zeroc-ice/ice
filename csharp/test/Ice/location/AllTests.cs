@@ -522,7 +522,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.BackgroundLocatorCacheUpdates"] = "1";
-                using Communicator ic = helper.Initialize(properties);
+                await using Communicator ic = helper.Initialize(properties);
 
                 RegisterAdapterEndpoints(
                     registry,

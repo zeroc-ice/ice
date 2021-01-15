@@ -463,14 +463,14 @@ namespace ZeroC.Ice.Test.Binding
 
                 foreach (Dictionary<string, string> p in serverProps)
                 {
-                    using var serverCommunicator = new Communicator(p);
+                    await using var serverCommunicator = new Communicator(p);
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapter("Adapter");
                     await oa.ActivateAsync();
 
                     IObjectPrx prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
                     try
                     {
-                        using var clientCommunicator = new Communicator();
+                        await using var clientCommunicator = new Communicator();
                         prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
                         prx.IcePing();
                         TestHelper.Assert(false);
@@ -483,7 +483,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 // Test IPv6 dual mode socket
                 {
-                    using var serverCommunicator = new Communicator();
+                    await using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::0");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     await oa.ActivateAsync();
@@ -502,7 +502,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     try
                     {
-                        using var clientCommunicator = new Communicator();
+                        await using var clientCommunicator = new Communicator();
                         var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
                         prx.IcePing();
                     }
@@ -514,7 +514,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 // Test IPv6 only endpoints
                 {
-                    using var serverCommunicator = new Communicator();
+                    await using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::0") + (ice1 ? " --ipv6Only" : "?ipv6-only=true");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     await oa.ActivateAsync();
@@ -529,7 +529,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     try
                     {
-                        using var clientCommunicator = new Communicator();
+                        await using var clientCommunicator = new Communicator();
                         var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
                         prx.IcePing();
                         TestHelper.Assert(false);
@@ -542,7 +542,7 @@ namespace ZeroC.Ice.Test.Binding
 
                 // Listen on IPv4 loopback with IPv6 dual mode socket
                 {
-                    using var serverCommunicator = new Communicator();
+                    await using var serverCommunicator = new Communicator();
                     string endpoint = getEndpoint("::ffff:127.0.0.1");
                     ObjectAdapter oa = serverCommunicator.CreateObjectAdapterWithEndpoints(endpoint);
                     await oa.ActivateAsync();
@@ -562,7 +562,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     try
                     {
-                        using var clientCommunicator = new Communicator();
+                        await using var clientCommunicator = new Communicator();
                         var prx = IObjectPrx.Parse(getProxy("dummy", "127.0.0.1"), clientCommunicator);
                         prx.IcePing();
                     }

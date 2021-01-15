@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Discovery
 {
     public static class AllTests
     {
-        public static Task RunAsync(TestHelper helper, int num)
+        public static async Task RunAsync(TestHelper helper, int num)
         {
             TextWriter output = helper.Output;
             Communicator communicator = helper.Communicator;
@@ -273,7 +273,7 @@ namespace ZeroC.Ice.Test.Discovery
                 {
                     Dictionary<string, string> properties = communicator.GetProperties();
                     properties["Ice.Discovery.Lookup"] = $"udp -h {multicast} --interface unknown";
-                    using var comm = new Communicator(properties);
+                    await using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
                     try
                     {
@@ -294,7 +294,7 @@ namespace ZeroC.Ice.Test.Discovery
                         lookup += " --interface {intf}";
                     }
 
-                    using var comm = new Communicator(properties);
+                    await using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
                     IObjectPrx.Parse(ice1 ? "controller0@control0" : "ice:control0//controller0", comm).IcePing();
                 }
@@ -305,10 +305,9 @@ namespace ZeroC.Ice.Test.Discovery
             output.Flush();
             foreach (IControllerPrx prx in proxies)
             {
-                prx.Shutdown();
+                await prx.ShutdownAsync();
             }
             output.WriteLine("ok");
-            return Task.CompletedTask;
         }
     }
 }

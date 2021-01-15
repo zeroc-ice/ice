@@ -51,7 +51,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 properties["AdapterForDiscoveryTest.Endpoints"] = $"{helper.Transport} -h 127.0.0.1";
 
                 {
-                    using var com = new Communicator(properties);
+                    await using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
                     IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                     IObjectPrx.Parse("test", com).IcePing();
@@ -83,7 +83,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     properties["Ice.LocatorDiscovery.InstanceName"] = "unknown";
                     properties["Ice.LocatorDiscovery.RetryCount"] = "1";
                     properties["Ice.LocatorDiscovery.Timeout"] = "100ms";
-                    using var com = new Communicator(properties);
+                    await using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
                     try
                     {
@@ -133,7 +133,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     properties = communicator.GetProperties();
                     properties["Ice.Default.Locator"] = "locatordiscovery";
                     properties["Ice.LocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
-                    using var com = new Communicator(properties);
+                    await using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
                     try
                     {
@@ -150,7 +150,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     properties["Ice.Default.Locator"] = "locatordiscovery";
                     properties["Ice.LocatorDiscovery.RetryCount"] = "0";
                     properties["Ice.LocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
-                    using var com = new Communicator(properties);
+                    await using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
                     try
                     {
@@ -172,7 +172,7 @@ namespace ZeroC.IceGrid.Test.Simple
                         properties["Ice.LocatorDiscovery.Lookup"] =
                             $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port} --interface {intf}";
                     }
-                    using var com = new Communicator(properties);
+                    await using var com = new Communicator(properties);
                     TestHelper.Assert(com.DefaultLocator != null);
                     IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                 }

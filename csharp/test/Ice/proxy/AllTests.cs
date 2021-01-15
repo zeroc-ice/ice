@@ -1235,12 +1235,12 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing communicator default source address... ");
             output.Flush();
             {
-                using var comm1 = new Communicator(new Dictionary<string, string>()
+                await using var comm1 = new Communicator(new Dictionary<string, string>()
                     {
                         { "Ice.Default.SourceAddress", "192.168.1.40" }
                     });
 
-                using var comm2 = new Communicator();
+                await using var comm2 = new Communicator();
 
                 string[] proxyArray =
                     {
@@ -1261,12 +1261,12 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing communicator default invocation timeout... ");
             output.Flush();
             {
-                using var comm1 = new Communicator(new Dictionary<string, string>()
+                await using var comm1 = new Communicator(new Dictionary<string, string>()
                     {
                         { "Ice.Default.InvocationTimeout", "120s" }
                     });
 
-                using var comm2 = new Communicator();
+                await using var comm2 = new Communicator();
 
                 TestHelper.Assert(IObjectPrx.Parse("ice+tcp://localhost/identity", comm1).InvocationTimeout ==
                                   TimeSpan.FromSeconds(120));
@@ -1293,7 +1293,7 @@ namespace ZeroC.Ice.Test.Proxy
             {
                 try
                 {
-                    using var comm1 = new Communicator(new Dictionary<string, string>()
+                    await using var comm1 = new Communicator(new Dictionary<string, string>()
                     {
                         { "Ice.Default.InvocationTimeout", "0s" }
                     });

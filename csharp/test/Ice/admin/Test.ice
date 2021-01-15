@@ -27,9 +27,6 @@ interface RemoteCommunicator
     void error(string message);
 
     void shutdown();
-
-    void waitForShutdown();
-
     void destroy();
 }
 

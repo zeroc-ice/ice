@@ -10,14 +10,14 @@ namespace ZeroC.Ice.Test.Timeout
 {
     public static class AllTests
     {
-        public static Task RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator;
 
             var controller = IControllerPrx.Parse(helper.GetTestProxy("controller", 1), communicator);
             try
             {
-                RunWithController(helper, controller);
+                await RunWithControllerAsync(helper, controller);
             }
             catch
             {
@@ -26,10 +26,9 @@ namespace ZeroC.Ice.Test.Timeout
                 controller.ResumeAdapter();
                 throw;
             }
-            return Task.CompletedTask;
         }
 
-        public static void RunWithController(TestHelper helper, IControllerPrx controller)
+        public static async Task RunWithControllerAsync(TestHelper helper, IControllerPrx controller)
         {
             Communicator communicator = helper.Communicator;
 
@@ -43,7 +42,7 @@ namespace ZeroC.Ice.Test.Timeout
             {
                 Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.ConnectTimeout"] = "100ms";
-                using var comm = new Communicator(properties);
+                await using var comm = new Communicator(properties);
 
                 var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
 
@@ -110,7 +109,7 @@ namespace ZeroC.Ice.Test.Timeout
             {
                 Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.CloseTimeout"] = "100ms";
-                using var comm = new Communicator(properties);
+                await using var comm = new Communicator(properties);
 
                 var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
 
@@ -127,11 +126,11 @@ namespace ZeroC.Ice.Test.Timeout
 
                 var semaphore = new System.Threading.SemaphoreSlim(0);
                 connection.Closed += (sender, args) => semaphore.Release();
-                connection.GoAwayAsync();
+                _ = connection.GoAwayAsync();
                 TestHelper.Assert(semaphore.Wait(500));
 
                 connection2.Closed += (sender, args) => semaphore.Release();
-                connection2.GoAwayAsync();
+                _ = connection2.GoAwayAsync();
                 TestHelper.Assert(!semaphore.Wait(500));
 
                 controller.ResumeAdapter();
