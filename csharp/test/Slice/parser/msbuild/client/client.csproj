@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>client</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <UseAppHost>true</UseAppHost>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <SliceCompile>
+      <IncludeDirectories>../..</IncludeDirectories>
+    </SliceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Compile Include="../../Client.cs" />
+    <SliceCompile Include="../../*.ice" />
+    <Compile Update="generated/Bom.cs">
+       <SliceCompileSource>../../Bom.ice</SliceCompileSource>
+    </Compile>
+    <Compile Update="generated/CircularA.cs">
+       <SliceCompileSource>../../CircularA.ice</SliceCompileSource>
+    </Compile>
+    <Compile Update="generated/CircularB.cs">
+      <SliceCompileSource>../../CircularB.ice</SliceCompileSource>
+    </Compile>
+  </ItemGroup>
+</Project>

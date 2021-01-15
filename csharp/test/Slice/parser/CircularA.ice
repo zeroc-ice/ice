@@ -4,14 +4,12 @@
 
 #pragma once
 
-#include <CircularA.ice>
+#include <CircularB.ice>
 
 module Test
 {
-
-interface B
-{
-    void shutdown();
-}
-
+    interface A
+    {
+        void shutdown();
+    }
 }
