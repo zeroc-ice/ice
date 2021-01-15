@@ -519,7 +519,7 @@ namespace ZeroC.Ice.Test.AMI
                                 TestHelper.Assert(previous == expected);
                                 expected = j;
                             }
-                            await serialized.GetConnection().GoAwayAsync();
+                            await (await serialized.GetConnectionAsync()).GoAwayAsync();
                         }
                     }
 
@@ -534,7 +534,7 @@ namespace ZeroC.Ice.Test.AMI
                             {
                                 tasks[j] = serialized.IcePingAsync();
                             }
-                            _ = serialized.GetConnection().GoAwayAsync();
+                            _ = (await serialized.GetConnectionAsync()).GoAwayAsync();
                             for (int j = 0; j < tasks.Length; ++j)
                             {
                                 await tasks[j].ConfigureAwait(false);
@@ -573,7 +573,7 @@ namespace ZeroC.Ice.Test.AMI
                             {
                                 await tasks[j].ConfigureAwait(false);
                             }
-                            await serialized.GetConnection().GoAwayAsync();
+                            await (await serialized.GetConnectionAsync()).GoAwayAsync();
                         }
                     }
 
@@ -589,7 +589,7 @@ namespace ZeroC.Ice.Test.AMI
                             {
                                 tasks[j] = serializedOneway.IcePingAsync();
                             }
-                            _ = serializedOneway.GetConnection().GoAwayAsync();
+                            _ = (await serializedOneway.GetConnectionAsync()).GoAwayAsync();
                             for (int j = 0; j < tasks.Length; ++j)
                             {
                                 await tasks[j].ConfigureAwait(false);
@@ -799,7 +799,7 @@ namespace ZeroC.Ice.Test.AMI
                     // without waiting for the pending invocation to complete. There will be no retry and we expect the
                     // invocation to fail with ConnectionClosedException.
                     p = p.Clone(label: "CloseGracefully"); // Start with a new connection.
-                    Connection con = p.GetConnection();
+                    Connection con = await p.GetConnectionAsync();
                     var cb = new CallbackBase();
                     Task t = p.StartDispatchAsync(progress: new Progress(sentSynchronously => cb.Called()));
                     cb.Check(); // Ensure the request was sent before we close the connection.
@@ -817,7 +817,7 @@ namespace ZeroC.Ice.Test.AMI
 
                     // Remote case: the server closes the connection gracefully, which means the connection will not
                     // be closed until all pending dispatched requests have completed.
-                    con = p.GetConnection();
+                    con = await p.GetConnectionAsync();
                     cb = new CallbackBase();
                     con.Closed += (sender, args) => cb.Called();
                     t = p.SleepAsync(100);
@@ -833,7 +833,7 @@ namespace ZeroC.Ice.Test.AMI
                     // Local case: start an operation and then close the connection forcefully on the client side.
                     // There will be no retry and we expect the invocation to fail with ConnectionClosedLocallyException.
                     await p.IcePingAsync();
-                    Connection con = p.GetConnection();
+                    Connection con = await p.GetConnectionAsync();
                     var cb = new CallbackBase();
                     Task t = p.StartDispatchAsync(
                         progress: new Progress(sentSynchronously => cb.Called()));

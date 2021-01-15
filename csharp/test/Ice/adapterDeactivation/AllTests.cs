@@ -155,8 +155,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             }
             output.WriteLine("ok");
 
-            Connection? connection = obj.GetConnection();
-            if (connection != null)
+            Connection connection = await obj.GetConnectionAsync();
             {
                 output.Write("testing object adapter with bi-dir connection... ");
                 output.Flush();

@@ -185,7 +185,7 @@ namespace ZeroC.IceGrid.Test.Simple
             Console.Out.WriteLine("ok");
         }
 
-        public static void RunWithDeploy(TestHelper helper)
+        public static async Task RunWithDeployAsync(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator;
             TestHelper.Assert(communicator != null);
@@ -235,7 +235,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 $"{communicator.DefaultLocator!.Identity.Category}/Registry", communicator);
             IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
             TestHelper.Assert(session != null);
-            Connection connection = session.GetConnection();
+            Connection connection = await session.GetConnectionAsync();
             connection.KeepAlive = true;
 
             IAdminPrx? admin = session.GetAdmin();

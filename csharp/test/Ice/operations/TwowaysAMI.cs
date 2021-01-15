@@ -1231,7 +1231,6 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             // Test implicit context propagation with async task
-            if (p.GetConnection() != null)
             {
                 communicator.CurrentContext["one"] = "ONE";
                 communicator.CurrentContext["two"] = "TWO";

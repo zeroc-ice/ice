@@ -54,7 +54,7 @@ namespace ZeroC.Ice.Test.Binding
                 ITestIntfPrx? test1 = adapter.GetTestIntf();
                 ITestIntfPrx? test2 = adapter.GetTestIntf();
                 TestHelper.Assert(test1 != null && test2 != null);
-                TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
+                TestHelper.Assert(await test1.GetConnectionAsync() == await test2.GetConnectionAsync());
 
                 test1.IcePing();
                 test2.IcePing();
@@ -129,8 +129,7 @@ namespace ZeroC.Ice.Test.Binding
                                                                   preferExistingConnection: false);
                 TestHelper.Assert(!test1.CacheConnection && !test1.PreferExistingConnection);
                 TestHelper.Assert(!test2.CacheConnection && !test2.PreferExistingConnection);
-                TestHelper.Assert(test1.GetConnection() != null && test2.GetConnection() != null);
-                TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
+                TestHelper.Assert(await test1.GetConnectionAsync() == await test2.GetConnectionAsync());
 
                 test1.IcePing();
 
@@ -139,7 +138,7 @@ namespace ZeroC.Ice.Test.Binding
                 var test3 = test1.Clone(ITestIntfPrx.Factory);
                 try
                 {
-                    TestHelper.Assert(test3.GetConnection() == test1.GetConnection());
+                    TestHelper.Assert(await test3.GetConnectionAsync() == await test1.GetConnectionAsync());
                     TestHelper.Assert(false);
                 }
                 catch (ConnectFailedException)
@@ -302,7 +301,7 @@ namespace ZeroC.Ice.Test.Binding
                     ITestIntfPrx testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: NonSecure.Never);
                     try
                     {
-                        testUDP.GetConnection();
+                        await testUDP.GetConnectionAsync();
                         TestHelper.Assert(false);
                     }
                     catch (NoEndpointException)
@@ -311,7 +310,7 @@ namespace ZeroC.Ice.Test.Binding
                     }
 
                     testUDP = obj.Clone(invocationMode: InvocationMode.Datagram, preferNonSecure: NonSecure.Always);
-                    TestHelper.Assert(obj.GetConnection() != testUDP.GetConnection());
+                    TestHelper.Assert(await obj.GetConnectionAsync() != await testUDP.GetConnectionAsync());
                     try
                     {
                         testUDP.GetAdapterName();
@@ -340,21 +339,21 @@ namespace ZeroC.Ice.Test.Binding
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter82"));
-                        _ = obj.GetConnection().GoAwayAsync();
+                        _ = (await obj.GetConnectionAsync()).GoAwayAsync();
                     }
 
                     ITestIntfPrx testNonSecure = obj.Clone(preferNonSecure: NonSecure.Always);
                     // TODO: update when PreferNonSecure default is updated
                     ITestIntfPrx testSecure = obj.Clone(preferNonSecure: NonSecure.Never);
-                    TestHelper.Assert(obj.GetConnection() != testSecure.GetConnection());
-                    TestHelper.Assert(obj.GetConnection() == testNonSecure.GetConnection());
+                    TestHelper.Assert(await obj.GetConnectionAsync() != await testSecure.GetConnectionAsync());
+                    TestHelper.Assert(await obj.GetConnectionAsync() == await testNonSecure.GetConnectionAsync());
 
                     com.DeactivateObjectAdapter(adapters[1]);
 
                     for (int i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.GetAdapterName().Equals("Adapter81"));
-                        _ = obj.GetConnection().GoAwayAsync();
+                        _ = (await obj.GetConnectionAsync()).GoAwayAsync();
                     }
 
                     // TODO: ice1-only for now, because we send the client endpoints for use in OA configuration.
@@ -365,7 +364,7 @@ namespace ZeroC.Ice.Test.Binding
                         for (int i = 0; i < 5; i++)
                         {
                             TestHelper.Assert(obj.GetAdapterName().Equals("Adapter83"));
-                            _ = obj.GetConnection().GoAwayAsync();
+                            _ = (await obj.GetConnectionAsync()).GoAwayAsync();
                         }
                     }
 

@@ -897,7 +897,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             IServerPrx server = fact.CreateServer(serverProperties, false);
                             try
                             {
-                                var tcpConnection = (TcpConnection)server.GetConnection();
+                                var tcpConnection = (TcpConnection)await server.GetConnectionAsync();
                                 TestHelper.Assert(tcpConnection.IsEncrypted);
                             }
                             catch (Exception ex)
@@ -945,7 +945,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         TestHelper.Assert(server != null);
-                        var tcpConnection = (TcpConnection)server.GetConnection();
+                        var tcpConnection = (TcpConnection)await server.GetConnectionAsync();
                         TestHelper.Assert(tcpConnection.IsEncrypted);
                         server.CheckCipher(tcpConnection.NegotiatedCipherSuite!.ToString()!);
                     }
@@ -1215,7 +1215,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     {
                         try
                         {
-                            _ = p.GetConnection();
+                            _ = await p.GetConnectionAsync();
                             break;
                         }
                         catch (Exception ex)

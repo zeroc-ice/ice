@@ -195,7 +195,7 @@ namespace ZeroC.Ice.Test.ACM
             var proxy = ITestIntfPrx.Parse(_adapter!.GetTestIntf()!.ToString() ?? "", _communicator!);
             try
             {
-                proxy.GetConnection().Closed += (sender, args) =>
+                (await proxy.GetConnectionAsync()).Closed += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.ACM
                         }
                     };
 
-                proxy.GetConnection().PingReceived += (sender, args) =>
+                (await proxy.GetConnectionAsync()).PingReceived += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -278,16 +278,15 @@ namespace ZeroC.Ice.Test.ACM
             public CloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("close on idle", com, helper) => SetClientParams(1, false);
 
-            public override Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
+            public override async Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
-                Connection connection = proxy.GetConnection()!;
+                Connection connection = await proxy.GetConnectionAsync();
                 WaitForClosed();
                 lock (Mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                     TestHelper.Assert(!connection.IsActive);
                 }
-                return Task.CompletedTask;
             }
         }
 
@@ -319,17 +318,16 @@ namespace ZeroC.Ice.Test.ACM
                 SetServerParams(10, false);
             }
 
-            public override Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
+            public override async Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 proxy.StartHeartbeatCount();
-                Connection con = proxy.GetConnection()!;
+                Connection con = await proxy.GetConnectionAsync();
                 con.Ping();
                 con.Ping();
                 con.Ping();
                 con.Ping();
                 con.Ping();
                 proxy.WaitForHeartbeatCount(5);
-                return Task.CompletedTask;
             }
         }
 
@@ -395,7 +393,7 @@ namespace ZeroC.Ice.Test.ACM
                         });
 
                     proxy = ITestIntfPrx.Parse(proxy.ToString()!, communicator);
-                    Connection? connection = proxy.GetConnection()!;
+                    Connection connection = await proxy.GetConnectionAsync();
                     TestHelper.Assert(connection.IdleTimeout == TimeSpan.FromSeconds(idleTimeout));
                     TestHelper.Assert(connection.KeepAlive == bool.Parse(keepAlive));
                 }

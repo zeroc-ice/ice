@@ -71,7 +71,7 @@ namespace ZeroC.Ice.Test.Timeout
             output.Flush();
             {
                 timeout.IcePing(); // Makes sure a working connection is associated with the proxy
-                Connection? connection = timeout.GetConnection();
+                Connection connection = await timeout.GetConnectionAsync();
                 try
                 {
                     timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(100)).SleepAsync(1000).Wait();
@@ -82,7 +82,7 @@ namespace ZeroC.Ice.Test.Timeout
                 }
                 timeout.IcePing();
 
-                TestHelper.Assert(connection == timeout.GetConnection());
+                TestHelper.Assert(connection == await timeout.GetConnectionAsync());
                 try
                 {
                     timeout.Clone(invocationTimeout: TimeSpan.FromMilliseconds(1000)).SleepAsync(100).Wait();
@@ -91,7 +91,7 @@ namespace ZeroC.Ice.Test.Timeout
                 {
                     TestHelper.Assert(false);
                 }
-                TestHelper.Assert(connection == timeout.GetConnection());
+                TestHelper.Assert(connection == await timeout.GetConnectionAsync());
 
                 try
                 {
@@ -113,8 +113,8 @@ namespace ZeroC.Ice.Test.Timeout
 
                 var to = ITimeoutPrx.Parse(helper.GetTestProxy("timeout", 0), comm);
 
-                Connection? connection = to.GetConnection();
-                Connection? connection2 = timeout.GetConnection(); // No close timeout
+                Connection connection = await to.GetConnectionAsync();
+                Connection connection2 = await timeout.GetConnectionAsync(); // No close timeout
 
                 TestHelper.Assert(connection != null && connection2 != null);
 

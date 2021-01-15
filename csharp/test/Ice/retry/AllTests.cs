@@ -158,7 +158,7 @@ namespace ZeroC.Ice.Test.Retry
                 output.Flush();
                 var adapter = communicator.CreateObjectAdapter(protocol: ice1 ? Protocol.Ice1 : Protocol.Ice2);
                 var bidir = adapter.AddWithUUID(new Bidir(), IBidirPrx.Factory);
-                retry1.GetConnection().Adapter = adapter;
+                (await retry1.GetConnectionAsync()).Adapter = adapter;
                 retry1.OpBidirRetry(bidir);
 
                 output.WriteLine("ok");
