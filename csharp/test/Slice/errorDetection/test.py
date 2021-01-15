@@ -28,7 +28,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
 
                 args = ["-I.", file, "--output-dir", "tmp"]
 
-                # Don't print out slice2cpp output and expect failures
+                # Don't print out slice2cs output and expect failures
                 slice2cs.run(current, args=args, exitstatus=0 if file.find("Warning") >= 0 else 1)
                 output = slice2cs.getOutput(current)
 
