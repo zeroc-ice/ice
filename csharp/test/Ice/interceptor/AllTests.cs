@@ -117,7 +117,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         return response;
                     });
 
-                communicator.ActivateAsync().GetAwaiter().GetResult();
+                await communicator.ActivateAsync();
 
                 for (int i = 0; i < 10; ++i)
                 {
@@ -158,7 +158,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     });
 
                 TestHelper.Assert(communicator.DefaultInvocationInterceptors.Count == 3);
-                communicator.ActivateAsync().GetAwaiter().GetResult();
+                await communicator.ActivateAsync();
                 TestHelper.Assert(communicator.DefaultInvocationInterceptors.Count == 4);
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
@@ -191,7 +191,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         TestHelper.Assert(false);
                         return next(target, request, cancel);
                     });
-                communicator.ActivateAsync().GetAwaiter().GetResult();
+                await communicator.ActivateAsync();
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 try

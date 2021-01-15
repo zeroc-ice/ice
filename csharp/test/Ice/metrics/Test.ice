@@ -31,7 +31,7 @@ interface Metrics
 
     void opByteS(ByteSeq bs);
 
-    Object* getAdmin();
+    Object? getAdmin();
 
     void shutdown();
 }

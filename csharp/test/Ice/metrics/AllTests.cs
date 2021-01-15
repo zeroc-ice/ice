@@ -384,7 +384,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             TextWriter output = helper.Output;
 
-            IObjectPrx? admin = communicator.GetAdminAsync().GetAwaiter().GetResult();
+            IObjectPrx? admin = await communicator.GetAdminAsync();
             TestHelper.Assert(admin != null);
             var clientProps = admin.Clone(IPropertiesAdminPrx.Factory, facet: "Properties");
             var clientMetrics = admin.Clone(IMetricsAdminPrx.Factory, facet: "Metrics");

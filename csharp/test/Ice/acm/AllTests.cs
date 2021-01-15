@@ -322,11 +322,11 @@ namespace ZeroC.Ice.Test.ACM
             {
                 proxy.StartHeartbeatCount();
                 Connection con = await proxy.GetConnectionAsync();
-                con.Ping();
-                con.Ping();
-                con.Ping();
-                con.Ping();
-                con.Ping();
+                await con.PingAsync();
+                await con.PingAsync();
+                await con.PingAsync();
+                await con.PingAsync();
+                await con.PingAsync();
                 proxy.WaitForHeartbeatCount(5);
             }
         }

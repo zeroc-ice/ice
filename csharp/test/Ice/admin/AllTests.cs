@@ -169,7 +169,7 @@ namespace ZeroC.Ice.Test.Admin
                 };
                 await using var com = new Communicator(properties);
                 await com.ActivateAsync();
-                TestHelper.Assert(com.GetAdminAsync().GetAwaiter().GetResult() == null);
+                TestHelper.Assert(await com.GetAdminAsync() == null);
                 var id = Identity.Parse("test-admin");
                 try
                 {
@@ -181,8 +181,8 @@ namespace ZeroC.Ice.Test.Admin
                 }
 
                 ObjectAdapter adapter = com.CreateObjectAdapter();
-                TestHelper.Assert(com.CreateAdminAsync(adapter, id).GetAwaiter().GetResult() != null);
-                TestHelper.Assert(com.GetAdminAsync().GetAwaiter().GetResult() != null);
+                TestHelper.Assert(await com.CreateAdminAsync(adapter, id) != null);
+                TestHelper.Assert(await com.GetAdminAsync() != null);
 
                 TestFacets(com, true, false);
             }
