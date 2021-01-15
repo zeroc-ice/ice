@@ -26,13 +26,13 @@ cd csharp
 
 Then execute:
 ```
-msbuild msbuild/ice.proj /m /p:Configuration=Debug
+dotnet msbuild msbuild/ice.proj /m /p:Configuration=Debug
 ```
 for a debug build.
 
 For a release build, execute:
 ```
-msbuild msbuild/ice.proj /m
+dotnet msbuild msbuild/ice.proj /m
 ```
 
 ### Authenticode Signatures
