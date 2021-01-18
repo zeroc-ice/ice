@@ -892,6 +892,8 @@ class Mapping(object):
     def loadTestSuites(self, tests, config, filters=[], rfilters=[]):
         global currentMapping
         currentMapping = self
+        global currentConfig
+        currentConfig = config
         try:
             origsyspath = sys.path
             prefix = os.path.commonprefix([toplevel, self.component.getScriptDir()])
