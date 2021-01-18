@@ -15,7 +15,6 @@
             <ItemGroup>
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/Glacier2.dll" />
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/Ice.dll" />
-                <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/IceBox.dll" />
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/IceGrid.dll" />
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/net5.0/IceStorm.dll" />
             </ItemGroup>
