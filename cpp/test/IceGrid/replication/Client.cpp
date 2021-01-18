@@ -20,6 +20,8 @@ Client::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.Default.Timeout", "100");
+    properties->setProperty("Ice.Trace.Retry", "1");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     communicator->getProperties()->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
     void allTests(Test::TestHelper*);
