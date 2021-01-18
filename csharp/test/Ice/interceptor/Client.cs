@@ -27,7 +27,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
             await communicator.ActivateAsync();
 
-            IMyObjectPrx prx = AllTests.Run(this);
+            IMyObjectPrx prx = await AllTests.RunAsync(this);
             await prx.ShutdownAsync();
         }
 

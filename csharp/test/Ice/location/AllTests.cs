@@ -522,7 +522,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.BackgroundLocatorCacheUpdates"] = "1";
-                using Communicator ic = helper.Initialize(properties);
+                await using Communicator ic = helper.Initialize(properties);
 
                 RegisterAdapterEndpoints(
                     registry,
@@ -601,7 +601,7 @@ namespace ZeroC.Ice.Test.Location
                 output.Flush();
                 hello = IHelloPrx.Parse(ice1 ? "hello" : "ice:hello", communicator);
                 obj1.MigrateHello();
-                _ = hello.GetConnection().GoAwayAsync();
+                _ = (await hello.GetConnectionAsync()).GoAwayAsync();
                 hello.SayHello();
                 obj1.MigrateHello();
                 hello.SayHello();
@@ -664,17 +664,17 @@ namespace ZeroC.Ice.Test.Location
             {
                 helloPrx = IHelloPrx.Parse($"ice:{id}", communicator);
             }
-            TestHelper.Assert(helloPrx.GetConnection() is ColocatedConnection);
+            TestHelper.Assert(await helloPrx.GetConnectionAsync() is ColocatedConnection);
 
             // Ensure that calls on the indirect proxy (with adapter ID) is colocated
             helloPrx = adapter.CreateProxy(id, IObjectPrx.Factory).CheckedCast(IHelloPrx.Factory);
-            TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() is ColocatedConnection);
+            TestHelper.Assert(helloPrx != null && await helloPrx.GetConnectionAsync() is ColocatedConnection);
 
             // Ensure that calls on the direct proxy is colocated
             helloPrx = adapter.CreateProxy(id, IObjectPrx.Factory).Clone(
                 endpoints: adapter.PublishedEndpoints,
                 location: ImmutableArray<string>.Empty).CheckedCast(IHelloPrx.Factory);
-            TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() is ColocatedConnection);
+            TestHelper.Assert(helloPrx != null && await helloPrx.GetConnectionAsync() is ColocatedConnection);
 
             output.WriteLine("ok");
 

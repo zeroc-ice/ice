@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Interceptor
 {
     public static class AllTests
     {
-        public static IMyObjectPrx Run(TestHelper helper)
+        public static async Task<IMyObjectPrx> RunAsync(TestHelper helper)
         {
             bool ice2 = helper.Protocol == Protocol.Ice2;
             var prx = IMyObjectPrx.Parse(helper.GetTestProxy("test"), helper.Communicator!);
@@ -85,7 +85,7 @@ namespace ZeroC.Ice.Test.Interceptor
             {
                 var tasks = new List<Task>();
                 var invocationContext = new AsyncLocal<int>();
-                using var communicator = new Communicator(prx.Communicator.GetProperties());
+                await using var communicator = new Communicator(prx.Communicator.GetProperties());
 
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
@@ -117,7 +117,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         return response;
                     });
 
-                communicator.ActivateAsync().GetAwaiter().GetResult();
+                await communicator.ActivateAsync();
 
                 for (int i = 0; i < 10; ++i)
                 {
@@ -134,7 +134,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 int invocations = 0;
                 // An interceptor can stop the chain and directly return a response without calling next,
                 // the first invocation calls next and subsequent invocations reuse the first response.
-                using var communicator = new Communicator(prx.Communicator.GetProperties());
+                await using var communicator = new Communicator(prx.Communicator.GetProperties());
 
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
@@ -158,7 +158,7 @@ namespace ZeroC.Ice.Test.Interceptor
                     });
 
                 TestHelper.Assert(communicator.DefaultInvocationInterceptors.Count == 3);
-                communicator.ActivateAsync().GetAwaiter().GetResult();
+                await communicator.ActivateAsync();
                 TestHelper.Assert(communicator.DefaultInvocationInterceptors.Count == 4);
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
@@ -174,7 +174,7 @@ namespace ZeroC.Ice.Test.Interceptor
 
             {
                 // throwing from an interceptor stops the interceptor chain
-                using var communicator = new Communicator(prx.Communicator.GetProperties());
+                await using var communicator = new Communicator(prx.Communicator.GetProperties());
                 communicator.DefaultInvocationInterceptors = ImmutableList.Create<InvocationInterceptor>(
                     (target, request, next, cancel) =>
                     {
@@ -191,7 +191,7 @@ namespace ZeroC.Ice.Test.Interceptor
                         TestHelper.Assert(false);
                         return next(target, request, cancel);
                     });
-                communicator.ActivateAsync().GetAwaiter().GetResult();
+                await communicator.ActivateAsync();
 
                 var prx1 = IMyObjectPrx.Parse(prx.ToString()!, communicator);
                 try

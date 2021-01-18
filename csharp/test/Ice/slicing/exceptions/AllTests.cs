@@ -771,7 +771,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 await using var adapter = communicator.CreateObjectAdapter(protocol: helper.Protocol);
                 IRelayPrx relay = adapter.AddWithUUID(new Relay(), IRelayPrx.Factory);
                 await adapter.ActivateAsync();
-                testPrx.GetConnection().Adapter = adapter;
+                (await testPrx.GetConnectionAsync()).Adapter = adapter;
 
                 try
                 {

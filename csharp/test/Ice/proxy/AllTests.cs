@@ -531,7 +531,7 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
             b1 = IObjectPrx.Parse(rf, communicator);
 
-            Connection connection = b1.GetConnection();
+            Connection connection = await b1.GetConnectionAsync();
             IObjectPrx b2 = connection.CreateProxy(Identity.Parse("fixed"), facet: "", IObjectPrx.Factory);
             if (connection.Protocol == Protocol.Ice1)
             {
@@ -973,9 +973,9 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(endpts1[0].Equals(
                 IObjectPrx.Parse("ice+tcp://127.0.0.1:10000/foo", communicator).Endpoints[0]));
 
-            if (baseProxy.GetConnection() is IPConnection baseConnection)
+            if (await baseProxy.GetConnectionAsync() is IPConnection baseConnection)
             {
-                Connection baseConnection2 = baseProxy.Clone(label: "base2").GetConnection();
+                Connection baseConnection2 = await baseProxy.Clone(label: "base2").GetConnectionAsync();
                 compObj1 = compObj1.Clone(fixedConnection: baseConnection);
                 compObj2 = compObj2.Clone(fixedConnection: baseConnection2);
                 TestHelper.Assert(!compObj1.Equals(compObj2));
@@ -1085,7 +1085,7 @@ namespace ZeroC.Ice.Test.Proxy
                 // to marshal all relative proxies with the 2.0 encoding.
 
                 await using ObjectAdapter oa = communicator.CreateObjectAdapter(protocol: helper.Protocol);
-                cl.GetConnection().Adapter = oa;
+                (await cl.GetConnectionAsync()).Adapter = oa;
                 ICallbackPrx callback = oa.AddWithUUID(
                     new Callback((relativeTest, current, cancel) =>
                                  {
@@ -1106,7 +1106,7 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing ice_fixed... ");
             output.Flush();
             {
-                if (cl.GetConnection() is Connection connection2)
+                if (await cl.GetConnectionAsync() is Connection connection2)
                 {
                     TestHelper.Assert(!cl.IsFixed);
                     IMyClassPrx prx = cl.Clone(fixedConnection: connection2);
@@ -1123,10 +1123,10 @@ namespace ZeroC.Ice.Test.Proxy
                     };
                     TestHelper.Assert(cl.Clone(fixedConnection: connection2).Context.Count == 0);
                     TestHelper.Assert(cl.Clone(context: ctx, fixedConnection: connection2).Context.Count == 2);
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).GetConnection() == connection2);
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).Clone(fixedConnection: connection2).GetConnection() == connection2);
-                    Connection? fixedConnection = cl.Clone(label: "ice_fixed").GetConnection();
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).Clone(fixedConnection: fixedConnection).GetConnection() == fixedConnection);
+                    TestHelper.Assert(await cl.Clone(fixedConnection: connection2).GetConnectionAsync() == connection2);
+                    TestHelper.Assert(await cl.Clone(fixedConnection: connection2).Clone(fixedConnection: connection2).GetConnectionAsync() == connection2);
+                    Connection? fixedConnection = await cl.Clone(label: "ice_fixed").GetConnectionAsync();
+                    TestHelper.Assert(await cl.Clone(fixedConnection: connection2).Clone(fixedConnection: fixedConnection).GetConnectionAsync() == fixedConnection);
                     try
                     {
                         cl.Clone(invocationMode: InvocationMode.Datagram, fixedConnection: connection2);
@@ -1235,12 +1235,12 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing communicator default source address... ");
             output.Flush();
             {
-                using var comm1 = new Communicator(new Dictionary<string, string>()
+                await using var comm1 = new Communicator(new Dictionary<string, string>()
                     {
                         { "Ice.Default.SourceAddress", "192.168.1.40" }
                     });
 
-                using var comm2 = new Communicator();
+                await using var comm2 = new Communicator();
 
                 string[] proxyArray =
                     {
@@ -1261,12 +1261,12 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing communicator default invocation timeout... ");
             output.Flush();
             {
-                using var comm1 = new Communicator(new Dictionary<string, string>()
+                await using var comm1 = new Communicator(new Dictionary<string, string>()
                     {
                         { "Ice.Default.InvocationTimeout", "120s" }
                     });
 
-                using var comm2 = new Communicator();
+                await using var comm2 = new Communicator();
 
                 TestHelper.Assert(IObjectPrx.Parse("ice+tcp://localhost/identity", comm1).InvocationTimeout ==
                                   TimeSpan.FromSeconds(120));
@@ -1293,7 +1293,7 @@ namespace ZeroC.Ice.Test.Proxy
             {
                 try
                 {
-                    using var comm1 = new Communicator(new Dictionary<string, string>()
+                    await using var comm1 = new Communicator(new Dictionary<string, string>()
                     {
                         { "Ice.Default.InvocationTimeout", "0s" }
                     });

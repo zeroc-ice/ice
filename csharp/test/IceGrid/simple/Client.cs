@@ -14,7 +14,7 @@ namespace ZeroC.IceGrid.Test.Simple
             await using Communicator communicator = Initialize(ref args);
             if (args.Any(v => v.Equals("--with-deploy")))
             {
-                AllTests.RunWithDeploy(this);
+                await AllTests.RunWithDeployAsync(this);
             }
             else
             {

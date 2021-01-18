@@ -162,15 +162,15 @@ namespace ZeroC.Ice.Test.ACM
             properties["Ice.IdleTimeout"] = $"{_clientIdleTimeout ?? 2}s";
             properties["Ice.KeepAlive"] = _clientKeepAlive?.ToString() ?? "0";
             _communicator = TestHelper.CreateCommunicator(properties);
-            _thread = new Thread(Run);
+            _thread = new Thread(() => RunAsync().Wait()); // TODO: fix
         }
 
         public void Start() => _thread!.Start();
 
-        public void Destroy()
+        public async Task DestroyAsync()
         {
-            _adapter!.Deactivate();
-            _communicator!.Dispose();
+            await _adapter!.DeactivateAsync();
+            await _communicator!.DestroyAsync();
         }
 
         public void Join()
@@ -190,12 +190,12 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public void Run()
+        public async Task RunAsync()
         {
             var proxy = ITestIntfPrx.Parse(_adapter!.GetTestIntf()!.ToString() ?? "", _communicator!);
             try
             {
-                proxy.GetConnection().Closed += (sender, args) =>
+                (await proxy.GetConnectionAsync()).Closed += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.ACM
                         }
                     };
 
-                proxy.GetConnection().PingReceived += (sender, args) =>
+                (await proxy.GetConnectionAsync()).PingReceived += (sender, args) =>
                     {
                         lock (Mutex)
                         {
@@ -212,7 +212,7 @@ namespace ZeroC.Ice.Test.ACM
                         }
                     };
 
-                RunTestCase(_adapter, proxy);
+                await RunTestCaseAsync(_adapter, proxy);
             }
             catch (Exception ex)
             {
@@ -237,7 +237,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public abstract void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy);
+        public abstract Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy);
 
         public void SetClientParams(int idleTimeout, bool keepAlive)
         {
@@ -259,7 +259,7 @@ namespace ZeroC.Ice.Test.ACM
             // Faster ACM to make sure we receive enough ACM heartbeats
             public InvocationHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("invocation heartbeat", com, helper) => SetServerParams(2, false);
-            public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
+            public override Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 proxy.Sleep(4);
 
@@ -268,6 +268,7 @@ namespace ZeroC.Ice.Test.ACM
                     TestHelper.Assert(Heartbeat >= 2);
                     TestHelper.Assert(!Closed);
                 }
+                return Task.CompletedTask;
             }
         }
 
@@ -277,9 +278,9 @@ namespace ZeroC.Ice.Test.ACM
             public CloseOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("close on idle", com, helper) => SetClientParams(1, false);
 
-            public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
+            public override async Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
-                Connection connection = proxy.GetConnection()!;
+                Connection connection = await proxy.GetConnectionAsync();
                 WaitForClosed();
                 lock (Mutex)
                 {
@@ -295,7 +296,7 @@ namespace ZeroC.Ice.Test.ACM
             public HeartbeatOnIdleTest(IRemoteCommunicatorPrx com, TestHelper helper)
                 : base("heartbeat on idle", com, helper) => SetServerParams(1, true);
 
-            public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
+            public override Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 Thread.Sleep(3000);
 
@@ -303,6 +304,7 @@ namespace ZeroC.Ice.Test.ACM
                 {
                     TestHelper.Assert(Heartbeat >= 3);
                 }
+                return Task.CompletedTask;
             }
         }
 
@@ -316,15 +318,15 @@ namespace ZeroC.Ice.Test.ACM
                 SetServerParams(10, false);
             }
 
-            public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
+            public override async Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 proxy.StartHeartbeatCount();
-                Connection con = proxy.GetConnection()!;
-                con.Ping();
-                con.Ping();
-                con.Ping();
-                con.Ping();
-                con.Ping();
+                Connection con = await proxy.GetConnectionAsync();
+                await con.PingAsync();
+                await con.PingAsync();
+                await con.PingAsync();
+                await con.PingAsync();
+                await con.PingAsync();
                 proxy.WaitForHeartbeatCount(5);
             }
         }
@@ -338,7 +340,7 @@ namespace ZeroC.Ice.Test.ACM
                 SetServerParams(60, false);
             }
 
-            public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
+            public override async Task RunTestCaseAsync(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 Connection? con = proxy.GetCachedConnection();
                 TestHelper.Assert(con != null);
@@ -365,7 +367,7 @@ namespace ZeroC.Ice.Test.ACM
                 con.Closed += (sender, args) => t1.SetResult(null);
                 con.Closed += (sender, args) => t2.SetResult(null);
 
-                con.GoAwayAsync();
+                await con.GoAwayAsync();
                 TestHelper.Assert(t1.Task.Result == null);
                 TestHelper.Assert(t2.Task.Result == null);
 
@@ -383,7 +385,7 @@ namespace ZeroC.Ice.Test.ACM
                                                                     (50, "false"),
                                                                 })
                 {
-                    using var communicator = new Communicator(
+                    await using var communicator = new Communicator(
                         new Dictionary<string, string>(proxy.Communicator.GetProperties())
                         {
                             ["Ice.IdleTimeout"] = $"{idleTimeout}s",
@@ -391,14 +393,14 @@ namespace ZeroC.Ice.Test.ACM
                         });
 
                     proxy = ITestIntfPrx.Parse(proxy.ToString()!, communicator);
-                    Connection? connection = proxy.GetConnection()!;
+                    Connection connection = await proxy.GetConnectionAsync();
                     TestHelper.Assert(connection.IdleTimeout == TimeSpan.FromSeconds(idleTimeout));
                     TestHelper.Assert(connection.KeepAlive == bool.Parse(keepAlive));
                 }
             }
         }
 
-        public static Task RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator;
             var com = IRemoteCommunicatorPrx.Parse(helper.GetTestProxy("communicator", 0), communicator);
@@ -429,14 +431,13 @@ namespace ZeroC.Ice.Test.ACM
             }
             foreach (TestCase test in tests)
             {
-                test.Destroy();
+                await test.DestroyAsync();
             }
 
             output.Write("shutting down... ");
             output.Flush();
             com.Shutdown();
             output.WriteLine("ok");
-            return Task.CompletedTask;
         }
     }
 }

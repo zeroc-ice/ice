@@ -27,7 +27,7 @@ namespace ZeroC.Ice.Test.Metrics
             adapter.Add("metrics", new Metrics());
             // Don't activate OA to ensure collocation is used.
 
-            IMetricsPrx metrics = AllTests.Run(this, observer, colocated: true);
+            IMetricsPrx metrics = await AllTests.RunAsync(this, observer, colocated: true);
             await metrics.ShutdownAsync();
         }
 

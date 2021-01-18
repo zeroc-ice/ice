@@ -134,7 +134,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                 {
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
@@ -155,7 +155,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // Supply our own certificate.
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.CAs"] = caCert1File;
-                    using var comm = new Communicator(ref args, clientProperties,
+                    await using var comm = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
                             ClientCertificates = new X509Certificate2Collection
@@ -186,7 +186,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var cert0 = new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca1.p12"), "password");
                     var cert1 = new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca2.p12"), "password");
 
-                    using var comm = new Communicator(ref args, clientProperties,
+                    await using var comm = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
                             ClientCertificates = new X509Certificate2Collection
@@ -221,7 +221,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // Supply our own CA certificate.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                    using var comm = new Communicator(ref args, clientProperties,
+                    await using var comm = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
                             ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
@@ -247,7 +247,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                 {
                     // Initialization using TlsClientOptions and TlsServerOptions options
-                    using var clientCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
+                    await using var clientCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
                         tlsClientOptions: new TlsClientOptions()
                         {
                             ClientCertificates = new X509Certificate2Collection()
@@ -260,7 +260,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             }
                         });
 
-                    using var serverCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
+                    await using var serverCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
                         tlsServerOptions: new TlsServerOptions()
                         {
                             ServerCertificate = new X509Certificate2(
@@ -292,7 +292,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     bool serverCertificateValidationCallbackCalled = false;
 
                     clientProperties = CreateProperties(defaultProperties);
-                    using var clientCommunicator = new Communicator(ref args, clientProperties,
+                    await using var clientCommunicator = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
                             ClientCertificateSelectionCallback =
@@ -306,7 +306,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         });
 
                     serverProperties = CreateProperties(defaultProperties);
-                    using var serverCommunicator = new Communicator(ref args, serverProperties,
+                    await using var serverCommunicator = new Communicator(ref args, serverProperties,
                         tlsServerOptions: new TlsServerOptions()
                         {
                             ServerCertificate = serverCertificate,
@@ -401,7 +401,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // The server doesn't request a certificate, but it still verifies the server's.
                     clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                     IServerPrx server = fact.CreateServer(serverProperties, false);
@@ -419,7 +419,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                 {
                     // This should fail because the client does not supply a certificate and server request it.
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
@@ -442,7 +442,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // Test client has a certificate and server request it.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
@@ -461,7 +461,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // This should fail because the client doesn't trust the server's CA.
                     clientProperties = CreateProperties(defaultProperties);
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                     IServerPrx server = fact.CreateServer(serverProperties, false);
@@ -484,7 +484,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // This should fail because the server doesn't trust the client's CA.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca2");
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
@@ -507,7 +507,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // This should succeed because the self signed certificate used by the server is trusted.
                     clientProperties = CreateProperties(defaultProperties, ca: "cacert2");
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "cacert2");
                     IServerPrx server = fact.CreateServer(serverProperties, false);
@@ -525,7 +525,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // This should fail because the self signed certificate used by the server is not trusted.
                     clientProperties = CreateProperties(defaultProperties);
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "cacert2");
                     IServerPrx server = fact.CreateServer(serverProperties, false);
@@ -561,7 +561,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // This must succeed, the target host matches the certificate DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            using var comm = new Communicator(ref args, clientProperties);
+                            await using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn1", "cacert1");
@@ -584,7 +584,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // This must fail, the target host does not match the certificate DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            using var comm = new Communicator(ref args, clientProperties);
+                            await using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
@@ -605,7 +605,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // does not include a DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            using var comm = new Communicator(ref args, clientProperties);
+                            await using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn3", "cacert1");
@@ -626,7 +626,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // certificate does not include a DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            using var comm = new Communicator(ref args, clientProperties);
+                            await using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn4", "cacert1");
@@ -647,7 +647,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // a DNS altName that does not matches the target host
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            using var comm = new Communicator(ref args, clientProperties);
+                            await using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn5", "cacert1");
@@ -718,7 +718,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            using var comm = new Communicator(ref args, clientProperties);
+                            await using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_cn8", "cacert1");
@@ -742,7 +742,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // Target host does not match the certificate DNS altName, connection should fail.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            using var comm = new Communicator(ref args, clientProperties);
+                            await using var comm = new Communicator(ref args, clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
@@ -772,7 +772,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var myCerts = new X509Certificate2Collection();
                     myCerts.Import(defaultDir + "/c_rsa_ca1.p12", "password", X509KeyStorageFlags.DefaultKeySet);
                     bool called = false;
-                    using var comm = new Communicator(ref args, clientProperties,
+                    await using var comm = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
                             ClientCertificateSelectionCallback =
@@ -827,7 +827,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     {
                         {
                             clientProperties = CreateProperties(defaultProperties);
-                            using var comm = new Communicator(clientProperties);
+                            await using var comm = new Communicator(clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
 
@@ -890,14 +890,14 @@ namespace ZeroC.IceSSL.Test.Configuration
                         {
                             // Now the client verifies the server certificate
                             clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            using var comm = new Communicator(clientProperties);
+                            await using var comm = new Communicator(clientProperties);
 
                             var fact = CreateServerFactoryPrx(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                             IServerPrx server = fact.CreateServer(serverProperties, false);
                             try
                             {
-                                var tcpConnection = (TcpConnection)server.GetConnection();
+                                var tcpConnection = (TcpConnection)await server.GetConnectionAsync();
                                 TestHelper.Assert(tcpConnection.IsEncrypted);
                             }
                             catch (Exception ex)
@@ -926,7 +926,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     bool invoked = false;
                     bool hadCert = false;
-                    using var comm = new Communicator(ref args, clientProperties,
+                    await using var comm = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
 #pragma warning disable CA5359 // Do Not Disable Certificate Validation
@@ -945,7 +945,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         TestHelper.Assert(server != null);
-                        var tcpConnection = (TcpConnection)server.GetConnection();
+                        var tcpConnection = (TcpConnection)await server.GetConnectionAsync();
                         TestHelper.Assert(tcpConnection.IsEncrypted);
                         server.CheckCipher(tcpConnection.NegotiatedCipherSuite!.ToString()!);
                     }
@@ -964,7 +964,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     bool invoked = false;
                     // Have the verifier return false. Close the connection explicitly to force a new connection to be
                     // established.
-                    using var comm = new Communicator(ref args, clientProperties,
+                    await using var comm = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
                             ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
@@ -1005,7 +1005,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // in common.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                     clientProperties["IceSSL.Protocols"] = "tls1_2";
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.Protocols"] = "tls1_3";
@@ -1028,7 +1028,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
                 {
                     // This should succeed.
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.Protocols"] = "tls1_2, tls1_3";
@@ -1042,7 +1042,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                     clientProperties["IceSSL.Protocols"] = "tls1_2";
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.Protocols"] = "tls1_2";
@@ -1063,7 +1063,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // This should fail because the server's certificate is expired.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_exp", "cacert1");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
@@ -1086,7 +1086,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     // This should fail because the client's certificate is expired.
                     clientProperties["IceSSL.CertFile"] = "c_rsa_ca1_exp.p12";
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
@@ -1114,7 +1114,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     Console.Out.Write("testing multiple CA certificates... ");
                     Console.Out.Flush();
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                    using var comm = new Communicator(ref args, clientProperties);
+                    await using var comm = new Communicator(ref args, clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca2");
                     store.Add(caCert1);
@@ -1139,7 +1139,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 Console.Out.Flush();
                 {
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacerts");
-                    using var comm = new Communicator(clientProperties);
+                    await using var comm = new Communicator(clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca2", "cacerts");
                     IServerPrx server = fact.CreateServer(serverProperties, true);
@@ -1161,7 +1161,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                     clientProperties["IceSSL.CAs"] = "cacert1.der";
-                    using var comm = new Communicator(clientProperties);
+                    await using var comm = new Communicator(clientProperties);
                     var fact = CreateServerFactoryPrx(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                     serverProperties["IceSSL.CAs"] = "cacert1.der";
@@ -1208,14 +1208,14 @@ namespace ZeroC.IceSSL.Test.Configuration
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.DefaultDir"] = "";
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
-                    using var comm = new Communicator(clientProperties);
+                    await using var comm = new Communicator(clientProperties);
                     var p = IObjectPrx.Parse("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
 
                     while (true)
                     {
                         try
                         {
-                            _ = p.GetConnection();
+                            _ = await p.GetConnectionAsync();
                             break;
                         }
                         catch (Exception ex)

@@ -1775,7 +1775,6 @@ namespace ZeroC.Ice.Test.Operations
                 }
             }
 
-            if (p.GetConnection() != null)
             {
                 communicator.CurrentContext["one"] = "ONE";
                 communicator.CurrentContext["two"] = "TWO";

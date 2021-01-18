@@ -126,7 +126,7 @@ namespace ZeroC.Ice.Test.UDP
                 // TransportException will be thrown when we try to send a larger packet.
                 TestHelper.Assert(seq.Length > 16384);
             }
-            _ = obj.GetConnection().GoAwayAsync();
+            _ = (await obj.GetConnectionAsync()).GoAwayAsync();
             communicator.SetProperty("Ice.UDP.SndSize", "64K");
             seq = new byte[50000];
             try
@@ -202,7 +202,7 @@ namespace ZeroC.Ice.Test.UDP
             {
                 Console.Out.Write("testing udp bi-dir connection... ");
                 Console.Out.Flush();
-                obj.GetConnection().Adapter = adapter;
+                (await obj.GetConnectionAsync()).Adapter = adapter;
                 nRetry = 5;
                 while (nRetry-- > 0)
                 {

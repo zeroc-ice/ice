@@ -208,10 +208,6 @@ namespace ZeroC.Ice
         /// <return><c>true</c> if the connection is active, <c>false</c> if it's closing or closed.</return>
         public bool IsActive => _state == ConnectionState.Active;
 
-        /// <summary>Sends a ping frame.</summary>
-        /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-        public void Ping(CancellationToken cancel = default) => PingAsync(cancel: cancel).GetAwaiter().GetResult();
-
         /// <summary>Sends an asynchronous ping frame.</summary>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>

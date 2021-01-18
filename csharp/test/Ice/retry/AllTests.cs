@@ -158,7 +158,7 @@ namespace ZeroC.Ice.Test.Retry
                 output.Flush();
                 var adapter = communicator.CreateObjectAdapter(protocol: ice1 ? Protocol.Ice1 : Protocol.Ice2);
                 var bidir = adapter.AddWithUUID(new Bidir(), IBidirPrx.Factory);
-                retry1.GetConnection().Adapter = adapter;
+                (await retry1.GetConnectionAsync()).Adapter = adapter;
                 retry1.OpBidirRetry(bidir);
 
                 output.WriteLine("ok");
@@ -267,7 +267,7 @@ namespace ZeroC.Ice.Test.Retry
                     {
                         Dictionary<string, string> properties = communicator.GetProperties();
                         properties["Ice.RetryRequestMaxSize"] = "1024";
-                        using var communicator2 = new Communicator(properties);
+                        await using var communicator2 = new Communicator(properties);
                         var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
 
                         byte[] data = Enumerable.Range(0, 1024).Select(i => (byte)i).ToArray();
@@ -292,7 +292,7 @@ namespace ZeroC.Ice.Test.Retry
                     {
                         Dictionary<string, string> properties = communicator.GetProperties();
                         properties["Ice.RetryBufferMaxSize"] = "2048";
-                        using var communicator2 = new Communicator(properties);
+                        await using var communicator2 = new Communicator(properties);
                         var retry2 = IRetryPrx.Parse(helper.GetTestProxy("retry"), communicator2);
 
                         byte[] data = Enumerable.Range(0, 1024).Select(i => (byte)i).ToArray();

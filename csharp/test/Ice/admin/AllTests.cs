@@ -138,7 +138,7 @@ namespace ZeroC.Ice.Test.Admin
                     ["Ice.ServerName"] = "127.0.0.1",
                     ["Ice.Admin.InstanceName"] = "Test"
                 };
-                using var com = new Communicator(properties);
+                await using var com = new Communicator(properties);
                 await com.ActivateAsync();
                 TestFacets(com, true, false);
             }
@@ -151,13 +151,13 @@ namespace ZeroC.Ice.Test.Admin
                     ["Ice.Admin.InstanceName"] = "Test",
                     ["Ice.Admin.Facets"] = "Properties"
                 };
-                using var com = new Communicator(properties);
+                await using var com = new Communicator(properties);
                 await com.ActivateAsync();
                 TestFacets(com, false, true);
             }
             {
                 // Test: Verify that the operations work correctly with the Admin object disabled.
-                using var com = new Communicator();
+                await using var com = new Communicator();
                 await com.ActivateAsync();
                 TestFacets(com, false, false);
             }
@@ -167,9 +167,9 @@ namespace ZeroC.Ice.Test.Admin
                 {
                     { "Ice.Admin.Enabled", "1" }
                 };
-                using var com = new Communicator(properties);
+                await using var com = new Communicator(properties);
                 await com.ActivateAsync();
-                TestHelper.Assert(com.GetAdminAsync().GetAwaiter().GetResult() == null);
+                TestHelper.Assert(await com.GetAdminAsync() == null);
                 var id = Identity.Parse("test-admin");
                 try
                 {
@@ -181,8 +181,8 @@ namespace ZeroC.Ice.Test.Admin
                 }
 
                 ObjectAdapter adapter = com.CreateObjectAdapter();
-                TestHelper.Assert(com.CreateAdminAsync(adapter, id).GetAwaiter().GetResult() != null);
-                TestHelper.Assert(com.GetAdminAsync().GetAwaiter().GetResult() != null);
+                TestHelper.Assert(await com.CreateAdminAsync(adapter, id) != null);
+                TestHelper.Assert(await com.GetAdminAsync() != null);
 
                 TestFacets(com, true, false);
             }
@@ -195,7 +195,7 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.InstanceName", "Test" }
                 };
 
-                using var com = new Communicator(properties);
+                await using var com = new Communicator(properties);
                 TestFacets(com, true, false);
                 await com.ActivateAsync();
                 TestFacets(com, true, false);
@@ -220,7 +220,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(obj != null);
                 IProcessPrx proc = obj.Clone(IProcessPrx.Factory, facet: "Process");
                 proc.Shutdown();
-                com.WaitForShutdown();
+                com.Shutdown();
                 com.Destroy();
             }
             output.WriteLine("ok");
@@ -615,7 +615,7 @@ namespace ZeroC.Ice.Test.Admin
                     obj.Clone(IObjectPrx.Factory, facet: "Process").CheckedCast(IProcessPrx.Factory);
                 TestHelper.Assert(proc != null);
                 proc.Shutdown();
-                com.WaitForShutdown();
+                com.Shutdown();
                 com.Destroy();
             }
             output.WriteLine("ok");

@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
 {
     public static class AllTests
     {
-        public static Task RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             Communicator communicator = helper.Communicator;
 
@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
             output.Write("testing connection information... ");
             output.Flush();
             {
-                var connection = (IPConnection)testPrx.GetConnection();
+                var connection = (IPConnection)await testPrx.GetConnectionAsync();
                 TestHelper.Assert(connection.RemoteEndpoint!.Port == proxyPort); // make sure we are connected to the proxy port.
             }
             output.WriteLine("ok");
@@ -54,7 +54,6 @@ namespace ZeroC.Ice.Test.NetworkProxy
                 }
             }
             output.WriteLine("ok");
-            return Task.CompletedTask;
         }
     }
 }

@@ -253,13 +253,13 @@ namespace ZeroC.Ice.Test.Exceptions
 
             output.WriteLine("ok");
 
-            if (thrower.GetConnection() is not ColocatedConnection)
+            if (await thrower.GetConnectionAsync() is not ColocatedConnection)
             {
                 output.Write("testing incoming frame max size...");
                 output.Flush();
                 if (thrower.Protocol == Protocol.Ice1)
                 {
-                    TestHelper.Assert(thrower.GetConnection().PeerIncomingFrameMaxSize == -1);
+                    TestHelper.Assert((await thrower.GetConnectionAsync()).PeerIncomingFrameMaxSize == -1);
                     try
                     {
                         thrower.SendAndReceive(Array.Empty<byte>());
@@ -322,7 +322,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 }
                 else
                 {
-                    TestHelper.Assert(thrower.GetConnection().PeerIncomingFrameMaxSize == 10 * 1024);
+                    TestHelper.Assert((await thrower.GetConnectionAsync()).PeerIncomingFrameMaxSize == 10 * 1024);
                     try
                     {
                         // The response is too large
@@ -346,7 +346,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
 
                     var thrower2 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 1), communicator);
-                    TestHelper.Assert(thrower2.GetConnection().PeerIncomingFrameMaxSize == int.MaxValue);
+                    TestHelper.Assert((await thrower2.GetConnectionAsync()).PeerIncomingFrameMaxSize == int.MaxValue);
                     try
                     {
                         // The response is too large
@@ -359,7 +359,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
 
                     var thrower3 = IThrowerPrx.Parse(helper.GetTestProxy("thrower", 2), communicator);
-                    TestHelper.Assert(thrower3.GetConnection().PeerIncomingFrameMaxSize == 1024);
+                    TestHelper.Assert((await thrower3.GetConnectionAsync()).PeerIncomingFrameMaxSize == 1024);
                     try
                     {
                         // The request is too large
@@ -371,7 +371,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
 
                     var forwarder = IThrowerPrx.Parse(helper.GetTestProxy("forwarder", 3), communicator);
-                    TestHelper.Assert(forwarder.GetConnection().PeerIncomingFrameMaxSize == int.MaxValue);
+                    TestHelper.Assert((await forwarder.GetConnectionAsync()).PeerIncomingFrameMaxSize == int.MaxValue);
                     try
                     {
                         forwarder.SendAndReceive(new byte[20 * 1024]);

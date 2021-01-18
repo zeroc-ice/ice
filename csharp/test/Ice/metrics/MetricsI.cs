@@ -2,38 +2,41 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Metrics
 {
-    public sealed class Metrics : IMetrics
+    internal sealed class Metrics : IAsyncMetrics
     {
-        public void Op(Current current, CancellationToken cancel)
+        public ValueTask OpAsync(Current current, CancellationToken cancel) => default;
+
+        public ValueTask FailAsync(Current current, CancellationToken cancel)
         {
+            _ = current.Connection.AbortAsync();
+            return default;
         }
 
-        public void Fail(Current current, CancellationToken cancel) =>
-            current.Connection.AbortAsync();
-
-        public void OpWithUserException(Current current, CancellationToken cancel) =>
+        public ValueTask OpWithUserExceptionAsync(Current current, CancellationToken cancel) =>
             throw new UserEx("custom UserEx message");
 
-        public void OpWithRequestFailedException(Current current, CancellationToken cancel) =>
+        public ValueTask OpWithRequestFailedExceptionAsync(Current current, CancellationToken cancel) =>
             throw new ObjectNotExistException();
 
-        public void OpWithLocalException(Current current, CancellationToken cancel) =>
+        public ValueTask OpWithLocalExceptionAsync(Current current, CancellationToken cancel) =>
             throw new InvalidConfigurationException("fake");
 
-        public void OpWithUnknownException(Current current, CancellationToken cancel) =>
+        public ValueTask OpWithUnknownExceptionAsync(Current current, CancellationToken cancel) =>
             throw new ArgumentOutOfRangeException();
 
-        public void OpByteS(byte[] bs, Current current, CancellationToken cancel)
+        public ValueTask OpByteSAsync(byte[] bs, Current current, CancellationToken cancel) => default;
+
+        public ValueTask<IObjectPrx?> GetAdminAsync(Current current, CancellationToken cancel) =>
+            new(current.Communicator.GetAdminAsync(cancel: cancel));
+
+        public ValueTask ShutdownAsync(Current current, CancellationToken cancel)
         {
+            _ = current.Communicator.ShutdownAsync();
+            return default;
         }
-
-        public IObjectPrx? GetAdmin(Current current, CancellationToken cancel) =>
-            current.Communicator.GetAdminAsync(cancel: cancel).GetAwaiter().GetResult();
-
-        public void Shutdown(Current current, CancellationToken cancel) =>
-            current.Communicator.ShutdownAsync();
     }
 }

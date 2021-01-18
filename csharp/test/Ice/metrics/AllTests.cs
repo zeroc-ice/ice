@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.IceMX;
 
@@ -364,7 +365,7 @@ namespace ZeroC.Ice.Test.Metrics
             return m;
         }
 
-        public static IMetricsPrx Run(TestHelper helper, CommunicatorObserver obsv, bool colocated)
+        public static async Task<IMetricsPrx> RunAsync(TestHelper helper, CommunicatorObserver obsv, bool colocated)
         {
             Communicator? communicator = helper.Communicator;
 
@@ -383,7 +384,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             TextWriter output = helper.Output;
 
-            IObjectPrx? admin = communicator.GetAdminAsync().GetAwaiter().GetResult();
+            IObjectPrx? admin = await communicator.GetAdminAsync();
             TestHelper.Assert(admin != null);
             var clientProps = admin.Clone(IPropertiesAdminPrx.Factory, facet: "Properties");
             var clientMetrics = admin.Clone(IMetricsAdminPrx.Factory, facet: "Metrics");
@@ -468,8 +469,8 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(view["Dispatch"][0]!.Current == 0 && view["Dispatch"][0]!.Total == 5);
             TestHelper.Assert(view["Dispatch"][0]!.Id.IndexOf("[ice_ping]", StringComparison.InvariantCulture) > 0);
 
-            metrics.GetConnection().GoAwayAsync();
-            metrics.Clone(label: "Con1").GetConnection().GoAwayAsync();
+            _ = (await metrics.GetConnectionAsync()).GoAwayAsync();
+            _ = (await metrics.Clone(label: "Con1").GetConnectionAsync()).GoAwayAsync();
 
             WaitForCurrent(clientMetrics, "View", "Connection", 0);
             WaitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -578,7 +579,7 @@ namespace ZeroC.Ice.Test.Metrics
             map = ToMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
 
             TestHelper.Assert(map["active"].Current == 1);
-            metrics.GetConnection().GoAwayAsync();
+            _ = (await metrics.GetConnectionAsync()).GoAwayAsync();
 
             map = ToMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
             // The connection might already be closed so it can be 0 or 1
@@ -591,7 +592,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             UpdateProps(clientProps, serverProps, update, props, "Connection");
-            metrics.GetConnection().GoAwayAsync();
+            _ = (await metrics.GetConnectionAsync()).GoAwayAsync();
 
             if (!colocated)
             {
@@ -663,7 +664,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
             TestAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", output);
 
-            m.GetConnection().GoAwayAsync();
+            _ = (await m.GetConnectionAsync()).GoAwayAsync();
 
             WaitForCurrent(clientMetrics, "View", "Connection", 0);
             WaitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -686,7 +687,7 @@ namespace ZeroC.Ice.Test.Metrics
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
                 TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
 
-                metrics.GetConnection().GoAwayAsync();
+                _ = (await metrics.GetConnectionAsync()).GoAwayAsync();
 
                 ClearView(clientProps, serverProps, update);
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 0);
@@ -771,7 +772,7 @@ namespace ZeroC.Ice.Test.Metrics
                 try
                 {
                     prx.IcePing();
-                    prx.GetConnection().GoAwayAsync();
+                    _ = (await prx.GetConnectionAsync()).GoAwayAsync();
                 }
                 catch
                 {
@@ -826,9 +827,9 @@ namespace ZeroC.Ice.Test.Metrics
 
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
-                            prx.GetConnection().Endpoint.ToString(), c, output);
+                            (await prx.GetConnectionAsync()).Endpoint.ToString(), c, output);
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
-                            prx.GetConnection().Endpoint.ToString(), c, output);
+                            (await prx.GetConnectionAsync()).Endpoint.ToString(), c, output);
 
                 TestAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTransport", transportName,
                     c, output);

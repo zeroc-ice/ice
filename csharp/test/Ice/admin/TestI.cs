@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Admin
@@ -13,38 +14,51 @@ namespace ZeroC.Ice.Test.Admin
         }
     }
 
-    public class RemoteCommunicator : IRemoteCommunicator
+    public class RemoteCommunicator : IAsyncRemoteCommunicator
     {
         private volatile IReadOnlyDictionary<string, string>? _changes;
         private readonly Communicator _communicator;
 
         public RemoteCommunicator(Communicator communicator) => _communicator = communicator;
 
-        public IObjectPrx? GetAdmin(Current current, CancellationToken cancel) =>
-            _communicator.GetAdminAsync(cancel: cancel).GetAwaiter().GetResult();
+        public async ValueTask<IObjectPrx?> GetAdminAsync(Current current, CancellationToken cancel) =>
+            await _communicator.GetAdminAsync(cancel: cancel);
 
-        public IReadOnlyDictionary<string, string> GetChanges(Current current, CancellationToken cancel) =>
-            new Dictionary<string, string>(_changes!);
+        public ValueTask<IReadOnlyDictionary<string, string>> GetChangesAsync(Current current, CancellationToken cancel)
+        {
+            return new(_changes!);
+        }
 
-        public void Print(string message, Current current, CancellationToken cancel) =>
+        public ValueTask PrintAsync(string message, Current current, CancellationToken cancel)
+        {
             _communicator.Logger.Print(message);
+            return default;
+        }
 
-        public void Trace(string category, string message, Current current, CancellationToken cancel) =>
+        public ValueTask TraceAsync(string category, string message, Current current, CancellationToken cancel)
+        {
             _communicator.Logger.Trace(category, message);
+            return default;
+        }
 
-        public void Warning(string message, Current current, CancellationToken cancel) =>
+        public ValueTask WarningAsync(string message, Current current, CancellationToken cancel)
+        {
             _communicator.Logger.Warning(message);
+            return default;
+        }
 
-        public void Error(string message, Current current, CancellationToken cancel) =>
+        public ValueTask ErrorAsync(string message, Current current, CancellationToken cancel)
+        {
             _communicator.Logger.Error(message);
+            return default;
+        }
 
-        public void Shutdown(Current current, CancellationToken cancel) => _ = _communicator.ShutdownAsync();
+        // We're not shutting down the communicator that dispatches the request!
+        public async ValueTask ShutdownAsync(Current current, CancellationToken cancel) =>
+            await _communicator.ShutdownAsync();
 
-        // Note that we are executing in a thread of the *main* communicator, not the one that is being shut down.
-        public void WaitForShutdown(Current current, CancellationToken cancel) =>
-            _communicator.ShutdownComplete.Wait(cancel);
-
-        public void Destroy(Current current, CancellationToken cancel) => _communicator.Dispose();
+        public async ValueTask DestroyAsync(Current current, CancellationToken cancel) =>
+            await _communicator.DestroyAsync();
 
         public void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
     }

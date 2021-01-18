@@ -212,14 +212,6 @@ namespace ZeroC.Ice
         /// <param name="proxy">The proxy.</param>
         /// <param name="cancel">The cancellation token.</param>
         /// <returns>The Connection for this proxy.</returns>
-        public static Connection GetConnection(this IObjectPrx proxy, CancellationToken cancel = default) =>
-            proxy.GetConnectionAsync(cancel).GetResult();
-
-        /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
-        /// it first attempts to create a connection.</summary>
-        /// <param name="proxy">The proxy.</param>
-        /// <param name="cancel">The cancellation token.</param>
-        /// <returns>The Connection for this proxy.</returns>
         public static ValueTask<Connection> GetConnectionAsync(
             this IObjectPrx proxy,
             CancellationToken cancel = default) =>

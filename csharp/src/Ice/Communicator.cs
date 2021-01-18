@@ -32,7 +32,7 @@ namespace ZeroC.Ice
 
     /// <summary>The central object in Ice. One or more communicators can be instantiated for an Ice application.
     /// </summary>
-    public sealed partial class Communicator : IDisposable, IAsyncDisposable
+    public sealed partial class Communicator : IAsyncDisposable
     {
         private class ObserverUpdater : Instrumentation.IObserverUpdater
         {
@@ -401,337 +401,329 @@ namespace ZeroC.Ice
             combinedProperties.ParseIceArgs(ref args);
             SetProperties(combinedProperties);
 
-            try
+            lock (_staticMutex)
             {
-                lock (_staticMutex)
+                if (!_oneOffDone)
                 {
-                    if (!_oneOffDone)
+                    string? stdOut = GetProperty("Ice.StdOut");
+
+                    System.IO.StreamWriter? outStream = null;
+
+                    if (stdOut != null)
                     {
-                        string? stdOut = GetProperty("Ice.StdOut");
+                        outStream = System.IO.File.AppendText(stdOut);
+                        outStream.AutoFlush = true;
+                        Console.Out.Close();
+                        Console.SetOut(outStream);
+                    }
 
-                        System.IO.StreamWriter? outStream = null;
-
-                        if (stdOut != null)
+                    string? stdErr = GetProperty("Ice.StdErr");
+                    if (stdErr != null)
+                    {
+                        if (stdErr == stdOut)
                         {
-                            outStream = System.IO.File.AppendText(stdOut);
-                            outStream.AutoFlush = true;
-                            Console.Out.Close();
-                            Console.SetOut(outStream);
+                            Debug.Assert(outStream != null);
+                            Console.SetError(outStream);
                         }
-
-                        string? stdErr = GetProperty("Ice.StdErr");
-                        if (stdErr != null)
+                        else
                         {
-                            if (stdErr == stdOut)
-                            {
-                                Debug.Assert(outStream != null);
-                                Console.SetError(outStream);
-                            }
-                            else
-                            {
-                                System.IO.StreamWriter errStream = System.IO.File.AppendText(stdErr);
-                                errStream.AutoFlush = true;
-                                Console.Error.Close();
-                                Console.SetError(errStream);
-                            }
-                        }
-
-                        UriParser.RegisterCommon();
-                        _oneOffDone = true;
-                    }
-                }
-
-                if (logger == null)
-                {
-                    string? logfile = GetProperty("Ice.LogFile");
-                    string? programName = GetProperty("Ice.ProgramName");
-                    Debug.Assert(programName != null);
-                    if (logfile != null)
-                    {
-                        Logger = new FileLogger(programName, logfile);
-                    }
-                    else if (Runtime.Logger is Logger)
-                    {
-                        // Ice.ConsoleListener is enabled by default.
-                        Logger = new TraceLogger(programName, this.GetPropertyAsBool("Ice.ConsoleListener") ?? true);
-                    }
-                    // else already set to process logger
-                }
-
-                TraceLevels = new TraceLevels(this);
-
-                DefaultInvocationTimeout =
-                    this.GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? TimeSpan.FromSeconds(60);
-                if (DefaultInvocationTimeout == TimeSpan.Zero)
-                {
-                    throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
-                }
-
-                DefaultPreferExistingConnection =
-                    this.GetPropertyAsBool("Ice.Default.PreferExistingConnection") ?? true;
-
-                // TODO: switch to NonSecure.Never default
-                DefaultPreferNonSecure =
-                    this.GetPropertyAsEnum<NonSecure>("Ice.Default.PreferNonSecure") ?? NonSecure.Always;
-
-                if (GetProperty("Ice.Default.SourceAddress") is string address)
-                {
-                    try
-                    {
-                        DefaultSourceAddress = IPAddress.Parse(address);
-                    }
-                    catch (FormatException ex)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid IP address set for Ice.Default.SourceAddress: `{address}'", ex);
-                    }
-                }
-
-                // For locator cache timeout, 0 means disable locator cache.
-                DefaultLocatorCacheTimeout =
-                    this.GetPropertyAsTimeSpan("Ice.Default.LocatorCacheTimeout") ?? Timeout.InfiniteTimeSpan;
-
-                CloseTimeout = this.GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(10);
-                if (CloseTimeout == TimeSpan.Zero)
-                {
-                    throw new InvalidConfigurationException("0 is not a valid value for Ice.CloseTimeout");
-                }
-
-                ConnectTimeout = this.GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(10);
-                if (ConnectTimeout == TimeSpan.Zero)
-                {
-                    throw new InvalidConfigurationException("0 is not a valid value for Ice.ConnectTimeout");
-                }
-
-                IdleTimeout = this.GetPropertyAsTimeSpan("Ice.IdleTimeout") ?? TimeSpan.FromSeconds(60);
-                if (IdleTimeout == TimeSpan.Zero)
-                {
-                    throw new InvalidConfigurationException("0 is not a valid value for Ice.IdleTimeout");
-                }
-
-                KeepAlive = this.GetPropertyAsBool("Ice.KeepAlive") ?? false;
-
-                ServerName = GetProperty("Ice.ServerName") ?? Dns.GetHostName();
-
-                MaxBidirectionalStreams = this.GetPropertyAsInt("Ice.MaxBidirectionalStreams") ?? 100;
-                if (MaxBidirectionalStreams < 1)
-                {
-                    throw new InvalidConfigurationException(
-                        $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxBidirectionalStreams");
-                }
-
-                MaxUnidirectionalStreams = this.GetPropertyAsInt("Ice.MaxUnidirectionalStreams") ?? 100;
-                if (MaxUnidirectionalStreams < 1)
-                {
-                    throw new InvalidConfigurationException(
-                        $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxUnidirectionalStreams");
-                }
-
-                SlicPacketMaxSize = this.GetPropertyAsByteSize("Ice.Slic.PacketMaxSize") ?? 32 * 1024;
-                if (SlicPacketMaxSize < 1024)
-                {
-                    throw new InvalidConfigurationException("Ice.Slic.PacketMaxSize can't be inferior to 1KB");
-                }
-
-                int frameMaxSize = this.GetPropertyAsByteSize("Ice.IncomingFrameMaxSize") ?? 1024 * 1024;
-                IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
-                if (IncomingFrameMaxSize < 1024)
-                {
-                    throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
-                }
-
-                InvocationMaxAttempts = this.GetPropertyAsInt("Ice.InvocationMaxAttempts") ?? 5;
-
-                if (InvocationMaxAttempts <= 0)
-                {
-                    throw new InvalidConfigurationException($"Ice.InvocationMaxAttempts must be greater than 0");
-                }
-                InvocationMaxAttempts = Math.Min(InvocationMaxAttempts, 5);
-                RetryBufferMaxSize = this.GetPropertyAsByteSize("Ice.RetryBufferMaxSize") ?? 1024 * 1024 * 100;
-                RetryRequestMaxSize = this.GetPropertyAsByteSize("Ice.RetryRequestMaxSize") ?? 1024 * 1024;
-
-                WarnConnections = this.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-                WarnDatagrams = this.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
-                WarnDispatch = this.GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
-                WarnUnknownProperties = this.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true;
-
-                CompressionLevel =
-                    this.GetPropertyAsEnum<CompressionLevel>("Ice.CompressionLevel") ?? CompressionLevel.Fastest;
-                CompressionMinSize = this.GetPropertyAsByteSize("Ice.CompressionMinSize") ?? 100;
-
-                // TODO: switch to NonSecure.Never default (see ObjectAdapter also)
-                AcceptNonSecure = this.GetPropertyAsEnum<NonSecure>("Ice.AcceptNonSecure") ?? NonSecure.Always;
-                int classGraphMaxDepth = this.GetPropertyAsInt("Ice.ClassGraphMaxDepth") ?? 100;
-                ClassGraphMaxDepth = classGraphMaxDepth < 1 ? int.MaxValue : classGraphMaxDepth;
-
-                ToStringMode = this.GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
-
-                _backgroundLocatorCacheUpdates = this.GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
-
-                NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
-
-                SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
-
-                RegisterIce1Transport(Transport.TCP,
-                                      "tcp",
-                                      TcpEndpoint.CreateIce1Endpoint,
-                                      TcpEndpoint.ParseIce1Endpoint);
-
-                RegisterIce1Transport(Transport.SSL,
-                                      "ssl",
-                                      TcpEndpoint.CreateIce1Endpoint,
-                                      TcpEndpoint.ParseIce1Endpoint);
-
-                RegisterIce1Transport(Transport.UDP,
-                                      "udp",
-                                      UdpEndpoint.CreateIce1Endpoint,
-                                      UdpEndpoint.ParseIce1Endpoint);
-
-                RegisterIce1Transport(Transport.WS,
-                                      "ws",
-                                      WSEndpoint.CreateIce1Endpoint,
-                                      WSEndpoint.ParseIce1Endpoint);
-
-                RegisterIce1Transport(Transport.WSS,
-                                      "wss",
-                                      WSEndpoint.CreateIce1Endpoint,
-                                      WSEndpoint.ParseIce1Endpoint);
-
-                RegisterIce2Transport(Transport.TCP,
-                                      "tcp",
-                                      TcpEndpoint.CreateIce2Endpoint,
-                                      TcpEndpoint.ParseIce2Endpoint,
-                                      IPEndpoint.DefaultIPPort);
-
-                RegisterIce2Transport(Transport.WS,
-                                      "ws",
-                                      WSEndpoint.CreateIce2Endpoint,
-                                      WSEndpoint.ParseIce2Endpoint,
-                                      IPEndpoint.DefaultIPPort);
-
-                if (this.GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
-                {
-                    LoadAssemblies();
-                }
-
-                PluginLoader.LoadPlugins(this, ref args);
-
-                // Create Admin facets, if enabled.
-                //
-                // Note that any logger-dependent admin facet must be created after we load all plugins,
-                // since one of these plugins can be a Logger plugin that sets a new logger during loading
-
-                if (GetProperty("Ice.Admin.Enabled") == null)
-                {
-                    _adminEnabled = GetProperty("Ice.Admin.Endpoints") != null;
-                }
-                else
-                {
-                    _adminEnabled = this.GetPropertyAsBool("Ice.Admin.Enabled") ?? false;
-                }
-
-                _adminFacetFilter = new HashSet<string>(
-                    (this.GetPropertyAsList("Ice.Admin.Facets") ?? Array.Empty<string>()).Distinct());
-
-                if (_adminEnabled)
-                {
-                    // Process facet
-                    string processFacetName = "Process";
-                    if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
-                    {
-                        _adminFacets.Add(processFacetName, new Process(this));
-                    }
-
-                    // Logger facet
-                    string loggerFacetName = "Logger";
-                    if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
-                    {
-                        var loggerAdminLogger = new LoggerAdminLogger(this, Logger);
-                        Logger = loggerAdminLogger;
-                        _adminFacets.Add(loggerFacetName, loggerAdminLogger.GetFacet());
-                    }
-
-                    // Properties facet
-                    string propertiesFacetName = "Properties";
-                    PropertiesAdmin? propsAdmin = null;
-                    if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
-                    {
-                        propsAdmin = new PropertiesAdmin(this);
-                        _adminFacets.Add(propertiesFacetName, propsAdmin);
-                    }
-
-                    // Metrics facet
-                    string metricsFacetName = "Metrics";
-                    if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
-                    {
-                        var communicatorObserver = new CommunicatorObserver(this, Logger);
-                        Observer = communicatorObserver;
-                        _adminFacets.Add(metricsFacetName, communicatorObserver.AdminFacet);
-
-                        // Make sure the admin plugin receives property updates.
-                        if (propsAdmin != null)
-                        {
-                            propsAdmin.Updated += (_, updates) => communicatorObserver.AdminFacet.Updated(updates);
+                            System.IO.StreamWriter errStream = System.IO.File.AppendText(stdErr);
+                            errStream.AutoFlush = true;
+                            Console.Error.Close();
+                            Console.SetError(errStream);
                         }
                     }
+
+                    UriParser.RegisterCommon();
+                    _oneOffDone = true;
                 }
+            }
 
-                Observer?.SetObserverUpdater(new ObserverUpdater(this));
-
-                // The default router/locator may have been set during the loading of plugins.
-                // Therefore we only set it if it hasn't already been set.
-
-                if (_defaultLocator == null && GetProperty("Ice.Default.Locator") is string defaultLocatorValue)
+            if (logger == null)
+            {
+                string? logfile = GetProperty("Ice.LogFile");
+                string? programName = GetProperty("Ice.ProgramName");
+                Debug.Assert(programName != null);
+                if (logfile != null)
                 {
-                    if (defaultLocatorValue.Equals("discovery", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var discovery = new Discovery.Locator(this);
-                        _defaultLocator = discovery.Proxy;
-                        _activateLocatorAsync = discovery.ActivateAsync;
-                    }
-                    else if (defaultLocatorValue.Equals("locatordiscovery", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var locatorDiscovery = new LocatorDiscovery.Locator(this);
-                        _defaultLocator = locatorDiscovery.Proxy;
-                        _activateLocatorAsync = locatorDiscovery.ActivateAsync;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            _defaultLocator = this.GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
-                        }
-                        catch (FormatException ex)
-                        {
-                            throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
-                        }
-                    }
+                    Logger = new FileLogger(programName, logfile);
                 }
+                else if (Runtime.Logger is Logger)
+                {
+                    // Ice.ConsoleListener is enabled by default.
+                    Logger = new TraceLogger(programName, this.GetPropertyAsBool("Ice.ConsoleListener") ?? true);
+                }
+                // else already set to process logger
+            }
 
+            TraceLevels = new TraceLevels(this);
+
+            DefaultInvocationTimeout =
+                this.GetPropertyAsTimeSpan("Ice.Default.InvocationTimeout") ?? TimeSpan.FromSeconds(60);
+            if (DefaultInvocationTimeout == TimeSpan.Zero)
+            {
+                throw new InvalidConfigurationException("0 is not a valid value for Ice.Default.InvocationTimeout");
+            }
+
+            DefaultPreferExistingConnection =
+                this.GetPropertyAsBool("Ice.Default.PreferExistingConnection") ?? true;
+
+            // TODO: switch to NonSecure.Never default
+            DefaultPreferNonSecure =
+                this.GetPropertyAsEnum<NonSecure>("Ice.Default.PreferNonSecure") ?? NonSecure.Always;
+
+            if (GetProperty("Ice.Default.SourceAddress") is string address)
+            {
                 try
                 {
-                    _defaultRouter ??= this.GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
+                    DefaultSourceAddress = IPAddress.Parse(address);
                 }
                 catch (FormatException ex)
                 {
-                    throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
+                    throw new InvalidConfigurationException(
+                        $"invalid IP address set for Ice.Default.SourceAddress: `{address}'", ex);
+                }
+            }
+
+            // For locator cache timeout, 0 means disable locator cache.
+            DefaultLocatorCacheTimeout =
+                this.GetPropertyAsTimeSpan("Ice.Default.LocatorCacheTimeout") ?? Timeout.InfiniteTimeSpan;
+
+            CloseTimeout = this.GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(10);
+            if (CloseTimeout == TimeSpan.Zero)
+            {
+                throw new InvalidConfigurationException("0 is not a valid value for Ice.CloseTimeout");
+            }
+
+            ConnectTimeout = this.GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(10);
+            if (ConnectTimeout == TimeSpan.Zero)
+            {
+                throw new InvalidConfigurationException("0 is not a valid value for Ice.ConnectTimeout");
+            }
+
+            IdleTimeout = this.GetPropertyAsTimeSpan("Ice.IdleTimeout") ?? TimeSpan.FromSeconds(60);
+            if (IdleTimeout == TimeSpan.Zero)
+            {
+                throw new InvalidConfigurationException("0 is not a valid value for Ice.IdleTimeout");
+            }
+
+            KeepAlive = this.GetPropertyAsBool("Ice.KeepAlive") ?? false;
+
+            ServerName = GetProperty("Ice.ServerName") ?? Dns.GetHostName();
+
+            MaxBidirectionalStreams = this.GetPropertyAsInt("Ice.MaxBidirectionalStreams") ?? 100;
+            if (MaxBidirectionalStreams < 1)
+            {
+                throw new InvalidConfigurationException(
+                    $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxBidirectionalStreams");
+            }
+
+            MaxUnidirectionalStreams = this.GetPropertyAsInt("Ice.MaxUnidirectionalStreams") ?? 100;
+            if (MaxUnidirectionalStreams < 1)
+            {
+                throw new InvalidConfigurationException(
+                    $"{MaxBidirectionalStreams} is not a valid value for Ice.MaxUnidirectionalStreams");
+            }
+
+            SlicPacketMaxSize = this.GetPropertyAsByteSize("Ice.Slic.PacketMaxSize") ?? 32 * 1024;
+            if (SlicPacketMaxSize < 1024)
+            {
+                throw new InvalidConfigurationException("Ice.Slic.PacketMaxSize can't be inferior to 1KB");
+            }
+
+            int frameMaxSize = this.GetPropertyAsByteSize("Ice.IncomingFrameMaxSize") ?? 1024 * 1024;
+            IncomingFrameMaxSize = frameMaxSize == 0 ? int.MaxValue : frameMaxSize;
+            if (IncomingFrameMaxSize < 1024)
+            {
+                throw new InvalidConfigurationException("Ice.IncomingFrameMaxSize can't be inferior to 1KB");
+            }
+
+            InvocationMaxAttempts = this.GetPropertyAsInt("Ice.InvocationMaxAttempts") ?? 5;
+
+            if (InvocationMaxAttempts <= 0)
+            {
+                throw new InvalidConfigurationException($"Ice.InvocationMaxAttempts must be greater than 0");
+            }
+            InvocationMaxAttempts = Math.Min(InvocationMaxAttempts, 5);
+            RetryBufferMaxSize = this.GetPropertyAsByteSize("Ice.RetryBufferMaxSize") ?? 1024 * 1024 * 100;
+            RetryRequestMaxSize = this.GetPropertyAsByteSize("Ice.RetryRequestMaxSize") ?? 1024 * 1024;
+
+            WarnConnections = this.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
+            WarnDatagrams = this.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
+            WarnDispatch = this.GetPropertyAsBool("Ice.Warn.Dispatch") ?? false;
+            WarnUnknownProperties = this.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true;
+
+            CompressionLevel =
+                this.GetPropertyAsEnum<CompressionLevel>("Ice.CompressionLevel") ?? CompressionLevel.Fastest;
+            CompressionMinSize = this.GetPropertyAsByteSize("Ice.CompressionMinSize") ?? 100;
+
+            // TODO: switch to NonSecure.Never default (see ObjectAdapter also)
+            AcceptNonSecure = this.GetPropertyAsEnum<NonSecure>("Ice.AcceptNonSecure") ?? NonSecure.Always;
+            int classGraphMaxDepth = this.GetPropertyAsInt("Ice.ClassGraphMaxDepth") ?? 100;
+            ClassGraphMaxDepth = classGraphMaxDepth < 1 ? int.MaxValue : classGraphMaxDepth;
+
+            ToStringMode = this.GetPropertyAsEnum<ToStringMode>("Ice.ToStringMode") ?? default;
+
+            _backgroundLocatorCacheUpdates = this.GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
+
+            NetworkProxy = CreateNetworkProxy(Network.EnableBoth);
+
+            SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
+
+            RegisterIce1Transport(Transport.TCP,
+                                  "tcp",
+                                  TcpEndpoint.CreateIce1Endpoint,
+                                  TcpEndpoint.ParseIce1Endpoint);
+
+            RegisterIce1Transport(Transport.SSL,
+                                  "ssl",
+                                  TcpEndpoint.CreateIce1Endpoint,
+                                  TcpEndpoint.ParseIce1Endpoint);
+
+            RegisterIce1Transport(Transport.UDP,
+                                  "udp",
+                                  UdpEndpoint.CreateIce1Endpoint,
+                                  UdpEndpoint.ParseIce1Endpoint);
+
+            RegisterIce1Transport(Transport.WS,
+                                  "ws",
+                                  WSEndpoint.CreateIce1Endpoint,
+                                  WSEndpoint.ParseIce1Endpoint);
+
+            RegisterIce1Transport(Transport.WSS,
+                                  "wss",
+                                  WSEndpoint.CreateIce1Endpoint,
+                                  WSEndpoint.ParseIce1Endpoint);
+
+            RegisterIce2Transport(Transport.TCP,
+                                  "tcp",
+                                  TcpEndpoint.CreateIce2Endpoint,
+                                  TcpEndpoint.ParseIce2Endpoint,
+                                  IPEndpoint.DefaultIPPort);
+
+            RegisterIce2Transport(Transport.WS,
+                                  "ws",
+                                  WSEndpoint.CreateIce2Endpoint,
+                                  WSEndpoint.ParseIce2Endpoint,
+                                  IPEndpoint.DefaultIPPort);
+
+            if (this.GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
+            {
+                LoadAssemblies();
+            }
+
+            PluginLoader.LoadPlugins(this, ref args);
+
+            // Create Admin facets, if enabled.
+            //
+            // Note that any logger-dependent admin facet must be created after we load all plugins,
+            // since one of these plugins can be a Logger plugin that sets a new logger during loading
+
+            if (GetProperty("Ice.Admin.Enabled") == null)
+            {
+                _adminEnabled = GetProperty("Ice.Admin.Endpoints") != null;
+            }
+            else
+            {
+                _adminEnabled = this.GetPropertyAsBool("Ice.Admin.Enabled") ?? false;
+            }
+
+            _adminFacetFilter = new HashSet<string>(
+                (this.GetPropertyAsList("Ice.Admin.Facets") ?? Array.Empty<string>()).Distinct());
+
+            if (_adminEnabled)
+            {
+                // Process facet
+                string processFacetName = "Process";
+                if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
+                {
+                    _adminFacets.Add(processFacetName, new Process(this));
                 }
 
-                // Show process id if requested (but only once).
-                lock (_mutex)
+                // Logger facet
+                string loggerFacetName = "Logger";
+                if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                 {
-                    if (!_printProcessIdDone && (this.GetPropertyAsBool("Ice.PrintProcessId") ?? false))
+                    var loggerAdminLogger = new LoggerAdminLogger(this, Logger);
+                    Logger = loggerAdminLogger;
+                    _adminFacets.Add(loggerFacetName, loggerAdminLogger.GetFacet());
+                }
+
+                // Properties facet
+                string propertiesFacetName = "Properties";
+                PropertiesAdmin? propsAdmin = null;
+                if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
+                {
+                    propsAdmin = new PropertiesAdmin(this);
+                    _adminFacets.Add(propertiesFacetName, propsAdmin);
+                }
+
+                // Metrics facet
+                string metricsFacetName = "Metrics";
+                if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
+                {
+                    var communicatorObserver = new CommunicatorObserver(this, Logger);
+                    Observer = communicatorObserver;
+                    _adminFacets.Add(metricsFacetName, communicatorObserver.AdminFacet);
+
+                    // Make sure the admin plugin receives property updates.
+                    if (propsAdmin != null)
                     {
-                        using var p = System.Diagnostics.Process.GetCurrentProcess();
-                        Console.WriteLine(p.Id);
-                        _printProcessIdDone = true;
+                        propsAdmin.Updated += (_, updates) => communicatorObserver.AdminFacet.Updated(updates);
                     }
                 }
             }
-            catch
+
+            Observer?.SetObserverUpdater(new ObserverUpdater(this));
+
+            // The default router/locator may have been set during the loading of plugins.
+            // Therefore we only set it if it hasn't already been set.
+
+            if (_defaultLocator == null && GetProperty("Ice.Default.Locator") is string defaultLocatorValue)
             {
-                Dispose();
-                throw;
+                if (defaultLocatorValue.Equals("discovery", StringComparison.OrdinalIgnoreCase))
+                {
+                    var discovery = new Discovery.Locator(this);
+                    _defaultLocator = discovery.Proxy;
+                    _activateLocatorAsync = discovery.ActivateAsync;
+                }
+                else if (defaultLocatorValue.Equals("locatordiscovery", StringComparison.OrdinalIgnoreCase))
+                {
+                    var locatorDiscovery = new LocatorDiscovery.Locator(this);
+                    _defaultLocator = locatorDiscovery.Proxy;
+                    _activateLocatorAsync = locatorDiscovery.ActivateAsync;
+                }
+                else
+                {
+                    try
+                    {
+                        _defaultLocator = this.GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
+                    }
+                    catch (FormatException ex)
+                    {
+                        throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
+                    }
+                }
+            }
+
+            try
+            {
+                _defaultRouter ??= this.GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
+            }
+            catch (FormatException ex)
+            {
+                throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
+            }
+
+            // Show process id if requested (but only once).
+            lock (_staticMutex)
+            {
+                if (!_printProcessIdDone && (this.GetPropertyAsBool("Ice.PrintProcessId") ?? false))
+                {
+                    using var p = System.Diagnostics.Process.GetCurrentProcess();
+                    Console.WriteLine(p.Id);
+                    _printProcessIdDone = true;
+                }
             }
         }
 
@@ -934,10 +926,6 @@ namespace ZeroC.Ice
                 _cancellationTokenSource.Dispose();
             }
         }
-
-        /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
-        /// implicitly.</summary>
-        public void Dispose() => DisposeAsync().GetResult();
 
         /// <summary>An alias for <see cref="DestroyAsync"/>, except this method returns a <see cref="ValueTask"/>.
         /// </summary>
