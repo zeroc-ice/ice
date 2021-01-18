@@ -6,15 +6,13 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Plugin
 {
-    public class Client : TestHelper
+    public static class Client
     {
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
-
-        public override async Task RunAsync(string[] args)
+        public static async Task RunAsync()
         {
             string pluginPath =
                 string.Format("msbuild/plugin/{0}/Plugin.dll",
@@ -22,7 +20,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
                 Console.Write("testing a simple plug-in... ");
                 Console.Out.Flush();
-                await using Communicator communicator = Initialize(
+                await using Communicator communicator = TestHelper.CreateCommunicator(
                     new Dictionary<string, string>
                     {
                         {
@@ -39,7 +37,7 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Out.Flush();
                 try
                 {
-                    await using Communicator communicator = Initialize(
+                    await using Communicator communicator = TestHelper.CreateCommunicator(
                         new Dictionary<string, string>()
                         {
                             {
@@ -47,7 +45,7 @@ namespace ZeroC.Ice.Test.Plugin
                             }
                         });
                     await communicator.ActivateAsync();
-                    Assert(false);
+                    TestHelper.Assert(false);
                 }
                 catch
                 {
@@ -60,7 +58,7 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Write("testing plug-in load order... ");
                 Console.Out.Flush();
 
-                await using Communicator communicator = Initialize(
+                await using Communicator communicator = TestHelper.CreateCommunicator(
                     new Dictionary<string, string>()
                     {
                         { "Ice.Plugin.PluginOne", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFactory" },
@@ -76,7 +74,7 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Write("testing plug-in manager... ");
                 Console.Out.Flush();
 
-                await using Communicator communicator = Initialize(
+                await using Communicator communicator = TestHelper.CreateCommunicator(
                     new Dictionary<string, string>()
                     {
                         { "Ice.Plugin.PluginOne", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFactory" },
@@ -84,10 +82,10 @@ namespace ZeroC.Ice.Test.Plugin
                         { "Ice.Plugin.PluginThree", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginThreeFactory" },
                     });
 
-                Assert(communicator.Plugins.Count == 3);
-                Assert(communicator.Plugins[0].Name == "PluginOne");
-                Assert(communicator.Plugins[1].Name == "PluginTwo");
-                Assert(communicator.Plugins[2].Name == "PluginThree");
+                TestHelper.Assert(communicator.Plugins.Count == 3);
+                TestHelper.Assert(communicator.Plugins[0].Name == "PluginOne");
+                TestHelper.Assert(communicator.Plugins[1].Name == "PluginTwo");
+                TestHelper.Assert(communicator.Plugins[2].Name == "PluginThree");
                 await communicator.ActivateAsync();
                 Console.WriteLine("ok");
             }
@@ -97,7 +95,7 @@ namespace ZeroC.Ice.Test.Plugin
                 Console.Out.Flush();
                 try
                 {
-                    await using Communicator communicator = Initialize(
+                    await using Communicator communicator = TestHelper.CreateCommunicator(
                         new Dictionary<string, string>()
                         {
                             { "Ice.Plugin.PluginOneFail", $"{pluginPath}:ZeroC.Ice.Test.Plugin.PluginOneFailFactory" },
@@ -113,6 +111,20 @@ namespace ZeroC.Ice.Test.Plugin
                 }
                 Console.WriteLine("ok");
             }
+        }
+
+        public static async Task<int> Main()
+        {
+            try
+            {
+                await RunAsync();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return 1;
         }
     }
 }

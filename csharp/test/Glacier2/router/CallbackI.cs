@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Threading;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.Glacier2.Test.Router
 {

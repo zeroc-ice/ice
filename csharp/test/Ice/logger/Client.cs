@@ -3,13 +3,13 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Logger
 {
-    public class Client : TestHelper
+    public static class Client
     {
-        public override async Task RunAsync(string[] args)
+        public static async Task RunAsync(string[] args)
         {
             Console.Out.Write("testing Ice.LogFile... ");
             Console.Out.Flush();
@@ -19,17 +19,29 @@ namespace ZeroC.Ice.Test.Logger
             }
 
             {
-                var properties = CreateTestProperties(ref args);
+                var properties = TestHelper.CreateTestProperties(ref args);
                 properties["Ice.LogFile"] = "log.txt";
-                await using var communicator = Initialize(properties);
+                await using var communicator = TestHelper.CreateCommunicator(properties);
                 communicator.Logger.Trace("info", "my logger");
             }
-            Assert(File.Exists("log.txt"));
-            Assert(File.ReadAllText("log.txt").Contains("my logger"));
+            TestHelper.Assert(File.Exists("log.txt"));
+            TestHelper.Assert(File.ReadAllText("log.txt").Contains("my logger"));
             File.Delete("log.txt");
             Console.Out.WriteLine("ok");
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            try
+            {
+                await RunAsync(args);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return 1;
+        }
     }
 }

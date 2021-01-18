@@ -2,23 +2,23 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.IceBox.Test.Admin
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args)
+        public override Task RunAsync(string[] args) => AllTests.RunAsync(this);
+
+        public static async Task<int> Main(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Test.Protocol"] = "ice1";
-            await using Communicator communicator = Initialize(properties);
-            AllTests.Run(this);
-            // Shutdown the IceBox server.
-            await IProcessPrx.Parse("DemoIceBox/admin -f Process:default -h localhost -p 9996", communicator).ShutdownAsync();
-        }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+            await using var communicator = CreateCommunicator(properties);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

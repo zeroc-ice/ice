@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.IceMX;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Metrics
 {
@@ -365,11 +365,14 @@ namespace ZeroC.Ice.Test.Metrics
             return m;
         }
 
-        public static async Task<IMetricsPrx> RunAsync(TestHelper helper, CommunicatorObserver obsv, bool colocated)
+        public static async Task RunAsync(TestHelper helper, bool colocated)
         {
-            Communicator? communicator = helper.Communicator;
+            Communicator communicator = helper.Communicator;
+            CommunicatorObserver? obsv = (CommunicatorObserver?)communicator.Observer;
+            TestHelper.Assert(obsv != null);
 
-            TestHelper.Assert(communicator != null);
+            TextWriter output = helper.Output;
+
             bool ice1 = helper.Protocol == Protocol.Ice1;
 
             string host = helper.Host;
@@ -381,8 +384,6 @@ namespace ZeroC.Ice.Test.Metrics
             string adapterName = colocated ? "TestAdapter" : "";
 
             IMetricsPrx metrics = IMetricsPrx.Parse(ice1 ? $"metrics:{endpoint}" : $"{endpoint}/metrics", communicator);
-
-            TextWriter output = helper.Output;
 
             IObjectPrx? admin = await communicator.GetAdminAsync();
             TestHelper.Assert(admin != null);
@@ -1311,7 +1312,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
 
             output.WriteLine("ok");
-            return metrics;
+            await metrics.ShutdownAsync();
         }
     }
 }

@@ -1,18 +1,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System;
+using System.IO;
 using System.Linq;
-using Test;
+using System.Threading.Tasks;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.IceBox.Test.Configuration
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+            TextWriter output = helper.Output;
+
             var service1 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 0), communicator);
             var service2 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 1), communicator);
             var service3 = ITestIntfPrx.Parse(helper.GetTestProxy("test", 2), communicator);
@@ -20,8 +23,8 @@ namespace ZeroC.IceBox.Test.Configuration
 
             if (service1.GetProperty("IceBox.InheritProperties").Length == 0)
             {
-                Console.Out.Write("testing service properties... ");
-                Console.Out.Flush();
+                output.Write("testing service properties... ");
+                output.Flush();
 
                 TestHelper.Assert(service1.GetProperty("Ice.ProgramName") == "IceBox-Service1");
                 TestHelper.Assert(service1.GetProperty("Service") == "1");
@@ -40,10 +43,10 @@ namespace ZeroC.IceBox.Test.Configuration
                 string[] args2 = { "--Service1.ArgProp=1" };
                 TestHelper.Assert(service2.GetArgs().SequenceEqual(args2));
 
-                Console.Out.WriteLine("ok");
+                output.WriteLine("ok");
 
-                Console.Out.Write("testing with shared communicator... ");
-                Console.Out.Flush();
+                output.Write("testing with shared communicator... ");
+                output.Flush();
 
                 TestHelper.Assert(service3.GetProperty("Ice.ProgramName") == "IceBox-SharedCommunicator");
                 TestHelper.Assert(service3.GetProperty("Service") == "4");
@@ -60,12 +63,12 @@ namespace ZeroC.IceBox.Test.Configuration
                 string[] args4 = { "--Service3.Prop=2" };
                 TestHelper.Assert(service4.GetArgs().SequenceEqual(args4));
 
-                Console.Out.WriteLine("ok");
+                output.WriteLine("ok");
             }
             else
             {
-                Console.Out.Write("testing property inheritance... ");
-                Console.Out.Flush();
+                output.Write("testing property inheritance... ");
+                output.Flush();
 
                 TestHelper.Assert(service1.GetProperty("Ice.ProgramName") == "IceBox2-Service1");
                 TestHelper.Assert(service1.GetProperty("ServerProp") == "1");
@@ -80,8 +83,14 @@ namespace ZeroC.IceBox.Test.Configuration
                 TestHelper.Assert(service2.GetProperty("UnsetMe").Length == 0);
                 TestHelper.Assert(service2.GetProperty("Service2.Prop") == "1");
 
-                Console.Out.WriteLine("ok");
+                output.WriteLine("ok");
             }
+
+            // Shutdown the IceBox server.
+            await IProcessPrx.Parse(helper.Protocol == Protocol.Ice1 ?
+                                    $"DemoIceBox/admin -f Process:{helper.Transport} -h 127.0.0.1 -p 9996" :
+                                    $"ice+{helper.Transport}://127.0.0.1:9996/DemoIceBox/admin#Process",
+                                    communicator).ShutdownAsync();
         }
     }
 }

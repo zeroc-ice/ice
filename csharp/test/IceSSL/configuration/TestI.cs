@@ -3,8 +3,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {

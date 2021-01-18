@@ -2,16 +2,19 @@
 
 using System;
 using System.Linq;
-using Test;
+using System.Threading.Tasks;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Compress
 {
     public static class AllTests
     {
-        public static ITestIntfPrx Run(TestHelper helper, Communicator communicator)
+        public static async Task RunAsync(Communicator communicator, bool shutdown)
         {
-            var prx1 = ITestIntfPrx.Parse(helper.GetTestProxy("test-1", 0), communicator);
-            var prx2 = ITestIntfPrx.Parse(helper.GetTestProxy("test-2", 0), communicator);
+            var prx1 =
+                ITestIntfPrx.Parse(TestHelper.GetTestProxy("test-1", communicator.GetProperties()), communicator);
+            var prx2 =
+                ITestIntfPrx.Parse(TestHelper.GetTestProxy("test-2", communicator.GetProperties()), communicator);
 
             for (int size = 1024; size <= 4096; size *= 2)
             {
@@ -57,7 +60,10 @@ namespace ZeroC.Ice.Test.Compress
                 }
             }
 
-            return prx1;
+            if (shutdown)
+            {
+                await prx1.ShutdownAsync();
+            }
         }
     }
 }

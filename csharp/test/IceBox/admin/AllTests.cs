@@ -2,34 +2,37 @@
 
 using System;
 using System.Collections.Generic;
-using Test;
+using System.IO;
+using System.Threading.Tasks;
 using ZeroC.Ice;
 using ZeroC.IceMX;
+using ZeroC.Test;
 
 namespace ZeroC.IceBox.Test.Admin
 {
     public static class AllTests
     {
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+            TextWriter output = helper.Output;
+
             var admin = IObjectPrx.Parse("DemoIceBox/admin:tcp -h localhost -p 9996 -t 10000", communicator);
 
             ITestFacetPrx? facet;
 
-            Console.Out.Write("testing custom facet... ");
-            Console.Out.Flush();
+            output.Write("testing custom facet... ");
+            output.Flush();
             {
                 // Test: Verify that the custom facet is present.
                 facet = admin.Clone(IObjectPrx.Factory, facet: "TestFacet").Clone(ITestFacetPrx.Factory);
                 TestHelper.Assert(facet != null);
                 facet.IcePing();
             }
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("testing properties facet... ");
-            Console.Out.Flush();
+            output.Write("testing properties facet... ");
+            output.Flush();
             {
                 IPropertiesAdminPrx pa = admin.Clone(IObjectPrx.Factory,
                     facet: "IceBox.Service.TestService.Properties").Clone(IPropertiesAdminPrx.Factory);
@@ -77,10 +80,10 @@ namespace ZeroC.IceBox.Test.Admin
                 changes = facet.GetChanges();
                 TestHelper.Assert(changes.Count == 0);
             }
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("testing metrics admin facet... ");
-            Console.Out.Flush();
+            output.Write("testing metrics admin facet... ");
+            output.Flush();
             {
                 IMetricsAdminPrx? ma = admin.Clone(
                     IObjectPrx.Factory,
@@ -110,7 +113,10 @@ namespace ZeroC.IceBox.Test.Admin
                 views = admin.Clone(IMetricsAdminPrx.Factory, facet: "Metrics").GetMetricsViewNames().ReturnValue;
                 TestHelper.Assert(views.Length == 0);
             }
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
+
+            // Shutdown the IceBox server.
+            await IProcessPrx.Parse("DemoIceBox/admin -f Process:default -h localhost -p 9996", communicator).ShutdownAsync();
         }
     }
 }

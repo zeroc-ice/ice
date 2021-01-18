@@ -2,14 +2,14 @@
 
 using System;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.IceUtil.Test.InputUtil
 {
-    public class Client : TestHelper
+    public static class Client
     {
-        public override Task RunAsync(string[] argvs)
+        public static Task RunAsync()
         {
             Console.Out.Write("testing string to command line arguments... ");
             Console.Out.Flush();
@@ -17,61 +17,61 @@ namespace ZeroC.IceUtil.Test.InputUtil
 
             try
             {
-                Assert(Options.Split("").Length == 0);
+                TestHelper.Assert(Options.Split("").Length == 0);
 
                 args = Options.Split("\"\"");
-                Assert(args.Length == 1 && args[0].Length == 0);
+                TestHelper.Assert(args.Length == 1 && args[0].Length == 0);
                 args = Options.Split("''");
-                Assert(args.Length == 1 && args[0].Length == 0);
+                TestHelper.Assert(args.Length == 1 && args[0].Length == 0);
                 args = Options.Split("$''");
-                Assert(args.Length == 1 && args[0].Length == 0);
+                TestHelper.Assert(args.Length == 1 && args[0].Length == 0);
 
                 args = Options.Split("-a -b -c");
-                Assert(args.Length == 3 && args[0].Equals("-a") && args[1].Equals("-b") && args[2].Equals("-c"));
+                TestHelper.Assert(args.Length == 3 && args[0].Equals("-a") && args[1].Equals("-b") && args[2].Equals("-c"));
                 args = Options.Split("\"-a\" '-b' $'-c'");
-                Assert(args.Length == 3 && args[0].Equals("-a") && args[1].Equals("-b") && args[2].Equals("-c"));
+                TestHelper.Assert(args.Length == 3 && args[0].Equals("-a") && args[1].Equals("-b") && args[2].Equals("-c"));
                 args = Options.Split("  '-b' \"-a\" $'-c' ");
-                Assert(args.Length == 3 && args[0].Equals("-b") && args[1].Equals("-a") && args[2].Equals("-c"));
+                TestHelper.Assert(args.Length == 3 && args[0].Equals("-b") && args[1].Equals("-a") && args[2].Equals("-c"));
                 args = Options.Split(" $'-c' '-b' \"-a\"  ");
-                Assert(args.Length == 3 && args[0].Equals("-c") && args[1].Equals("-b") && args[2].Equals("-a"));
+                TestHelper.Assert(args.Length == 3 && args[0].Equals("-c") && args[1].Equals("-b") && args[2].Equals("-a"));
 
                 // Testing single quote
                 args = Options.Split("-Dir='C:\\\\test\\\\file'"); // -Dir='C:\\test\\file'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\\\test\\\\file")); // -Dir=C:\\test\\file
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\\\test\\\\file")); // -Dir=C:\\test\\file
                 args = Options.Split("-Dir='C:\\test\\file'"); // -Dir='C:\test\file'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
                 args = Options.Split("-Dir='C:\\test\\filewith\"quote'"); // -Dir='C:\test\filewith"quote'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
                 // Testing double quote
                 args = Options.Split("-Dir=\"C:\\\\test\\\\file\""); // -Dir="C:\\test\\file"
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
                 args = Options.Split("-Dir=\"C:\\test\\file\""); // -Dir="C:\test\file"
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
                 args = Options.Split("-Dir=\"C:\\test\\filewith\\\"quote\""); // -Dir="C:\test\filewith\"quote"
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\filewith\"quote")); // -Dir=C:\test\filewith"quote
 
                 // Testing ANSI quote
                 args = Options.Split("-Dir=$'C:\\\\test\\\\file'"); // -Dir=$'C:\\test\\file'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
                 args = Options.Split("-Dir=$'C:\\oest\\oile'"); // -Dir='C:\oest\oile'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\oest\\oile")); // -Dir=C:\oest\oile
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\oest\\oile")); // -Dir=C:\oest\oile
                 args = Options.Split("-Dir=$'C:\\oest\\oilewith\"quote'"); // -Dir=$'C:\oest\oilewith"quote'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\oest\\oilewith\"quote")); // -Dir=C:\oest\oilewith"quote
                 args = Options.Split("-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
                 args = Options.Split("-Dir=$'\\x43\\x3A\\x5C\\x74\\x65\\x73\\x74\\x5C\\x66\\x69\\x6C\\x65'");
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\test\\file")); // -Dir=C:\test\file
                 args = Options.Split("-Dir=$'\\cM\\c_'"); // Control characters
-                Assert(args.Length == 1 && args[0].Equals("-Dir=\x0D\x1F"));
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=\x0D\x1F"));
                 args = Options.Split("-Dir=$'C:\\\\\\146\\x66\\cMi'"); // -Dir=$'C:\\\146\x66i\cMi'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\ff\x0Di"));
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\ff\x0Di"));
                 args = Options.Split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
-                Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\\x000Dffi"));
+                TestHelper.Assert(args.Length == 1 && args[0].Equals("-Dir=C:\\\x000Dffi"));
             }
             catch (FormatException)
             {
-                Assert(false);
+                TestHelper.Assert(false);
             }
 
             string[] badQuoteCommands = new string[6];
@@ -86,7 +86,7 @@ namespace ZeroC.IceUtil.Test.InputUtil
                 try
                 {
                     Options.Split(badQuoteCommands[i]);
-                    Assert(false);
+                    TestHelper.Assert(false);
                 }
                 catch (FormatException)
                 {
@@ -96,6 +96,18 @@ namespace ZeroC.IceUtil.Test.InputUtil
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main()
+        {
+            try
+            {
+                await RunAsync();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return 1;
+        }
     }
 }

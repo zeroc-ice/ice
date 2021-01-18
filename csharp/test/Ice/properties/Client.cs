@@ -4,23 +4,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Properties
 {
-    public class Client : TestHelper
+    public static class Client
     {
-        public override async Task RunAsync(string[] args)
+        public static async Task RunAsync()
         {
             {
                 Console.Out.Write("testing load properties from UTF-8 path... ");
                 Console.Out.Flush();
                 var properties = new Dictionary<string, string>();
                 properties.LoadIceConfigFile("./config/中国_client.config");
-                Assert(properties["Ice.Trace.Network"] == "1");
-                Assert(properties["Ice.Trace.Protocol"] == "1");
-                Assert(properties["Config.Path"] == "./config/中国_client.config");
-                Assert(properties["Ice.ProgramName"] == "PropertiesClient");
+                TestHelper.Assert(properties["Ice.Trace.Network"] == "1");
+                TestHelper.Assert(properties["Ice.Trace.Protocol"] == "1");
+                TestHelper.Assert(properties["Config.Path"] == "./config/中国_client.config");
+                TestHelper.Assert(properties["Ice.ProgramName"] == "PropertiesClient");
                 Console.Out.WriteLine("ok");
             }
 
@@ -31,9 +31,9 @@ namespace ZeroC.Ice.Test.Properties
                 var properties = new Dictionary<string, string>();
                 string[] a = new string[] { "--Ice.Config=config/config.1, config/config.2, config/config.3" };
                 properties.ParseArgs(ref a);
-                Assert(properties["Config1"] == "Config1");
-                Assert(properties["Config2"] == "Config2");
-                Assert(properties["Config3"] == "Config3");
+                TestHelper.Assert(properties["Config1"] == "Config1");
+                TestHelper.Assert(properties["Config2"] == "Config2");
+                TestHelper.Assert(properties["Config3"] == "Config3");
                 Console.Out.WriteLine("ok");
             }
 
@@ -70,7 +70,7 @@ namespace ZeroC.Ice.Test.Properties
                     { "Ice.Config", "config/escapes.cfg" }
                 };
 
-                Assert(properties.DictionaryEqual(props));
+                TestHelper.Assert(properties.DictionaryEqual(props));
                 Console.Out.WriteLine("ok");
             }
 
@@ -98,22 +98,22 @@ namespace ZeroC.Ice.Test.Properties
 
                 {
                     var value = communicator.GetPropertyAsBool("Bool.True.Integer");
-                    Assert(value == true);
+                    TestHelper.Assert(value == true);
                     value = communicator.GetPropertyAsBool("Bool.True.LowerCase");
-                    Assert(value == true);
+                    TestHelper.Assert(value == true);
                     value = communicator.GetPropertyAsBool("Bool.True.UpperCase");
-                    Assert(value == true);
+                    TestHelper.Assert(value == true);
                     value = communicator.GetPropertyAsBool("Bool.True.InitialUpperCase");
-                    Assert(value == true);
+                    TestHelper.Assert(value == true);
 
                     value = communicator.GetPropertyAsBool("Bool.False.Integer");
-                    Assert(value == false);
+                    TestHelper.Assert(value == false);
                     value = communicator.GetPropertyAsBool("Bool.False.LowerCase");
-                    Assert(value == false);
+                    TestHelper.Assert(value == false);
                     value = communicator.GetPropertyAsBool("Bool.False.UpperCase");
-                    Assert(value == false);
+                    TestHelper.Assert(value == false);
                     value = communicator.GetPropertyAsBool("Bool.False.InitialLowerCase");
-                    Assert(value == false);
+                    TestHelper.Assert(value == false);
                 }
 
                 foreach (string property in communicator.GetProperties("Bool.Bad").Keys)
@@ -121,7 +121,7 @@ namespace ZeroC.Ice.Test.Properties
                     try
                     {
                         _ = communicator.GetPropertyAsBool(property);
-                        Assert(false);
+                        TestHelper.Assert(false);
                     }
                     catch (InvalidConfigurationException)
                     {
@@ -154,45 +154,45 @@ namespace ZeroC.Ice.Test.Properties
 
                 {
                     var duration = communicator.GetPropertyAsTimeSpan("Duration.Milliseconds");
-                    Assert(duration == TimeSpan.FromMilliseconds(100));
-                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "100ms");
+                    TestHelper.Assert(duration == TimeSpan.FromMilliseconds(100));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyValue() == "100ms");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Seconds");
-                    Assert(duration == TimeSpan.FromSeconds(5));
-                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "5s");
+                    TestHelper.Assert(duration == TimeSpan.FromSeconds(5));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyValue() == "5s");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Minutes");
-                    Assert(duration == TimeSpan.FromMinutes(9));
-                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "9m");
+                    TestHelper.Assert(duration == TimeSpan.FromMinutes(9));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyValue() == "9m");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Hours");
-                    Assert(duration == TimeSpan.FromHours(64));
-                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "64h");
+                    TestHelper.Assert(duration == TimeSpan.FromHours(64));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyValue() == "64h");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Days");
-                    Assert(duration == TimeSpan.FromDays(7));
-                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "7d");
+                    TestHelper.Assert(duration == TimeSpan.FromDays(7));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyValue() == "7d");
 
                     duration = communicator.GetPropertyAsTimeSpan("Duration.Infinite");
-                    Assert(duration == TimeSpan.FromMilliseconds(-1));
-                    Assert(duration.HasValue && duration.Value.ToPropertyValue() == "infinite");
+                    TestHelper.Assert(duration == TimeSpan.FromMilliseconds(-1));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyValue() == "infinite");
                 }
 
                 {
                     var duration = TimeSpan.Zero;
-                    Assert(duration.ToPropertyValue() == "0ms");
+                    TestHelper.Assert(duration.ToPropertyValue() == "0ms");
 
                     duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromMilliseconds(1));
-                    Assert(duration.ToPropertyValue() == "60001ms");
+                    TestHelper.Assert(duration.ToPropertyValue() == "60001ms");
 
                     duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromSeconds(1));
-                    Assert(duration.ToPropertyValue() == "61s");
+                    TestHelper.Assert(duration.ToPropertyValue() == "61s");
 
                     duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromSeconds(60));
-                    Assert(duration.ToPropertyValue() == "2m");
+                    TestHelper.Assert(duration.ToPropertyValue() == "2m");
 
                     duration = TimeSpan.FromDays(1).Add(TimeSpan.FromMilliseconds(10));
-                    Assert(duration.ToPropertyValue() == "86400010ms");
+                    TestHelper.Assert(duration.ToPropertyValue() == "86400010ms");
                 }
 
                 foreach (string property in communicator.GetProperties("Duration.Bad").Keys)
@@ -200,7 +200,7 @@ namespace ZeroC.Ice.Test.Properties
                     try
                     {
                         _ = communicator.GetPropertyAsTimeSpan(property);
-                        Assert(false);
+                        TestHelper.Assert(false);
                     }
                     catch (InvalidConfigurationException)
                     {
@@ -239,37 +239,37 @@ namespace ZeroC.Ice.Test.Properties
 
                 {
                     int? size = communicator.GetPropertyAsByteSize("Size");
-                    Assert(size == 1);
+                    TestHelper.Assert(size == 1);
 
                     size = communicator.GetPropertyAsByteSize("Size.K");
-                    Assert(size == 1024);
+                    TestHelper.Assert(size == 1024);
 
                     size = communicator.GetPropertyAsByteSize("Size.M");
-                    Assert(size == 1024 * 1024);
+                    TestHelper.Assert(size == 1024 * 1024);
 
                     size = communicator.GetPropertyAsByteSize("Size.G");
-                    Assert(size == 1024 * 1024 * 1024);
+                    TestHelper.Assert(size == 1024 * 1024 * 1024);
 
                     size = communicator.GetPropertyAsByteSize("Size.Zero");
-                    Assert(size == 0);
+                    TestHelper.Assert(size == 0);
 
                     size = communicator.GetPropertyAsByteSize("Size.Zero.K");
-                    Assert(size == 0);
+                    TestHelper.Assert(size == 0);
 
                     size = communicator.GetPropertyAsByteSize("Size.Zero.M");
-                    Assert(size == 0);
+                    TestHelper.Assert(size == 0);
 
                     size = communicator.GetPropertyAsByteSize("Size.Zero.G");
-                    Assert(size == 0);
+                    TestHelper.Assert(size == 0);
 
                     size = communicator.GetPropertyAsByteSize("Size.MaxValue.K");
-                    Assert(size == int.MaxValue);
+                    TestHelper.Assert(size == int.MaxValue);
 
                     size = communicator.GetPropertyAsByteSize("Size.MaxValue.M");
-                    Assert(size == int.MaxValue);
+                    TestHelper.Assert(size == int.MaxValue);
 
                     size = communicator.GetPropertyAsByteSize("Size.MaxValue.G");
-                    Assert(size == int.MaxValue);
+                    TestHelper.Assert(size == int.MaxValue);
                 }
 
                 foreach (string property in communicator.GetProperties("Size.Bad").Keys)
@@ -277,7 +277,7 @@ namespace ZeroC.Ice.Test.Properties
                     try
                     {
                         _ = communicator.GetPropertyAsTimeSpan(property);
-                        Assert(false);
+                        TestHelper.Assert(false);
                     }
                     catch (InvalidConfigurationException)
                     {
@@ -304,12 +304,24 @@ namespace ZeroC.Ice.Test.Properties
 
                 Console.Out.Write("testing properties as list... ");
                 await using var communicator = new Communicator(properties);
-                Assert(communicator.GetPropertyAsList("Services")!.SequenceEqual(services));
-                Assert(communicator.GetPropertyAsList("LoggerProperties")!.SequenceEqual(loggerProperties));
+                TestHelper.Assert(communicator.GetPropertyAsList("Services")!.SequenceEqual(services));
+                TestHelper.Assert(communicator.GetPropertyAsList("LoggerProperties")!.SequenceEqual(loggerProperties));
                 Console.Out.WriteLine("ok");
             }
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main()
+        {
+            try
+            {
+                await RunAsync();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return 1;
+        }
     }
 }

@@ -1,35 +1,48 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Compress
 {
-    public class Client : TestHelper
+    public static class Client
     {
-        public override async Task RunAsync(string[] args)
+        public static async Task RunAsync(string[] args)
         {
-            Dictionary<string, string> properties = CreateTestProperties(ref args);
-            Output.Write("testing operations using compression... ");
-            Output.Flush();
+            Dictionary<string, string> properties = TestHelper.CreateTestProperties(ref args);
+            Console.Out.Write("testing operations using compression... ");
+            Console.Out.Flush();
+
             {
                 properties["Ice.CompressionMinSize"] = "1K";
-                await using Communicator communicator = Initialize(properties);
-                _ = AllTests.Run(this, communicator);
+                await using var communicator = TestHelper.CreateCommunicator(properties);
+                await AllTests.RunAsync(communicator, false);
             }
 
             {
                 // Repeat with Optimal compression level
                 properties["Ice.CompressionLevel"] = "Optimal";
-                await using Communicator communicator = Initialize(properties);
-                ITestIntfPrx? server = AllTests.Run(this, communicator);
-                await server.ShutdownAsync();
+                await using var communicator = TestHelper.CreateCommunicator(properties);
+                await AllTests.RunAsync(communicator, true);
             }
 
-            Output.WriteLine("ok");
+            Console.Out.WriteLine("ok");
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            try
+            {
+                await RunAsync(args);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return 1;
+        }
     }
 }

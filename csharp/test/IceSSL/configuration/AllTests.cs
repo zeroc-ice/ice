@@ -10,8 +10,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
@@ -75,12 +75,11 @@ namespace ZeroC.IceSSL.Test.Configuration
         CreateServerFactoryPrx(string factoryRef, Communicator communicator) =>
             IServerFactoryPrx.Parse(factoryRef, communicator).Clone(preferNonSecure: NonSecure.Always);
 
-        public static async Task<IServerFactoryPrx> RunAsync(TestHelper helper, string testDir)
+        public static async Task RunAsync(TestHelper helper, string testDir)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
-            string factoryRef = helper.GetTestProxy("factory", 0, "tcp");
+            Communicator communicator = helper.Communicator;
 
+            string factoryRef = helper.GetTestProxy("factory", 0, "tcp");
             var factory = CreateServerFactoryPrx(factoryRef, communicator);
 
             string host = TestHelper.GetTestHost(communicator.GetProperties());
@@ -1251,7 +1250,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                 store.Close();
             }
 
-            return factory;
+            await factory.ShutdownAsync();
         }
     }
 }

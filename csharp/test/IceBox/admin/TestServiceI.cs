@@ -2,7 +2,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-
 using ZeroC.Ice;
 
 namespace ZeroC.IceBox.Test.Admin

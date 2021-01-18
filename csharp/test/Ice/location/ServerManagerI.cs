@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Location
 {
@@ -38,7 +38,7 @@ namespace ZeroC.Ice.Test.Location
             properties["TestAdapter.ReplicaGroupId"] = "ReplicatedAdapter";
             properties["TestAdapter2.AdapterId"] = "TestAdapter2";
 
-            Communicator serverCommunicator = _helper.Initialize(properties);
+            Communicator serverCommunicator = TestHelper.CreateCommunicator(properties);
             _communicators.Add(serverCommunicator);
 
             // Use fixed port to ensure that OA re-activation doesn't re-use previous port from

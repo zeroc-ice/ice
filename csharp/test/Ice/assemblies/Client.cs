@@ -6,39 +6,51 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Assemblies
 {
-    public class Client : TestHelper
+    public static class Client
     {
-        public override async Task RunAsync(string[] args)
+        public static async Task RunAsync(string[] args)
         {
             Console.Out.Write("testing preloading assemblies... ");
             Console.Out.Flush();
             var info = new User.UserInfo();
 
-            Dictionary<string, string> properties = CreateTestProperties(ref args);
-            properties["Ice.PreloadAssemblies"] = "0";
-
+            Dictionary<string, string> properties = TestHelper.CreateTestProperties(ref args);
             string assembly =
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "core.dll");
 
-            await using (Communicator communicator = Initialize(properties))
+            properties["Ice.PreloadAssemblies"] = "0";
+            await using (Communicator communicator = TestHelper.CreateCommunicator(properties))
             {
-                Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
+                TestHelper.Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
                     e => e.Location.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
             }
+
             properties["Ice.PreloadAssemblies"] = "1";
-            await using (Communicator communicator = Initialize(properties))
+            await using (Communicator communicator = TestHelper.CreateCommunicator(properties))
             {
-                Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
+                TestHelper.Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
                     e => e.Location.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
             }
 
             Console.Out.WriteLine("ok");
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            try
+            {
+                await RunAsync(args);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return 1;
+        }
     }
 }

@@ -2,9 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.Slice.Test.Structure
 {
@@ -17,10 +18,10 @@ namespace ZeroC.Slice.Test.Structure
 
     public class Client : TestHelper
     {
-        private static void Run(Communicator communicator)
+        public override Task RunAsync(string[] args)
         {
-            Console.Out.Write("testing Equals() for Slice structures... ");
-            Console.Out.Flush();
+            Output.Write("testing Equals() for Slice structures... ");
+            Output.Flush();
 
             // Define some default values.
             var def_cls = new C(5);
@@ -31,7 +32,7 @@ namespace ZeroC.Slice.Test.Structure
             {
                 { "abc", "def" }
             };
-            var def_prx = IObjectPrx.Parse("test", communicator);
+            var def_prx = IObjectPrx.Parse("test", Communicator);
             _ = new S2(true, 98, 99, 100, 101, 1.0f, 2.0, "string", def_ss, def_il, def_sd, def_s, def_cls, def_prx);
 
             // Compare default-constructed structures.
@@ -44,15 +45,15 @@ namespace ZeroC.Slice.Test.Structure
             s3Copy.IntList = new int[] { 4, 7, 10 }; // same values, different object
             Assert(s3 != s3Copy);
             Assert(s3.GetHashCode() != s3Copy.GetHashCode()); // can be the same, just unlikely
-            Console.Out.WriteLine("ok");
+            Output.WriteLine("ok");
+            return Task.CompletedTask;
         }
 
-        public override async Task RunAsync(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args);
-            Run(communicator);
+            await using var communicator = CreateCommunicator(ref args);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
         }
-
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }
