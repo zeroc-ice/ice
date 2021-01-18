@@ -640,15 +640,6 @@ namespace ZeroC.Ice
                     _adminFacets.Add(processFacetName, new Process(this));
                 }
 
-                // Logger facet
-                string loggerFacetName = "Logger";
-                if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
-                {
-                    var loggerAdminLogger = new LoggerAdminLogger(this, Logger);
-                    Logger = loggerAdminLogger;
-                    _adminFacets.Add(loggerFacetName, loggerAdminLogger.GetFacet());
-                }
-
                 // Properties facet
                 string propertiesFacetName = "Properties";
                 PropertiesAdmin? propsAdmin = null;
@@ -686,12 +677,6 @@ namespace ZeroC.Ice
                     var discovery = new Discovery.Locator(this);
                     _defaultLocator = discovery.Proxy;
                     _activateLocatorAsync = discovery.ActivateAsync;
-                }
-                else if (defaultLocatorValue.Equals("locatordiscovery", StringComparison.OrdinalIgnoreCase))
-                {
-                    var locatorDiscovery = new LocatorDiscovery.Locator(this);
-                    _defaultLocator = locatorDiscovery.Proxy;
-                    _activateLocatorAsync = locatorDiscovery.ActivateAsync;
                 }
                 else
                 {
@@ -884,11 +869,6 @@ namespace ZeroC.Ice
                 }
 
                 Observer?.SetObserverUpdater(null);
-
-                if (Logger is LoggerAdminLogger adminLogger)
-                {
-                    await adminLogger.DisposeAsync().ConfigureAwait(false);
-                }
 
                 if (this.GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
                 {

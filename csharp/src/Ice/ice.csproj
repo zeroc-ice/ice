@@ -17,9 +17,6 @@
         <Compile Update="generated\Locator.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Locator.ice</SliceCompileSource>
         </Compile>
-        <Compile Update="generated\LocatorDiscovery.cs">
-          <SliceCompileSource>..\..\..\slice\Ice\LocatorDiscovery.ice</SliceCompileSource>
-        </Compile>
         <Compile Update="generated\Metrics.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Metrics.ice</SliceCompileSource>
         </Compile>
@@ -28,9 +25,6 @@
         </Compile>
         <Compile Update="generated\PropertiesAdmin.cs">
           <SliceCompileSource>..\..\..\slice\Ice\PropertiesAdmin.ice</SliceCompileSource>
-        </Compile>
-        <Compile Update="generated\RemoteLogger.cs">
-          <SliceCompileSource>..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
         </Compile>
         <Compile Update="generated\Router.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Router.ice</SliceCompileSource>
