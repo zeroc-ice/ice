@@ -38,11 +38,6 @@
             <PackagePath>lib\net5.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\net5.0\publish\*" Exclude="..\bin\net5.0\publish\iceboxnet">
-            <Pack>true</Pack>
-            <PackagePath>tools\net5.0</PackagePath>
-        </Content>
-
         <Content Include="..\..\slice\**\*.ice"
                  Exclude="..\..\slice\IceDiscovery\*.ice;..\..\slice\IceLocatorDiscovery\*.ice">
             <Pack>true</Pack>

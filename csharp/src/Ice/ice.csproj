@@ -7,8 +7,7 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice"
-            Exclude="../../../slice/$(AssemblyName)/*F.ice;../../../slice/$(AssemblyName)/BuiltinSequences.ice;../../../slice/$(AssemblyName)/Context.ice"/>
+        <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" Exclude="../../../slice/$(AssemblyName)/*F.ice;../../../slice/$(AssemblyName)/BuiltinSequences.ice;../../../slice/$(AssemblyName)/Context.ice" />
         <Compile Update="generated\Discovery.cs">
           <SliceCompileSource>..\..\..\slice\Ice\Discovery.ice</SliceCompileSource>
         </Compile>

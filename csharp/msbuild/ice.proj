@@ -114,10 +114,6 @@
 
     <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-        <!-- Build iceboxnet with net5.0 target framework -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\iceboxnet\iceboxnet.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Restore;Publish"/>
 
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net;CppPlatform=$(CppPlatform);Configuration=$(Configuration)"/>
@@ -134,12 +130,6 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
               DestinationFiles="zeroc.ice.net\LICENSE.txt" />
 
-        <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.$(DefaultPlatformToolset).1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.$(DefaultPlatformToolset).1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net5.0"
-              Condition="'$(VisualStudioVersion)' == '16.0'"/>
-
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
 
@@ -149,10 +139,6 @@
 
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\iceboxnet\iceboxnet.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Publish"/>
         <MSBuild Projects="zeroc.ice.net.csproj" Targets="Restore;Pack"/>
         <RemoveDir Directories="obj"/>
         <Delete Files="zeroc.ice.net\zeroc.ice.net.deps.json;zeroc.ice.net\zeroc.ice.net.dll;zeroc.ice.net\zeroc.ice.net.pdb"/>
