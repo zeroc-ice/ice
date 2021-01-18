@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
@@ -8,6 +9,7 @@
     const Test = require("Test").Test;
     const TestHelper = require("TestHelper").TestHelper;
     const test = TestHelper.test;
+    const isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
 
     function getTCPEndpointInfo(info)
     {
@@ -46,9 +48,9 @@
                   "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD";
             const p1 = communicator.stringToProxy(ref);
 
-            const endps = p1.ice_getEndpoints();
-            const endpoint = endps[0].getInfo();
-            const ipEndpoint = getTCPEndpointInfo(endpoint);
+            let endps = p1.ice_getEndpoints();
+            let endpoint = endps[0].getInfo();
+            let ipEndpoint = getTCPEndpointInfo(endpoint);
             test(ipEndpoint.host == "tcphost");
             test(ipEndpoint.port == 10000);
             test(ipEndpoint.timeout == 1200);
@@ -62,6 +64,15 @@
             test(ipEndpoint.type() == Ice.TCPEndpointType && endpoint instanceof Ice.TCPEndpointInfo ||
                  ipEndpoint.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo ||
                  ipEndpoint.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo);
+
+
+            let ic = Ice.initialize();
+            ic.stringToProxy("test:default");
+            endps = p1.ice_getEndpoints();
+            endpoint = endps[0].getInfo();
+            ipEndpoint = getTCPEndpointInfo(endpoint);
+            test(ipEndpoint.type() == isBrowser ? Ice.WSEndpointType : Ice.TCPEndpointType);
+            ic.destroy();
 
             const opaqueEndpoint = endps[1].getInfo();
             test(opaqueEndpoint.rawEncoding.equals(new Ice.EncodingVersion(1, 8)));

@@ -20,7 +20,7 @@ class DefaultsAndOverrides
     constructor(properties, logger)
     {
         this.defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol",
-                                                                 Ice.TcpEndpointFactory !== undefined ? "tcp" : "ws");
+                                                                 Ice.TcpTransceiver !== null ? "tcp" : "ws");
 
         let value = properties.getProperty("Ice.Default.Host");
         this.defaultHost = value.length > 0 ? value : null;
