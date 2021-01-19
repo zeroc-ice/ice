@@ -744,7 +744,8 @@ class Mapping(object):
                                 props["Ice.Default.PreferNonSecure"] = "Never"
                                 props["Ice.AcceptNonSecure"] = "Never"
                     else:
-                        props["Ice.Default.Transport"] = self.transport
+                        # For the Ice 3.7 binaries
+                        props["Ice.Default.Protocol"] = self.transport
                 if self.protocol:
                     if isinstance(process.getMapping(current), CSharpMapping) and not process.isFromBinDir():
                         props["Test.Protocol"] = self.protocol
@@ -1038,7 +1039,8 @@ class Mapping(object):
         if process.isFromBinDir():
             # If it's a process from the bin directory, the location is platform specific
             # so we check with the platform.
-            cmd = os.path.join(self.component.getBinDir(process, self, current), exe)
+            # cmd = os.path.join(self.component.getBinDir(process, self, current), exe)
+            cmd = exe # always use executable from the path
         elif current.testcase:
             # If it's a process from a testcase, the binary is in the test build directory.
             cmd = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe), exe)
