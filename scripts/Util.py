@@ -3695,8 +3695,9 @@ class PythonMapping(CppBasedMapping):
                 version = subprocess.check_output(
                     [currentConfig.python,
                      "-c",
-                     "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))"],
-                    text=True)
+                     "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))"])
+                if type(version) != str:
+                    version = version.decode("utf-8")
                 self.pythonVersion = tuple(int(num) for num in version.split("."))
             return self.pythonVersion
 
