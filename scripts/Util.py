@@ -3688,6 +3688,17 @@ class PythonMapping(CppBasedMapping):
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
+            self.pythonVersion = None
+
+        def getPythonVersion(self):
+            if self.pythonVersion is None:
+                version = subprocess.check_output(
+                    [currentConfig.python,
+                     "-c",
+                     "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))"],
+                    text=True)
+                self.pythonVersion = tuple(int(num) for num in version.split("."))
+            return self.pythonVersion
 
     def getCommandLine(self, current, process, exe, args):
         return "\"{0}\"  {1} {2} {3}".format(current.config.python,
