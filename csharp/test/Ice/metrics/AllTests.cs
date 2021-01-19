@@ -365,12 +365,9 @@ namespace ZeroC.Ice.Test.Metrics
             return m;
         }
 
-        public static async Task RunAsync(TestHelper helper, bool colocated)
+        public static async Task RunAsync(TestHelper helper,  CommunicatorObserverI obsv, bool colocated)
         {
             Communicator communicator = helper.Communicator;
-            CommunicatorObserver? obsv = (CommunicatorObserver?)communicator.Observer;
-            TestHelper.Assert(obsv != null);
-
             TextWriter output = helper.Output;
 
             bool ice1 = helper.Protocol == Protocol.Ice1;

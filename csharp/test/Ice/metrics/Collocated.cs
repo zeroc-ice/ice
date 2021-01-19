@@ -8,6 +8,8 @@ namespace ZeroC.Ice.Test.Metrics
 {
     public class Collocated : TestHelper
     {
+        private static CommunicatorObserverI? _observer;
+
         public override async Task RunAsync(string[] args)
         {
             await Communicator.ActivateAsync();
@@ -17,7 +19,7 @@ namespace ZeroC.Ice.Test.Metrics
             adapter.Add("metrics", new Metrics());
             // Don't activate OA to ensure collocation is used.
 
-            await AllTests.RunAsync(this, colocated: true);
+            await AllTests.RunAsync(this, _observer!, colocated: true);
         }
 
         public static async Task<int> Main(string[] args)
@@ -30,7 +32,8 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.InvocationMaxAttempts"] = "2";
 
-            await using var communicator = CreateCommunicator(properties, new CommunicatorObserver());
+            _observer = new CommunicatorObserverI();
+            await using var communicator = CreateCommunicator(properties, _observer);
             return await RunTestAsync<Collocated>(communicator, args);
         }
     }

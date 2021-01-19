@@ -206,7 +206,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
     }
 
-    public class CommunicatorObserver : ICommunicatorObserver
+    public class CommunicatorObserverI : ICommunicatorObserver
     {
         public Observer? ConnectionEstablishmentObserver;
         public ConnectionObserver? ConnectionObserver;

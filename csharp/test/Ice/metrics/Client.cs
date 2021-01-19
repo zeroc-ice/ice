@@ -8,7 +8,9 @@ namespace ZeroC.Ice.Test.Metrics
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args) => AllTests.RunAsync(this, colocated: false);
+        private static CommunicatorObserverI? _observer;
+
+        public override Task RunAsync(string[] args) => AllTests.RunAsync(this, _observer!, colocated: false);
 
         public static async Task<int> Main(string[] args)
         {
@@ -20,7 +22,8 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.ConnectTimeout"] = "3s";
             properties["Ice.InvocationMaxAttempts"] = "2";
 
-            await using var communicator = CreateCommunicator(properties, new CommunicatorObserver());
+            _observer = new CommunicatorObserverI();
+            await using var communicator = CreateCommunicator(properties, _observer);
             await communicator.ActivateAsync();
             return await RunTestAsync<Client>(communicator, args);
         }
