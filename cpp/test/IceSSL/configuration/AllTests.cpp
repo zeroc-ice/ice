@@ -2834,6 +2834,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
     }
 #  endif
+#endif
 
     cout << "testing IceSSL.TrustOnly... " << flush;
     //
