@@ -1,4 +1,0 @@
-Service2OA.Endpoints=ice+tcp://127.0.0.1:12011
-
-Ice.ProgramName=Test
-Service=2
