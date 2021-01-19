@@ -5,7 +5,7 @@
 import sys, os
 from Util import *
 
-class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
+class Glacier2Router(ProcessIsFromPath, ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
     def __init__(self, portnum=50, passwords={"userid": "abc123"}, *args, **kargs):
         Server.__init__(self, "glacier2router", mapping=Mapping.getByName("cpp"), desc="Glacier2 router",

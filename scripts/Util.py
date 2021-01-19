@@ -1036,11 +1036,12 @@ class Mapping(object):
 
     def getCommandLine(self, current, process, exe, args):
         cmd = ""
-        if process.isFromBinDir():
+        if process.isFromPath():
+            cmd = exe
+        elif process.isFromBinDir():
             # If it's a process from the bin directory, the location is platform specific
             # so we check with the platform.
-            # cmd = os.path.join(self.component.getBinDir(process, self, current), exe)
-            cmd = exe # always use executable from the path
+            cmd = os.path.join(self.component.getBinDir(process, self, current), exe)
         elif current.testcase:
             # If it's a process from a testcase, the binary is in the test build directory.
             cmd = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe), exe)
@@ -1338,6 +1339,9 @@ class Process(Runnable):
     def isReleaseOnly(self):
         return False
 
+    def isFromPath(self):
+        return False
+
     def getArgs(self, current):
         return []
 
@@ -1426,6 +1430,14 @@ class ProcessFromBinDir:
 class ProcessIsReleaseOnly:
 
     def isReleaseOnly(self):
+        return True
+
+
+# Executables which are only available in the system PATH
+# Used to run Ice 3.7 services
+class ProcessIsFromPath:
+
+    def isFromPath(self):
         return True
 
 class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
