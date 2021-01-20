@@ -2,9 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
@@ -12,28 +13,29 @@ namespace ZeroC.IceGrid.Test.Simple
     {
         public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
-            Console.Out.Write("testing stringToProxy... ");
-            Console.Out.Flush();
+            Communicator communicator = helper.Communicator;
+            TextWriter output = helper.Output;
+
+            output.Write("testing stringToProxy... ");
+            output.Flush();
             string rf = "test @ TestAdapter";
             var obj = ITestIntfPrx.Parse(rf, communicator);
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("pinging server... ");
-            Console.Out.Flush();
+            output.Write("pinging server... ");
+            output.Flush();
             obj.IcePing();
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("testing locator finder... ");
+            output.Write("testing locator finder... ");
             var finderId = new Identity("LocatorFinder", "Ice");
             ILocatorFinderPrx finder = communicator.DefaultLocator!.Clone(ILocatorFinderPrx.Factory,
                                                                           identity: finderId);
             TestHelper.Assert(finder != null && finder.GetLocator() != null);
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("testing discovery... ");
-            Console.Out.Flush();
+            output.Write("testing discovery... ");
+            output.Flush();
             {
                 // Add test well-known object
                 var registry = IRegistryPrx.Parse(
@@ -177,36 +179,37 @@ namespace ZeroC.IceGrid.Test.Simple
                     IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
                 }
             }
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("shutting down server... ");
-            Console.Out.Flush();
+            output.Write("shutting down server... ");
+            output.Flush();
             obj.Shutdown();
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
         }
 
         public static async Task RunWithDeployAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
-            Console.Out.Write("testing stringToProxy... ");
-            Console.Out.Flush();
+            Communicator communicator = helper.Communicator;
+            TextWriter output = helper.Output;
+
+            output.Write("testing stringToProxy... ");
+            output.Flush();
             var obj = ITestIntfPrx.Parse("test @ TestAdapter", communicator);
             var obj2 = ITestIntfPrx.Parse("test", communicator);
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("pinging server... ");
-            Console.Out.Flush();
+            output.Write("pinging server... ");
+            output.Flush();
             obj.IcePing();
             obj2.IcePing();
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("testing encoding versioning... ");
-            Console.Out.Flush();
-            Console.Out.WriteLine("ok");
+            output.Write("testing encoding versioning... ");
+            output.Flush();
+            output.WriteLine("ok");
 
-            Console.Out.Write("testing reference with unknown identity... ");
-            Console.Out.Flush();
+            output.Write("testing reference with unknown identity... ");
+            output.Flush();
             try
             {
                 IObjectPrx.Parse("unknown/unknown", communicator).IcePing();
@@ -216,10 +219,10 @@ namespace ZeroC.IceGrid.Test.Simple
             {
                 // expected
             }
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
-            Console.Out.Write("testing reference with unknown adapter... ");
-            Console.Out.Flush();
+            output.Write("testing reference with unknown adapter... ");
+            output.Flush();
             try
             {
                 IObjectPrx.Parse("test @ TestAdapterUnknown", communicator).IcePing();
@@ -229,7 +232,7 @@ namespace ZeroC.IceGrid.Test.Simple
             {
                 // expected
             }
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
             var registry = IRegistryPrx.Parse(
                 $"{communicator.DefaultLocator!.Identity.Category}/Registry", communicator);
@@ -243,8 +246,8 @@ namespace ZeroC.IceGrid.Test.Simple
             admin.EnableServer("server", false);
             admin.StopServer("server");
 
-            Console.Out.Write("testing whether server is still reachable... ");
-            Console.Out.Flush();
+            output.Write("testing whether server is still reachable... ");
+            output.Flush();
             try
             {
                 obj.IcePing();
@@ -265,7 +268,7 @@ namespace ZeroC.IceGrid.Test.Simple
             admin.EnableServer("server", true);
             obj.IcePing();
             obj2.IcePing();
-            Console.Out.WriteLine("ok");
+            output.WriteLine("ok");
 
             admin.StopServer("server");
             session.Destroy();

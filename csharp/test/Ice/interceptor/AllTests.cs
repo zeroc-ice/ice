@@ -6,13 +6,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
     public static class AllTests
     {
-        public static async Task<IMyObjectPrx> RunAsync(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
             bool ice2 = helper.Protocol == Protocol.Ice2;
             var prx = IMyObjectPrx.Parse(helper.GetTestProxy("test"), helper.Communicator!);
@@ -364,7 +364,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 TestHelper.Assert(prx.Op3() == 2);
             }
             output.WriteLine("ok");
-            return prx;
+            await prx.ShutdownAsync();
         }
     }
 }

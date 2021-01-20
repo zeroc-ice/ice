@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
@@ -11,20 +11,23 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         public override async Task RunAsync(string[] args)
         {
-            Dictionary<string, string> properties = CreateTestProperties(ref args);
-            // TODO: remove this when Never is the communicator default
-            properties["Ice.Default.PreferNonSecure"] = "Never";
-            await using Ice.Communicator communicator = Initialize(properties);
             if (args.Length < 1)
             {
                 throw new ArgumentException("Usage: client testdir");
             }
 
-            IServerFactoryPrx factory;
-            factory = await AllTests.RunAsync(this, args[0]);
-            await factory.ShutdownAsync();
+            await AllTests.RunAsync(this, args[0]);
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            // TODO: remove this when Never is the communicator default
+            properties["Ice.Default.PreferNonSecure"] = "Never";
+
+            await using var communicator = CreateCommunicator(properties);
+            await communicator.ActivateAsync();
+            return await RunTestAsync<Client>(communicator, args);
+        }
     }
 }

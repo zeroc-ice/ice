@@ -2,7 +2,7 @@
 
 using System.Collections.Immutable;
 using System.Threading;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Location
 {

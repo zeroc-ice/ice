@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 
 using System.Collections.Generic;
-using Test;
 using ZeroC.Ice.Instrumentation;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Metrics
 {
@@ -206,7 +206,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
     }
 
-    public class CommunicatorObserver : ICommunicatorObserver
+    public class CommunicatorObserverI : ICommunicatorObserver
     {
         public Observer? ConnectionEstablishmentObserver;
         public ConnectionObserver? ConnectionObserver;
