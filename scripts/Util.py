@@ -2445,6 +2445,11 @@ class AndroidProcessController(RemoteProcessController):
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
 
+        # First try uninstall in case the controller was left behind from a previous run
+        try:
+            run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
+        except:
+            pass
         run("{} install -t -r {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
         run("{} shell am start -n \"{}\" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER".format(
             self.adb(), current.testcase.getMapping().getActivityName()))
