@@ -173,7 +173,7 @@ make ICE_BIN_DIST=all
 ```
 
 If the binary distribution you are using is not installed in a system wide location
-where the C++ comopiler can automatically find the header and library files, you also
+where the C++ compiler can automatically find the header and library files, you also
 need to set `ICE_HOME`
 
 ```
