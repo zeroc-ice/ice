@@ -10,6 +10,7 @@ namespace ZeroC.Slice.Test.Macros
     {
         public static Task<int> Main()
         {
+            int status = 0;
             try
             {
                 Console.Out.Write("testing Slice predefined macros... ");
@@ -26,13 +27,13 @@ namespace ZeroC.Slice.Test.Macros
                 TestHelper.Assert(c.Lang.Equals("cs"));
                 TestHelper.Assert(c.Version == Ice.Runtime.IntVersion);
                 Console.Out.WriteLine("ok");
-                return Task.FromResult(0);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return Task.FromResult(1);
+                status = 1;
             }
+            return Task.FromResult(status);
         }
     }
 }

@@ -312,16 +312,17 @@ namespace ZeroC.Ice.Test.Properties
 
         public static async Task<int> Main()
         {
+            int status = 0;
             try
             {
                 await RunAsync();
-                return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                status = 1;
             }
-            return 1;
+            return status;
         }
     }
 }

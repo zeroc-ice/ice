@@ -33,16 +33,17 @@ namespace ZeroC.Ice.Test.Compress
 
         public static async Task<int> Main(string[] args)
         {
+            int status = 0;
             try
             {
                 await RunAsync(args);
-                return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                status = 1;
             }
-            return 1;
+            return status;
         }
     }
 }
