@@ -167,6 +167,19 @@ example, to build the Ice C++98 mapping with `-std=c++11`, you can use:
 make CXXFLAGS=-std=c++11
 ```
 
+To build the test suite using a binary distribution use:
+```
+make ICE_BIN_DIST=all
+```
+
+If the binary distribution you are using is not installed in a system wide location
+where the C++ comopiler can automatically find the header and library files, you also
+need to set `ICE_HOME`
+
+```
+make ICE_HOME=/opt/Ice-3.7.5 ICE_BIN_DIST=all
+```
+
 ### Build configurations and platforms
 
 The C++ source tree supports multiple build configurations and platforms. To
