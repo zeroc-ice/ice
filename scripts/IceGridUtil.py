@@ -42,7 +42,7 @@ class IceGridClient(IceGridProcess, Client):
 
     getParentProps = Client.getProps # Used by IceGridProcess to get the client properties
 
-class IceGridAdmin(ProcessIsFromPath, ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
+class IceGridAdmin(ProcessIsFromPath, ProcessIsReleaseOnly, IceGridClient):
 
     def __init__(self, replica=None, username="admin1", password="test1", *args, **kargs):
         IceGridClient.__init__(self, replica=replica, exe="icegridadmin", mapping=Mapping.getByName("cpp"),
@@ -59,7 +59,7 @@ class IceGridAdmin(ProcessIsFromPath, ProcessFromBinDir, ProcessIsReleaseOnly, I
         props["IceGridAdmin.Password"] = self.password
         return props
 
-class IceGridNode(ProcessIsFromPath, ProcessFromBinDir, Server):
+class IceGridNode(ProcessIsFromPath, Server):
 
     def __init__(self, name="localnode", *args, **kargs):
 
