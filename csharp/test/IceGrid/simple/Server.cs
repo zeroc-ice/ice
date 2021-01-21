@@ -2,8 +2,8 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
 using ZeroC.Ice;
+using ZeroC.Test;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
@@ -11,18 +11,23 @@ namespace ZeroC.IceGrid.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
+            await Communicator.ActivateAsync();
+
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add(Communicator.GetProperty("Identity") ?? "test", new TestIntf());
+            await adapter.ActivateAsync();
+
+            ServerReady();
+            await Communicator.ShutdownComplete;
+        }
+
+        public static async Task<int> Main(string[] args)
+        {
             var properties = new Dictionary<string, string>();
             properties.ParseArgs(ref args, "TestAdapter");
 
-            await using Communicator communicator = Initialize(ref args, properties);
-            await communicator.ActivateAsync();
-
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
-            await adapter.ActivateAsync();
-            await communicator.ShutdownComplete;
+            await using var communicator = CreateCommunicator(ref args, properties);
+            return await RunTestAsync<Server>(communicator, args);
         }
-
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

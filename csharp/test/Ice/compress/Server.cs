@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Compress
 {
@@ -10,22 +10,25 @@ namespace ZeroC.Ice.Test.Compress
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Communicator communicator = Initialize(ref args,
-                new Dictionary<string, string>()
-                {
-                    ["Ice.CompressionMinSize"] = "1K"
-                });
-            await communicator.ActivateAsync();
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+
+            ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test-1", new Interceptor(new TestIntf(), compressed: true));
             adapter.Add("test-2", new Interceptor(new TestIntf(), compressed: false));
-
             await adapter.ActivateAsync();
+
             ServerReady();
-            await communicator.ShutdownComplete;
+            await Communicator.ShutdownComplete;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.CompressionMinSize"] = "1K";
+
+            await using var communicator = CreateCommunicator(properties);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

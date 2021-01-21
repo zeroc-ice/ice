@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
@@ -10,22 +10,27 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         public override async Task RunAsync(string[] args)
         {
-            await using Ice.Communicator communicator = Initialize(ref args);
-            await communicator.ActivateAsync();
             if (args.Length < 1)
             {
                 throw new ArgumentException("Usage: server testdir");
             }
 
-            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
-            communicator.SetProperty("TestAdapter.AcceptNonSecure", "Always");
-            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            await Communicator.ActivateAsync();
+            Communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
+            Communicator.SetProperty("TestAdapter.AcceptNonSecure", "Always");
+
+            Ice.ObjectAdapter adapter = Communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
             await adapter.ActivateAsync();
 
-            await communicator.ShutdownComplete;
+            ServerReady();
+            await Communicator.ShutdownComplete;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
+        public static async Task<int> Main(string[] args)
+        {
+            await using var communicator = CreateCommunicator(ref args);
+            return await RunTestAsync<Server>(communicator, args);
+        }
     }
 }

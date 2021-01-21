@@ -6,8 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Alias
 {
@@ -44,10 +43,9 @@ namespace ZeroC.Ice.Test.Alias
             return false;
         }
 
-        public static void Run(TestHelper helper)
+        public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
             var prx = IInterface2Prx.Parse(helper.GetTestProxy("test", 0), communicator);
 
             Console.Out.Write("testing marshaling of parameters with aliases... ");
@@ -361,7 +359,7 @@ namespace ZeroC.Ice.Test.Alias
             }
             Console.Out.WriteLine("ok");
 
-            prx.Shutdown();
+            await prx.ShutdownAsync();
         }
     }
 }

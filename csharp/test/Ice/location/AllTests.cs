@@ -3,9 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Location
 {
@@ -13,8 +14,9 @@ namespace ZeroC.Ice.Test.Location
     {
         public static async Task RunAsync(TestHelper helper)
         {
-            Communicator? communicator = helper.Communicator;
-            TestHelper.Assert(communicator != null);
+            Communicator communicator = helper.Communicator;
+            TextWriter output = helper.Output;
+
             bool ice1 = helper.Protocol == Protocol.Ice1;
             var manager = IServerManagerPrx.Parse(helper.GetTestProxy("ServerManager", 0), communicator);
             var locator = communicator.DefaultLocator!.Clone(ITestLocatorPrx.Factory);
@@ -22,7 +24,6 @@ namespace ZeroC.Ice.Test.Location
             var registry = locator.GetRegistry()!.Clone(ITestLocatorRegistryPrx.Factory);
             TestHelper.Assert(registry != null);
 
-            System.IO.TextWriter output = helper.Output;
             output.Write("testing ice1 string/URI parsing... ");
             output.Flush();
             IObjectPrx base1, base2, base3, base4, base5, base6, base7;
@@ -522,7 +523,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.BackgroundLocatorCacheUpdates"] = "1";
-                await using Communicator ic = helper.Initialize(properties);
+                await using Communicator ic = TestHelper.CreateCommunicator(properties);
 
                 RegisterAdapterEndpoints(
                     registry,

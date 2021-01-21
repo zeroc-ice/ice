@@ -4,18 +4,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Test;
+using ZeroC.Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
     public class Client : TestHelper
     {
-        public override async Task RunAsync(string[] args)
+        public override Task RunAsync(string[] args) => AllTests.RunAsync(this);
+
+        public static async Task<int> Main(string[] args)
         {
             string pluginPath =
                 string.Format("msbuild/plugin/{0}/Plugin.dll",
                     Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
-            await using Communicator communicator = Initialize(
+
+            await using var communicator = CreateCommunicator(
                 ref args,
                 new Dictionary<string, string>()
                 {
@@ -26,11 +29,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 });
 
             await communicator.ActivateAsync();
-
-            IMyObjectPrx prx = await AllTests.RunAsync(this);
-            await prx.ShutdownAsync();
+            return await RunTestAsync<Client>(communicator, args);
         }
-
-        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }
