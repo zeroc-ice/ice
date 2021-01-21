@@ -55,7 +55,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("getting the session timeout... ");
                 Console.Out.Flush();
-                long timeout = router.GetSessionTimeout();
+                long timeout = router.GetACMTimeout();
                 Assert(timeout == 30);
                 Console.Out.WriteLine("ok");
             }
