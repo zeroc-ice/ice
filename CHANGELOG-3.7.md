@@ -95,6 +95,9 @@ These are the changes since Ice 3.7.4.
 
 ## C# Changes
 
+- Fixed dispatch warnings and unknown exceptions to report the original exception raised by
+  the servant implementation.
+
 - Add .NET 5.0 support, Ice for C# assemblies are now build for .NET 5.0, .NET Standard 2.1 and .NET 4.5.
 
 - Fixed a bug that can result in the file logger log files not correctly close.

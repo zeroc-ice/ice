@@ -20,6 +20,7 @@ namespace IceInternal
     using System.IO;
     using System.Globalization;
     using System.Threading.Tasks;
+    using System.Runtime.ExceptionServices;
 
     public class Incoming : Ice.Request
     {
@@ -635,6 +636,7 @@ namespace IceInternal
 
             try
             {
+                ExceptionDispatchInfo.Capture(exc).Throw();
                 throw exc;
             }
             catch(Ice.RequestFailedException ex)
