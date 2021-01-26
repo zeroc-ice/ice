@@ -157,6 +157,7 @@ public:
      */
     bool checkSystem() const;
 
+#ifdef _WIN32
     /**
      * Alternative entry point for services that use their own
      * command-line options. Instead of invoking main(), the
@@ -172,7 +173,6 @@ public:
      * specified, the version of the Ice installation is used.
      * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
      */
-#ifdef _WIN32
     int run(int argc, const wchar_t* const argv[], const InitializationData& initData = InitializationData(),
             int version = ICE_INT_VERSION);
 #endif
