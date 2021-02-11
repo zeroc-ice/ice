@@ -57,6 +57,9 @@
 // BUGFIX: Workaround clang conversion warnings in ruby headers
 //
 #   pragma clang diagnostic ignored "-Wconversion"
+
+// Silence warnings regarding missing deprecation attributes in ruby headers
+#   pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wunused-parameter"
