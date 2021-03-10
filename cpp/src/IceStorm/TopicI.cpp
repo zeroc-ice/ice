@@ -527,6 +527,8 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     Ice::Identity id = obj->ice_getIdentity();
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
+
+    IceUtil::Mutex::Lock sync(_subscribersMutex);
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
@@ -548,8 +550,6 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
             trace(out, _instance, _subscribers);
         }
     }
-
-    IceUtil::Mutex::Lock sync(_subscribersMutex);
 
     SubscriberRecord record;
     record.id = id;
@@ -621,6 +621,7 @@ TopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber)
 
     Ice::Identity id = subscriber->ice_getIdentity();
 
+    IceUtil::Mutex::Lock sync(_subscribersMutex);
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
@@ -633,7 +634,6 @@ TopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber)
         }
     }
 
-    IceUtil::Mutex::Lock sync(_subscribersMutex);
     Ice::IdentitySeq ids;
     ids.push_back(id);
     removeSubscribers(ids);
