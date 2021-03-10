@@ -310,11 +310,11 @@ final class TransceiverI implements Transceiver
                     name += "-" + _uuid;
                 }
                 setName(name);
-                setDaemon(true);
 
                 runConnectThread();
             }
         };
+        connectThread.setDaemon(true);
         connectThread.start();
     }
 
@@ -397,6 +397,7 @@ final class TransceiverI implements Transceiver
                 //
                 assert (_exception != null);
                 _state = StateConnected;
+                _socket = socket;
                 startReadWriteThreads();
             }
         }
