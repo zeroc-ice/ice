@@ -65,7 +65,6 @@
                  ipEndpoint.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo ||
                  ipEndpoint.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo);
 
-
             let ic = Ice.initialize();
             ic.stringToProxy("test:default");
             endps = p1.ice_getEndpoints();
