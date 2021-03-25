@@ -25,6 +25,13 @@ struct SessionTuple
         configured(false)
     {}
 
+    SessionTuple(const SessionTuple& st):
+        session(st.session),
+        sessionControl(st.sessionControl),
+        configured(st.configured)
+    {
+    }
+
     SessionTuple&
     operator=(const SessionTuple& rhs)
     {
