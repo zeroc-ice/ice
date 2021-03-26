@@ -1573,19 +1573,23 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
-#       ifndef ICE_USE_SCHANNEL
-    // IPv6 address parsing is not implemented with OpenSSLSChannel implementation
-    expectedAltNames.push_back(make_pair(7, "0:0:0:0:0:0:0:1"));
+// IPv6 address parsing is not implemented with SChannel and OpenSSL IceSSL implementations
+#       ifdef ICE_USE_SECURE_TRANSPORT
+    expectedAltNames.push_back(make_pair(7, "0000:0000:0000:0000:0000:0000:0000:0001"));
 #       endif
-    expectedAltNames.push_back(make_pair(2, "server"));
-    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_multiname.pem");
-    vector<pair<int, string> > altNames = cert->getSubjectAlternativeNames();
-    for (vector<pair<int, string>>::const_iterator i = altNames.begin(); i != altNames.end(); i++)
-    {
-        cerr << i->first << " : " << i->second << endl;
-    }
-    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn9_pub.pem");
 
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(2, "host1"));
+    expectedAltNames.push_back(make_pair(2, "host2"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn10_pub.pem");
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
+    expectedAltNames.push_back(make_pair(2, "host1"));
+    expectedAltNames.push_back(make_pair(2, "host2"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn11_pub.pem");
 #   endif
     }
     cout << "ok" << endl;

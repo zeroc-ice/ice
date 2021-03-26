@@ -113,6 +113,9 @@ certs = [
     (ca1, "s_rsa_ca1_cn6",   { "cn": "Server", "ip": "127.0.0.1" }),        # IP subjectAltName 127.0.0.1
     (ca1, "s_rsa_ca1_cn7",   { "cn": "Server", "ip": "127.0.0.2" }),        # IP subjectAltName 127.0.0.2
     (ca1, "s_rsa_ca1_cn8",   { "cn": "127.0.0.1" }),                        # No subjectAltName, CN=127.0.0.1
+    (ca1, "s_rsa_ca1_cn9",   { "cn": "127.0.0.1", "ip": ["127.0.0.1", "::1"] }),
+    (ca1, "s_rsa_ca1_cn10",   { "cn": "127.0.0.1", "dns": ["host1", "host2"] }),
+    (ca1, "s_rsa_ca1_cn11",   { "cn": "127.0.0.1", "ip": ["127.0.0.1", "127.0.0.2"], "dns": ["host1", "host2"] }),
 
     (ca2, "s_rsa_ca2",       { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
     (ca2, "c_rsa_ca2",       { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
@@ -143,6 +146,9 @@ savecerts = [
     (ca1, "s_rsa_ca1_cn6", None,              {}),
     (ca1, "s_rsa_ca1_cn7", None,              {}),
     (ca1, "s_rsa_ca1_cn8", None,              {}),
+    (ca1, "s_rsa_ca1_cn9", None,              {}),
+    (ca1, "s_rsa_ca1_cn10", None,              {}),
+    (ca1, "s_rsa_ca1_cn11", None,              {}),
     (ca2, "s_rsa_ca2",     None,              {}),
     (ca2, "c_rsa_ca2",     None,              {}),
     (dsaca, "s_dsa_ca1",   None,              {}),
