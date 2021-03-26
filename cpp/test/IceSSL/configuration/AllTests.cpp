@@ -920,7 +920,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Test IceSSL.VerifyPeer=1. Client has a certificate.
         //
         // Provide "cacert1" to the client to verify the server
-        // certificate (without this the client connection wouln't be
+        // certificate (without this the client connection wouldn't be
         // able to provide the certificate chain).
         //
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
@@ -1533,6 +1533,55 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(toHexString(cert->getAuthorityKeyIdentifier()) == authorities[i]);
             test(toHexString(cert->getSubjectKeyIdentifier()) == subjects[i]);
         }
+    }
+    {
+#   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+    vector<pair<int, string> > expectedAltNames;
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    expectedAltNames.push_back(make_pair(2, "client"));
+    IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+    
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    expectedAltNames.push_back(make_pair(2, "server"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+    
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(2, "localhost"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn1_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(2, "localhostXX"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn2_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn6_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn7_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn8_pub.pem");
+    test(cert->getSubjectAlternativeNames().empty());
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+#       ifndef ICE_USE_SCHANNEL
+    // IPv6 address parsing is not implemented with OpenSSLSChannel implementation
+    expectedAltNames.push_back(make_pair(7, "0:0:0:0:0:0:0:1"));
+#       endif
+    expectedAltNames.push_back(make_pair(2, "server"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_multiname.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+#   endif
     }
     cout << "ok" << endl;
 #endif
