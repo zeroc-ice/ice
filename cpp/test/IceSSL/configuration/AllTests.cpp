@@ -1541,13 +1541,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     expectedAltNames.push_back(make_pair(2, "client"));
     IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
     test(cert->getSubjectAlternativeNames() == expectedAltNames);
-    
+
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
     expectedAltNames.push_back(make_pair(2, "server"));
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
     test(cert->getSubjectAlternativeNames() == expectedAltNames);
-    
+
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(2, "localhost"));
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn1_pub.pem");
@@ -1579,6 +1579,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #       endif
     expectedAltNames.push_back(make_pair(2, "server"));
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_multiname.pem");
+    vector<pair<int, string> > altNames = cert->getSubjectAlternativeNames();
+    for (vector<pair<int, string>>::const_iterator i = altNames.begin(); i != altNames.end(); i++)
+    {
+        cerr << i->first << " : " << i->second << endl;
+    }
     test(cert->getSubjectAlternativeNames() == expectedAltNames);
 
 #   endif
