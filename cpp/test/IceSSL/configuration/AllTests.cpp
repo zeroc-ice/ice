@@ -1578,11 +1578,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     expectedAltNames.push_back(make_pair(7, "0000:0000:0000:0000:0000:0000:0000:0001"));
 #       endif
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn9_pub.pem");
+    test(cert->getSubjectAlternativeNames().empty());
 
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(2, "host1"));
     expectedAltNames.push_back(make_pair(2, "host2"));
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn10_pub.pem");
+    test(cert->getSubjectAlternativeNames().empty());
 
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
@@ -1590,6 +1592,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     expectedAltNames.push_back(make_pair(2, "host1"));
     expectedAltNames.push_back(make_pair(2, "host2"));
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn11_pub.pem");
+    test(cert->getSubjectAlternativeNames().empty());
 #   endif
     }
     cout << "ok" << endl;
