@@ -41,6 +41,7 @@
       defined(__ARMEL__)   || \
       defined(_M_ARM_FP)   || \
       defined(__arm64)     || \
+      defined(_M_ARM64)    || \
       defined(__MIPSEL__)
 
 #   define ICE_LITTLE_ENDIAN
