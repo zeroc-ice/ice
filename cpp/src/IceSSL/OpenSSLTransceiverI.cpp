@@ -151,6 +151,7 @@ TrustError trustStatusToTrustError(long status)
     case X509_V_ERR_UNSUPPORTED_NAME_SYNTAX:
         return InvalidNameConstraints;
     case X509_V_ERR_HOSTNAME_MISMATCH:
+    case X509_V_ERR_IP_ADDRESS_MISMATCH:
         return HostNameMismatch;
     default:
         break;
