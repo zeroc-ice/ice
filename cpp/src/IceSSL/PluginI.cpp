@@ -249,13 +249,11 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "the X509 chain is invalid due to an untrusted root certificate";
         }
-        case HostNameMismatch:
-        {
-            return "a host name mismatch has occurred.";
-        }
         case UnknownTrustFailure:
         {
             return "unknown failure";
         }
     }
+    assert(false);
+    return "unknown failure";
 }

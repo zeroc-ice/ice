@@ -885,8 +885,9 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     catch(const Ice::SecurityException&)
     {
         _trustError = HostNameMismatch;
-        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = InvalidNameConstraints;
         _verified = false;
+        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = HostNameMismatch;
+        info->verified = false;
         if(_engine->getVerifyPeer() > 0)
         {
             throw;

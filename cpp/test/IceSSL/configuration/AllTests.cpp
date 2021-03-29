@@ -1240,8 +1240,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             server = fact->createServer(d);
 
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
-            test(!info->verified);
-            test(getTrustError(info) == IceSSL::HostNameMismatch);
+            test(info->verified);
+            test(getTrustError(info) == IceSSL::NoError);
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1279,10 +1279,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             d = createServerProps(props, p12, "s_rsa_ca1_cn3", "cacert1");
             server = fact->createServer(d);
 
-            server->ice_ping();
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             if(isCatalinaOrGreater || isIOS13OrGreater)
             {
-                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 test(!info->verified);
                 test(getTrustError(info) == IceSSL::HostNameMismatch);
             }
@@ -1354,8 +1353,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             server = fact->createServer(d);;
 
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
-            test(!info->verified);
-            test(getTrustError(info) == IceSSL::HostNameMismatch);
+            test(info->verified);
+            test(getTrustError(info) == IceSSL::NoError);
 
             fact->destroyServer(server);
             comm->destroy();
