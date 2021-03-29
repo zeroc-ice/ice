@@ -131,15 +131,131 @@ ICEregisterIceSSL(bool loadOnInitialize)
     Ice::registerIceSSL(loadOnInitialize);
 }
 
-namespace IceSSL
+IceSSL::TrustError
+IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
 {
-    TrustError getTrustError(const IceSSL::ConnectionInfoPtr& info)
+    ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
+    if (extendedInfo)
     {
-        ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
-        if (extendedInfo)
+        return extendedInfo->errorCode;
+    }
+    return info->verified ? NoError : UnknownTrustFailure;
+}
+
+std::string
+IceSSL::getTrustErrorDescription(TrustError error)
+{
+    switch(error)
+    {
+        case NoError:
         {
-            return extendedInfo->errorCode;
+            return "no error";
         }
-        return info->verified ? NoError : UnknownTrustFailure;
+        case CtlNotSignatureValid:
+        {
+            return "the certificate trust list contains an invalid signature";
+        }
+        case CtlNotTimeValid:
+        {
+            return "the certificate trust list is not valid because of an invalid time value";
+        }
+        case CtlNotValidForUsage:
+        {
+            return "the certificate trust list is not valid for this use";
+        }
+        case Cyclic:
+        {
+            return "the X509 chain could not be built";
+        }
+        case ExplicitDistrust:
+        {
+            return "the certificate is explicitly distrusted";
+        }
+        case HasExcludedNameConstraint:
+        {
+            return "the X509 chain is invalid because a certificate has excluded a name constraint";
+        }
+        case HasNotDefinedNameConstraint:
+        {
+            return "the certificate has an undefined name constraint";
+        }
+        case HasNotPermittedNameConstraint:
+        {
+            return "the certificate has an impermissible name constrain";
+        }
+        case HasNotSupportedCriticalExtension:
+        {
+            return "the certificate does not support a critical extension";
+        }
+        case HasNotSupportedNameConstraint:
+        {
+            return "the certificate does not have a supported name constraint or has a name constraint that "
+                   "is unsupported";
+        }
+        case HostNameMismatch:
+        {
+            return "host name mismatch has occurred";
+        }
+        case InvalidBasicConstraints:
+        {
+            return "the X509 chain is invalid due to invalid basic constraints";
+        }
+        case InvalidExtension:
+        {
+            return "the X509 chain is invalid due to an invalid extension";
+        }
+        case InvalidNameConstraints:
+        {
+            return "the X509 chain is invalid due to invalid name constraints";
+        }
+        case InvalidPolicyConstraints:
+        {
+            return "the X509 chain is invalid due to invalid policy constraints";
+        }
+        case NoIssuanceChainPolicy:
+        {
+            return "there is no certificate policy extension in the certificate";
+        }
+        case NotSignatureValid:
+        {
+            return "the X509 chain is invalid due to an invalid certificate signature";
+        }
+        case NotTimeValid:
+        {
+            return "the X509 chain is not valid due to an invalid time value, such as a value that indicates an "
+                   "expired certificate";
+        }
+        case NotValidForUsage:
+        {
+            return "the key usage is not valid";
+        }
+        case OfflineRevocation:
+        {
+            return "the online certificate revocation list the X509 chain relies on is currently offline";
+        }
+        case PartialChain:
+        {
+            return "the X509 chain could not be built up to the root certificate";
+        }
+        case RevocationStatusUnknown:
+        {
+            return "it is not possible to determine whether the certificate has been revoke";
+        }
+        case Revoked:
+        {
+            return "the X509 chain is invalid due to a revoked certificate";
+        }
+        case UntrustedRoot:
+        {
+            return "the X509 chain is invalid due to an untrusted root certificate";
+        }
+        case HostNameMismatch:
+        {
+            return "a host name mismatch has occurred.";
+        }
+        case UnknownTrustFailure:
+        {
+            return "unknown failure";
+        }
     }
 }

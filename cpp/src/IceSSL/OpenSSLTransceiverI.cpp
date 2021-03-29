@@ -150,6 +150,8 @@ TrustError trustStatusToTrustError(long status)
 
     case X509_V_ERR_UNSUPPORTED_NAME_SYNTAX:
         return InvalidNameConstraints;
+    case X509_V_ERR_HOSTNAME_MISMATCH:
+        return HostNameMismatch;
     default:
         break;
     }
@@ -396,7 +398,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     long result = SSL_get_verify_result(_ssl);
-    _trustError = trustStatusToTrustError(result); 
+    _trustError = trustStatusToTrustError(result);
     if(result != X509_V_OK)
     {
         if(_engine->getVerifyPeer() == 0)
@@ -437,6 +439,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
     catch(const SecurityException&)
     {
+        _trustError = HostNameMismatch;
         _verified = false;
         if(_engine->getVerifyPeer() > 0)
         {

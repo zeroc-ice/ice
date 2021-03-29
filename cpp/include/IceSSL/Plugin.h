@@ -34,34 +34,35 @@ namespace IceSSL
 enum TrustError
 {
     NoError = 0,
-    NotTimeValid,
-    Revoked,
-    NotSignatureValid,
-    UntrustedRoot,
-    RevocationStatusUnknown,
-    Cyclic,
-    InvalidExtension,
-    PartialChain,
-    NotValidForUsage,
-    NoIssuanceChainPolicy,
-    InvalidBasicConstraints,
-    InvalidPolicyConstraints,
-    ExplicitDistrust,
-    HasNotSupportedCriticalExtension,
-    HasNotPermittedNameConstraint,
-    HasExcludedNameConstraint,
-    HasNotSupportedNameConstraint,
-    HasNotDefinedNameConstraint,
-    InvalidNameConstraints,
-    OfflineRevocation,
+    CtlNotSignatureValid,
     CtlNotTimeValid,
     CtlNotValidForUsage,
-    CtlNotSignatureValid,
+    Cyclic,
+    ExplicitDistrust,
+    HasExcludedNameConstraint,
+    HasNotDefinedNameConstraint,
+    HasNotPermittedNameConstraint,
+    HasNotSupportedCriticalExtension,
+    HasNotSupportedNameConstraint,
+    HostNameMismatch,
+    InvalidBasicConstraints,
+    InvalidExtension,
+    InvalidNameConstraints,
+    InvalidPolicyConstraints,
+    NoIssuanceChainPolicy,
+    NotSignatureValid,
+    NotTimeValid,
+    NotValidForUsage,
+    OfflineRevocation,
+    PartialChain,
+    RevocationStatusUnknown,
+    Revoked,
+    UntrustedRoot,
     UnknownTrustFailure
 };
 
 ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
-
+ICESSL_API std::string getTrustErrorDescription(TrustError);
 
 /**
  * Thrown if the certificate cannot be read.

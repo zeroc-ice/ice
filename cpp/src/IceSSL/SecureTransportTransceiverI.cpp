@@ -4,6 +4,7 @@
 
 #include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/Instance.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/SecureTransportEngine.h>
 #include <IceSSL/SecureTransportUtil.h>
 #include <IceSSL/ConnectionInfo.h>
@@ -19,36 +20,6 @@ using namespace IceSSL::SecureTransport;
 
 namespace
 {
-
-string
-trustResultDescription(SecTrustResultType result)
-{
-    switch(result)
-    {
-        case kSecTrustResultInvalid:
-        {
-            return "Invalid setting or result";
-        }
-        case kSecTrustResultDeny:
-        {
-            return "The user specified that the certificate should not be trusted";
-        }
-        case kSecTrustResultRecoverableTrustFailure:
-        case kSecTrustResultFatalTrustFailure:
-        {
-            return "Trust denied";
-        }
-        case kSecTrustResultOtherError:
-        {
-            return "Other error internal error";
-        }
-        default:
-        {
-            assert(false);
-            return "";
-        }
-    }
-}
 
 string
 protocolName(SSLProtocol protocol)
@@ -92,14 +63,71 @@ socketRead(SSLConnectionRef connection, void* data, size_t* length)
     return transceiver->readRaw(reinterpret_cast<char*>(data), length);
 }
 
-bool
+TrustError errorToTrustError(CFErrorRef err)
+{
+    long errorCode = CFErrorGetCode(err);
+    switch (errorCode)
+    {
+        case errSecCertificateRevoked:
+        {
+            return IceSSL::Revoked;
+        }
+        case errSecCertificateExpired:
+        case errSecCertificateNotValidYet:
+        {
+            return IceSSL::NotTimeValid;
+        }
+        case errSecNotTrusted:
+        {
+            return IceSSL::UntrustedRoot;
+        }
+        case errSecMissingRequiredExtension:
+        {
+            return IceSSL::InvalidExtension;
+        }
+        case errSecUnknownCertExtension:
+        case errSecUnknownCRLExtension:
+        {
+            return IceSSL::HasNotSupportedCriticalExtension;
+        }
+        case errSecInvalidKeyUsageForPolicy:
+        case errSecInvalidExtendedKeyUsage:
+        {
+            return IceSSL::NotValidForUsage;
+        }
+        case errSecInvalidSignature:
+        {
+            return IceSSL::NotSignatureValid;
+        }
+        case errSecCreateChainFailed:
+        {
+            return IceSSL::PartialChain;
+        }
+        case errSecHostNameMismatch:
+        {
+            return IceSSL::HostNameMismatch;
+        }
+        case errSecNoBasicConstraints:
+        case errSecNoBasicConstraintsCA:
+        {
+            return IceSSL::InvalidBasicConstraints;
+        }
+        default:
+        {
+            return IceSSL::UnknownTrustFailure;
+        }
+    }
+}
+
+TrustError
 checkTrustResult(SecTrustRef trust,
                  const IceSSL::SecureTransport::SSLEnginePtr& engine,
                  const IceSSL::InstancePtr& instance,
                  const string& host)
 {
     OSStatus err = noErr;
-    SecTrustResultType trustResult = kSecTrustResultOtherError;
+    SecTrustResultType trusted = false;
+    UniqueRef<CFErrorRef> trustErr;
     if(trust)
     {
         if((err = SecTrustSetAnchorCertificates(trust, engine->getCertificateAuthorities())))
@@ -138,53 +166,112 @@ checkTrustResult(SecTrustRef trust,
         //
         // Evaluate the trust
         //
-        if((err = SecTrustEvaluate(trust, &trustResult)))
+        trusted = SecTrustEvaluateWithError(trust, &trustErr.get());
+        if(trusted)
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-        }
-    }
-
-    switch(trustResult)
-    {
-    case kSecTrustResultUnspecified:
-    case kSecTrustResultProceed:
-    {
-        //
-        // Trust verify success.
-        //
-        return true;
-    }
-    default:
-    // case kSecTrustResultInvalid:
-    // case kSecTrustResultConfirm: // Used in old macOS versions
-    // case kSecTrustResultDeny:
-    // case kSecTrustResultRecoverableTrustFailure:
-    // case kSecTrustResultFatalTrustFailure:
-    // case kSecTrustResultOtherError:
-    {
-        if(engine->getVerifyPeer() == 0)
-        {
-            if(instance->traceLevel() >= 1)
-            {
-                ostringstream os;
-                os << "IceSSL: ignoring certificate verification failure:\n" << trustResultDescription(trustResult);
-                instance->logger()->trace(instance->traceCategory(), os.str());
-            }
-            return false;
+            return IceSSL::NoError;
         }
         else
         {
-            ostringstream os;
-            os << "IceSSL: certificate verification failure:\n" << trustResultDescription(trustResult);
-            string msg = os.str();
-            if(instance->traceLevel() >= 1)
+            TrustError trustError = errorToTrustError(trustErr.get());
+            if(trustError == IceSSL::UnknownTrustFailure)
             {
-                instance->logger()->trace(instance->traceCategory(), msg);
+                UniqueRef<CFDictionaryRef> trustResult(SecTrustCopyResult(trust));
+                if(trustResult)
+                {
+                    UniqueRef<CFArrayRef> trustDetails(
+                        (CFArrayRef)CFDictionaryGetValue(trustResult.get(), CFSTR("TrustResultDetails")));
+                    if(trustDetails)
+                    {
+                        CFDictionaryRef leafResults((CFDictionaryRef)CFArrayGetValueAtIndex(trustDetails.get(), 0));
+                        if (leafResults)
+                        {
+                            if(CFDictionaryGetValue(leafResults, CFSTR("NotValidBefore")) ||
+                               CFDictionaryGetValue(leafResults, CFSTR("ValidLeaf")) ||
+                               CFDictionaryGetValue(leafResults, CFSTR("ValidIntermediates")) ||
+                               CFDictionaryGetValue(leafResults, CFSTR("ValidRoot")) ||
+                               CFDictionaryGetValue(leafResults, CFSTR("TemporalValidity")))
+                            {
+                                trustError = IceSSL::NotTimeValid;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("Revocation")))
+                            {
+                                trustError = IceSSL::Revoked;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("KeyUsage")))
+                            {
+                                trustError = IceSSL::NotValidForUsage;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("AnchorTrusted")))
+                            {
+                                trustError = IceSSL::UntrustedRoot;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("BasicConstraints")) ||
+                                    CFDictionaryGetValue(leafResults, CFSTR("BasicConstraintsCA")) ||
+                                    CFDictionaryGetValue(leafResults, CFSTR("BasicConstraintsPathLen")))
+                            {
+                                trustError = IceSSL::InvalidBasicConstraints;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("UsageConstraints")) ||
+                                    CFDictionaryGetValue(leafResults, CFSTR("BlackListedLeaf")) ||
+                                    CFDictionaryGetValue(leafResults, CFSTR("BlackListedKey")))
+                            {
+                                trustError = IceSSL::ExplicitDistrust;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("RevocationResponseRequired")))
+                            {
+                                trustError = IceSSL::RevocationStatusUnknown;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("MissingIntermediate")))
+                            {
+                                trustError = IceSSL::PartialChain;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("CriticalExtensions")))
+                            {
+                                trustError = IceSSL::HasNotSupportedCriticalExtension;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("CriticalExtensions")))
+                            {
+                                trustError = IceSSL::HasNotSupportedCriticalExtension;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("NameConstraints")))
+                            {
+                                trustError = IceSSL::InvalidNameConstraints;
+                            }
+                            else if(CFDictionaryGetValue(leafResults, CFSTR("PolicyConstraints")))
+                            {
+                                trustError = IceSSL::InvalidPolicyConstraints;
+                            }
+                        }
+                    }
+                }
             }
-            throw SecurityException(__FILE__, __LINE__, msg);
+
+            if(engine->getVerifyPeer() == 0)
+            {
+                if(instance->traceLevel() >= 1)
+                {
+                    ostringstream os;
+                    os << "IceSSL: ignoring certificate verification failure:\n"
+                       << getTrustErrorDescription(trustError);
+                    instance->logger()->trace(instance->traceCategory(), os.str());
+                }
+                return trustError;
+            }
+            else
+            {
+                ostringstream os;
+                os << "IceSSL: certificate verification failure:\n" << getTrustErrorDescription(trustError);
+                string msg = os.str();
+                if(instance->traceLevel() >= 1)
+                {
+                    instance->logger()->trace(instance->traceCategory(), msg);
+                }
+                throw SecurityException(__FILE__, __LINE__, msg);
+            }
         }
     }
-    }
+    return IceSSL::UnknownTrustFailure;
 }
 }
 
@@ -288,7 +375,8 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             }
             if(err == noErr)
             {
-                _verified = checkTrustResult(_trust.get(), _engine, _instance, _host);
+                _trustError = checkTrustResult(_trust.get(), _engine, _instance, _host);
+                _verified = _trustError == IceSSL::NoError;
                 continue; // Call SSLHandshake to resume the handsake.
             }
             // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
@@ -546,13 +634,14 @@ IceSSL::SecureTransport::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::SecureTransport::TransceiverI::getInfo() const
 {
-    IceSSL::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceSSL::ConnectionInfo);
+    IceSSL::ExtendedConnectionInfoPtr info = ICE_MAKE_SHARED(IceSSL::ExtendedConnectionInfo);
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->cipher = _cipher;
     info->certs = _certs;
     info->verified = _verified;
+    info->errorCode = _trustError;
     return info;
 }
 
