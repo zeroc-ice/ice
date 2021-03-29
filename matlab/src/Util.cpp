@@ -685,7 +685,11 @@ string
 IceMatlab::idToClass(const string& id)
 {
     auto ids = splitScopedName(id);
+#ifdef ICE_CPP11_COMPILER
+    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
+#else
     transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+#endif
     stringstream result;
     for(auto i = ids.begin(); i != ids.end(); ++i)
     {

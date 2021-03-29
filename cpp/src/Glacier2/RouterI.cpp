@@ -54,7 +54,7 @@ Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& con
         uniform_int_distribution<> dist(33, 126);  // We use ASCII 33-126 (from ! to ~, w/o space).
         for(unsigned int i = 0; i < ident.category.size(); ++i)
         {
-            ident.category[i] = static_cast<unsigned char>(dist(gen));
+            ident.category[i] = static_cast<char>(dist(gen));
         }
 #else
         char buf[20];
