@@ -31,6 +31,38 @@
 namespace IceSSL
 {
 
+enum TrustError
+{
+    NoError = 0,
+    NotTimeValid,
+    Revoked,
+    NotSignatureValid,
+    UntrustedRoot,
+    RevocationStatusUnknown,
+    Cyclic,
+    InvalidExtension,
+    PartialChain,
+    NotValidForUsage,
+    NoIssuanceChainPolicy,
+    InvalidBasicConstraints,
+    InvalidPolicyConstraints,
+    ExplicitDistrust,
+    HasNotSupportedCriticalExtension,
+    HasNotPermittedNameConstraint,
+    HasExcludedNameConstraint,
+    HasNotSupportedNameConstraint,
+    HasNotDefinedNameConstraint,
+    InvalidNameConstraints,
+    OfflineRevocation,
+    CtlNotTimeValid,
+    CtlNotValidForUsage,
+    CtlNotSignatureValid,
+    UnknownTrustFailure
+};
+
+ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
+
+
 /**
  * Thrown if the certificate cannot be read.
  * \headerfile IceSSL/IceSSL.h

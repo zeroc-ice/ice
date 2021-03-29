@@ -1013,6 +1013,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->certs.size() == 2);
             test(info->verified);
+            test(getTrustError(info) == IceSSL::NoError);
 
             test(ICE_TARGET_EQUAL_TO(caCert, info->certs[1]));
             test(ICE_TARGET_EQUAL_TO(serverCert, info->certs[0]));
@@ -1624,6 +1625,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->certs.size() == 1);
             test(!info->verified);
+            test(getTrustError(info) == IceSSL::PartialChain);
         }
         catch(const Ice::LocalException& ex)
         {
@@ -1649,6 +1651,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(info->certs.size() == 1);
 #endif
             test(!info->verified);
+            test(getTrustError(info) == IceSSL::PartialChain);
         }
         catch(const Ice::LocalException& ex)
         {
@@ -1677,6 +1680,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 test(info->certs.size() == 2);
 #endif
                 test(!info->verified);
+                test(getTrustError(info) == IceSSL::PartialChain);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -1707,6 +1711,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 2);
                 test(info->verified);
+                test(getTrustError(info) == IceSSL::NoError);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -1777,6 +1782,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 3);
                 test(info->verified);
+                test(getTrustError(info) == IceSSL::NoError);
             }
             catch(const Ice::LocalException& ex)
             {
@@ -1825,6 +1831,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 4);
                 test(info->verified);
+                test(getTrustError(info) == IceSSL::NoError);
             }
             catch(const Ice::LocalException& ex)
             {

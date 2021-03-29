@@ -7,10 +7,20 @@
 
 #include <IceSSL/Plugin.h>
 #include <IceSSL/SSLEngineF.h>
+#include <IceSSL/ConnectionInfo.h>
 #include <Ice/CommunicatorF.h>
 
 namespace IceSSL
 {
+
+class ExtendedConnectionInfo : public ConnectionInfo
+{
+public:
+
+    TrustError errorCode;
+};
+
+ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
 
 class ICESSL_API PluginI : public virtual IceSSL::Plugin
 {

@@ -9,6 +9,7 @@
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/SChannelEngine.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
@@ -45,6 +46,133 @@ protocolName(DWORD protocol)
         default:
             return "Unknown";
     }
+}
+
+TrustError
+trustStatusToTrustError(DWORD status)
+{
+    if (status & CERT_TRUST_NO_ERROR)
+    {
+        return NoError;
+    }
+    if (status & CERT_TRUST_IS_NOT_TIME_VALID)
+    {
+        return NotTimeValid;
+    }
+    if (status & CERT_TRUST_IS_REVOKED)
+    {
+        return Revoked;
+    }
+    if (status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
+    {
+        return NotSignatureValid;
+    }
+    if (status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
+    {
+        return NotValidForUsage;
+    }
+    if (status & CERT_TRUST_IS_UNTRUSTED_ROOT)
+    {
+        return UntrustedRoot;
+    }
+    if (status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+    {
+        return RevocationStatusUnknown;
+    }
+
+    if (status & CERT_TRUST_IS_CYCLIC)
+    {
+        return Cyclic;
+    }
+
+    if (status & CERT_TRUST_INVALID_EXTENSION)
+    {
+        return InvalidExtension;
+    }
+
+    if (status & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
+    {
+        return InvalidPolicyConstraints;
+    }
+
+    if (status & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
+    {
+        return InvalidBasicConstraints;
+    }
+
+    if (status & CERT_TRUST_INVALID_NAME_CONSTRAINTS)
+    {
+        return InvalidNameConstraints;
+    }
+
+    if (status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
+    {
+        return HasNotSupportedNameConstraint;
+    }
+
+    if (status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
+    {
+        return HasNotDefinedNameConstraint;
+    }
+
+    if (status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
+    {
+        return HasNotPermittedNameConstraint;
+    }
+
+    if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
+    {
+        return HasExcludedNameConstraint;
+    }
+
+    if (status & CERT_TRUST_IS_OFFLINE_REVOCATION)
+    {
+        return OfflineRevocation;
+    }
+
+    if (status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
+    {
+        return NoIssuanceChainPolicy;
+    }
+
+    if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
+    {
+        return ExplicitDistrust;
+    }
+
+    if (status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
+    {
+        return HasNotSupportedCriticalExtension;
+    }
+
+    //
+    // New in Windows 8
+    //
+    //if(status & CERT_TRUST_HAS_WEAK_SIGNATURE)
+    //{
+    //    return "CERT_TRUST_HAS_WEAK_SIGNATURE";
+    //}
+
+    if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
+    {
+        return PartialChain;
+    }
+
+    if (status & CERT_TRUST_CTL_IS_NOT_TIME_VALID)
+    {
+        return CtlNotTimeValid;
+    }
+
+    if (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
+    {
+        return CtlNotSignatureValid;
+    }
+
+    if (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE)
+    {
+        return CtlNotValidForUsage;
+    }
+    return UnknownTrustFailure;
 }
 
 string
@@ -679,16 +807,19 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         {
             CertFreeCertificateContext(cert);
             trustError = IceUtilInternal::lastErrorToString();
+            _trustError = UnknownTrustFailure;
         }
         else
         {
             if(certChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
             {
                 trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
+                _trustError = trustStatusToTrustError(certChain->TrustStatus.dwErrorStatus);
             }
             else
             {
                 _verified = true;
+                _trustError = NoError;
             }
 
             CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
@@ -753,6 +884,8 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     }
     catch(const Ice::SecurityException&)
     {
+        _trustError = InvalidNameConstraints;
+        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = InvalidNameConstraints;
         _verified = false;
         if(_engine->getVerifyPeer() > 0)
         {
@@ -1001,13 +1134,14 @@ SChannel::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 SChannel::TransceiverI::getInfo() const
 {
-    ConnectionInfoPtr info = ICE_MAKE_SHARED(ConnectionInfo);
+    ExtendedConnectionInfoPtr info = ICE_MAKE_SHARED(ExtendedConnectionInfo);
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->cipher = _cipher;
     info->certs = _certs;
     info->verified = _verified;
+    info->errorCode = _trustError;
     return info;
 }
 

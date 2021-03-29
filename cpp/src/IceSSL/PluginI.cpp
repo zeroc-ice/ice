@@ -130,3 +130,16 @@ ICEregisterIceSSL(bool loadOnInitialize)
 {
     Ice::registerIceSSL(loadOnInitialize);
 }
+
+namespace IceSSL
+{
+    TrustError getTrustError(const IceSSL::ConnectionInfoPtr& info)
+    {
+        ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
+        if (extendedInfo)
+        {
+            return extendedInfo->errorCode;
+        }
+        return info->verified ? NoError : UnknownTrustFailure;
+    }
+}
