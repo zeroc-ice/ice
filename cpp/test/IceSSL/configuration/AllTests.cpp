@@ -1647,11 +1647,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
 #ifdef ICE_USE_OPENSSL
             test(info->certs.size() == 2); // TODO: Fix OpenSSL
+            test(getTrustError(info) == IceSSL::UntrustedRoot);
 #else
             test(info->certs.size() == 1);
+            test(getTrustError(info) == IceSSL::PartialChain);
 #endif
             test(!info->verified);
-            test(getTrustError(info) == IceSSL::PartialChain);
         }
         catch(const Ice::LocalException& ex)
         {
@@ -1676,11 +1677,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
 #if defined(ICE_USE_SCHANNEL) || defined(ICE_OS_UWP)
                 test(info->certs.size() == 1); // SChannel never sends the root certificate
+                test(getTrustError(info) == IceSSL::PartialChain);
 #else
                 test(info->certs.size() == 2);
+                test(getTrustError(info) == IceSSL::UntrustedRoot);
 #endif
                 test(!info->verified);
-                test(getTrustError(info) == IceSSL::PartialChain);
+                
             }
             catch(const Ice::LocalException& ex)
             {

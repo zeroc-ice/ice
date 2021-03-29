@@ -134,7 +134,10 @@ convertGeneralNames(GENERAL_NAMES* gens)
             break;
         }
         }
-        alt.push_back(p);
+        if (!p.second.empty())
+        {
+            alt.push_back(p);
+        }
     }
     sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
     return alt;
