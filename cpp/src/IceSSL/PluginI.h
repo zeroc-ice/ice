@@ -19,7 +19,6 @@ public:
 
     TrustError errorCode;
 };
-
 ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
 
 class ICESSL_API PluginI : public virtual IceSSL::Plugin

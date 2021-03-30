@@ -90,6 +90,7 @@ TrustError trustStatusToTrustError(long status)
     case X509_V_ERR_CERT_REVOKED:
         return Revoked;
 
+    case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE:
     case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY:
     case X509_V_ERR_CERT_SIGNATURE_FAILURE:
         return NotSignatureValid;
@@ -109,6 +110,7 @@ TrustError trustStatusToTrustError(long status)
     case X509_V_ERR_UNABLE_TO_GET_CRL:
     case X509_V_ERR_UNABLE_TO_GET_CRL_ISSUER:
     case X509_V_ERR_UNHANDLED_CRITICAL_CRL_EXTENSION:
+    case X509_V_ERR_CRL_PATH_VALIDATION_ERROR:
         return RevocationStatusUnknown;
 
     case X509_V_ERR_INVALID_EXTENSION:
@@ -145,14 +147,20 @@ TrustError trustStatusToTrustError(long status)
     case X509_V_ERR_EXCLUDED_VIOLATION:
         return HasExcludedNameConstraint;
 
+    case X509_V_ERR_UNSUPPORTED_CONSTRAINT_TYPE:
     case X509_V_ERR_SUBTREE_MINMAX:
         return HasNotSupportedNameConstraint;
 
     case X509_V_ERR_UNSUPPORTED_NAME_SYNTAX:
         return InvalidNameConstraints;
+    
     case X509_V_ERR_HOSTNAME_MISMATCH:
     case X509_V_ERR_IP_ADDRESS_MISMATCH:
         return HostNameMismatch;
+
+    case X509_V_ERR_CERT_CHAIN_TOO_LONG:
+        return ChainTooLong;
+    
     default:
         break;
     }

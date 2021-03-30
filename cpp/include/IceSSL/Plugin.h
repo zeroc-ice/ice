@@ -34,10 +34,7 @@ namespace IceSSL
 enum TrustError
 {
     NoError = 0,
-    CtlNotSignatureValid,
-    CtlNotTimeValid,
-    CtlNotValidForUsage,
-    Cyclic,
+    ChainTooLong,
     ExplicitDistrust,
     HasExcludedNameConstraint,
     HasNotDefinedNameConstraint,
@@ -49,16 +46,14 @@ enum TrustError
     InvalidExtension,
     InvalidNameConstraints,
     InvalidPolicyConstraints,
-    NoIssuanceChainPolicy,
     NotSignatureValid,
     NotTimeValid,
     NotValidForUsage,
-    OfflineRevocation,
     PartialChain,
     RevocationStatusUnknown,
     Revoked,
+    UnknownTrustFailure,
     UntrustedRoot,
-    UnknownTrustFailure
 };
 
 ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);

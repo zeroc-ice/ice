@@ -82,7 +82,7 @@ trustStatusToTrustError(DWORD status)
 
     if (status & CERT_TRUST_IS_CYCLIC)
     {
-        return Cyclic;
+        return UntrustedRoot;
     }
 
     if (status & CERT_TRUST_INVALID_EXTENSION)
@@ -127,12 +127,12 @@ trustStatusToTrustError(DWORD status)
 
     if (status & CERT_TRUST_IS_OFFLINE_REVOCATION)
     {
-        return OfflineRevocation;
+        return RevocationStatusUnknown;
     }
 
     if (status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
     {
-        return NoIssuanceChainPolicy;
+        return InvalidPolicyConstraints;
     }
 
     if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
@@ -145,14 +145,6 @@ trustStatusToTrustError(DWORD status)
         return HasNotSupportedCriticalExtension;
     }
 
-    //
-    // New in Windows 8
-    //
-    //if(status & CERT_TRUST_HAS_WEAK_SIGNATURE)
-    //{
-    //    return "CERT_TRUST_HAS_WEAK_SIGNATURE";
-    //}
-
     if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
     {
         return PartialChain;
@@ -160,17 +152,17 @@ trustStatusToTrustError(DWORD status)
 
     if (status & CERT_TRUST_CTL_IS_NOT_TIME_VALID)
     {
-        return CtlNotTimeValid;
+        return UntrustedRoot;
     }
 
     if (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
     {
-        return CtlNotSignatureValid;
+        return UntrustedRoot;
     }
 
     if (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE)
     {
-        return CtlNotValidForUsage;
+        return UntrustedRoot;
     }
     return UnknownTrustFailure;
 }

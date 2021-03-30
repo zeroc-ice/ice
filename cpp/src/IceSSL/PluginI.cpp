@@ -151,22 +151,6 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "no error";
         }
-        case CtlNotSignatureValid:
-        {
-            return "the certificate trust list contains an invalid signature";
-        }
-        case CtlNotTimeValid:
-        {
-            return "the certificate trust list is not valid because of an invalid time value";
-        }
-        case CtlNotValidForUsage:
-        {
-            return "the certificate trust list is not valid for this use";
-        }
-        case Cyclic:
-        {
-            return "the X509 chain could not be built";
-        }
         case ExplicitDistrust:
         {
             return "the certificate is explicitly distrusted";
@@ -212,10 +196,6 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "the X509 chain is invalid due to invalid policy constraints";
         }
-        case NoIssuanceChainPolicy:
-        {
-            return "there is no certificate policy extension in the certificate";
-        }
         case NotSignatureValid:
         {
             return "the X509 chain is invalid due to an invalid certificate signature";
@@ -228,10 +208,6 @@ IceSSL::getTrustErrorDescription(TrustError error)
         case NotValidForUsage:
         {
             return "the key usage is not valid";
-        }
-        case OfflineRevocation:
-        {
-            return "the online certificate revocation list the X509 chain relies on is currently offline";
         }
         case PartialChain:
         {
