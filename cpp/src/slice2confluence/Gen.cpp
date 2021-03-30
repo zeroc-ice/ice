@@ -2301,10 +2301,23 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     ClassList classesAndInterfaces = p->classes();
     ClassList classes;
     ClassList interfaces;
+#ifdef ICE_CPP11_COMPILER
+    remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
+                   [](const ClassDefPtr& classDef)
+                   {
+                       return !classDef->isInterface();
+                   });
+    remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
+                   [](const ClassDefPtr& classDef)
+                   {
+                       return !classDef->isInterface();
+                   });
+#else
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
                    ::IceUtil::constMemFun(&ClassDef::isInterface));
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
                    not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
+#endif
 
     if(!classes.empty())
     {

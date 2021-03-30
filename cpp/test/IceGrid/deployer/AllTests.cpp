@@ -50,26 +50,31 @@ bool isLongLineEnd(const string& line)
 
 }
 
-struct ProxyIdentityEqual : public std::binary_function<Ice::ObjectPrx,string,bool>
+#ifdef ICE_CPP11_COMPILER
+function<bool(Ice::ObjectPrxPtr&)>
+proxyIdentityEqual(const string& strId)
 {
-
-public:
-
-    ProxyIdentityEqual(const Ice::CommunicatorPtr& communicator) :
-        _communicator(communicator)
+    return [id = Ice::stringToIdentity(strId)](const Ice::ObjectPrxPtr& obj)
     {
-    }
-
+        return obj->ice_getIdentity() == id;
+    };
+}
+#else
+struct ProxyEqualIdentity : public std::binary_function<Ice::ObjectPrx,string,bool>
+{
     bool
     operator()(const Ice::ObjectPrx& p1, const string& id) const
     {
         return p1->ice_getIdentity() == Ice::stringToIdentity(id);
     }
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
 };
+
+binder2nd<ProxyEqualIdentity>
+proxyIdentityEqual(const string& strId)
+{
+    return bind2nd(ProxyEqualIdentity(), strId);
+}
+#endif
 
 void
 logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
@@ -416,15 +421,15 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing object registration... " << flush;
     Ice::ObjectProxySeq objs = query->findAllObjectsByType("::Test");
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"Server1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"Server2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"SimpleServer")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox1-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox1-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox2-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox2-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"SimpleIceBox-SimpleService")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"ReplicatedObject")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("Server2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("SimpleServer")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox1-Service2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("IceBox2-Service2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("SimpleIceBox-SimpleService")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), proxyIdentityEqual("ReplicatedObject")) != objs.end());
 
     {
         test(comm->identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");

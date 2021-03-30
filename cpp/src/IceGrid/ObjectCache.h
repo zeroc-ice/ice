@@ -73,8 +73,6 @@ private:
 
     const Ice::CommunicatorPtr _communicator;
     std::map<std::string, TypeEntry> _types;
-
-    static std::pointer_to_unary_function<int, unsigned int> _rand;
 };
 
 };

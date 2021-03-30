@@ -329,6 +329,10 @@ public:
 protected:
 
     Object() {} // This class is abstract.
+#ifdef ICE_CPP11_COMPILER
+    Object(const Object&) = default;
+    Object& operator=(const Object&) = default;
+#endif
     virtual ~Object() {}
 
 protected:

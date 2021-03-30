@@ -14,6 +14,7 @@ RUBY ?= ruby
 ruby-call = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$1")')
 
 # Ruby compiler flags
+platform_cxx    := $(call ruby-call, $$(CXX))
 ruby_cppflags   := -I$(call ruby-call,$$(rubyhdrdir))
 ruby_config_dir := $(call ruby-call,$$(includedir)/$$(arch)/ruby-$$(ruby_version))
 ruby_arch       := $(call ruby-call,$$(arch))

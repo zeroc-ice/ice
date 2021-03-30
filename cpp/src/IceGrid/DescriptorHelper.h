@@ -85,7 +85,6 @@ public:
 
     CommunicatorHelper(const CommunicatorDescriptorPtr&, bool = false);
     CommunicatorHelper() : _ignoreProps(false) { }
-    virtual ~CommunicatorHelper() { }
 
     virtual bool operator==(const CommunicatorHelper&) const;
     virtual bool operator!=(const CommunicatorHelper&) const;
@@ -272,7 +271,6 @@ class NodeHelper
 public:
 
     NodeHelper(const std::string&, const NodeDescriptor&, const Resolver&, bool);
-    virtual ~NodeHelper() { }
 
     virtual bool operator==(const NodeHelper&) const;
     virtual bool operator!=(const NodeHelper&) const;

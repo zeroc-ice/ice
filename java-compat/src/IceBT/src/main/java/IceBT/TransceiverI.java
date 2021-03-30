@@ -68,7 +68,7 @@ final class TransceiverI implements IceInternal.Transceiver
     @Override
     public void close()
     {
-        Thread connectThread = null, readThread = null, writeThread = null;
+        Thread readThread = null, writeThread = null;
 
         synchronized(this)
         {
@@ -88,8 +88,6 @@ final class TransceiverI implements IceInternal.Transceiver
                 _socket = null;
             }
 
-            connectThread = _connectThread;
-            _connectThread = null;
             readThread = _readThread;
             _readThread = null;
             writeThread = _writeThread;
@@ -100,18 +98,6 @@ final class TransceiverI implements IceInternal.Transceiver
             if(writeThread != null)
             {
                 notifyAll(); // Wake up the read/write threads.
-            }
-        }
-
-        if(connectThread != null)
-        {
-            try
-            {
-                connectThread.join();
-            }
-            catch(InterruptedException ex)
-            {
-                // Ignore.
             }
         }
 
@@ -304,42 +290,7 @@ final class TransceiverI implements IceInternal.Transceiver
 
         init();
 
-        BluetoothAdapter adapter = _instance.bluetoothAdapter();
-        assert(adapter != null);
-
-        BluetoothDevice device = null;
-        try
-        {
-            device = adapter.getRemoteDevice(_remoteAddr);
-        }
-        catch(IllegalArgumentException ex)
-        {
-            throw new Ice.SocketException(ex);
-        }
-
-        UUID uuidObj = null;
-        try
-        {
-            uuidObj = UUID.fromString(_uuid);
-        }
-        catch(IllegalArgumentException ex)
-        {
-            throw new Ice.SocketException(ex);
-        }
-
-        try
-        {
-            //
-            // We always connect using the "secure" method.
-            //
-            _socket = device.createRfcommSocketToServiceRecord(uuidObj);
-        }
-        catch(java.io.IOException ex)
-        {
-            throw new Ice.SocketException(ex);
-        }
-
-        _connectThread = new Thread()
+        Thread connectThread = new Thread()
         {
             public void run()
             {
@@ -357,7 +308,8 @@ final class TransceiverI implements IceInternal.Transceiver
                 runConnectThread();
             }
         };
-        _connectThread.start();
+        connectThread.setDaemon(true);
+        connectThread.start();
     }
 
     //
@@ -415,35 +367,49 @@ final class TransceiverI implements IceInternal.Transceiver
 
         try
         {
+            BluetoothAdapter adapter = _instance.bluetoothAdapter();
+            assert (adapter != null);
+
+            BluetoothDevice device = adapter.getRemoteDevice(_remoteAddr);
+
             //
             // This can block for several seconds.
             //
-            _socket.connect();
+            BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString(_uuid));
+            socket.connect();
+
+            synchronized(this)
+            {
+                if(_state == StateClosed)
+                {
+                    socket.close();
+                    return;
+                }
+
+                //
+                // Connect succeeded.
+                //
+                assert(_exception != null);
+                _state = StateConnected;
+                _socket = socket;
+                startReadWriteThreads();
+            }
         }
         catch(java.io.IOException ex)
         {
             exception(new Ice.ConnectFailedException(ex));
         }
-
-        synchronized(this)
+        catch(Exception ex)
         {
-            _connectThread = null;
-
-            if(_exception == null)
-            {
-                //
-                // Connect succeeded.
-                //
-                _state = StateConnected;
-
-                startReadWriteThreads();
-            }
+            exception(new Ice.SocketException(ex));
         }
-
-        //
-        // This causes the Ice run time to invoke initialize() again.
-        //
-        _readyCallback.ready(IceInternal.SocketOperation.Read, true);
+        finally
+        {
+            //
+            // This causes the Ice run time to invoke initialize() again.
+            //
+            _readyCallback.ready(IceInternal.SocketOperation.Read, true);
+        }
     }
 
     private void startReadWriteThreads()
@@ -675,7 +641,6 @@ final class TransceiverI implements IceInternal.Transceiver
     private static final int StateClosed = 2;
     private int _state;
 
-    private Thread _connectThread;
     private Thread _readThread;
     private Thread _writeThread;
 
