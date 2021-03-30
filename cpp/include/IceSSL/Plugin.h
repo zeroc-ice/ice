@@ -31,18 +31,18 @@
 namespace IceSSL
 {
 
-#ifdef ICE_CPP11_MAPPING
 /**
  * Determines the reason for IceSSL certificate verficiation failures.
  */
+#ifdef ICE_CPP11_MAPPING
 enum class TrustError : unsigned char
 #else
 enum TrustError
 #endif
 {
-    /** There are no trust errors. */
+    /** The certification verification succeed  */
     NoError = 0,
-    /** The certificate chain lenght is greater that the supplied maximum dpeth **/
+    /** The certificate chain lenght is greater that the supplied maximum depth **/
     ChainTooLong,
     /** The certificate is explicitly distrusted **/
     ExplicitDistrust,
