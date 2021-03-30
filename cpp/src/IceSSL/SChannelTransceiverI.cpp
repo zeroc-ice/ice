@@ -74,9 +74,8 @@ trustStatusToTrustError(DWORD status)
     if ((status & CERT_TRUST_IS_UNTRUSTED_ROOT) ||
         (status & CERT_TRUST_IS_CYCLIC) ||
         (status & CERT_TRUST_CTL_IS_NOT_TIME_VALID) ||
-        (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID)
+        (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID) ||
         (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE))
-
     {
         return IceSSL::ICE_ENUM(TrustError, UntrustedRoot);
     }
@@ -112,7 +111,7 @@ trustStatusToTrustError(DWORD status)
     {
         return IceSSL::ICE_ENUM(TrustError, HasNotPermittedNameConstraint);
     }
-    if (status & CERT_TRUST_HAS_EXCfLUDED_NAME_CONSTRAINT)
+    if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
     {
         return IceSSL::ICE_ENUM(TrustError, HasExcludedNameConstraint);
     }
@@ -136,7 +135,7 @@ trustStatusToTrustError(DWORD status)
     {
         return IceSSL::ICE_ENUM(TrustError, PartialChain);
     }
-    return UnknownTrustFailure;
+    return IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
 }
 
 string
@@ -771,7 +770,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         {
             CertFreeCertificateContext(cert);
             trustError = IceUtilInternal::lastErrorToString();
-            _trustError = UnknownTrustFailure;
+            _trustError = IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
         }
         else
         {
@@ -783,7 +782,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
             else
             {
                 _verified = true;
-                _trustError = NoError;
+                _trustError = IceSSL::ICE_ENUM(TrustError, NoError);
             }
 
             CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
