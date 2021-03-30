@@ -33,7 +33,7 @@ namespace IceSSL
 
 #ifdef ICE_CPP11_MAPPING
 /**
- * Determines how the Application class handles signals.
+ * Determines the reason for IceSSL certificate verficiation failures.
  */
 enum class TrustError : unsigned char
 #else
