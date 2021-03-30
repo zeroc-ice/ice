@@ -21,6 +21,8 @@ public:
 };
 ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
 
+std::string getTrustErrorDescription(TrustError);
+
 class ICESSL_API PluginI : public virtual IceSSL::Plugin
 {
 public:

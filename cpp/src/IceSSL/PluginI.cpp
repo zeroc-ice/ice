@@ -139,7 +139,7 @@ IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
     {
         return extendedInfo->errorCode;
     }
-    return info->verified ? NoError : UnknownTrustFailure;
+    return info->verified ? IceSSL::ICE_ENUM(TrustError, NoError) : IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
 }
 
 std::string
@@ -147,85 +147,89 @@ IceSSL::getTrustErrorDescription(TrustError error)
 {
     switch(error)
     {
-        case NoError:
+        case  IceSSL::ICE_ENUM(TrustError, NoError):
         {
             return "no error";
         }
-        case ExplicitDistrust:
+        case IceSSL::ICE_ENUM(TrustError, ChainTooLong):
+        {
+            return "the certificate chain lenght is greater that the supplied maximum dpeth";
+        }
+        case IceSSL::ICE_ENUM(TrustError, ExplicitDistrust):
         {
             return "the certificate is explicitly distrusted";
         }
-        case HasExcludedNameConstraint:
+        case IceSSL::ICE_ENUM(TrustError, HasExcludedNameConstraint):
         {
             return "the X509 chain is invalid because a certificate has excluded a name constraint";
         }
-        case HasNotDefinedNameConstraint:
+        case IceSSL::ICE_ENUM(TrustError, HasNotDefinedNameConstraint):
         {
             return "the certificate has an undefined name constraint";
         }
-        case HasNotPermittedNameConstraint:
+        case IceSSL::ICE_ENUM(TrustError, HasNotPermittedNameConstraint):
         {
             return "the certificate has an impermissible name constrain";
         }
-        case HasNotSupportedCriticalExtension:
+        case IceSSL::ICE_ENUM(TrustError, HasNotSupportedCriticalExtension):
         {
             return "the certificate does not support a critical extension";
         }
-        case HasNotSupportedNameConstraint:
+        case IceSSL::ICE_ENUM(TrustError, HasNotSupportedNameConstraint):
         {
             return "the certificate does not have a supported name constraint or has a name constraint that "
                    "is unsupported";
         }
-        case HostNameMismatch:
+        case IceSSL::ICE_ENUM(TrustError, HostNameMismatch):
         {
             return "host name mismatch has occurred";
         }
-        case InvalidBasicConstraints:
+        case IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints):
         {
             return "the X509 chain is invalid due to invalid basic constraints";
         }
-        case InvalidExtension:
+        case IceSSL::ICE_ENUM(TrustError, InvalidExtension):
         {
             return "the X509 chain is invalid due to an invalid extension";
         }
-        case InvalidNameConstraints:
+        case IceSSL::ICE_ENUM(TrustError, InvalidNameConstraints):
         {
             return "the X509 chain is invalid due to invalid name constraints";
         }
-        case InvalidPolicyConstraints:
+        case IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints):
         {
             return "the X509 chain is invalid due to invalid policy constraints";
         }
-        case NotSignatureValid:
+        case IceSSL::ICE_ENUM(TrustError, NotSignatureValid):
         {
             return "the X509 chain is invalid due to an invalid certificate signature";
         }
-        case NotTimeValid:
+        case IceSSL::ICE_ENUM(TrustError, NotTimeValid):
         {
             return "the X509 chain is not valid due to an invalid time value, such as a value that indicates an "
                    "expired certificate";
         }
-        case NotValidForUsage:
+        case IceSSL::ICE_ENUM(TrustError, NotValidForUsage):
         {
-            return "the key usage is not valid";
+            return "the supplied certificate cannot be used for the specified purpose";
         }
-        case PartialChain:
+        case IceSSL::ICE_ENUM(TrustError, PartialChain):
         {
             return "the X509 chain could not be built up to the root certificate";
         }
-        case RevocationStatusUnknown:
+        case IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown):
         {
             return "it is not possible to determine whether the certificate has been revoke";
         }
-        case Revoked:
+        case IceSSL::ICE_ENUM(TrustError, Revoked):
         {
             return "the X509 chain is invalid due to a revoked certificate";
         }
-        case UntrustedRoot:
+        case IceSSL::ICE_ENUM(TrustError, UntrustedRoot):
         {
             return "the X509 chain is invalid due to an untrusted root certificate";
         }
-        case UnknownTrustFailure:
+        case IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure):
         {
             return "unknown failure";
         }

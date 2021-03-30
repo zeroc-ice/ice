@@ -31,33 +31,61 @@
 namespace IceSSL
 {
 
+#ifdef ICE_CPP11_MAPPING
+/**
+ * Determines how the Application class handles signals.
+ */
+enum class TrustError : unsigned char
+#else
 enum TrustError
+#endif
 {
+    /** There are no trust errors. */
     NoError = 0,
+    /** The certificate chain lenght is greater that the supplied maximum dpeth **/
     ChainTooLong,
+    /** The certificate is explicitly distrusted **/
     ExplicitDistrust,
+    /** The X509 chain is invalid because a certificate has excluded a name constraint **/
     HasExcludedNameConstraint,
+    /** The certificate has an undefined name constraint"**/
     HasNotDefinedNameConstraint,
+    /** The certificate has an impermissible name constrain **/
     HasNotPermittedNameConstraint,
+    /** The certificate does not support a critical extension **/
     HasNotSupportedCriticalExtension,
+    /** The certificate does not have a supported name constraint or has a name constraint that is unsupported **/
     HasNotSupportedNameConstraint,
+    /** A host name mismatch has occurred **/
     HostNameMismatch,
+    /** The X509 chain is invalid due to invalid basic constraints **/
     InvalidBasicConstraints,
+    /** The X509 chain is invalid due to an invalid extension **/
     InvalidExtension,
+    /** The X509 chain is invalid due to invalid name constraints **/
     InvalidNameConstraints,
+    /** The X509 chain is invalid due to invalid policy constraints **/
     InvalidPolicyConstraints,
+    /** The X509 chain is invalid due to an invalid certificate signature **/
     NotSignatureValid,
+    /** The X509 chain is not valid due to an invalid time value, such as a value that indicates an expired
+        certificate **/
     NotTimeValid,
+    /** The supplied certificate cannot be used for the specified purpose **/
     NotValidForUsage,
+    /** The X509 chain could not be built up to the root certificate **/
     PartialChain,
+    /** It is not possible to determine whether the certificate has been revoke **/
     RevocationStatusUnknown,
+    /** The X509 chain is invalid due to a revoked certificate **/
     Revoked,
-    UnknownTrustFailure,
+    /** The X509 chain is invalid due to an untrusted root certificate **/
     UntrustedRoot,
+    /** The X509 chain is invalid due to other unknown failure **/
+    UnknownTrustFailure,
 };
 
 ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
-ICESSL_API std::string getTrustErrorDescription(TrustError);
 
 /**
  * Thrown if the certificate cannot be read.

@@ -81,24 +81,24 @@ TrustError trustStatusToTrustError(long status)
     switch (status)
     {
     case X509_V_OK:
-        return NoError;
+        return IceSSL::ICE_ENUM(TrustError, NoError);
     case X509_V_ERR_CERT_NOT_YET_VALID:
     case X509_V_ERR_CERT_HAS_EXPIRED:
     case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
     case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-        return NotTimeValid;
+        return IceSSL::ICE_ENUM(TrustError, NotTimeValid);
     case X509_V_ERR_CERT_REVOKED:
-        return Revoked;
+        return IceSSL::ICE_ENUM(TrustError, Revoked);
 
     case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE:
     case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY:
     case X509_V_ERR_CERT_SIGNATURE_FAILURE:
-        return NotSignatureValid;
+        return IceSSL::ICE_ENUM(TrustError, NotSignatureValid);
 
     case X509_V_ERR_CERT_UNTRUSTED:
     case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
     case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-        return UntrustedRoot;
+        return IceSSL::ICE_ENUM(TrustError, UntrustedRoot);
 
     case X509_V_ERR_CRL_HAS_EXPIRED:
     case X509_V_ERR_CRL_NOT_YET_VALID:
@@ -111,60 +111,59 @@ TrustError trustStatusToTrustError(long status)
     case X509_V_ERR_UNABLE_TO_GET_CRL_ISSUER:
     case X509_V_ERR_UNHANDLED_CRITICAL_CRL_EXTENSION:
     case X509_V_ERR_CRL_PATH_VALIDATION_ERROR:
-        return RevocationStatusUnknown;
+        return IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown);
 
     case X509_V_ERR_INVALID_EXTENSION:
-        return InvalidExtension;
+        return IceSSL::ICE_ENUM(TrustError, InvalidExtension);
 
     case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
     case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
     case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-        return PartialChain;
+        return IceSSL::ICE_ENUM(TrustError, PartialChain);
 
     case X509_V_ERR_INVALID_PURPOSE:
-        return NotValidForUsage;
+        return IceSSL::ICE_ENUM(TrustError, NotValidForUsage);
 
     case X509_V_ERR_INVALID_CA:
     case X509_V_ERR_INVALID_NON_CA:
     case X509_V_ERR_PATH_LENGTH_EXCEEDED:
     case X509_V_ERR_KEYUSAGE_NO_CERTSIGN:
     case X509_V_ERR_KEYUSAGE_NO_DIGITAL_SIGNATURE:
-        return InvalidBasicConstraints;
+        return IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints);
 
     case X509_V_ERR_INVALID_POLICY_EXTENSION:
     case X509_V_ERR_NO_EXPLICIT_POLICY:
-        return InvalidPolicyConstraints;
+        return IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints);
 
     case X509_V_ERR_CERT_REJECTED:
-        return ExplicitDistrust;
+        return IceSSL::ICE_ENUM(TrustError, ExplicitDistrust);
 
     case X509_V_ERR_UNHANDLED_CRITICAL_EXTENSION:
-        return HasNotSupportedCriticalExtension;
+        return IceSSL::ICE_ENUM(TrustError, HasNotSupportedCriticalExtension);
 
     case X509_V_ERR_PERMITTED_VIOLATION:
-        return HasNotPermittedNameConstraint;
+        return IceSSL::ICE_ENUM(TrustError, HasNotPermittedNameConstraint);
 
     case X509_V_ERR_EXCLUDED_VIOLATION:
-        return HasExcludedNameConstraint;
+        return IceSSL::ICE_ENUM(TrustError, HasExcludedNameConstraint);
 
     case X509_V_ERR_UNSUPPORTED_CONSTRAINT_TYPE:
     case X509_V_ERR_SUBTREE_MINMAX:
-        return HasNotSupportedNameConstraint;
+        return IceSSL::ICE_ENUM(TrustError, HasNotSupportedNameConstraint);
 
     case X509_V_ERR_UNSUPPORTED_NAME_SYNTAX:
-        return InvalidNameConstraints;
-    
+        return IceSSL::ICE_ENUM(TrustError, InvalidNameConstraints);
+
     case X509_V_ERR_HOSTNAME_MISMATCH:
     case X509_V_ERR_IP_ADDRESS_MISMATCH:
-        return HostNameMismatch;
+        return IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
 
     case X509_V_ERR_CERT_CHAIN_TOO_LONG:
-        return ChainTooLong;
-    
+        return IceSSL::ICE_ENUM(TrustError, ChainTooLong);
+
     default:
-        break;
+        return IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);;
     }
-    return UnknownTrustFailure;
 }
 
 }
@@ -448,7 +447,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
     catch(const SecurityException&)
     {
-        _trustError = HostNameMismatch;
+        _trustError = IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
         _verified = false;
         if(_engine->getVerifyPeer() > 0)
         {
