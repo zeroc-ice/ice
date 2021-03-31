@@ -32,7 +32,7 @@ namespace IceSSL
 {
 
 /**
- * Determines the reason for IceSSL certificate verficiation failures.
+ * The reason for an IceSSL certificate verification failure.
  */
 #ifdef ICE_CPP11_MAPPING
 enum class TrustError : unsigned char
