@@ -65,7 +65,7 @@ public:
 
 #ifndef ICE_CPP11_MAPPING
     /**
-     * Polymporphically clones this exception.
+     * Polymorphically clones this exception.
      * @return A shallow copy of this exception.
      */
     virtual IconvInitializationException* ice_clone() const;

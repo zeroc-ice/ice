@@ -44,7 +44,7 @@ public:
 #endif
 
     /**
-     * Polymporphically clones this exception.
+     * Polymorphically clones this exception.
      * @return A shallow copy of this exception.
      */
 #ifdef ICE_CPP11_MAPPING
@@ -69,7 +69,7 @@ class ICE_API UserException : public IceUtil::Exception
 public:
 
     /**
-     * Polymporphically clones this exception.
+     * Polymorphically clones this exception.
      * @return A shallow copy of this exception.
      */
 #ifdef ICE_CPP11_MAPPING
@@ -126,7 +126,7 @@ public:
 #endif
 
     /**
-     * Polymporphically clones this exception.
+     * Polymorphically clones this exception.
      * @return A shallow copy of this exception.
      */
 #ifdef ICE_CPP11_MAPPING

@@ -1538,7 +1538,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     H << nl << "/**";
-    H << nl << " * Polymporphically clones this exception.";
+    H << nl << " * Polymorphically clones this exception.";
     H << nl << " * @return A shallow copy of this exception.";
     H << nl << " */";
     H << nl << "virtual " << name << "* ice_clone() const;";
@@ -3034,7 +3034,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             H << sp;
             H << nl << "/**";
-            H << nl << " * Polymporphically clones this object.";
+            H << nl << " * Polymorphically clones this object.";
             H << nl << " * @return A shallow copy of this object.";
             H << nl << " */";
             H << nl << "virtual " << getUnqualified("::Ice::ObjectPtr", scope) << " ice_clone() const;";
