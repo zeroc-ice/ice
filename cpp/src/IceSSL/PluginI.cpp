@@ -153,7 +153,7 @@ IceSSL::getTrustErrorDescription(TrustError error)
         }
         case IceSSL::ICE_ENUM(TrustError, ChainTooLong):
         {
-            return "the certificate chain lenght is greater that the supplied maximum dpeth";
+            return "the certificate chain length is greater than the specified maximum depth";
         }
         case IceSSL::ICE_ENUM(TrustError, ExplicitDistrust):
         {
