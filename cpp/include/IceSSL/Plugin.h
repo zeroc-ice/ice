@@ -75,7 +75,7 @@ enum TrustError
     NotValidForUsage,
     /** The X509 chain could not be built up to the root certificate **/
     PartialChain,
-    /** It is not possible to determine whether the certificate has been revoke **/
+    /** It is not possible to determine whether the certificate has been revoked **/
     RevocationStatusUnknown,
     /** The X509 chain is invalid due to a revoked certificate **/
     Revoked,
