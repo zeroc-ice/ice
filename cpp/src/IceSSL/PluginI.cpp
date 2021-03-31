@@ -219,7 +219,7 @@ IceSSL::getTrustErrorDescription(TrustError error)
         }
         case IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown):
         {
-            return "it is not possible to determine whether the certificate has been revoke";
+            return "it is not possible to determine whether the certificate has been revoked";
         }
         case IceSSL::ICE_ENUM(TrustError, Revoked):
         {
