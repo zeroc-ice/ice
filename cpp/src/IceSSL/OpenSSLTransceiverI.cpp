@@ -82,11 +82,13 @@ TrustError trustStatusToTrustError(long status)
     {
     case X509_V_OK:
         return IceSSL::ICE_ENUM(TrustError, NoError);
+
     case X509_V_ERR_CERT_NOT_YET_VALID:
     case X509_V_ERR_CERT_HAS_EXPIRED:
     case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
     case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
         return IceSSL::ICE_ENUM(TrustError, NotTimeValid);
+
     case X509_V_ERR_CERT_REVOKED:
         return IceSSL::ICE_ENUM(TrustError, Revoked);
 
