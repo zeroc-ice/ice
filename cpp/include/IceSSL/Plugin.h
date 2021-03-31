@@ -42,7 +42,7 @@ enum TrustError
 {
     /** The certification verification succeed  */
     NoError = 0,
-    /** The certificate chain lenght is greater that the supplied maximum depth **/
+    /** The certificate chain length is greater than the specified maximum depth **/
     ChainTooLong,
     /** The certificate is explicitly distrusted **/
     ExplicitDistrust,
