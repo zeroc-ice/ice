@@ -75,7 +75,7 @@ TrustError errorToTrustError(CFErrorRef err)
         case errSecCertificateExpired:
         case errSecCertificateNotValidYet:
         {
-            return IceSSL::ICE_ENUM(TrustError, NotTimeValid);
+            return IceSSL::ICE_ENUM(TrustError, InvalidTime);
         }
         case errSecNotTrusted:
         {
@@ -88,16 +88,16 @@ TrustError errorToTrustError(CFErrorRef err)
         case errSecUnknownCertExtension:
         case errSecUnknownCRLExtension:
         {
-            return IceSSL::ICE_ENUM(TrustError, HasNotSupportedCriticalExtension);
+            return IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension);
         }
         case errSecInvalidKeyUsageForPolicy:
         case errSecInvalidExtendedKeyUsage:
         {
-            return IceSSL::ICE_ENUM(TrustError, NotValidForUsage);
+            return IceSSL::ICE_ENUM(TrustError, InvalidPurpose);
         }
         case errSecInvalidSignature:
         {
-            return IceSSL::ICE_ENUM(TrustError, NotSignatureValid);
+            return IceSSL::ICE_ENUM(TrustError, InvalidSignature);
         }
         case errSecCreateChainFailed:
         {

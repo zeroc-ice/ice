@@ -2364,7 +2364,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
         test(!info->verified);
-        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NotTimeValid));
+        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, InvalidTime));
 
         fact->destroyServer(server);
         comm->destroy();

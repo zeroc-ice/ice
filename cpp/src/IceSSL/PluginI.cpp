@@ -155,7 +155,7 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "the certificate chain length is greater than the specified maximum depth";
         }
-        case IceSSL::ICE_ENUM(TrustError, ExplicitDistrust):
+        case IceSSL::ICE_ENUM(TrustError, NotTrusted):
         {
             return "the certificate is explicitly distrusted";
         }
@@ -163,19 +163,19 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "the X509 chain is invalid because a certificate has excluded a name constraint";
         }
-        case IceSSL::ICE_ENUM(TrustError, HasNotDefinedNameConstraint):
+        case IceSSL::ICE_ENUM(TrustError, HasNonDefinedNameConstraint):
         {
             return "the certificate has an undefined name constraint";
         }
-        case IceSSL::ICE_ENUM(TrustError, HasNotPermittedNameConstraint):
+        case IceSSL::ICE_ENUM(TrustError, HasNonPermittedNameConstraint):
         {
             return "the certificate has an impermissible name constrain";
         }
-        case IceSSL::ICE_ENUM(TrustError, HasNotSupportedCriticalExtension):
+        case IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension):
         {
             return "the certificate does not support a critical extension";
         }
-        case IceSSL::ICE_ENUM(TrustError, HasNotSupportedNameConstraint):
+        case IceSSL::ICE_ENUM(TrustError, HasNonSupportedNameConstraint):
         {
             return "the certificate does not have a supported name constraint or has a name constraint that "
                    "is unsupported";
@@ -200,16 +200,16 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "the X509 chain is invalid due to invalid policy constraints";
         }
-        case IceSSL::ICE_ENUM(TrustError, NotSignatureValid):
+        case IceSSL::ICE_ENUM(TrustError, InvalidSignature):
         {
             return "the X509 chain is invalid due to an invalid certificate signature";
         }
-        case IceSSL::ICE_ENUM(TrustError, NotTimeValid):
+        case IceSSL::ICE_ENUM(TrustError, InvalidTime):
         {
             return "the X509 chain is not valid due to an invalid time value, such as a value that indicates an "
                    "expired certificate";
         }
-        case IceSSL::ICE_ENUM(TrustError, NotValidForUsage):
+        case IceSSL::ICE_ENUM(TrustError, InvalidPurpose):
         {
             return "the supplied certificate cannot be used for the specified purpose";
         }

@@ -57,7 +57,7 @@ trustStatusToTrustError(DWORD status)
     }
     if (status & CERT_TRUST_IS_NOT_TIME_VALID)
     {
-        return IceSSL::ICE_ENUM(TrustError, NotTimeValid);
+        return IceSSL::ICE_ENUM(TrustError, InvalidTime);
     }
     if (status & CERT_TRUST_IS_REVOKED)
     {
@@ -65,11 +65,11 @@ trustStatusToTrustError(DWORD status)
     }
     if (status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
     {
-        return IceSSL::ICE_ENUM(TrustError, NotSignatureValid);
+        return IceSSL::ICE_ENUM(TrustError, InvalidSignature);
     }
     if (status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
     {
-        return IceSSL::ICE_ENUM(TrustError, NotValidForUsage);
+        return IceSSL::ICE_ENUM(TrustError, InvalidPurpose);
     }
     if ((status & CERT_TRUST_IS_UNTRUSTED_ROOT) ||
         (status & CERT_TRUST_IS_CYCLIC) ||
@@ -101,15 +101,15 @@ trustStatusToTrustError(DWORD status)
     }
     if (status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNotSupportedNameConstraint);
+        return IceSSL::ICE_ENUM(TrustError, HasNonSupportedNameConstraint);
     }
     if (status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNotDefinedNameConstraint);
+        return IceSSL::ICE_ENUM(TrustError, HasNonDefinedNameConstraint);
     }
     if (status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNotPermittedNameConstraint);
+        return IceSSL::ICE_ENUM(TrustError, HasNonPermittedNameConstraint);
     }
     if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
     {
@@ -125,11 +125,11 @@ trustStatusToTrustError(DWORD status)
     }
     if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
     {
-        return IceSSL::ICE_ENUM(TrustError, ExplicitDistrust);
+        return IceSSL::ICE_ENUM(TrustError, NotTrusted);
     }
     if (status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNotSupportedCriticalExtension);
+        return IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension);
     }
     if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
     {
