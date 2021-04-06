@@ -68,30 +68,45 @@ TrustError errorToTrustError(CFErrorRef err)
     long errorCode = CFErrorGetCode(err);
     switch (errorCode)
     {
-        case errSecCertificateRevoked:
+        case errSecPathLengthConstraintExceeded:
         {
-            return IceSSL::ICE_ENUM(TrustError, Revoked);
+            return IceSSL::ICE_ENUM(TrustError, ChainTooLong);
         }
-        case errSecCertificateExpired:
-        case errSecCertificateNotValidYet:
-        {
-            return IceSSL::ICE_ENUM(TrustError, InvalidTime);
-        }
-        case errSecNotTrusted:
-        {
-            return IceSSL::ICE_ENUM(TrustError, UntrustedRoot);
-        }
-        case errSecMissingRequiredExtension:
-        {
-            return IceSSL::ICE_ENUM(TrustError, InvalidExtension);
-        }
-        case errSecUnknownCertExtension:
         case errSecUnknownCRLExtension:
+        case errSecUnknownCriticalExtensionFlag:
         {
             return IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension);
         }
-        case errSecInvalidKeyUsageForPolicy:
+        case errSecHostNameMismatch:
+        {
+            return IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
+        }
+        case errSecCodeSigningNoBasicConstraints:
+        case errSecNoBasicConstraints:
+        case errSecNoBasicConstraintsCA:
+        {
+            return IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints);
+        }
+        case errSecMissingRequiredExtension:
+        case errSecUnknownCertExtension:
+        {
+            return IceSSL::ICE_ENUM(TrustError, InvalidExtension);
+        }
+        case errSecCertificateNameNotAllowed:
+        case errSecInvalidName:
+        {
+            return IceSSL::ICE_ENUM(TrustError, InvalidNameConstraints);
+        }
+        case errSecCertificatePolicyNotAllowed:
+        case errSecInvalidPolicyIdentifiers:
+        case errSecInvalidCertificateRef:
+        case errSecInvalidDigestAlgorithm:
+        case errSecUnsupportedKeySize:
+        {
+            return IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints);
+        }
         case errSecInvalidExtendedKeyUsage:
+        case errSecInvalidKeyUsageForPolicy:
         {
             return IceSSL::ICE_ENUM(TrustError, InvalidPurpose);
         }
@@ -99,18 +114,29 @@ TrustError errorToTrustError(CFErrorRef err)
         {
             return IceSSL::ICE_ENUM(TrustError, InvalidSignature);
         }
+        case errSecCertificateExpired:
+        case errSecCertificateNotValidYet:
+        case errSecCertificateValidityPeriodTooLong:
+        {
+            return IceSSL::ICE_ENUM(TrustError, InvalidTime);
+        }
         case errSecCreateChainFailed:
         {
             return IceSSL::ICE_ENUM(TrustError, PartialChain);
         }
-        case errSecHostNameMismatch:
+        case errSecCertificateRevoked:
         {
-            return IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
+            return IceSSL::ICE_ENUM(TrustError, Revoked);
         }
-        case errSecNoBasicConstraints:
-        case errSecNoBasicConstraintsCA:
+        case errSecIncompleteCertRevocationCheck:
+        case errSecOCSPNotTrustedToAnchor:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints);
+            return IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown);
+        }
+        case errSecNotTrusted:
+        case errSecVerifyActionFailed:
+        {
+            return IceSSL::ICE_ENUM(TrustError, UntrustedRoot);
         }
         default:
         {
