@@ -48,7 +48,7 @@ enum TrustError
     HasExcludedNameConstraint,
     /** The certificate has an undefined name constraint **/
     HasNonDefinedNameConstraint,
-    /** The certificate has an impermissible name constrain **/
+    /** The certificate has a non permitted name constraint **/
     HasNonPermittedNameConstraint,
     /** The certificate does not support a critical extension **/
     HasNonSupportedCriticalExtension,
