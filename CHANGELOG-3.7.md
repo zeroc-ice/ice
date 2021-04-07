@@ -74,9 +74,9 @@ These are the changes since Ice 3.7.5.
 
 ## C++ Changes
 
-- Added `IceSSL::getTrustError` function that allows getting the reason for a trust failure from 
-  `IceSSL::ConnectionInfo` class, to get a description of the error codes you can pass the error
-  to `IceSSL::getTrustErrorDescription`
+- Added `IceSSL::TrustError` enumerator and `IceSSL::getTrustError` function to allow getting the reason for a trust
+  failure from `IceSSL::ConnectionInfo`. To get the description of a `IceSSL::TrustError` pass it to
+  `IceSSL::getTrustErrorDescription`.
 
 # Changes in Ice 3.7.5
 
