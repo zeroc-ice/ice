@@ -920,7 +920,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Test IceSSL.VerifyPeer=1. Client has a certificate.
         //
         // Provide "cacert1" to the client to verify the server
-        // certificate (without this the client connection wouln't be
+        // certificate (without this the client connection wouldn't be
         // able to provide the certificate chain).
         //
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
@@ -1013,6 +1013,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->certs.size() == 2);
             test(info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
 
             test(ICE_TARGET_EQUAL_TO(caCert, info->certs[1]));
             test(ICE_TARGET_EQUAL_TO(serverCert, info->certs[0]));
@@ -1230,21 +1231,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(props, p12, "s_rsa_ca1_cn1", "cacert1");
             server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
+
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1254,21 +1251,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(props, p12, "s_rsa_ca1_cn2", "cacert1");
             server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const Ice::SecurityException&)
-            {
-                // Expected
-            }
+
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(!info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1279,22 +1272,23 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(props, p12, "s_rsa_ca1_cn3", "cacert1");
             server = fact->createServer(d);
-            try
+
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            if(isCatalinaOrGreater || isIOS13OrGreater)
             {
-                server->ice_ping();
+                test(!info->verified);
+                test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
             }
-            catch(const Ice::LocalException&)
+            else
             {
-                //
-                // macOS catalina does not check the certificate common name
-                //
-                test(isCatalinaOrGreater || isIOS13OrGreater);
+                test(info->verified);
             }
 
             fact->destroyServer(server);
@@ -1306,21 +1300,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(props, p12, "s_rsa_ca1_cn4", "cacert1");
             server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const Ice::SecurityException&)
-            {
-                // Expected
-            }
+
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(!info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1331,21 +1321,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(props, p12, "s_rsa_ca1_cn5", "cacert1");
             server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const Ice::SecurityException&)
-            {
-                // Expected
-            }
+
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(!info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1359,21 +1345,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn6", "cacert1");
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
+            server = fact->createServer(d);;
+
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1383,21 +1365,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn7", "cacert1");
             server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const Ice::SecurityException&)
-            {
-                // Expected
-            }
+
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(!info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1412,88 +1390,17 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
             initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
             initData.properties->setProperty("IceSSL.CheckCertName", "1");
+            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
             comm = initialize(initData);
 
             fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
             test(fact);
             d = createServerProps(defaultProps, p12, "s_rsa_ca1_cn8", "cacert1");
             server = fact->createServer(d);
-#if defined(ICE_OS_UWP) || defined(ICE_USE_SECURE_TRANSPORT)
-            try
-            {
-                server->ice_ping();
-            }
-            catch(const Ice::LocalException&)
-            {
-                //
-                // macOS catalina does not check the certificate common name
-                //
-                test(isCatalinaOrGreater || isIOS13OrGreater);
-            }
-#else
-            try
-            {
-                server->ice_ping();
-                test(false);
-            }
-            catch(const Ice::SecurityException&)
-            {
-                // Expected
-            }
-#endif
-            fact->destroyServer(server);
-            comm->destroy();
 
-            //
-            // Target host does not match the certificate DNS altName, connection should succeed
-            // because IceSSL.VerifyPeer is set to 0.
-            //
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-            comm = initialize(initData);
-
-            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-            test(fact);
-            d = createServerProps(props, p12, "s_rsa_ca1_cn2", "cacert1");
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-                info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getCachedConnection()->getInfo());
-                test(!info->verified);
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-
-            fact->destroyServer(server);
-            comm->destroy();
-
-            //
-            // Target host does not match the certificate DNS altName, connection should succeed
-            // because IceSSL.CheckCertName is set to 0.
-            //
-            initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-            initData.properties->setProperty("IceSSL.CheckCertName", "0");
-            comm = initialize(initData);
-
-            fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
-            test(fact);
-            d = createServerProps(props, p12, "s_rsa_ca1_cn2", "cacert1");
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-
+            info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+            test(!info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
             fact->destroyServer(server);
             comm->destroy();
         }
@@ -1534,6 +1441,67 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(toHexString(cert->getSubjectKeyIdentifier()) == subjects[i]);
         }
     }
+    {
+#   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+    vector<pair<int, string> > expectedAltNames;
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    expectedAltNames.push_back(make_pair(2, "client"));
+    IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    expectedAltNames.push_back(make_pair(2, "server"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(2, "localhost"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn1_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(2, "localhostXX"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn2_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn6_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn7_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn8_pub.pem");
+    test(cert->getSubjectAlternativeNames().empty());
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+// IPv6 address parsing is not implemented with SChannel and OpenSSL IceSSL implementations
+#       ifdef ICE_USE_SECURE_TRANSPORT
+    expectedAltNames.push_back(make_pair(7, "0000:0000:0000:0000:0000:0000:0000:0001"));
+#       endif
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn9_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(2, "host1"));
+    expectedAltNames.push_back(make_pair(2, "host2"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn10_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+
+    expectedAltNames.clear();
+    expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
+    expectedAltNames.push_back(make_pair(7, "127.0.0.2"));
+    expectedAltNames.push_back(make_pair(2, "host1"));
+    expectedAltNames.push_back(make_pair(2, "host2"));
+    cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_cn11_pub.pem");
+    test(cert->getSubjectAlternativeNames() == expectedAltNames);
+#   endif
+    }
     cout << "ok" << endl;
 #endif
 
@@ -1563,6 +1531,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->certs.size() == 1);
             test(!info->verified);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, PartialChain));
         }
         catch(const Ice::LocalException& ex)
         {
@@ -1584,8 +1553,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
 #ifdef ICE_USE_OPENSSL
             test(info->certs.size() == 2); // TODO: Fix OpenSSL
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, UntrustedRoot));
 #else
             test(info->certs.size() == 1);
+            test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, PartialChain));
 #endif
             test(!info->verified);
         }
@@ -1612,10 +1583,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
 #if defined(ICE_USE_SCHANNEL) || defined(ICE_OS_UWP)
                 test(info->certs.size() == 1); // SChannel never sends the root certificate
+                test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, PartialChain));
 #else
                 test(info->certs.size() == 2);
+                test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, UntrustedRoot));
 #endif
                 test(!info->verified);
+
             }
             catch(const Ice::LocalException& ex)
             {
@@ -1646,6 +1620,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 2);
                 test(info->verified);
+                test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
             }
             catch(const Ice::LocalException& ex)
             {
@@ -1716,6 +1691,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 3);
                 test(info->verified);
+                test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
             }
             catch(const Ice::LocalException& ex)
             {
@@ -1764,6 +1740,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                 info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
                 test(info->certs.size() == 4);
                 test(info->verified);
+                test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
             }
             catch(const Ice::LocalException& ex)
             {
@@ -2373,6 +2350,22 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             cerr << ex << endl;
             test(false);
         }
+        fact->destroyServer(server);
+        comm->destroy();
+
+        // repeat with VerifyPeer = 0
+        initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+        comm = initialize(initData);
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+        d = createServerProps(defaultProps, p12, "s_rsa_ca1_exp", "cacert1");
+        server = fact->createServer(d);
+
+        info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+        test(!info->verified);
+        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, InvalidTime));
+
         fact->destroyServer(server);
         comm->destroy();
 

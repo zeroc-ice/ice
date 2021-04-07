@@ -77,6 +77,7 @@ private:
     size_t _maxRecvPacketSize;
     std::string _cipher;
     std::vector<CertificatePtr> _certs;
+    TrustError _trustError;
     bool _verified;
     size_t _buffered;
 };

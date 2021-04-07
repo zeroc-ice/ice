@@ -9,6 +9,7 @@
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/SChannelEngine.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
@@ -45,6 +46,96 @@ protocolName(DWORD protocol)
         default:
             return "Unknown";
     }
+}
+
+TrustError
+trustStatusToTrustError(DWORD status)
+{
+    if (status & CERT_TRUST_NO_ERROR)
+    {
+        return IceSSL::ICE_ENUM(TrustError, NoError);
+    }
+    if (status & CERT_TRUST_IS_NOT_TIME_VALID)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidTime);
+    }
+    if (status & CERT_TRUST_IS_REVOKED)
+    {
+        return IceSSL::ICE_ENUM(TrustError, Revoked);
+    }
+    if (status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidSignature);
+    }
+    if (status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidPurpose);
+    }
+    if ((status & CERT_TRUST_IS_UNTRUSTED_ROOT) ||
+        (status & CERT_TRUST_IS_CYCLIC) ||
+        (status & CERT_TRUST_CTL_IS_NOT_TIME_VALID) ||
+        (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID) ||
+        (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE))
+    {
+        return IceSSL::ICE_ENUM(TrustError, UntrustedRoot);
+    }
+    if (status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+    {
+        return IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown);
+    }
+    if (status & CERT_TRUST_INVALID_EXTENSION)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidExtension);
+    }
+    if (status & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints);
+    }
+    if (status & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints);
+    }
+    if (status & CERT_TRUST_INVALID_NAME_CONSTRAINTS)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidNameConstraints);
+    }
+    if (status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
+    {
+        return IceSSL::ICE_ENUM(TrustError, HasNonSupportedNameConstraint);
+    }
+    if (status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
+    {
+        return IceSSL::ICE_ENUM(TrustError, HasNonDefinedNameConstraint);
+    }
+    if (status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
+    {
+        return IceSSL::ICE_ENUM(TrustError, HasNonPermittedNameConstraint);
+    }
+    if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
+    {
+        return IceSSL::ICE_ENUM(TrustError, HasExcludedNameConstraint);
+    }
+    if (status & CERT_TRUST_IS_OFFLINE_REVOCATION)
+    {
+        return IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown);
+    }
+    if (status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
+    {
+        return IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints);
+    }
+    if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
+    {
+        return IceSSL::ICE_ENUM(TrustError, NotTrusted);
+    }
+    if (status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
+    {
+        return IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension);
+    }
+    if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
+    {
+        return IceSSL::ICE_ENUM(TrustError, PartialChain);
+    }
+    return IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
 }
 
 string
@@ -679,16 +770,19 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         {
             CertFreeCertificateContext(cert);
             trustError = IceUtilInternal::lastErrorToString();
+            _trustError = IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
         }
         else
         {
             if(certChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
             {
                 trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
+                _trustError = trustStatusToTrustError(certChain->TrustStatus.dwErrorStatus);
             }
             else
             {
                 _verified = true;
+                _trustError = IceSSL::ICE_ENUM(TrustError, NoError);
             }
 
             CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
@@ -753,7 +847,10 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     }
     catch(const Ice::SecurityException&)
     {
+        _trustError = IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
         _verified = false;
+        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
+        info->verified = false;
         if(_engine->getVerifyPeer() > 0)
         {
             throw;
@@ -1001,13 +1098,14 @@ SChannel::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 SChannel::TransceiverI::getInfo() const
 {
-    ConnectionInfoPtr info = ICE_MAKE_SHARED(ConnectionInfo);
+    ExtendedConnectionInfoPtr info = ICE_MAKE_SHARED(ExtendedConnectionInfo);
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;
     info->cipher = _cipher;
     info->certs = _certs;
     info->verified = _verified;
+    info->errorCode = _trustError;
     return info;
 }
 

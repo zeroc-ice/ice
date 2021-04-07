@@ -120,6 +120,7 @@ private:
     std::string _cipher;
     std::vector<IceSSL::CertificatePtr> _certs;
     bool _verified;
+    TrustError _trustError;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

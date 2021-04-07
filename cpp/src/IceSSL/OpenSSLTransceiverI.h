@@ -71,6 +71,7 @@ private:
     std::string _cipher;
     std::vector<IceSSL::CertificatePtr> _certs;
     bool _verified;
+    TrustError _trustError;
 
     SSL* _ssl;
     BIO* _memBio;
