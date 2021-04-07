@@ -66,6 +66,16 @@ particular aspect of Ice.
   * [Python Changes](#python-changes-5)
   * [Ruby Changes](#ruby-changes-3)
 
+# Changes in Ice 3.7.6
+
+These are the changes since Ice 3.7.5.
+
+## C++ Changes
+
+- Added `IceSSL::getTrustError` function that allows getting the reason for a trust failure from 
+  `IceSSL::ConnectionInfo` class, to get a description of the error codes you can pass the error
+  to `IceSSL::getTrustErrorDescription`
+
 # Changes in Ice 3.7.5
 
 These are the changes since Ice 3.7.4.

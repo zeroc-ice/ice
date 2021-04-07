@@ -155,10 +155,6 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "the certificate chain length is greater than the specified maximum depth";
         }
-        case IceSSL::ICE_ENUM(TrustError, NotTrusted):
-        {
-            return "the certificate is explicitly distrusted";
-        }
         case IceSSL::ICE_ENUM(TrustError, HasExcludedNameConstraint):
         {
             return "the X509 chain is invalid because a certificate has excluded a name constraint";
@@ -169,7 +165,7 @@ IceSSL::getTrustErrorDescription(TrustError error)
         }
         case IceSSL::ICE_ENUM(TrustError, HasNonPermittedNameConstraint):
         {
-            return "the certificate has an impermissible name constrain";
+            return "the certificate has a non permitted name constrain";
         }
         case IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension):
         {
@@ -182,7 +178,7 @@ IceSSL::getTrustErrorDescription(TrustError error)
         }
         case IceSSL::ICE_ENUM(TrustError, HostNameMismatch):
         {
-            return "host name mismatch has occurred";
+            return "a host name mismatch has occurred";
         }
         case IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints):
         {
@@ -200,6 +196,10 @@ IceSSL::getTrustErrorDescription(TrustError error)
         {
             return "the X509 chain is invalid due to invalid policy constraints";
         }
+        case IceSSL::ICE_ENUM(TrustError, InvalidPurpose):
+        {
+            return "the supplied certificate cannot be used for the specified purpose";
+        }
         case IceSSL::ICE_ENUM(TrustError, InvalidSignature):
         {
             return "the X509 chain is invalid due to an invalid certificate signature";
@@ -209,9 +209,9 @@ IceSSL::getTrustErrorDescription(TrustError error)
             return "the X509 chain is not valid due to an invalid time value, such as a value that indicates an "
                    "expired certificate";
         }
-        case IceSSL::ICE_ENUM(TrustError, InvalidPurpose):
+        case IceSSL::ICE_ENUM(TrustError, NotTrusted):
         {
-            return "the supplied certificate cannot be used for the specified purpose";
+            return "the certificate is explicitly distrusted";
         }
         case IceSSL::ICE_ENUM(TrustError, PartialChain):
         {
