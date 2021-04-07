@@ -1388,7 +1388,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << sp << nl << "#ifdef ICE_CPP11_COMPILER";
     H.restoreIndent();
     H << nl << name << "(const " << name << "&) = default;";
-    H << nl << name << "& operator=(const " << name << "&) = default;";
     H << nl << "virtual ~" << name << "();";
 
     H.zeroIndent();
