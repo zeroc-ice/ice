@@ -8,7 +8,7 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- - [Changes in Ice 3.7.6](#changes-in-ice-376)
+- [Changes in Ice 3.7.6](#changes-in-ice-376)
   * [C++ Changes](#c-changes)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
   * [General Changes](#general-changes)
