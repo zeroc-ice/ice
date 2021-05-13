@@ -81,6 +81,7 @@ These are the changes since Ice 3.7.5.
 - Added `IceSSL::getHost` function to allow retrieving the host that was used to create an SSL connection from
   the `IceSSL::ConnectionInfo` object. The returned host corresponds to the `Endpoint::host` member of the endpoint
   that was used to create the connection.
+
 # Changes in Ice 3.7.5
 
 These are the changes since Ice 3.7.4.
