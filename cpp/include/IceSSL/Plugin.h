@@ -87,6 +87,7 @@ enum TrustError
 
 ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
 ICESSL_API std::string getTrustErrorDescription(TrustError);
+ICESSL_API std::string getHost(const IceSSL::ConnectionInfoPtr&);
 
 /**
  * Thrown if the certificate cannot be read.

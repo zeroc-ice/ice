@@ -237,3 +237,10 @@ IceSSL::getTrustErrorDescription(TrustError error)
     assert(false);
     return "unknown failure";
 }
+
+std::string
+IceSSL::getHost(const IceSSL::ConnectionInfoPtr& info)
+{
+    ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
+    return extendedInfo ? extendedInfo->host : "";
+}

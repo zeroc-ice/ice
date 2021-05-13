@@ -1241,6 +1241,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->verified);
+            test(getHost(info) == "localhost");
             test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
 
             fact->destroyServer(server);
@@ -1262,6 +1263,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(!info->verified);
             test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
+            test(getHost(info) == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1290,6 +1292,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             {
                 test(info->verified);
             }
+            test(getHost(info) == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1311,6 +1314,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(!info->verified);
             test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
+            test(getHost(info) == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1332,6 +1336,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(!info->verified);
             test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
+            test(getHost(info) == "localhost");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1356,6 +1361,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->verified);
             test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, NoError));
+            test(getHost(info) == "127.0.0.1");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1376,6 +1382,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(!info->verified);
             test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
+            test(getHost(info) == "127.0.0.1");
 
             fact->destroyServer(server);
             comm->destroy();
@@ -1401,6 +1408,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(!info->verified);
             test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, HostNameMismatch));
+            test(getHost(info) == "127.0.0.1");
             fact->destroyServer(server);
             comm->destroy();
         }
@@ -4100,6 +4108,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                         ICE_DYNAMIC_CAST(Ice::WSConnectionInfo, p->ice_getConnection()->getInfo());
                     IceSSL::ConnectionInfoPtr sslInfo = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, wsinfo->underlying);
                     test(sslInfo->verified);
+                    test(getHost(sslInfo) == "zeroc.com");
                     break;
                 }
                 catch(const Ice::LocalException& ex)

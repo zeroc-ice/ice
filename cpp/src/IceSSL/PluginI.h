@@ -18,6 +18,7 @@ class ExtendedConnectionInfo : public ConnectionInfo
 public:
 
     TrustError errorCode;
+    std::string host;
 };
 ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
 
