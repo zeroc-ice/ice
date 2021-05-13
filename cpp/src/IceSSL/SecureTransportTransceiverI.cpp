@@ -593,6 +593,7 @@ IceSSL::SecureTransport::TransceiverI::getInfo() const
     info->certs = _certs;
     info->verified = _verified;
     info->errorCode = _trustError;
+    info->host = _incoming ? "" : _host;
     return info;
 }
 
