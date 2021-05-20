@@ -39,6 +39,7 @@
       defined(_M_IA64)     || \
       defined(__alpha__)   || \
       defined(__ARMEL__)   || \
+      defined(_M_ARM64)    || \
       defined(_M_ARM_FP)   || \
       defined(__arm64)     || \
       defined(__MIPSEL__)
