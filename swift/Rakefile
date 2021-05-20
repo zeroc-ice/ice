@@ -14,7 +14,7 @@ module Xcodeproj
   end
 end
 
-$projectVersion = "3.7.5"
+$projectVersion = "3.7.6"
 $macOSDeploymentTarget = "10.14"
 $iOSDeploymentTarget = "12.0"
 

@@ -1445,9 +1445,7 @@ class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
         if self.exe == "slice2py":
             translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), "")
             if not os.path.exists(translator):
-                # TODO: Switch to "sys.executable -m slice2py" once Ice 3.7.5 is released
-                # See https://github.com/zeroc-ice/ice/issues/893
-                translator = sys.executable + " -c " + "'import slice2py; slice2py.main()'"
+                translator = sys.executable + " -m slice2py"
             return (translator + " " + args).strip()
         else:
             return Process.getCommandLine(self, current, args)
