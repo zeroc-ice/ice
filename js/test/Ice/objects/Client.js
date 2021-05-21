@@ -510,7 +510,7 @@
 
             out.write("testing class with interface by value member... ");
             {
-                var n = new Test.N(i);
+                var n = new Test.N(new II());
                 n = await initial.opN(n);
             }
             out.writeLine("ok");
