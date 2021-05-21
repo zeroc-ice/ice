@@ -724,5 +724,13 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         tprintf("ok\n");
     }
 
+    {
+        tprintf("testing class with interface by value member... ");
+        i = (TestObjectsI*)[initial getI];
+        TestObjectsN* n = [[TestObjectsN alloc] init:i];
+        n = [initial opN:n];
+        tprintf("ok\n");
+    }
+
     return initial;
 }

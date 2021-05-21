@@ -95,6 +95,11 @@ class H implements I
 {
 }
 
+class N
+{
+    I i;
+}
+
 sequence<Base> BaseSeq;
 
 class CompactExt;
@@ -261,6 +266,7 @@ interface Initial
     F2* opF2(F2* f21, out F2* f22);
     F3 opF3(F3 f31, out F3 f32);
     bool hasF3();
+    N opN(N p1);
 }
 
 interface TestIntf

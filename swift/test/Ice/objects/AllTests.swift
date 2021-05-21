@@ -328,5 +328,13 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     }
     output.writeLine("ok")
 
+    output.write("testing class with interface by value member... ")
+    do {
+        let i = try initial.getI()
+        var n = N(i: i)
+        n = try initial.opN(n)!
+    }
+    output.writeLine("ok")
+
     return initial
 }

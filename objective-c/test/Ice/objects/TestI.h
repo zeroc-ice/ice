@@ -77,6 +77,7 @@
 -(TestObjectsF1 *) opF1:(TestObjectsF1 *)f11 f12:(TestObjectsF1 **)f12 current:(ICECurrent *)current;
 -(TestObjectsF2Prx *) opF2:(TestObjectsF2Prx *)f21 f22:(TestObjectsF2Prx **)f22 current:(ICECurrent *)current;
 -(BOOL) hasF3:(ICECurrent *)current;
+-(TestObjectsN*) opN:(TestObjectsN*)p1 current:(ICECurrent *)current;
 @end
 
 @interface UnexpectedObjectExceptionTestI : ICEBlobject<ICEBlobject>
