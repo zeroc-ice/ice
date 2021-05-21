@@ -320,6 +320,12 @@ classdef AllTests
                 assert(~acceptsCycles);
             end
             fprintf('ok\n');
+            
+            fprintf('testing class with interface by value member... ');
+            i = initial.getI();
+            n = N(i);
+            n = initial.opN(n);
+            fprintf('ok\n');
 
             r = initial;
         end
