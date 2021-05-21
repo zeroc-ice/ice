@@ -418,5 +418,12 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
+    print "testing class with interface by value member... "
+    STDOUT.flush
+    i = initial.getI()
+    n = Test::N.new(i);
+    n = initial.opN(n)
+    puts "ok"
+
     return initial
 end

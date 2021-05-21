@@ -151,6 +151,8 @@ public:
     virtual Test::F3Ptr opF3(ICE_IN(Test::F3Ptr), Test::F3Ptr&, const Ice::Current&);
     virtual bool hasF3(const Ice::Current&);
 
+    virtual Test::NPtr opN(ICE_IN(Test::NPtr), const ::Ice::Current&);
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;

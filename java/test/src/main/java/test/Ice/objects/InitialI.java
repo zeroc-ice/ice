@@ -288,6 +288,12 @@ public final class InitialI implements Initial
         return true;
     }
 
+    @Override
+    public N opN(N p1, com.zeroc.Ice.Current current)
+    {
+        return p1;
+    }
+
     private com.zeroc.Ice.ObjectAdapter _adapter;
     private B _b1;
     private B _b2;

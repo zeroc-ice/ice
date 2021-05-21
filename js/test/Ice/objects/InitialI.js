@@ -354,6 +354,11 @@
             return true;
         }
 
+        opN(p1, current)
+        {
+            return p1;
+        }
+
         shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();

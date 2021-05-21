@@ -233,6 +233,12 @@ namespace Ice
                 return true;
             }
 
+            public override Test.N
+            opN(Test.N p1, Ice.Current current)
+            {
+                return p1;
+            }
+
             private Ice.ObjectAdapter _adapter;
             private Test.B _b1;
             private Test.B _b2;

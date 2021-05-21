@@ -2448,8 +2448,10 @@ IcePHP::ClassInfo::validate(zval* val, bool)
 {
     if(Z_TYPE_P(val) == IS_OBJECT)
     {
+        cerr << "checkClass" << endl;
         return checkClass(Z_OBJCE_P(val), const_cast<zend_class_entry*>(zce));
     }
+    cerr << "check null" << endl;
     return Z_TYPE_P(val) == IS_NULL;
 }
 
@@ -2946,6 +2948,11 @@ IcePHP::ObjectWriter::ice_preMarshal()
 void
 IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
 {
+
+    if(_info)
+    {
+        cerr << "ObjectWriter::_iceWrite: " << _info->id << endl;
+    }
     Ice::SlicedDataPtr slicedData;
 
     if(_info && _info->preserve)
@@ -3022,6 +3029,11 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
         }
     }
     os->endValue();
+
+    if(_info)
+    {
+        cerr << "ObjectWriter::_iceWrite: " << _info->id << " ok" << endl;
+    }
 }
 
 void
@@ -3038,6 +3050,8 @@ IcePHP::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& 
         DataMemberPtr member = *q;
         zval* val = zend_hash_str_find(Z_OBJPROP_P(const_cast<zval*>(&_object)),
                                        STRCAST(member->name.c_str()), static_cast<int>(member->name.size()));
+
+        cerr << "write member " << member->name << endl;
 
         if(!val)
         {
@@ -3060,11 +3074,13 @@ IcePHP::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& 
 
         if(!member->type->validate(val, false))
         {
+            cerr << "validated !!!" << endl;
             invalidArgument("invalid value for %s member `%s'", _info->id.c_str(), member->name.c_str());
             throw AbortMarshaling();
         }
 
         member->type->marshal(val, os, _map, member->optional);
+        cerr << "write member " << member->name << " ok" << endl;
     }
 }
 

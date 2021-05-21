@@ -624,5 +624,14 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
+    cout << "testing class with interface by value member... " << flush;
+    {
+        i = initial->getI();
+        NPtr n = ICE_MAKE_SHARED(N);
+        n->i = i;
+        n = initial->opN(n);
+    }
+    cout << "ok" << endl;
+
     return initial;
 }

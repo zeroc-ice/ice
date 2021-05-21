@@ -37,6 +37,7 @@ import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrxHelper;
 import test.Ice.objects.Test.StructKey;
 import test.Ice.objects.Test.M;
 import test.Ice.objects.Test.MHolder;
+import test.Ice.objects.Test.N;
 import test.Ice.objects.Test.F1;
 import test.Ice.objects.Test.F1Holder;
 import test.Ice.objects.Test.F2Prx;
@@ -460,6 +461,14 @@ public class AllTests
             {
                 test(!acceptsCycles);
             }
+        }
+        out.println("ok");
+
+        out.print("testing class with interface by value member... ");
+        out.flush();
+        {
+            N n = new N(i);
+            n = initial.opN(n);
         }
         out.println("ok");
 

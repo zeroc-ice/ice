@@ -557,6 +557,14 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
+                    output.Write("testing class with interface by value member... ");
+                    output.Flush();
+                    {
+                        var n = new Test.N(i);
+                        n = initial.opN(n);
+                    }
+                    output.WriteLine("ok");
+
                     return initial;
                 }
             }

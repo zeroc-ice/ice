@@ -205,6 +205,7 @@ class TestHelper
         }
         catch(Exception $ex)
         {
+            echo $ex->getMessage();
             echo $ex->getTraceAsString();
             exit(1);
         }
