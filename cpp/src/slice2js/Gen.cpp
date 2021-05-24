@@ -959,57 +959,57 @@ vector<string>
 Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 {
     vector<string> seenModules;
-    map<string, list<string> > requires;
+    map<string, list<string>> jsRequires;
     if(_icejs)
     {
-        requires["Ice"] = list<string>();
+        jsRequires["Ice"] = list<string>();
 
         //
         // Generate require() statements for all of the run-time code needed by the generated code.
         //
         if(_seenClass || _seenObjectSeq || _seenObjectDict)
         {
-            requires["Ice"].push_back("Ice/Object");
-            requires["Ice"].push_back("Ice/Value");
+            jsRequires["Ice"].push_back("Ice/Object");
+            jsRequires["Ice"].push_back("Ice/Value");
         }
         if(_seenClass)
         {
-            requires["Ice"].push_back("Ice/ObjectPrx");
+            jsRequires["Ice"].push_back("Ice/ObjectPrx");
         }
         if(_seenOperation)
         {
-            requires["Ice"].push_back("Ice/Operation");
+            jsRequires["Ice"].push_back("Ice/Operation");
         }
         if(_seenStruct)
         {
-            requires["Ice"].push_back("Ice/Struct");
+            jsRequires["Ice"].push_back("Ice/Struct");
         }
 
         if(_seenLocalException || _seenUserException)
         {
-            requires["Ice"].push_back("Ice/Exception");
+            jsRequires["Ice"].push_back("Ice/Exception");
         }
 
         if(_seenEnum)
         {
-            requires["Ice"].push_back("Ice/EnumBase");
+            jsRequires["Ice"].push_back("Ice/EnumBase");
         }
 
         if(_seenCompactId)
         {
-            requires["Ice"].push_back("Ice/CompactIdRegistry");
+            jsRequires["Ice"].push_back("Ice/CompactIdRegistry");
         }
 
-        requires["Ice"].push_back("Ice/Long");
-        requires["Ice"].push_back("Ice/HashMap");
-        requires["Ice"].push_back("Ice/HashUtil");
-        requires["Ice"].push_back("Ice/ArrayUtil");
-        requires["Ice"].push_back("Ice/StreamHelpers");
+        jsRequires["Ice"].push_back("Ice/Long");
+        jsRequires["Ice"].push_back("Ice/HashMap");
+        jsRequires["Ice"].push_back("Ice/HashUtil");
+        jsRequires["Ice"].push_back("Ice/ArrayUtil");
+        jsRequires["Ice"].push_back("Ice/StreamHelpers");
     }
     else
     {
-        requires["Ice"] = list<string>();
-        requires["Ice"].push_back("ice");
+        jsRequires["Ice"] = list<string>();
+        jsRequires["Ice"].push_back("ice");
     }
 
     StringList includes = p->includeFiles();
@@ -1133,19 +1133,19 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             {
                 if(!_icejs && iceBuiltinModule(*j))
                 {
-                    if(requires.find(*j) == requires.end())
+                    if(jsRequires.find(*j) == jsRequires.end())
                     {
-                        requires[*j] = list<string>();
-                        requires[*j].push_back("ice");
+                        jsRequires[*j] = list<string>();
+                        jsRequires[*j].push_back("ice");
                     }
                 }
                 else
                 {
-                    if(requires.find(*j) == requires.end())
+                    if(jsRequires.find(*j) == jsRequires.end())
                     {
-                        requires[*j] = list<string>();
+                        jsRequires[*j] = list<string>();
                     }
-                    requires[*j].push_back(changeInclude(*i, _includePaths));
+                    jsRequires[*j].push_back(changeInclude(*i, _includePaths));
                 }
             }
         }
@@ -1167,7 +1167,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             _out << nl << "const _ModuleRegistry = require(\"../Ice/ModuleRegistry\").Ice._ModuleRegistry;";
         }
 
-        for(map<string, list<string> >::const_iterator i = requires.begin(); i != requires.end(); ++i)
+        for(map<string, list<string> >::const_iterator i = jsRequires.begin(); i != jsRequires.end(); ++i)
         {
             if(!_icejs && i->first == "Ice")
             {

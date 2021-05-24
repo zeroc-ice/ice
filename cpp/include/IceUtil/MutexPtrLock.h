@@ -16,7 +16,7 @@ class MutexPtrLock
 {
 public:
 
-    MutexPtrLock<T>(const T* mutex) :
+    MutexPtrLock(T* mutex) :
         _mutex(mutex),
         _acquired(false)
     {
@@ -27,7 +27,7 @@ public:
         }
     }
 
-    ~MutexPtrLock<T>()
+    ~MutexPtrLock()
     {
         if(_mutex && _acquired)
         {
@@ -66,8 +66,8 @@ private:
 
     // Not implemented; prevents accidental use.
     //
-    MutexPtrLock<T>(const MutexPtrLock<T>&);
-    MutexPtrLock<T>& operator=(const MutexPtrLock<T>&);
+    MutexPtrLock(const MutexPtrLock<T>&);
+    MutexPtrLock& operator=(const MutexPtrLock<T>&);
 
     const T* _mutex;
     mutable bool _acquired;
