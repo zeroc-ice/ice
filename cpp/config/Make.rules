@@ -97,7 +97,7 @@ endif
 # the cpp11 name to the target directory if building outside the build
 # directory.
 #
-cpp11_cppflags          = -DICE_CPP11_MAPPING -std=c++11
+cpp11_cppflags          = -DICE_CPP11_MAPPING $(if $(shell $(CC) -E config/cplusplus_check.cpp 2> /dev/null),,-std=c++11)
 cpp11_ldflags           = $(cpp11_cppflags)
 cpp11_targetname        = $(if $(or $(filter-out $($1_target),program),$(filter $(bindir)%,$($4_targetdir))),++11)
 cpp11_targetdir         = $(if $(filter %/build,$5),cpp11)
