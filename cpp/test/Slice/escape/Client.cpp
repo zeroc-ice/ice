@@ -137,14 +137,14 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     c->_cpp_else = "";
 #endif
 
-    _cpp_and::breakPrxPtr d = ICE_UNCHECKED_CAST(_cpp_and::breakPrx,
-                                                 communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
+    _cpp_and::breakPrxPtr d =
+        ICE_UNCHECKED_CAST(_cpp_and::breakPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     int d2;
     d->_cpp_case(0, d2);
     _cpp_and::breakPtr d1 = ICE_MAKE_SHARED(breakI);
 
-    _cpp_and::charPrxPtr e =ICE_UNCHECKED_CAST(_cpp_and::charPrx,
-                                               communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010");
+    _cpp_and::charPrxPtr e =
+        ICE_UNCHECKED_CAST(_cpp_and::charPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     e->_cpp_explicit();
     _cpp_and::charPtr e1 = ICE_MAKE_SHARED(charI);
 
