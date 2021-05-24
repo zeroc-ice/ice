@@ -508,6 +508,13 @@
             }
             out.writeLine("ok");
 
+            out.write("testing class with interface by value member... ");
+            {
+                var n = new Test.N(i);
+                n = await initial.opN(n);
+            }
+            out.writeLine("ok");
+
             await initial.shutdown();
         }
 

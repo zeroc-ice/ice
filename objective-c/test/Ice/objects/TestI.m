@@ -384,6 +384,11 @@
 {
     return NO;
 }
+
+-(TestObjectsN*) opN:(TestObjectsN*)p1 current:(ICECurrent *)__unused current
+{
+    return p1;
+}
 @end
 
 @implementation UnexpectedObjectExceptionTestI

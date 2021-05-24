@@ -269,6 +269,10 @@ class InitialI: Initial {
     func hasF3(current _: Current) throws -> Bool {
         return true
     }
+
+    func opN(p1: N?, current _: Current) throws -> N? {
+        return p1
+    }
 }
 
 class F2I: F2 {

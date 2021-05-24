@@ -27,6 +27,7 @@ if($NS)
         class Test_L extends Test\L {}
         class Test_F1 extends Test\F1 {}
         class Test_F3 extends Test\F3 {}
+        class Test_N extends Test\N {}
 EOT;
     eval($code);
 }
@@ -611,6 +612,12 @@ function allTests($helper)
         test(!$acceptsCycles);
     }
     echo "ok\n";
+
+    echo "testing class with interface by value member... ";
+    $i = $initial->getI();
+    $n = new Test_N($i);
+    $n = $initial->opN($n);
+    echo "ok";
 
     return $initial;
 }

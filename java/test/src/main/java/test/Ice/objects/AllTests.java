@@ -33,6 +33,7 @@ import test.Ice.objects.Test.J;
 import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 import test.Ice.objects.Test.M;
+import test.Ice.objects.Test.N;
 import test.Ice.objects.Test.StructKey;
 import test.Ice.objects.Test.Initial.OpMResult;
 
@@ -450,6 +451,14 @@ public class AllTests
             {
                 test(!acceptsCycles);
             }
+        }
+        out.println("ok");
+
+        out.print("testing class with interface by value member... ");
+        out.flush();
+        {
+            N n = new N(i);
+            n = initial.opN(n);
         }
         out.println("ok");
 

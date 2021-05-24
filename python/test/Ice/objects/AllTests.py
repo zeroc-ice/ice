@@ -369,4 +369,10 @@ def allTests(helper, communicator):
         test(not acceptsCycles)
     print("ok")
 
+    sys.stdout.write("testing class with interface by value member... ")
+    i = initial.getI()
+    n = Test.N(i)
+    n = initial.opN(n)
+    print("ok")
+
     return initial

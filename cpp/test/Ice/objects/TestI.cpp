@@ -431,3 +431,9 @@ InitialI::hasF3(const Ice::Current&)
 {
     return true;
 }
+
+Test::NPtr
+InitialI::opN(ICE_IN(Test::NPtr) p1, const ::Ice::Current&)
+{
+    return p1;
+}

@@ -212,6 +212,9 @@ class InitialI(Test.Initial):
     def hasF3(self, current):
         return True
 
+    def opN(self, p1, current):
+        return p1
+
 
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
