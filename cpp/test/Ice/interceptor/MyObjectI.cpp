@@ -6,6 +6,7 @@
 #include <MyObjectI.h>
 #include <TestHelper.h>
 #include <IceUtil/IceUtil.h>
+#include <thread>
 
 using namespace IceUtil;
 using namespace std;
