@@ -959,7 +959,7 @@ vector<string>
 Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 {
     vector<string> seenModules;
-    map<string, list<string>> jsRequires;
+    map<string, list<string> > jsRequires;
     if(_icejs)
     {
         jsRequires["Ice"] = list<string>();
