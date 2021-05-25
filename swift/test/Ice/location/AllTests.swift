@@ -493,7 +493,7 @@ func allTests(_ helper: TestHelper) throws {
             type: HelloPrx.self
         )!
         try test(false)
-        //try test(helloPrx.ice_getConnection() == nil)
+        // try test(helloPrx.ice_getConnection() == nil)
     } catch is Ice.NotRegisteredException {
         // Calls on the well-known proxy are not collocated because of issue #507
     }

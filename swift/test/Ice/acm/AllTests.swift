@@ -179,8 +179,8 @@ class TestCase {
         if _clientACMHeartbeat >= 0 {
             properties.setProperty(key: "Ice.ACM.Client.Heartbeat", value: "\(_clientACMHeartbeat)")
         }
-        //try properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
-        //try properties.setProperty(key: "Ice.Trace.Network", value: "2")
+        // try properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
+        // try properties.setProperty(key: "Ice.Trace.Network", value: "2")
 
         var initData = Ice.InitializationData()
         initData.properties = properties

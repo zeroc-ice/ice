@@ -407,7 +407,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     //
     // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
     // b1 = communicator.propertyToProxy(propertyPrefix);
-    //test(b1.ice_getLocatorCacheTimeout() == 60);
+    // test(b1.ice_getLocatorCacheTimeout() == 60);
     // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
     prop.setProperty(key: propertyPrefix, value: "test:\(helper.getTestEndpoint(num: 0))")
@@ -519,7 +519,7 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     try test(proxyProps["Test.Locator"] ==
         "locator -t -e " + Ice.encodingVersionToString(currentEncoding))
     // Locator collocation optimization is always disabled.
-    //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
+    // test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
     try test(proxyProps["Test.Locator.ConnectionCached"] == "0")
     try test(proxyProps["Test.Locator.PreferSecure"] == "1")
     try test(proxyProps["Test.Locator.EndpointSelection"] == "Random")

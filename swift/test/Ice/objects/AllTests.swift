@@ -73,17 +73,17 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     output.write("checking consistency... ")
     try test(b1 !== b2)
-    //test(b1 != c)
-    //test(b1 != d)
-    //test(b2 != c)
-    //test(b2 != d)
-    //test(c != d)
+    // test(b1 != c)
+    // test(b1 != d)
+    // test(b2 != c)
+    // test(b2 != d)
+    // test(c != d)
     try test(b1.theB === b1)
     try test(b1.theC == nil)
     try test(b1.theA is B)
     try test((b1.theA as! B).theA === b1.theA)
     try test((b1.theA as! B).theB === b1)
-    //test(((B)b1.theA).theC is C) // Redundant -- theC is always of type C
+    // test(((B)b1.theA).theC is C) // Redundant -- theC is always of type C
     try test((b1.theA as! B).theC!.theB === b1.theA)
     try test(b1.preMarshalInvoked)
     try test(b1.postUnmarshalInvoked)

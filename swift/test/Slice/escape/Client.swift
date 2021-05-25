@@ -71,7 +71,6 @@ public class Client: TestHelperI {
         }
 
         try test(`is` == 0)
-        //try test(`self` == 0)
         try test(`throw` == 0)
         try test(`typealias` == 0)
         try test(`internal` == 0)
