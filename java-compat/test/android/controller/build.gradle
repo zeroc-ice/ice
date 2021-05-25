@@ -4,7 +4,6 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
         maven {
             url "https://plugins.gradle.org/m2/"
@@ -48,7 +47,6 @@ repositories {
     }
 
     google()
-    jcenter()
 }
 
 android {
