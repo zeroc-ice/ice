@@ -3340,7 +3340,7 @@ private:
     {
         if(value != nil && ![value isKindOfClass:cl])
         {
-            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"unexpected type" userInfo:cl];
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"unexpected type" userInfo:nil];
         }
         return YES;
     }

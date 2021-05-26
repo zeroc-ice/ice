@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 void
-defaultValueAllTests()
+defaultValueAllTests(void)
 {
     tprintf("testing default values... ");
 

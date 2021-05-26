@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 void
-hashAllTests()
+hashAllTests(void)
 {
     int maxCollisions = 10;
     int maxIterations = 10000;
