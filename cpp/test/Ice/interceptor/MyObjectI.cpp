@@ -6,7 +6,10 @@
 #include <MyObjectI.h>
 #include <TestHelper.h>
 #include <IceUtil/IceUtil.h>
-#include <thread>
+
+#ifdef ICE_CPP11_MAPPING
+#   include <thread>
+#endif
 
 using namespace IceUtil;
 using namespace std;
