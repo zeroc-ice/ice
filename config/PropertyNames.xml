@@ -433,7 +433,6 @@ generated from the section label.
         <property name="Interface"/>
         <property name="InstanceName"/>
         <property name="Trace.Lookup"/>
-"
     </section>
 
     <section name="IceBox">
