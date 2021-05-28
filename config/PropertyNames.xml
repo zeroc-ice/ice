@@ -46,12 +46,11 @@ classes:
     <class name="proxy" prefix-only="false">
         <suffix name="EndpointSelection" />
         <suffix name="ConnectionCached" />
-        <suffix name="PreferSecure"  />
-        <suffix name="LocatorCacheTimeout"  />
-        <suffix name="Locator"  />
-        <suffix name="Router"  />
-        <suffix name="CollocationOptimization" deprecated="true"
-            deprecatedBy="CollocationOptimized" />
+        <suffix name="PreferSecure" />
+        <suffix name="LocatorCacheTimeout" />
+        <suffix name="Locator" />
+        <suffix name="Router" />
+        <suffix name="CollocationOptimization" deprecated="true" deprecatedBy="CollocationOptimized" />
         <suffix name="CollocationOptimized" />
     </class>
     .
@@ -71,8 +70,7 @@ This definition is equivalent to the following:
         <property name="Default.Locator.LocatorCacheTimeout" />
         <property name="Default.Locator.Locator" />
         <property name="Default.Locator.Router" />
-        <property name="Default.Locator.CollocationOptimization"
-            deprecatedBy="Ice.Default.Locator.CollocationOptimized" />
+        <property name="Default.Locator.CollocationOptimization" deprecatedBy="Ice.Default.Locator.CollocationOptimized" />
         <property name="Default.Locator.CollocationOptimized" />
     </section>
 
@@ -126,8 +124,7 @@ This definition is equivalent to the following:
 
 <properties>
     <section name="Ice">
-        <property name="DefaultLocator.CollocationOptimization"
-            deprecatedBy="Ice.DefaultLocator.CollocationOptimized" />
+        <property name="DefaultLocator.CollocationOptimization" deprecatedBy="Ice.DefaultLocator.CollocationOptimized" />
         <property name="DefaultLocator.CollocationOptimized" />
         ...
     </section>
@@ -149,7 +146,7 @@ For example, consider the following definitions:
         <section name="Ice">
             <property name="ChangeUser" />
             <property name="Package.[any]" />
-            <property name="QuenchRequests" deprecated="true"  />
+            <property name="QuenchRequests" deprecated="true" />
             <property name="Foo" deprecated="true" deprecatedBy="Bar" />
             <property name="Bar" />
             <property name="Default.Locator" proxy="true" />
@@ -404,7 +401,6 @@ generated from the section label.
         <property name="Warn.UnusedProperties" />
         <property name="CacheMessageBuffers" />
         <property name="ThreadInterruptSafe" />
-        <property name="Voip" deprecated="true" />
     </section>
 
     <section name="IceMX">
@@ -436,7 +432,8 @@ generated from the section label.
         <property name="Port"/>
         <property name="Interface"/>
         <property name="InstanceName"/>
-        <property name="Trace.Lookup"/>"
+        <property name="Trace.Lookup"/>
+"
     </section>
 
     <section name="IceBox">
@@ -633,7 +630,7 @@ generated from the section label.
         <property name="Filter.Address.Reject" />
         <property name="Filter.Address.Accept" />
         <property name="Filter.ProxySizeMax" />
-        <property name="Filter.Category.Accept"  />
+        <property name="Filter.Category.Accept" />
         <property name="Filter.Category.AcceptUser" />
         <property name="Filter.AdapterId.Accept" />
         <property name="Filter.Identity.Accept" />
