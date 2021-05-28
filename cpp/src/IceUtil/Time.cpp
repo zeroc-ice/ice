@@ -246,7 +246,7 @@ IceUtil::Time::toDateTime() const
     os << toString("%x %H:%M:%S") << ".";
     os.fill('0');
     os.width(3);
-    os << static_cast<long>(_usec % 1000000 / 1000);
+    os << static_cast<Int64>(_usec % 1000000 / 1000);
     return os.str();
 }
 
@@ -278,7 +278,7 @@ IceUtil::Time::toDuration() const
 std::string
 IceUtil::Time::toString(const std::string& format) const
 {
-    time_t time = static_cast<long>(_usec / 1000000);
+    time_t time = static_cast<time_t>(_usec / 1000000);
 
     struct tm tr;
 #ifdef _MSC_VER
