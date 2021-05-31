@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D1DB0DB56DE7DC2EE3997616"
+               BlueprintIdentifier = "B5F5BD8A516D199D143146D5"
                BuildableName = "IceImpl.framework"
                BlueprintName = "IceImpl iOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -28,7 +28,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "23B6F58F5E56097F578F185C"
+               BlueprintIdentifier = "8DE34D2AE625223B355E9079"
                BuildableName = "Ice.framework"
                BlueprintName = "Ice iOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -42,7 +42,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "56744F58DB0921E0211F7B59"
+               BlueprintIdentifier = "43BA6300C67998F2A44752A1"
                BuildableName = "Glacier2.framework"
                BlueprintName = "Glacier2 iOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -56,7 +56,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "852766BFD3C8F878BC45C4EB"
+               BlueprintIdentifier = "FFD900A9020463F58B45267B"
                BuildableName = "IceStorm.framework"
                BlueprintName = "IceStorm iOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -70,7 +70,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "53004D9B834E2919B940F4B2"
+               BlueprintIdentifier = "2DEFCE976483543A481BAF3A"
                BuildableName = "IceGrid.framework"
                BlueprintName = "IceGrid iOS"
                ReferencedContainer = "container:ice.xcodeproj">

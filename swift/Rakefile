@@ -796,22 +796,13 @@ end
 
 def target_add_carthage_framework(target, platform, framework, copy=false)
     group = target.project.frameworks_group[(platform == :osx ? "OS X" : "iOS")]
+    puts "group: #{group}"
     group_add_files(group, "../Carthage/Build", [framework]).each do |ref|
         # When copy is true we copy the framework to the target, for :ios targets we use the carthage copy-frameworks
         # script for macOS targets we use the regular copy phase.
         if copy then
-            if platform == :ios then
-                copy_phase = target.shell_script_build_phases.select { |script| script.name == "Copy Frameworks" }.first
-                unless copy_phase then
-                    copy_phase = target.new_shell_script_build_phase("Copy Frameworks")
-                    copy_phase.shell_script = "/usr/local/bin/carthage copy-frameworks"
-                end
-                copy_phase.input_paths << "$(SRCROOT)/../Carthage/Build/#{framework}"
-                copy_phase.output_paths << "$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/#{framework}"
-            else
-                file = target.copy_files_build_phases[0].add_file_reference(ref)
-                file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
-            end
+            file = target.copy_files_build_phases[0].add_file_reference(ref)
+            file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
         end
 
         # when copy is false or the target platform is ios we also have to add a reference into the target
