@@ -89,7 +89,7 @@ $test_extra_sources = {
 }
 
 $test_extra_frameworks = {
-    "Ice/services" => ["Glacier2.framework", "IceStorm.framework", "IceGrid.framework"]
+    "Ice/services" => ["Glacier2.xcframework", "IceStorm.xcframework", "IceGrid.xcframework"]
 }
 
 $test_resources = {
@@ -284,7 +284,7 @@ def create_platform_targets(project, platform, bindist)
             config.build_settings["DEFINES_MODULE"] = "YES"
         }
         target_set_framework_build_settings(target)
-        target_add_carthage_framework(target, platform, "PromiseKit.framework")
+        target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
 
         group = project_group(project, "src/Ice")
         group_add_files(group, "src/Ice", ["*.plist"])
@@ -312,11 +312,11 @@ def create_platform_targets(project, platform, bindist)
         icegrid_target = project.new_target(:framework, "IceGrid", platform)
 
         framework_targets = {
-            "IceImpl.framework" => iceimpl_target,
-            "Ice.framework" => ice_target,
-            "Glacier2.framework" => glacier2_target,
-            "IceStorm.framework" => icestorm_target,
-            "IceGrid.framework" => icegrid_target
+            "IceImpl.xcframework" => iceimpl_target,
+            "Ice.xcframework" => ice_target,
+            "Glacier2.xcframework" => glacier2_target,
+            "IceStorm.xcframework" => icestorm_target,
+            "IceGrid.xcframework" => icegrid_target
         }
 
         [glacier2_target, icestorm_target, icegrid_target].each do | t |
@@ -333,7 +333,7 @@ def create_platform_targets(project, platform, bindist)
                 config.build_settings["DEFINES_MODULE"] = "YES"
             }
             target_set_framework_build_settings(target)
-            target_add_carthage_framework(target, platform, "PromiseKit.framework")
+            target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
 
             group = project_group(project, "src/#{framework}")
             group_add_files(group, "src/#{framework}", ["*.plist"])
@@ -360,10 +360,10 @@ def create_platform_targets(project, platform, bindist)
     target = project.new_target(:framework, "TestCommon", platform)
     target.name = "#{target.name} #{platform_name}"
     target_set_framework_build_settings(target)
-    target_add_carthage_framework(target, platform, "PromiseKit.framework")
+    target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
     if bindist then
-        target_add_carthage_framework(target, platform, "IceImpl.framework")
-        target_add_carthage_framework(target, platform, "Ice.framework")
+        target_add_carthage_framework(target, platform, "IceImpl.xcframework")
+        target_add_carthage_framework(target, platform, "Ice.xcframework")
     else
         target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
     end
@@ -419,11 +419,11 @@ def create_platform_targets(project, platform, bindist)
 
     target_set_framework_build_settings(target)
     if bindist then
-        target_add_carthage_framework(target, platform, "IceImpl.framework", true)
-        target_add_carthage_framework(target, platform, "Ice.framework", true)
-        target_add_carthage_framework(target, platform, "Glacier2.framework", true)
-        target_add_carthage_framework(target, platform, "IceStorm.framework", true)
-        target_add_carthage_framework(target, platform, "IceGrid.framework", true)
+        target_add_carthage_framework(target, platform, "IceImpl.xcframework", true)
+        target_add_carthage_framework(target, platform, "Ice.xcframework", true)
+        target_add_carthage_framework(target, platform, "Glacier2.xcframework", true)
+        target_add_carthage_framework(target, platform, "IceStorm.xcframework", true)
+        target_add_carthage_framework(target, platform, "IceGrid.xcframework", true)
     else
         framework_targets.each do |name, t|
             file = copy_phase.add_file_reference(t.product_reference)
@@ -434,7 +434,7 @@ def create_platform_targets(project, platform, bindist)
     file = copy_phase.add_file_reference(test_common_target.product_reference)
     file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
 
-    target_add_carthage_framework(target, platform, "PromiseKit.framework", true)
+    target_add_carthage_framework(target, platform, "PromiseKit.xcframework", true)
 
     test_driver_target = target
 
@@ -446,7 +446,7 @@ def create_platform_targets(project, platform, bindist)
         target.name = "#{target.name} #{platform_name}"
 
         if bindist
-            target_add_carthage_framework(target, platform, "Ice.framework")
+            target_add_carthage_framework(target, platform, "Ice.xcframework")
         else
             target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
         end
@@ -471,7 +471,7 @@ def create_platform_targets(project, platform, bindist)
             config.build_settings["ENABLE_BITCODE"] = "NO"
         }
 
-        target_add_carthage_framework(target, platform, "PromiseKit.framework")
+        target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
         target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
         target_add_swiftlint_build_phase(target, "test/#{test}")
 
@@ -513,7 +513,7 @@ def create_platform_targets(project, platform, bindist)
             target.name = "#{target.name} #{platform_name}"
 
             if bindist
-                target_add_carthage_framework(target, platform, "Ice.framework")
+                target_add_carthage_framework(target, platform, "Ice.xcframework")
             else
                 target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
             end
@@ -538,7 +538,7 @@ def create_platform_targets(project, platform, bindist)
                 config.build_settings["ENABLE_BITCODE"] = "NO"
             }
 
-            target_add_carthage_framework(target, platform, "PromiseKit.framework")
+            target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
             target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
             target_add_swiftlint_build_phase(target, "test/#{test}")
 
@@ -789,16 +789,14 @@ def target_set_common_build_settings(target, product, platform, plist: nil, swif
 end
 
 def target_set_framework_build_settings(target)
-    carthage_prefix = (target.name.include? "macOS") ? "Mac" : "iOS"
     target.build_configurations.each { |config|
-        config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/../Carthage/Build/#{carthage_prefix}"
+        config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/../Carthage/Build/"
     }
 end
 
 def target_add_carthage_framework(target, platform, framework, copy=false)
     group = target.project.frameworks_group[(platform == :osx ? "OS X" : "iOS")]
-    carthage_prefix = (platform == :osx) ? "Mac" : "iOS"
-    group_add_files(group, "../Carthage/Build/#{carthage_prefix}", [framework]).each do |ref|
+    group_add_files(group, "../Carthage/Build", [framework]).each do |ref|
         # When copy is true we copy the framework to the target, for :ios targets we use the carthage copy-frameworks
         # script for macOS targets we use the regular copy phase.
         if copy then
@@ -808,7 +806,7 @@ def target_add_carthage_framework(target, platform, framework, copy=false)
                     copy_phase = target.new_shell_script_build_phase("Copy Frameworks")
                     copy_phase.shell_script = "/usr/local/bin/carthage copy-frameworks"
                 end
-                copy_phase.input_paths << "$(SRCROOT)/../Carthage/Build/#{carthage_prefix}/#{framework}"
+                copy_phase.input_paths << "$(SRCROOT)/../Carthage/Build/#{framework}"
                 copy_phase.output_paths << "$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/#{framework}"
             else
                 file = target.copy_files_build_phases[0].add_file_reference(ref)
