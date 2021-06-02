@@ -46,7 +46,7 @@
 
         <Otherwise>
             <ItemGroup>
-                <SliceCompilers Include="c++98\slice2cs;c++98\slice2html"/>
+                <SliceCompilers Include="c++98\slice2cs:Rebuild;c++98\slice2html:Rebuild"/>
             </ItemGroup>
         </Otherwise>
     </Choose>

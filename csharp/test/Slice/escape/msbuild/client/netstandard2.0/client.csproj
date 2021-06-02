@@ -21,7 +21,7 @@
     <Compile Include="generated\Key.cs">
       <SliceCompileSource>../../../Key.ice</SliceCompileSource>
     </Compile>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.6" />
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" />
     <SliceCompile Include="../../../Clash.ice" />
     <SliceCompile Include="../../../Key.ice" />
   </ItemGroup>

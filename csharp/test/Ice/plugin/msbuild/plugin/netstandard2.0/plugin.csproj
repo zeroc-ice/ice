@@ -26,7 +26,7 @@
     <Compile Include="../../../PluginTwoFailFactory.cs"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.6"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7"/>
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">

@@ -40,7 +40,7 @@
     <SliceCompile Include="../../../Namespace.ice" />
     <SliceCompile Include="../../../Test.ice" />
 
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.6" />
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" />
 
   </ItemGroup>
   <ItemGroup>

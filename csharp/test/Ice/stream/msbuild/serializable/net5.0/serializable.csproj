@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../../../msbuild/ice.common.props"/>
+  <Import Project="../../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>serializable</AssemblyName>
     <TargetFramework>net5.0</TargetFramework>
@@ -11,20 +11,20 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../../Serializable.cs"/>
+    <Compile Include="../../../Serializable.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.6"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
       <ItemGroup>
-        <PackageReference Include="zeroc.ice.net" Version="3.7.6"/>
+        <PackageReference Include="zeroc.ice.net" Version="3.7.6" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../../lib/net5.0/Ice.dll"/>
+        <Reference Include="../../../../../../lib/net5.0/Ice.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>

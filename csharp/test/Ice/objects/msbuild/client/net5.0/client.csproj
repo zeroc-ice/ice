@@ -29,7 +29,7 @@
     <Compile Include="generated\Forward.cs">
       <SliceCompileSource>../../../Forward.ice</SliceCompileSource>
     </Compile>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.6" />
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" />
     <SliceCompile Include="../../../Test.ice" />
     <SliceCompile Include="../../../Forward.ice" />
   </ItemGroup>
