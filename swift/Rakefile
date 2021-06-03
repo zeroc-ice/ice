@@ -606,8 +606,8 @@ def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix:
     rule.file_type = "pattern.proxy"
 
     slic2swift = <<~EOF
-        if [ -f "$ICE_HOME/cpp/bin/slice2swift" ]; then
-            SLICE2SWIFT="$ICE_HOME/cpp/bin/slice2swift"
+        if [ -f "$ICE_HOME/bin/slice2swift" ]; then
+            SLICE2SWIFT="$ICE_HOME/bin/slice2swift"
         elif [ -f "$SRCROOT/../cpp/bin/slice2swift" ]; then
             SLICE2SWIFT="$SRCROOT/../cpp/bin/slice2swift"
         elif [ -f /usr/local/bin/slice2swift ]; then
@@ -668,8 +668,8 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     rule.name = "Slice2Cpp Compiler for #{prefix}/*.ice"
     rule.file_patterns = "*/#{prefix}/*.ice"
     rule.script = <<~EOF
-        if [ -f "$ICE_HOME/cpp/bin/slice2cpp" ]; then
-            SLICE2CPP="$ICE_HOME/cpp/bin/slice2cpp"
+        if [ -f "$ICE_HOME/bin/slice2cpp" ]; then
+            SLICE2CPP="$ICE_HOME/bin/slice2cpp"
         elif [ -f "$SRCROOT/../cpp/bin/slice2cpp" ]; then
             SLICE2CPP="$SRCROOT/../cpp/bin/slice2cpp"
         elif [ -f /usr/local/opt/slice2swift/libexec/bin/slice2cpp ]; then
@@ -796,7 +796,6 @@ end
 
 def target_add_carthage_framework(target, platform, framework, copy=false)
     group = target.project.frameworks_group[(platform == :osx ? "OS X" : "iOS")]
-    puts "group: #{group}"
     group_add_files(group, "../Carthage/Build", [framework]).each do |ref|
         # When copy is true we copy the framework to the target, for :ios targets we use the carthage copy-frameworks
         # script for macOS targets we use the regular copy phase.
