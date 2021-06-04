@@ -123,3 +123,4 @@ Carthage
 .classpath
 .project
 .settings
+*.dep

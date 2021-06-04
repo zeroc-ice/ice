@@ -15,4 +15,14 @@ else
     FLAGS="--ice-home ../../../.."
 fi
 
-/usr/local/bin/icebuilder $FLAGS "$@"
+if [ -f "/usr/local/bin/icebuilder" ]; then
+   ICEBUILDER="/usr/local/bin/icebuilder"
+elif [ -f "/opt/homebrew/bin/icebuilder" ]; then
+   ICEBUILDER="/opt/homebrew/bin/icebuilder"
+else
+    echo "Failed to locate ice-builder-xcode"
+    echo "see https://github.com/zeroc-ice/ice-builder-xcode for install instructions"
+fi
+
+
+$ICEBUILDER $FLAGS "$@"
