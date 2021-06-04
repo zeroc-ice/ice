@@ -4047,7 +4047,9 @@ class SwiftMapping(Mapping):
 
     def getXcodeProject(self, current):
         return "{0}/{1}".format(current.testcase.getMapping().getPath(),
-                                "ice-test.xcodeproj" if self.component.useBinDist(self, current) else "ice.xcodeproj")
+                                "ice.xcodeproj")
+    # TODO ice-test.xcodeproj once Carthage supports binary XCFramework projects
+    # "ice-test.xcodeproj" if self.component.useBinDist(self, current) else "ice.xcodeproj")
 
 #
 # Instantiate platform global variable

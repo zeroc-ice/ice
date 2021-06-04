@@ -72,6 +72,7 @@ $1[$2-$3]: $$($1_dependencies) $1/.translator-$2-$3.dep
 		   $(if $(ICE_BIN_DIST),HEADER_SEARCH_PATHS=../../Ice\ ../../include\ $(sdkdir)/$2.sdk/usr/include \
                    LIBRARY_SEARCH_PATHS=$(sdkdir)/$2.sdk/usr/lib) \
 		   $(if $(V),,-quiet) SYMROOT=./build-$2-$3 OBJROOT=./objs-$2-$3 \
+		   $(if $(PLATFORM_NAME),iphonesimulator,-arch `arch`) \
 		   build
 
 $1[$2-$3]_clean:
