@@ -2549,8 +2549,6 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
 
-        print("App full path `{0}'".format(appFullPath))
-
         if not os.path.exists(appFullPath):
             raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
         run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, appFullPath))
