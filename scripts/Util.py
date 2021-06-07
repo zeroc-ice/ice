@@ -2527,7 +2527,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         except Exception as ex:
             if str(ex).find("Booted") >= 0:
                 pass
-            elif str(ex).find("Invalid device") >= 0:
+            elif str(ex).find("Invalid device") >= 0 or str(ex).find("Assertion failure in SimDevicePair"):
                 #
                 # Create the simulator device if it doesn't exist
                 #
