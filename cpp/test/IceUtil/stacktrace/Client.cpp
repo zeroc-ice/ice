@@ -131,11 +131,11 @@ Client::run(int, char*[])
 #    elif(_MSC_VER >= 1910)
         filename += "-vc141";
 #   endif
-#elif defined(__apple_build_version__)
-#   if(__apple_build_version__ >= 10001145)
-        filename += "-xcode10";
+#elif defined(__APPLE__)
+#   if defined(__aarch64__)
+        filename += "-xcode-arm64";
     #else
-        filename += "-xcode9";
+        filename += "-xcode-x86_64";
     #endif
 #endif
     }
