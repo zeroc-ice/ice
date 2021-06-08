@@ -69,21 +69,6 @@ splitLines(const string& str)
     string line;
     while(std::getline(is, line))
     {
-#ifdef __APPLE__
-        //
-        // Remove patch number from stack trace
-        //
-        string v1 = ICE_STRING_VERSION;
-        size_t pos = line.find(v1);
-        if(pos != string::npos)
-        {
-            vector<string> split;
-            IceUtilInternal::splitString(v1, ".", split);
-            string v2(split[0] + split[1]);
-            line.replace(pos, v1.length(), v2);
-        }
-#endif
-
         result.push_back(line);
     }
     return result;
@@ -107,137 +92,17 @@ Client::run(int, char*[])
         return;
     }
 
-    bool optimized = false;
-#ifdef NDEBUG
-    optimized = true;
-#endif
-
     cout << "checking stacktrace... ";
 
-    IceUtilInternal::printStackTraces = true;
-
-    string filename = "StackTrace.";
-
-    if(optimized)
+    ThrowerPtr thrower = new Thrower();
+    try
     {
-        filename += "release";
-#if defined(_MSC_VER)
-#   if(_MSC_VER == 1700)
-        filename += "-vc110";
-#   elif(_MSC_VER == 1800)
-        filename += "-vc120";
-#   elif(_MSC_VER == 1900)
-        filename += "-vc140";
-#    elif(_MSC_VER >= 1910)
-        filename += "-vc141";
-#   endif
-#elif defined(__APPLE__)
-#   if defined(__aarch64__)
-        filename += "-xcode-arm64";
-    #else
-        filename += "-xcode-x86_64";
-    #endif
-#endif
+        thrower->first();
+        test(false);
     }
-    else
+    catch(const IceUtil::Exception& ex)
     {
-        filename += "debug";
-    }
-
-#if defined(_WIN64)
-     filename += ".Win64";
-#elif defined(_WIN32)
-    filename += ".Win32";
-#elif defined(__APPLE__)
-    filename += ".macOS";
-#else
-    filename += ".Linux";
-
-    if(!optimized && IceUtilInternal::stackTraceImpl() == IceUtilInternal::STLibbacktracePlus)
-    {
-        // Libbacktrace with GCC 4.8 and pie return a smaller backtrace
-#   if defined(__pie__) && defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ == 408)
-        filename += ".libbacktrace+48pie";
-#   else
-        filename += ".libbacktrace+";
-#   endif
-    }
-
-#endif
-
-    while(true)
-    {
-        bool match = true;
-        ifstream ifs(filename.c_str());
-
-        if(!ifs)
-        {
-            ostringstream os;
-            os << "cannot open `" << filename << "`, failed!";
-            cout << os.str() << endl;
-            throw invalid_argument(os.str());
-        }
-
-        // Show which template we use:
-        cout << filename << "... ";
-
-        stringstream sstr;
-        sstr << ifs.rdbuf();
-        vector<string> expected = splitLines(sstr.str());
-
-        ThrowerPtr thrower = new Thrower();
-        try
-        {
-            thrower->first();
-        }
-        catch(const IceUtil::Exception& ex)
-        {
-            string stack = ex.ice_stackTrace();
-
-            vector<string> actual = splitLines(stack);
-            for(size_t i = 0; i < expected.size(); ++i)
-            {
-                if(actual[i].find(expected[i]) == string::npos)
-                {
-                    match = false;
-                    //
-                    // With windows and Linux optimized builds retry with the alternate
-                    // files.
-                    //
-                    if(filename.find("StackTrace.release-vc") == 0 || filename == "StackTrace.release.Linux")
-                    {
-                        break;
-                    }
-
-                    cerr << "could not find `" << expected[i] << "` in " << actual[i] << endl;
-                    cerr << "Full stack is:\n" << stack << endl;
-                    test(false);
-                }
-            }
-
-            if(!match)
-            {
-                if(filename.find("StackTrace.release-vc") == 0)
-                {
-                    // Retry with alternate stack
-                    filename = "StackTrace.release";
-#if defined(_WIN64)
-                    filename += ".Win64";
-#elif defined(_WIN32)
-                    filename += ".Win32";
-#endif
-                    continue;
-                }
-                else if(filename == "StackTrace.release.Linux")
-                {
-                    // Retry with the debug Linux stack
-                    filename = "StackTrace.debug.Linux";
-                    continue;
-                }
-            }
-            test(actual.size() >= expected.size());
-            break;
-        }
+        test(splitLines(ex.ice_stackTrace()).size() >= 3);
     }
     cout << "ok" << endl;
 }

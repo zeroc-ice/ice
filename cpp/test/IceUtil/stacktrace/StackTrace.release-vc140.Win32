@@ -1,3 +1,0 @@
-  0 IceUtil::NullHandleException::NullHandleException at
-  1 Client::run at
-  2 Test::runTest<Client> at

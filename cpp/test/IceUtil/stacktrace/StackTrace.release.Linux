@@ -1,3 +1,0 @@
-  0 IceUtil::Exception::Exception(char const*, int)
-  1 IceUtil::NullHandleException::NullHandleException(char const*, int)
-client
