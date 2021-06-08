@@ -99,7 +99,6 @@ Client::run(int, char*[])
     try
     {
         thrower->first();
-        test(false);
     }
     catch(const IceUtil::Exception& ex)
     {
