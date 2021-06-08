@@ -91,6 +91,7 @@ Client::run(int, char*[])
         cout << "This Ice build cannot capture stack traces" << endl;
         return;
     }
+    IceUtilInternal::printStackTraces = true;
 
     cout << "checking stacktrace... ";
 
