@@ -22,6 +22,9 @@ struct GroupNodeInfo
     // COMPILER FIX: Clang using libc++ requires to define operator=
     //
 #if defined(__clang__) && defined(_LIBCPP_VERSION)
+#   ifdef ICE_CPP11_COMPILER
+    GroupNodeInfo(const GroupNodeInfo&);
+#   endif
     GroupNodeInfo& operator=(const GroupNodeInfo&);
 #endif
     const int id;
