@@ -214,6 +214,8 @@ public:
     void clear(const ReadWriteTxn&);
     MDB_dbi mdbi() const;
 
+    virtual ~DbiBase();
+
 protected:
 
     DbiBase(const Txn&, const std::string&, unsigned int, MDB_cmp_func*);
