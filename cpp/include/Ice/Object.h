@@ -329,7 +329,12 @@ public:
 protected:
 
     Object() {} // This class is abstract.
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-dtor"
     virtual ~Object() {}
+#   pragma clang diagnostic pop
+#endif
 
 protected:
 
