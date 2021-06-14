@@ -329,11 +329,12 @@ public:
 protected:
 
     Object() {} // This class is abstract.
-#ifdef ICE_CPP11_COMPILER
-    Object(const Object&) = default;
-    Object& operator=(const Object&) = default;
-#endif
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdeprecated-copy-dtor"
     virtual ~Object() {}
+#   pragma clang diagnostic pop
+#endif
 
 protected:
 
