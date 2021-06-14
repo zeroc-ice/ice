@@ -26,8 +26,10 @@ iphonesimulator_ldflags         = $(iphonesimulator_cppflags)
 iphonesimulator_configs         = %xcodesdk
 iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
 
+ifneq ($(shell command -v brew 2> /dev/null),)
 MCPP_HOME                      ?= $(shell brew --prefix mcpp)
 LMDB_HOME                      ?= $(shell brew --prefix lmdb)
+endif
 
 # If building objects for a shared library, enable fPIC
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
