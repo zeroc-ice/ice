@@ -82,6 +82,9 @@ These are the changes since Ice 3.7.5.
   the `IceSSL::ConnectionInfo` object. The returned host corresponds to the `Endpoint::host` member of the endpoint
   that was used to create the connection.
 
+- Fixed a bug in `IceSSL` that would result in a partial chain when the intermediate CA certificates were not installed
+  in the client certificate store and were provided by the peer. This affects only Windows SCHannel implementation.
+
 # Changes in Ice 3.7.5
 
 These are the changes since Ice 3.7.4.

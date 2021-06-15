@@ -765,7 +765,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
 
         string trustError;
         PCCERT_CHAIN_CONTEXT certChain;
-        if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
+        if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, cert->hCertStore, &chainP,
                                     CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
         {
             CertFreeCertificateContext(cert);
