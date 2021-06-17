@@ -209,7 +209,7 @@ make CONFIGS=cpp11-shared -j8
 The build system supports building Xcode SDKs for Ice. These SDKs allow you to
 easily develop Ice applications with Xcode. To build Xcode SDKs, use the `xcodesdk`
 configurations. The [Ice Builder for Xcode][13] must be installed before building
-the SDKs.:
+the SDKs:
 ```
 make CONFIGS=xcodesdk -j8 srcs         # Build the C++98 mapping Xcode SDK
 make CONFIGS=cpp11-xcodesdk -j8 srcs   # Build the C++11 mapping Xcode SDK
