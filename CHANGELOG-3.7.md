@@ -99,7 +99,8 @@ These are the changes since Ice 3.7.5.
 - The C++ 11 mapping builds now use the compiler default C++ mode when the compiler's default mode is greater or equal to the
   required C++11 mode.
 
-- Fixed a bug in IceStorm tracing where the subscribers collection was not locked while it was being traced and could be modified concurrently. Thanks to Bill Stoffel for reporting the issue and creating a pull request [#1259](https://github.com/zeroc-ice/ice/pull/1259).
+- Fixed a bug in IceStorm tracing where the subscribers collection was not locked while it was being traced and could be modified
+  concurrently. Thanks to Bill Stoffel for reporting the issue and creating a pull request [#1259](https://github.com/zeroc-ice/ice/pull/1259).
 
 ## Java Changes
 
