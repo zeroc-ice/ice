@@ -108,7 +108,7 @@ These are the changes since Ice 3.7.5.
 
 ## JavaScript Changes
 
-- Fixed a bug in JavaScript mapping reading of interface by value arguments that can result in `Ice.UnexpectedObjectException` during
+- Fixed a bug in the JavaScript mapping where reading interface by value arguments could result in `Ice.UnexpectedObjectException` during
   unmarshaling.
 
 ## Swift Changes
