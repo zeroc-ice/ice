@@ -96,7 +96,7 @@ These are the changes since Ice 3.7.5.
 - Fixed a bug in `IceUtil::Time::toString`that results in bogus result when the microseconds representation of `IceUtil::Time`
   didn't fit in a 32 bit word. Thanks Fabio Osorio for reporting this issue [#1283](https://github.com/zeroc-ice/ice/issues/1283)
 
-- The C++ 11 mapping builds now uses the compiler default C++ mode  when the compilerdefault mode is greater or equal to the
+- The C++ 11 mapping builds now use the compiler default C++ mode when the compiler's default mode is greater or equal to the
   required C++11 mode.
 
 - Fixed a bug in IceStorm tracing, the subscribers collection was not lock while it was being traced and can be modified
