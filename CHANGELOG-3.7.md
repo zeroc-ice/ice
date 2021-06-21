@@ -93,10 +93,10 @@ These are the changes since Ice 3.7.5.
 - Fixed a bug in `IceSSL` that would result in a partial chain when the intermediate CA certificates were not installed
   in the client certificate store and were provided by the peer. This only affects the Windows Schannel implementation.
 
-- Fixed a bug in `IceUtil::Time::toString`that results in bogus result when the microseconds representation of `IceUtil::Time`
+- Fixed a bug in `IceUtil::Time::toString` that gave bogus results when the microsecond representation of `IceUtil::Time`
   didn't fit in a 32 bit word. Thanks Fabio Osorio for reporting this issue [#1283](https://github.com/zeroc-ice/ice/issues/1283).
 
-- The C++ 11 mapping builds now use the compiler default C++ mode when the compiler's default mode is greater or equal to the
+- The C++11 mapping builds now use the compiler's default C++ mode when the compiler's default mode is greater than or equal to the
   required C++11 mode.
 
 - Fixed a bug in IceStorm tracing where the subscribers collection was not locked while it was being traced and could be modified
