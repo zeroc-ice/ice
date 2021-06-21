@@ -11,12 +11,14 @@ particular aspect of Ice.
 - [Changes in Ice 3.7.6](#changes-in-ice-376)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
+  - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
   - [Swift Changes](#swift-changes)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
   - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes-1)
   - [C# Changes](#c-changes-2)
-  - [JavaScript Changes](#javascript-changes)
+  - [JavaScript Changes](#javascript-changes-1)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
@@ -25,7 +27,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-2)
   - [C++ Changes](#c-changes-3)
   - [C# Changes](#c-changes-4)
-  - [JavaScript Changes](#javascript-changes-1)
+  - [JavaScript Changes](#javascript-changes-2)
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes-1)
@@ -34,16 +36,16 @@ particular aspect of Ice.
   - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-5)
   - [C# Changes](#c-changes-6)
-  - [Java Changes](#java-changes)
-  - [JavaScript Changes](#javascript-changes-2)
+  - [Java Changes](#java-changes-1)
+  - [JavaScript Changes](#javascript-changes-3)
   - [MATLAB Changes](#matlab-changes-1)
   - [Python Changes](#python-changes-2)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
   - [General Changes](#general-changes-4)
   - [C++ Changes](#c-changes-7)
   - [C# Changes](#c-changes-8)
-  - [Java Changes](#java-changes-1)
-  - [JavaScript Changes](#javascript-changes-3)
+  - [Java Changes](#java-changes-2)
+  - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-2)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes-1)
@@ -52,8 +54,8 @@ particular aspect of Ice.
   - [General Changes](#general-changes-5)
   - [C++ Changes](#c-changes-9)
   - [C# Changes](#c-changes-10)
-  - [Java Changes](#java-changes-2)
-  - [JavaScript Changes](#javascript-changes-4)
+  - [Java Changes](#java-changes-3)
+  - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-3)
   - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes-2)
@@ -63,8 +65,8 @@ particular aspect of Ice.
   - [General Changes](#general-changes-6)
   - [C++ Changes](#c-changes-11)
   - [C# Changes](#c-changes-12)
-  - [Java Changes](#java-changes-3)
-  - [JavaScript Changes](#javascript-changes-5)
+  - [Java Changes](#java-changes-4)
+  - [JavaScript Changes](#javascript-changes-6)
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-3)
   - [Python Changes](#python-changes-5)
@@ -90,6 +92,24 @@ These are the changes since Ice 3.7.5.
 
 - Fixed a bug in `IceSSL` that would result in a partial chain when the intermediate CA certificates were not installed
   in the client certificate store and were provided by the peer. This only affects the Windows Schannel implementation.
+
+- Fixed a bug in `IceUtil::Time::toString`that results in bogus result when the microseconds representation of `IceUtil::Time`
+  didn't fit in a 32 bit word. Thanks Fabio Osorio for reporting this issue [#1283](https://github.com/zeroc-ice/ice/issues/1283).
+
+- The C++ 11 mapping builds now use the compiler default C++ mode when the compiler's default mode is greater or equal to the
+  required C++11 mode.
+
+- Fixed a bug in IceStorm tracing where the subscribers collection was not locked while it was being traced and could be modified concurrently. Thanks to Bill Stoffel for reporting the issue and creating a pull request [#1259](https://github.com/zeroc-ice/ice/pull/1259).
+
+## Java Changes
+
+- Fixed a race condition in the IceBT transport for Android that could result in a `NullPointerException`. Thanks Marco Pfattner for
+  reporting this issue [#1262](https://github.com/zeroc-ice/ice/issues/1262).
+
+## JavaScript Changes
+
+- Fixed a bug in the JavaScript mapping where reading interface by value arguments could result in `Ice.UnexpectedObjectException` during
+  unmarshaling.
 
 ## Swift Changes
 
