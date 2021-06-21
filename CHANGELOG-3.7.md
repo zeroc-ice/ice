@@ -103,7 +103,7 @@ These are the changes since Ice 3.7.5.
 
 ## Java Changes
 
-- Fixed a race condition in IceBT transport for Android that can result in a `NullPointerException` thanks Marco Pfattner for
+- Fixed a race condition in the IceBT transport for Android that could result in a `NullPointerException`. Thanks Marco Pfattner for
   reporting this issue [#1262](https://github.com/zeroc-ice/ice/issues/1262).
 
 ## JavaScript Changes
