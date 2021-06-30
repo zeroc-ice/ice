@@ -389,7 +389,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 //
                 // Connect succeeded.
                 //
-                assert(_exception != null);
+                assert(_exception == null);
                 _state = StateConnected;
                 _socket = socket;
                 startReadWriteThreads();

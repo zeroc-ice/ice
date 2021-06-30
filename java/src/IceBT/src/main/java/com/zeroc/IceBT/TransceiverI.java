@@ -395,7 +395,7 @@ final class TransceiverI implements Transceiver
                 //
                 // Connect succeeded.
                 //
-                assert (_exception != null);
+                assert (_exception == null);
                 _state = StateConnected;
                 _socket = socket;
                 startReadWriteThreads();
