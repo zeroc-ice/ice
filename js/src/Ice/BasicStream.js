@@ -2572,7 +2572,7 @@ var BasicStream = Class({
         //
         this._readEncapsStack.decoder.readObject.call(
             this._readEncapsStack.decoder,
-            function(obj){
+            patcher == null ? null : function(obj){
                 if(obj !== null && !(obj.ice_instanceof(T)))
                 {
                     ExUtil.throwUOE(T.ice_staticId(), obj);
