@@ -570,6 +570,7 @@ generated from the section label.
         <property name="CheckCertName" />
         <property name="CheckCRL" />
         <property name="Ciphers" />
+        <property name="CRLFile" />
         <property name="DefaultDir" />
         <property name="DH.[any]" />
         <property name="DHParams" />
@@ -590,6 +591,8 @@ generated from the section label.
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />
         <property name="Random" />
+        <property name="RevocationCheck" />
+        <property name="RevocationCheckCacheOnly" />
         <property name="SchannelStrongCrypto" />
         <property name="Trace.Security" />
         <property name="TrustOnly" />

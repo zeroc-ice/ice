@@ -3,7 +3,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os
+import os, threading, http.server
 
 class ConfigurationTestCase(ClientServerTestCase):
 
@@ -13,6 +13,21 @@ class ConfigurationTestCase(ClientServerTestCase):
             return
 
         certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
+
+        self.server = None
+        if isinstance(platform, Windows):
+            class Handler(http.server.SimpleHTTPRequestHandler):
+                def __init__(self, *args, **kwargs):
+                    super().__init__(*args, directory=certsPath, **kwargs)
+
+            self.server = http.server.HTTPServer(('127.0.0.1', 20001), Handler)
+
+            def crlServer():
+                self.server.serve_forever()
+
+            self.t = threading.Thread(target=crlServer)
+            self.t.start()
+
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             keychainPath = os.path.join(certsPath, "Find.keychain")
             os.system("mkdir -p {0}".format(os.path.join(certsPath, "keychain")))
@@ -40,6 +55,10 @@ class ConfigurationTestCase(ClientServerTestCase):
         # Nothing to do if we're not running this test with the C++ mapping
         if not isinstance(self.getMapping(), CppMapping):
             return
+
+        if self.server:
+            self.server.shutdown()
+            self.t.join()
 
         certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":

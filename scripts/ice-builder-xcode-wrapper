@@ -24,5 +24,4 @@ else
     echo "see https://github.com/zeroc-ice/ice-builder-xcode for install instructions"
 fi
 
-
 $ICEBUILDER $FLAGS "$@"
