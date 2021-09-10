@@ -4019,6 +4019,131 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
     }
 
+    {
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_OPENSSL)
+        cout << "testing certificate revocation... " << flush;
+        CommunicatorPtr comm;
+        InitializationData initData;
+
+        initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
+        initData.properties->setProperty("IceSSL.RevocationCheck", "0");
+        initData.properties->setProperty("IceSSL.CRLFile", "ca.crl.pem");
+        comm = initialize(initData);
+        Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca3_revoked", "");
+        d["IceSSL.VerifyPeer"] = "0";
+        Test::ServerPrxPtr server = fact->createServer(d);
+
+        // Revoked certificate is accpeted because IceSSL.RevocationCheck=0 disable revocation checks
+        server->ice_ping();
+        fact->destroyServer(server);
+        comm->destroy();
+
+        // Repeat enabling revocation checks
+        initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
+        initData.properties->setProperty("IceSSL.RevocationCheck", "1");
+        initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
+        initData.properties->setProperty("IceSSL.CRLFile", "ca.crl.pem");
+        comm = initialize(initData);
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        d = createServerProps(defaultProps, p12, "s_rsa_ca3_revoked", "");
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+
+        try
+        {
+            server->ice_ping();
+            test(false);
+        }
+        catch(const LocalException&)
+        {
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+
+        // Repeat with IceSSL.VerifyPeer=0
+        initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
+        initData.properties->setProperty("IceSSL.RevocationCheck", "1");
+        initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
+        initData.properties->setProperty("IceSSL.CRLFile", "ca.crl.pem");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+        comm = initialize(initData);
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        d = createServerProps(defaultProps, p12, "s_rsa_ca3_revoked", "");
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+
+        server->ice_ping();
+        info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+        test(!info->verified);
+        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, Revoked));
+
+        fact->destroyServer(server);
+        comm->destroy();
+
+        // Test with s_rsa_cai3 only the intermeidate CA cert is revoked
+        initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
+        initData.properties->setProperty("IceSSL.RevocationCheck", "2");
+        initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
+        initData.properties->setProperty("IceSSL.CRLFile", "ca.crl.pem");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+        comm = initialize(initData);
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        d = createServerProps(defaultProps, p12, "s_rsa_cai3", "");
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+
+        server->ice_ping();
+        info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+        test(!info->verified);
+#   if defined(ICE_USE_SCHANNEL)
+        test(!info->verified);
+        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown));
+#   else
+        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, Revoked));
+#   endif
+
+        fact->destroyServer(server);
+        comm->destroy();
+
+        // Repeat checking only the end cert
+        initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
+        initData.properties->setProperty("IceSSL.RevocationCheck", "1");
+        initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
+        initData.properties->setProperty("IceSSL.CRLFile", "ca.crl.pem");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+
+        comm = initialize(initData);
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        d = createServerProps(defaultProps, p12, "s_rsa_cai3", "");
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+
+        server->ice_ping();
+        info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+#   if defined(ICE_USE_SCHANNEL)
+        test(!info->verified);
+        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown));
+#   else
+        test(info->verified);
+#   endif
+        fact->destroyServer(server);
+        comm->destroy();
+
+        cout << "ok" << endl;
+#endif
+    }
+
 #if !defined(_AIX) && !defined(ICE_OS_UWP) && !(defined(_WIN32) && defined(ICE_USE_OPENSSL))
     //
     // On AIX 6.1, the default root certificates don't validate demo.zeroc.com.
@@ -4134,5 +4259,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
     cout << "ok" << endl;
 #endif
+
     return factory;
 }

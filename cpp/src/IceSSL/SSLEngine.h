@@ -66,6 +66,8 @@ public:
     bool getServerNameIndication() const;
     int getVerifyPeer() const;
     int securityTraceLevel() const;
+    bool getRevocationCheckCacheOnly() const;
+    int getRevocationCheck() const;
     std::string securityTraceCategory() const;
 
 protected:
@@ -89,6 +91,8 @@ private:
     int _verifyPeer;
     int _securityTraceLevel;
     std::string _securityTraceCategory;
+    const bool _revocationCheckCacheOnly;
+    const int _revocationCheck;
 };
 
 }

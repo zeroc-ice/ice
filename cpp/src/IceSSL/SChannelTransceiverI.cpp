@@ -765,8 +765,21 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
 
         string trustError;
         PCCERT_CHAIN_CONTEXT certChain;
-        if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, cert->hCertStore, &chainP,
-                                    CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
+        DWORD dwFlags = 0;
+        int revocationCheck = _engine->getRevocationCheck();
+        if(revocationCheck > 0)
+        {
+            if(_engine->getRevocationCheckCacheOnly())
+            {
+                dwFlags |= CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
+            }
+
+            dwFlags |= (revocationCheck == 1 ?
+                        CERT_CHAIN_REVOCATION_CHECK_END_CERT :
+                        CERT_CHAIN_REVOCATION_CHECK_CHAIN);
+        }
+
+        if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, cert->hCertStore, &chainP, dwFlags, 0, &certChain))
         {
             CertFreeCertificateContext(cert);
             trustError = IceUtilInternal::lastErrorToString();

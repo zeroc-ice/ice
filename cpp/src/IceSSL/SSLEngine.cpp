@@ -27,7 +27,9 @@ IceSSL::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator) :
     _initialized(false),
     _communicator(communicator),
     _logger(communicator->getLogger()),
-    _trustManager(new TrustManager(communicator))
+    _trustManager(new TrustManager(communicator)),
+    _revocationCheckCacheOnly(false),
+    _revocationCheck(0)
 {
 }
 
@@ -135,6 +137,11 @@ IceSSL::SSLEngine::initialize()
 
     _securityTraceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
+
+    const_cast<bool&>(_revocationCheckCacheOnly) =
+        properties->getPropertyAsIntWithDefault("IceSSL.RevocationCheckCacheOnly", 1) > 0;
+    const_cast<int&>(_revocationCheck) =
+        properties->getPropertyAsIntWithDefault("IceSSL.RevocationCheck", 0);
 }
 
 void
@@ -291,4 +298,16 @@ std::string
 IceSSL::SSLEngine::securityTraceCategory() const
 {
     return _securityTraceCategory;
+}
+
+bool
+IceSSL::SSLEngine::getRevocationCheckCacheOnly() const
+{
+    return _revocationCheckCacheOnly;
+}
+
+int
+IceSSL::SSLEngine::getRevocationCheck() const
+{
+    return _revocationCheck;
 }

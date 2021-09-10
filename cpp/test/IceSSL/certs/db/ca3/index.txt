@@ -1,0 +1,3 @@
+R	231214142747Z	210910142748Z	FE02F5626FFDC60D	unknown	/CN=Server/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com
+R	231214142747Z	210910142748Z	D9D803A20F2628D5	unknown	/CN=Client/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com
+R	231214142747Z	210910142748Z	D6B1F144481E742E	unknown	/CN=ZeroC Test Intermediate CA 1/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com

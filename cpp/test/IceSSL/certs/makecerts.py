@@ -26,6 +26,12 @@ def usage():
     print("--force          Re-save all the files even if they already exists.")
     sys.exit(1)
 
+def runCommands(commands):
+    for command in commands:
+        if os.system(command) != 0:
+            print("error running command `{0}'".format(command))
+            sys.exit(1)
+
 #
 # Check arguments
 #
@@ -53,13 +59,15 @@ for (o, a) in opts:
 home = os.path.join(os.path.dirname(os.path.abspath(__file__)), "db")
 homeca1 = os.path.join(home, "ca1")
 homeca2 = os.path.join(home, "ca2")
+homeca3 = os.path.join(home, "ca3")
 if not os.path.exists("db"):
     os.mkdir(home)
     os.mkdir(homeca1)
     os.mkdir(homeca2)
+    os.mkdir(homeca3)
 
 if clean:
-    for h in [homeca1, homeca2]:
+    for h in [homeca1, homeca2, homeca3]:
         IceCertUtils.CertificateFactory(home=h).destroy(True)
 
 #
@@ -69,6 +77,14 @@ if clean:
 ca1 = IceCertUtils.CertificateFactory(home=homeca1, cn="ZeroC Test CA 1", ip="127.0.0.1", email="issuer@zeroc.com")
 ca2 = IceCertUtils.CertificateFactory(home=homeca2, cn="ZeroC Test CA 2", ip="127.0.0.1", email="issuer@zeroc.com",
                                       extendedKeyUsage="serverAuth")
+# CA3 include CRL distribution points
+ca3 = IceCertUtils.CertificateFactory(
+    home=homeca3,
+    cn="ZeroC Test CA 3",
+    ip="127.0.0.1",
+    email="issuer@zeroc.com",
+    crlDistributionPoints="http://127.0.0.1:20001/ca.crl.pem")
+
 dsaca = IceCertUtils.OpenSSLCertificateFactory(home=ca1.home, keyalg="dsa", keysize=2048)
 
 #
@@ -76,7 +92,9 @@ dsaca = IceCertUtils.OpenSSLCertificateFactory(home=ca1.home, keyalg="dsa", keys
 #
 if force or not os.path.exists("cacert1.pem"): ca1.getCA().save("cacert1.pem")
 if force or not os.path.exists("cacert2.pem"): ca2.getCA().save("cacert2.pem")
+if force or not os.path.exists("cacert3.pem"): ca3.getCA().save("cacert3.pem")
 if force or not os.path.exists("cacert1.der"): ca1.getCA().save("cacert1.der")
+if force or not os.path.exists("cacert3.der"): ca3.getCA().save("cacert3.der")
 if force or not os.path.exists("cacerts.pem"):
     pem = ""
     with open("cacert1.pem", "r") as f: pem += f.read()
@@ -92,9 +110,19 @@ if force or not os.path.exists("cacert2.p12"): ca2.getCA().save("cacert2.p12", a
 cai1 = ca1.getIntermediateFactory("intermediate1")
 if not cai1:
     cai1 = ca1.createIntermediateFactory("intermediate1", cn = "ZeroC Test Intermediate CA 1")
+
 cai2 = cai1.getIntermediateFactory("intermediate1")
 if not cai2:
     cai2 = cai1.createIntermediateFactory("intermediate1", cn = "ZeroC Test Intermediate CA 2")
+
+cai3 = ca3.getIntermediateFactory("intermediate1")
+if not cai3:
+    cai3 = ca3.createIntermediateFactory("intermediate1",
+                                         cn="ZeroC Test Intermediate CA 1",
+                                         crlDistributionPoints="http://127.0.0.1:20001/ca.crl.pem")
+
+if force or not os.path.exists("cai3.pem"): ca3.getCA().save("cai3.pem")
+if force or not os.path.exists("cai3.der"): ca3.getCA().save("cai3.der")
 
 #
 # Create certificates (CA, alias, { creation parameters passed to ca.create(...) })
@@ -124,6 +152,13 @@ certs = [
     (cai1, "s_rsa_cai1",     { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
     (cai2, "s_rsa_cai2",     { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
     (cai2, "c_rsa_cai2",     { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
+
+    (ca3, "s_rsa_ca3_revoked",     { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
+    (ca3, "c_rsa_ca3_revoked",     { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
+    (cai3, "s_rsa_cai3",           { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
+    (cai3, "c_rsa_cai3",           { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
+    (cai3, "s_rsa_cai3_revoked",   { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
+    (cai3, "c_rsa_cai3_revoked",   { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
 ]
 
 #
@@ -159,6 +194,13 @@ savecerts = [
     (ca1, "s_rsa_ca1",     "s_rsa_wroot_ca1", { "root": True }),
     (ca1, "s_rsa_ca1",     "s_rsa_pass_ca1",  { "password": "server" }),
     (ca1, "c_rsa_ca1",     "c_rsa_pass_ca1",  { "password": "client" }),
+
+    (ca3, "s_rsa_ca3_revoked",     None, {} ),
+    (ca3, "c_rsa_ca3_revoked",     None, {} ),
+    (cai3, "s_rsa_cai3",           None, {} ),
+    (cai3, "c_rsa_cai3",           None, {} ),
+    (cai3, "s_rsa_cai3_revoked",   None, {} ),
+    (cai3, "c_rsa_cai3_revoked",   None, {} ),
 ]
 
 #
@@ -196,3 +238,48 @@ if not os.path.exists("cacert_custom.pem"):
 
     if os.path.exists("cacert_custom.csr"):
         os.remove("cacert_custom.csr")
+
+def revokeCertificates(ca, cadir, certs):
+    crlnumber = "{}/crlnumber".format(cadir)
+    crlindex = "{}/index.txt".format(cadir)
+
+    if os.path.exists(crlnumber):
+        os.unlink(crlnumber)
+
+    with open(crlnumber, "w") as f:
+        f.write("00")
+
+    if os.path.exists(crlindex):
+        os.unlink(crlindex)
+
+    with open(crlindex, "w") as f:
+        f.write("")
+
+    commands = []
+    for cert in certs:
+        commands.append("openssl ca -config {ca}.cnf -revoke {cadir}/{cert} -passin pass:password".format(
+            ca=ca,
+            cadir=cadir,
+            cert=cert))
+
+    commands.append(
+        "openssl ca -config {ca}.cnf -gencrl -out {ca}.crl.pem -crldays 825 -passin pass:password".format(ca=ca))
+    runCommands(commands)
+
+revokeCertificates("ca3", "db/ca3", ["s_rsa_ca3_revoked.pem",
+                                     "c_rsa_ca3_revoked.pem",
+                                     "intermediate1/ca.pem"])
+revokeCertificates("cai3", "db/ca3/intermediate1", ["s_rsa_cai3_revoked.pem", "c_rsa_cai3_revoked.pem"])
+
+
+# Concatenate CRL files
+
+crlfile = "ca.crl.pem"
+if os.path.exists(crlfile):
+    os.unlink(crlfile)
+
+with open(crlfile, "w") as outfile:
+    for ca in ["ca3", "cai3"]:
+        with open("{}.crl.pem".format(ca), "r") as infile:
+            outfile.write(infile.read())
+        outfile.write("\n")
