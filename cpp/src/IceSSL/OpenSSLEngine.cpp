@@ -824,16 +824,16 @@ OpenSSL::SSLEngine::initialize()
                 }
             }
 
-            string crlFile = properties->getProperty(propPrefix + "CRLFile");
-            if(!crlFile.empty() && getRevocationCheck() > 0)
+            if(getRevocationCheck() > 0)
             {
-                vector<string> files;
-                if(!IceUtilInternal::splitString(crlFile, IceUtilInternal::pathsep, files) || files.size() > 2)
+                vector<string> crlFiles =
+                    properties->getPropertyAsList(propPrefix + "CertificateRevocationListFiles");
+                if(crlFiles.empty())
                 {
                     throw PluginInitializationException(
                         __FILE__,
                         __LINE__,
-                        "IceSSL: invalid value for " + propPrefix + "CRLFile:\n" + crlFile);
+                        "IceSSL: cannot enable revocation checks without setting certificate revocation list files");
                 }
 
                 X509_STORE* store = SSL_CTX_get_cert_store(_ctx);
@@ -842,7 +842,7 @@ OpenSSL::SSLEngine::initialize()
                     throw PluginInitializationException(
                         __FILE__,
                         __LINE__,
-                        "IceSSL: unable to obtain certificate store");
+                        "IceSSL: unable to obtain the certificate store");
                 }
 
                 X509_LOOKUP* lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
@@ -851,22 +851,23 @@ OpenSSL::SSLEngine::initialize()
                     throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: add lookup failed");
                 }
 
-                for(vector<string>::const_iterator it = files.begin(); it != files.end(); it++)
+                for(vector<string>::const_iterator it = crlFiles.begin(); it != crlFiles.end(); it++)
                 {
-                    string file = *it;
-                    string resolved;
-                    if(!checkPath(file, defaultDir, false, resolved))
+                    string file;
+                    if(!checkPath(*it, defaultDir, false, file))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: CRL file not found:\n" + file);
+                        throw PluginInitializationException(
+                            __FILE__,
+                            __LINE__,
+                            "IceSSL: CRL file not found `" + *it + "'");
                     }
-                    file = resolved;
 
                     if(X509_LOOKUP_load_file(lookup, file.c_str(), X509_FILETYPE_PEM) == 0)
                     {
                         throw PluginInitializationException(
                             __FILE__,
                             __LINE__,
-                            "IceSSL: CRL load failure `" + file + "'");
+                            "IceSSL: CRL load failure `" + *it + "'");
                     }
                 }
 

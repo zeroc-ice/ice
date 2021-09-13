@@ -570,7 +570,7 @@ generated from the section label.
         <property name="CheckCertName" />
         <property name="CheckCRL" />
         <property name="Ciphers" />
-        <property name="CRLFile" />
+        <property name="CertificateRevocationListFiles" />
         <property name="DefaultDir" />
         <property name="DH.[any]" />
         <property name="DHParams" />
