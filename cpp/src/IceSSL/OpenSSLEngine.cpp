@@ -824,7 +824,8 @@ OpenSSL::SSLEngine::initialize()
                 }
             }
 
-            if(getRevocationCheck() > 0)
+            int revocationCheck = getRevocationCheck();
+            if(revocationCheck > 0)
             {
                 vector<string> crlFiles =
                     properties->getPropertyAsList(propPrefix + "CertificateRevocationListFiles");
@@ -871,16 +872,12 @@ OpenSSL::SSLEngine::initialize()
                     }
                 }
 
-                int revocationCheck = getRevocationCheck();
-                if(revocationCheck > 0)
+                unsigned long flags = X509_V_FLAG_CRL_CHECK;
+                if(revocationCheck > 1)
                 {
-                    unsigned long flags = X509_V_FLAG_CRL_CHECK;
-                    if(revocationCheck > 1)
-                    {
-                        flags |= X509_V_FLAG_CRL_CHECK_ALL;
-                    }
-                    X509_STORE_set_flags(store, flags);
+                    flags |= X509_V_FLAG_CRL_CHECK_ALL;
                 }
+                X509_STORE_set_flags(store, flags);
             }
 
             SSL_CTX_set_mode(_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
