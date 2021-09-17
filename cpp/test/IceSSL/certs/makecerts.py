@@ -182,6 +182,7 @@ certs = [
     (ca3, "c_rsa_ca3",           { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
     (ca3, "s_rsa_ca3_revoked",   { "cn": "Server ca3 revoked", "ip": "127.0.0.1", "dns": "server" }),
     (ca3, "c_rsa_ca3_revoked",   { "cn": "Client ca3 revoked", "ip": "127.0.0.1", "dns": "client" }),
+
     (cai3, "s_rsa_cai3",         { "cn": "Server cai3", "ip": "127.0.0.1", "dns": "server" }),
     (cai3, "c_rsa_cai3",         { "cn": "Client cai3", "ip": "127.0.0.1", "dns": "client" }),
     (cai3, "s_rsa_cai3_revoked", { "cn": "Server cai3 revoked", "ip": "127.0.0.1", "dns": "server" }),
@@ -192,6 +193,10 @@ certs = [
     (ca4, "c_rsa_ca4",           { "cn": "Client ca4", "ip": "127.0.0.1", "dns": "client" }),
     (ca4, "s_rsa_ca4_revoked",   { "cn": "Server ca4 revoked", "ip": "127.0.0.1", "dns": "server" }),
     (ca4, "c_rsa_ca4_revoked",   { "cn": "Client ca4 revoked", "ip": "127.0.0.1", "dns": "client" }),
+    # The OCSP responder doesn't know about this certs
+    (ca4, "s_rsa_ca4_unknown", { "cn": "Server ca4 unknown", "ip": "127.0.0.1", "dns": "server" }),
+    (ca4, "c_rsa_ca4_unknown", { "cn": "Client ca4 unknown", "ip": "127.0.0.1", "dns": "client" }),
+
     (cai4, "s_rsa_cai4",         { "cn": "Server cai4", "ip": "127.0.0.1", "dns": "server" }),
     (cai4, "c_rsa_cai4",         { "cn": "Client cai4", "ip": "127.0.0.1", "dns": "client" }),
     (cai4, "s_rsa_cai4_revoked", { "cn": "Server cai4 revoked", "ip": "127.0.0.1", "dns": "server" }),
@@ -236,6 +241,7 @@ savecerts = [
     (ca3, "c_rsa_ca3",     None, {} ),
     (ca3, "s_rsa_ca3_revoked",     None, {} ),
     (ca3, "c_rsa_ca3_revoked",     None, {} ),
+
     (cai3, "s_rsa_cai3",           None, {} ),
     (cai3, "c_rsa_cai3",           None, {} ),
     (cai3, "s_rsa_cai3_revoked",   None, {} ),
@@ -245,6 +251,9 @@ savecerts = [
     (ca4, "c_rsa_ca4",     None, {} ),
     (ca4, "s_rsa_ca4_revoked",     None, {} ),
     (ca4, "c_rsa_ca4_revoked",     None, {} ),
+    (ca4, "s_rsa_ca4_unknown",     None, {} ),
+    (ca4, "c_rsa_ca4_unknown",     None, {} ),
+
     (cai4, "s_rsa_cai4",           None, {} ),
     (cai4, "c_rsa_cai4",           None, {} ),
     (cai4, "s_rsa_cai4_revoked",   None, {} ),
