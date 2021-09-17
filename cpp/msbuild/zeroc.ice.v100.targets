@@ -22,4 +22,9 @@
         </Link>
     </ItemDefinitionGroup>
 
+    <Target Name="ValidateSliceCompilerVersion" BeforeTargets="CLCompile">
+        <Error Text="Detected invalid Ice NuGet package version '$(IceNugetPackageVersion)' expected '3.7.6'"
+               Condition="'$(IceNugetPackageVersion)' != '3.7.6'" />
+    </Target>
+
 </Project>
