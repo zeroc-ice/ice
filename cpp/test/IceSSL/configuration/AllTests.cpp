@@ -4272,6 +4272,27 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
 #   endif
 
+        // Repeat with a certificate that is unknow for the OCSP responder
+        initData.properties = createClientProps(defaultProps, p12, "", "cacert4");
+        initData.properties->setProperty("IceSSL.RevocationCheck", "1");
+        initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+
+        comm = initialize(initData);
+        fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
+        test(fact);
+
+        d = createServerProps(defaultProps, p12, "s_rsa_ca4_unknown", "");
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+
+        server->ice_ping();
+        info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+        test(!info->verified);
+        test(getTrustError(info) == IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown));
+        fact->destroyServer(server);
+        comm->destroy();
+
         import.cleanup();
 
         cout << "ok" << endl;
