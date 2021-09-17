@@ -87,7 +87,7 @@ ca3 = IceCertUtils.CertificateFactory(
     email="issuer@zeroc.com",
     crlDistributionPoints="http://127.0.0.1:20001/ca3.crl.pem")
 
-# CA3 include CRL distribution points
+# CA3 include AIA extension
 ca4 = IceCertUtils.CertificateFactory(
     home=homeca4,
     cn="ZeroC Test CA 4",
