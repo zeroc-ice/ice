@@ -4,18 +4,16 @@
 #
 
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509 import ocsp, load_pem_x509_certificate, ReasonFlags, SubjectKeyIdentifier
 from datetime import datetime, timedelta, timezone
-from functools import partial
-from oscrypto import asymmetric
 import base64
-import hashlib
 import http.server
 import os
 import sys
 import traceback
 import urllib.parse
+
 
 def load_certificate(path):
     with open(path, 'rb') as f:
@@ -28,9 +26,11 @@ def load_private_key(path, password):
 
 
 def load_db(basepath):
-    # create an in memory database of issuer/certificates and issuer/revocations
-    # the issuer SKI is used as the issuer key and the certificate serial number
-    # as the certificates and revocations key.
+    """
+    create an in memory database of issuer/certificates and issuer/revocations
+    the issuer SKI is used as the issuer key and the certificate serial number
+    as the certificates and revocations key.
+    """
     db = {}
     for ca_dir, certs in [("db/ca4", ["s_rsa_ca4.pem", "s_rsa_ca4_revoked.pem", "intermediate1/ca.pem"]),
                           ("db/ca4/intermediate1", ["s_rsa_cai4.pem", "s_rsa_cai4_revoked.pem"])]:
@@ -38,16 +38,16 @@ def load_db(basepath):
         issuer_cert = load_certificate("{}/ca.pem".format(ca_dir))
         issuer_key = load_private_key("{}/ca_key.pem".format(ca_dir), b"password")
 
-        issuerSha1 = issuer_cert.extensions.get_extension_for_class(SubjectKeyIdentifier).value.digest
-        db[issuerSha1] = {}
-        db[issuerSha1]['issuer_cert'] = issuer_cert
-        db[issuerSha1]['issuer_key'] = issuer_key
+        issuer_sha1 = issuer_cert.extensions.get_extension_for_class(SubjectKeyIdentifier).value.digest
+        db[issuer_sha1] = {}
+        db[issuer_sha1]['issuer_cert'] = issuer_cert
+        db[issuer_sha1]['issuer_key'] = issuer_key
 
         certificates = {}
         for filename in certs:
             cert = load_certificate(os.path.join(ca_dir, filename))
             certificates[cert.serial_number] = cert
-        db[issuerSha1]['certificates'] = certificates
+        db[issuer_sha1]['certificates'] = certificates
 
         # index.txt in the CA directory contains the openssl-ca database
         # see https://pki-tutorial.readthedocs.io/en/latest/cadb.html
@@ -61,21 +61,21 @@ def load_db(basepath):
                     print("invalid line\n" + line)
                     sys.exit(1)
 
-                assert(tokens[0] == 'R')
+                assert tokens[0] == 'R'
                 certinfo = {
                     "revocation_time": datetime.strptime(tokens[2], "%y%m%d%H%M%S%z"),
                     "serial_number": int(tokens[3], 16),
                 }
                 revocations[certinfo["serial_number"]] = certinfo
-            db[issuerSha1]['revocations'] = revocations
+            db[issuer_sha1]['revocations'] = revocations
     return db
 
 
 class OCSPHandler(http.server.BaseHTTPRequestHandler):
-    # A simple handlder for OCSP GET/POST requests
+    "A simple handlder for OCSP GET/POST requests"
 
     def __init__(self, db, *args, **kwargs):
-        self.db = db
+        self._db = db
         # BaseHTTPRequestHandler calls do_GET **inside** __init__ !!!
         # So we have to call super().__init__ after setting attributes.
         super().__init__(*args, **kwargs)
@@ -97,7 +97,7 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
         try:
             request = ocsp.load_der_ocsp_request(data)
             serial = request.serial_number
-            issuer = self.db.get(request.issuer_key_hash)
+            issuer = self._db.get(request.issuer_key_hash)
             if issuer:
                 issuer_cert = issuer.get('issuer_cert')
                 issuer_key = issuer.get('issuer_key')
@@ -122,7 +122,7 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
                     response = builder.sign(issuer_key, hashes.SHA256())
             else:
                 response = ocsp.OCSPResponseBuilder.build_unsuccessful(ocsp.OCSPResponseStatus.UNAUTHORIZED)
-        except Exception as e:
+        except Exception:
             traceback.print_exc(file=sys.stdout)
             response = ocsp.OCSPResponseBuilder.build_unsuccessful(ocsp.OCSPResponseStatus.INTERNAL_ERROR)
 

@@ -111,9 +111,10 @@ def createOCSPServer(host, port, basepath):
     handler = partial(ocsphandler.OCSPHandler, db)
     return ThreadedServer(host, port, handler)
 
+
 def createCRLServer(host, port, basepath,):
     handler = partial(http.server.SimpleHTTPRequestHandler, directory=basepath)
-    return  ThreadedServer(host, port, handler)
+    return ThreadedServer(host, port, handler)
 
 
 class ThreadedServer:
