@@ -4,6 +4,8 @@
 #
 
 import os, threading, http.server
+from scripts.tests.IceSSL import ocsphandler
+from functools import partial
 
 class ConfigurationTestCase(ClientServerTestCase):
 
@@ -14,19 +16,14 @@ class ConfigurationTestCase(ClientServerTestCase):
 
         certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
 
-        self.server = None
-        if isinstance(platform, Windows):
-            class Handler(http.server.SimpleHTTPRequestHandler):
-                def __init__(self, *args, **kwargs):
-                    super().__init__(*args, directory=certsPath, **kwargs)
+        self.clrServer = None
+        self.ocspServer = None
 
-            self.server = http.server.HTTPServer(('127.0.0.1', 20001), Handler)
-
-            def crlServer():
-                self.server.serve_forever()
-
-            self.t = threading.Thread(target=crlServer)
-            self.t.start()
+        if isinstance(platform, Windows) or isinstance(platform, Darwin):
+            self.crlServer = createCRLServer('127.0.0.1', 20001, certsPath)
+            self.crlServer.start()
+            self.ocspServer = createOCSPServer('127.0.0.1', 20002, certsPath)
+            self.ocspServer.start()
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             keychainPath = os.path.join(certsPath, "Find.keychain")
@@ -56,9 +53,10 @@ class ConfigurationTestCase(ClientServerTestCase):
         if not isinstance(self.getMapping(), CppMapping):
             return
 
-        if self.server:
-            self.server.shutdown()
-            self.t.join()
+        if self.crlServer:
+            self.crlServer.shutdown()
+        if self.ocspServer:
+            self.ocspServer.shutdown()
 
         certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
@@ -106,3 +104,35 @@ TestSuite(__name__, [
    ConfigurationTestCase(client=IceSSLConfigurationClient(outfilters=outfilters, args=['"{testdir}"']),
                          server=IceSSLConfigurationServer(outfilters=outfilters, args=['"{testdir}"']))
 ], multihost=False, options=options)
+
+
+def createOCSPServer(host, port, basepath):
+    db = ocsphandler.load_db(basepath)
+    handler = partial(ocsphandler.OCSPHandler, db)
+    return ThreadedServer(host, port, handler)
+
+def createCRLServer(host, port, basepath,):
+    handler = partial(http.server.SimpleHTTPRequestHandler, directory=basepath)
+    return  ThreadedServer(host, port, handler)
+
+
+class ThreadedServer:
+    # run HTPPServer in its own thread
+
+    def __init__(self, hostname, port, handler):
+        self.handler = handler
+        self.server = http.server.HTTPServer((hostname, port), handler)
+        self.thread = None
+
+    def start(self):
+        def serve_forever(server):
+            with server:
+                server.serve_forever()
+
+        self.thread = threading.Thread(target=serve_forever, args=(self.server,))
+        self.thread.setDaemon(True)
+        self.thread.start()
+
+    def shutdown(self):
+        self.server.shutdown()
+        self.thread.join()

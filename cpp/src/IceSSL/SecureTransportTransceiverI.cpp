@@ -184,11 +184,7 @@ checkTrustResult(SecTrustRef trust,
             {
                 revocationFlags |= kSecRevocationNetworkAccessDisabled;
             }
-
-            if(revocationCheck > 1)
-            {
-                trustFlags |= kSecTrustOptionRequireRevPerCert;
-            }
+            trustFlags |= kSecTrustOptionRequireRevPerCert;
 
             UniqueRef<SecPolicyRef> revocationPolicy(SecPolicyCreateRevocation(revocationFlags));
             if(!revocationPolicy)
