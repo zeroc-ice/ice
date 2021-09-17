@@ -16,7 +16,7 @@ class ConfigurationTestCase(ClientServerTestCase):
 
         certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
 
-        self.clrServer = None
+        self.crlServer = None
         self.ocspServer = None
 
         if isinstance(platform, Windows) or isinstance(platform, Darwin):
