@@ -155,37 +155,65 @@ checkTrustResult(SecTrustRef trust,
     UniqueRef<CFErrorRef> trustErr;
     if(trust)
     {
-        if((err = SecTrustSetAnchorCertificates(trust, engine->getCertificateAuthorities())))
-        {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-        }
-
-        //
-        // Disable network fetch, we don't want this to block.
-        //
+        // Do not allow to fetch missing intermediate certificates from the network.
         if((err = SecTrustSetNetworkFetchAllowed(trust, false)))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
         }
 
-        //
-        // Add SSL trust policy if we need to check the certificate name.
-        //
+        UniqueRef<CFMutableArrayRef> policies(CFArrayCreateMutable(kCFAllocatorDefault, 0,  &kCFTypeArrayCallBacks));
+        // Add SSL trust policy if we need to check the certificate name, otherwise use basic x509 policy.
         if(engine->getCheckCertName() && !host.empty())
         {
             UniqueRef<CFStringRef> hostref(toCFString(host));
             UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, hostref.get()));
-            UniqueRef<CFArrayRef> policies;
-            if((err = SecTrustCopyPolicies(trust, &policies.get())))
+            CFArrayAppendValue(policies.get(), policy.get());
+        }
+        else
+        {
+            UniqueRef<SecPolicyRef> policy(SecPolicyCreateBasicX509());
+            CFArrayAppendValue(policies.get(), policy.get());
+        }
+
+        SecTrustOptionFlags trustFlags = kSecTrustOptionUseTrustSettings;
+        int revocationCheck = engine->getRevocationCheck();
+        if(revocationCheck > 0)
+        {
+            CFOptionFlags revocationFlags = kSecRevocationUseAnyAvailableMethod | kSecRevocationRequirePositiveResponse;
+            if(engine->getRevocationCheckCacheOnly())
+            {
+                revocationFlags |= kSecRevocationNetworkAccessDisabled;
+            }
+            trustFlags |= kSecTrustOptionRequireRevPerCert;
+
+            UniqueRef<SecPolicyRef> revocationPolicy(SecPolicyCreateRevocation(revocationFlags));
+            if(!revocationPolicy)
+            {
+                throw SecurityException(__FILE__,
+                                        __LINE__,
+                                        "IceSSL: handshake failure: error creating revocation policy");
+            }
+            CFArrayAppendValue(policies.get(), revocationPolicy.get());
+        }
+
+        if((err = SecTrustSetOptions(trust, trustFlags)))
+        {
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
+        }
+
+        if((err = SecTrustSetPolicies(trust, policies.get())))
+        {
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
+        }
+
+        CFArrayRef certificateAuthorities = engine->getCertificateAuthorities();
+        if(certificateAuthorities != 0)
+        {
+            if((err = SecTrustSetAnchorCertificates(trust, certificateAuthorities)))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
             }
-            UniqueRef<CFMutableArrayRef> newPolicies(CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, policies.get()));
-            CFArrayAppendValue(newPolicies.get(), policy.get());
-            if((err = SecTrustSetPolicies(trust, newPolicies.get())))
-            {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
-            }
+            SecTrustSetAnchorCertificatesOnly(trust, true);
         }
 
         //

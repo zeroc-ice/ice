@@ -1,0 +1,2 @@
+R	231220163233Z	210916163233Z	A804CD37D0AE2824	unknown	/CN=Server cai4 revoked/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com
+R	231220163233Z	210916163233Z	B70BD20AF96E3CA5	unknown	/CN=Client cai4 revoked/OU=Ice/O=ZeroC, Inc./L=Jupiter/ST=Florida/C=US/emailAddress=info@zeroc.com

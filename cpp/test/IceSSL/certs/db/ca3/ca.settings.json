@@ -1,0 +1,1 @@
+{"validity": 825, "keysize": 2048, "keyalg": "rsa", "sigalg": "sha256", "crlDistributionPoints": "http://127.0.0.1:20001/ca3.crl.pem"}
