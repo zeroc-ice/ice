@@ -1448,6 +1448,34 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(toHexString(cert->getAuthorityKeyIdentifier()) == authorities[i]);
             test(toHexString(cert->getSubjectKeyIdentifier()) == subjects[i]);
         }
+
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
+        unsigned int keyUsage = cert->getKeyUsage();
+        test(keyUsage == 0);
+
+        //  Digital Signature, Certificate Sign, CRL Sign
+        cert = IceSSL::Certificate::load(defaultDir + "/cacert3.pem");
+        keyUsage = cert->getKeyUsage();
+        test(keyUsage ==
+             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+              IceSSL::KEY_USAGE_CERT_SIGN |
+              IceSSL::KEY_USAGE_CRL_SIGN));
+
+        //  Digital Signature, Certificate Sign, CRL Sign
+        cert = IceSSL::Certificate::load(defaultDir + "/cacert4.pem");
+        keyUsage = cert->getKeyUsage();
+        test(keyUsage ==
+             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+              IceSSL::KEY_USAGE_CERT_SIGN |
+              IceSSL::KEY_USAGE_CRL_SIGN));
+
+        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage = IceSSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage = IceSSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
     }
     {
 #   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -1456,12 +1484,23 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     expectedAltNames.push_back(make_pair(2, "client"));
     IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
     test(cert->getSubjectAlternativeNames() == expectedAltNames);
+    // Digital Signature, Non Repudiation, Key Encipherment
+    unsigned int keyUsage = cert->getKeyUsage();
+    test(keyUsage ==
+         (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+          IceSSL::KEY_USAGE_NON_REPUDIATION |
+          IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
     expectedAltNames.push_back(make_pair(2, "server"));
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
     test(cert->getSubjectAlternativeNames() == expectedAltNames);
+    keyUsage = cert->getKeyUsage();
+    test(keyUsage ==
+         (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+          IceSSL::KEY_USAGE_NON_REPUDIATION |
+          IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(2, "localhost"));
