@@ -2456,16 +2456,24 @@ namespace Ice
         /// corresponding instance has been fully unmarshaled.</param>
         public void readValue<T>(System.Action<T> cb) where T : Value
         {
-            readValue(v => {
-                if(v == null || v is T)
-                {
-                    cb((T)v);
-                }
-                else
-                {
-                    IceInternal.Ex.throwUOE(typeof(T), v);
-                }
-            });
+            initEncaps();
+            if (cb == null)
+            {
+                _encapsStack.decoder.readValue(null);
+            }
+            else
+            {
+                _encapsStack.decoder.readValue(v => {
+                    if (v == null || v is T)
+                    {
+                        cb((T)v);
+                    }
+                    else
+                    {
+                        IceInternal.Ex.throwUOE(typeof(T), v);
+                    }
+                });
+            }
         }
 
         /// <summary>
@@ -2476,8 +2484,7 @@ namespace Ice
         /// corresponding instance has been fully unmarshaled.</param>
         public void readValue(System.Action<Value> cb)
         {
-            initEncaps();
-            _encapsStack.decoder.readValue(cb);
+            readValue<Value>(cb);
         }
 
         /// <summary>
