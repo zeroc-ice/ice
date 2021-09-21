@@ -1711,7 +1711,7 @@ public class Coordinator
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
                 _sessionKeeper.loginSuccess(parent, _acmTimeout, _session, _replicaName, info);
-                getMainFrame().setTitle(info.getInstanceName() + " - IceGrid GUI");
+                getMainFrame().setTitle(info.getInstanceName() + " (" + _replicaName + ") - IceGrid GUI");
             }
 
             synchronized public void loginFailed()
