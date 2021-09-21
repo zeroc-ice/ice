@@ -913,6 +913,11 @@ SecureTransportCertificateI::getExtendedKeyUsage() const
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
             }
+
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuOCSPSigning))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+            }
         }
     }
     return extendedKeyUsage;
