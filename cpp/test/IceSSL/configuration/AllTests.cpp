@@ -1471,11 +1471,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage = IceSSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
 
         cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
-        test(keyUsage = IceSSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
     }
     {
 #   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0

@@ -40,6 +40,25 @@ private:
 };
 typedef IceUtil::Handle<CertInfoHolder> CertInfoHolderPtr;
 
+class CertContextHolder : public IceUtil::Shared
+{
+public:
+
+    CertContextHolder(const CERT_CONTEXT* v) : _certContext(v)
+    {
+    }
+
+    virtual ~CertContextHolder()
+    {
+        CertFreeCertificateContext(_certContext);
+    }
+
+private:
+
+    const CERT_CONTEXT* _certContext;
+};
+typedef IceUtil::Handle<CertContextHolder> CertContextHolderPtr;
+
 class SCHannelX509ExtensionI : public X509Extension
 {
 
@@ -87,6 +106,8 @@ public:
     virtual vector<pair<int, string> > getSubjectAlternativeNames() const;
     virtual int getVersion() const;
     virtual CERT_SIGNED_CONTENT_INFO* getCert() const;
+    virtual unsigned int getKeyUsage() const;
+    virtual unsigned int getExtendedKeyUsage() const;
 
 protected:
 
@@ -97,6 +118,8 @@ private:
     CERT_SIGNED_CONTENT_INFO* _cert;
     CERT_INFO* _certInfo;
     CertInfoHolderPtr _certInfoHolder;
+    const CERT_CONTEXT* _certContext;
+    CertContextHolderPtr _certContextHolder;
 };
 
 const Ice::Long TICKS_PER_MSECOND = 10000LL;
@@ -326,6 +349,15 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
         _certInfoHolder = new CertInfoHolder(_certInfo);
+
+        _certContext = CertCreateCertificateContext(X509_ASN_ENCODING,
+                                                    _cert->ToBeSigned.pbData,
+                                                    _cert->ToBeSigned.cbData);
+        if(_certContext == 0)
+        {
+            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        }
+        _certContextHolder = new CertContextHolder(_certContext);
     }
     catch(...)
     {
@@ -555,6 +587,128 @@ SChannelCertificateI::loadX509Extensions() const
                 _certInfoHolder)));
         }
     }
+}
+
+unsigned int
+SChannelCertificateI::getKeyUsage() const
+{
+    unsigned int keyUsage = 0;
+    BYTE usage[2];
+    if(CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, _certInfo, usage, 2))
+    {
+        if (usage[0] & CERT_DIGITAL_SIGNATURE_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_DIGITAL_SIGNATURE;
+        }
+        if (usage[0] & CERT_NON_REPUDIATION_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_NON_REPUDIATION;
+        }
+        if (usage[0] & CERT_KEY_ENCIPHERMENT_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_KEY_ENCIPHERMENT;
+        }
+        if (usage[0] & CERT_DATA_ENCIPHERMENT_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_DATA_ENCIPHERMENT;
+        }
+        if (usage[0] & CERT_KEY_AGREEMENT_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_KEY_AGREEMENT;
+        }
+        if (usage[0] & CERT_KEY_CERT_SIGN_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_CERT_SIGN;
+        }
+        if(usage[0] & CERT_CRL_SIGN_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_CRL_SIGN;
+        }
+        if(usage[0] & CERT_ENCIPHER_ONLY_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_ENCIPHER_ONLY;
+        }
+        if(usage[1] & CERT_DECIPHER_ONLY_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_DECIPHER_ONLY;
+        }
+    }
+    else if(GetLastError())
+    {
+        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+    }
+    return keyUsage;
+}
+
+unsigned int
+SChannelCertificateI::getExtendedKeyUsage() const
+{
+    unsigned int extendedKeyUsage = 0;
+    DWORD cbUsage;
+    if(!CertGetEnhancedKeyUsage(_certContext, 0, 0, &cbUsage))
+    {
+        if(GetLastError() == CRYPT_E_NOT_FOUND)
+        {
+            return 0;
+        }
+        else
+        {
+            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+        }
+    }
+
+    if (cbUsage > 0)
+    {
+        vector<unsigned char> pUsage;
+        pUsage.resize(cbUsage);
+        if(!CertGetEnhancedKeyUsage(_certContext, 0, reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]), &cbUsage))
+        {
+            if(GetLastError() == CRYPT_E_NOT_FOUND)
+            {
+                return 0;
+            }
+            else
+            {
+                throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            }
+        }
+
+        CERT_ENHKEY_USAGE* enkeyUsage = reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]);
+
+        for(DWORD i = 0; i < enkeyUsage->cUsageIdentifier; i++)
+        {
+            LPSTR oid = enkeyUsage->rgpszUsageIdentifier[i];
+            if(strcmp(oid, szOID_PKIX_KP_SERVER_AUTH) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
+            }
+            if(strcmp(oid, szOID_PKIX_KP_CLIENT_AUTH) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
+            }
+            if(strcmp(oid, szOID_PKIX_KP_CODE_SIGNING) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
+            }
+            if(strcmp(oid, szOID_PKIX_KP_EMAIL_PROTECTION) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
+            }
+            if(strcmp(oid, szOID_PKIX_KP_TIMESTAMP_SIGNING) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
+            }
+            if(strcmp(oid, szOID_PKIX_KP_OCSP_SIGNING) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+            }
+            if(strcmp(oid, szOID_ANY_ENHANCED_KEY_USAGE) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+            }
+        }
+    }
+    return extendedKeyUsage;
 }
 
 SChannel::CertificatePtr

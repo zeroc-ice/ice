@@ -819,82 +819,6 @@ SecureTransportCertificateI::initializeAttributes() const
 }
 #endif
 
-IceSSL::SecureTransport::CertificatePtr
-IceSSL::SecureTransport::Certificate::create(SecCertificateRef cert)
-{
-    return ICE_MAKE_SHARED(SecureTransportCertificateI, cert);
-}
-
-IceSSL::SecureTransport::CertificatePtr
-IceSSL::SecureTransport::Certificate::load(const std::string& file)
-{
-    string resolved;
-    if(checkPath(file, "", false, resolved))
-    {
-        return ICE_MAKE_SHARED(SecureTransportCertificateI, loadCertificate(resolved));
-    }
-    else
-    {
-        throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
-    }
-}
-
-IceSSL::SecureTransport::CertificatePtr
-IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
-{
-#ifdef ICE_USE_SECURE_TRANSPORT_IOS
-    string::size_type size = 0;
-    string::size_type startpos = 0;
-    startpos = encoding.find("-----BEGIN CERTIFICATE-----", 0);
-    if(startpos != string::npos)
-    {
-        startpos += sizeof("-----BEGIN CERTIFICATE-----");
-        string::size_type endpos = encoding.find("-----END CERTIFICATE-----", startpos);
-        size = endpos - startpos;
-    }
-    else
-    {
-        startpos = 0;
-        size = encoding.size();
-    }
-
-    vector<unsigned char> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
-    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], static_cast<CFIndex>(data.size())));
-    SecCertificateRef cert = SecCertificateCreateWithData(0, certdata.get());
-    if(!cert)
-    {
-        assert(false);
-        throw CertificateEncodingException(__FILE__, __LINE__, "certificate is not a valid PEM-encoded certificate");
-    }
-    return ICE_MAKE_SHARED(SecureTransportCertificateI, cert);
-#else // macOS
-    UniqueRef<CFDataRef> data(
-        CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
-                                    reinterpret_cast<const UInt8*>(encoding.c_str()),
-                                    static_cast<CFIndex>(encoding.size()), kCFAllocatorNull));
-
-    SecExternalFormat format = kSecFormatUnknown;
-    SecExternalItemType type = kSecItemTypeCertificate;
-
-    SecItemImportExportKeyParameters params;
-    memset(&params, 0, sizeof(params));
-    params.version =  SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-
-    UniqueRef<CFArrayRef> items;
-    OSStatus err = SecItemImport(data.get(), 0, &format, &type, 0, &params, 0, &items.get());
-    if(err)
-    {
-        throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
-    }
-
-    UniqueRef<SecKeychainItemRef> item;
-    item.retain(static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0))));
-    assert(SecCertificateGetTypeID() == CFGetTypeID(item.get()));
-    return ICE_MAKE_SHARED(SecureTransportCertificateI, reinterpret_cast<SecCertificateRef>(item.release()));
-#endif
-}
-
-
 unsigned int
 SecureTransportCertificateI::getKeyUsage() const
 {
@@ -992,4 +916,79 @@ SecureTransportCertificateI::getExtendedKeyUsage() const
         }
     }
     return extendedKeyUsage;
+}
+
+IceSSL::SecureTransport::CertificatePtr
+IceSSL::SecureTransport::Certificate::create(SecCertificateRef cert)
+{
+    return ICE_MAKE_SHARED(SecureTransportCertificateI, cert);
+}
+
+IceSSL::SecureTransport::CertificatePtr
+IceSSL::SecureTransport::Certificate::load(const std::string& file)
+{
+    string resolved;
+    if(checkPath(file, "", false, resolved))
+    {
+        return ICE_MAKE_SHARED(SecureTransportCertificateI, loadCertificate(resolved));
+    }
+    else
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
+    }
+}
+
+IceSSL::SecureTransport::CertificatePtr
+IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
+{
+#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+    string::size_type size = 0;
+    string::size_type startpos = 0;
+    startpos = encoding.find("-----BEGIN CERTIFICATE-----", 0);
+    if(startpos != string::npos)
+    {
+        startpos += sizeof("-----BEGIN CERTIFICATE-----");
+        string::size_type endpos = encoding.find("-----END CERTIFICATE-----", startpos);
+        size = endpos - startpos;
+    }
+    else
+    {
+        startpos = 0;
+        size = encoding.size();
+    }
+
+    vector<unsigned char> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
+    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], static_cast<CFIndex>(data.size())));
+    SecCertificateRef cert = SecCertificateCreateWithData(0, certdata.get());
+    if(!cert)
+    {
+        assert(false);
+        throw CertificateEncodingException(__FILE__, __LINE__, "certificate is not a valid PEM-encoded certificate");
+    }
+    return ICE_MAKE_SHARED(SecureTransportCertificateI, cert);
+#else // macOS
+    UniqueRef<CFDataRef> data(
+        CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
+                                    reinterpret_cast<const UInt8*>(encoding.c_str()),
+                                    static_cast<CFIndex>(encoding.size()), kCFAllocatorNull));
+
+    SecExternalFormat format = kSecFormatUnknown;
+    SecExternalItemType type = kSecItemTypeCertificate;
+
+    SecItemImportExportKeyParameters params;
+    memset(&params, 0, sizeof(params));
+    params.version =  SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+
+    UniqueRef<CFArrayRef> items;
+    OSStatus err = SecItemImport(data.get(), 0, &format, &type, 0, &params, 0, &items.get());
+    if(err)
+    {
+        throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
+    }
+
+    UniqueRef<SecKeychainItemRef> item;
+    item.retain(static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0))));
+    assert(SecCertificateGetTypeID() == CFGetTypeID(item.get()));
+    return ICE_MAKE_SHARED(SecureTransportCertificateI, reinterpret_cast<SecCertificateRef>(item.release()));
+#endif
 }

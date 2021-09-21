@@ -285,6 +285,8 @@ public:
     virtual vector<pair<int, string> > getSubjectAlternativeNames() const;
     virtual int getVersion() const;
     virtual x509_st* getCert() const;
+    virtual unsigned int getKeyUsage() const;
+    virtual unsigned int getExtendedKeyUsage() const;
 
 protected:
 
@@ -540,6 +542,18 @@ OpenSSLCertificateI::loadX509Extensions() const
                 ICE_MAKE_SHARED(OpenSSLX509ExtensionI, ext, oid, _cert)));
         }
     }
+}
+
+unsigned int
+OpenSSLCertificateI::getKeyUsage() const
+{
+    return 0;
+}
+
+unsigned int
+OpenSSLCertificateI::getExtendedKeyUsage() const
+{
+    return 0;
 }
 
 IceSSL::OpenSSL::CertificatePtr
