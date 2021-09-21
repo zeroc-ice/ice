@@ -1468,15 +1468,38 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
              (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
               IceSSL::KEY_USAGE_KEY_CERT_SIGN |
               IceSSL::KEY_USAGE_CRL_SIGN));
+    }
 
-        cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-        keyUsage = cert->getExtendedKeyUsage();
+    {
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_serverAuth_pub.pem");
+        unsigned int keyUsage = cert->getExtendedKeyUsage();
         test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
 
-        cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_clientAuth_pub.pem");
         keyUsage = cert->getExtendedKeyUsage();
         test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_codeSigning_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_CODE_SIGNING);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_emailProtection_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_EMAIL_PROTECTION);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_timeStamping_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_TIME_STAMPING);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_ocspSigning_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_OCSP_SIGNING);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_anyExtendedKeyUsage_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_ANY_KEY_USAGE);
     }
+
     {
 #   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     vector<pair<int, string> > expectedAltNames;
