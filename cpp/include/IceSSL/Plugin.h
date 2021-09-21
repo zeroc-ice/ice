@@ -469,12 +469,20 @@ public:
 #endif
 
     /**
-     * Returns the value of the key usage extension.
+     * Returns the value of the key usage extension. The flags <b>KEY_USAGE_DIGITAL_SIGNATURE</b>,
+     * <b>KEY_USAGE_NON_REPUDIATION</b>, <b>KEY_USAGE_KEY_ENCIPHERMENT</b>, <b>KEY_USAGE_DATA_ENCIPHERMENT</b>
+     * <b>KEY_USAGE_KEY_AGREEMENT</b>, <b>KEY_USAGE_KEY_CERT_SIGN</b>, <b>KEY_USAGE_CRL_SIGN</b>,
+     * <b>KEY_USAGE_ENCIPHER_ONLY</b> and <b>KEY_USAGE_DECIPHER_ONLY</b> can be used to check what
+     * key usage bits are set.
      */
     virtual unsigned int getKeyUsage() const = 0;
 
     /**
-     * Returns the value of the extended key usage extension
+     * Returns the value of the extended key usage extension. The flags <b>EXTENDED_KEY_USAGE_ANY_KEY_USAGE</b>,
+     * <b>EXTENDED_KEY_USAGE_SERVER_AUTH</b>, <b>EXTENDED_KEY_USAGE_CLIENT_AUTH</b>,
+     * <b>EXTENDED_KEY_USAGE_CODE_SIGNING</b>, <b>EXTENDED_KEY_USAGE_EMAIL_PROTECTION</b>,
+     * <b>EXTENDED_KEY_USAGE_TIME_STAMPING</b> and <b>EXTENDED_KEY_USAGE_OCSP_SIGNING</b> can be used to check what
+     * extended key usage bits are set.
      */
     virtual unsigned int getExtendedKeyUsage() const = 0;
 
