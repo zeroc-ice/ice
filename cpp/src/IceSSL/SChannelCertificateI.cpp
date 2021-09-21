@@ -618,7 +618,7 @@ SChannelCertificateI::getKeyUsage() const
         }
         if (usage[0] & CERT_KEY_CERT_SIGN_KEY_USAGE)
         {
-            keyUsage |= KEY_USAGE_CERT_SIGN;
+            keyUsage |= KEY_USAGE_KEY_CERT_SIGN;
         }
         if(usage[0] & CERT_CRL_SIGN_KEY_USAGE)
         {

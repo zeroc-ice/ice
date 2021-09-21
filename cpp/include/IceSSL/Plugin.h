@@ -89,29 +89,72 @@ ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
 ICESSL_API std::string getTrustErrorDescription(TrustError);
 ICESSL_API std::string getHost(const IceSSL::ConnectionInfoPtr&);
 
-/**
- * Constants corresponding to the key usage of a certificate in the KeyUsage extension.
- */
-const unsigned int KEY_USAGE_CERT_SIGN = 1u << 0;
-const unsigned int KEY_USAGE_CRL_SIGN = 1u << 1;
-const unsigned int KEY_USAGE_DATA_ENCIPHERMENT = 1u << 2;
-const unsigned int KEY_USAGE_DECIPHER_ONLY = 1u << 3;
-const unsigned int KEY_USAGE_DIGITAL_SIGNATURE = 1u << 4;
-const unsigned int KEY_USAGE_ENCIPHER_ONLY = 1u << 5;
-const unsigned int KEY_USAGE_KEY_AGREEMENT = 1u << 6;
-const unsigned int KEY_USAGE_KEY_ENCIPHERMENT = 1u << 7;
-const unsigned int KEY_USAGE_NON_REPUDIATION = 1u << 8;
 
 /**
- * Constants corresponding to the key usage of a certificate in the KeyUsage extension.
+ * The key usage "digitalSignature" bit is set
+ */
+const unsigned int KEY_USAGE_DIGITAL_SIGNATURE = 1u << 0;
+/**
+ * The key usage "nonRepudiation" bit is set
+ */
+const unsigned int KEY_USAGE_NON_REPUDIATION = 1u << 1;
+/**
+ * The key usage "keyEncipherment" bit is set
+ */
+const unsigned int KEY_USAGE_KEY_ENCIPHERMENT = 1u << 2;
+/**
+ * The key usage "dataEncipherment" bit is set
+ */
+const unsigned int KEY_USAGE_DATA_ENCIPHERMENT = 1u << 3;
+/**
+ * The key usage "keyAgreement" bit is set
+ */
+const unsigned int KEY_USAGE_KEY_AGREEMENT = 1u << 4;
+/**
+ * The key usage "keyCertSign" bit is set
+ */
+const unsigned int KEY_USAGE_KEY_CERT_SIGN = 1u << 5;
+/**
+ * The key usage "cRLSign" bit is set
+ */
+const unsigned int KEY_USAGE_CRL_SIGN = 1u << 6;
+/**
+ * The key usage "encipherOnly" bit is set
+ */
+const unsigned int KEY_USAGE_ENCIPHER_ONLY = 1u << 7;
+/**
+ * The key usage "decipherOnly" bit is set
+ */
+const unsigned int KEY_USAGE_DECIPHER_ONLY = 1u << 8;
+
+/**
+ * The extended key usage "anyKeyUsage" bit is set
  */
 const unsigned int EXTENDED_KEY_USAGE_ANY_KEY_USAGE = 1u << 0;
-const unsigned int EXTENDED_KEY_USAGE_CLIENT_AUTH = 1u << 1;
-const unsigned int EXTENDED_KEY_USAGE_CODE_SIGNING = 1u << 2;
-const unsigned int EXTENDED_KEY_USAGE_EMAIL_PROTECTION = 1u << 3;
-const unsigned int EXTENDED_KEY_USAGE_OCSP_SIGNING = 1u << 4;
-const unsigned int EXTENDED_KEY_USAGE_SERVER_AUTH = 1u << 5;
-const unsigned int EXTENDED_KEY_USAGE_TIME_STAMPING = 1u << 6;
+/**
+ * The extended key usage "server authentication" bit is set
+ */
+const unsigned int EXTENDED_KEY_USAGE_SERVER_AUTH = 1u << 1;
+/**
+ * The extended key usage "client authentication" bit is set
+ */
+const unsigned int EXTENDED_KEY_USAGE_CLIENT_AUTH = 1u << 2;
+/**
+ * The extended key usage "code signing" bit is set
+ */
+const unsigned int EXTENDED_KEY_USAGE_CODE_SIGNING = 1u << 3;
+/**
+ * The extended key usage "email protection" bit is set
+ */
+const unsigned int EXTENDED_KEY_USAGE_EMAIL_PROTECTION = 1u << 4;
+/**
+ * The extended key usage "time stamping" bit is set
+ */
+const unsigned int EXTENDED_KEY_USAGE_TIME_STAMPING = 1u << 5;
+/**
+ * The extended key usage "OCSP signing" bit is set
+ */
+const unsigned int EXTENDED_KEY_USAGE_OCSP_SIGNING = 1u << 6;
 
 /**
  * Thrown if the certificate cannot be read.
@@ -429,6 +472,10 @@ public:
      * Returns the value of the key usage extension.
      */
     virtual unsigned int getKeyUsage() const = 0;
+
+    /**
+     * Returns the value of the extended key usage extension
+     */
     virtual unsigned int getExtendedKeyUsage() const = 0;
 
     /**

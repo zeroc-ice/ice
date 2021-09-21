@@ -13,7 +13,6 @@
 
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
-#include <openssl/x509.h>
 
 using namespace IceSSL;
 using namespace std;
@@ -575,7 +574,7 @@ OpenSSLCertificateI::getKeyUsage() const
         }
         if(kusage & KU_KEY_CERT_SIGN)
         {
-            keyUsage |= KEY_USAGE_CERT_SIGN;
+            keyUsage |= KEY_USAGE_KEY_CERT_SIGN;
         }
         if(kusage & KU_CRL_SIGN)
         {

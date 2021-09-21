@@ -861,7 +861,7 @@ SecureTransportCertificateI::getKeyUsage() const
             }
             if(usageBits & kSecKeyUsageKeyCertSign)
             {
-                keyUsage |= KEY_USAGE_CERT_SIGN;
+                keyUsage |= KEY_USAGE_KEY_CERT_SIGN;
             }
             if(usageBits & kSecKeyUsageKeyEncipherment)
             {

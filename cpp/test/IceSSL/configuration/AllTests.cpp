@@ -1458,7 +1458,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         keyUsage = cert->getKeyUsage();
         test(keyUsage ==
              (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
-              IceSSL::KEY_USAGE_CERT_SIGN |
+              IceSSL::KEY_USAGE_KEY_CERT_SIGN |
               IceSSL::KEY_USAGE_CRL_SIGN));
 
         //  Digital Signature, Certificate Sign, CRL Sign
@@ -1466,7 +1466,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         keyUsage = cert->getKeyUsage();
         test(keyUsage ==
              (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
-              IceSSL::KEY_USAGE_CERT_SIGN |
+              IceSSL::KEY_USAGE_KEY_CERT_SIGN |
               IceSSL::KEY_USAGE_CRL_SIGN));
 
         cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
