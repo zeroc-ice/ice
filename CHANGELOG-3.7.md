@@ -10,10 +10,11 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.7.7](#changes-in-ice-377)
   - [C++ Changes](#c-changes)
+  - [Java Changes](#java-changes)
 - [Changes in Ice 3.7.6](#changes-in-ice-376)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes-1)
-  - [Java Changes](#java-changes)
+  - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [Swift Changes](#swift-changes)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
@@ -38,7 +39,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-6)
   - [C# Changes](#c-changes-7)
-  - [Java Changes](#java-changes-1)
+  - [Java Changes](#java-changes-2)
   - [JavaScript Changes](#javascript-changes-3)
   - [MATLAB Changes](#matlab-changes-1)
   - [Python Changes](#python-changes-2)
@@ -46,7 +47,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-4)
   - [C++ Changes](#c-changes-8)
   - [C# Changes](#c-changes-9)
-  - [Java Changes](#java-changes-2)
+  - [Java Changes](#java-changes-3)
   - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-2)
   - [Objective-C Changes](#objective-c-changes)
@@ -56,7 +57,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-5)
   - [C++ Changes](#c-changes-10)
   - [C# Changes](#c-changes-11)
-  - [Java Changes](#java-changes-3)
+  - [Java Changes](#java-changes-4)
   - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-3)
   - [Objective-C Changes](#objective-c-changes-1)
@@ -67,7 +68,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-6)
   - [C++ Changes](#c-changes-12)
   - [C# Changes](#c-changes-13)
-  - [Java Changes](#java-changes-4)
+  - [Java Changes](#java-changes-5)
   - [JavaScript Changes](#javascript-changes-6)
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-3)
@@ -81,6 +82,10 @@ These are the changes since Ice 3.7.6.
 ## C++ Changes
 
 - Added support for SSL certificate revocation checks.
+
+## Java Changes
+
+- Updated IceGrid GUI to include the registry instance name in the window title
 
 # Changes in Ice 3.7.6
 
