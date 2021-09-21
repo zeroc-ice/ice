@@ -22,8 +22,6 @@
 
 #include <Security/Security.h>
 
-#include <ios>
-
 using namespace Ice;
 using namespace IceInternal;
 using namespace IceSSL;
@@ -831,29 +829,21 @@ SecureTransportCertificateI::getKeyUsage() const
         {
             unsigned int usageBits = 0;
             CFNumberGetValue(value, kCFNumberSInt32Type, &usageBits);
-            if(usageBits & kSecKeyUsageNonRepudiation)
-            {
-                keyUsage |= KEY_USAGE_NON_REPUDIATION;
-            }
-            if(usageBits & kSecKeyUsageCRLSign)
-            {
-                keyUsage |= KEY_USAGE_CRL_SIGN;
-            }
-            if(usageBits & kSecKeyUsageDataEncipherment)
-            {
-                keyUsage |= KEY_USAGE_DATA_ENCIPHERMENT;
-            }
-            if(usageBits & kSecKeyUsageDecipherOnly)
-            {
-                keyUsage |= KEY_USAGE_DECIPHER_ONLY;
-            }
             if(usageBits & kSecKeyUsageDigitalSignature)
             {
                 keyUsage |= KEY_USAGE_DIGITAL_SIGNATURE;
             }
-            if(usageBits & kSecKeyUsageEncipherOnly)
+            if(usageBits & kSecKeyUsageNonRepudiation)
             {
-                keyUsage |= KEY_USAGE_ENCIPHER_ONLY;
+                keyUsage |= KEY_USAGE_NON_REPUDIATION;
+            }
+            if(usageBits & kSecKeyUsageKeyEncipherment)
+            {
+                keyUsage |= KEY_USAGE_KEY_ENCIPHERMENT;
+            }
+            if(usageBits & kSecKeyUsageDataEncipherment)
+            {
+                keyUsage |= KEY_USAGE_DATA_ENCIPHERMENT;
             }
             if(usageBits & kSecKeyUsageKeyAgreement)
             {
@@ -863,9 +853,17 @@ SecureTransportCertificateI::getKeyUsage() const
             {
                 keyUsage |= KEY_USAGE_KEY_CERT_SIGN;
             }
-            if(usageBits & kSecKeyUsageKeyEncipherment)
+            if(usageBits & kSecKeyUsageCRLSign)
             {
-                keyUsage |= KEY_USAGE_KEY_ENCIPHERMENT;
+                keyUsage |= KEY_USAGE_CRL_SIGN;
+            }
+            if(usageBits & kSecKeyUsageEncipherOnly)
+            {
+                keyUsage |= KEY_USAGE_ENCIPHER_ONLY;
+            }
+            if(usageBits & kSecKeyUsageDecipherOnly)
+            {
+                keyUsage |= KEY_USAGE_DECIPHER_ONLY;
             }
         }
     }
@@ -883,37 +881,30 @@ SecureTransportCertificateI::getExtendedKeyUsage() const
         if(usages)
         {
             long size = CFArrayGetCount(usages);
-
             if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuAnyKeyUsage))
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
             }
-
             if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuServerAuthentication))
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
             }
-
             if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuClientAuthentication))
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
             }
-
             if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuCodeSigning))
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
             }
-
             if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuEmailProtection))
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
             }
-
             if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuTimeStamping))
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
             }
-
             if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuOCSPSigning))
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
