@@ -212,6 +212,7 @@ for (ca, alias, args) in certs:
 
 # Additional certs for extended key usage testing
 certs = [
+    (ca1, "rsa_ca1_none", None, { "cn": "None"}),
     (ca1, "rsa_ca1_serverAuth", "serverAuth", { "cn": "Server Auth"}),
     (ca1, "rsa_ca1_clientAuth", "clientAuth", { "cn": "Client Auth"}),
     (ca1, "rsa_ca1_codeSigning", "codeSigning", { "cn": "Code Signing"}),
@@ -222,7 +223,6 @@ certs = [
 ]
 
 for (ca, alias, extendedKeyUsage, args) in certs:
-    print("Alias: {}".format(alias))
     if not ca.get(alias):
         ca.create(alias, extendedKeyUsage=extendedKeyUsage, **args)
 
@@ -243,6 +243,7 @@ savecerts = [
     (ca1, "s_rsa_ca1_cn10", None,             {}),
     (ca1, "s_rsa_ca1_cn11", None,             {}),
 
+    (ca1, "rsa_ca1_none", None,                {}),
     (ca1, "rsa_ca1_serverAuth", None,          {}),
     (ca1, "rsa_ca1_clientAuth", None,          {}),
     (ca1, "rsa_ca1_codeSigning", None,         {}),

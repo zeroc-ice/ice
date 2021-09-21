@@ -1471,8 +1471,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
 
     {
-        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_serverAuth_pub.pem");
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_none_pub.pem");
         unsigned int keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == 0);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_serverAuth_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
         test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
 
         cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_clientAuth_pub.pem");
