@@ -600,6 +600,10 @@ OpenSSLCertificateI::getExtendedKeyUsage() const
     if(flags & EXFLAG_XKUSAGE)
     {
         unsigned int xkusage = X509_get_extended_key_usage(_cert);
+        if(xkusage & XKU_ANYEKU)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+        }
         if(xkusage & XKU_SSL_SERVER)
         {
             extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
@@ -608,25 +612,21 @@ OpenSSLCertificateI::getExtendedKeyUsage() const
         {
             extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
         }
-        if(xkusage & XKU_SMIME)
-        {
-            extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
-        }
         if(xkusage & XKU_CODE_SIGN)
         {
             extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
         }
-        if(xkusage & XKU_OCSP_SIGN)
+        if(xkusage & XKU_SMIME)
         {
-            extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
         }
         if(xkusage & XKU_TIMESTAMP)
         {
             extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
         }
-        if(xkusage & XKU_ANYEKU)
+        if(xkusage & XKU_OCSP_SIGN)
         {
-            extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
         }
     }
     return extendedKeyUsage;

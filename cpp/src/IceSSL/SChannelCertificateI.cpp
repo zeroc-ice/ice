@@ -678,6 +678,10 @@ SChannelCertificateI::getExtendedKeyUsage() const
         for(DWORD i = 0; i < enkeyUsage->cUsageIdentifier; i++)
         {
             LPSTR oid = enkeyUsage->rgpszUsageIdentifier[i];
+            if(strcmp(oid, szOID_ANY_ENHANCED_KEY_USAGE) == 0)
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+            }
             if(strcmp(oid, szOID_PKIX_KP_SERVER_AUTH) == 0)
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
@@ -701,10 +705,6 @@ SChannelCertificateI::getExtendedKeyUsage() const
             if(strcmp(oid, szOID_PKIX_KP_OCSP_SIGNING) == 0)
             {
                 extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
-            }
-            if(strcmp(oid, szOID_ANY_ENHANCED_KEY_USAGE) == 0)
-            {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
             }
         }
     }
