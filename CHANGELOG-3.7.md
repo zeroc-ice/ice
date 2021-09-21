@@ -82,6 +82,10 @@ These are the changes since Ice 3.7.6.
 
 - Added support for SSL certificate revocation checks.
 
+- Added `getKeyUsage` and `getExtendedKeyUsage` methods to `IceSSL::Certificate` that allow
+  to retrieve the value of "Key Usage" and "Extended Key Usage" extensions of an X509
+  Certificate.
+
 # Changes in Ice 3.7.6
 
 These are the changes since Ice 3.7.5.
