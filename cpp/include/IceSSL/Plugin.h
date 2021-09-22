@@ -481,7 +481,8 @@ public:
      * Returns the value of the extended key usage extension. The flags <b>EXTENDED_KEY_USAGE_ANY_KEY_USAGE</b>,
      * <b>EXTENDED_KEY_USAGE_SERVER_AUTH</b>, <b>EXTENDED_KEY_USAGE_CLIENT_AUTH</b>,
      * <b>EXTENDED_KEY_USAGE_CODE_SIGNING</b>, <b>EXTENDED_KEY_USAGE_EMAIL_PROTECTION</b>,
-     * <b>EXTENDED_KEY_USAGE_TIME_STAMPING</b> and <b>EXTENDED_KEY_USAGE_OCSP_SIGNING</b>
+     * <b>EXTENDED_KEY_USAGE_TIME_STAMPING</b> and <b>EXTENDED_KEY_USAGE_OCSP_SIGNING</b> can be used to check what
+     * extended key usage bits are set.
      */
     virtual unsigned int getExtendedKeyUsage() const = 0;
 

@@ -40,25 +40,6 @@ private:
 };
 typedef IceUtil::Handle<CertInfoHolder> CertInfoHolderPtr;
 
-class CertContextHolder : public IceUtil::Shared
-{
-public:
-
-    CertContextHolder(const CERT_CONTEXT* v) : _certContext(v)
-    {
-    }
-
-    virtual ~CertContextHolder()
-    {
-        CertFreeCertificateContext(_certContext);
-    }
-
-private:
-
-    const CERT_CONTEXT* _certContext;
-};
-typedef IceUtil::Handle<CertContextHolder> CertContextHolderPtr;
-
 class SCHannelX509ExtensionI : public X509Extension
 {
 
@@ -118,8 +99,6 @@ private:
     CERT_SIGNED_CONTENT_INFO* _cert;
     CERT_INFO* _certInfo;
     CertInfoHolderPtr _certInfoHolder;
-    const CERT_CONTEXT* _certContext;
-    CertContextHolderPtr _certContextHolder;
 };
 
 const Ice::Long TICKS_PER_MSECOND = 10000LL;
@@ -349,15 +328,6 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
         _certInfoHolder = new CertInfoHolder(_certInfo);
-
-        _certContext = CertCreateCertificateContext(X509_ASN_ENCODING,
-                                                    _cert->ToBeSigned.pbData,
-                                                    _cert->ToBeSigned.cbData);
-        if(_certContext == 0)
-        {
-            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
-        }
-        _certContextHolder = new CertContextHolder(_certContext);
     }
     catch(...)
     {
@@ -673,40 +643,62 @@ SChannelCertificateI::getExtendedKeyUsage() const
             }
         }
 
-        CERT_ENHKEY_USAGE* enkeyUsage = reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]);
-
-        for(DWORD i = 0; i < enkeyUsage->cUsageIdentifier; i++)
+        if (cbUsage > 0)
         {
-            LPSTR oid = enkeyUsage->rgpszUsageIdentifier[i];
-            if(strcmp(oid, szOID_ANY_ENHANCED_KEY_USAGE) == 0)
+            vector<unsigned char> pUsage;
+            pUsage.resize(cbUsage);
+            if(!CertGetEnhancedKeyUsage(certContext, 0, reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]), &cbUsage))
             {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+                if(GetLastError() == CRYPT_E_NOT_FOUND)
+                {
+                    return 0;
+                }
+                else
+                {
+                    throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+                }
             }
-            if(strcmp(oid, szOID_PKIX_KP_SERVER_AUTH) == 0)
+
+            CERT_ENHKEY_USAGE* enkeyUsage = reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]);
+            for(DWORD i = 0; i < enkeyUsage->cUsageIdentifier; i++)
             {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
-            }
-            if(strcmp(oid, szOID_PKIX_KP_CLIENT_AUTH) == 0)
-            {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
-            }
-            if(strcmp(oid, szOID_PKIX_KP_CODE_SIGNING) == 0)
-            {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
-            }
-            if(strcmp(oid, szOID_PKIX_KP_EMAIL_PROTECTION) == 0)
-            {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
-            }
-            if(strcmp(oid, szOID_PKIX_KP_TIMESTAMP_SIGNING) == 0)
-            {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
-            }
-            if(strcmp(oid, szOID_PKIX_KP_OCSP_SIGNING) == 0)
-            {
-                extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+                LPSTR oid = enkeyUsage->rgpszUsageIdentifier[i];
+                if(strcmp(oid, szOID_ANY_ENHANCED_KEY_USAGE) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_SERVER_AUTH) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_CLIENT_AUTH) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_CODE_SIGNING) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_EMAIL_PROTECTION) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_TIMESTAMP_SIGNING) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_OCSP_SIGNING) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+                }
             }
         }
+        CertFreeCertificateContext(certContext);
+    }
+    catch(...)
+    {
+        CertFreeCertificateContext(certContext);
+        throw;
     }
     return extendedKeyUsage;
 }
