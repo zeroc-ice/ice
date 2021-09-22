@@ -475,7 +475,7 @@ public:
      * <b>KEY_USAGE_ENCIPHER_ONLY</b> and <b>KEY_USAGE_DECIPHER_ONLY</b> can be used to check what
      * key usage bits are set.
      */
-    virtual unsigned int getKeyUsage() const = 0;
+    unsigned int getKeyUsage() const;
 
     /**
      * Returns the value of the extended key usage extension. The flags <b>EXTENDED_KEY_USAGE_ANY_KEY_USAGE</b>,
@@ -484,7 +484,7 @@ public:
      * <b>EXTENDED_KEY_USAGE_TIME_STAMPING</b> and <b>EXTENDED_KEY_USAGE_OCSP_SIGNING</b> can be used to check what
      * extended key usage bits are set.
      */
-    virtual unsigned int getExtendedKeyUsage() const = 0;
+    unsigned int getExtendedKeyUsage() const;
 
     /**
      * Obtains the not-after validity time.

@@ -22,6 +22,14 @@ public:
 };
 ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
 
+class ICESSL_API CertificateExtendedInfo
+{
+public:
+
+    virtual unsigned int getKeyUsage() const = 0;
+    virtual unsigned int getExtendedKeyUsage() const = 0;
+};
+
 class ICESSL_API PluginI : public virtual IceSSL::Plugin
 {
 public:

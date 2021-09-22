@@ -8,7 +8,7 @@
 //
 #include <IceUtil/DisableWarnings.h>
 
-#include <IceSSL/Plugin.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/SecureTransport.h>
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/SecureTransportUtil.h>
@@ -249,7 +249,8 @@ private:
 #endif
 
 class SecureTransportCertificateI ICE_FINAL : public IceSSL::SecureTransport::Certificate,
-                                              public IceSSL::CertificateI
+                                              public IceSSL::CertificateI,
+                                              public IceSSL::CertificateExtendedInfo
 {
 public:
 

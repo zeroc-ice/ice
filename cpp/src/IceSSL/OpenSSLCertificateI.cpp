@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Plugin.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/OpenSSLUtil.h>
@@ -257,6 +257,7 @@ private:
 
 class OpenSSLCertificateI : public IceSSL::OpenSSL::Certificate,
                             public CertificateI,
+                            public IceSSL::CertificateExtendedInfo,
                             public IceUtil::Mutex
 {
 public:

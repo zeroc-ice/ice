@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Plugin.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/SChannel.h>
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/Util.h>
@@ -59,6 +59,7 @@ private:
 
 class SChannelCertificateI : public SChannel::Certificate,
                              public CertificateI,
+                             public IceSSL::CertificateExtendedInfo,
                              public IceUtil::Mutex
 {
 public:
@@ -87,14 +88,15 @@ public:
     virtual vector<pair<int, string> > getSubjectAlternativeNames() const;
     virtual int getVersion() const;
     virtual CERT_SIGNED_CONTENT_INFO* getCert() const;
-    virtual unsigned int getKeyUsage() const;
-    virtual unsigned int getExtendedKeyUsage() const;
 
 protected:
 
     virtual void loadX509Extensions() const;
 
 private:
+
+    virtual unsigned int getKeyUsage() const;
+    virtual unsigned int getExtendedKeyUsage() const;
 
     CERT_SIGNED_CONTENT_INFO* _cert;
     CERT_INFO* _certInfo;
@@ -614,24 +616,17 @@ unsigned int
 SChannelCertificateI::getExtendedKeyUsage() const
 {
     unsigned int extendedKeyUsage = 0;
-    DWORD cbUsage;
-    if(!CertGetEnhancedKeyUsage(_certContext, 0, 0, &cbUsage))
+    const CERT_CONTEXT* certContext = CertCreateCertificateContext(X509_ASN_ENCODING,
+                                                                   _cert->ToBeSigned.pbData,
+                                                                   _cert->ToBeSigned.cbData);
+    if(certContext == 0)
     {
-        if(GetLastError() == CRYPT_E_NOT_FOUND)
-        {
-            return 0;
-        }
-        else
-        {
-            throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
-        }
+        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
-
-    if (cbUsage > 0)
+    try
     {
-        vector<unsigned char> pUsage;
-        pUsage.resize(cbUsage);
-        if(!CertGetEnhancedKeyUsage(_certContext, 0, reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]), &cbUsage))
+        DWORD cbUsage;
+        if(!CertGetEnhancedKeyUsage(certContext, 0, 0, &cbUsage))
         {
             if(GetLastError() == CRYPT_E_NOT_FOUND)
             {
