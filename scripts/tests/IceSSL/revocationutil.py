@@ -7,11 +7,13 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509 import ocsp, load_pem_x509_certificate, ReasonFlags, SubjectKeyIdentifier
 from datetime import datetime, timedelta, timezone
+from functools import partial
 import base64
 import http.server
 import os
 import sys
 import traceback
+import threading
 import urllib.parse
 
 
@@ -130,3 +132,35 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/ocsp-response")
         self.end_headers()
         self.wfile.write(response.public_bytes(Encoding.DER))
+
+def createOCSPServer(host, port, basepath):
+    db = load_db(basepath)
+    handler = partial(OCSPHandler, db)
+    return ThreadedServer(host, port, handler)
+
+
+def createCRLServer(host, port, basepath,):
+    handler = partial(http.server.SimpleHTTPRequestHandler, directory=basepath)
+    return ThreadedServer(host, port, handler)
+
+
+class ThreadedServer:
+    # run HTPPServer in its own thread
+
+    def __init__(self, hostname, port, handler):
+        self.handler = handler
+        self.server = http.server.HTTPServer((hostname, port), handler)
+        self.thread = None
+
+    def start(self):
+        def serve_forever(server):
+            with server:
+                server.serve_forever()
+
+        self.thread = threading.Thread(target=serve_forever, args=(self.server,))
+        self.thread.setDaemon(True)
+        self.thread.start()
+
+    def shutdown(self):
+        self.server.shutdown()
+        self.thread.join()
