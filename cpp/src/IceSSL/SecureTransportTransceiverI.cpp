@@ -175,7 +175,6 @@ checkTrustResult(SecTrustRef trust,
             CFArrayAppendValue(policies.get(), policy.get());
         }
 
-        SecTrustOptionFlags trustFlags = kSecTrustOptionUseTrustSettings;
         int revocationCheck = engine->getRevocationCheck();
         if(revocationCheck > 0)
         {
@@ -184,7 +183,6 @@ checkTrustResult(SecTrustRef trust,
             {
                 revocationFlags |= kSecRevocationNetworkAccessDisabled;
             }
-            trustFlags |= kSecTrustOptionRequireRevPerCert;
 
             UniqueRef<SecPolicyRef> revocationPolicy(SecPolicyCreateRevocation(revocationFlags));
             if(!revocationPolicy)
@@ -194,11 +192,6 @@ checkTrustResult(SecTrustRef trust,
                                         "IceSSL: handshake failure: error creating revocation policy");
             }
             CFArrayAppendValue(policies.get(), revocationPolicy.get());
-        }
-
-        if((err = SecTrustSetOptions(trust, trustFlags)))
-        {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
         }
 
         if((err = SecTrustSetPolicies(trust, policies.get())))
