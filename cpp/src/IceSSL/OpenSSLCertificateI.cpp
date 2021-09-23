@@ -667,7 +667,6 @@ IceSSL::OpenSSL::Certificate::load(const std::string& file)
     {
         throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
     }
-    BIO_free(cert);
     return ICE_MAKE_SHARED(OpenSSLCertificateI, x);
 }
 
