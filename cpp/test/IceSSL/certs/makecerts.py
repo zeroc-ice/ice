@@ -210,6 +210,22 @@ for (ca, alias, args) in certs:
     if not ca.get(alias):
         ca.create(alias, extendedKeyUsage="clientAuth" if alias.startswith("c_") else "serverAuth", **args)
 
+# Additional certs for extended key usage testing
+certs = [
+    (ca1, "rsa_ca1_none", None, { "cn": "None"}),
+    (ca1, "rsa_ca1_serverAuth", "serverAuth", { "cn": "Server Auth"}),
+    (ca1, "rsa_ca1_clientAuth", "clientAuth", { "cn": "Client Auth"}),
+    (ca1, "rsa_ca1_codeSigning", "codeSigning", { "cn": "Code Signing"}),
+    (ca1, "rsa_ca1_emailProtection", "emailProtection", { "cn": "Email Protection"}),
+    (ca1, "rsa_ca1_timeStamping", "timeStamping", { "cn": "Time Stamping"}),
+    (ca1, "rsa_ca1_ocspSigning", "OCSPSigning", {"cn": "OCSP Signing"}),
+    (ca1, "rsa_ca1_anyExtendedKeyUsage", "anyExtendedKeyUsage", {"cn": "Any Extended Key Usage"})
+]
+
+for (ca, alias, extendedKeyUsage, args) in certs:
+    if not ca.get(alias):
+        ca.create(alias, extendedKeyUsage=extendedKeyUsage, **args)
+
 savecerts = [
     (ca1, "s_rsa_ca1",     None,              {}),
     (ca1, "c_rsa_ca1",     None,              {}),
@@ -224,8 +240,18 @@ savecerts = [
     (ca1, "s_rsa_ca1_cn7", None,              {}),
     (ca1, "s_rsa_ca1_cn8", None,              {}),
     (ca1, "s_rsa_ca1_cn9", None,              {}),
-    (ca1, "s_rsa_ca1_cn10", None,              {}),
-    (ca1, "s_rsa_ca1_cn11", None,              {}),
+    (ca1, "s_rsa_ca1_cn10", None,             {}),
+    (ca1, "s_rsa_ca1_cn11", None,             {}),
+
+    (ca1, "rsa_ca1_none", None,                {}),
+    (ca1, "rsa_ca1_serverAuth", None,          {}),
+    (ca1, "rsa_ca1_clientAuth", None,          {}),
+    (ca1, "rsa_ca1_codeSigning", None,         {}),
+    (ca1, "rsa_ca1_emailProtection", None,     {}),
+    (ca1, "rsa_ca1_timeStamping", None,        {}),
+    (ca1, "rsa_ca1_ocspSigning", None,         {}),
+    (ca1, "rsa_ca1_anyExtendedKeyUsage", None, {}),
+
     (ca2, "s_rsa_ca2",     None,              {}),
     (ca2, "c_rsa_ca2",     None,              {}),
     (dsaca, "s_dsa_ca1",   None,              {}),

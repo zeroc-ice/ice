@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Plugin.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/SChannel.h>
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/Util.h>
@@ -59,6 +59,7 @@ private:
 
 class SChannelCertificateI : public SChannel::Certificate,
                              public CertificateI,
+                             public IceSSL::CertificateExtendedInfo,
                              public IceUtil::Mutex
 {
 public:
@@ -93,6 +94,9 @@ protected:
     virtual void loadX509Extensions() const;
 
 private:
+
+    virtual unsigned int getKeyUsage() const;
+    virtual unsigned int getExtendedKeyUsage() const;
 
     CERT_SIGNED_CONTENT_INFO* _cert;
     CERT_INFO* _certInfo;
@@ -555,6 +559,143 @@ SChannelCertificateI::loadX509Extensions() const
                 _certInfoHolder)));
         }
     }
+}
+
+unsigned int
+SChannelCertificateI::getKeyUsage() const
+{
+    unsigned int keyUsage = 0;
+    BYTE usage[2];
+    if(CertGetIntendedKeyUsage(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, _certInfo, usage, 2))
+    {
+        if (usage[0] & CERT_DIGITAL_SIGNATURE_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_DIGITAL_SIGNATURE;
+        }
+        if (usage[0] & CERT_NON_REPUDIATION_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_NON_REPUDIATION;
+        }
+        if (usage[0] & CERT_KEY_ENCIPHERMENT_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_KEY_ENCIPHERMENT;
+        }
+        if (usage[0] & CERT_DATA_ENCIPHERMENT_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_DATA_ENCIPHERMENT;
+        }
+        if (usage[0] & CERT_KEY_AGREEMENT_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_KEY_AGREEMENT;
+        }
+        if (usage[0] & CERT_KEY_CERT_SIGN_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_KEY_CERT_SIGN;
+        }
+        if(usage[0] & CERT_CRL_SIGN_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_CRL_SIGN;
+        }
+        if(usage[0] & CERT_ENCIPHER_ONLY_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_ENCIPHER_ONLY;
+        }
+        if(usage[1] & CERT_DECIPHER_ONLY_KEY_USAGE)
+        {
+            keyUsage |= KEY_USAGE_DECIPHER_ONLY;
+        }
+    }
+    else if(GetLastError())
+    {
+        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+    }
+    return keyUsage;
+}
+
+unsigned int
+SChannelCertificateI::getExtendedKeyUsage() const
+{
+    unsigned int extendedKeyUsage = 0;
+    const CERT_CONTEXT* certContext = CertCreateCertificateContext(X509_ASN_ENCODING,
+                                                                   _cert->ToBeSigned.pbData,
+                                                                   _cert->ToBeSigned.cbData);
+    if(certContext == 0)
+    {
+        throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+    }
+    try
+    {
+        DWORD cbUsage;
+        if(!CertGetEnhancedKeyUsage(certContext, 0, 0, &cbUsage))
+        {
+            if(GetLastError() == CRYPT_E_NOT_FOUND)
+            {
+                return 0;
+            }
+            else
+            {
+                throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+            }
+        }
+
+        if (cbUsage > 0)
+        {
+            vector<unsigned char> pUsage;
+            pUsage.resize(cbUsage);
+            if(!CertGetEnhancedKeyUsage(certContext, 0, reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]), &cbUsage))
+            {
+                if(GetLastError() == CRYPT_E_NOT_FOUND)
+                {
+                    return 0;
+                }
+                else
+                {
+                    throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
+                }
+            }
+
+            CERT_ENHKEY_USAGE* enkeyUsage = reinterpret_cast<CERT_ENHKEY_USAGE*>(&pUsage[0]);
+            for(DWORD i = 0; i < enkeyUsage->cUsageIdentifier; i++)
+            {
+                LPSTR oid = enkeyUsage->rgpszUsageIdentifier[i];
+                if(strcmp(oid, szOID_ANY_ENHANCED_KEY_USAGE) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_SERVER_AUTH) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_CLIENT_AUTH) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_CODE_SIGNING) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_EMAIL_PROTECTION) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_TIMESTAMP_SIGNING) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
+                }
+                if(strcmp(oid, szOID_PKIX_KP_OCSP_SIGNING) == 0)
+                {
+                    extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+                }
+            }
+        }
+        CertFreeCertificateContext(certContext);
+    }
+    catch(...)
+    {
+        CertFreeCertificateContext(certContext);
+        throw;
+    }
+    return extendedKeyUsage;
 }
 
 SChannel::CertificatePtr

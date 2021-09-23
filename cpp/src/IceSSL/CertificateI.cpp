@@ -6,7 +6,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
-#include <IceSSL/Plugin.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/RFC2253.h>
 #include <IceSSL/CertificateI.h>
@@ -276,4 +276,26 @@ CertificateI::toString() const
     os << "issuer: " << string(getIssuerDN()) << "\n";
     os << "subject: " << string(getSubjectDN()) << "\n";
     return os.str();
+}
+
+unsigned int
+Certificate::getKeyUsage() const
+{
+    const CertificateExtendedInfo* impl = dynamic_cast<const CertificateExtendedInfo*>(this);
+    if(impl)
+    {
+        return impl->getKeyUsage();
+    }
+    return 0;
+}
+
+unsigned int
+Certificate::getExtendedKeyUsage() const
+{
+    const CertificateExtendedInfo* impl = dynamic_cast<const CertificateExtendedInfo*>(this);
+    if(impl)
+    {
+        return impl->getExtendedKeyUsage();
+    }
+    return 0;
 }

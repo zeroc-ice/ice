@@ -1448,7 +1448,62 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(toHexString(cert->getAuthorityKeyIdentifier()) == authorities[i]);
             test(toHexString(cert->getSubjectKeyIdentifier()) == subjects[i]);
         }
+
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
+        unsigned int keyUsage = cert->getKeyUsage();
+        test(keyUsage == 0);
+
+        //  Digital Signature, Certificate Sign, CRL Sign
+        cert = IceSSL::Certificate::load(defaultDir + "/cacert3.pem");
+        keyUsage = cert->getKeyUsage();
+        test(keyUsage ==
+             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+              IceSSL::KEY_USAGE_KEY_CERT_SIGN |
+              IceSSL::KEY_USAGE_CRL_SIGN));
+
+        //  Digital Signature, Certificate Sign, CRL Sign
+        cert = IceSSL::Certificate::load(defaultDir + "/cacert4.pem");
+        keyUsage = cert->getKeyUsage();
+        test(keyUsage ==
+             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+              IceSSL::KEY_USAGE_KEY_CERT_SIGN |
+              IceSSL::KEY_USAGE_CRL_SIGN));
     }
+
+    {
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_none_pub.pem");
+        unsigned int keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == 0);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_serverAuth_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_SERVER_AUTH);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_clientAuth_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_CLIENT_AUTH);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_codeSigning_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_CODE_SIGNING);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_emailProtection_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_EMAIL_PROTECTION);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_timeStamping_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_TIME_STAMPING);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_ocspSigning_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_OCSP_SIGNING);
+
+        cert = IceSSL::Certificate::load(defaultDir + "/rsa_ca1_anyExtendedKeyUsage_pub.pem");
+        keyUsage = cert->getExtendedKeyUsage();
+        test(keyUsage == IceSSL::EXTENDED_KEY_USAGE_ANY_KEY_USAGE);
+    }
+
     {
 #   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     vector<pair<int, string> > expectedAltNames;
@@ -1456,12 +1511,23 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     expectedAltNames.push_back(make_pair(2, "client"));
     IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
     test(cert->getSubjectAlternativeNames() == expectedAltNames);
+    // Digital Signature, Non Repudiation, Key Encipherment
+    unsigned int keyUsage = cert->getKeyUsage();
+    test(keyUsage ==
+         (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+          IceSSL::KEY_USAGE_NON_REPUDIATION |
+          IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
     expectedAltNames.push_back(make_pair(2, "server"));
     cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
     test(cert->getSubjectAlternativeNames() == expectedAltNames);
+    keyUsage = cert->getKeyUsage();
+    test(keyUsage ==
+         (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+          IceSSL::KEY_USAGE_NON_REPUDIATION |
+          IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
     expectedAltNames.clear();
     expectedAltNames.push_back(make_pair(2, "localhost"));

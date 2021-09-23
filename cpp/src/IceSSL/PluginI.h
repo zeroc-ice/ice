@@ -22,6 +22,17 @@ public:
 };
 ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
 
+// TODO: This class provides new certificate virtual methods that canot be added directly to the certificate class
+// without breaking binary compatibility. The class can be removed once the relevant methods can be marked as virtual in
+// the certificate class in the next major release (3.8.x).
+class ICESSL_API CertificateExtendedInfo
+{
+public:
+
+    virtual unsigned int getKeyUsage() const = 0;
+    virtual unsigned int getExtendedKeyUsage() const = 0;
+};
+
 class ICESSL_API PluginI : public virtual IceSSL::Plugin
 {
 public:

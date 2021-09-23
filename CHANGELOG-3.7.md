@@ -83,6 +83,10 @@ These are the changes since Ice 3.7.6.
 
 - Added support for SSL certificate revocation checks.
 
+- Added `getKeyUsage` and `getExtendedKeyUsage` methods to `IceSSL::Certificate` to allow
+  retrieving the values of the "Key Usage" and "Extended Key Usage" extensions of an X509
+  certificate.
+
 ## Java Changes
 
 - Updated IceGrid GUI to include the registry instance name in the window title

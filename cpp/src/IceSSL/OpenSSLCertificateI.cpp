@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceSSL/Plugin.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/OpenSSLUtil.h>
@@ -257,6 +257,7 @@ private:
 
 class OpenSSLCertificateI : public IceSSL::OpenSSL::Certificate,
                             public CertificateI,
+                            public IceSSL::CertificateExtendedInfo,
                             public IceUtil::Mutex
 {
 public:
@@ -285,6 +286,8 @@ public:
     virtual vector<pair<int, string> > getSubjectAlternativeNames() const;
     virtual int getVersion() const;
     virtual x509_st* getCert() const;
+    virtual unsigned int getKeyUsage() const;
+    virtual unsigned int getExtendedKeyUsage() const;
 
 protected:
 
@@ -540,6 +543,94 @@ OpenSSLCertificateI::loadX509Extensions() const
                 ICE_MAKE_SHARED(OpenSSLX509ExtensionI, ext, oid, _cert)));
         }
     }
+}
+
+unsigned int
+OpenSSLCertificateI::getKeyUsage() const
+{
+    unsigned int keyUsage = 0;
+    int flags = X509_get_extension_flags(_cert);
+    if(flags & EXFLAG_KUSAGE)
+    {
+        unsigned int kusage = X509_get_key_usage(_cert);
+        if(kusage & KU_DIGITAL_SIGNATURE)
+        {
+            keyUsage |= KEY_USAGE_DIGITAL_SIGNATURE;
+        }
+        if(kusage & KU_NON_REPUDIATION)
+        {
+            keyUsage |= KEY_USAGE_NON_REPUDIATION;
+        }
+        if(kusage & KU_KEY_ENCIPHERMENT)
+        {
+            keyUsage |= KEY_USAGE_KEY_ENCIPHERMENT;
+        }
+        if(kusage & KU_DATA_ENCIPHERMENT)
+        {
+            keyUsage |= KEY_USAGE_DATA_ENCIPHERMENT;
+        }
+        if(kusage & KU_KEY_AGREEMENT)
+        {
+            keyUsage |= KEY_USAGE_KEY_AGREEMENT;
+        }
+        if(kusage & KU_KEY_CERT_SIGN)
+        {
+            keyUsage |= KEY_USAGE_KEY_CERT_SIGN;
+        }
+        if(kusage & KU_CRL_SIGN)
+        {
+            keyUsage |= KEY_USAGE_CRL_SIGN;
+        }
+        if(kusage & KU_ENCIPHER_ONLY)
+        {
+            keyUsage |= KEY_USAGE_ENCIPHER_ONLY;
+        }
+        if(kusage & KU_DECIPHER_ONLY)
+        {
+            keyUsage |= KEY_USAGE_DECIPHER_ONLY;
+        }
+    }
+    return keyUsage;
+}
+
+unsigned int
+OpenSSLCertificateI::getExtendedKeyUsage() const
+{
+    unsigned int extendedKeyUsage = 0;
+    int flags = X509_get_extension_flags(_cert);
+    if(flags & EXFLAG_XKUSAGE)
+    {
+        unsigned int xkusage = X509_get_extended_key_usage(_cert);
+        if(xkusage & XKU_ANYEKU)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+        }
+        if(xkusage & XKU_SSL_SERVER)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
+        }
+        if(xkusage & XKU_SSL_CLIENT)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
+        }
+        if(xkusage & XKU_CODE_SIGN)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
+        }
+        if(xkusage & XKU_SMIME)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
+        }
+        if(xkusage & XKU_TIMESTAMP)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
+        }
+        if(xkusage & XKU_OCSP_SIGN)
+        {
+            extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+        }
+    }
+    return extendedKeyUsage;
 }
 
 IceSSL::OpenSSL::CertificatePtr

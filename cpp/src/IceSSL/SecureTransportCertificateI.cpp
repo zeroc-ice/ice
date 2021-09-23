@@ -8,7 +8,7 @@
 //
 #include <IceUtil/DisableWarnings.h>
 
-#include <IceSSL/Plugin.h>
+#include <IceSSL/PluginI.h>
 #include <IceSSL/SecureTransport.h>
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/SecureTransportUtil.h>
@@ -31,6 +31,29 @@ using namespace std;
 
 namespace
 {
+
+static unsigned char _ekuAnyKeyUsage[4] = {0x55, 0x1d, 0x25, 0x00};
+static unsigned char _ekuServerAuthentication[8] = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03, 0x01};
+static unsigned char _ekuClientAuthentication[8] = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03, 0x02};
+static unsigned char _ekuCodeSigning[8] = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03, 0x03};
+static unsigned char _ekuEmailProtection[8] = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03, 0x04};
+static unsigned char _ekuTimeStamping[8] = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03, 0x08};
+static unsigned char _ekuOCSPSigning[8] = {0x2b, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03, 0x09};
+
+static CFDataRef ekuAnyKeyUsage =
+    CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, _ekuAnyKeyUsage, 4, kCFAllocatorNull);
+static CFDataRef ekuServerAuthentication =
+    CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, _ekuServerAuthentication, 8, kCFAllocatorNull);
+static CFDataRef ekuClientAuthentication =
+    CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, _ekuClientAuthentication, 8, kCFAllocatorNull);
+static CFDataRef ekuCodeSigning =
+    CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, _ekuCodeSigning, 8, kCFAllocatorNull);
+static CFDataRef ekuEmailProtection =
+    CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, _ekuEmailProtection, 8, kCFAllocatorNull);
+static CFDataRef ekuTimeStamping =
+    CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, _ekuTimeStamping, 8, kCFAllocatorNull);
+static CFDataRef ekuOCSPSigning =
+    CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, _ekuOCSPSigning, 8, kCFAllocatorNull);
 
 string
 certificateOIDAlias(const string& name)
@@ -226,7 +249,8 @@ private:
 #endif
 
 class SecureTransportCertificateI ICE_FINAL : public IceSSL::SecureTransport::Certificate,
-                                              public IceSSL::CertificateI
+                                              public IceSSL::CertificateI,
+                                              public IceSSL::CertificateExtendedInfo
 {
 public:
 
@@ -254,6 +278,8 @@ public:
     virtual vector<pair<int, string> > getSubjectAlternativeNames() const;
     virtual int getVersion() const;
     virtual SecCertificateRef getCert() const;
+    virtual unsigned int getKeyUsage() const;
+    virtual unsigned int getExtendedKeyUsage() const;
 
 private:
 
@@ -791,6 +817,103 @@ SecureTransportCertificateI::initializeAttributes() const
     }
 }
 #endif
+
+unsigned int
+SecureTransportCertificateI::getKeyUsage() const
+{
+    unsigned int keyUsage = 0;
+    UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDKeyUsage));
+    if(property)
+    {
+        CFNumberRef value = static_cast<CFNumberRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
+        if(value)
+        {
+            unsigned int usageBits = 0;
+            CFNumberGetValue(value, kCFNumberSInt32Type, &usageBits);
+            if(usageBits & kSecKeyUsageDigitalSignature)
+            {
+                keyUsage |= KEY_USAGE_DIGITAL_SIGNATURE;
+            }
+            if(usageBits & kSecKeyUsageNonRepudiation)
+            {
+                keyUsage |= KEY_USAGE_NON_REPUDIATION;
+            }
+            if(usageBits & kSecKeyUsageKeyEncipherment)
+            {
+                keyUsage |= KEY_USAGE_KEY_ENCIPHERMENT;
+            }
+            if(usageBits & kSecKeyUsageDataEncipherment)
+            {
+                keyUsage |= KEY_USAGE_DATA_ENCIPHERMENT;
+            }
+            if(usageBits & kSecKeyUsageKeyAgreement)
+            {
+                keyUsage |= KEY_USAGE_KEY_AGREEMENT;
+            }
+            if(usageBits & kSecKeyUsageKeyCertSign)
+            {
+                keyUsage |= KEY_USAGE_KEY_CERT_SIGN;
+            }
+            if(usageBits & kSecKeyUsageCRLSign)
+            {
+                keyUsage |= KEY_USAGE_CRL_SIGN;
+            }
+            if(usageBits & kSecKeyUsageEncipherOnly)
+            {
+                keyUsage |= KEY_USAGE_ENCIPHER_ONLY;
+            }
+            if(usageBits & kSecKeyUsageDecipherOnly)
+            {
+                keyUsage |= KEY_USAGE_DECIPHER_ONLY;
+            }
+        }
+    }
+    return keyUsage;
+}
+
+unsigned int
+SecureTransportCertificateI::getExtendedKeyUsage() const
+{
+    unsigned int extendedKeyUsage = 0;
+    UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDExtendedKeyUsage));
+    if(property)
+    {
+        CFArrayRef usages = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
+        if(usages)
+        {
+            long size = CFArrayGetCount(usages);
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuAnyKeyUsage))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_ANY_KEY_USAGE;
+            }
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuServerAuthentication))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_SERVER_AUTH;
+            }
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuClientAuthentication))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_CLIENT_AUTH;
+            }
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuCodeSigning))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_CODE_SIGNING;
+            }
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuEmailProtection))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_EMAIL_PROTECTION;
+            }
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuTimeStamping))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_TIME_STAMPING;
+            }
+            if (CFArrayContainsValue(usages, CFRangeMake(0, size), ekuOCSPSigning))
+            {
+                extendedKeyUsage |= EXTENDED_KEY_USAGE_OCSP_SIGNING;
+            }
+        }
+    }
+    return extendedKeyUsage;
+}
 
 IceSSL::SecureTransport::CertificatePtr
 IceSSL::SecureTransport::Certificate::create(SecCertificateRef cert)
