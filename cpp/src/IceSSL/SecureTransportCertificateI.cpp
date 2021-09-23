@@ -821,6 +821,9 @@ SecureTransportCertificateI::initializeAttributes() const
 unsigned int
 SecureTransportCertificateI::getKeyUsage() const
 {
+#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
+#else
     unsigned int keyUsage = 0;
     UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDKeyUsage));
     if(property)
@@ -869,11 +872,15 @@ SecureTransportCertificateI::getKeyUsage() const
         }
     }
     return keyUsage;
+#endif
 }
 
 unsigned int
 SecureTransportCertificateI::getExtendedKeyUsage() const
 {
+#ifdef ICE_USE_SECURE_TRANSPORT_IOS
+    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
+#else
     unsigned int extendedKeyUsage = 0;
     UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDExtendedKeyUsage));
     if(property)
@@ -913,6 +920,7 @@ SecureTransportCertificateI::getExtendedKeyUsage() const
         }
     }
     return extendedKeyUsage;
+#endif
 }
 
 IceSSL::SecureTransport::CertificatePtr
