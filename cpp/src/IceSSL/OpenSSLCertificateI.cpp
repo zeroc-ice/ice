@@ -39,6 +39,13 @@ extern "C" typedef void (*FreeFunc)(void*);
 
 #endif
 
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
+#   define X509_get_extension_flags(x) (x->ex_flags)
+#   define X509_get_key_usage(x)  (x->ex_kusage)
+#   define X509_get_extended_key_usage(x)  (x->ex_xkusage)
+#endif
+
+
 namespace
 {
 
@@ -650,10 +657,15 @@ IceSSL::OpenSSL::Certificate::load(const std::string& file)
     }
 
     x509_st* x = PEM_read_bio_X509(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
+    BIO_free(cert);
     if(x == ICE_NULLPTR)
     {
-        BIO_free(cert);
         throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
+    }
+    // Calling it with -1 for the side effects, this ensure that the extensions info is loaded
+    if(X509_check_purpose(x, -1, -1) == -1)
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
     }
     BIO_free(cert);
     return ICE_MAKE_SHARED(OpenSSLCertificateI, x);
@@ -664,11 +676,15 @@ IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
 {
     BIO *cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&encoding[0])), static_cast<int>(encoding.size()));
     x509_st* x = PEM_read_bio_X509(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
+    BIO_free(cert);
     if(x == ICE_NULLPTR)
     {
-        BIO_free(cert);
         throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
     }
-    BIO_free(cert);
+    // Calling it with -1 for the side effects, this ensure that the extensions info is loaded
+    if(X509_check_purpose(x, -1, -1) == -1)
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
+    }
     return ICE_MAKE_SHARED(OpenSSLCertificateI, x);
 }
