@@ -20,6 +20,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
+#ifndef CERT_CHAIN_DISABLE_AIA
+#   define CERT_CHAIN_DISABLE_AIA 0x00002000
+#endif
+
 namespace
 {
 

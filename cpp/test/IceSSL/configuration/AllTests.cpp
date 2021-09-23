@@ -4229,7 +4229,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
 
     {
-#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT)
+#if defined(ICE_USE_SCHANNEL) || defined(ICE_USE_SECURE_TRANSPORT_MACOS)
         cout << "testing certificate revocation using OCSP... " << flush;
         CommunicatorPtr comm;
         InitializationData initData;

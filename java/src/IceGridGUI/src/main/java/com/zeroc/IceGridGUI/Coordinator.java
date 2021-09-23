@@ -1235,6 +1235,7 @@ public class Coordinator
         _releaseExclusiveWriteAccess.setEnabled(false);
         _saveToRegistry.setEnabled(false);
         _saveToRegistryWithoutRestart.setEnabled(false);
+        getMainFrame().setTitle("IceGrid GUI");
     }
 
     enum TrustDecision { YesAlways, YesThisTime, No };
@@ -1710,6 +1711,7 @@ public class Coordinator
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
                 _sessionKeeper.loginSuccess(parent, _acmTimeout, _session, _replicaName, info);
+                getMainFrame().setTitle(info.getInstanceName() + " (" + _replicaName + ") - IceGrid GUI");
             }
 
             synchronized public void loginFailed()

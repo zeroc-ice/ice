@@ -3,9 +3,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, threading, http.server
-from scripts.tests.IceSSL import ocsphandler
-from functools import partial
+import os
 
 class ConfigurationTestCase(ClientServerTestCase):
 
@@ -20,9 +18,10 @@ class ConfigurationTestCase(ClientServerTestCase):
         self.ocspServer = None
 
         if isinstance(platform, Windows) or isinstance(platform, Darwin):
-            self.crlServer = createCRLServer('127.0.0.1', 20001, certsPath)
+            from scripts.tests.IceSSL import revocationutil
+            self.crlServer = revocationutil.createCRLServer('127.0.0.1', 20001, certsPath)
             self.crlServer.start()
-            self.ocspServer = createOCSPServer('127.0.0.1', 20002, certsPath)
+            self.ocspServer = revocationutil.createOCSPServer('127.0.0.1', 20002, certsPath)
             self.ocspServer.start()
 
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
@@ -104,36 +103,3 @@ TestSuite(__name__, [
    ConfigurationTestCase(client=IceSSLConfigurationClient(outfilters=outfilters, args=['"{testdir}"']),
                          server=IceSSLConfigurationServer(outfilters=outfilters, args=['"{testdir}"']))
 ], multihost=False, options=options)
-
-
-def createOCSPServer(host, port, basepath):
-    db = ocsphandler.load_db(basepath)
-    handler = partial(ocsphandler.OCSPHandler, db)
-    return ThreadedServer(host, port, handler)
-
-
-def createCRLServer(host, port, basepath,):
-    handler = partial(http.server.SimpleHTTPRequestHandler, directory=basepath)
-    return ThreadedServer(host, port, handler)
-
-
-class ThreadedServer:
-    # run HTPPServer in its own thread
-
-    def __init__(self, hostname, port, handler):
-        self.handler = handler
-        self.server = http.server.HTTPServer((hostname, port), handler)
-        self.thread = None
-
-    def start(self):
-        def serve_forever(server):
-            with server:
-                server.serve_forever()
-
-        self.thread = threading.Thread(target=serve_forever, args=(self.server,))
-        self.thread.setDaemon(True)
-        self.thread.start()
-
-    def shutdown(self):
-        self.server.shutdown()
-        self.thread.join()
