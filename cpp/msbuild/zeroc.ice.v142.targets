@@ -27,7 +27,6 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)\bin\$(Platform)\$(Configuration)\*.dll"
               DestinationFolder="$(OutDir)"
               SkipUnchangedFiles="true"/>
-
         <Copy SourceFiles="$(MSBuildThisFileDirectory)\bin\$(Platform)\$(Configuration)\*.pdb"
               DestinationFolder="$(OutDir)"
               SkipUnchangedFiles="true"/>
