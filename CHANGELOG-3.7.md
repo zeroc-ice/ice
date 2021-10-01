@@ -87,6 +87,9 @@ These are the changes since Ice 3.7.6.
   retrieving the values of the "Key Usage" and "Extended Key Usage" extensions of an X509
   certificate.
 
+- Added MSBuild target that copy the Ice DLL and PDB files to the projects output directory.
+  The target can be enabled by setting MSbuild property `Ice_CopyDLLs` to `Yes` in the project.
+
 ## Java Changes
 
 - Updated IceGrid GUI to include the registry instance name in the window title
