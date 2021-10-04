@@ -45,7 +45,6 @@ extern "C" typedef void (*FreeFunc)(void*);
 #   define X509_get_extended_key_usage(x)  (x->ex_xkusage)
 #endif
 
-
 namespace
 {
 

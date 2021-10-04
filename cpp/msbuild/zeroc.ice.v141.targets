@@ -7,7 +7,18 @@
         <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
         <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
         <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
+        <IceDllDebugSuffix Condition="'$(IceConfiguration)' == 'Debug'">d</IceDllDebugSuffix>
+        <IceDLLSuffix Condition="'$(IceCppMapping)' == 'cpp11'">37++11$(IceDllDebugSuffix)</IceDLLSuffix>
+        <IceDLLSuffix Condition="'$(IceCppMapping)' == 'cpp98'">37$(IceDllDebugSuffix)</IceDLLSuffix>
     </PropertyGroup>
+
+    <ItemGroup>
+        <_Ice_DLLs_v141 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\*$(IceDLLSuffix).dll"
+                        Exclude="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\icedb37*.dll"/>
+        <_Ice_DLLs_v141 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libssl*.dll"/>
+        <_Ice_DLLs_v141 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\libcrypto*.dll"/>
+        <_Ice_DLLs_v141 Include="$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)\bzip2*.dll"/>
+    </ItemGroup>
 
     <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v141'">
         <ClCompile>
@@ -24,10 +35,7 @@
     </Target>
 
     <Target Name="Ice_CopyDLLs_v141" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v141' and '$(Ice_CopyDLLs)' == 'Yes'">
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)\bin\$(Platform)\$(Configuration)\*.dll"
-              DestinationFolder="$(OutDir)"
-              SkipUnchangedFiles="true"/>
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)\bin\$(Platform)\$(Configuration)\*.pdb"
+        <Copy SourceFiles="@(_Ice_DLLs_v141)"
               DestinationFolder="$(OutDir)"
               SkipUnchangedFiles="true"/>
     </Target>

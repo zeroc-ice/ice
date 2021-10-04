@@ -89,7 +89,6 @@ ICESSL_API TrustError getTrustError(const IceSSL::ConnectionInfoPtr&);
 ICESSL_API std::string getTrustErrorDescription(TrustError);
 ICESSL_API std::string getHost(const IceSSL::ConnectionInfoPtr&);
 
-
 /**
  * The key usage "digitalSignature" bit is set
  */
