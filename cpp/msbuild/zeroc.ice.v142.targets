@@ -23,4 +23,12 @@
                Condition="'$(IceNugetPackageVersion)' != '3.7.6'" />
     </Target>
 
+    <Target Name="Ice_CopyDLLs_v142" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v142' and '$(Ice_CopyDLLs)' == 'Yes'">
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)\bin\$(Platform)\$(Configuration)\*.dll"
+              DestinationFolder="$(OutDir)"
+              SkipUnchangedFiles="true"/>
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)\bin\$(Platform)\$(Configuration)\*.pdb"
+              DestinationFolder="$(OutDir)"
+              SkipUnchangedFiles="true"/>
+    </Target>
 </Project>
