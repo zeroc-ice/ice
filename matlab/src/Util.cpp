@@ -583,7 +583,7 @@ IceMatlab::getStringList(mxArray* m, vector<string>& v)
     }
     size_t n = mxGetN(m);
     v.clear();
-    for(auto i = 0; i < n; ++i)
+    for(size_t i = 0; i < n; ++i)
     {
         mxArray* c = mxGetCell(m, i);
         v.push_back(getStringFromUTF16(c));
@@ -682,14 +682,10 @@ splitScopedName(const string& scoped)
 }
 
 string
-IceMatlab::idToClass(const string& id)
+IceMatlab::idToClass(const string& typeId)
 {
-    auto ids = splitScopedName(id);
-#ifdef ICE_CPP11_COMPILER
+    auto ids = splitScopedName(typeId);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-#else
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
-#endif
     stringstream result;
     for(auto i = ids.begin(); i != ids.end(); ++i)
     {

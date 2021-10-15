@@ -185,7 +185,7 @@ classdef AllTests
                     end
                 else
                     if count < 20 && mod(count, 4) == 0
-                        rcom.deactivateObjectAdapter(adapters{idivide(int32(count), 4)});
+                        rcom.deactivateObjectAdapter(adapters{idivide(int32(count), 4) + 1});
                         adapterCount = adapterCount - 1;
                     end
                 end
