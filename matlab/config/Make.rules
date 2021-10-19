@@ -7,7 +7,8 @@
 # version to be used for building the Ice extension, set MATLAB_HOME to
 # the location of the MATLAB installation.
 #
-MATLAB_HOME	?= /usr/local/MATLAB/R2020b
+MATLAB_HOME	?= /usr/local/MATLAB/R2021b
+MATLAB_VERSION	?= 2021b
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -72,7 +73,7 @@ $2/+$3/%.m: $1/$3/%.ice $2/+$3/.depend/%.ice.d $(slice2matlab_path)
 
 distclean clean::
 	$(E) "Cleaning package $3"
-	$(Q)$(RM) -r $2/+$3/
+	$(Q)$(RM) -r $2
 
 generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/+$3/%.m,$(filter-out $4,$(wildcard $1/$3/*.ice)))
 

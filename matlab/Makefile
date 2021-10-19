@@ -76,6 +76,10 @@ $(icethunk_proto): $(icethunk_builddir)/icethunk.c
 $(icethunk_target): $(lang_srcdir)/src/build/icethunk.c $(icethunk_proto)
 	$(CC) $(lang_srcdir)/src/build/icethunk.c $(icethunk_cflags) -o $(icethunk_target)
 
+clean::
+	rm -rf $(lang_srcdir)/lib/x86_64-linux-gnu
+	rm -rf $(icethunk_builddir)
+
 all:: $(icethunk_target)
 
 #
@@ -84,3 +88,50 @@ all:: $(icethunk_target)
 tests := $(call tests-without-project-makefile,m)
 include $(shell find test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call make-matlab-test-project,$(t))))
+
+#
+# Toolbox
+#
+icetoolbox_file = toolbox/ice-$(version)-R$(MATLAB_VERSION).mltbx
+
+$(icetoolbox_file): $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x86_64-linux-gnu/ice.mexa64
+	rm -rf $(lang_srcdir)/toolbox/build
+	mkdir -p $(lang_srcdir)/toolbox/build
+	cp $(lang_srcdir)/toolbox/toolbox.template.prj $(lang_srcdir)/toolbox/toolbox.prj
+	sed -i 's|@RootDir@|$(lang_srcdir)|g' $(lang_srcdir)/toolbox/toolbox.prj
+	sed -i 's|@MatlabHome@|$(MATLAB_HOME)|g' $(lang_srcdir)/toolbox/toolbox.prj
+	sed -i 's/@IceVersion@/$(version)/g' $(lang_srcdir)/toolbox/toolbox.prj
+	sed -i 's/@MatlabVersion@/R$(MATLAB_VERSION)/g' $(lang_srcdir)/toolbox/toolbox.prj
+	cp $(lang_srcdir)/toolbox/info.template.xml $(lang_srcdir)/toolbox/info.xml
+	sed -i 's/@MatlabVersion@/R$(MATLAB_VERSION)/g' $(lang_srcdir)/toolbox/info.xml
+	# Sources and libraries
+	mkdir -p $(lang_srcdir)/toolbox/build
+	cp -rf $(lang_srcdir)/lib/*.m $(lang_srcdir)/toolbox/build
+	cp -rf $(lang_srcdir)/lib/+* $(lang_srcdir)/toolbox/build
+	cp -rf $(lang_srcdir)/lib/generated/+* $(lang_srcdir)/toolbox/build
+	cp -rf $(lang_srcdir)/lib/x86_64-linux-gnu/* $(lang_srcdir)/toolbox/build
+	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIce++11.so.37 $(lang_srcdir)/toolbox/build
+	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIceSSL++11.so.37 $(lang_srcdir)/toolbox/build
+	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIceDiscovery++11.so.37 $(lang_srcdir)/toolbox/build
+	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIceLocatorDiscovery++11.so.37 $(lang_srcdir)/toolbox/build
+	# Slice files
+	mkdir -p $(lang_srcdir)/toolbox/build/slice
+	cp -rf $(top_srcdir)/slice/Glacier2 $(lang_srcdir)/toolbox/build/slice
+	cp -rf $(top_srcdir)/slice/Ice $(lang_srcdir)/toolbox/build/slice
+	cp -rf $(top_srcdir)/slice/IceStorm $(lang_srcdir)/toolbox/build/slice
+	cp -rf $(top_srcdir)/slice/IceGrid $(lang_srcdir)/toolbox/build/slice
+	# Tools
+	cp -rf $(top_srcdir)/cpp/bin/slice2matlab $(lang_srcdir)/toolbox/build/
+	# Doc files
+	cp -rf $(lang_srcdir)/toolbox/doc $(lang_srcdir)/toolbox/build
+	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "addFolderToPath '`realpath build`'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(version)'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "removeFolderFromPath '`realpath build`'"
+
+clean::
+	rm -rf $(icetoolbox_file)
+	rm -rf $(lang_srcdir)/toolbox/build
+	rm -rf $(lang_srcdir)/toolbox/toolbox.prj
+	rm -rf $(lang_srcdir)/toolbox/info.xml
+
+all:: $(icetoolbox_file)
