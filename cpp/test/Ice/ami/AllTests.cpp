@@ -7,6 +7,10 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#ifdef ICE_CPP11_MAPPING
+#   include <thread>
+#endif
+
 using namespace std;
 
 namespace
