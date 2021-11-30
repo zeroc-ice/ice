@@ -3,7 +3,7 @@
   <metadata>
     <id>zeroc.ice.v140</id>
     <title>ZeroC Ice C++ for Visual Studio 2015</title>
-    <version>3.7.6</version>
+    <version>3.7.7</version>
     <authors>ZeroC</authors>
     <copyright>Copyright (c) ZeroC, Inc. All rights reserved</copyright>
     <license type="expression">GPL-2.0-only</license>
@@ -11,7 +11,7 @@
     <icon>logo.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Ice C++ SDK for Visual Studio 2015 (v140). Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</description>
-    <releaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-6-release-notes</releaseNotes>
+    <releaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-7-release-notes</releaseNotes>
     <tags>ice native rpc v140 zeroc</tags>
   </metadata>
 </package>
