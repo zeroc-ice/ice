@@ -10,6 +10,8 @@
 //
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
+#  // Ignore OpenSSL 3.0 deprecation warning
+#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 using namespace std;

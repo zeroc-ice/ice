@@ -12,6 +12,8 @@
 #      include <CommonCrypto/CommonDigest.h>
 #   else
 #      include <openssl/sha.h>
+#      // Ignore OpenSSL 3.0 deprecation warning
+#      pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #   endif
 #endif
 

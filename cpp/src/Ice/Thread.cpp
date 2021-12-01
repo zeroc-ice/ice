@@ -714,9 +714,9 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
     }
     if(stackSize > 0)
     {
-        if(stackSize < PTHREAD_STACK_MIN)
+        if(stackSize < (size_t)PTHREAD_STACK_MIN)
         {
-            stackSize = PTHREAD_STACK_MIN;
+            stackSize = (size_t)PTHREAD_STACK_MIN;
         }
 #ifdef __APPLE__
         if(stackSize % 4096 > 0)
