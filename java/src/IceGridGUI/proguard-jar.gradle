@@ -8,7 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "net.sf.proguard:proguard-gradle:6.1.1"
+        // TODO 7.2.x is required for Java 17 update to the final release
+        classpath "com.guardsquare:proguard-gradle:7.2.0-beta2"
     }
 }
 

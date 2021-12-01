@@ -37,6 +37,11 @@ subprojects {
         mavenCentral()
     }
 
+    // This setting is required for Java modules when target Java 8
+    java {
+        modularity.inferModulePath = false
+    }
+
     jar {
         manifest {
             attributes("Built-By": "ZeroC, Inc.")

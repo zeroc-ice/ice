@@ -146,7 +146,6 @@ ext.searchFile = { List<Closure> places, List<String> searchPaths ->
 }
 
 // Used for the tests
-//
 ext.localDependency = { artifactId ->
     if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
         return project(":${artifactId}")

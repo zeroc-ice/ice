@@ -94,10 +94,10 @@ groupId=com.jgoodies, version=2.7.0, artifactId=jgoodies-looks
 Gradle uses [ProGuard][4] to create the standalone JAR file for the IceGrid
 GUI tool.
 
-The Maven package id for the ProGuard package is as follows:
+The Maven package id for the ProGuard gradle plugin is as follows:
 
 ```
-groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.1.1'
+groupId=com.guardsquare, version=7.1.0, artifactId=proguard-gradle
 ```
 
 ### Java Application Bundler
