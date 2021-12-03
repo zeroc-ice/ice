@@ -33,13 +33,6 @@ slice {
 }
 
 repositories {
-    if(slice.jarDir != null) {
-        flatDir {
-            name "local"
-            dirs slice.jarDir
-        }
-    }
-
     if(this.devRepo) {
         maven {
             url this.devRepo

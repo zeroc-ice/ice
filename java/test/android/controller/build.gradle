@@ -32,13 +32,6 @@ slice {
 }
 
 repositories {
-    if(slice.jarDir != null) {
-        flatDir {
-            name "local"
-            dirs slice.jarDir
-        }
-    }
-
     if(this.devRepo) {
         maven {
             url this.devRepo
@@ -93,10 +86,10 @@ clean {
 }
 
 ext.localDependency = { artifactId ->
-    if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
-        return ":${artifactId}-${project.iceVersion}"
-    } else {
+    if(Sytem.env.ICE_BIN_DIST == "all" || System.env.ICE_BIN_DIST == "java") {
         return "com.zeroc:${artifactId}:${project.iceVersion}"
+    } else {
+        return ":${artifactId}-${project.iceVersion}"
     }
 }
 

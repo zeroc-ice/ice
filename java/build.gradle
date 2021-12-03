@@ -15,13 +15,6 @@ subprojects {
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
-        if(slice.jarDir) {
-            flatDir {
-                name "local"
-                dirs slice.jarDir
-            }
-        }
-
         if(this.devRepo) {
             maven {
                 url this.devRepo
