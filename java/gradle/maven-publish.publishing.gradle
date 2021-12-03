@@ -1,0 +1,48 @@
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
+
+apply plugin: 'maven-publish'
+
+tasks.withType(GenerateMavenPom.class) {
+    destination = file(project.ext.pomName)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.zeroc'
+            artifactId = project.name
+            version = project.version
+
+            from components.java
+            pom {
+                name = project.ext.displayName
+                description = project.ext.description
+                url = 'https://zeroc.com'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, version 2'
+                        url = 'https://www.gnu.org/licenses/gpl-2.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'ZeroC Developers'
+                        email = 'info@zeroc.com'
+                        organization = 'ZeroC, Inc.'
+                        organizationUrl = 'https://zeroc.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com:zeroc-ice/ice.git'
+                    url = 'https://github.com:zeroc-ice/ice'
+                }
+            }
+        }
+    }
+}
+assemble.dependsOn(generatePomFileForMavenPublication)
+
+// This task is for compatibility with the old 'maven' plugin that provides an install task
+task install {}

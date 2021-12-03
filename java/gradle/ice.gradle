@@ -146,11 +146,11 @@ ext.searchFile = { List<Closure> places, List<String> searchPaths ->
 }
 
 // Used for the tests
-//
 ext.localDependency = { artifactId ->
-    if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
-        return project(":${artifactId}")
-    } else {
+    def useBinDist = System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}
+    if(useBinDist) {
         return "com.zeroc:${artifactId}:${project.version}"
+    } else {
+        return project(":${artifactId}")
     }
 }
