@@ -86,7 +86,8 @@ clean {
 }
 
 ext.localDependency = { artifactId ->
-    if(Sytem.env.ICE_BIN_DIST == "all" || System.env.ICE_BIN_DIST == "java") {
+    def useBinDist = System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}
+    if(useBinDist) {
         return "com.zeroc:${artifactId}:${project.iceVersion}"
     } else {
         return ":${artifactId}-${project.iceVersion}"
