@@ -50,6 +50,7 @@ extern "C"
 
 #if defined(__GNUC__) && ((__GNUC__ >= 8))
 #   pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#   pragma GCC diagnostic ignored "-Wredundant-decls"
 #endif
 
 //
