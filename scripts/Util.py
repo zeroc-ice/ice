@@ -216,8 +216,8 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            if int(version[0]) == 5:
-                self.defaultFramework = "net5.0"
+            if int(version[0]) == 6:
+                self.defaultFramework = "net6.0"
             else:
                 self.defaultFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
         except:
@@ -3445,7 +3445,7 @@ class CSharpMapping(Mapping):
             if not self.dotnetcore and not isinstance(platform, Windows):
                 self.dotnetcore = True
 
-            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net5.0", "net45"] else self.framework
+            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net6.0", "net45"] else self.framework
             self.binTargetFramework = self.framework
             self.testTargetFramework = self.framework
 
@@ -3463,7 +3463,7 @@ class CSharpMapping(Mapping):
         return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        if current.config.framework in ["net5.0", "net45"]:
+        if current.config.framework in ["net6.0", "net45"]:
             return os.path.join("msbuild", name, current.config.framework)
         else:
             return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
