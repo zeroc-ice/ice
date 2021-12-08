@@ -19,8 +19,8 @@
         <Net6Targets>false</Net6Targets>
     </PropertyGroup>
 
-    <!-- NET Standard on Windows requires Visual Studio 2017 or Visual Studio 2019 -->
-    <PropertyGroup Condition="'$(VisualStudioVersion)' == '15.0' or '$(VisualStudioVersion)' == '16.0' or '$(OS)' != 'Windows_NT'">
+    <!-- NET Standard on Windows requires Visual Studio 2017, Visual Studio 2019 or Visual Studio 2022 -->
+    <PropertyGroup Condition="'$(VisualStudioVersion)' == '15.0' or '$(VisualStudioVersion)' == '16.0' or '$(VisualStudioVersion)' == '17.0' or '$(OS)' != 'Windows_NT'">
         <NetStandardTargets>true</NetStandardTargets>
     </PropertyGroup>
 
