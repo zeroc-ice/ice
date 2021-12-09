@@ -3383,7 +3383,7 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-27;google_apis;x86"
+        return "system-images;android-31;google_apis;x86"
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "android", "controller", "build", "outputs", "apk", "debug",
@@ -3419,7 +3419,7 @@ class JavaCompatMapping(JavaMapping):
         return { "CLASSPATH" : os.pathsep.join(classPath) }
 
     def getSDKPackage(self):
-        return "system-images;android-21;google_apis;x86_64"
+        return "system-images;android-31;google_apis;x86_64"
 
 class CSharpMapping(Mapping):
 
@@ -3572,7 +3572,7 @@ class CSharpMapping(Mapping):
         return command
 
     def getSDKPackage(self):
-        return "system-images;android-27;google_apis;x86"
+        return "system-images;android-31;google_apis;x86"
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "xamarin", "controller.Android", "bin", current.config.buildConfig,
