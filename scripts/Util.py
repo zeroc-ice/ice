@@ -3383,7 +3383,7 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;x86"
+        return "system-images;android-31;google_apis;x86_64"
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "android", "controller", "build", "outputs", "apk", "debug",
@@ -3572,7 +3572,7 @@ class CSharpMapping(Mapping):
         return command
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;x86"
+        return "system-images;android-31;google_apis;x86_64"
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "xamarin", "controller.Android", "bin", current.config.buildConfig,
