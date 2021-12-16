@@ -73,6 +73,10 @@ ZEND_METHOD(Ice_Connection, __toString)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_close_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, mode)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Connection, close)
 {
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -126,6 +130,10 @@ ZEND_METHOD(Ice_Connection, getEndpoint)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_flushBatchRequests_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, compress)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Connection, flushBatchRequests)
 {
     zval* compress;
@@ -175,6 +183,12 @@ ZEND_METHOD(Ice_Connection, heartbeat)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_setACM_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(3))
+    ZEND_ARG_INFO(0, timeout)
+    ZEND_ARG_INFO(0, close)
+    ZEND_ARG_INFO(0, heartbeat)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Connection, setACM)
 {
@@ -341,6 +355,11 @@ ZEND_METHOD(Ice_Connection, getInfo)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Connection_setBufferSize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, rcvSize)
+    ZEND_ARG_INFO(0, sndSize)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Connection, setBufferSize)
 {
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
@@ -460,17 +479,17 @@ static zend_function_entry _connectionClassMethods[] =
 {
     ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_Connection, __toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, close, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, flushBatchRequests, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setACM, Ice_Connection_setACM_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, timeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setBufferSize, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };

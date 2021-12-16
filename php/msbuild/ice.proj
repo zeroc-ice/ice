@@ -14,6 +14,7 @@
         <CppDistTargets>c++98\slice2php;c++98\slice2html;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Debug' or '$(Configuration)' == 'Debug'">Debug</CppConfiguration>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Release' or '$(Configuration)' == 'Release'">Release</CppConfiguration>
+        <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v142'">8.0</BuildWithPhpVersion>
         <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v141'">7.2</BuildWithPhpVersion>
         <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v140'">7.1</BuildWithPhpVersion>
         <PackageDirectory>zeroc.ice.php$(BuildWithPhpVersion)</PackageDirectory>

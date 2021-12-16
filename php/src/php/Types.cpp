@@ -2934,7 +2934,9 @@ void
 IcePHP::ObjectWriter::ice_preMarshal()
 {
     string name = "ice_premarshal"; // Must be lowercase.
-    if(zend_hash_str_exists(&Z_OBJCE_P(&_object)->function_table, STRCAST(name.c_str()), static_cast<uint>(name.size())))
+    if(zend_hash_str_exists(&Z_OBJCE_P(&_object)->function_table,
+                            STRCAST(name.c_str()),
+                            static_cast<uint32_t>(name.size())))
     {
         if(!invokeMethod(&_object, name))
         {

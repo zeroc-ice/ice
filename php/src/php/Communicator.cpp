@@ -358,6 +358,10 @@ ZEND_METHOD(Ice_Communicator, destroy)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_stringToProxy_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, str)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Communicator, stringToProxy)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -385,6 +389,10 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_proxyToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, proxy)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Communicator, proxyToString)
 {
@@ -420,6 +428,10 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_propertyToProxy_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, property)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Communicator, propertyToProxy)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -447,6 +459,11 @@ ZEND_METHOD(Ice_Communicator, propertyToProxy)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_proxyToProperty_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, proxy)
+    ZEND_ARG_INFO(0, property)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Communicator, proxyToProperty)
 {
@@ -494,6 +511,10 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_stringToIdentity_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, str)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Communicator, stringToIdentity)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -521,6 +542,10 @@ ZEND_METHOD(Ice_Communicator, stringToIdentity)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_identityToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Communicator, identityToString)
 {
@@ -553,6 +578,11 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_addObjectFactory_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, factory)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Communicator, addObjectFactory)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
@@ -581,6 +611,10 @@ ZEND_METHOD(Ice_Communicator, addObjectFactory)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_findObjectFactory_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Communicator, findObjectFactory)
 {
@@ -736,14 +770,17 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_setDefaultRouter_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, router)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Communicator, setDefaultRouter)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zv, proxyClassEntry) !=
-        SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zv, proxyClassEntry) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -814,14 +851,17 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_setDefaultLocator_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, locator)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Communicator, setDefaultLocator)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zv, proxyClassEntry) !=
-        SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zv, proxyClassEntry) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -853,6 +893,10 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_flushBatchRequests_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, compress)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Communicator, flushBatchRequests)
 {
@@ -888,6 +932,11 @@ ZEND_METHOD(Ice_ValueFactoryManager, __construct)
     runtimeError("value factory managers cannot be instantiated directly");
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ValueFactoryManager_add_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, factory)
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ValueFactoryManager, add)
 {
     ValueFactoryManagerPtr _this = Wrapper<ValueFactoryManagerPtr>::value(getThis());
@@ -899,8 +948,7 @@ ZEND_METHOD(Ice_ValueFactoryManager, add)
     zval* factory;
     char* id;
     size_t idLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("Os!"), &factory, factoryClass, &id,
-                             &idLen) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("Os!"), &factory, factoryClass, &id, &idLen) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -923,6 +971,10 @@ ZEND_METHOD(Ice_ValueFactoryManager, add)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ValueFactoryManager_find_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ValueFactoryManager, find)
 {
@@ -1539,23 +1591,23 @@ static zend_function_entry _classMethods[] =
     ZEND_ME(Ice_Communicator, isShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, waitForShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, destroy, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToProxy, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, propertyToProxy, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToProperty, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToIdentity, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, identityToString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, addObjectFactory, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, findObjectFactory, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToProxy, Ice_Communicator_stringToProxy_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToString, Ice_Communicator_proxyToString_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, propertyToProxy, Ice_Communicator_propertyToProxy_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToProperty, Ice_Communicator_proxyToProperty_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToIdentity, Ice_Communicator_stringToIdentity_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, identityToString, Ice_Communicator_identityToString_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, addObjectFactory, Ice_Communicator_addObjectFactory_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, findObjectFactory, Ice_Communicator_findObjectFactory_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getValueFactoryManager, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getProperties, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getLogger, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getDefaultRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultRouter, Ice_Communicator_setDefaultRouter_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getDefaultLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, flushBatchRequests, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultLocator, Ice_Communicator_setDefaultLocator_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, flushBatchRequests, Ice_Communicator_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -1569,8 +1621,8 @@ static zend_function_entry _vfmInterfaceMethods[] =
 static zend_function_entry _vfmClassMethods[] =
 {
     ZEND_ME(Ice_ValueFactoryManager, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_ValueFactoryManager, add, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ValueFactoryManager, find, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, add, Ice_ValueFactoryManager_add_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, find, Ice_ValueFactoryManager_find_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 

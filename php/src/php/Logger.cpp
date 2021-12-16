@@ -49,6 +49,10 @@ ZEND_METHOD(Ice_Logger, __toString)
     RETURN_NULL();
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_print_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, message)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Logger, print)
 {
     char* m;
@@ -73,6 +77,11 @@ ZEND_METHOD(Ice_Logger, print)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_trace_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, category)
+    ZEND_ARG_INFO(0, message)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Logger, trace)
 {
@@ -102,6 +111,10 @@ ZEND_METHOD(Ice_Logger, trace)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_warning_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, message)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Logger, warning)
 {
     char* m;
@@ -127,6 +140,10 @@ ZEND_METHOD(Ice_Logger, warning)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_error_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, message)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Logger, error)
 {
     char* m;
@@ -151,6 +168,10 @@ ZEND_METHOD(Ice_Logger, error)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_cloneWithPrefix_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, prefix)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Logger, cloneWithPrefix)
 {
@@ -241,11 +262,11 @@ static zend_function_entry _classMethods[] =
 {
     ZEND_ME(Ice_Logger, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_Logger, __toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, print, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, trace, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, warning, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, error, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, cloneWithPrefix, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, print, Ice_Logger_print_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, trace, Ice_Logger_trace_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, warning, Ice_Logger_warning_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, error, Ice_Logger_error_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 //
