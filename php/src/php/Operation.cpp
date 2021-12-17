@@ -383,7 +383,9 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_ARRAY_INFO((uint32_t)pass_by_ref, (uint32_t)0, (uint32_t)allow_null)
+            ZEND_ARG_ARRAY_INFO(static_cast<uint32_t>(pass_by_ref),
+                                static_cast<uint32_t>(0),
+                                static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
@@ -391,7 +393,9 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_CALLABLE_INFO((uint32_t)pass_by_ref, (uint32_t)0, allow_null)
+            ZEND_ARG_CALLABLE_INFO(static_cast<uint32_t>(pass_by_ref),
+                                   static_cast<uint32_t>(0),
+                                   static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
