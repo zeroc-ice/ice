@@ -174,7 +174,7 @@ IcePHP::ResultCallback::ResultCallback()
 
 IcePHP::ResultCallback::~ResultCallback()
 {
-    zval_ptr_dtor(&zv);
+
 }
 
 void
