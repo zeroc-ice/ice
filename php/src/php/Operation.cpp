@@ -174,7 +174,6 @@ IcePHP::ResultCallback::ResultCallback()
 
 IcePHP::ResultCallback::~ResultCallback()
 {
-
 }
 
 void
@@ -696,7 +695,6 @@ IcePHP::TypedInvocation::validateException(const ExceptionInfoPtr& info) const
             return true;
         }
     }
-
     return false;
 }
 
