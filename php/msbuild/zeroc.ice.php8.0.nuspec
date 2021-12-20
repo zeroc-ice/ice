@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>zeroc.ice.php8.0</id>
+        <title>ZeroC Ice for PHP 8.0</title>
+        <version>3.7.7</version>
+        <authors>ZeroC</authors>
+        <copyright>Copyright (c) ZeroC, Inc. All rights reserved</copyright>
+        <license type="expression">GPL-2.0-only</license>
+        <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
+        <icon>logo.png</icon>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Ice for PHP SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</description>
+        <releaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-7-release-notes</releaseNotes>
+        <tags>ice</tags>
+    </metadata>
+</package>
