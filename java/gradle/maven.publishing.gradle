@@ -9,9 +9,9 @@ signing {
     required {
         gradle.taskGraph.hasTask("signArchives") ||
         gradle.taskGraph.hasTask("uploadArchives") ||
-        ( project.hasProperty('signing.keyId') &&
-          project.hasProperty('signing.password') &&
-          project.hasProperty('signing.secretKeyRingFile') )
+        (project.hasProperty('signing.keyId') &&
+         project.hasProperty('signing.password') &&
+         project.hasProperty('signing.secretKeyRingFile'))
     }
     sign configurations.archives
 }
@@ -58,7 +58,6 @@ task writeNewPom {
         projectPom().writeTo(project.ext.pomName)
     }
 }
-
 jar.dependsOn(writeNewPom)
 
 uploadArchives {
