@@ -3,12 +3,37 @@
 //
 
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 tasks.withType(GenerateMavenPom.class) {
     destination = file(project.ext.pomName)
 }
 
+signing {
+    required {
+        gradle.taskGraph.hasTask("signArchives") ||
+        gradle.taskGraph.hasTask("uploadArchives") ||
+        (project.hasProperty('signing.keyId') &&
+         project.hasProperty('signing.password') &&
+         project.hasProperty('signing.secretKeyRingFile'))
+    }
+    sign publishing.publications.mavenJava
+}
+
+ext.mavenRepo = rootProject.hasProperty('mavenRepo')?project.mavenRepo:System.getenv('MAVEN_REPO')?:''
+ext.mavenUser = rootProject.hasProperty('mavenUser')?project.mavenUser:System.getenv('MAVEN_USER')?:''
+ext.mavenPassword = rootProject.hasProperty('mavenPassword')?project.mavenPassword:System.getenv('MAVEN_PASSWORD')?:''
+
 publishing {
+    repositories {
+        maven {
+            url = mavenRepo
+            credentials(PasswordCredentials) {
+                accessKey mavenUser
+                secretKey mavenPassword
+            }
+        }
+    }
     publications {
         maven(MavenPublication) {
             groupId = 'com.zeroc'

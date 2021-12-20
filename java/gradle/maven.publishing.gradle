@@ -3,6 +3,22 @@
 //
 
 apply plugin: 'maven'
+apply plugin: 'signing'
+
+signing {
+    required {
+        gradle.taskGraph.hasTask("signArchives") ||
+        gradle.taskGraph.hasTask("uploadArchives") ||
+        ( project.hasProperty('signing.keyId') &&
+          project.hasProperty('signing.password') &&
+          project.hasProperty('signing.secretKeyRingFile') )
+    }
+    sign configurations.archives
+}
+
+ext.mavenRepo = rootProject.hasProperty('mavenRepo')?project.mavenRepo:System.getenv('MAVEN_REPO')?:''
+ext.mavenUser = rootProject.hasProperty('mavenUser')?project.mavenUser:System.getenv('MAVEN_USER')?:''
+ext.mavenPassword = rootProject.hasProperty('mavenPassword')?project.mavenPassword:System.getenv('MAVEN_PASSWORD')?:''
 
 ext.projectPom = {
     pom {
@@ -45,3 +61,15 @@ task writeNewPom {
 
 jar.dependsOn(writeNewPom)
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: mavenRepo) {
+                authentication(userName: mavenUser, password: mavenPassword)
+            }
+
+            pom = projectPom()
+        }
+    }
+}
