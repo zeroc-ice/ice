@@ -148,6 +148,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getIdentity)
     createIdentity(return_value, _this->proxy->ice_getIdentity());
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_identity_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_identity)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -196,6 +200,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getContext)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_context_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, ctx)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_context)
 {
@@ -254,6 +262,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getFacet)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_facet_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, facet)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_facet)
 {
     char* name;
@@ -303,6 +315,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getAdapterId)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_adapterId_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_adapterId)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -345,7 +361,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpoints)
         Ice::EndpointSeq endpoints = _this->proxy->ice_getEndpoints();
 
         array_init(return_value);
-        uint idx = 0;
+        uint32_t idx = 0;
         for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++idx)
         {
             zval elem;
@@ -363,6 +379,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpoints)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_endpoints_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, endpoints)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_endpoints)
 {
@@ -456,6 +476,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnectionId)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_locatorCacheTimeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, timeout)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -503,6 +527,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isConnectionCached)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_connectionCached_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, cached)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_connectionCached)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -549,6 +577,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpointSelection)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_endpointSelection_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, selectionType)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_endpointSelection)
 {
@@ -604,6 +636,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isSecure)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_secure_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, secure)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_secure)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -652,6 +688,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEncodingVersion)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_encodingVersion_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, version)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_encodingVersion)
 {
@@ -706,6 +746,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isPreferSecure)
         RETURN_FALSE;
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_preferSecure_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, preferSecure)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_preferSecure)
 {
@@ -771,6 +815,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
         RETURN_FALSE;
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_router_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, router)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_router)
 {
@@ -853,6 +901,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
         RETURN_FALSE;
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_locator_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, locator)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_locator)
 {
@@ -1128,6 +1180,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_isBatchDatagram)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_compress_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, compress)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_compress)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1181,6 +1237,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_timeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, timeout)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
 {
@@ -1236,6 +1296,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_invocationTimeout_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, invocationTiemout)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1282,6 +1346,10 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_connectionId_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, connectionId)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1307,14 +1375,20 @@ ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_fixed_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, connection)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_ObjectPrx, ice_fixed)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
     zval* zcon;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zcon, connectionClassEntry TSRMLS_CC) !=
-        SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+                             const_cast<char*>("O!"),
+                             &zcon,
+                             connectionClassEntry TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1431,6 +1505,12 @@ ZEND_METHOD(Ice_ObjectPrx, ice_flushBatchRequests)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Proxy_do_cast_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, facet)
+    ZEND_ARG_INFO(0, ctx)
+ZEND_END_ARG_INFO()
 
 static void
 do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
@@ -1734,32 +1814,32 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_getCommunicator, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getIdentity, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_identity, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_identity, Ice_ObjectPrx_ice_identity_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_context, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_context, Ice_ObjectPrx_ice_context_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getFacet, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_facet, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_facet, Ice_ObjectPrx_ice_facet_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getAdapterId, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_adapterId, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_adapterId, Ice_ObjectPrx_ice_adapterId_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getEndpoints, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_endpoints, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_endpoints, Ice_ObjectPrx_ice_endpoints_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getLocatorCacheTimeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getConnectionId, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_locatorCacheTimeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_locatorCacheTimeout, Ice_ObjectPrx_ice_locatorCacheTimeout_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isConnectionCached, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_connectionCached, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_connectionCached, Ice_ObjectPrx_ice_connectionCached_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getEndpointSelection, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_endpointSelection, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_endpointSelection, Ice_ObjectPrx_ice_endpointSelection_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isSecure, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_secure, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_secure, Ice_ObjectPrx_ice_secure_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getEncodingVersion, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_encodingVersion, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_encodingVersion, Ice_ObjectPrx_ice_encodingVersion_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isPreferSecure, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_preferSecure, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_preferSecure, Ice_ObjectPrx_ice_preferSecure_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_router, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_router, Ice_ObjectPrx_ice_router_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_locator, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_locator, Ice_ObjectPrx_ice_locator_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_twoway, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isTwoway, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_oneway, ice_void_arginfo, ZEND_ACC_PUBLIC)
@@ -1770,20 +1850,20 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_isDatagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_batchDatagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isBatchDatagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_compress, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_compress, Ice_ObjectPrx_ice_compress_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getCompress, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_timeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_timeout, Ice_ObjectPrx_ice_timeout_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getTimeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_invocationTimeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_invocationTimeout, Ice_ObjectPrx_ice_invocationTimeout_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getInvocationTimeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_connectionId, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_fixed, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_connectionId, Ice_ObjectPrx_ice_connectionId_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_fixed, Ice_ObjectPrx_ice_fixed_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isFixed, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getConnection, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getCachedConnection, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_flushBatchRequests, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_uncheckedCast, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_checkedCast, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_uncheckedCast, Ice_Proxy_do_cast_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_checkedCast, Ice_Proxy_do_cast_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 

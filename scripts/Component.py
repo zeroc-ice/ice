@@ -268,7 +268,7 @@ if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
     if platform.getCompiler() not in ["v140", "v141"]:
         Mapping.disable("python")
-    if platform.getCompiler() not in ["v140", "v141"]:
+    if platform.getCompiler() not in ["v140", "v141", "v142"]:
         Mapping.disable("php")
 
 #

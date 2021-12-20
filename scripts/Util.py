@@ -3784,7 +3784,7 @@ class PhpMapping(CppBasedClientMapping):
         def usage(self):
             print("")
             print("PHP Mapping options:")
-            print("--php-version=[7.1|7.2|7.3]    PHP Version used for Windows builds")
+            print("--php-version=[7.1|7.2|7.3|8.0|8.1]    PHP Version used for Windows builds")
 
 
         def __init__(self, options=[]):
@@ -3803,7 +3803,9 @@ class PhpMapping(CppBasedClientMapping):
             nugetVersions = {
                 "7.1": "7.1.17",
                 "7.2": "7.2.8",
-                "7.3": "7.3.0"
+                "7.3": "7.3.0",
+                "8.0": "8.0.0",
+                "8.1": "8.1.0"
             }
             nugetVersion = nugetVersions[current.config.phpVersion]
             threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]

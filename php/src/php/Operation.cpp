@@ -174,7 +174,6 @@ IcePHP::ResultCallback::ResultCallback()
 
 IcePHP::ResultCallback::~ResultCallback()
 {
-    zval_ptr_dtor(&zv);
 }
 
 void
@@ -383,7 +382,9 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_ARRAY_INFO(pass_by_ref, 0, allow_null)
+            ZEND_ARG_ARRAY_INFO(static_cast<uint32_t>(pass_by_ref),
+                                static_cast<uint32_t>(0),
+                                static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
@@ -391,7 +392,9 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_CALLABLE_INFO(pass_by_ref, 0, allow_null)
+            ZEND_ARG_CALLABLE_INFO(static_cast<uint32_t>(pass_by_ref),
+                                   static_cast<uint32_t>(0),
+                                   static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
@@ -692,7 +695,6 @@ IcePHP::TypedInvocation::validateException(const ExceptionInfoPtr& info) const
             return true;
         }
     }
-
     return false;
 }
 
