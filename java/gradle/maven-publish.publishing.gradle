@@ -66,7 +66,7 @@ signing {
          project.hasProperty('signing.password') &&
          project.hasProperty('signing.secretKeyRingFile'))
     }
-    sign publishing.publications.maven
+    sign configurations.archives
 }
 
 // This task is for compatibility with the old 'maven' plugin that provides an install task

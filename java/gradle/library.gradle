@@ -44,7 +44,7 @@ if(GradleVersion.current() >= GradleVersion.version('7.3')) {
 assemble.dependsOn(jarSources, javadocJar)
 
 artifacts {
-    archives jar, jarSources
+    archives jar, jarSources, javadocJar
 }
 
 jar {
