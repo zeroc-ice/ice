@@ -2494,7 +2494,7 @@ class AndroidProcessController(RemoteProcessController):
 class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
-    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-X"
+    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-13"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "tcp -h 0.0.0.0 -p 15001" if current.config.xamarin else None)
@@ -2533,17 +2533,21 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 #
                 # Create the simulator device if it doesn't exist
                 #
+                self.simulatorID = run("xcrun simctl create \"{0}\" {1} {2}".format(self.device, self.deviceID, self.runtimeID))
+                run("xcrun simctl boot \"{0}\"".format(self.device))
+                run("xcrun simctl bootstatus \"{0}\"".format(self.device)) # Wait for the boot to complete
+                #
+                # This not longer works on iOS 15 simulator, fails with:
+                #   "Could not write domain com.apple.springboard; exiting"
+                #
                 # We update the watchdog timer scale to prevent issues with the controller app taking too long
                 # to start on the simulator. The security validation of the app can take a significant time and
                 # causes the watch dog to kick-in leaving the springboard app in a bogus state where it's not
                 # possible to terminate and restart the controller
                 #
-                self.simulatorID = run("xcrun simctl create \"{0}\" {1} {2}".format(self.device, self.deviceID, self.runtimeID))
-                run("xcrun simctl boot \"{0}\"".format(self.device))
-                run("xcrun simctl bootstatus \"{0}\"".format(self.device)) # Wait for the boot to complete
-                run("xcrun simctl spawn \"{0}\" defaults write com.apple.springboard FBLaunchWatchdogScale 20".format(self.device))
-                run("xcrun simctl shutdown \"{0}\"".format(self.device))
-                run("xcrun simctl boot \"{0}\"".format(self.device))
+                # run("xcrun simctl spawn \"{0}\" defaults write com.apple.springboard FBLaunchWatchdogScale 20".format(self.device))
+                # run("xcrun simctl shutdown \"{0}\"".format(self.device))
+                # run("xcrun simctl boot \"{0}\"".format(self.device))
             else:
                 raise
         print("ok")
