@@ -441,7 +441,19 @@ namespace IceSSL
                 e.reason = ex.Message;
                 throw e;
             }
-            catch(Exception ex)
+#if NET45
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                // This error code correspond to SChannel SEC_E_ALGORITHM_MISMATCH. The client and server cannot
+                // communicate, because they can't agree on a common algorithm.
+                if (ex.NativeErrorCode == -2146893007)
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+                throw new Ice.SyscallException(ex);
+            }
+#endif
+            catch (Exception ex)
             {
                 throw new Ice.SyscallException(ex);
             }
