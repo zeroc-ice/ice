@@ -441,7 +441,17 @@ namespace IceSSL
                 e.reason = ex.Message;
                 throw e;
             }
-            catch(Exception ex)
+#if NET45
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                if (ex.NativeErrorCode == -2146893007)
+                {
+                    throw new Ice.ConnectionLostException(ex);
+                }
+                throw new Ice.SyscallException(ex);
+            }
+#endif
+            catch (Exception ex)
             {
                 throw new Ice.SyscallException(ex);
             }
