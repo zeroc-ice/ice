@@ -304,13 +304,13 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp3.1;BaseIntermediateOutputPath=obj\netcoreapp3.1\"
                  Targets="Restore;Publish"
-                 Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+                 Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '17.0'"/>
 
         <!-- Build iceboxnet with Net6 target framework -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net6.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Restore;Publish"
-                 Condition="'$(Net6Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+                 Condition="'$(Net6Targets)' == 'true' and '$(VisualStudioVersion)' == '17.0'"/>
 
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net;NetStandardTargets=$(NetStandardTargets);
