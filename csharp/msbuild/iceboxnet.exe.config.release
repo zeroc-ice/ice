@@ -9,7 +9,7 @@
       </dependentAssembly>
       <dependentAssembly>
         <assemblyIdentity name="IceBox"  culture="neutral" publicKeyToken="@PublicKeyToken@"/>
-        <codeBase version="3.7.6.0" href="@AssemblyDir@\IceBox.dll"/>
+        <codeBase version="3.7.7.0" href="@AssemblyDir@\IceBox.dll"/>
         <bindingRedirect oldVersion="3.7.0.0-3.7.6.0" newVersion="3.7.7.0" />
       </dependentAssembly>
       <!--
@@ -19,7 +19,7 @@
       -->
       <dependentAssembly>
         <assemblyIdentity name="IceSSL"/>
-        <codeBase version="3.7.6.0" href="@AssemblyDir@\IceSSL.dll"/>
+        <codeBase version="3.7.7.0" href="@AssemblyDir@\IceSSL.dll"/>
         <bindingRedirect oldVersion="3.7.0.0-3.7.6.0" newVersion="3.7.7.0" />
       </dependentAssembly>
     </assemblyBinding>
