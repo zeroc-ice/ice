@@ -15,7 +15,11 @@ using namespace IceInternal;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
 
+#ifdef ICE_CPP11_COMPILER
+struct FileInfoPathLess
+#else
 struct FileInfoPathLess: public binary_function<const LargeFileInfo&, const LargeFileInfo&, bool>
+#endif
 {
     bool
     operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
@@ -24,7 +28,11 @@ struct FileInfoPathLess: public binary_function<const LargeFileInfo&, const Larg
     }
 };
 
+#ifdef ICE_CPP11_COMPILER
+struct IFileInfoPathEqual
+#else
 struct IFileInfoPathEqual: public binary_function<const LargeFileInfo&, const LargeFileInfo&, bool>
+#endif
 {
     bool
     operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
@@ -46,7 +54,11 @@ struct IFileInfoPathEqual: public binary_function<const LargeFileInfo&, const La
     }
 };
 
+#ifdef ICE_CPP11_COMPILER
+struct IFileInfoPathLess
+#else
 struct IFileInfoPathLess: public binary_function<const LargeFileInfo&, const LargeFileInfo&, bool>
+#endif
 {
     bool
     operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)

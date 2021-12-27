@@ -19,7 +19,11 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
+#ifdef ICE_CPP11_COMPILER
+struct ToInternalServerDescriptor
+#else
 struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPtr&, void>
+#endif
 {
     ToInternalServerDescriptor(const InternalServerDescriptorPtr& descriptor, const InternalNodeInfoPtr& node,
                                int iceVersion) :

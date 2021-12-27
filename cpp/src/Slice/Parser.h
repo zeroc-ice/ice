@@ -181,7 +181,11 @@ struct OptionalDef
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
 
+#ifdef ICE_CPP11_COMPILER
+class CICompare
+#else
 class CICompare : public std::binary_function<std::string, std::string, bool>
+#endif
 {
 public:
 
@@ -197,7 +201,11 @@ bool cICompare(const std::string&, const std::string&);
 // most-derived to least-derived order.
 // ----------------------------------------------------------------------
 
+#ifdef ICE_CPP11_COMPILER
+class DerivedToBaseCompare
+#else
 class DerivedToBaseCompare : public std::binary_function<std::string, std::string, bool>
+#endif
 {
 public:
 

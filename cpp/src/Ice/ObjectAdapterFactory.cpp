@@ -46,8 +46,8 @@ IceInternal::ObjectAdapterFactory::shutdown()
     // Deactivate outside the thread synchronization, to avoid
     // deadlocks.
     //
-#ifdef ICE_CPP11_MAPPING
-    for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->deactivate(); });
+#ifdef ICE_CPP11_COMPILER
+    for_each(adapters.begin(), adapters.end(), [](const auto& adapter) { adapter->deactivate(); });
 #else
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::deactivate));
 #endif
@@ -75,8 +75,8 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     //
     // Now we wait for deactivation of each object adapter.
     //
-#ifdef ICE_CPP11_MAPPING
-    for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->waitForDeactivate(); });
+#ifdef ICE_CPP11_COMPILER
+    for_each(adapters.begin(), adapters.end(), [](const auto& adapter) { adapter->waitForDeactivate(); });
 #else
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::waitForDeactivate));
 #endif
@@ -108,8 +108,8 @@ IceInternal::ObjectAdapterFactory::destroy()
     //
     // Now we destroy each object adapter.
     //
-#ifdef ICE_CPP11_MAPPING
-    for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->destroy(); });
+#ifdef ICE_CPP11_COMPILER
+    for_each(adapters.begin(), adapters.end(), [](const auto& adapter) { adapter->destroy(); });
 #else
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::destroy));
 #endif
@@ -128,7 +128,7 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         adapters = _adapters;
     }
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
     for_each(adapters.begin(), adapters.end(),
         [fn](const ObjectAdapterIPtr& adapter)
         {

@@ -17,7 +17,11 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
+#ifdef ICE_CPP11_COMPILER
+struct ObjectEntryCI
+#else
 struct ObjectEntryCI : binary_function<ObjectEntryPtr&, ObjectEntryPtr&, bool>
+#endif
 {
 
     bool
@@ -27,7 +31,11 @@ struct ObjectEntryCI : binary_function<ObjectEntryPtr&, ObjectEntryPtr&, bool>
     }
 };
 
+#ifdef ICE_CPP11_COMPILER
+struct ObjectLoadCI
+#else
 struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
+#endif
 {
     bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
     {

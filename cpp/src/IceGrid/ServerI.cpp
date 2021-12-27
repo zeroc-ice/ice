@@ -367,7 +367,11 @@ private:
 };
 typedef IceUtil::Handle<ResetPropertiesCB> ResetPropertiesCBPtr;
 
+#ifdef ICE_CPP11_COMPILER
+struct EnvironmentEval
+#else
 struct EnvironmentEval : std::unary_function<string, string>
+#endif
 {
 
     string

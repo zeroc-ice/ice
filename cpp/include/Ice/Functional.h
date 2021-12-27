@@ -5,7 +5,9 @@
 #ifndef ICE_FUNCTIONAL_H
 #define ICE_FUNCTIONAL_H
 
-#ifndef ICE_CPP11_MAPPING
+#include <IceUtil/Config.h>
+
+#ifndef ICE_CPP11_COMPILER
 
 #include <IceUtil/Functional.h>
 #include <Ice/Handle.h>

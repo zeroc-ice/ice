@@ -20,7 +20,11 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
+#ifdef ICE_CPP11_COMPILER
+struct ReplicaLoadComp
+#else
 struct ReplicaLoadComp : binary_function<ServerAdapterEntryPtr&, ServerAdapterEntryPtr&, bool>
+#endif
 {
     bool operator()(const pair<float, ServerAdapterEntryPtr>& lhs, const pair<float, ServerAdapterEntryPtr>& rhs)
     {
@@ -28,7 +32,11 @@ struct ReplicaLoadComp : binary_function<ServerAdapterEntryPtr&, ServerAdapterEn
     }
 };
 
+#ifdef ICE_CPP11_COMPILER
+struct ReplicaPriorityComp
+#else
 struct ReplicaPriorityComp : binary_function<ServerAdapterEntryPtr&, ServerAdapterEntryPtr&, bool>
+#endif
 {
     bool operator()(const ServerAdapterEntryPtr& lhs, const ServerAdapterEntryPtr& rhs)
     {
@@ -36,8 +44,12 @@ struct ReplicaPriorityComp : binary_function<ServerAdapterEntryPtr&, ServerAdapt
     }
 };
 
+#ifdef ICE_CPP11_COMPILER
+struct TransformToReplicaLoad
+#else
 struct TransformToReplicaLoad :
         public unary_function<const ServerAdapterEntryPtr&, pair<float, ServerAdapterEntryPtr> >
+#endif
 {
 public:
 
@@ -52,7 +64,11 @@ public:
     LoadSample _loadSample;
 };
 
+#ifdef ICE_CPP11_COMPILER
+struct TransformToReplica
+#else
 struct TransformToReplica : public unary_function<const pair<string, ServerAdapterEntryPtr>&, ServerAdapterEntryPtr>
+#endif
 {
     ServerAdapterEntryPtr
     operator()(const pair<float, ServerAdapterEntryPtr>& value)
