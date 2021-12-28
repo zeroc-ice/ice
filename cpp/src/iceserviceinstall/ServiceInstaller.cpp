@@ -706,8 +706,14 @@ IceServiceInstaller::addLog(const string& log) const
     // We don't support to use a string converter with this tool, so don't need to
     // use string converters in calls to stringToWstring.
     //
-    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, stringToWstring(createLog(log)).c_str(), 0, L"REG_SZ",
-                               REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &key, &disposition);
+    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
+                               stringToWstring(createLog(log)).c_str(),
+                               0,
+                               const_cast<wchar_t*>(L"REG_SZ"),
+                               REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS,
+                               0,
+                               &key,
+                               &disposition);
 
     if(res != ERROR_SUCCESS)
     {
@@ -748,8 +754,15 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     //
     HKEY key = 0;
     DWORD disposition = 0;
-    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, stringToWstring(createSource(source, log)).c_str(),
-                               0, L"REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &key, &disposition);
+    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
+                               stringToWstring(createSource(source, log)).c_str(),
+                               0,
+                               const_cast<wchar_t*>(L"REG_SZ"),
+                               REG_OPTION_NON_VOLATILE,
+                               KEY_ALL_ACCESS,
+                               0,
+                               &key,
+                               &disposition);
     if(res != ERROR_SUCCESS)
     {
         throw runtime_error("Could not create Event Log source in registry: " + IceUtilInternal::errorToString(res));

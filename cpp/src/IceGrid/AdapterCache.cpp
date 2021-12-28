@@ -20,7 +20,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-struct ReplicaLoadComp : binary_function<ServerAdapterEntryPtr&, ServerAdapterEntryPtr&, bool>
+struct ReplicaLoadComp
 {
     bool operator()(const pair<float, ServerAdapterEntryPtr>& lhs, const pair<float, ServerAdapterEntryPtr>& rhs)
     {
@@ -28,7 +28,7 @@ struct ReplicaLoadComp : binary_function<ServerAdapterEntryPtr&, ServerAdapterEn
     }
 };
 
-struct ReplicaPriorityComp : binary_function<ServerAdapterEntryPtr&, ServerAdapterEntryPtr&, bool>
+struct ReplicaPriorityComp
 {
     bool operator()(const ServerAdapterEntryPtr& lhs, const ServerAdapterEntryPtr& rhs)
     {
@@ -36,8 +36,7 @@ struct ReplicaPriorityComp : binary_function<ServerAdapterEntryPtr&, ServerAdapt
     }
 };
 
-struct TransformToReplicaLoad :
-        public unary_function<const ServerAdapterEntryPtr&, pair<float, ServerAdapterEntryPtr> >
+struct TransformToReplicaLoad
 {
 public:
 
@@ -52,7 +51,7 @@ public:
     LoadSample _loadSample;
 };
 
-struct TransformToReplica : public unary_function<const pair<string, ServerAdapterEntryPtr>&, ServerAdapterEntryPtr>
+struct TransformToReplica
 {
     ServerAdapterEntryPtr
     operator()(const pair<float, ServerAdapterEntryPtr>& value)

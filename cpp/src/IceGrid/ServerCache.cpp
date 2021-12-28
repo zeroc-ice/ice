@@ -21,7 +21,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-    struct AddCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
+    struct AddCommunicator
     {
         AddCommunicator(ServerCache& serverCache, const ServerEntryPtr& entry, const string& application) :
             _serverCache(serverCache), _entry(entry), _application(application)
@@ -45,7 +45,7 @@ namespace IceGrid
         const string _application;
     };
 
-    struct RemoveCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
+    struct RemoveCommunicator
     {
         RemoveCommunicator(ServerCache& serverCache, const ServerEntryPtr& entry) :
             _serverCache(serverCache), _entry(entry)

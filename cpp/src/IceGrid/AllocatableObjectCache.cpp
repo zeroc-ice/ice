@@ -16,7 +16,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-struct AllocatableObjectEntryCI : binary_function<AllocatableObjectEntryPtr&, AllocatableObjectEntryPtr&, bool>
+struct AllocatableObjectEntryCI
 {
 
     bool
