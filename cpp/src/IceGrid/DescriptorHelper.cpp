@@ -23,11 +23,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-#ifdef ICE_CPP11_COMPILER
 struct GetReplicaGroupId
-#else
-struct GetReplicaGroupId : unary_function<const ReplicaGroupDescriptor&, const string&>
-#endif
 {
     const string&
     operator()(const ReplicaGroupDescriptor& desc)
@@ -36,11 +32,7 @@ struct GetReplicaGroupId : unary_function<const ReplicaGroupDescriptor&, const s
     }
 };
 
-#ifdef ICE_CPP11_COMPILER
 struct GetAdapterId
-#else
-struct GetAdapterId : unary_function<const AdapterDescriptor&, const string&>
-#endif
 {
     const string&
     operator()(const AdapterDescriptor& desc)
@@ -49,11 +41,7 @@ struct GetAdapterId : unary_function<const AdapterDescriptor&, const string&>
     }
 };
 
-#ifdef ICE_CPP11_COMPILER
 struct GetObjectId
-#else
-struct GetObjectId : unary_function<const ObjectDescriptor&, const Ice::Identity&>
-#endif
 {
     const Ice::Identity&
     operator()(const ObjectDescriptor& desc)
@@ -88,11 +76,7 @@ isSeqEqual(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq = equal_
     return true;
 }
 
-#ifdef  ICE_CPP11_COMPILER
 struct TemplateDescriptorEqual
-#else
-struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, TemplateDescriptor&, bool>
-#endif
 {
     bool
     operator()(const TemplateDescriptor& lhs, const TemplateDescriptor& rhs)
@@ -136,11 +120,7 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
     }
 };
 
-#ifdef ICE_CPP11_COMPILER
 struct ObjectDescriptorEq
-#else
-struct ObjectDescriptorEq : std::binary_function<const ObjectDescriptor&, const ObjectDescriptor&, bool>
-#endif
 {
     bool
     operator()(const ObjectDescriptor& lhs, const ObjectDescriptor& rhs)
@@ -161,11 +141,7 @@ struct ObjectDescriptorEq : std::binary_function<const ObjectDescriptor&, const 
     }
 };
 
-#ifdef ICE_CPP11_COMPILER
 struct AdapterEq
-#else
-struct AdapterEq : std::binary_function<const AdapterDescriptor&, const AdapterDescriptor&, bool>
-#endif
 {
     bool
     operator()(const AdapterDescriptor& lhs, const AdapterDescriptor& rhs)
@@ -210,11 +186,7 @@ struct AdapterEq : std::binary_function<const AdapterDescriptor&, const AdapterD
     }
 };
 
-#ifdef ICE_CPP11_COMPILER
 struct ReplicaGroupEq
-#else
-struct ReplicaGroupEq : std::binary_function<const ReplicaGroupDescriptor&, const ReplicaGroupDescriptor&, bool>
-#endif
 {
     bool
     operator()(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDescriptor& rhs)

@@ -43,11 +43,7 @@ const string internalObjectsDbName = "internal-objects";
 const string internalObjectsByTypeDbName = "internal-objectsByType";
 const string serialsDbName = "serials";
 
-#ifdef ICE_CPP11_COMPILER
 struct ObjectLoadCI
-#else
-struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
-#endif
 {
     bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
     {

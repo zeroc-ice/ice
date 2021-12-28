@@ -3168,11 +3168,7 @@ ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& r
  * compares less than the identity in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
-#ifdef ICE_CPP11_COMPILER
 struct ProxyIdentityLess
-#else
-struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
@@ -3185,11 +3181,7 @@ struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
  * compares equal to the identity in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
-#ifdef ICE_CPP11_COMPILER
 struct ProxyIdentityEqual
-#else
-struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
@@ -3202,11 +3194,7 @@ struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
  * and facet in lhs compare less than the identity and facet in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
-#ifdef ICE_CPP11_COMPILER
 struct ProxyIdentityAndFacetLess
-#else
-struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
@@ -3219,11 +3207,7 @@ struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrx&, Object
  * and facet in lhs compare equal to the identity and facet in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
-#ifdef ICE_CPP11_COMPILER
 struct ProxyIdentityAndFacetEqual
-#else
-struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
