@@ -7,7 +7,7 @@
 
 #include <IceUtil/Config.h>
 
-#ifndef ICE_CPP11_COMPILER
+#if !defined(ICE_CPP11_MAPPING) && (ICE_CPLUSPLUS < 201703L)
 
 #include <IceUtil/Functional.h>
 #include <Ice/Handle.h>

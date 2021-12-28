@@ -16,11 +16,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-#ifdef ICE_CPP11_COMPILER
 struct AllocatableObjectEntryCI
-#else
-struct AllocatableObjectEntryCI : binary_function<AllocatableObjectEntryPtr&, AllocatableObjectEntryPtr&, bool>
-#endif
 {
 
     bool
