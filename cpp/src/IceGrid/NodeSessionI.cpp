@@ -373,6 +373,7 @@ NodeSessionI::destroyImpl(bool shutdown)
 #else
     for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::unsync));
 #endif
+
     //
     // If the registry isn't being shutdown we remove the node
     // internal proxy from the database.
