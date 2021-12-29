@@ -134,7 +134,7 @@ IceInternal::LocatorManager::destroy()
     IceUtil::Mutex::Lock sync(*this);
 
 #ifdef ICE_CPP11_COMPILER
-    for_each(_table.begin(), _table.end(), [](const auto& it){ it.second->destroy(); });
+    for_each(_table.begin(), _table.end(), [](pair<Ice::LocatorPrxPtr, LocatorInfoPtr> it){ it.second->destroy(); });
 #else
     for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
 #endif

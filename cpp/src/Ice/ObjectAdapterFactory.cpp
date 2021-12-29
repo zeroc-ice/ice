@@ -47,7 +47,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
     // deadlocks.
     //
 #ifdef ICE_CPP11_COMPILER
-    for_each(adapters.begin(), adapters.end(), [](const auto& adapter) { adapter->deactivate(); });
+    for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->deactivate(); });
 #else
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::deactivate));
 #endif
@@ -76,7 +76,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     // Now we wait for deactivation of each object adapter.
     //
 #ifdef ICE_CPP11_COMPILER
-    for_each(adapters.begin(), adapters.end(), [](const auto& adapter) { adapter->waitForDeactivate(); });
+    for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->waitForDeactivate(); });
 #else
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::waitForDeactivate));
 #endif
@@ -109,7 +109,7 @@ IceInternal::ObjectAdapterFactory::destroy()
     // Now we destroy each object adapter.
     //
 #ifdef ICE_CPP11_COMPILER
-    for_each(adapters.begin(), adapters.end(), [](const auto& adapter) { adapter->destroy(); });
+    for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->destroy(); });
 #else
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::destroy));
 #endif

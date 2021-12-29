@@ -434,7 +434,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, Ice::Long 
         }
 
 #ifdef ICE_CPP11_COMPILER
-        for_each(entries.begin(), entries.end(), [](const auto& it) {it->sync(); });
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) {it->sync(); });
 #else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 #endif
@@ -618,7 +618,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
         startUpdating(info.descriptor.name, info.uuid, info.revision);
 
 #ifdef ICE_CPP11_COMPILER
-        for_each(entries.begin(), entries.end(), [](const auto& it) { it->sync(); });
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
 #else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 #endif
@@ -676,7 +676,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
                 txn.commit();
 
 #ifdef ICE_CPP11_COMPILER
-                for_each(entries.begin(), entries.end(), [](const auto& it) { it->sync(); });
+                for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
 #else
                 for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 #endif
@@ -694,7 +694,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
 
             _applicationObserverTopic->waitForSyncedSubscribers(serial);
 #ifdef ICE_CPP11_COMPILER
-            for_each(entries.begin(), entries.end(), [](const auto& it) { it->waitForSyncNoThrow(); });
+            for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->waitForSyncNoThrow(); });
 #else
             for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitForSyncNoThrow));
 #endif
@@ -886,7 +886,7 @@ Database::removeApplication(const string& name, AdminSessionI* session, Ice::Lon
 
         startUpdating(name, appInfo.uuid, appInfo.revision);
 #ifdef ICE_CPP11_COMPILER
-        for_each(entries.begin(), entries.end(), [](const auto& it) { it->sync(); });
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
 #else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 #endif
@@ -2571,7 +2571,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
         reload(previousAppHelper, appHelper, entries, oldApp.uuid, oldApp.revision + 1, noRestart);
 
 #ifdef ICE_CPP11_COMPILER
-        for_each(entries.begin(), entries.end(), [](const auto& it) { it->sync(); });
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
 #else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 #endif
@@ -2661,7 +2661,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                 p->unmarkUpdated();
 
 #ifdef ICE_CPP11_COMPILER
-                for_each(entries.begin(), entries.end(), [](const auto& it) { it->sync(); });
+                for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
 #else
                 for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 #endif
@@ -2669,7 +2669,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
             }
             _applicationObserverTopic->waitForSyncedSubscribers(serial); // Wait for subscriber to be updated.
 #ifdef ICE_CPP11_COMPILER
-            for_each(entries.begin(), entries.end(), [](const auto& it) { it->waitForSyncNoThrow(); });
+            for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->waitForSyncNoThrow(); });
 #else
             for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitForSyncNoThrow));
 #endif

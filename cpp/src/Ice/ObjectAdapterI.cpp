@@ -100,7 +100,7 @@ Ice::ObjectAdapterI::activate()
         {
 #ifdef ICE_CPP11_COMPILER
             for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-                [](const auto& factory)
+                [](const IncomingConnectionFactoryPtr& factory)
                 {
                     factory->activate();
                 });
@@ -161,7 +161,7 @@ Ice::ObjectAdapterI::activate()
 
 #ifdef ICE_CPP11_COMPILER
             for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-                [](const auto& factory)
+                [](const IncomingConnectionFactoryPtr& factory)
                 {
                     factory->activate();
                 });
@@ -184,7 +184,7 @@ Ice::ObjectAdapterI::hold()
 
 #ifdef ICE_CPP11_COMPILER
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-        [](const auto& factory)
+        [](const IncomingConnectionFactoryPtr& factory)
         {
             factory->hold();
         });
@@ -208,7 +208,7 @@ Ice::ObjectAdapterI::waitForHold()
 
 #ifdef ICE_CPP11_COMPILER
     for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-        [](const auto& factory)
+        [](const IncomingConnectionFactoryPtr& factory)
         {
             factory->waitUntilHolding();
         });
@@ -271,7 +271,7 @@ Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
 
 #ifdef ICE_CPP11_COMPILER
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-        [](const auto& factory)
+        [](const IncomingConnectionFactoryPtr& factory)
         {
             factory->destroy();
         });
@@ -319,7 +319,7 @@ Ice::ObjectAdapterI::waitForDeactivate() ICE_NOEXCEPT
     //
 #ifdef ICE_CPP11_COMPILER
     for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-        [](const auto& factory)
+        [](const IncomingConnectionFactoryPtr& factory)
         {
             factory->waitUntilFinished();
         });
@@ -640,7 +640,7 @@ Ice::ObjectAdapterI::getEndpoints() const ICE_NOEXCEPT
     transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
             back_inserter(endpoints),
 #ifdef ICE_CPP11_COMPILER
-            [](const auto& factory)
+            [](const IncomingConnectionFactoryPtr& factory)
             {
                 return factory->endpoint();
             });
@@ -833,7 +833,7 @@ Ice::ObjectAdapterI::updateConnectionObservers()
     }
 #ifdef ICE_CPP11_COMPILER
     for_each(f.begin(), f.end(),
-        [](const auto& factory)
+        [](const IncomingConnectionFactoryPtr& factory)
         {
             factory->updateConnectionObservers();
         });

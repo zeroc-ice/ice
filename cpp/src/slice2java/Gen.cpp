@@ -1146,7 +1146,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     ClassList allBases = p->allBases();
     StringList ids;
 #ifdef ICE_CPP11_COMPILER
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), [](const auto& it) { return it->scoped(); });
+    transform(allBases.begin(), allBases.end(), back_inserter(ids),
+              [](const ContainedPtr& it)
+              {
+                  return it->scoped();
+              });
 #else
     transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
 #endif
@@ -1393,7 +1397,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     {
         StringList allOpNames;
 #ifdef ICE_CPP11_COMPILER
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto& it) { return it->name(); });
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
+                  [](const ContainedPtr& it)
+                  {
+                      return it->name();
+                  });
 #else
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun(&Contained::name));
 #endif

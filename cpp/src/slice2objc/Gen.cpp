@@ -213,7 +213,11 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     StringList ids;
 
 #ifdef ICE_CPP11_COMPILER
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), [](const auto& it) { return it->scoped(); });
+    transform(allBases.begin(), allBases.end(), back_inserter(ids),
+              [](const ContainedPtr& it)
+              {
+                  return it->scoped();
+              });
 #else
     transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
 #endif

@@ -1108,7 +1108,7 @@ void
 Slice::Container::destroy()
 {
 #ifdef ICE_CPP11_COMPILER
-    for_each(_contents.begin(), _contents.end(), [](const auto& it) { it->destroy();  });
+    for_each(_contents.begin(), _contents.end(), [](const SyntaxTreeBasePtr& it) { it->destroy();  });
 #else
     for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&SyntaxTreeBase::destroy));
 #endif
