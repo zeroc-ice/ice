@@ -184,7 +184,6 @@ python allTests.py --dotnetcore
 If you want to run the test with .NET 6.0 you must use `--framework` option
 with `net6.0` target framework.
 
-
 For example:
 
 ```
