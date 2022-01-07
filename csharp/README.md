@@ -104,6 +104,7 @@ You can sign the Ice binaries with Authenticode by setting the following
 environment variables before building these assemblies:
  - `SIGN_CERTIFICATE` to your Authenticode certificate
  - `SIGN_PASSWORD` to the certificate password
+ - `SIGN_SHA1` the SHA1 has of the signing certificate
 
 *Authenticode can be generated only from Windows builds.*
 

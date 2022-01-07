@@ -271,6 +271,7 @@ environment variables:
 
  - `SIGN_CERTIFICATE` to your Authenticode certificate
  - `SIGN_PASSWORD` to the certificate password
+ - `SIGN_SHA1` the SHA1 hash of the signing certificate
 
 ### Build Using Visual Studio
 
