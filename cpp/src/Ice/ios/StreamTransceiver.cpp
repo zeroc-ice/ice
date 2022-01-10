@@ -314,10 +314,18 @@ IceObjC::StreamTransceiver::close()
 SocketOperation
 IceObjC::StreamTransceiver::write(Buffer& buf)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    if(_error)
+    // Don't hold the lock while calling on the CFStream API to avoid deadlocks in case the CFStream API calls
+    // the stream notification callbacks with an internal lock held.
     {
-        checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
+        IceUtil::Mutex::Lock sync(_mutex);
+        if(_error)
+        {
+            checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
+        }
+        else if (_writeStreamRegistered)
+        {
+            return SocketOperationWrite;
+        }
     }
 
     size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
@@ -355,10 +363,18 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 SocketOperation
 IceObjC::StreamTransceiver::read(Buffer& buf)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    if(_error)
+    // Don't hold the lock while calling on the CFStream API to avoid deadlocks in case the CFStream API calls
+    // the stream notification callbacks with an internal lock held.
     {
-        checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
+        IceUtil::Mutex::Lock sync(_mutex);
+        if (_error)
+        {
+            checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
+        }
+        else if (_readStreamRegistered)
+        {
+            return SocketOperationRead;
+        }
     }
 
     size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
@@ -493,23 +509,21 @@ void
 IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFReadStreamRef readStream,
                                              const char* file, int line)
 {
-    if((writeStream && (CFWriteStreamGetStatus(writeStream) == kCFStreamStatusAtEnd)) ||
-       (readStream && (CFReadStreamGetStatus(readStream) == kCFStreamStatusAtEnd)))
+    assert(writeStream || readStream);
+
+    CFStreamStatus status = writeStream ? CFWriteStreamGetStatus(writeStream) : CFReadStreamGetStatus(readStream);
+
+    if (status == kCFStreamStatusAtEnd || status == kCFStreamStatusClosed)
     {
         throw ConnectionLostException(file, line);
     }
 
-    UniqueRef<CFErrorRef> err;
-    if(writeStream && CFWriteStreamGetStatus(writeStream) == kCFStreamStatusError)
-    {
-        err.reset(CFWriteStreamCopyError(writeStream));
-    }
-    else if(readStream && CFReadStreamGetStatus(readStream) == kCFStreamStatusError)
-    {
-        err.reset(CFReadStreamCopyError(readStream));
-    }
+    assert(status == kCFStreamStatusError);
 
+    UniqueRef<CFErrorRef> err;
+    err.reset(writeStream ? CFWriteStreamCopyError(writeStream) : CFReadStreamCopyError(readStream));
     assert(err.get());
+
     CFStringRef domain = CFErrorGetDomain(err.get());
     if(CFStringCompare(domain, kCFErrorDomainPOSIX, 0) == kCFCompareEqualTo)
     {
