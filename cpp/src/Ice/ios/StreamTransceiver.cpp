@@ -314,7 +314,7 @@ IceObjC::StreamTransceiver::close()
 SocketOperation
 IceObjC::StreamTransceiver::write(Buffer& buf)
 {
-    // Don't hold the lock which calling on the CFStream API to avoid deadlocks in case the CFStream API calls
+    // Don't hold the lock while calling on the CFStream API to avoid deadlocks in case the CFStream API calls
     // the stream notification callbacks with an internal lock held.
     {
         IceUtil::Mutex::Lock sync(_mutex);
@@ -363,7 +363,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 SocketOperation
 IceObjC::StreamTransceiver::read(Buffer& buf)
 {
-    // Don't hold the lock which calling on the CFStream API to avoid deadlocks in case the CFStream API calls
+    // Don't hold the lock while calling on the CFStream API to avoid deadlocks in case the CFStream API calls
     // the stream notification callbacks with an internal lock held.
     {
         IceUtil::Mutex::Lock sync(_mutex);

@@ -263,7 +263,7 @@ IceObjC::iAPTransceiver::close()
 SocketOperation
 IceObjC::iAPTransceiver::write(Buffer& buf)
 {
-    // Don't hold the lock which calling on the NSStream API to avoid deadlocks in case the NSStream API calls
+    // Don't hold the lock while calling on the NSStream API to avoid deadlocks in case the NSStream API calls
     // the stream notification callbacks with an internal lock held.
     {
         IceUtil::Mutex::Lock sync(_mutex);
@@ -311,7 +311,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
 SocketOperation
 IceObjC::iAPTransceiver::read(Buffer& buf)
 {
-    // Don't hold the lock which calling on the NSStream API to avoid deadlocks in case the NSStream API calls
+    // Don't hold the lock while calling on the NSStream API to avoid deadlocks in case the NSStream API calls
     // the stream notification callbacks with an internal lock held.
     {
         IceUtil::Mutex::Lock sync(_mutex);
