@@ -92,6 +92,10 @@ These are the changes since Ice 3.7.6.
 - Added MSBuild target that copy the Ice DLL and PDB files to the projects output directory.
   The target can be enabled by setting MSbuild property `Ice_CopyDLLs` to `Yes` in the project.
 
+- The iOS transports were updated to ensure potential deadlocks are not
+  possible when using the CFStream/NSStream APIs. Such a deadlock could
+  be reproduced with the iAP transport implementation.
+
 ## Java Changes
 
 - Updated IceGrid GUI to include the registry instance name in the window title
