@@ -376,6 +376,9 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 void
 IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& info, bool out)
 {
+#if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
+#    pragma warning(disable:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
+#endif
     const zend_uchar pass_by_ref = out ? 1 : 0;
     const zend_bool allow_null = 1;
     if(!info->optional && (SequenceInfoPtr::dynamicCast(info->type) || DictionaryInfoPtr::dynamicCast(info->type)))
@@ -398,6 +401,9 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
         };
         arg = ai[0];
     }
+#if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
+#    pragma warning(default:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
+#endif
 }
 
 //
