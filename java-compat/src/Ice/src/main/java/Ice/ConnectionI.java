@@ -1469,6 +1469,21 @@ public final class ConnectionI extends IceInternal.EventHandler
             unscheduleTimeout(IceInternal.SocketOperation.Read | IceInternal.SocketOperation.Write);
         }
 
+        if(_instance.queueRequests())
+        {
+            _instance.getQueueExecutor().executeNoThrow(new Callable<Void>()
+            {
+                @Override
+                public Void call()
+                    throws Exception
+                {
+                    finish(close);
+                    return null;
+                }
+            });
+            return;
+        }
+
         //
         // If there are no callbacks to call, we don't call ioCompleted() since
         // we're not going to call code that will potentially block (this avoids
