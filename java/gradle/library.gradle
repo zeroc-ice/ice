@@ -20,6 +20,7 @@ javadoc {
     doFirst {
         exclude "**/module-info.java"
         options.addBooleanOption('html5', true)
+        options.addStringOption('Xdoclint:none', '-quiet')
     }
     failOnError = true
     options.header = project.ext.displayName
