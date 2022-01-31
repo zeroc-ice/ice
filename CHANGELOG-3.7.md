@@ -81,6 +81,8 @@ These are the changes since Ice 3.7.6.
 
 ## C++ Changes
 
+- Fix binary compatibility regression introduced in 3.7.6.
+
 - Added support for SSL certificate revocation checks.
 
 - Added `getKeyUsage` and `getExtendedKeyUsage` methods to `IceSSL::Certificate` to allow
