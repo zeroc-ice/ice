@@ -315,9 +315,6 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
 
     zval slices;
     array_init(&slices);
-#ifdef HT_ALLOW_COW_VIOLATION
-    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(slices)); // Allow circular references.
-#endif
     AutoDestroy slicesDestroyer(&slices);
 
     addPropertyZval(&sd, STRCAST("slices"), &slices);
@@ -334,7 +331,9 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         {
             throw AbortMarshaling();
         }
-
+#ifdef HT_ALLOW_COW_VIOLATION
+        HT_ALLOW_COW_VIOLATION(Z_ARRVAL(slices));
+#endif
         add_next_index_zval(&slices, &slice); // Steals a reference.
         Z_ADDREF_P(&slice);
 
@@ -1606,9 +1605,6 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
 
     zval zv;
     array_init(&zv);
-#ifdef HT_ALLOW_COW_VIOLATION
-    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(zv)); // Allow circular references.
-#endif
     AutoDestroy destroy(&zv);
 
     Ice::Int sz = is->readSize();
@@ -1627,6 +1623,9 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
         // Add a temporary null value so that the foreach order is the
         // same as the index order.
         //
+#ifdef HT_ALLOW_COW_VIOLATION
+        HT_ALLOW_COW_VIOLATION(Z_ARRVAL(zv));
+#endif
         add_index_null(&zv, i);
         elementType->unmarshal(is, this, comm, &zv, cl, false);
     }
@@ -2934,7 +2933,9 @@ void
 IcePHP::ObjectWriter::ice_preMarshal()
 {
     string name = "ice_premarshal"; // Must be lowercase.
-    if(zend_hash_str_exists(&Z_OBJCE_P(&_object)->function_table, STRCAST(name.c_str()), static_cast<uint>(name.size())))
+    if(zend_hash_str_exists(&Z_OBJCE_P(&_object)->function_table,
+                            STRCAST(name.c_str()),
+                            static_cast<uint32_t>(name.size())))
     {
         if(!invokeMethod(&_object, name))
         {
@@ -3219,6 +3220,12 @@ IcePHP::ReadObjectCallback::~ReadObjectCallback()
 void
 IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 {
+#ifdef HT_ALLOW_COW_VIOLATION
+    if(!ZVAL_IS_NULL(&_target))
+    {
+        HT_ALLOW_COW_VIOLATION(Z_ARRVAL(_target));
+    }
+#endif
     if(p)
     {
         ObjectReaderPtr reader = ObjectReaderPtr::dynamicCast(p);

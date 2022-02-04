@@ -1,0 +1,73 @@
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
+
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+tasks.withType(GenerateMavenPom.class) {
+    destination = file(project.ext.pomName)
+}
+
+ext.mavenRepo = rootProject.hasProperty('mavenRepo')?project.mavenRepo:System.getenv('MAVEN_REPO')?:''
+ext.mavenUser = rootProject.hasProperty('mavenUser')?project.mavenUser:System.getenv('MAVEN_USER')?:''
+ext.mavenPassword = rootProject.hasProperty('mavenPassword')?project.mavenPassword:System.getenv('MAVEN_PASSWORD')?:''
+
+publishing {
+    repositories {
+        maven {
+            url = mavenRepo
+            credentials {
+                username mavenUser
+                password mavenPassword
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.zeroc'
+            artifactId = project.name
+            version = project.version
+
+            from components.java
+            pom {
+                name = project.ext.displayName
+                description = project.ext.description
+                url = 'https://zeroc.com'
+                licenses {
+                    license {
+                        name = 'GNU General Public License, version 2'
+                        url = 'https://www.gnu.org/licenses/gpl-2.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'ZeroC Developers'
+                        email = 'info@zeroc.com'
+                        organization = 'ZeroC, Inc.'
+                        organizationUrl = 'https://zeroc.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com:zeroc-ice/ice.git'
+                    url = 'https://github.com:zeroc-ice/ice'
+                }
+            }
+        }
+    }
+}
+assemble.dependsOn(generatePomFileForMavenPublication)
+
+signing {
+    required {
+        gradle.taskGraph.hasTask("signArchives") ||
+        gradle.taskGraph.hasTask("uploadArchives") ||
+        (project.hasProperty('signing.keyId') &&
+         project.hasProperty('signing.password') &&
+         project.hasProperty('signing.secretKeyRingFile'))
+    }
+    sign configurations.archives
+}
+
+// This task is for compatibility with the old 'maven' plugin that provides an install task
+task install {}

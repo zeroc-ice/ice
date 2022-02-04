@@ -94,10 +94,10 @@ groupId=com.jgoodies, version=2.7.0, artifactId=jgoodies-looks
 Gradle uses [ProGuard][4] to create the standalone JAR file for the IceGrid
 GUI tool.
 
-The Maven package id for the ProGuard package is as follows:
+The Maven package id for the ProGuard gradle plugin is as follows:
 
 ```
-groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.1.1'
+groupId=com.guardsquare, version=7.1.0, artifactId=proguard-gradle
 ```
 
 ### Java Application Bundler
@@ -126,7 +126,7 @@ export ICE_HOME=/usr
 On Windows with an MSI installation:
 ```
 set ICE_BIN_DIST=cpp
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.6
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.7
 ```
 
 If you are using Ice for C++ from a source build on Windows, you must set
@@ -168,17 +168,17 @@ gradlew install
 The following JAR files will be installed to `<prefix>/lib`.
 
 ```
-glacier2-3.7.6.jar
-ice-3.7.6.jar
-icebox-3.7.6.jar
-icebt-3.7.6.jar
-icediscovery-3.7.6.jar
-icegrid-3.7.6.jar
+glacier2-3.7.7.jar
+ice-3.7.7.jar
+icebox-3.7.7.jar
+icebt-3.7.7.jar
+icediscovery-3.7.7.jar
+icegrid-3.7.7.jar
 icegridgui.jar
-icelocatordiscovery-3.7.6.jar
-icepatch2-3.7.6.jar
-icessl-3.7.6.jar
-icestorm-3.7.6.jar
+icelocatordiscovery-3.7.7.jar
+icepatch2-3.7.7.jar
+icessl-3.7.7.jar
+icestorm-3.7.7.jar
 ```
 
 POM files are also installed for ease of deployment to a Maven-based
@@ -191,13 +191,13 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 ```
-export ICE_HOME=/opt/Ice-3.7.6 (For local build)
+export ICE_HOME=/opt/Ice-3.7.7 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.6
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.7
 ```
 
 Python is required to run the test suite. To run the tests, open a command
@@ -305,7 +305,7 @@ can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
 Finder.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-6
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-7
 [3]: https://gradle.org
 [4]: http://proguard.sourceforge.net
 [5]: https://commons.apache.org/proper/commons-compress/

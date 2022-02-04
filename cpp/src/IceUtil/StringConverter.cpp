@@ -2,6 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#if defined(_MSC_VER) && (_MSVC_LANG >= 201703L)
+    // TODO codecvt was deprecated in C++17 and cause build failures with VC++ compiler
+    // we should replace this code with MultiByteToWideChar() and WideCharToMultiByte()
+#   define  _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#endif
+
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>

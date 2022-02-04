@@ -24,12 +24,12 @@ int main(int argc, char* argv[])
     }
     catch(const std::exception& ex)
     {
-        consoleErr << argv[0] << ": error:" << ex.what() << endl;
+        consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        consoleErr << argv[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

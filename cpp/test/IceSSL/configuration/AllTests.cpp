@@ -4093,6 +4093,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         // First test with non revoked certificate that include CRL distribution point
         initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
+        // CLR file used by OpenSSL, OpenSSL doesn't check the CRL distribution points.
         initData.properties->setProperty("IceSSL.CertificateRevocationListFiles", "ca.crl.pem");
         initData.properties->setProperty("IceSSL.RevocationCheck", "1");
         initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
@@ -4114,6 +4115,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         // Repeat with RevoactionCheck=2 to check whole chain
         initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
+        // CLR file used by OpenSSL, OpenSSL doesn't check the CRL distribution points.
         initData.properties->setProperty("IceSSL.CertificateRevocationListFiles", "ca.crl.pem");
         initData.properties->setProperty("IceSSL.RevocationCheck", "2");
         initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
@@ -4136,6 +4138,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         // Repeat with revoked certificate
         initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
         initData.properties->setProperty("IceSSL.RevocationCheck", "0");
+        // CLR file used by OpenSSL, OpenSSL doesn't check the CRL distribution points.
         initData.properties->setProperty("IceSSL.CertificateRevocationListFiles", "ca.crl.pem");
         comm = initialize(initData);
         fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
@@ -4182,6 +4185,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
         initData.properties->setProperty("IceSSL.RevocationCheck", "2");
         initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
+        // CLR file used by OpenSSL, OpenSSL doesn't check the CRL distribution points.
         initData.properties->setProperty("IceSSL.CertificateRevocationListFiles", "ca.crl.pem");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
@@ -4204,6 +4208,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         initData.properties = createClientProps(defaultProps, p12, "", "cacert3");
         initData.properties->setProperty("IceSSL.RevocationCheck", "1");
         initData.properties->setProperty("IceSSL.RevocationCheckCacheOnly", "0");
+        // CLR file used by OpenSSL, OpenSSL doesn't check the CRL distribution points.
         initData.properties->setProperty("IceSSL.CertificateRevocationListFiles", "ca.crl.pem");
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 

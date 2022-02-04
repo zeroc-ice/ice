@@ -368,7 +368,11 @@ NodeSessionI::destroyImpl(bool shutdown)
     }
 
     ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
+#ifdef ICE_CPP11_COMPILER
+    for_each(servers.begin(), servers.end(), [](const ServerEntryPtr& it) {it->unsync(); });
+#else
     for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::unsync));
+#endif
 
     //
     // If the registry isn't being shutdown we remove the node

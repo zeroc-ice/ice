@@ -23,7 +23,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-struct GetReplicaGroupId : unary_function<const ReplicaGroupDescriptor&, const string&>
+struct GetReplicaGroupId
 {
     const string&
     operator()(const ReplicaGroupDescriptor& desc)
@@ -32,7 +32,7 @@ struct GetReplicaGroupId : unary_function<const ReplicaGroupDescriptor&, const s
     }
 };
 
-struct GetAdapterId : unary_function<const AdapterDescriptor&, const string&>
+struct GetAdapterId
 {
     const string&
     operator()(const AdapterDescriptor& desc)
@@ -41,7 +41,7 @@ struct GetAdapterId : unary_function<const AdapterDescriptor&, const string&>
     }
 };
 
-struct GetObjectId : unary_function<const ObjectDescriptor&, const Ice::Identity&>
+struct GetObjectId
 {
     const Ice::Identity&
     operator()(const ObjectDescriptor& desc)
@@ -76,7 +76,7 @@ isSeqEqual(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq = equal_
     return true;
 }
 
-struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, TemplateDescriptor&, bool>
+struct TemplateDescriptorEqual
 {
     bool
     operator()(const TemplateDescriptor& lhs, const TemplateDescriptor& rhs)
@@ -120,7 +120,7 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
     }
 };
 
-struct ObjectDescriptorEq : std::binary_function<const ObjectDescriptor&, const ObjectDescriptor&, bool>
+struct ObjectDescriptorEq
 {
     bool
     operator()(const ObjectDescriptor& lhs, const ObjectDescriptor& rhs)
@@ -141,7 +141,7 @@ struct ObjectDescriptorEq : std::binary_function<const ObjectDescriptor&, const 
     }
 };
 
-struct AdapterEq : std::binary_function<const AdapterDescriptor&, const AdapterDescriptor&, bool>
+struct AdapterEq
 {
     bool
     operator()(const AdapterDescriptor& lhs, const AdapterDescriptor& rhs)
@@ -186,7 +186,7 @@ struct AdapterEq : std::binary_function<const AdapterDescriptor&, const AdapterD
     }
 };
 
-struct ReplicaGroupEq : std::binary_function<const ReplicaGroupDescriptor&, const ReplicaGroupDescriptor&, bool>
+struct ReplicaGroupEq
 {
     bool
     operator()(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDescriptor& rhs)

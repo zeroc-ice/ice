@@ -263,10 +263,18 @@ IceObjC::iAPTransceiver::close()
 SocketOperation
 IceObjC::iAPTransceiver::write(Buffer& buf)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    if(_error)
+    // Don't hold the lock while calling on the NSStream API to avoid deadlocks in case the NSStream API calls
+    // the stream notification callbacks with an internal lock held.
     {
-        checkErrorStatus(_writeStream, __FILE__, __LINE__);
+        IceUtil::Mutex::Lock sync(_mutex);
+        if(_error)
+        {
+            checkErrorStatus(_writeStream, __FILE__, __LINE__);
+        }
+        else if(_writeStreamRegistered)
+        {
+            return SocketOperationWrite;
+        }
     }
 
     size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
@@ -303,10 +311,18 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
 SocketOperation
 IceObjC::iAPTransceiver::read(Buffer& buf)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-    if(_error)
+    // Don't hold the lock while calling on the NSStream API to avoid deadlocks in case the NSStream API calls
+    // the stream notification callbacks with an internal lock held.
     {
-        checkErrorStatus(_readStream, __FILE__, __LINE__);
+        IceUtil::Mutex::Lock sync(_mutex);
+        if(_error)
+        {
+            checkErrorStatus(_readStream, __FILE__, __LINE__);
+        }
+        else if(_readStreamRegistered)
+        {
+            return SocketOperationRead;
+        }
     }
 
     size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
@@ -418,14 +434,15 @@ void
 IceObjC::iAPTransceiver::checkErrorStatus(NSStream* stream, const char* file, int line)
 {
     NSStreamStatus status = [stream streamStatus];
-    if(status == NSStreamStatusAtEnd)
+    if(status == NSStreamStatusAtEnd || status == NSStreamStatusClosed)
     {
         throw ConnectionLostException(file, line);
     }
 
     assert(status == NSStreamStatusError);
-
     NSError* err = [stream streamError];
+    assert(err != nil);
+
     NSString* domain = [err domain];
     if([domain compare:NSPOSIXErrorDomain] == NSOrderedSame)
     {

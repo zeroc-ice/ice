@@ -48,7 +48,7 @@ IceUtil::Shared* IceInternal::upCast(IncomingConnectionFactory* p) { return p; }
 namespace
 {
 
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
 template <typename Map> void
 remove(Map& m, const typename Map::key_type& k, const typename Map::mapped_type& v)
 {
@@ -463,7 +463,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
     assert(!endpoints.empty());
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
         auto connection = find(_connectionsByEndpoint, *p,
                                [](const ConnectionIPtr& conn)
                                {
@@ -501,7 +501,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             continue;
         }
 
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
         auto connection = find(_connections, p->connector,
                                [](const ConnectionIPtr& conn)
                                {

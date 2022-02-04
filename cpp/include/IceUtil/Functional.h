@@ -5,7 +5,9 @@
 #ifndef ICE_UTIL_FUNCTIONAL_H
 #define ICE_UTIL_FUNCTIONAL_H
 
-#ifndef ICE_CPP11_MAPPING
+#include <IceUtil/Config.h>
+
+#if !defined(ICE_CPP11_MAPPING) && (ICE_CPLUSPLUS < 201703L)
 
 #include <IceUtil/Handle.h>
 #include <functional>

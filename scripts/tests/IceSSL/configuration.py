@@ -90,16 +90,12 @@ class IceSSLConfigurationServer(Server):
         if isinstance(platform, Windows) and current.config.openssl:
             return "serveropenssl"
         return Server.getExe(self, current)
-
-# Filter-out the deprecated property warnings
-outfilters = [ lambda x: re.sub("-! .* warning: deprecated property: IceSSL.KeyFile\n", "", x) ]
-
 #
 # With UWP, we can't run this test with the UWP C++ server (used with tcp/ws)
 #
 options=lambda current: { "protocol": ["ssl", "wss"] } if current.config.uwp else {}
 
 TestSuite(__name__, [
-   ConfigurationTestCase(client=IceSSLConfigurationClient(outfilters=outfilters, args=['"{testdir}"']),
-                         server=IceSSLConfigurationServer(outfilters=outfilters, args=['"{testdir}"']))
+   ConfigurationTestCase(client=IceSSLConfigurationClient(args=['"{testdir}"']),
+                         server=IceSSLConfigurationServer(args=['"{testdir}"']))
 ], multihost=False, options=options)

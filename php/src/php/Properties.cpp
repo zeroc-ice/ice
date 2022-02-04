@@ -70,6 +70,10 @@ ZEND_METHOD(Ice_Properties, __toString)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getProperty_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Properties, getProperty)
 {
     char* name;
@@ -95,6 +99,11 @@ ZEND_METHOD(Ice_Properties, getProperty)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyWithDefault_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, defaultValue)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
 {
@@ -131,6 +140,10 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsInt_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Properties, getPropertyAsInt)
 {
     char* name;
@@ -156,6 +169,11 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsIntWithDefault_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, defaultValue)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
 {
@@ -185,6 +203,10 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsList_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Properties, getPropertyAsList)
 {
     char* name;
@@ -213,6 +235,14 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsListWithDefault_arginfo,
+                       1,
+                       ZEND_RETURN_VALUE,
+                       static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, defaultValue)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
 {
@@ -250,6 +280,10 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertiesForPrefix_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, prefix)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
 {
     char* p;
@@ -283,6 +317,11 @@ ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_setProperty_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, setProperty)
 {
@@ -343,6 +382,11 @@ ZEND_METHOD(Ice_Properties, getCommandLineOptions)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_parseCommandLineOptions_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, prefix)
+    ZEND_ARG_INFO(0, options)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
 {
     char* p;
@@ -383,6 +427,13 @@ ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
     }
 }
 
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_parseIceCommandLineOptions_arginfo,
+                       1,
+                       ZEND_RETURN_VALUE,
+                       static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, options)
+ZEND_END_ARG_INFO()
+
 ZEND_METHOD(Ice_Properties, parseIceCommandLineOptions)
 {
     zval* opts;
@@ -415,6 +466,10 @@ ZEND_METHOD(Ice_Properties, parseIceCommandLineOptions)
         RETURN_NULL();
     }
 }
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_load_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Properties, load)
 {
@@ -524,7 +579,9 @@ ZEND_FUNCTION(Ice_createProperties)
     zval* arglist = 0;
     zval* defaultsObj = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("|a!O!"), &arglist, &defaultsObj,
+    if(zend_parse_parameters(ZEND_NUM_ARGS(),
+                             const_cast<char*>("|a!|O!"),
+                             &arglist, &defaultsObj,
                              propertiesClassEntry) == FAILURE)
     {
         RETURN_NULL();
@@ -601,18 +658,27 @@ static zend_function_entry _classMethods[] =
 {
     ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_Properties, __toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getProperty, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyWithDefault, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsInt, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsIntWithDefault, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsList, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertyAsListWithDefault, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, getPropertiesForPrefix, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, setProperty, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyWithDefault, Ice_Properties_getPropertyWithDefault_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyAsInt, Ice_Properties_getPropertyAsInt_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties,
+            getPropertyAsIntWithDefault,
+            Ice_Properties_getPropertyAsIntWithDefault_arginfo,
+            ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertyAsList, Ice_Properties_getPropertyAsList_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties,
+            getPropertyAsListWithDefault,
+            Ice_Properties_getPropertyAsListWithDefault_arginfo,
+            ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, getPropertiesForPrefix, Ice_Properties_getPropertiesForPrefix_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, setProperty, Ice_Properties_setProperty_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Properties, getCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, parseCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, parseIceCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Properties, load, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, parseCommandLineOptions, Ice_Properties_parseCommandLineOptions_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties,
+            parseIceCommandLineOptions,
+            Ice_Properties_parseIceCommandLineOptions_arginfo,
+            ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };

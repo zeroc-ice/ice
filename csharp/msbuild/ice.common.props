@@ -73,6 +73,12 @@
               <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
           </PropertyGroup>
 
+          <PropertyGroup Condition="'$(OS)|$(VisualStudioVersion)' == 'Windows_NT|12.0'">
+              <!-- No warn about ivalid warning numbers, this are emit because we have pragramas to supress some new warnings
+                   that are not valid with old C# compilers -->
+              <NoWarn>1692;$(NoWarn)</NoWarn>
+          </PropertyGroup>
+
           <PropertyGroup Condition="'$(Configuration)' == 'Release'">
               <DebugType>pdbonly</DebugType>
               <Optimize>true</Optimize>

@@ -17,39 +17,158 @@ using namespace IcePHP;
 
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(-1))
+ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(0))
     ZEND_ARG_INFO(1, args)
     ZEND_ARG_INFO(1, properties)
     ZEND_ARG_INFO(1, initData)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(-1))
-    ZEND_ARG_INFO(1, properties)
-    ZEND_ARG_INFO(0, defaultProperties)
+ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(0))
+    ZEND_ARG_INFO(0, args)
+    ZEND_ARG_INFO(0, defaults)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_declareClass_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineClass_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(7))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, compactId)
+    ZEND_ARG_INFO(0, preserve)
+    ZEND_ARG_INFO(0, interface)
+    ZEND_ARG_INFO(0, base)
+    ZEND_ARG_INFO(0, members)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineDictionary_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(3))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineEnum_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, enumerators)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineException_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(5))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, preserve)
+    ZEND_ARG_INFO(0, base)
+    ZEND_ARG_INFO(0, members)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineStruct_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(3))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, members)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_declareProxy_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineProxy_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(3))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, compactId)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineSequence_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, element)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_defineOperation_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(9))
+    ZEND_ARG_INFO(0, cls)
+    ZEND_ARG_INFO(0, name)
+    ZEND_ARG_INFO(0, mode)
+    ZEND_ARG_INFO(0, sendMode)
+    ZEND_ARG_INFO(0, format)
+    ZEND_ARG_INFO(0, inParams)
+    ZEND_ARG_INFO(0, outParams)
+    ZEND_ARG_INFO(0, returnType)
+    ZEND_ARG_INFO(0, exceptions)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_register_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, communicator)
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, expires)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_unregister_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_find_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_getProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(0))
+    ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_identityToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+    ZEND_ARG_INFO(0, mode)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_stringToIdentity_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_stringify_add_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, type)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_stringifyException_add_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, type)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_protocolVersionToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, protocolVersion)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_stringToProtocolVersion_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, str)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_encodingVersionToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, encodingVersion)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_stringToEncodingVersion_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
+    ZEND_ARG_INFO(0, str)
 ZEND_END_ARG_INFO()
 
 #ifdef ICEPHP_USE_NAMESPACES
 #  define ICEPHP_COMMUNICATOR_FUNCTIONS \
     ZEND_NS_NAMED_FE("Ice", initialize, ZEND_FN(Ice_initialize), Ice_initialize_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", register, ZEND_FN(Ice_register), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", unregister, ZEND_FN(Ice_unregister), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", find, ZEND_FN(Ice_find), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", getProperties, ZEND_FN(Ice_getProperties), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", identityToString, ZEND_FN(Ice_identityToString), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", stringToIdentity, ZEND_FN(Ice_stringToIdentity), ice_void_arginfo)
+    ZEND_NS_NAMED_FE("Ice", register, ZEND_FN(Ice_register), Ice_register_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", unregister, ZEND_FN(Ice_unregister), Ice_unregister_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", find, ZEND_FN(Ice_find), Ice_find_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", getProperties, ZEND_FN(Ice_getProperties), Ice_getProperties_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", identityToString, ZEND_FN(Ice_identityToString), Ice_identityToString_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", stringToIdentity, ZEND_FN(Ice_stringToIdentity), Ice_stringToIdentity_arginfo)
 #else
 #  define ICEPHP_COMMUNICATOR_FUNCTIONS \
     ZEND_FE(Ice_initialize, Ice_initialize_arginfo) \
-    ZEND_FE(Ice_register, ice_void_arginfo) \
-    ZEND_FE(Ice_unregister, ice_void_arginfo) \
-    ZEND_FE(Ice_find, ice_void_arginfo) \
-    ZEND_FE(Ice_getProperties, ice_void_arginfo) \
-    ZEND_FE(Ice_identityToString, ice_void_arginfo) \
-    ZEND_FE(Ice_stringToIdentity, ice_void_arginfo)
+    ZEND_FE(Ice_register, Ice_register_arginfo) \
+    ZEND_FE(Ice_unregister, Ice_unregister_arginfo) \
+    ZEND_FE(Ice_find, Ice_find_arginfo) \
+    ZEND_FE(Ice_getProperties, Ice_getProperties_arginfo) \
+    ZEND_FE(Ice_identityToString, Ice_identityToString_arginfo) \
+    ZEND_FE(Ice_stringToIdentity, Ice_stringToIdentity_arginfo)
 #endif
 
 #define ICEPHP_OPERATION_FUNCTIONS \
-    ZEND_FE(IcePHP_defineOperation,  ice_void_arginfo)
+    ZEND_FE(IcePHP_defineOperation,  Ice_defineOperation_arginfo)
 
 #ifdef ICEPHP_USE_NAMESPACES
 #  define ICEPHP_PROPERTIES_FUNCTIONS \
@@ -60,17 +179,17 @@ ZEND_END_ARG_INFO()
 #endif
 
 #define ICEPHP_TYPE_FUNCTIONS \
-    ZEND_FE(IcePHP_defineEnum,          ice_void_arginfo) \
-    ZEND_FE(IcePHP_defineStruct,        ice_void_arginfo) \
-    ZEND_FE(IcePHP_defineSequence,      ice_void_arginfo) \
-    ZEND_FE(IcePHP_defineDictionary,    ice_void_arginfo) \
-    ZEND_FE(IcePHP_declareProxy,        ice_void_arginfo) \
-    ZEND_FE(IcePHP_defineProxy,         ice_void_arginfo) \
-    ZEND_FE(IcePHP_declareClass,        ice_void_arginfo) \
-    ZEND_FE(IcePHP_defineClass,         ice_void_arginfo) \
-    ZEND_FE(IcePHP_defineException,     ice_void_arginfo) \
-    ZEND_FE(IcePHP_stringify,           ice_void_arginfo) \
-    ZEND_FE(IcePHP_stringifyException,  ice_void_arginfo)
+    ZEND_FE(IcePHP_defineEnum,          Ice_defineEnum_arginfo) \
+    ZEND_FE(IcePHP_defineStruct,        Ice_defineStruct_arginfo) \
+    ZEND_FE(IcePHP_defineSequence,      Ice_defineSequence_arginfo) \
+    ZEND_FE(IcePHP_defineDictionary,    Ice_defineDictionary_arginfo) \
+    ZEND_FE(IcePHP_declareProxy,        Ice_declareProxy_arginfo) \
+    ZEND_FE(IcePHP_defineProxy,         Ice_defineProxy_arginfo) \
+    ZEND_FE(IcePHP_declareClass,        Ice_declareClass_arginfo) \
+    ZEND_FE(IcePHP_defineClass,         Ice_defineClass_arginfo) \
+    ZEND_FE(IcePHP_defineException,     Ice_defineException_arginfo) \
+    ZEND_FE(IcePHP_stringify,           Ice_stringify_add_arginfo) \
+    ZEND_FE(IcePHP_stringifyException,  Ice_stringifyException_add_arginfo)
 
 #ifdef ICEPHP_USE_NAMESPACES
 #  define ICEPHP_UTIL_FUNCTIONS \
@@ -80,10 +199,10 @@ ZEND_END_ARG_INFO()
     ZEND_NS_NAMED_FE("Ice", currentProtocol, ZEND_FN(Ice_currentProtocol), ice_void_arginfo) \
     ZEND_NS_NAMED_FE("Ice", currentProtocolEncoding, ZEND_FN(Ice_currentProtocolEncoding), ice_void_arginfo) \
     ZEND_NS_NAMED_FE("Ice", currentEncoding, ZEND_FN(Ice_currentEncoding), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", protocolVersionToString, ZEND_FN(Ice_protocolVersionToString), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", stringToProtocolVersion, ZEND_FN(Ice_stringToProtocolVersion), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", encodingVersionToString, ZEND_FN(Ice_encodingVersionToString), ice_void_arginfo) \
-    ZEND_NS_NAMED_FE("Ice", stringToEncodingVersion, ZEND_FN(Ice_stringToEncodingVersion), ice_void_arginfo)
+    ZEND_NS_NAMED_FE("Ice", protocolVersionToString, ZEND_FN(Ice_protocolVersionToString), Ice_protocolVersionToString_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", stringToProtocolVersion, ZEND_FN(Ice_stringToProtocolVersion), Ice_stringToProtocolVersion_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", encodingVersionToString, ZEND_FN(Ice_encodingVersionToString), Ice_encodingVersionToString_arginfo) \
+    ZEND_NS_NAMED_FE("Ice", stringToEncodingVersion, ZEND_FN(Ice_stringToEncodingVersion), Ice_stringToEncodingVersion_arginfo)
 #else
 #  define ICEPHP_UTIL_FUNCTIONS \
     ZEND_FE(Ice_stringVersion, ice_void_arginfo) \
@@ -92,10 +211,10 @@ ZEND_END_ARG_INFO()
     ZEND_FE(Ice_currentProtocol, ice_void_arginfo) \
     ZEND_FE(Ice_currentProtocolEncoding, ice_void_arginfo) \
     ZEND_FE(Ice_currentEncoding, ice_void_arginfo) \
-    ZEND_FE(Ice_protocolVersionToString, ice_void_arginfo) \
-    ZEND_FE(Ice_stringToProtocolVersion, ice_void_arginfo) \
-    ZEND_FE(Ice_encodingVersionToString, ice_void_arginfo) \
-    ZEND_FE(Ice_stringToEncodingVersion, ice_void_arginfo)
+    ZEND_FE(Ice_protocolVersionToString, Ice_protocolVersionToString_arginfo) \
+    ZEND_FE(Ice_stringToProtocolVersion, Ice_stringToProtocolVersion_arginfo) \
+    ZEND_FE(Ice_encodingVersionToString, Ice_encodingVersionToString_arginfo) \
+    ZEND_FE(Ice_stringToEncodingVersion, Ice_stringToEncodingVersion_arginfo)
 #endif
 
 //

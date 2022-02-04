@@ -2204,6 +2204,7 @@
     <Import Project="..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.10\build\native\bzip2.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.10\build\native\bzip2.v141.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\bzip2.v142.1.0.6.10\build\native\bzip2.v142.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v142.1.0.6.10\build\native\bzip2.v142.targets')" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.7\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.7\build\zeroc.icebuilder.msbuild.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" />
   </ImportGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -2217,5 +2218,6 @@
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v142.1.0.6.10\build\native\bzip2.v142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v142.1.0.6.10\build\native\bzip2.v142.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.7\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.7\build\zeroc.icebuilder.msbuild.props'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.7\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.7\build\zeroc.icebuilder.msbuild.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets'))" />
   </Target>
 </Project>

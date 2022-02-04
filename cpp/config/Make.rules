@@ -98,7 +98,7 @@ endif
 # directory.
 #
 cpp11_cppflags          = -DICE_CPP11_MAPPING
-ifneq ("OK", $(shell $(CC) -E config/cplusplus_check.cpp 2> /dev/null && echo "OK"))
+ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
 cpp11_cppflags          := $(cpp11_cppflags) -std=c++11
 endif
 cpp11_ldflags           = $(cpp11_cppflags)

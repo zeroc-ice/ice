@@ -15,7 +15,7 @@ using namespace IceInternal;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
 
-struct FileInfoPathLess: public binary_function<const LargeFileInfo&, const LargeFileInfo&, bool>
+struct FileInfoPathLess
 {
     bool
     operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
@@ -24,7 +24,7 @@ struct FileInfoPathLess: public binary_function<const LargeFileInfo&, const Larg
     }
 };
 
-struct IFileInfoPathEqual: public binary_function<const LargeFileInfo&, const LargeFileInfo&, bool>
+struct IFileInfoPathEqual
 {
     bool
     operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)
@@ -46,7 +46,7 @@ struct IFileInfoPathEqual: public binary_function<const LargeFileInfo&, const La
     }
 };
 
-struct IFileInfoPathLess: public binary_function<const LargeFileInfo&, const LargeFileInfo&, bool>
+struct IFileInfoPathLess
 {
     bool
     operator()(const LargeFileInfo& lhs, const LargeFileInfo& rhs)

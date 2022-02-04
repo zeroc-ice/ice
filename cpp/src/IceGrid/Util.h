@@ -39,7 +39,7 @@ void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0
 int getMMVersion(const std::string&);
 
 template<class Function>
-struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
+struct ForEachCommunicator
 {
     ForEachCommunicator(Function f) : _function(f)
     {
@@ -131,7 +131,7 @@ inline forEachCommunicator(Function function)
 }
 
 template<class T, class A>
-struct ObjFunc : std::unary_function<A, void>
+struct ObjFunc
 {
     T& _obj;
     typedef void (T::*MemberFN)(A);

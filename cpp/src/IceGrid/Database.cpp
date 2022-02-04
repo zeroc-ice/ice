@@ -43,7 +43,7 @@ const string internalObjectsDbName = "internal-objects";
 const string internalObjectsByTypeDbName = "internal-objectsByType";
 const string serialsDbName = "serials";
 
-struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
+struct ObjectLoadCI
 {
     bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
     {
@@ -433,8 +433,11 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, Ice::Long 
             }
         }
 
+#ifdef ICE_CPP11_COMPILER
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) {it->sync(); });
+#else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
-
+#endif
         if(_traceLevels->application > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
@@ -614,7 +617,11 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
         load(helper, entries, info.uuid, info.revision);
         startUpdating(info.descriptor.name, info.uuid, info.revision);
 
+#ifdef ICE_CPP11_COMPILER
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
+#else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+#endif
         serial = _applicationObserverTopic->applicationAdded(dbSerial, info);
     }
     catch(const IceDB::KeyTooLongException& ex)
@@ -668,7 +675,11 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
                 dbSerial = removeApplication(info.descriptor.name, txn);
                 txn.commit();
 
+#ifdef ICE_CPP11_COMPILER
+                for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
+#else
                 for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+#endif
                 serial = _applicationObserverTopic->applicationRemoved(dbSerial, info.descriptor.name);
             }
             catch(const DeploymentException& ex)
@@ -682,7 +693,11 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
             }
 
             _applicationObserverTopic->waitForSyncedSubscribers(serial);
+#ifdef ICE_CPP11_COMPILER
+            for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->waitForSyncNoThrow(); });
+#else
             for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitForSyncNoThrow));
+#endif
             finishUpdating(info.descriptor.name);
             throw;
         }
@@ -870,8 +885,11 @@ Database::removeApplication(const string& name, AdminSessionI* session, Ice::Lon
         txn.commit();
 
         startUpdating(name, appInfo.uuid, appInfo.revision);
-
+#ifdef ICE_CPP11_COMPILER
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
+#else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+#endif
         serial = _applicationObserverTopic->applicationRemoved(dbSerial, name);
     }
     catch(const IceDB::LMDBException& ex)
@@ -884,7 +902,11 @@ Database::removeApplication(const string& name, AdminSessionI* session, Ice::Lon
 
     if(_master)
     {
+#ifdef ICE_CPP11_COMPILER
+        for_each(entries.begin(), entries.end(), [](const auto& it) { it->waitForSyncNoThrow(); });
+#else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitForSyncNoThrow));
+#endif
     }
 
     if(_traceLevels->application > 0)
@@ -2548,8 +2570,11 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
         checkForUpdate(previousAppHelper, appHelper, txn);
         reload(previousAppHelper, appHelper, entries, oldApp.uuid, oldApp.revision + 1, noRestart);
 
+#ifdef ICE_CPP11_COMPILER
+        for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
+#else
         for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
-
+#endif
         ApplicationInfo info = oldApp;
         info.updateTime = update.updateTime;
         info.updateUser = update.updateUser;
@@ -2635,12 +2660,19 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                 assert(p != _updating.end());
                 p->unmarkUpdated();
 
+#ifdef ICE_CPP11_COMPILER
+                for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->sync(); });
+#else
                 for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
-
+#endif
                 serial = _applicationObserverTopic->applicationUpdated(dbSerial, newUpdate);
             }
             _applicationObserverTopic->waitForSyncedSubscribers(serial); // Wait for subscriber to be updated.
+#ifdef ICE_CPP11_COMPILER
+            for_each(entries.begin(), entries.end(), [](const ServerEntryPtr& it) { it->waitForSyncNoThrow(); });
+#else
             for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitForSyncNoThrow));
+#endif
             finishUpdating(newDesc.name);
             throw;
         }

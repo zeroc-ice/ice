@@ -46,6 +46,14 @@
       <Properties>Platform=$(Platform);Configuration=NTS-$(Configuration);BuildWithPHPVersion=7.2</Properties>
     </Projects>
 
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v142'">
+      <Properties>Platform=$(Platform);Configuration=$(Configuration);BuildWithPhpVersion=8.0</Properties>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v142'">
+      <Properties>Platform=$(Platform);Configuration=NTS-$(Configuration);BuildWithPHPVersion=8.0</Properties>
+    </Projects>
+
     <Projects Include="$(MSBuildThisFileDirectory)js\msbuild\ice.proj">
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>

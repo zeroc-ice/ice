@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
+        <SIGN_SHA1 Condition="'$(SIGN_SHA1)' == ''">8D86DEC2699A6F6504D591B32B12D06909A57E48</SIGN_SHA1>
         <TimeStampServer>http://timestamp.digicert.com</TimeStampServer>
-        <SignCommandSHA1>/f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer)</SignCommandSHA1>
-        <SignCommandSHA256>/f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
+        <SignCommandSHA1>/f "$(SIGN_CERTIFICATE)" /v /sha1 $(SIGN_SHA1) /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha1 /fd sha1</SignCommandSHA1>
+        <SignCommandSHA256>/f "$(SIGN_CERTIFICATE)" /v /sha1 $(SIGN_SHA1) /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
     </PropertyGroup>
 
   <!-- Authenticode sign task that retries on failures -->

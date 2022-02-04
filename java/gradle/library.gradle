@@ -2,58 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-apply plugin: 'maven'
-apply plugin: 'signing'
-
-def pomName = "${libDir}/${project.name}-${project.version}.pom"
-
-def scmData = [
-    connection : 'scm:git:git@github.com/zeroc-ice/ice.git',
-    developerConnection : 'scm:git:git@github.com/zeroc-ice/ice.git',
-    url : 'git://github.com/zeroc-ice/ice.git'
-].collectEntries { key, value -> [key, project.hasProperty(key) ? project.property(key) : value] }
-
-ext.projectPom = {
-    pom {
-        project {
-            name project.ext.displayName
-            description project.ext.description
-            url 'https://zeroc.com'
-            packaging 'jar'
-            scm {
-                connection scmData.connection
-                developerConnection scmData.developerConnection
-                url scmData.url
-            }
-            licenses {
-                license {
-                    name 'GNU General Public License, version 2'
-                    url 'https://www.gnu.org/licenses/gpl-2.0.html'
-                    distribution 'repo'
-                }
-            }
-            developers {
-                developer {
-                    name 'ZeroC Developers'
-                    email 'info@zeroc.com'
-                    organization = 'ZeroC, Inc.'
-                    organizationUrl 'https://zeroc.com'
-                }
-            }
-        }
-    }
-}
-
-task writeNewPom {
-    outputs.file file(pomName)
-
-    doLast {
-        projectPom().writeTo(pomName)
-    }
-}
-
-jar.dependsOn(writeNewPom)
-
 jar {
     destinationDir = new File("${libDir}")
 }
@@ -64,8 +12,6 @@ task jarSources(type:Jar, dependsOn: jar){
     destinationDir = new File("${libDir}")
 }
 
-assemble.dependsOn(jarSources)
-
 javadoc.dependsOn(compileSlice)
 
 javadoc {
@@ -74,6 +20,7 @@ javadoc {
     doFirst {
         exclude "**/module-info.java"
         options.addBooleanOption('html5', true)
+        options.addStringOption('Xdoclint:none', '-quiet')
     }
     failOnError = true
     options.header = project.ext.displayName
@@ -85,44 +32,20 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     destinationDir = new File("${libDir}")
 }
 
+// The maven plugin change in Gradle 7.3, for compatibility with older gradle versions
+// we split maven related tasks to separate files that use the corresponding builtin gradle
+// plug-ins
+project.ext.pomName = "${libDir}/${project.name}-${project.version}.pom"
+if(GradleVersion.current() >= GradleVersion.version('7.3')) {
+    apply from: "$project.ext.topSrcDir/java/gradle/maven-publish.publishing.gradle"
+} else {
+    apply from: "$project.ext.topSrcDir/java/gradle/maven.publishing.gradle"
+}
+
+assemble.dependsOn(jarSources, javadocJar)
+
 artifacts {
     archives jar, jarSources, javadocJar
-}
-
-signing {
-    required {
-        gradle.taskGraph.hasTask("signArchives") ||
-        gradle.taskGraph.hasTask("uploadArchives") ||
-        ( project.hasProperty('signing.keyId') &&
-          project.hasProperty('signing.password') &&
-          project.hasProperty('signing.secretKeyRingFile') )
-    }
-    sign configurations.archives
-}
-
-ext.mavenRepo = rootProject.hasProperty('mavenRepo')?project.mavenRepo:System.getenv('MAVEN_REPO')?:''
-ext.mavenSnapshotRepo = rootProject.hasProperty('mavenSnapshotRepo')?project.mavenSnapshotRepo:System.getenv('MAVEN_SNAPSHOT_REPO')?:''
-ext.mavenUser = rootProject.hasProperty('mavenUser')?project.mavenUser:System.getenv('MAVEN_USER')?:''
-ext.mavenPassword = rootProject.hasProperty('mavenPassword')?project.mavenPassword:System.getenv('MAVEN_PASSWORD')?:''
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            // url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            repository(url: mavenRepo) {
-                authentication(userName: mavenUser, password: mavenPassword)
-            }
-
-            // url: "https://oss.sonatype.org/content/repositories/snapshots/"
-            snapshotRepository(url: mavenSnapshotRepo) {
-                authentication(userName: mavenUser, password: mavenPassword)
-            }
-
-            pom = projectPom()
-        }
-    }
 }
 
 jar {
@@ -149,13 +72,12 @@ if(project.name == "icebox-compat") {
 
 clean {
     delete("${libDir}/${jar.archiveName}")
-    delete("${libDir}/${project.name}-${project.version}-javadoc.jar")
     delete("${libDir}/${project.name}-${project.version}-sources.jar")
-    delete(pomName)
+    delete(project.ext.pomName)
 }
 
 task installJars(type: Copy, dependsOn: jarSources) {
-    from "${pomName}"
+    from "${project.ext.pomName}"
     from "${libDir}/${jar.archiveName}"
     from "${libDir}/${project.name}-${project.version}-sources.jar"
     into "${DESTDIR}${jarDir}"

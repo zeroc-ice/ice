@@ -177,7 +177,7 @@ where the C++ compiler can automatically find the header and library files, you 
 need to set `ICE_HOME`
 
 ```
-make ICE_HOME=/opt/Ice-3.7.6 ICE_BIN_DIST=all
+make ICE_HOME=/opt/Ice-3.7.7 ICE_BIN_DIST=all
 ```
 
 ### Build configurations and platforms
@@ -271,6 +271,7 @@ environment variables:
 
  - `SIGN_CERTIFICATE` to your Authenticode certificate
  - `SIGN_PASSWORD` to the certificate password
+ - `SIGN_SHA1` the SHA1 hash of the signing certificate
 
 ### Build Using Visual Studio
 
@@ -556,7 +557,7 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-6
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-7
 [3]: https://github.com/zeroc-ice/bzip2
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/

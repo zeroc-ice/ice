@@ -15,13 +15,6 @@ subprojects {
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
-        if(slice.jarDir) {
-            flatDir {
-                name "local"
-                dirs slice.jarDir
-            }
-        }
-
         if(this.devRepo) {
             maven {
                 url this.devRepo
@@ -35,6 +28,11 @@ subprojects {
         }
 
         mavenCentral()
+    }
+
+    // Only enable infer module path with Java 9 and up
+    java {
+        modularity.inferModulePath = targetJavaRelease.toInteger() > 8
     }
 
     jar {

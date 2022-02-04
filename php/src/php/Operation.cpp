@@ -174,7 +174,6 @@ IcePHP::ResultCallback::ResultCallback()
 
 IcePHP::ResultCallback::~ResultCallback()
 {
-    zval_ptr_dtor(&zv);
 }
 
 void
@@ -377,13 +376,18 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 void
 IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& info, bool out)
 {
+#if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
+#    pragma warning(disable:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
+#endif
     const zend_uchar pass_by_ref = out ? 1 : 0;
     const zend_bool allow_null = 1;
     if(!info->optional && (SequenceInfoPtr::dynamicCast(info->type) || DictionaryInfoPtr::dynamicCast(info->type)))
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_ARRAY_INFO(pass_by_ref, 0, allow_null)
+            ZEND_ARG_ARRAY_INFO(pass_by_ref,
+                                static_cast<uint32_t>(0),
+                                static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
@@ -391,10 +395,15 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_CALLABLE_INFO(pass_by_ref, 0, allow_null)
+            ZEND_ARG_CALLABLE_INFO(pass_by_ref,
+                                   static_cast<uint32_t>(0),
+                                   static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
+#if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
+#    pragma warning(default:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
+#endif
 }
 
 //
@@ -692,7 +701,6 @@ IcePHP::TypedInvocation::validateException(const ExceptionInfoPtr& info) const
             return true;
         }
     }
-
     return false;
 }
 

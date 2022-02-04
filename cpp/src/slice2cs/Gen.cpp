@@ -393,7 +393,15 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     StringList ids;
     ClassList bases = p->bases();
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+#ifdef ICE_CPP11_COMPILER
+    transform(allBases.begin(), allBases.end(), back_inserter(ids),
+              [](const ContainedPtr& it)
+              {
+                  return it->scoped();
+              });
+#else
     transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
+#endif
     StringList other;
     other.push_back(p->scoped());
     other.push_back("::Ice::Object");
@@ -646,7 +654,15 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     if(!allOps.empty() || (!p->isInterface() && !hasBaseClass))
     {
         StringList allOpNames;
+#ifdef ICE_CPP11_COMPILER
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
+                  [](const ContainedPtr& it)
+                  {
+                      return it->name();
+                  });
+#else
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun(&Contained::name));
+#endif
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -762,7 +778,15 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     StringList ids;
     ClassList bases = p->bases();
 
+#ifdef ICE_CPP11_COMPILER
+    transform(allBases.begin(), allBases.end(), back_inserter(ids),
+              [](const ContainedPtr& it)
+              {
+                  return it->scoped();
+              });
+#else
     transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
+#endif
     StringList other;
     other.push_back(p->scoped());
     other.push_back("::Ice::Value");
@@ -4883,7 +4907,15 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = p->scoped();
     ClassList allBases = p->allBases();
     StringList ids;
+#ifdef ICE_CPP11_COMPILER
+    transform(allBases.begin(), allBases.end(), back_inserter(ids),
+              [](const ContainedPtr& it)
+              {
+                  return it->scoped();
+              });
+#else
     transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
+#endif
     StringList other;
     other.push_back(p->scoped());
     other.push_back("::Ice::Object");

@@ -13,19 +13,20 @@
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</DefaultPlatformToolset>
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</DefaultPlatformToolset>
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</DefaultPlatformToolset>
 
         <NetStandardTargets>false</NetStandardTargets>
-        <Net5Targets>false</Net5Targets>
+        <Net6Targets>false</Net6Targets>
     </PropertyGroup>
 
-    <!-- NET Standard on Windows requires Visual Studio 2017 or Visual Studio 2019 -->
-    <PropertyGroup Condition="'$(VisualStudioVersion)' == '15.0' or '$(VisualStudioVersion)' == '16.0' or '$(OS)' != 'Windows_NT'">
+    <!-- NET Standard on Windows requires Visual Studio 2017, Visual Studio 2019 or Visual Studio 2022 -->
+    <PropertyGroup Condition="'$(VisualStudioVersion)' == '15.0' or '$(VisualStudioVersion)' == '16.0' or '$(VisualStudioVersion)' == '17.0' or '$(OS)' != 'Windows_NT'">
         <NetStandardTargets>true</NetStandardTargets>
     </PropertyGroup>
 
-    <!-- NET 5 on Windows requires Visual Studio 2019 -->
-    <PropertyGroup Condition="'$(VisualStudioVersion)' == '16.0' or '$(OS)' != 'Windows_NT'">
-        <Net5Targets>true</Net5Targets>
+    <!-- NET 6 on Windows requires Visual Studio 2022 -->
+    <PropertyGroup Condition="'$(VisualStudioVersion)' == '17.0' or '$(OS)' != 'Windows_NT'">
+        <Net6Targets>true</Net6Targets>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
@@ -69,14 +70,14 @@
     </Target>
 
     <ItemGroup>
-        <!-- .NET 5 Solution files -->
-        <Net5DistSolution Include="ice.net5.0.sln">
+        <!-- .NET 6 Solution files -->
+        <Net6DistSolution Include="ice.net6.0.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-        </Net5DistSolution>
+        </Net6DistSolution>
 
-        <Net5TestSolution Include="ice.net5.0.test.sln">
+        <Net6TestSolution Include="ice.net6.0.test.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-        </Net5TestSolution>
+        </Net6TestSolution>
 
         <!-- .NET 4.5 Solution files -->
         <Net45DistSolution Include="ice.net45.sln">
@@ -97,59 +98,59 @@
         </NetStandardTestSolution>
     </ItemGroup>
 
-    <!-- NET 5 Targets -->
-    <Target Name="Net5NuGetRestoreDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net5Targets)' == 'true'">
-        <MSBuild Projects="@(Net5DistSolution)"
+    <!-- NET 6 Targets -->
+    <Target Name="Net6NuGetRestoreDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net6Targets)' == 'true'">
+        <MSBuild Projects="@(Net6DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="Net5BuildDist"
-            DependsOnTargets="SliceCompilers;Net5NuGetRestoreDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net5Targets)' == 'true'">
+    <Target Name="Net6BuildDist"
+            DependsOnTargets="SliceCompilers;Net6NuGetRestoreDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net6Targets)' == 'true'">
 
-        <MSBuild Projects="@(Net5DistSolution)"
+        <MSBuild Projects="@(Net6DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
 
     </Target>
 
-    <Target Name="Net5CleanDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net5Targets)' == 'true'">
+    <Target Name="Net6CleanDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net6Targets)' == 'true'">
 
-        <MSBuild Projects="@(Net5DistSolution)"
+        <MSBuild Projects="@(Net6DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Clean" />
 
     </Target>
 
-    <Target Name="Net5NuGetRestore"
-            DependsOnTargets="Net5NuGetRestoreDist"
-            Condition="'$(Net5Targets)' == 'true'">
-        <MSBuild Projects="@(Net5TestSolution)"
+    <Target Name="Net6NuGetRestore"
+            DependsOnTargets="Net6NuGetRestoreDist"
+            Condition="'$(Net6Targets)' == 'true'">
+        <MSBuild Projects="@(Net6TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="Net5Build"
-            DependsOnTargets="Net5BuildDist;Net5NuGetRestore"
-            Condition="'$(Net5Targets)' == 'true'">
+    <Target Name="Net6Build"
+            DependsOnTargets="Net6BuildDist;Net6NuGetRestore"
+            Condition="'$(Net6Targets)' == 'true'">
 
-        <MSBuild Projects="@(Net5TestSolution)"
+        <MSBuild Projects="@(Net6TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
 
     </Target>
 
-    <Target Name="Net5Clean"
-            DependsOnTargets="Net5CleanDist"
-            Condition="'$(Net5Targets)' == 'true'">
+    <Target Name="Net6Clean"
+            DependsOnTargets="Net6CleanDist"
+            Condition="'$(Net6Targets)' == 'true'">
 
-        <MSBuild Projects="@(Net5TestSolution)"
+        <MSBuild Projects="@(Net6TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Clean" />
@@ -273,19 +274,19 @@
 
     <!-- Meta targets -->
 
-    <Target Name="BuildDist" DependsOnTargets="NetStandardBuildDist;Net45BuildDist;Net5BuildDist">
+    <Target Name="BuildDist" DependsOnTargets="NetStandardBuildDist;Net45BuildDist;Net6BuildDist">
     </Target>
 
-    <Target Name="CleanDist" DependsOnTargets="NetStandardCleanDist;Net45CleanDist;Net5CleanDist">
+    <Target Name="CleanDist" DependsOnTargets="NetStandardCleanDist;Net45CleanDist;Net6CleanDist">
     </Target>
 
-    <Target Name="NuGetRestore" DependsOnTargets="NetStandardNuGetRestore;Net45NuGetRestore;Net5NuGetRestore">
+    <Target Name="NuGetRestore" DependsOnTargets="NetStandardNuGetRestore;Net45NuGetRestore;Net6NuGetRestore">
     </Target>
 
-    <Target Name="Build" DependsOnTargets="NetStandardBuild;Net45Build;Net5Build">
+    <Target Name="Build" DependsOnTargets="NetStandardBuild;Net45Build;Net6Build">
     </Target>
 
-    <Target Name="Clean" DependsOnTargets="NetStandardClean;Net45Clean;Net5Clean">
+    <Target Name="Clean" DependsOnTargets="NetStandardClean;Net45Clean;Net6Clean">
     </Target>
 
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
@@ -303,13 +304,13 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp3.1;BaseIntermediateOutputPath=obj\netcoreapp3.1\"
                  Targets="Restore;Publish"
-                 Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+                 Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '17.0'"/>
 
-        <!-- Build iceboxnet with net5 target framework -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net5.0\icebox.csproj"
+        <!-- Build iceboxnet with Net6 target framework -->
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net6.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Restore;Publish"
-                 Condition="'$(Net5Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+                 Condition="'$(Net6Targets)' == 'true' and '$(VisualStudioVersion)' == '17.0'"/>
 
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net;NetStandardTargets=$(NetStandardTargets);
@@ -348,8 +349,8 @@
         <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net5.0"
-              Condition="'$(Net5Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net6.0"
+              Condition="'$(Net6Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
@@ -374,7 +375,7 @@
 
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net5.0\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net6.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Publish"/>
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"

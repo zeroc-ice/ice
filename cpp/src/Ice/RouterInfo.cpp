@@ -25,8 +25,12 @@ void
 IceInternal::RouterManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
-#ifdef ICE_CPP11_MAPPING
-    for_each(_table.begin(), _table.end(), [](const pair<shared_ptr<RouterPrx>, RouterInfoPtr> it){ it.second->destroy(); });
+#ifdef ICE_CPP11_COMPILER
+    for_each(_table.begin(), _table.end(),
+             [](const pair<RouterPrxPtr, RouterInfoPtr> it)
+             {
+                 it.second->destroy();
+             });
 #else
     for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const RouterPrx, RouterInfo>(&RouterInfo::destroy));
 #endif

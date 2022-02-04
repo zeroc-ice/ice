@@ -884,8 +884,11 @@ NodeI::checkConsistency(const NodeSessionPrx& session)
         }
         sort(servers.begin(), servers.end());
     }
-
+#ifdef ICE_CPP11_COMPILER
+    for_each(commands.begin(), commands.end(), [](const auto& it) { it->execute(); });
+#else
     for_each(commands.begin(), commands.end(), IceUtil::voidMemFun(&ServerCommand::execute));
+#endif
 }
 
 void

@@ -1,0 +1,74 @@
+//
+// Copyright (c) ZeroC, Inc. All rights reserved.
+//
+
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+signing {
+    required {
+        gradle.taskGraph.hasTask("signArchives") ||
+        gradle.taskGraph.hasTask("uploadArchives") ||
+        (project.hasProperty('signing.keyId') &&
+         project.hasProperty('signing.password') &&
+         project.hasProperty('signing.secretKeyRingFile'))
+    }
+    sign configurations.archives
+}
+
+ext.mavenRepo = rootProject.hasProperty('mavenRepo')?project.mavenRepo:System.getenv('MAVEN_REPO')?:''
+ext.mavenUser = rootProject.hasProperty('mavenUser')?project.mavenUser:System.getenv('MAVEN_USER')?:''
+ext.mavenPassword = rootProject.hasProperty('mavenPassword')?project.mavenPassword:System.getenv('MAVEN_PASSWORD')?:''
+
+ext.projectPom = {
+    pom {
+        project {
+            name project.ext.displayName
+            description project.ext.description
+            url 'https://zeroc.com'
+            packaging 'jar'
+            scm {
+                connection 'scm:git:git@github.com/zeroc-ice/ice.git'
+                developerConnection 'scm:git:git@github.com/zeroc-ice/ice.git'
+                url 'git://github.com/zeroc-ice/ice.git'
+            }
+            licenses {
+                license {
+                    name 'GNU General Public License, version 2'
+                    url 'https://www.gnu.org/licenses/gpl-2.0.html'
+                    distribution 'repo'
+                }
+            }
+            developers {
+                developer {
+                    name 'ZeroC Developers'
+                    email 'info@zeroc.com'
+                    organization = 'ZeroC, Inc.'
+                    organizationUrl 'https://zeroc.com'
+                }
+            }
+        }
+    }
+}
+
+task writeNewPom {
+    outputs.file file(project.ext.pomName)
+
+    doLast {
+        projectPom().writeTo(project.ext.pomName)
+    }
+}
+jar.dependsOn(writeNewPom)
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: mavenRepo) {
+                authentication(userName: mavenUser, password: mavenPassword)
+            }
+
+            pom = projectPom()
+        }
+    }
+}

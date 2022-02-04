@@ -323,15 +323,15 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx)
 #if PHP_VERSION_ID >= 80000
         add_assoc_stringl_ex(zv,
                              const_cast<char*>(p->first.c_str()),
-                             static_cast<uint>(p->first.length()),
+                             static_cast<uint32_t>(p->first.length()),
                              const_cast<char*>(p->second.c_str()),
-                             static_cast<uint>(p->second.length()));
+                             static_cast<uint32_t>(p->second.length()));
 #else
         if(add_assoc_stringl_ex(zv,
                                 const_cast<char*>(p->first.c_str()),
-                                static_cast<uint>(p->first.length()),
+                                static_cast<uint32_t>(p->first.length()),
                                 const_cast<char*>(p->second.c_str()),
-                                static_cast<uint>(p->second.length())) == FAILURE)
+                                static_cast<uint32_t>(p->second.length())) == FAILURE)
         {
             return false;
         }
@@ -383,7 +383,7 @@ IcePHP::createStringArray(zval* zv, const Ice::StringSeq& seq)
     array_init(zv);
     for(Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        if(add_next_index_stringl(zv, STRCAST(p->c_str()), static_cast<uint>(p->length())) == FAILURE)
+        if(add_next_index_stringl(zv, STRCAST(p->c_str()), static_cast<uint32_t>(p->length())) == FAILURE)
         {
             return false;
         }

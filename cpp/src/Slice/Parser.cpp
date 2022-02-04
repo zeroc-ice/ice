@@ -1107,7 +1107,11 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 void
 Slice::Container::destroy()
 {
+#ifdef ICE_CPP11_COMPILER
+    for_each(_contents.begin(), _contents.end(), [](const SyntaxTreeBasePtr& it) { it->destroy();  });
+#else
     for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&SyntaxTreeBase::destroy));
+#endif
     _contents.clear();
     _introducedMap.clear();
     SyntaxTreeBase::destroy();

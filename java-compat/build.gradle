@@ -12,16 +12,9 @@ subprojects {
     apply plugin: 'idea'
     apply from: "$project.ext.topSrcDir/java/gradle/ice.gradle"
 
-    // We set this early so that slice.jarDir is correct
     slice.compat = true
 
     repositories {
-        if (slice.jarDir) {
-            flatDir {
-                name "local"
-                dirs slice.jarDir
-            }
-        }
 
         if(this.devRepo) {
             maven {

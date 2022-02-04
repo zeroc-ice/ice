@@ -17,7 +17,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-struct ObjectEntryCI : binary_function<ObjectEntryPtr&, ObjectEntryPtr&, bool>
+struct ObjectEntryCI
 {
 
     bool
@@ -27,7 +27,7 @@ struct ObjectEntryCI : binary_function<ObjectEntryPtr&, ObjectEntryPtr&, bool>
     }
 };
 
-struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
+struct ObjectLoadCI
 {
     bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
     {

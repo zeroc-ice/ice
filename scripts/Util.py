@@ -216,8 +216,8 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            if int(version[0]) == 5:
-                self.defaultFramework = "net5.0"
+            if int(version[0]) == 6:
+                self.defaultFramework = "net6.0"
             else:
                 self.defaultFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
         except:
@@ -446,6 +446,8 @@ class Windows(Platform):
                     self.compiler = "v141"
                 elif out.find("Version 19.2") != -1:
                     self.compiler = "v142"
+                elif out.find("Version 19.3") != -1:
+                    self.compiler = "v143"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
             except:
@@ -2492,7 +2494,7 @@ class AndroidProcessController(RemoteProcessController):
 class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
-    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-X"
+    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-13"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "tcp -h 0.0.0.0 -p 15001" if current.config.xamarin else None)
@@ -2507,7 +2509,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         except:
             pass
         if not self.runtimeID:
-            self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-12-0" # Default value
+            self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-15-2" # Default value
 
     def __str__(self):
         return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip())
@@ -2531,17 +2533,21 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 #
                 # Create the simulator device if it doesn't exist
                 #
+                self.simulatorID = run("xcrun simctl create \"{0}\" {1} {2}".format(self.device, self.deviceID, self.runtimeID))
+                run("xcrun simctl boot \"{0}\"".format(self.device))
+                run("xcrun simctl bootstatus \"{0}\"".format(self.device)) # Wait for the boot to complete
+                #
+                # This not longer works on iOS 15 simulator, fails with:
+                #   "Could not write domain com.apple.springboard; exiting"
+                #
                 # We update the watchdog timer scale to prevent issues with the controller app taking too long
                 # to start on the simulator. The security validation of the app can take a significant time and
                 # causes the watch dog to kick-in leaving the springboard app in a bogus state where it's not
                 # possible to terminate and restart the controller
                 #
-                self.simulatorID = run("xcrun simctl create \"{0}\" {1} {2}".format(self.device, self.deviceID, self.runtimeID))
-                run("xcrun simctl boot \"{0}\"".format(self.device))
-                run("xcrun simctl bootstatus \"{0}\"".format(self.device)) # Wait for the boot to complete
-                run("xcrun simctl spawn \"{0}\" defaults write com.apple.springboard FBLaunchWatchdogScale 20".format(self.device))
-                run("xcrun simctl shutdown \"{0}\"".format(self.device))
-                run("xcrun simctl boot \"{0}\"".format(self.device))
+                # run("xcrun simctl spawn \"{0}\" defaults write com.apple.springboard FBLaunchWatchdogScale 20".format(self.device))
+                # run("xcrun simctl shutdown \"{0}\"".format(self.device))
+                # run("xcrun simctl boot \"{0}\"".format(self.device))
             else:
                 raise
         print("ok")
@@ -3381,7 +3387,7 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-27;google_apis;x86"
+        return "system-images;android-31;google_apis;x86_64"
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "android", "controller", "build", "outputs", "apk", "debug",
@@ -3417,7 +3423,7 @@ class JavaCompatMapping(JavaMapping):
         return { "CLASSPATH" : os.pathsep.join(classPath) }
 
     def getSDKPackage(self):
-        return "system-images;android-21;google_apis;x86_64"
+        return "system-images;android-31;google_apis;x86_64"
 
 class CSharpMapping(Mapping):
 
@@ -3443,7 +3449,7 @@ class CSharpMapping(Mapping):
             if not self.dotnetcore and not isinstance(platform, Windows):
                 self.dotnetcore = True
 
-            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net5.0", "net45"] else self.framework
+            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net6.0", "net45"] else self.framework
             self.binTargetFramework = self.framework
             self.testTargetFramework = self.framework
 
@@ -3461,7 +3467,7 @@ class CSharpMapping(Mapping):
         return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        if current.config.framework in ["net5.0", "net45"]:
+        if current.config.framework in ["net6.0", "net45"]:
             return os.path.join("msbuild", name, current.config.framework)
         else:
             return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
@@ -3570,7 +3576,7 @@ class CSharpMapping(Mapping):
         return command
 
     def getSDKPackage(self):
-        return "system-images;android-27;google_apis;x86"
+        return "system-images;android-31;google_apis;x86_64"
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "xamarin", "controller.Android", "bin", current.config.buildConfig,
@@ -3782,7 +3788,7 @@ class PhpMapping(CppBasedClientMapping):
         def usage(self):
             print("")
             print("PHP Mapping options:")
-            print("--php-version=[7.1|7.2|7.3]    PHP Version used for Windows builds")
+            print("--php-version=[7.1|7.2|7.3|8.0|8.1]    PHP Version used for Windows builds")
 
 
         def __init__(self, options=[]):
@@ -3801,7 +3807,9 @@ class PhpMapping(CppBasedClientMapping):
             nugetVersions = {
                 "7.1": "7.1.17",
                 "7.2": "7.2.8",
-                "7.3": "7.3.0"
+                "7.3": "7.3.0",
+                "8.0": "8.0.0.1",
+                "8.1": "8.1.0"
             }
             nugetVersion = nugetVersions[current.config.phpVersion]
             threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]

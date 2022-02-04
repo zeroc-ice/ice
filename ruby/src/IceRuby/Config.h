@@ -51,6 +51,11 @@
 // BUGFIX: Workaround unused parameter in ruby.h header file
 //
 #if defined(__clang__)
+// BUFIX: Workaround clang 13 warnings during ruby macro expansion, it is important to put this before the push/pop
+// directives to keep the warnings ignored in the source files where macros are expanded.
+#   if __clang_major__ >= 13
+#       pragma clang diagnostic ignored "-Wcompound-token-split-by-macro"
+#   endif
 #   pragma clang diagnostic push
 #   pragma clang diagnostic ignored "-Wunused-parameter"
 //

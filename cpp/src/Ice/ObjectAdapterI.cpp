@@ -98,7 +98,7 @@ Ice::ObjectAdapterI::activate()
         //
         if(_state != StateUninitialized)
         {
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
             for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
                 [](const IncomingConnectionFactoryPtr& factory)
                 {
@@ -159,7 +159,7 @@ Ice::ObjectAdapterI::activate()
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         assert(_state == StateActivating);
 
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
             for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
                 [](const IncomingConnectionFactoryPtr& factory)
                 {
@@ -182,7 +182,7 @@ Ice::ObjectAdapterI::hold()
     checkForDeactivation();
     _state = StateHeld;
 
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory)
         {
@@ -206,7 +206,7 @@ Ice::ObjectAdapterI::waitForHold()
         incomingConnectionFactories = _incomingConnectionFactories;
     }
 
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
     for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory)
         {
@@ -269,7 +269,7 @@ Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
         //
     }
 
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory)
         {
@@ -317,7 +317,7 @@ Ice::ObjectAdapterI::waitForDeactivate() ICE_NOEXCEPT
     // Now we wait until all incoming connection factories are
     // finished.
     //
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
     for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory)
         {
@@ -639,7 +639,7 @@ Ice::ObjectAdapterI::getEndpoints() const ICE_NOEXCEPT
     EndpointSeq endpoints;
     transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
             back_inserter(endpoints),
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
             [](const IncomingConnectionFactoryPtr& factory)
             {
                 return factory->endpoint();
@@ -831,7 +831,7 @@ Ice::ObjectAdapterI::updateConnectionObservers()
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         f = _incomingConnectionFactories;
     }
-#ifdef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_COMPILER
     for_each(f.begin(), f.end(),
         [](const IncomingConnectionFactoryPtr& factory)
         {

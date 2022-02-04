@@ -367,7 +367,7 @@ private:
 };
 typedef IceUtil::Handle<ResetPropertiesCB> ResetPropertiesCBPtr;
 
-struct EnvironmentEval : std::unary_function<string, string>
+struct EnvironmentEval
 {
 
     string

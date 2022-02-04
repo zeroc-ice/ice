@@ -10,7 +10,7 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <PackageId>zeroc.ice.net</PackageId>
         <Title>ZeroC Ice for .NET</Title>
-        <PackageVersion>3.7.6</PackageVersion>
+        <PackageVersion>3.7.7</PackageVersion>
         <Authors>ZeroC</Authors>
         <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>
@@ -33,9 +33,9 @@
             <Pack>true</Pack>
         </Content>
 
-        <Content Include="..\lib\net5.0\*.dll">
+        <Content Include="..\lib\net6.0\*.dll">
             <Pack>true</Pack>
-            <PackagePath>lib\net5.0</PackagePath>
+            <PackagePath>lib\net6.0</PackagePath>
         </Content>
 
         <Content Include="..\lib\netstandard2.0\*.dll">
@@ -43,9 +43,9 @@
             <PackagePath>lib\netstandard2.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\net5.0\publish\*" Exclude="..\bin\net5.0\publish\iceboxnet">
+        <Content Include="..\bin\net6.0\publish\*" Exclude="..\bin\net6.0\publish\iceboxnet">
             <Pack>true</Pack>
-            <PackagePath>tools\net5.0</PackagePath>
+            <PackagePath>tools\net6.0</PackagePath>
         </Content>
 
         <Content Include="..\bin\$(AppTargetFramework)\publish\*" Exclude="..\bin\$(AppTargetFramework)\publish\iceboxnet">
