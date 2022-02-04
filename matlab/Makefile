@@ -102,6 +102,7 @@ $(icetoolbox_file): $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x
 	sed -i 's|@MatlabHome@|$(MATLAB_HOME)|g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@IceVersion@/$(version)/g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@MatlabVersion@/R$(MATLAB_VERSION)/g' $(lang_srcdir)/toolbox/toolbox.prj
+	sed -i 's/@SLICE2MATLAB@/slice2matlab/g' $(lang_srcdir)/toolbox/toolbox.prj
 	cp $(lang_srcdir)/toolbox/info.template.xml $(lang_srcdir)/toolbox/info.xml
 	sed -i 's/@MatlabVersion@/R$(MATLAB_VERSION)/g' $(lang_srcdir)/toolbox/info.xml
 	# Sources and libraries

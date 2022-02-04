@@ -45,7 +45,7 @@
     <fileset.rootfiles>
       <file>${PROJECT_ROOT}\build\doc</file>
       <file>${PROJECT_ROOT}\build\slice</file>
-      <file>${PROJECT_ROOT}\build\slice2matlab.exe</file>
+      <file>${PROJECT_ROOT}\build\@SLICE2MATLAB@</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />

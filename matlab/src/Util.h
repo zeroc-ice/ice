@@ -5,6 +5,10 @@
 #include <Ice/Identity.h>
 #include <Ice/Version.h>
 #include <IceSSL/IceSSL.h>
+
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif
 #include <mex.h>
 
 typedef struct mxArray_tag mxArray; // Forward declaration to avoid importing mex.h here
