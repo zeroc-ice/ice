@@ -29,17 +29,17 @@ function status = slice2matlab(args)
 
     rootDir = fileparts(mfilename('fullpath'));
 
-    path = findFile({fullfile('..', 'slice2matlab')
-                     fullfile('..', 'slice2matlab.exe')
+    path = findFile({fullfile('slice2matlab')
+                     fullfile('slice2matlab.exe')
                      fullfile('..', '..', 'cpp', 'bin', 'x64', 'Release', 'slice2matlab.exe')
                      fullfile('..', '..', 'cpp', 'bin', 'x64', 'Debug', 'slice2matlab.exe')
                      fullfile('..', 'msbuild', 'packages', 'zeroc.ice.v140', 'build', 'native', 'tools', 'slice2matlab.exe')}, rootDir, 2);
 
-    searchPath = findFile({fullfile('..', 'slice') ...
+    searchPath = findFile({fullfile('slice') ...
                            fullfile('..', '..', 'slice')}, rootDir, 7);
     if isempty(path)
         status = 1;
-        fprintf('\nerror: Cannot locate slice2matlab.exe\n');
+        fprintf('\nerror: Cannot locate slice2matlab compiler\n');
     elseif  isempty(searchPath)
         status = 1;
         fprintf('\nerror: Cannot locate slice dir.\n');
