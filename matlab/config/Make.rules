@@ -4,11 +4,12 @@
 
 #
 # If multiple versions of MATLAB are installed and you want a specific
-# version to be used for building the Ice extension, set MATLAB_HOME to
-# the location of the MATLAB installation.
+# version to be used for building the Ice extension, set MATLAB_VERSION o
+# the MATLAB verson you want to use and MATLAB_HOME to the location of the
+# MATLAB installation.
 #
-MATLAB_HOME	?= /usr/local/MATLAB/R2021b
-MATLAB_VERSION	?= 2021b
+MATLAB_VERSION	?= 2019b
+MATLAB_HOME	?= /usr/local/MATLAB/R$(MATLAB_VERSION)
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
