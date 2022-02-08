@@ -6,9 +6,11 @@
 #include <iostream>
 #include <string>
 #include <locale>
-#include <codecvt>
 #include "ice.h"
 #include "Util.h"
+#if defined(ICE_HAS_CODECVT_UTF8)
+#   include <codecvt>
+#endif
 
 using namespace std;
 
@@ -59,10 +61,14 @@ IceMatlab::createStringFromUTF8(const string& s)
     }
     else
     {
-#ifdef _MSC_VER
-        //
+#if defined(ICE_HAS_CODECVT_UTF8)
+        vector<unsigned char>(
+            reinterpret_cast<const unsigned char*>(s.data()),
+            reinterpret_cast<const unsigned short*>(s.data()) + s.length()) source;
+        vector<unsigned short> utf16;
+        convertUTF8ToUTF16(source, target);
+#elif defined(_MSC_VER)
         // Workaround for Visual Studio bug that causes a link error when using char16_t.
-        //
         wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
 #else
         u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
@@ -71,7 +77,9 @@ IceMatlab::createStringFromUTF8(const string& s)
         auto r = mxCreateCharArray(2, dims);
         auto buf = mxGetChars(r);
         int i = 0;
-#ifdef _MSC_VER
+#if defined(ICE_HAS_CODECVT_UTF8)
+        for(unsigned short c : utf16)
+#elif defined(_MSC_VER)
         for(wchar_t c : utf16)
 #else
         for(char16_t c : utf16)
