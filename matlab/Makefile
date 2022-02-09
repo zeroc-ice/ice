@@ -45,8 +45,6 @@ $(eval $(call make-matlab-package,$(slicedir),lib/generated,Glacier2))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceGrid))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceStorm))
 
-endif
-
 #
 # icethunk mex library
 #
@@ -57,6 +55,9 @@ icethunk_cflags = $(matlab_cflags) -I$(lang_srcdir)/src -m64 -fPIC -shared \
 	-pthread -Wl,--no-undefined -Wl,-rpath-link,/usr/local/MATLAB/R2021b/bin/glnxa64
 icethunk_target = $(icethunk_libdir)/icethunk.so
 icethunk_proto = $(icethunk_libdir)/iceproto.m
+cpp_libdir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ICE_HOME)/lib/x86_64-linux-gnu,$(top_srcdir)/cpp/lib/x86_64-linux-gnu)
+cpp_bindir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ICE_HOME)/bin,$(top_srcdir)/cpp/bin)
+
 
 .PRECIOUS: $(icethunk_proto)
 
@@ -83,13 +84,6 @@ clean::
 all:: $(icethunk_target)
 
 #
-# Translate the Slice files from test directories
-#
-tests := $(call tests-without-project-makefile,m)
-include $(shell find test -name Makefile.mk)
-$(foreach t,$(tests),$(eval $(call make-matlab-test-project,$(t))))
-
-#
 # Toolbox
 #
 icetoolbox_file = toolbox/ice-$(version)-R$(MATLAB_VERSION).mltbx
@@ -111,10 +105,10 @@ $(icetoolbox_file): $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x
 	cp -rf $(lang_srcdir)/lib/+* $(lang_srcdir)/toolbox/build
 	cp -rf $(lang_srcdir)/lib/generated/+* $(lang_srcdir)/toolbox/build
 	cp -rf $(lang_srcdir)/lib/x86_64-linux-gnu/* $(lang_srcdir)/toolbox/build
-	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIce++11.so.37 $(lang_srcdir)/toolbox/build
-	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIceSSL++11.so.37 $(lang_srcdir)/toolbox/build
-	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIceDiscovery++11.so.37 $(lang_srcdir)/toolbox/build
-	cp -rLf $(top_srcdir)/cpp/lib/x86_64-linux-gnu/libIceLocatorDiscovery++11.so.37 $(lang_srcdir)/toolbox/build
+	cp -rLf $(cpp_libdir)/libIce++11.so.37 $(lang_srcdir)/toolbox/build
+	cp -rLf $(cpp_libdir)/libIceSSL++11.so.37 $(lang_srcdir)/toolbox/build
+	cp -rLf $(cpp_libdir)/libIceDiscovery++11.so.37 $(lang_srcdir)/toolbox/build
+	cp -rLf $(cpp_libdir)/libIceLocatorDiscovery++11.so.37 $(lang_srcdir)/toolbox/build
 	# Slice files
 	mkdir -p $(lang_srcdir)/toolbox/build/slice
 	cp -rf $(top_srcdir)/slice/Glacier2 $(lang_srcdir)/toolbox/build/slice
@@ -122,7 +116,7 @@ $(icetoolbox_file): $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x
 	cp -rf $(top_srcdir)/slice/IceStorm $(lang_srcdir)/toolbox/build/slice
 	cp -rf $(top_srcdir)/slice/IceGrid $(lang_srcdir)/toolbox/build/slice
 	# Tools
-	cp -rf $(top_srcdir)/cpp/bin/slice2matlab $(lang_srcdir)/toolbox/build/
+	cp -rf $(cpp_bindir)/slice2matlab $(lang_srcdir)/toolbox/build/
 	# Doc files
 	cp -rf $(lang_srcdir)/toolbox/doc $(lang_srcdir)/toolbox/build
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "addFolderToPath '`realpath build`'"
@@ -136,3 +130,12 @@ clean::
 	rm -rf $(lang_srcdir)/toolbox/info.xml
 
 all:: $(icetoolbox_file)
+
+endif
+
+#
+# Translate the Slice files from test directories
+#
+tests := $(call tests-without-project-makefile,m)
+include $(shell find test -name Makefile.mk)
+$(foreach t,$(tests),$(eval $(call make-matlab-test-project,$(t))))
