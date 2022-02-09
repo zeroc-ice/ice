@@ -51,13 +51,11 @@ $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceStorm))
 icethunk_libdir = $(lang_srcdir)/lib/x86_64-linux-gnu
 icethunk_srcdir = $(lang_srcdir)/src
 icethunk_builddir = $(lang_srcdir)/src/build
-icethunk_cflags = $(matlab_cflags) -I$(lang_srcdir)/src -m64 -fPIC -shared \
-	-pthread -Wl,--no-undefined -Wl,-rpath-link,/usr/local/MATLAB/R2021b/bin/glnxa64
+icethunk_cflags = $(matlab_cflags) -I$(lang_srcdir)/src -m64 -fPIC -shared -pthread -Wl,--no-undefined
 icethunk_target = $(icethunk_libdir)/icethunk.so
 icethunk_proto = $(icethunk_libdir)/iceproto.m
 cpp_libdir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ice_home)/lib/x86_64-linux-gnu,$(top_srcdir)/cpp/lib/x86_64-linux-gnu)
 cpp_bindir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ice_home)/bin,$(top_srcdir)/cpp/bin)
-
 
 .PRECIOUS: $(icethunk_proto)
 

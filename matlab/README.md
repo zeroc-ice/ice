@@ -2,12 +2,16 @@
 
 This document describes how to build and install Ice for MATLAB from source.
 
-ZeroC provides Ice for MATLAB [toolboxes][1] for all recent versions of MATLAB
-on Windows, so building Ice for MATLAB from source is usually unnecessary.
+ZeroC provides Ice for MATLAB [toolboxes][1] for MATLAB on Windows and Linux, so building Ice for MATLAB from source is
+usually unnecessary.
 
-* [Prerequisites](#prerequisites)
-* [Build Instructions](#build-instructions)
-* [Packaging the Ice Toolbox](#packaging-the-ice-toolbox)
+* [Building Ice for MATALB on Windows](#building-ice-for-matlab-on-windows)
+  * [Prerequisites](#prerequisites)
+  * [Build Instructions](#build-instructions)
+  * [Packaging the Ice Toolbox](#packaging-the-ice-toolbox)
+* [Building Ice for MATLAB on Linux](#building-ice-for-matlab-on-linux)
+  * [Prerequisites](#prerequisites-1)
+  * [Build Instructions](#build-instructions-1)
 * [Using Ice for MATLAB](#using-ice-for-matlab)
   * [Search Path](#search-path)
   * [Slice Files](#slice-files)
@@ -71,7 +75,7 @@ This creates the toolbox package `toolbox\ice-<Ice Version>-<MATLAB Version>.mlt
 
 You can install the toolbox from within MATLAB by double-clicking on the file.
 
-## Building Ice for MATALB on Linux
+## Building Ice for MATLAB on Linux
 
 ### Prerequisites
 
@@ -117,7 +121,7 @@ To use a source build, add the following directories to your MATLAB path:
 Use `slice2matlab` to compile your Slice files. Run `slice2matlab -h` for a description of its command-line options. You
 can place the generated `*.m` files anywhere you like, but the enclosing directory must be in your MATLAB path.
 
-#### Loading the Library
+### Loading the Library
 
 The Ice for MATLAB library can be loaded with this command:
 ```
