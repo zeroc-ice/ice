@@ -114,6 +114,14 @@ To build the Ice for MATLAB toolbox using the C++ binary distribution, set `ICE_
 with the MATLAB 2019b builds, because MATLAB 2017b needs to use the g++-4.9 that is not compatible with the Xenial
 binary distribution.
 
+When building for MATALB 2017b you must set `CC` and `CXX` variables to use the `gcc-4.9` and `g++-4.9` compilers
+respectively.
+
+```
+CC=gcc-4.9
+CXX=g++-4.9
+```
+
 ## Using Ice for MATLAB
 
 ### Search Path
