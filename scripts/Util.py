@@ -3854,7 +3854,7 @@ class MatlabMapping(CppBasedClientMapping):
             " -wait -log -minimize" if isinstance(platform, Windows) else "",
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
             self.getTestCwd(process, current),
-            os.path.join(current.config.buildPlatform, current.config.buildConfig),
+            current.driver.getComponent().getLibDir(process, self, current),
             args)
 
     def getServerMapping(self, testId=None):

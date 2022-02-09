@@ -18,7 +18,7 @@ function runTest(varargin)
     if ~strcmp(getenv('ICE_BIN_DIST'), 'all')
         addpath(fullfile(rootDir, 'lib'));
         addpath(fullfile(rootDir, 'lib', 'generated'));
-        addpath(fullfile(rootDir, 'lib', 'x86_64-linux-gnu'));
+        addpath(fullfile(libsubdir));
     end
     addpath(fullfile(rootDir, 'test', 'lib'));
 
