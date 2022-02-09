@@ -491,6 +491,8 @@ class Windows(Platform):
             config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
             if isinstance(mapping, PhpMapping):
                 return os.path.join(installDir, "lib", "php-{0}".format(current.config.phpVersion), platform, config)
+            if isinstance(mapping, MatlabMapping):
+                return os.path.join(installDir, "lib", platform, config)
             elif component.useBinDist(mapping, current):
                 return os.path.join(installDir, "build", "native", "bin", platform, config)
             else:
