@@ -632,7 +632,7 @@ IceMatlab::getStringList(mxArray* m, vector<string>& v)
     v.clear();
     for(size_t i = 0; i < n; ++i)
     {
-        mxArray* c = mxGetCell(m, i);
+        mxArray* c = mxGetCell(m, static_cast<mwIndex>(i));
         v.push_back(getStringFromUTF16(c));
     }
 }

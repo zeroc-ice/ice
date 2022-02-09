@@ -63,11 +63,11 @@
     <platform>
       <unix>false</unix>
       <mac>false</mac>
-      <windows>true</windows>
+      <windows>@IS_WINDOWS@</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
-      <linux>false</linux>
+      <linux>@IS_LINUX@</linux>
       <solaris>false</solaris>
       <osver>6.2</osver>
       <os32>false</os32>
