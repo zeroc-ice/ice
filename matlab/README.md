@@ -69,7 +69,7 @@ Use the following command to build the Ice toolbox package:
 msbuild msbuild\ice.proj /t:Package
 ```
 
-This creates the toolbox package `toolbox\ice-<Ice Version>-<MATLAB Version>.mltbx`.
+This creates the toolbox package `toolbox\ice-<Ice Version>-<MATLAB Version>-win.mltbx`.
 
 You can install the toolbox from within MATLAB by double-clicking on the file.
 
@@ -107,7 +107,7 @@ Run `make` to build the Ice for MATLAB toolbox and the MATLAB tests. Set `V=1` t
 make
 ```
 
-This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>.mltbx`. You can install the toolbox from
+This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>-linux.mltbx`. You can install the toolbox from
 within MATLAB by double-clicking on the file.
 
 To build the Ice for MATLAB toolbox using the C++ binary distribution, set `ICE_BIN_DIST=cpp`, note this is only possible
