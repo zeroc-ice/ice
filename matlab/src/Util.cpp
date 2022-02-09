@@ -10,12 +10,51 @@
 #include "Util.h"
 #if defined(ICE_HAS_CODECVT_UTF8)
 #   include <codecvt>
+#else
+#   include <IceUtil/ConvertUTF.h>
 #endif
 
 using namespace std;
 
 namespace
 {
+
+#ifndef ICE_HAS_CODECVT_UTF8
+void
+convertUTF8ToUTF16(const vector<unsigned char>& source, vector<unsigned short>& target)
+{
+    target.resize(source.size());
+    const unsigned char* sourceStart = &source[0];
+    const unsigned char* sourceEnd = &source[0] + source.size();
+
+    unsigned short* targetStart = &target[0];
+    unsigned short* targetEnd = &target[0] + target.size();
+    IceUtilInternal::ConversionResult result = IceUtilInternal::ConvertUTF8toUTF16(
+        &sourceStart,
+	sourceEnd,
+	&targetStart,
+	targetEnd,
+	IceUtilInternal::lenientConversion);
+
+    switch (result)
+    {
+        case IceUtilInternal::conversionOK:
+            break;
+        case IceUtilInternal::sourceExhausted:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "source exhausted");
+        case IceUtilInternal::sourceIllegal:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "source illegal");
+        case IceUtilInternal::targetExhausted:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "source illegal");
+        default:
+        {
+            assert(0);
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+        }
+    }
+    target.resize(targetStart - &target[0]);
+}
+#endif
 
 string
 replace(string s, string patt, string val)
@@ -61,12 +100,12 @@ IceMatlab::createStringFromUTF8(const string& s)
     }
     else
     {
-#if defined(ICE_HAS_CODECVT_UTF8)
-        vector<unsigned char>(
+#if !defined(ICE_HAS_CODECVT_UTF8)
+        vector<unsigned char> source(
             reinterpret_cast<const unsigned char*>(s.data()),
-            reinterpret_cast<const unsigned short*>(s.data()) + s.length()) source;
+            reinterpret_cast<const unsigned char*>(s.data()) + s.length());
         vector<unsigned short> utf16;
-        convertUTF8ToUTF16(source, target);
+        convertUTF8ToUTF16(source, utf16);
 #elif defined(_MSC_VER)
         // Workaround for Visual Studio bug that causes a link error when using char16_t.
         wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
@@ -77,7 +116,7 @@ IceMatlab::createStringFromUTF8(const string& s)
         auto r = mxCreateCharArray(2, dims);
         auto buf = mxGetChars(r);
         int i = 0;
-#if defined(ICE_HAS_CODECVT_UTF8)
+#if !defined(ICE_HAS_CODECVT_UTF8)
         for(unsigned short c : utf16)
 #elif defined(_MSC_VER)
         for(wchar_t c : utf16)

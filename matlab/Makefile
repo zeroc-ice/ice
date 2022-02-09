@@ -55,8 +55,8 @@ icethunk_cflags = $(matlab_cflags) -I$(lang_srcdir)/src -m64 -fPIC -shared \
 	-pthread -Wl,--no-undefined -Wl,-rpath-link,/usr/local/MATLAB/R2021b/bin/glnxa64
 icethunk_target = $(icethunk_libdir)/icethunk.so
 icethunk_proto = $(icethunk_libdir)/iceproto.m
-cpp_libdir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ICE_HOME)/lib/x86_64-linux-gnu,$(top_srcdir)/cpp/lib/x86_64-linux-gnu)
-cpp_bindir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ICE_HOME)/bin,$(top_srcdir)/cpp/bin)
+cpp_libdir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ice_home)/lib/x86_64-linux-gnu,$(top_srcdir)/cpp/lib/x86_64-linux-gnu)
+cpp_bindir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ice_home)/bin,$(top_srcdir)/cpp/bin)
 
 
 .PRECIOUS: $(icethunk_proto)
