@@ -3,11 +3,6 @@
 #
 
 #
-# The MATLAB version used by this build
-#
-MATLAB_VERSION	?= 2019b
-
-#
 # the location of the MATLAB installation.
 #
 MATLAB_HOME	?= /usr/local/MATLAB/R2019b
@@ -20,6 +15,7 @@ MATLAB_HOME	?= /usr/local/MATLAB/R2019b
 
 matlab	:= $(MATLAB_HOME)/bin/matlab
 mex	:= $(MATLAB_HOME)/bin/mex
+matlab_version := $(patsubst VERSION-%,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('VERSION-%s', version('-release'));exit(0);")))
 
 matlab_cflags	= -fexceptions \
 	-fno-omit-frame-pointer \
