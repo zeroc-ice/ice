@@ -107,13 +107,12 @@ Run `make` to build the Ice for MATLAB toolbox and the MATLAB tests. Set `V=1` t
 make
 ```
 
+This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>.mltbx`. You can install the toolbox from
+within MATLAB by double-clicking on the file.
+
 To build the Ice for MATLAB toolbox using the C++ binary distribution, set `ICE_BIN_DIST=cpp`, note this is only possible
 with the MATLAB 2019b builds, because MATLAB 2017b needs to use the g++-4.9 that is not compatible with the Xenial
 binary distribution.
-
-This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>.mltbx`.
-
-You can install the toolbox from within MATLAB by double-clicking on the file.
 
 ## Using Ice for MATLAB
 
