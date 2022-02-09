@@ -82,19 +82,12 @@ The build system requires MATLAB 2017b or MATLAB 2019b for Linux, with a support
 * For 2017b GCC 4.9 must be used, see [MATLAB 2017b supported compilers][2].
 * For 2019b GCC 6.3 must be used, see [MATLAB 2019b supported compilers][3].
 
-The supported platforms for building MATLAB on Linux are:
+The supported platforms for building Ice for MATLAB on Linux are:
 
-* To build Ice for MATLAB 2017b, you should use Ubuntu 16.04 (Xenial) with g++-4.9 compiler.
-* To build Ice for MATLAB 2019b, you should use Debian 9 (Stretch) with the default g++ compiler.
+* Ubuntu 16.04 (Xenial) with g++-4.9 compiler, for MATLAB 2017b.
+* Debian 9 (Stretch) with the default g++ compiler, for MATLAB 2019b.
 
 ### Build Instructions
-
-Review the [matlab/config/Make.rules](config/Make.rules) in your build tree and update the configuration if needed. The
-comments in the file provide more information.
-
-```
-cd matlab
-```
 
 The MATLAB extension depends on Ice for C++ components from the cpp subdirectory, and those need to be built, using the
 `cpp11-shared` configuration, if you have not built the C++ distribution first review [cpp/README.md](../cpp/README.md).
@@ -105,6 +98,9 @@ In a command window, change to the matlab subdirectory:
 cd matlab
 ```
 
+Review the [matlab/config/Make.rules](config/Make.rules) in your build tree and update the configuration if needed. The
+comments in the file provide more information.
+
 Run `make` to build the Ice for MATLAB toolbox and the MATLAB tests. Set `V=1` to get a more detailed build output.
 
 ```
@@ -112,7 +108,7 @@ make
 ```
 
 To build the Ice for MATLAB toolbox using the C++ binary distribution, set `ICE_BIN_DIST=cpp`, note this is only possible
-with the MATLAB 2019b builds, because MATLAB 2017b needs to be build with g++-4.9 that is not compatible with the Xenial
+with the MATLAB 2019b builds, because MATLAB 2017b needs to use the g++-4.9 that is not compatible with the Xenial
 binary distribution.
 
 This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>.mltbx`.
