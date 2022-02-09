@@ -630,9 +630,9 @@ IceMatlab::getStringList(mxArray* m, vector<string>& v)
     }
     size_t n = mxGetN(m);
     v.clear();
-    for(size_t i = 0; i < n; ++i)
+    for(mwIndex i = 0; i < n; ++i)
     {
-        mxArray* c = mxGetCell(m, static_cast<mwIndex>(i));
+        mxArray* c = mxGetCell(m, i);
         v.push_back(getStringFromUTF16(c));
     }
 }
