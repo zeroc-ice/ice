@@ -100,28 +100,30 @@ IceMatlab::createStringFromUTF8(const string& s)
     }
     else
     {
-#if !defined(ICE_HAS_CODECVT_UTF8)
+#if defined(_MSC_VER)
+        // Workaround for Visual Studio bug that causes a link error when using char16_t.
+        wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
+
+#elif defined(ICE_HAS_CODECVT_UTF8)
+        u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
+#else
         vector<unsigned char> source(
             reinterpret_cast<const unsigned char*>(s.data()),
             reinterpret_cast<const unsigned char*>(s.data()) + s.length());
         vector<unsigned short> utf16;
         convertUTF8ToUTF16(source, utf16);
-#elif defined(_MSC_VER)
-        // Workaround for Visual Studio bug that causes a link error when using char16_t.
-        wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
-#else
-        u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
 #endif
         mwSize dims[2] = { 1, static_cast<mwSize>(utf16.size()) };
         auto r = mxCreateCharArray(2, dims);
         auto buf = mxGetChars(r);
         int i = 0;
-#if !defined(ICE_HAS_CODECVT_UTF8)
-        for(unsigned short c : utf16)
-#elif defined(_MSC_VER)
+
+#if defined(_MSC_VER)
         for(wchar_t c : utf16)
-#else
+#elif defined(ICE_HAS_CODECVT_UTF8)
         for(char16_t c : utf16)
+#else
+        for(unsigned short c : utf16)
 #endif
         {
             buf[i++] = static_cast<mxChar>(c);

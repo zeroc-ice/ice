@@ -79,8 +79,8 @@ You can install the toolbox from within MATLAB by double-clicking on the file.
 
 The build system requires MATLAB 2017b or MATLAB 2019b for Linux, with a supported C++ compiler and a Perl installation.
 
-* For 2017b GCC 4.9 must be used, see [MATLAB 2017b supported compilers][2].
-* For 2019b GCC 6.3 must be used, see [MATLAB 2019b supported compilers][3].
+* Use GCC 4.9 for 2017b, see [MATLAB 2017b supported compilers][2].
+* Use GCC 6.3 for 2019b, see [MATLAB 2019b supported compilers][3].
 
 The supported platforms for building Ice for MATLAB on Linux are:
 
