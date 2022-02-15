@@ -1,3 +1,7 @@
 *.mexw64
 *.mltbx
 msbuild/toolbox
+lib/x86_64-linux-gnu/
+toolbox/build
+toolbox/toolbox.prj
+toolbox/info.xml

@@ -18,14 +18,14 @@ function runTest(varargin)
     if ~strcmp(getenv('ICE_BIN_DIST'), 'all')
         addpath(fullfile(rootDir, 'lib'));
         addpath(fullfile(rootDir, 'lib', 'generated'));
-        addpath(fullfile(rootDir, 'lib', libsubdir));
+        addpath(fullfile(libsubdir));
     end
     addpath(fullfile(rootDir, 'test', 'lib'));
 
     cd(testdir);
 
     try
-        client(varargin);
+        Client(varargin);
         exit(0);
     catch ex
         disp(getReport(ex, 'extended'));
