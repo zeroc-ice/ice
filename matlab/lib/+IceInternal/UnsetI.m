@@ -21,7 +21,7 @@ classdef UnsetI < handle
     methods(Static)
         function obj = getInstance()
             persistent singleton;
-            if isempty(singleton) || ~isvalid(singleton)
+            if ~isobject(singleton)
                 singleton = IceInternal.UnsetI();
             end
             obj = singleton;

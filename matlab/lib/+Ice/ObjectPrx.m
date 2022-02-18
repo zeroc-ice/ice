@@ -412,7 +412,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             for i = 1:num
                 impl = libpointer('voidPtr');
                 obj.iceCallWithResult('ice_getEndpoint', i - 1, impl); % C-style index
-                assert(~isNull(impl));
+                %assert(~isNull(impl));
                 r{i} = Ice.Endpoint(impl);
             end
         end
@@ -923,11 +923,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
             obj.instantiate_();
             future = libpointer('voidPtr');
             obj.iceCall('ice_getConnectionAsync', future);
-            assert(~isNull(future));
+            %assert(~isNull(future));
             function varargout = fetch(f)
                 con = libpointer('voidPtr', 0); % Output param
                 f.iceCall('fetch', con);
-                assert(~isNull(con));
+                %assert(~isNull(con));
                 varargout{1} = Ice.Connection(con);
             end
             r = Ice.Future(future, 'ice_getConnection', 1, 'Ice_GetConnectionFuture', @fetch);
@@ -970,7 +970,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             obj.instantiate_();
             future = libpointer('voidPtr');
             obj.iceCall('ice_flushBatchRequestsAsync', future);
-            assert(~isNull(future));
+            %assert(~isNull(future));
             r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
     end
@@ -1045,7 +1045,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 is = [];
                 if ~isempty(res.params)
                     if isempty(obj.cachedInputStream)
-                        is = Ice.InputStream(obj.communicator, obj.encoding, IceInternal.Buffer(res.params));
+                        is = Ice.InputStream(obj.communicator, obj.encoding, res.params);
                         obj.cachedInputStream = is;
                     else
                         is = obj.cachedInputStream;
@@ -1086,7 +1086,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         % res = f.iceCallWithResult('results');
                         %
                         res = IceInternal.Util.callWithResult('Ice_InvocationFuture_results', f.impl_);
-                        is = Ice.InputStream(obj.communicator, obj.encoding, IceInternal.Buffer(res.params));
+                        is = Ice.InputStream(obj.communicator, obj.encoding, res.params);
                         if ~res.ok
                             obj.iceThrowUserException(is, exceptions{:});
                         end
@@ -1142,7 +1142,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     %
                     IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsyncNC', obj.impl_, op, mode, buf, size, futPtr);
                 end
-                assert(~isNull(futPtr));
+                %assert(~isNull(futPtr));
                 fut = Ice.Future(futPtr, op, numOutArgs, 'Ice_InvocationFuture', @fetch);
             catch ex
                 ex.throwAsCaller();
@@ -1277,7 +1277,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % from the byte buffer that contains the proxy's marshaled form.
             %
             if isempty(obj.impl_)
-                assert(~isempty(obj.bytes));
+                %assert(~isempty(obj.bytes));
                 %
                 % Call into C++ to construct a proxy. We pass the data buffer and start position (adjusted for
                 % C-style pointers), along with the size of the entire buffer. The C++ implementation reads what

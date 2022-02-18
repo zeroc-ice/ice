@@ -27,7 +27,7 @@ classdef (Abstract) Value < matlab.mixin.Copyable
                 index = int32(0);
             end
             index = index + 1;
-            assert(index > 0); % Check for rollover
+            %assert(index > 0); % Check for rollover
             obj.iceInternal_ = index;
         end
         function ice_preMarshal(~)

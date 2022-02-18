@@ -72,7 +72,7 @@ classdef Connection < IceInternal.WrapperObject
 
             future = libpointer('voidPtr');
             obj.iceCall('closeAsync', future);
-            assert(~isNull(future));
+            %assert(~isNull(future));
             f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function r = createProxy(obj, id)
@@ -132,7 +132,7 @@ classdef Connection < IceInternal.WrapperObject
 
             future = libpointer('voidPtr');
             obj.iceCall('flushBatchRequestsAsync', future);
-            assert(~isNull(future));
+            %assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function heartbeat(obj)
@@ -148,7 +148,7 @@ classdef Connection < IceInternal.WrapperObject
 
             future = libpointer('voidPtr');
             obj.iceCall('heartbeatAsync', future);
-            assert(~isNull(future));
+            %assert(~isNull(future));
             r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function setACM(obj, timeout, close, heartbeat)

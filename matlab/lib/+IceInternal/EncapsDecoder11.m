@@ -50,7 +50,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
         function throwException(obj)
             import IceInternal.Protocol;
-            assert(isempty(obj.current));
+            %assert(isempty(obj.current));
 
             % Inlining push()
             obj.current = IceInternal.EncapsDecoder11_InstanceData(obj.current);
@@ -112,7 +112,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         end
 
         function startInstance(obj, sliceType)
-            assert(obj.current.sliceType == sliceType);
+            %assert(obj.current.sliceType == sliceType);
             obj.current.skipFirstSlice = true;
         end
 
@@ -134,69 +134,73 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % If first slice, don't read the header, it was already read in
             % readInstance or throwException to find the factory.
             %
-            if obj.current.skipFirstSlice
-                obj.current.skipFirstSlice = false;
-                r = obj.current.typeId;
+            current = obj.current;
+            if current.skipFirstSlice
+                current.skipFirstSlice = false;
+                r = current.typeId;
                 return;
             end
 
-            obj.current.sliceFlags = obj.is.readByte();
+            is = obj.is;
+            current.sliceFlags = is.readByte();
 
             %
             % Read the type ID, for value slices the type ID is encoded as a
             % string or as an index, for exceptions it's always encoded as a
             % string.
             %
-            if obj.current.sliceType == IceInternal.SliceType.ValueSlice
+            if current.sliceType == IceInternal.SliceType.ValueSlice
                 % Must be checked first!
-                if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT
-                    obj.current.typeId = '';
-                    obj.current.compactId = obj.is.readSize();
+                if bitand(current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT
+                    current.typeId = '';
+                    current.compactId = is.readSize();
                 elseif bitand(obj.current.sliceFlags, bitor(Protocol.FLAG_HAS_TYPE_ID_STRING, Protocol.FLAG_HAS_TYPE_ID_INDEX))
-                    obj.current.typeId = obj.readTypeId(bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_INDEX) > 0);
-                    obj.current.compactId = -1;
+                    current.typeId = obj.readTypeId(bitand(current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_INDEX) > 0);
+                    current.compactId = -1;
                 else
                     % Only the most derived slice encodes the type ID for the compact format.
-                    obj.current.typeId = '';
-                    obj.current.compactId = -1;
+                    current.typeId = '';
+                    current.compactId = -1;
                 end
             else
-                obj.current.typeId = obj.is.readString();
+                current.typeId = is.readString();
             end
 
             %
             % Read the slice size if necessary.
             %
-            if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
-                obj.current.sliceSize = obj.is.readInt();
-                if obj.current.sliceSize < 4
+            if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
+                current.sliceSize = is.readInt();
+                if current.sliceSize < 4
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
             else
-                obj.current.sliceSize = 0;
+                current.sliceSize = 0;
             end
 
-            r = obj.current.typeId;
+            r = current.typeId;
         end
 
         function endSlice(obj)
             import IceInternal.Protocol;
-            if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
-                obj.is.skipOptionals();
+            current = obj.current;
+            is = obj.is;
+            if bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
+                is.skipOptionals();
             end
 
             %
             % Read the indirection table if one is present and transform the
             % indirect patch list into patch entries with direct references.
             %
-            if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
+            if bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
                 %
                 % The table is written as a sequence<size> to conserve space.
                 %
-                sz = obj.is.readAndCheckSeqSize(1);
+                sz = is.readAndCheckSeqSize(1);
                 indirectionTable = cell(1, sz);
                 for i = 1:sz
-                    indirectionTable{i} = obj.readInstance(obj.is.readSize(), []);
+                    indirectionTable{i} = obj.readInstance(is.readSize(), []);
                 end
 
                 %
@@ -207,25 +211,25 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 if isempty(indirectionTable)
                     throw(Ice.MarshalException('', '', 'empty indirection table'));
                 end
-                if isempty(obj.current.indirectPatchList) && ...
-                   bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0
+                if isempty(current.indirectPatchList) && ...
+                   bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0
                     throw(Ice.MarshalException('', '', 'no references to indirection table'));
                 end
 
                 %
                 % Convert indirect references into direct references.
                 %
-                if ~isempty(obj.current.indirectPatchList)
-                    keys = obj.current.indirectPatchList.keys();
+                if ~isempty(current.indirectPatchList)
+                    keys = current.indirectPatchList.keys();
                     for i = 1:length(keys)
-                        e = obj.current.indirectPatchList(keys{i});
-                        assert(e.index > 0); % MATLAB starts indexing at 1
+                        e = current.indirectPatchList(keys{i});
+                        %assert(e.index > 0); % MATLAB starts indexing at 1
                         if e.index > length(indirectionTable)
                             throw(Ice.MarshalException('', '', 'indirection out of range'));
                         end
                         obj.addPatchEntry(indirectionTable{e.index}, e.cb);
                     end
-                    obj.current.indirectPatchList = [];
+                    current.indirectPatchList = [];
                 end
             end
         end
@@ -236,7 +240,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             start = obj.is.getPos();
 
             if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
-                assert(obj.current.sliceSize >= 4);
+                %assert(obj.current.sliceSize >= 4);
                 obj.is.skip(obj.current.sliceSize - 4);
             else
                 if obj.current.sliceType == IceInternal.SliceType.ValueSlice
@@ -290,7 +294,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
         function r = readOptional(obj, readTag, expectedFormat)
             import IceInternal.Protocol;
-            if isempty(obj.current)
+            if ~isobject(obj.current)
                 r = obj.is.readOptionalImpl(readTag, expectedFormat);
                 return;
             elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
@@ -304,7 +308,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods(Access=private)
         function r = readInstance(obj, index, cb)
             import IceInternal.Protocol;
-            assert(index > 0);
+            %assert(index > 0);
 
             if index > 1
                 if ~isempty(cb)
@@ -342,7 +346,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     %
                     % Translate a compact (numeric) type ID into a class.
                     %
-                    if isempty(obj.compactIdCache) % Lazy initialization.
+                    if ~isobject(obj.compactIdCache) % Lazy initialization.
                         obj.compactIdCache = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                     else
                         %
@@ -367,21 +371,18 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % If we haven't already cached a class for the compact ID, then try to translate the
                     % compact ID into a type ID.
                     %
-                    if isempty(v)
-                        obj.current.typeId = '';
-                        if isempty(obj.current.typeId)
-                            obj.current.typeId = obj.resolveCompactId(obj.current.compactId);
-                        end
+                    if ~isobject(v)
+                        obj.current.typeId = obj.resolveCompactId(obj.current.compactId);
                     end
                 end
 
-                if isempty(v) && ~isempty(obj.current.typeId)
+                if ~isobject(v) && ~isempty(obj.current.typeId)
                     v = obj.newInstance(obj.current.typeId);
                 end
 
-                if ~isempty(v)
+                if isobject(v)
                     if updateCache
-                        assert(obj.current.compactId >= 0);
+                        %assert(obj.current.compactId >= 0);
                         obj.compactIdCache(obj.current.compactId) = str2func(class(v));
                     end
 
@@ -415,7 +416,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % last chance to preserve the instance.
                     %
                     v = obj.newInstance(Ice.Value.ice_staticId());
-                    if isempty(v)
+                    if ~isobject(v)
                         v = Ice.UnknownSlicedValue(mostDerivedId);
                     end
 
@@ -437,7 +438,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
             obj.classGraphDepth = obj.classGraphDepth - 1;
 
-            if isempty(obj.current) && ~isempty(obj.patchMap)
+            if ~isobject(obj.current) && ~isempty(obj.patchMap)
                 %
                 % If any entries remain in the patch map, the sender has sent an index for an instance, but failed
                 % to supply the instance.
@@ -462,7 +463,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % The _indirectionTables member holds the indirection table for each slice
             % in _slices.
             %
-            assert(length(obj.current.slices) == length(obj.current.indirectionTables));
+            %assert(length(obj.current.slices) == length(obj.current.indirectionTables));
             function setInstance(si, n, v)
                 si.instances{n} = v;
             end

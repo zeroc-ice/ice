@@ -19,7 +19,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 num = obj.is.readSize();
             end
 
-            if ~isempty(obj.patchMap) && obj.patchMap.Count > 0
+            if length(obj.patchMap) > 0
                 %
                 % If any entries remain in the patch map, the sender has sent an index for an object, but failed
                 % to supply the object.
@@ -29,7 +29,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function readValue(obj, cb)
-            assert(~isempty(cb));
+            %assert(~isempty(cb));
 
             %
             % Object references are encoded as a negative integer in 1.0.
@@ -48,7 +48,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function throwException(obj)
-            assert(obj.sliceType == IceInternal.SliceType.NoSlice);
+            %assert(obj.sliceType == IceInternal.SliceType.NoSlice);
 
             %
             % User exception with the 1.0 encoding start with a boolean flag
@@ -127,7 +127,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function startInstance(obj, sliceType)
-            assert(obj.sliceType == sliceType);
+            %assert(obj.sliceType == sliceType);
             obj.skipFirstSlice = true;
         end
 
@@ -185,7 +185,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
 
         function skipSlice(obj)
             %obj.is.traceSkipSlice(obj.typeId, obj.sliceType);
-            assert(obj.sliceSize >= 4);
+            %assert(obj.sliceSize >= 4);
             obj.is.skip(obj.sliceSize - 4);
         end
 

@@ -12,9 +12,12 @@ classdef (Abstract) EncapsDecoder < handle
             obj.classResolver = classResolver;
             obj.classGraphDepthMax = classGraphDepthMax;
             obj.classGraphDepth = 0;
-            obj.patchMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-            obj.unmarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-            obj.typeIdMap = containers.Map('KeyType', 'int32', 'ValueType', 'char');
+            %obj.patchMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            obj.patchMap = {};
+%            obj.unmarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            obj.unmarshaledMap = {};
+%            obj.typeIdMap = containers.Map('KeyType', 'int32', 'ValueType', 'char');
+            obj.typeIdMap = {};
             obj.typeIdIndex = 0;
             obj.valueList = {};
             obj.delayedPostUnmarshal = {};
@@ -74,14 +77,15 @@ classdef (Abstract) EncapsDecoder < handle
                 % The map raises an exception if the key isn't present.
                 %
                 try
-                    r = obj.typeIdMap(index);
+                    r = obj.typeIdMap{index};
                 catch ex
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
             else
                 r = obj.is.readString();
-                obj.typeIdIndex = obj.typeIdIndex + 1;
-                obj.typeIdMap(obj.typeIdIndex) = r;
+                typeIdIndex = obj.typeIdIndex + 1;
+                obj.typeIdIndex = typeIdIndex;
+                obj.typeIdMap{typeIdIndex} = r;
             end
         end
 
@@ -126,15 +130,17 @@ classdef (Abstract) EncapsDecoder < handle
         end
 
         function addPatchEntry(obj, index, cb)
-            assert(index > 0);
+            %assert(index > 0);
 
             %
             % Check if we have already unmarshalled the instance. If that's the case,
             % just invoke the callback and we're done.
             %
-            if obj.unmarshaledMap.isKey(index)
-                v = obj.unmarshaledMap(index);
-                cb(v);
+            if index < length(obj.unmarshaledMap)
+                v = obj.unmarshaledMap{index};
+                if ~isempty(v)
+                    cb(v);
+                end
                 return;
             end
 
@@ -143,15 +149,14 @@ classdef (Abstract) EncapsDecoder < handle
             % the callback will be called when the instance is
             % unmarshaled.
             %
-            if obj.patchMap.isKey(index)
-                pl = obj.patchMap(index);
+            if index < length(obj.patchMap)
+                pl = obj.patchMap{index};
             else
                 %
                 % We have no outstanding instances to be patched for this
                 % index, so make a new entry in the patch map.
                 %
-                pl = IceInternal.PatchList();
-                obj.patchMap(index) = pl;
+                pl = {};
             end
 
             %
@@ -160,7 +165,8 @@ classdef (Abstract) EncapsDecoder < handle
             e = IceInternal.PatchEntry();
             e.cb = cb;
             e.classGraphDepth = obj.classGraphDepth;
-            pl.list{end + 1} = e;
+            pl{end + 1} = e;
+            obj.patchMap{index} = pl;
         end
 
         function unmarshal(obj, index, v)
@@ -168,25 +174,25 @@ classdef (Abstract) EncapsDecoder < handle
             % Add the instance to the map of unmarshaled instances, this must
             % be done before reading the instances (for circular references).
             %
-            obj.unmarshaledMap(index) = v;
+            obj.unmarshaledMap{index} = v;
 
             %
             % Read the instance.
             %
             v.iceRead(obj.is);
 
-            if ~isempty(obj.patchMap) && obj.patchMap.isKey(index)
+            if index < length(obj.patchMap)
                 %
                 % Patch all instances now that the instance is unmarshaled.
                 %
-                l = obj.patchMap(index);
-                assert(~isempty(l.list));
+                l = obj.patchMap{index};
+                %assert(~isempty(l));
 
                 %
                 % Patch all pointers that refer to the instance.
                 %
-                for i = 1:length(l.list)
-                    e = l.list{i};
+                for i = 1:length(l)
+                    e = l{i};
                     e.cb(v);
                 end
 
@@ -194,10 +200,10 @@ classdef (Abstract) EncapsDecoder < handle
                 % Clear out the patch map for that index -- there is nothing left
                 % to patch for that index for the time being.
                 %
-                obj.patchMap.remove(index);
+                obj.patchMap{index} = [];
             end
 
-            if (isempty(obj.patchMap) || obj.patchMap.Count == 0) && isempty(obj.valueList)
+            if length(obj.patchMap) == 0 && isempty(obj.valueList)
                 if v.iceDelayPostUnmarshal()
                     obj.delayedPostUnmarshal{end + 1} = v; % See finish()
                 else
@@ -211,7 +217,7 @@ classdef (Abstract) EncapsDecoder < handle
             else
                 obj.valueList{end + 1} = v;
 
-                if isempty(obj.patchMap) || obj.patchMap.Count == 0
+                if length(obj.patchMap) == 0
                     %
                     % Iterate over the instance list and invoke ice_postUnmarshal on
                     % each instance. We must do this after all instances have been
