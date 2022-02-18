@@ -13,6 +13,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
         function readValue(obj, cb)
             import IceInternal.Protocol;
+
+            current = obj.current;
+
             index = obj.is.readSize();
             if index < 0
                 throw(Ice.MarshalException('', '', 'invalid object id'));
@@ -20,7 +23,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 if ~isempty(cb)
                     cb([]);
                 end
-            elseif ~isempty(obj.current) && bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
+            elseif ~isempty(current) && bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
                 %
                 % When reading a class instance within a slice and there's an
                 % indirect instance table, always read an indirect reference
@@ -33,15 +36,15 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % at the end of the slice.
                 %
                 if ~isempty(cb)
-                    if isempty(obj.current.indirectPatchList) % Lazy initialization
-                        obj.current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+                    if isempty(current.indirectPatchList) % Lazy initialization
+                        current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                     end
                     e = IceInternal.IndirectPatchEntry();
                     %e.index = index - 1;
                     e.index = index; % MATLAB indexing starts at 1
                     e.cb = cb;
-                    sz = length(obj.current.indirectPatchList);
-                    obj.current.indirectPatchList(sz) = e;
+                    sz = length(current.indirectPatchList);
+                    current.indirectPatchList(sz) = e;
                 end
             else
                 obj.readInstance(index, cb);
@@ -121,10 +124,11 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             if preserve
                 slicedData = obj.readSlicedData();
             end
-            obj.current.slices = {};
-            obj.current.indirectionTables = {};
-            obj.current.indirectPatchList = [];
-            obj.current = obj.current.previous;
+            current = obj.current;
+            current.slices = {};
+            current.indirectionTables = {};
+            current.indirectPatchList = [];
+            obj.current = current.previous;
             r = slicedData;
         end
 
@@ -238,17 +242,18 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             import IceInternal.Protocol;
 
             start = obj.is.getPos();
-
-            if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
+            current = obj.current;
+            is = obj.is;
+            if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
                 %assert(obj.current.sliceSize >= 4);
-                obj.is.skip(obj.current.sliceSize - 4);
+                is.skip(current.sliceSize - 4);
             else
-                if obj.current.sliceType == IceInternal.SliceType.ValueSlice
+                if current.sliceType == IceInternal.SliceType.ValueSlice
                     reason = ['no value factory found and compact format prevents ', ...
                               'slicing (the sender should use the sliced format instead)'];
-                    throw(Ice.NoValueFactoryException('', reason, reason, obj.current.typeId));
+                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
                 else
-                    throw(Ice.UnknownUserException('', '', obj.current.typeId));
+                    throw(Ice.UnknownUserException('', '', current.typeId));
                 end
             end
 
@@ -256,18 +261,18 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % Preserve this slice.
             %
             info = Ice.SliceInfo();
-            info.typeId = obj.current.typeId;
-            info.compactId = obj.current.compactId;
-            info.hasOptionalMembers = bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) > 0;
-            info.isLastSlice = bitand(obj.current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE) > 0;
+            info.typeId = current.typeId;
+            info.compactId = current.compactId;
+            info.hasOptionalMembers = bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) > 0;
+            info.isLastSlice = bitand(current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE) > 0;
             if info.hasOptionalMembers
                 %
                 % Don't include the optional member end marker. It will be re-written by
                 % endSlice when the sliced data is re-written.
                 %
-                info.bytes = obj.is.getBytes(start, obj.is.getPos() - 2);
+                info.bytes = is.getBytes(start, is.getPos() - 2);
             else
-                info.bytes = obj.is.getBytes(start, obj.is.getPos() - 1);
+                info.bytes = is.getBytes(start, is.getPos() - 1);
             end
 
             %
@@ -278,26 +283,27 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % The SliceInfo object sequence is initialized only if
             % readSlicedData is called.
             %
-            if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
-                sz = obj.is.readAndCheckSeqSize(1);
+            if bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
+                sz = is.readAndCheckSeqSize(1);
                 indirectionTable = cell(1, sz);
                 for i = 1:sz
-                    indirectionTable{i} = obj.readInstance(obj.is.readSize(), []);
+                    indirectionTable{i} = obj.readInstance(is.readSize(), []);
                 end
-                obj.current.indirectionTables{end + 1} = indirectionTable;
+                current.indirectionTables{end + 1} = indirectionTable;
             else
-                obj.current.indirectionTables{end + 1} = {};
+                current.indirectionTables{end + 1} = {};
             end
 
-            obj.current.slices{end + 1} = info;
+            current.slices{end + 1} = info;
         end
 
         function r = readOptional(obj, readTag, expectedFormat)
             import IceInternal.Protocol;
-            if ~isobject(obj.current)
+            current = obj.current;
+            if ~isobject(current)
                 r = obj.is.readOptionalImpl(readTag, expectedFormat);
                 return;
-            elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
+            elseif bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
                 r = obj.is.readOptionalImpl(readTag, expectedFormat);
                 return;
             end
@@ -320,8 +326,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
             % Inlining push()
             obj.current = IceInternal.EncapsDecoder11_InstanceData(obj.current);
-            obj.current.sliceType = IceInternal.SliceType.ValueSlice;
-            obj.current.skipFirstSlice = false;
+            current = obj.current;
+            current.sliceType = IceInternal.SliceType.ValueSlice;
+            current.skipFirstSlice = false;
 
             %
             % Get the instance ID before we start reading slices. If some
@@ -335,12 +342,12 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % Read the first slice header.
             %
             obj.startSlice();
-            mostDerivedId = obj.current.typeId;
+            mostDerivedId = current.typeId;
             v = [];
             while true
                 updateCache = false;
 
-                if obj.current.compactId >= 0
+                if current.compactId >= 0
                     updateCache = true;
 
                     %
@@ -352,14 +359,14 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         %
                         % Check the cache to see if we've already translated the compact type ID into a constructor.
                         %
-                        if obj.compactIdCache.isKey(obj.current.compactId)
-                            constructor = obj.compactIdCache(obj.current.compactId);
+                        if obj.compactIdCache.isKey(current.compactId)
+                            constructor = obj.compactIdCache(current.compactId);
                             try
                                 v = constructor(); % Invoke the constructor.
                                 updateCache = false;
                             catch e
                                 reason = sprintf('constructor failed for class %s with compact id %d', cls, ...
-                                                 obj.current.compactId);
+                                                 current.compactId);
                                 ex = Ice.NoValueFactoryException('', reason, reason, '');
                                 ex.addCause(e);
                                 throw(ex);
@@ -372,18 +379,18 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % compact ID into a type ID.
                     %
                     if ~isobject(v)
-                        obj.current.typeId = obj.resolveCompactId(obj.current.compactId);
+                        current.typeId = obj.resolveCompactId(current.compactId);
                     end
                 end
 
-                if ~isobject(v) && ~isempty(obj.current.typeId)
-                    v = obj.newInstance(obj.current.typeId);
+                if ~isobject(v) && ~isempty(current.typeId)
+                    v = obj.newInstance(current.typeId);
                 end
 
                 if isobject(v)
                     if updateCache
                         %assert(obj.current.compactId >= 0);
-                        obj.compactIdCache(obj.current.compactId) = str2func(class(v));
+                        obj.compactIdCache(current.compactId) = str2func(class(v));
                     end
 
                     %
@@ -397,7 +404,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 %
                 if ~obj.sliceValues
                     reason = 'no value factory found and slicing is disabled';
-                    throw(Ice.NoValueFactoryException('', reason, reason, obj.current.typeId));
+                    throw(Ice.NoValueFactoryException('', reason, reason, current.typeId));
                 end
 
                 %
@@ -409,7 +416,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % If this is the last slice, keep the instance as an opaque
                 % UnknownSlicedValue object.
                 %
-                if bitand(obj.current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE)
+                if bitand(current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE)
                     %
                     % Provide a factory with an opportunity to supply the instance.
                     % We pass the "::Ice::Object" ID to indicate that this is the
@@ -454,7 +461,8 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         end
 
         function r = readSlicedData(obj)
-            if isempty(obj.current.slices) % No preserved slices.
+            current = obj.current;
+            if isempty(current.slices) % No preserved slices.
                 r = [];
                 return;
             end
@@ -463,26 +471,26 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % The _indirectionTables member holds the indirection table for each slice
             % in _slices.
             %
-            %assert(length(obj.current.slices) == length(obj.current.indirectionTables));
+            %assert(length(current.slices) == length(current.indirectionTables));
             function setInstance(si, n, v)
                 si.instances{n} = v;
             end
-            for n = 1:length(obj.current.slices)
+            for n = 1:length(current.slices)
                 %
                 % We use the "instances" list in SliceInfo to hold references
                 % to the target instances. Note that the instances might not have
                 % been read yet in the case of a circular reference to an
                 % enclosing instance.
                 %
-                table = obj.current.indirectionTables{n};
-                info = obj.current.slices{n};
+                table = current.indirectionTables{n};
+                info = current.slices{n};
                 info.instances = cell(1, length(table));
                 for j = 1:length(info.instances)
                     obj.addPatchEntry(table{j}, @(v) setInstance(info, j, v));
                 end
             end
 
-            r = Ice.SlicedData(obj.current.slices); % Makes a shallow copy
+            r = Ice.SlicedData(current.slices); % Makes a shallow copy
         end
 
         function r = resolveCompactId(~, id)

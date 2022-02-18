@@ -528,6 +528,8 @@ classdef InputStream < handle
             %assert(isobject(obj.encapsStack));
             if isobject(obj.encapsStackDecoder)
                 r = obj.encapsStackDecoder.readOptional(tag, fmt);
+            elseif obj.encoding_1_0
+                r = false; % Optional members aren't supported with the 1.0 encoding.
             else
                 r = obj.readOptionalImpl(tag, fmt);
             end
@@ -713,13 +715,9 @@ classdef InputStream < handle
             r = obj.size;
         end
         function r = readOptionalImpl(obj, readTag, expectedFormat)
-            if obj.encoding_1_0
-                r = false; % Optional members aren't supported with the 1.0 encoding.
-                return;
-            end
-
             while true
-                if obj.pos >= obj.encapsStack.start + obj.encapsStack.sz
+                encapsStack = obj.encapsStack;
+                if obj.pos >= encapsStack.start + encapsStack.sz
                     r = false; % End of encapsulation also indicates end of optionals.
                     return;
                 end
