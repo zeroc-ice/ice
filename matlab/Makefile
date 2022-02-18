@@ -32,15 +32,15 @@ include $(shell find $(lang_srcdir) -name Makefile.mk)
 $(call make-projects,$(projects))
 
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,Ice,%F.ice \
-	%/FacetMap.ice \
-	%/ImplicitContext.ice \
-	%/Instrumentation.ice \
-	%/Logger.ice \
-	%/ObjectAdapter.ice \
-	%/ObjectFactory.ice \
-	%/Plugin.ice \
-	%/Properties.ice \
-	%/ServantLocator.ice))
+    %/FacetMap.ice \
+    %/ImplicitContext.ice \
+    %/Instrumentation.ice \
+    %/Logger.ice \
+    %/ObjectAdapter.ice \
+    %/ObjectFactory.ice \
+    %/Plugin.ice \
+    %/Properties.ice \
+    %/ServantLocator.ice))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,Glacier2))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceGrid))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceStorm))

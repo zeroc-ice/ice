@@ -17,13 +17,13 @@ matlab	:= $(MATLAB_HOME)/bin/matlab
 mex	:= $(MATLAB_HOME)/bin/mex
 
 matlab_cflags	= -fexceptions \
-	-fno-omit-frame-pointer \
-	-pthread \
-	-DMATLAB_DEFAULT_RELEASE=R2017b \
-	-DUSE_MEX_CMD \
-	-D_GNU_SOURCE \
-	-DMATLAB_MEX_FILE \
-	-I$(MATLAB_HOME)/extern/include
+    -fno-omit-frame-pointer \
+    -pthread \
+    -DMATLAB_DEFAULT_RELEASE=R2017b \
+    -DUSE_MEX_CMD \
+    -D_GNU_SOURCE \
+    -DMATLAB_MEX_FILE \
+    -I$(MATLAB_HOME)/extern/include
 
 matlab_cppflags	:= $(matlab_cflags) -DICE_CPP11_MAPPING
 
@@ -32,15 +32,13 @@ matlab_cppflags          := $(matlab_cppflags) -std=c++11
 endif
 matlab_ldflags		:= -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
 
-
-
 #
 # Rules to build a matlab module. We just compute the name of the matlab module and delegate to make-shared-module.
 #
-mkmatlabmodulename			?= $(patsubst lib%.so,%.mexa64,$(call mkshlibname,$(1)))
-make-shared-matlab-module		= $(call make-shared-module,$(call mkmatlabmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
-get-shared-matlab-module-targets	= $(call get-shared-module-targets,$(call mkmatlabmodulename,$1),$2,$3,$4)
-install-shared-matlab-module		= $(call install-shared-module,$(call mkmatlabmodulename,$1),$2,$3,$4,$5)
+mkmatlabmodulename ?= $(patsubst lib%.so,%.mexa64,$(call mkshlibname,$(1)))
+make-shared-matlab-module = $(call make-shared-module,$(call mkmatlabmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+get-shared-matlab-module-targets = $(call get-shared-module-targets,$(call mkmatlabmodulename,$1),$2,$3,$4)
+install-shared-matlab-module = $(call install-shared-module,$(call mkmatlabmodulename,$1),$2,$3,$4,$5)
 
 #
 # $(call make-matlab-package,$1=slicedir,$2=generateddir,$3=package,$4=sliceflags)

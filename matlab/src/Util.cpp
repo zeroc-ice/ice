@@ -31,10 +31,10 @@ convertUTF8ToUTF16(const vector<unsigned char>& source, vector<unsigned short>& 
     unsigned short* targetEnd = &target[0] + target.size();
     IceUtilInternal::ConversionResult result = IceUtilInternal::ConvertUTF8toUTF16(
         &sourceStart,
-	sourceEnd,
-	&targetStart,
-	targetEnd,
-	IceUtilInternal::lenientConversion);
+        sourceEnd,
+        &targetStart,
+        targetEnd,
+        IceUtilInternal::lenientConversion);
 
     switch (result)
     {
