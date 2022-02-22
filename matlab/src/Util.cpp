@@ -3,10 +3,12 @@
 //
 
 #include <Ice/LocalException.h>
+#include <Ice/Protocol.h>
 #include <iostream>
 #include <string>
 #include <locale>
 #include <codecvt>
+#include <iostream>
 #include "ice.h"
 #include "Util.h"
 
@@ -46,6 +48,66 @@ getMajorMinor(mxArray* p, Ice::Byte& major, Ice::Byte& minor)
         throw std::invalid_argument("minor is not a scalar");
     }
     minor = static_cast<Ice::Byte>(mxGetScalar(min));
+}
+
+int readInt(Ice::Byte*& i, const Ice::Byte* end, Ice::Int& value)
+{
+    if (end - i < static_cast<int>(sizeof(Ice::Int)))
+    {
+        return 1; // UnmarshalOutOfBoundsException
+    }
+    const Ice::Byte* src = i;
+    i += sizeof(Ice::Int);
+    Ice::Byte *dest = reinterpret_cast<Ice::Byte*>(&value);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest = *src;
+    return 0;
+}
+
+int skip(Ice::Byte *&i, const Ice::Byte *end, int size)
+{
+    if (i + size > end)
+    {
+        return 1; // UnmarshalOutOfBoundsException
+    }
+    i += size;
+    return 0;
+}
+
+int readSize(Ice::Byte*& i, const Ice::Byte* end, int& size)
+{
+    Ice::Byte byte = *i++;
+    if (byte == 255)
+    {
+        Ice::Int v;
+        int err = readInt(i, end, v);
+        if (err != 0)
+        {
+            return err;
+        }
+        if (v < 0)
+        {
+            return 2; // MarshalException
+        }
+        size = v;
+    }
+    else
+    {
+        size = static_cast<Ice::Int>(static_cast<unsigned char>(byte));
+    }
+    return 0;
+}
+
+mxArray*
+createReadOptionalResult(int value, int position)
+{
+    auto r = mxCreateNumericMatrix(1, 2, mxINT32_CLASS, mxREAL);
+    auto p = reinterpret_cast<int *>(mxGetPr(r));
+    p[0] = value;
+    p[1] = position;
+    return r;
 }
 
 }
@@ -551,7 +613,7 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, 2, optionalFields);
     mxSetFieldByNumber(r, 0, 0, createBool(hasValue));
-    if(hasValue)
+    if (hasValue)
     {
         mxSetFieldByNumber(r, 0, 1, value);
     }
@@ -622,82 +684,210 @@ IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
     return r;
 }
 
-namespace
+mxArray*
+Ice_InputStream_readOptional(mxArray* inputStream,
+                             mxArray *data,
+                             int pos,
+                             int endPos,
+                             int readTag,
+                             unsigned char expectedFormat)
 {
-
-string
-lookupKwd(const string& name)
-{
-    //
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    // This list must match the one in slice2matlab.
-    //
-    static const string keywordList[] =
+    if (pos == endPos)
     {
-        "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "for", "function", "global",
-        "if", "otherwise", "parfor", "persistent", "return", "spmd", "switch", "try", "while"
-    };
-    bool found = binary_search(&keywordList[0],
-                               &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                               name);
-    return found ? "slice_" + name : name;
-}
-
-//
-// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
-vector<string>
-splitScopedName(const string& scoped)
-{
-    assert(scoped[0] == ':');
-    vector<string> ids;
-    string::size_type next = 0;
-    string::size_type pos;
-    while((pos = scoped.find("::", next)) != string::npos)
+        return createReadOptionalResult(0, static_cast<int>(pos));
+    }
+    Ice::Byte* dataPtr = reinterpret_cast<Ice::Byte*>(mxGetData(data));
+    Ice::Byte* i = dataPtr + pos - 1;
+    const Ice::Byte* end = dataPtr + endPos - 1;
+    int err = 0;
+    while (true)
     {
-        pos += 2;
-        if(pos != scoped.size())
+        if(i >= end)
         {
-            string::size_type endpos = scoped.find("::", pos);
-            if(endpos != string::npos)
+            return createReadOptionalResult(0, static_cast<int>(i - dataPtr + 1));
+        }
+
+        Ice::Byte v = *i;
+        if(v == IceInternal::OPTIONAL_END_MARKER)
+        {
+            return createReadOptionalResult(0, static_cast<int>(i - dataPtr + 1));
+        }
+        ++i;
+
+        Ice::OptionalFormat format = static_cast<Ice::OptionalFormat>(v & 0x07); // First 3 bits.
+        Ice::Int tag = static_cast<Ice::Int>(v >> 3);
+        if (tag == 30)
+        {
+            err = readSize(i, end, tag);
+            if (err != 0)
             {
-                ids.push_back(scoped.substr(pos, endpos - pos));
+                return createReadOptionalResult(-1, err);
             }
         }
-        next = pos;
-    }
-    if(next != scoped.size())
-    {
-        ids.push_back(scoped.substr(next));
-    }
-    else
-    {
-        ids.push_back("");
-    }
 
-    return ids;
+        if (tag > readTag)
+        {
+            i -= tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
+            // No optional data members with the requested tag.
+            return createReadOptionalResult(0, static_cast<int>(i - dataPtr + 1));
+        }
+        else if (tag < readTag)
+        {
+            switch (format)
+            {
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, F1):
+                {
+                    err = skip(i, end, 1);
+                    break;
+                }
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, F2):
+                {
+                    err = skip(i, end, 2);
+                    break;
+                }
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, F4):
+                {
+                    err = skip(i, end, 4);
+                    break;
+                }
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, F8):
+                {
+                    err = skip(i, end, 8);
+                    break;
+                }
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, Size):
+                {
+                    err = skip(i, end, static_cast<unsigned char>(*i) == 255 ? 4 : 1);
+                    break;
+                }
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, VSize):
+                {
+                    Ice::Int sz;
+                    err = readSize(i, end, sz);
+                    if (err != 0)
+                    {
+                        return createReadOptionalResult(-1, err);
+                    }
+                    err = skip(i, end, sz);
+                    break;
+                }
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, FSize):
+                {
+                    Ice::Int value;
+                    err = readInt(i, end, value);
+                    if (err != 0)
+                    {
+                        return createReadOptionalResult(-1, err);
+                    }
+                    if (value < 0)
+                    {
+                        return createReadOptionalResult(-1, value);
+                    }
+                    err = skip(i, end, value);
+                    break;
+                }
+                case ICE_SCOPED_ENUM(Ice::OptionalFormat, Class):
+                {
+                    mxArray* params[3];
+                    params[0] = inputStream;
+                    params[1] = IceMatlab::createInt(static_cast<int>(i - dataPtr + 1));
+                    mxArray* result;
+                    mexCallMATLAB(1, &result, 2, params, "skipValue");
+                    return createReadOptionalResult(-1, 2); // MarshalException
+//                    break;
+                }
+            }
+
+            if (err != 0)
+            {
+                return createReadOptionalResult(-1, err);
+            }
+        }
+        else
+        {
+            if (static_cast<int>(format) != expectedFormat)
+            {
+                return createReadOptionalResult(-1, 2); // MarshalException
+            }
+            return createReadOptionalResult(1, static_cast<int>(i - dataPtr + 1));
+        }
+    }
+    return 0; // Keep the compiler happy.
 }
 
+namespace
+{
+    string
+    lookupKwd(const string &name)
+    {
+        //
+        // Keyword list. *Must* be kept in alphabetical order.
+        //
+        // This list must match the one in slice2matlab.
+        //
+        static const string keywordList[] =
+            {
+                "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "for", "function", "global",
+                "if", "otherwise", "parfor", "persistent", "return", "spmd", "switch", "try", "while"};
+        bool found = binary_search(&keywordList[0],
+                                    &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                                    name);
+        return found ? "slice_" + name : name;
+    }
+
+    //
+    // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+    //
+    vector<string>
+    splitScopedName(const string &scoped)
+    {
+        assert(scoped[0] == ':');
+        vector<string> ids;
+        string::size_type next = 0;
+        string::size_type pos;
+        while ((pos = scoped.find("::", next)) != string::npos)
+        {
+            pos += 2;
+            if (pos != scoped.size())
+            {
+                string::size_type endpos = scoped.find("::", pos);
+                if (endpos != string::npos)
+                {
+                    ids.push_back(scoped.substr(pos, endpos - pos));
+                }
+            }
+            next = pos;
+        }
+        if (next != scoped.size())
+        {
+            ids.push_back(scoped.substr(next));
+        }
+        else
+        {
+            ids.push_back("");
+        }
+
+        return ids;
+    }
 }
 
 string
-IceMatlab::idToClass(const string& id)
+IceMatlab::idToClass(const string &id)
 {
     auto ids = splitScopedName(id);
 #ifdef ICE_CPP11_COMPILER
-    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
+transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
 #else
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
 #endif
-    stringstream result;
-    for(auto i = ids.begin(); i != ids.end(); ++i)
+stringstream result;
+for(auto i = ids.begin(); i != ids.end(); ++i)
+{
+    if(i != ids.begin())
     {
-        if(i != ids.begin())
-        {
-            result << ".";
-        }
-        result << *i;
+        result << ".";
     }
-    return result.str();
+    result << *i;
+}
+return result.str();
 }

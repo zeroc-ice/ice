@@ -19,7 +19,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 num = obj.is.readSize();
             end
 
-            if length(obj.patchMap) > 0
+            if obj.patchMapLength > 0
                 %
                 % If any entries remain in the patch map, the sender has sent an index for an object, but failed
                 % to supply the object.
@@ -29,7 +29,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function readValue(obj, cb)
-            %assert(~isempty(cb));
+            assert(~isempty(cb));
 
             %
             % Object references are encoded as a negative integer in 1.0.
@@ -48,7 +48,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function throwException(obj)
-            %assert(obj.sliceType == IceInternal.SliceType.NoSlice);
+            assert(obj.sliceType == IceInternal.SliceType.NoSlice);
 
             %
             % User exception with the 1.0 encoding start with a boolean flag
@@ -127,7 +127,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function startInstance(obj, sliceType)
-            %assert(obj.sliceType == sliceType);
+            assert(obj.sliceType == sliceType);
             obj.skipFirstSlice = true;
         end
 
@@ -185,18 +185,14 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
 
         function skipSlice(obj)
             %obj.is.traceSkipSlice(obj.typeId, obj.sliceType);
-            %assert(obj.sliceSize >= 4);
+            assert(obj.sliceSize >= 4);
             obj.is.skip(obj.sliceSize - 4);
         end
 
-        function r = readOptional(~, ~, ~)
-            r = false;
-        end
     end
     methods(Access=private)
         function readInstance(obj)
             index = obj.is.readInt();
-
             if index <= 0
                 throw(Ice.MarshalException('', '', 'invalid object id'));
             end
@@ -250,12 +246,13 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             %
             obj.classGraphDepth = 0;
 
-            if obj.patchMap.isKey(index)
-                pl = obj.patchMap(index);
-                for i = 1:length(pl.list)
-                    entry = pl.list{i};
-                    if entry.classGraphDepth > obj.classGraphDepth
-                        obj.classGraphDepth = entry.classGraphDepth;
+            if index <= length(obj.patchMap)
+                pl = obj.patchMap{index};
+                for i = 1:length(pl)
+                    entry = pl{i};
+                    classGraphDepth = entry.classGraphDepth;
+                    if classGraphDepth > obj.classGraphDepth
+                        obj.classGraphDepth = classGraphDepth;
                     end
                 end
             end

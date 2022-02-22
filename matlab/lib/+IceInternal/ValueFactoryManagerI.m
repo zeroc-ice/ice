@@ -15,6 +15,7 @@ classdef ValueFactoryManagerI < Ice.ValueFactoryManager
                     throw(Ice.AlreadyRegisteredException('', '', 'value factory', id));
                 end
                 obj.defaultFactory = factory;
+                obj.hasFactories = true;
             else
                 if obj.factories.isKey(id)
                     throw(Ice.AlreadyRegisteredException('', '', 'value factory', id));
@@ -27,10 +28,14 @@ classdef ValueFactoryManagerI < Ice.ValueFactoryManager
             end
         end
         function r = find(obj, id)
-            if isempty(id)
-                r = obj.defaultFactory;
-            elseif obj.hasFactories && obj.factories.isKey(id)
-                r = obj.factories(id);
+            if obj.hasFactories
+                if isempty(id)
+                   r = obj.defaultFactory;
+                elseif obj.factories.isKey(id)
+                    r = obj.factories(id);
+                else
+                    r = obj.defaultFactory;
+                end
             else
                 r = [];
             end

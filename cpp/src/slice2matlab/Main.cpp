@@ -530,7 +530,7 @@ defaultValue(const DataMemberPtr& m)
     }
     else if(m->optional())
     {
-        return "Ice.Unset";
+        return "IceInternal.UnsetI.Instance";
     }
     else
     {

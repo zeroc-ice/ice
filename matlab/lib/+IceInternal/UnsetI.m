@@ -18,13 +18,7 @@ classdef UnsetI < handle
             r = ~isequal(obj, other);
         end
     end
-    methods(Static)
-        function obj = getInstance()
-            persistent singleton;
-            if ~isobject(singleton)
-                singleton = IceInternal.UnsetI();
-            end
-            obj = singleton;
-        end
+    properties(Constant)
+        Instance = IceInternal.UnsetI()
     end
 end

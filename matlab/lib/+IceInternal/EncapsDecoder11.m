@@ -23,7 +23,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 if ~isempty(cb)
                     cb([]);
                 end
-            elseif ~isempty(current) && bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
+            elseif isobject(current) && bitand(current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE)
                 %
                 % When reading a class instance within a slice and there's an
                 % indirect instance table, always read an indirect reference
@@ -40,7 +40,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                     end
                     e = IceInternal.IndirectPatchEntry();
-                    %e.index = index - 1;
                     e.index = index; % MATLAB indexing starts at 1
                     e.cb = cb;
                     sz = length(current.indirectPatchList);
@@ -53,7 +52,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
         function throwException(obj)
             import IceInternal.Protocol;
-            %assert(isempty(obj.current));
+            assert(isempty(obj.current));
 
             % Inlining push()
             obj.current = IceInternal.EncapsDecoder11_InstanceData(obj.current);
@@ -115,7 +114,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         end
 
         function startInstance(obj, sliceType)
-            %assert(obj.current.sliceType == sliceType);
+            assert(obj.current.sliceType == sliceType);
             obj.current.skipFirstSlice = true;
         end
 
@@ -181,7 +180,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             else
                 current.sliceSize = 0;
             end
-
             r = current.typeId;
         end
 
@@ -227,7 +225,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     keys = current.indirectPatchList.keys();
                     for i = 1:length(keys)
                         e = current.indirectPatchList(keys{i});
-                        %assert(e.index > 0); % MATLAB starts indexing at 1
+                        assert(e.index > 0); % MATLAB starts indexing at 1
                         if e.index > length(indirectionTable)
                             throw(Ice.MarshalException('', '', 'indirection out of range'));
                         end
@@ -245,7 +243,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current = obj.current;
             is = obj.is;
             if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
-                %assert(obj.current.sliceSize >= 4);
+                assert(obj.current.sliceSize >= 4);
                 is.skip(current.sliceSize - 4);
             else
                 if current.sliceType == IceInternal.SliceType.ValueSlice
@@ -297,24 +295,11 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current.slices{end + 1} = info;
         end
 
-        function r = readOptional(obj, readTag, expectedFormat)
-            import IceInternal.Protocol;
-            current = obj.current;
-            if ~isobject(current)
-                r = obj.is.readOptionalImpl(readTag, expectedFormat);
-                return;
-            elseif bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
-                r = obj.is.readOptionalImpl(readTag, expectedFormat);
-                return;
-            end
-            r = false;
-        end
-
     end
     methods(Access=private)
         function r = readInstance(obj, index, cb)
             import IceInternal.Protocol;
-            %assert(index > 0);
+            assert(index > 0);
 
             if index > 1
                 if ~isempty(cb)
@@ -378,25 +363,23 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % If we haven't already cached a class for the compact ID, then try to translate the
                     % compact ID into a type ID.
                     %
-                    if ~isobject(v)
-                        current.typeId = obj.resolveCompactId(current.compactId);
-                    end
+                    current.typeId = obj.resolveCompactId(current.compactId);
                 end
 
-                if ~isobject(v) && ~isempty(current.typeId)
-                    v = obj.newInstance(current.typeId);
-                end
+                typeId = current.typeId;
+                if ~isempty(typeId)
+                    v = obj.newInstance(typeId);
+                    if ~isempty(v)
+                        if updateCache
+                            assert(obj.current.compactId >= 0);
+                            obj.compactIdCache(current.compactId) = str2func(class(v));
+                        end
 
-                if isobject(v)
-                    if updateCache
-                        %assert(obj.current.compactId >= 0);
-                        obj.compactIdCache(current.compactId) = str2func(class(v));
+                        %
+                        % We have an instance, get out of this loop.
+                        %
+                        break;
                     end
-
-                    %
-                    % We have an instance, get out of this loop.
-                    %
-                    break;
                 end
 
                 %
@@ -423,10 +406,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % last chance to preserve the instance.
                     %
                     v = obj.newInstance(Ice.Value.ice_staticId());
-                    if ~isobject(v)
+                    if isempty(v)
                         v = Ice.UnknownSlicedValue(mostDerivedId);
                     end
-
                     break;
                 end
 
@@ -445,7 +427,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
             obj.classGraphDepth = obj.classGraphDepth - 1;
 
-            if ~isobject(obj.current) && ~isempty(obj.patchMap)
+            if ~isobject(obj.current) && obj.patchMapLength > 0
                 %
                 % If any entries remain in the patch map, the sender has sent an index for an instance, but failed
                 % to supply the instance.
@@ -471,7 +453,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % The _indirectionTables member holds the indirection table for each slice
             % in _slices.
             %
-            %assert(length(current.slices) == length(current.indirectionTables));
+            assert(length(current.slices) == length(current.indirectionTables));
             function setInstance(si, n, v)
                 si.instances{n} = v;
             end
@@ -507,8 +489,10 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             r = type;
         end
     end
-    properties(Access=private)
+    properties(Access=public)
         current
+    end
+    properties(Access=private)
         valueIdIndex
         compactIdCache
     end

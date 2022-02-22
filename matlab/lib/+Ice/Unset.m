@@ -4,5 +4,5 @@ function r = Unset()
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    r = IceInternal.UnsetI.getInstance();
+    r = IceInternal.UnsetI.Instance;
 end

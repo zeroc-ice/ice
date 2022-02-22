@@ -5,15 +5,16 @@ classdef FormatType < uint32
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    enumeration
+    % Don't use an enumeration as comparing enumerators with integral values is significantly slower.
+    properties(Constant)
         % DefaultFormat   Indicates that no preference was specified.
-        DefaultFormat (0)
+        DefaultFormat = uint8(0)
 
         % CompactFormat   A minimal format that eliminates the possibility
         %   for slicing unrecognized types.
-        CompactFormat (1)
+        CompactFormat = uint8(1)
 
         % SlicedFormat   Allow slicing and preserve slices for unknown types.
-        SlicedFormat (2)
+        SlicedFormat = uint8(2)
     end
 end

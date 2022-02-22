@@ -110,7 +110,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
     end
     methods(Access=protected)
         function r = registerValue(obj, v)
-            %assert(~isempty(v));
+            assert(~isempty(v));
 
             %
             % Use the identifier assigned by the Value constructor.

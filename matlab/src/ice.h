@@ -188,6 +188,8 @@ ICE_MATLAB_API mxArray* Ice_ImplicitContext_get(void*, mxArray*);
 ICE_MATLAB_API mxArray* Ice_ImplicitContext_put(void*, mxArray*, mxArray*);
 ICE_MATLAB_API mxArray* Ice_ImplicitContext_remove(void*, mxArray*);
 
+ICE_MATLAB_API mxArray *Ice_InputStream_readOptional(mxArray*, mxArray*, int, int, int, unsigned char);
+
 #ifdef __cplusplus
 }
 #endif
