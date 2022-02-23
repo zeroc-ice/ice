@@ -117,6 +117,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         function startInstance(obj, sliceType)
             %assert(obj.current.sliceType == sliceType);
             obj.current.skipFirstSlice = true;
+            obj.current.readOptional = obj.is.readOptional;
         end
 
         function r = endInstance(obj, preserve)
@@ -129,6 +130,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current.indirectionTables = {};
             current.indirectPatchList = [];
             obj.current = current.previous;
+            if isobject(obj.current)
+                obj.is.readOptional = obj.current.readOptional;
+            end
             r = slicedData;
         end
 
@@ -148,6 +152,12 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             is = obj.is;
             current.sliceFlags = is.readByte();
 
+            if bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
+                is.readOptional = is.enabledReadOptional;
+            else
+                is.readOptional = is.disabledReadOptional;
+            end
+
             %
             % Read the type ID, for value slices the type ID is encoded as a
             % string or as an index, for exceptions it's always encoded as a
@@ -157,13 +167,20 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % Must be checked first!
                 if bitand(current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT
                     current.typeId = '';
+                    current.typeIdIndex = -1;
                     current.compactId = is.readSize();
-                elseif bitand(obj.current.sliceFlags, bitor(Protocol.FLAG_HAS_TYPE_ID_STRING, Protocol.FLAG_HAS_TYPE_ID_INDEX))
-                    current.typeId = obj.readTypeId(bitand(current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_INDEX) > 0);
+                elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_INDEX)
+                    typeIdIndex = is.readSize();
+                    current.typeIdIndex = typeIdIndex;
+                    current.typeId = obj.getTypeId(typeIdIndex);
+                    current.compactId = -1;
+                elseif bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_TYPE_ID_STRING)
+                    [current.typeIdIndex, current.typeId] = obj.readTypeId();
                     current.compactId = -1;
                 else
                     % Only the most derived slice encodes the type ID for the compact format.
                     current.typeId = '';
+                    current.typeIdIndex = -1;
                     current.compactId = -1;
                 end
             else
@@ -342,7 +359,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         constructor = obj.compactIdCache{compactId};
                         try
                             v = constructor(); % Invoke the constructor.
-                            if ~isempty(v)
+                            if isobject(v)
                                 %
                                 % We have an instance, get out of this loop.
                                 %
@@ -368,9 +385,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     typeId = current.typeId;
                 end
 
-                if isempty(v) && ~isempty(typeId)
-                    v = obj.newInstance(typeId);
-                    if ~isempty(v)
+                if ~isobject(v) && ~isempty(typeId)
+                    v = obj.newInstance(current.typeIdIndex, typeId);
+                    if isobject(v)
                         if compactId >= 0
                             obj.compactIdCache{compactId} = str2func(class(v));
                         end
@@ -405,8 +422,8 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % We pass the "::Ice::Object" ID to indicate that this is the
                     % last chance to preserve the instance.
                     %
-                    v = obj.newInstance(Ice.Value.ice_staticId());
-                    if isempty(v)
+                    v = obj.newInstance(-1, Ice.Value.ice_staticId());
+                    if ~isobject(v)
                         v = Ice.UnknownSlicedValue(mostDerivedId);
                     end
                     break;

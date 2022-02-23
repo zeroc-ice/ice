@@ -165,8 +165,13 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             % string.
             %
             if obj.sliceType == IceInternal.SliceType.ValueSlice
-                isIndex = obj.is.readBool();
-                obj.typeId = obj.readTypeId(isIndex);
+                if  obj.is.readBool()
+                    typeIdIndex = obj.is.readSize();
+                    obj.typeIdIndex = typeIdIndex;
+                    obj.typeId = obj.getTypeId(obj.typeIdIndex);
+                else
+                    [obj.typeIdIndex, obj.typeId] = obj.readTypeId();
+                end
             else
                 obj.typeId = obj.is.readString();
             end
@@ -215,7 +220,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                     throw(Ice.NoValueFactoryException('', '', '', mostDerivedId));
                 end
 
-                v = obj.newInstance(obj.typeId);
+                v = obj.newInstance(obj.typeIdIndex, obj.typeId);
 
                 %
                 % We found a factory, we get out of this loop.
@@ -273,5 +278,6 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         skipFirstSlice
         sliceSize
         typeId
+        typeIdIndex
     end
 end

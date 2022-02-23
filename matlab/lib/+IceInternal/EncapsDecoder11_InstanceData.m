@@ -13,6 +13,7 @@ classdef EncapsDecoder11_InstanceData < handle
             obj.indirectionTables = {};
             obj.sliceFlags = uint8(0);
             obj.indirectPatchList = [];
+            obj.readOptional = [];
         end
     end
     properties
@@ -23,9 +24,11 @@ classdef EncapsDecoder11_InstanceData < handle
         sliceFlags
         sliceSize
         typeId
+        typeIdIndex
         compactId
         indirectPatchList
         previous
         next
+        readOptional
     end
 end

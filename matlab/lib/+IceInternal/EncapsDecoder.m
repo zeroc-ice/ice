@@ -16,6 +16,7 @@ classdef (Abstract) EncapsDecoder < handle
             obj.patchMapLength = 0;
             obj.unmarshaledMap = {};
             obj.typeIdMap = {};
+            obj.typeIdConstructorMap = {};
             obj.valueList = {};
             obj.delayedPostUnmarshal = {};
         end
@@ -67,48 +68,57 @@ classdef (Abstract) EncapsDecoder < handle
         skipSlice(obj)
     end
     methods(Access=protected)
-        function r = readTypeId(obj, isIndex)
-            if isIndex
-                index = obj.is.readSize();
-                if index <= length(obj.typeIdMap)
-                    r = obj.typeIdMap{index};
-                else
-                    throw(Ice.UnmarshalOutOfBoundsException());
-                end
+        function r = getTypeId(obj, typeIdIndex)
+            if typeIdIndex <= length(obj.typeIdMap)
+                r = obj.typeIdMap{typeIdIndex};
             else
-                r = obj.is.readString();
-                obj.typeIdMap{end + 1} = r;
+                throw(Ice.UnmarshalOutOfBoundsException());
             end
         end
-
-        function r = newInstance(obj, typeId)
-            %
-            % Try to find a factory registered for the specific type.
-            %
-            userFactory = obj.valueFactoryManager.find(typeId);
-            v = [];
-            if ~isempty(userFactory)
-                v = userFactory(typeId);
-            end
-
-            %
-            % Last chance: ask the class resolver to find it.
-            %
-            if isempty(v)
-                constructor = obj.classResolver.resolve(typeId);
-                if ~isempty(constructor)
-                    try
-                        v = constructor(); % Invoke the constructor.
-                    catch e
-                        reason = sprintf('constructor failed for %s', typeId);
-                        ex = Ice.NoValueFactoryException('', reason, reason, typeId);
-                        ex.addCause(e);
-                        throw(ex);
+        function [typeIdIndex, typeId] = readTypeId(obj)
+            typeId = obj.is.readString();
+            obj.typeIdMap{end + 1} = typeId;
+            typeIdIndex = length(obj.typeIdMap);
+        end
+        function r = newInstance(obj, typeIdIndex, typeId)
+            if typeIdIndex >= 0 && typeIdIndex <= length(obj.typeIdConstructorMap)
+                constructor = obj.typeIdConstructorMap{typeIdIndex};
+            else
+                %
+                % Try to find a factory registered for the specific type.
+                %
+                userFactory = obj.valueFactoryManager.find(typeId);
+                if ~isempty(userFactory)
+                    r = userFactory(typeId);
+                    if ~isempty(r)
+                        if (typeIdIndex >= 0)
+                            obj.typeIdConstructorMap{typeIdIndex} = @() userFactory(typeId);
+                        end
+                        return
                     end
+                end
+
+                %
+                % Last chance: ask the class resolver to find it.
+                %
+                constructor = obj.classResolver.resolve(typeId);
+                if ~isempty(constructor) && typeIdIndex >= 0
+                    obj.typeIdConstructorMap{typeIdIndex} = constructor;
                 end
             end
 
-            r = v;
+            if ~isempty(constructor)
+                try
+                    r = constructor(); % Invoke the constructor.
+                catch e
+                    reason = sprintf('constructor failed for %s', typeId);
+                    ex = Ice.NoValueFactoryException('', reason, reason, typeId);
+                    ex.addCause(e);
+                    throw(ex);
+                end
+            else
+                r = [];
+            end
         end
 
         function addPatchEntry(obj, index, cb)
@@ -237,6 +247,7 @@ classdef (Abstract) EncapsDecoder < handle
     end
     properties(Access=private)
         unmarshaledMap
+        typeIdConstructorMap
         typeIdMap
         valueList
         delayedPostUnmarshal
