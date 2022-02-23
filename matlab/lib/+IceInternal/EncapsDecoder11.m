@@ -52,7 +52,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
         function throwException(obj)
             import IceInternal.Protocol;
-            assert(isempty(obj.current));
+            %assert(isempty(obj.current));
 
             % Inlining push()
             obj.current = IceInternal.EncapsDecoder11_InstanceData(obj.current);
@@ -114,7 +114,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         end
 
         function startInstance(obj, sliceType)
-            assert(obj.current.sliceType == sliceType);
+            %assert(obj.current.sliceType == sliceType);
             obj.current.skipFirstSlice = true;
         end
 
@@ -225,7 +225,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     keys = current.indirectPatchList.keys();
                     for i = 1:length(keys)
                         e = current.indirectPatchList(keys{i});
-                        assert(e.index > 0); % MATLAB starts indexing at 1
+                        %assert(e.index > 0); % MATLAB starts indexing at 1
                         if e.index > length(indirectionTable)
                             throw(Ice.MarshalException('', '', 'indirection out of range'));
                         end
@@ -243,7 +243,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current = obj.current;
             is = obj.is;
             if bitand(current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
-                assert(obj.current.sliceSize >= 4);
+                %assert(obj.current.sliceSize >= 4);
                 is.skip(current.sliceSize - 4);
             else
                 if current.sliceType == IceInternal.SliceType.ValueSlice
@@ -299,7 +299,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods(Access=private)
         function r = readInstance(obj, index, cb)
             import IceInternal.Protocol;
-            assert(index > 0);
+            %assert(index > 0);
 
             if index > 1
                 if ~isempty(cb)
@@ -371,7 +371,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     v = obj.newInstance(typeId);
                     if ~isempty(v)
                         if updateCache
-                            assert(obj.current.compactId >= 0);
+                            %assert(obj.current.compactId >= 0);
                             obj.compactIdCache(current.compactId) = str2func(class(v));
                         end
 
@@ -453,7 +453,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             % The _indirectionTables member holds the indirection table for each slice
             % in _slices.
             %
-            assert(length(current.slices) == length(current.indirectionTables));
+            %assert(length(current.slices) == length(current.indirectionTables));
             function setInstance(si, n, v)
                 si.instances{n} = v;
             end

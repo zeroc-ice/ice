@@ -338,11 +338,11 @@ classdef OutputStream < handle
             end
         end
         function startValue(obj, slicedData)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
+            %assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
             obj.encapsStack.encoder.startInstance(IceInternal.SliceType.ValueSlice, slicedData);
         end
         function endValue(obj)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
+            %assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
             obj.encapsStack.encoder.endInstance();
         end
         function startEncapsulation(obj, format)
@@ -392,7 +392,7 @@ classdef OutputStream < handle
             obj.buf.buf(sz + 6) = encoding.minor;
         end
         function endEncapsulation(obj)
-            assert(~isempty(obj.encapsStack));
+            %assert(~isempty(obj.encapsStack));
 
             % Size includes size and version.
             start = obj.encapsStack.start;
@@ -419,11 +419,11 @@ classdef OutputStream < handle
             obj.buf.push(data);
         end
         function startSlice(obj, typeId, compactId, last)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
+            %assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
             obj.encapsStack.encoder.startSlice(typeId, compactId, last);
         end
         function endSlice(obj)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
+            %assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
             obj.encapsStack.encoder.endSlice();
         end
         function writePendingValues(obj)
@@ -443,7 +443,7 @@ classdef OutputStream < handle
             end
         end
         function r = writeOptional(obj, tag, format)
-            assert(~isempty(obj.encapsStack));
+            %assert(~isempty(obj.encapsStack));
             if ~isempty(obj.encapsStack.encoder)
                 r = obj.encapsStack.encoder.writeOptional(tag, format);
             else

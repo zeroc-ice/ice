@@ -334,11 +334,11 @@ classdef InputStream < handle
             end
         end
         function startException(obj)
-            assert(isobject(obj.encapsStackDecoder));
+            %assert(isobject(obj.encapsStackDecoder));
             obj.encapsStackDecoder.startInstance(IceInternal.SliceType.ExceptionSlice);
         end
         function r = endException(obj, preserve)
-            assert(isobject(obj.encapsStackDecoder));
+            %assert(isobject(obj.encapsStackDecoder));
             r = obj.encapsStackDecoder.endInstance(preserve);
         end
         function startEncapsulation(obj)
@@ -391,7 +391,7 @@ classdef InputStream < handle
             obj.encoding_1_0 = obj.encapsStack.encoding_1_0;
         end
         function endEncapsulation(obj)
-            assert(isobject(obj.encapsStack));
+            %assert(isobject(obj.encapsStack));
 
             if ~obj.encoding_1_0
                 obj.skipOptionals();
@@ -495,15 +495,15 @@ classdef InputStream < handle
             end
         end
         function r = startSlice(obj)
-            assert(isobject(obj.encapsStackDecoder));
+            %assert(isobject(obj.encapsStackDecoder));
             r = obj.encapsStackDecoder.startSlice();
         end
         function endSlice(obj)
-            assert(isobject(obj.encapsStackDecoder));
+            %assert(isobject(obj.encapsStackDecoder));
             obj.encapsStackDecoder.endSlice();
         end
         function skipSlice(obj)
-            assert(isobject(obj.encapsStackDecoder));
+            %assert(isobject(obj.encapsStackDecoder));
             obj.encapsStackDecoder.skipSlice();
         end
         function r = readSize(obj)
@@ -528,7 +528,7 @@ classdef InputStream < handle
             end
         end
         function r = readOptional(obj, tag, fmt)
-            assert(isobject(obj.encapsStack));
+            %assert(isobject(obj.encapsStack));
             encapsStackDecoder = obj.encapsStackDecoder;
             if obj.encoding_1_0
                 r = false; % Optional members aren't supported with the 1.0 encoding.
@@ -777,11 +777,11 @@ classdef InputStream < handle
             end
         end
         function startValue(obj)
-            assert(isobject(obj.encapsStackDecoder));
+            %assert(isobject(obj.encapsStackDecoder));
             obj.encapsStackDecoder.startInstance(IceInternal.SliceType.ValueSlice);
         end
         function r = endValue(obj, preserve)
-            assert(isobject(obj.encapsStackDecoder));
+            %assert(isobject(obj.encapsStackDecoder));
             r = obj.encapsStackDecoder.endInstance(preserve);
         end
         function throwException(obj)
