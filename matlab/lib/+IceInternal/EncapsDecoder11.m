@@ -9,6 +9,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                                                 classGraphDepthMax);
             obj.current = [];
             obj.valueIdIndex = 1;
+            obj.compactIdCache = {};
         end
 
         function readValue(obj, cb)
@@ -330,32 +331,28 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             mostDerivedId = current.typeId;
             v = [];
             while true
-                updateCache = false;
+                compactId = current.compactId;
+                typeId = [];
 
-                if current.compactId >= 0
-                    updateCache = true;
-
+                if compactId >= 0
                     %
                     % Translate a compact (numeric) type ID into a class.
                     %
-                    if ~isobject(obj.compactIdCache) % Lazy initialization.
-                        obj.compactIdCache = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-                    else
-                        %
-                        % Check the cache to see if we've already translated the compact type ID into a constructor.
-                        %
-                        if obj.compactIdCache.isKey(current.compactId)
-                            constructor = obj.compactIdCache(current.compactId);
-                            try
-                                v = constructor(); % Invoke the constructor.
-                                updateCache = false;
-                            catch e
-                                reason = sprintf('constructor failed for class %s with compact id %d', cls, ...
-                                                 current.compactId);
-                                ex = Ice.NoValueFactoryException('', reason, reason, '');
-                                ex.addCause(e);
-                                throw(ex);
+                    if current.compactId <= length(obj.compactIdCache)
+                        constructor = obj.compactIdCache{compactId};
+                        try
+                            v = constructor(); % Invoke the constructor.
+                            if ~isempty(v)
+                                %
+                                % We have an instance, get out of this loop.
+                                %
+                                break;
                             end
+                        catch e
+                            reason = sprintf('constructor failed for class %s with compact id %d', cls, compactId);
+                            ex = Ice.NoValueFactoryException('', reason, reason, '');
+                            ex.addCause(e);
+                            throw(ex);
                         end
                     end
 
@@ -363,16 +360,19 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % If we haven't already cached a class for the compact ID, then try to translate the
                     % compact ID into a type ID.
                     %
-                    current.typeId = obj.resolveCompactId(current.compactId);
+                    try
+                        typeId = eval(sprintf('IceCompactId.TypeId_%d.typeId', current.compactId));
+                    catch
+                    end
+                else
+                    typeId = current.typeId;
                 end
 
-                typeId = current.typeId;
-                if ~isempty(typeId)
+                if isempty(v) && ~isempty(typeId)
                     v = obj.newInstance(typeId);
                     if ~isempty(v)
-                        if updateCache
-                            %assert(obj.current.compactId >= 0);
-                            obj.compactIdCache(current.compactId) = str2func(class(v));
+                        if compactId >= 0
+                            obj.compactIdCache{compactId} = str2func(class(v));
                         end
 
                         %
@@ -473,20 +473,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             end
 
             r = Ice.SlicedData(current.slices); % Makes a shallow copy
-        end
-
-        function r = resolveCompactId(~, id)
-            type = '';
-
-            if isempty(type)
-                prop = sprintf('IceCompactId.TypeId_%d.typeId', id);
-                try
-                    type = eval(prop);
-                catch
-                end
-            end
-
-            r = type;
         end
     end
     properties(Access=public)

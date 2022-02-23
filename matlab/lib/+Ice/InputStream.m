@@ -352,7 +352,7 @@ classdef InputStream < handle
             curr.next = obj.encapsStack;
             obj.encapsStack = curr;
             obj.encapsStackDecoder = curr.decoder;
-            obj.encapsStack.start = obj.pos;
+            pos = obj.pos;
 
             %
             % I don't use readSize() for encapsulations, because when creating an encapsulation,
@@ -366,7 +366,7 @@ classdef InputStream < handle
             if obj.pos - 4 + sz > obj.size + 1
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            obj.encapsStack.sz = sz;
+            obj.encapsStack.endPos = pos + sz;
 
             %
             % Inline the encoding version unmarshaling
@@ -395,11 +395,11 @@ classdef InputStream < handle
 
             if ~obj.encoding_1_0
                 obj.skipOptionals();
-                if obj.pos ~= obj.encapsStack.start + obj.encapsStack.sz
+                if obj.pos ~= obj.encapsStack.endPos
                     throw(Ice.EncapsulationException());
                 end
-            elseif obj.pos ~= obj.encapsStack.start + obj.encapsStack.sz
-                if obj.pos + 1 ~= obj.encapsStack.start + obj.encapsStack.sz
+            elseif obj.pos ~= obj.encapsStack.endPos
+                if obj.pos + 1 ~= obj.encapsStack.endPos
                     throw(Ice.EncapsulationException());
                 end
 
@@ -529,53 +529,28 @@ classdef InputStream < handle
         end
         function r = readOptional(obj, tag, fmt)
             %assert(isobject(obj.encapsStack));
-            encapsStackDecoder = obj.encapsStackDecoder;
             if obj.encoding_1_0
                 r = false; % Optional members aren't supported with the 1.0 encoding.
-            elseif isobject(encapsStackDecoder)
+            elseif isobject(obj.encapsStackDecoder)
                 import IceInternal.Protocol;
-                current = encapsStackDecoder.current;
-                if ~isobject(current)
-                    r = readOptionalImpl(tag, fmt);
-                elseif bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
-                    r = readOptionalImpl(tag, fmt);
+                current = obj.encapsStackDecoder.current;
+                if ~isobject(current) || bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
+                    r = readOptionalImpl(tag, fmt, obj.encapsStack.endPos);
                 else
                     r = false;
                 end
             else
-                r = readOptionalImpl(tag, fmt);
+                r = readOptionalImpl(tag, fmt, obj.size);
             end
 
-            function r = readOptionalImpl2(readTag, expectedFormat)
-                result = calllib('ice', 'Ice_InputStream_readOptional', obj, obj.buf, obj.pos,  ...
-                                 obj.size, readTag, uint8(expectedFormat));
-                value = result(1);
-                if value == 0
-                    obj.pos = result(2);
-                    r = false;
-                elseif value == 1
-                    obj.pos = result(2);
-                    r = true;
-                else
-                    error = result(2);
-                    if error == 1
-                        throw(Ice.UnmarshalOutOfBoundsException());
-                    else
-                        throw(Ice.MarshalException('', '', ...
-                                sprintf('invalid optional data member ''%d'': unexpected format', readTag)));
-                    end
-                    r = false;
-                end
-            end
-            function r = readOptionalImpl(readTag, expectedFormat)
-                encapsStack = obj.encapsStack;
+            function r = readOptionalImpl(readTag, expectedFormat, encapsStackEnd)
                 while true
-                    if obj.pos >= encapsStack.start + encapsStack.sz
+                    pos = obj.pos;
+                    if pos >= encapsStackEnd
                         r = false; % End of encapsulation also indicates end of optionals.
                         break;
                     end
 
-                    pos = obj.pos;
                     v = obj.buf(pos);
                     if v == 255 %IceInternal.Protocol.OPTIONAL_END_MARKER
                         r = false;
@@ -621,8 +596,9 @@ classdef InputStream < handle
             %
             % Skip remaining unread optional members.
             %
+            encapsStackEnd = obj.encapsStack.endPos;
             while true
-                if obj.pos >= obj.encapsStack.start + obj.encapsStack.sz
+                if obj.pos >= encapsStackEnd
                     return; % End of encapsulation also indicates end of optionals.
                 end
 
@@ -739,7 +715,9 @@ classdef InputStream < handle
             end
         end
         function readValue(obj, cb, formalType)
-            obj.initEncaps();
+            if ~isobject(obj.encapsStackDecoder)
+                obj.initEncaps();
+            end
             function check(v)
                 if isempty(v) || isa(v, formalType)
                     cb(v);
@@ -785,7 +763,9 @@ classdef InputStream < handle
             r = obj.encapsStackDecoder.endInstance(preserve);
         end
         function throwException(obj)
-            obj.initEncaps();
+            if ~isobject(obj.encapsStackDecoder)
+                obj.initEncaps();
+            end
             obj.encapsStackDecoder.throwException();
         end
         function r = getPos(obj)
@@ -859,11 +839,11 @@ classdef InputStream < handle
                     obj.encapsStack = IceInternal.ReadEncaps();
                 end
                 obj.encapsStack.setEncoding(obj.encoding);
-                obj.encapsStack.sz = obj.size;
+                obj.encapsStack.endPos = obj.size;
             end
 
-            valueFactoryManager = obj.communicator.getValueFactoryManager();
             if ~isobject(obj.encapsStack.decoder) % Lazy initialization
+                valueFactoryManager = obj.communicator.getValueFactoryManager();
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder10(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
