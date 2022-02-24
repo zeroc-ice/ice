@@ -358,7 +358,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     if current.compactId <= length(obj.compactIdCache)
                         constructor = obj.compactIdCache{compactId};
                         try
-                            v = constructor(); % Invoke the constructor.
+                            v = constructor('NoInit'); % Invoke the constructor.
                             if isobject(v)
                                 %
                                 % We have an instance, get out of this loop.

@@ -79,7 +79,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 ex = [];
                 if ~isempty(constructor)
                     try
-                        ex = constructor(); % Invoke the constructor.
+                        ex = constructor('NoInit'); % Invoke the constructor.
                     catch e
                         %
                         % Instantiation failed.
