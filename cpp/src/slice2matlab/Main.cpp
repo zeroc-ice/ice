@@ -1755,11 +1755,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 out << nl << "function " << self << " = " << name << spar << allNames << epar;
                 out.inc();
-                if (base)
+                if(base)
                 {
                     out << nl << "if nargin == 0";
                     out.inc();
-                    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                    for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                     {
                         out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
                     }
@@ -1783,7 +1783,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     out << nl << "if nargin == 0";
                     out.inc();
-                    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                    for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                     {
                         out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
                     }
@@ -1791,15 +1791,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out << nl << "end;";
                 }
 
-                for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                 {
-                    if (!q->inherited)
+                    if(!q->inherited)
                     {
                         out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
                     }
                 }
 
-                if (base)
+                if(base)
                 {
                     out.dec();
                     out << nl << "end";
@@ -4727,11 +4727,11 @@ CodeVisitor::writeBaseClassArrayParams(IceUtilInternal::Output& out, const Membe
 {
     out << nl << "v = { ";
     bool first = true;
-    for (MemberInfoList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for(MemberInfoList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        if (q->inherited)
+        if(q->inherited)
         {
-            if (first)
+            if(first)
             {
                 out << (noInit ? "'NoInit'" : q->fixedName);
                 first = false;

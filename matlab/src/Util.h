@@ -42,7 +42,7 @@ mxArray* createByteArray(const Ice::Byte*, const Ice::Byte*);
 mxArray* createByteList(const std::vector<Ice::Byte>&);
 mxArray* createCertificateList(const std::vector<IceSSL::CertificatePtr>&);
 
-std::string idToClass(const std::string &);
+std::string idToClass(const std::string&);
 
 template<typename T>
 std::shared_ptr<T> deref(void* p)

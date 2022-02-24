@@ -3,12 +3,10 @@
 //
 
 #include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
 #include <iostream>
 #include <string>
 #include <locale>
 #include <codecvt>
-#include <iostream>
 #include "ice.h"
 #include "Util.h"
 
@@ -553,7 +551,7 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, 2, optionalFields);
     mxSetFieldByNumber(r, 0, 0, createBool(hasValue));
-    if (hasValue)
+    if(hasValue)
     {
         mxSetFieldByNumber(r, 0, 1, value);
     }
@@ -626,77 +624,80 @@ IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
 
 namespace
 {
-    string
-    lookupKwd(const string &name)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order.
-        //
-        // This list must match the one in slice2matlab.
-        //
-        static const string keywordList[] =
-            {
-                "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "for", "function", "global",
-                "if", "otherwise", "parfor", "persistent", "return", "spmd", "switch", "try", "while"};
-        bool found = binary_search(&keywordList[0],
-                                    &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                    name);
-        return found ? "slice_" + name : name;
-    }
 
+string
+lookupKwd(const string& name)
+{
     //
-    // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+    // Keyword list. *Must* be kept in alphabetical order.
     //
-    vector<string>
-    splitScopedName(const string &scoped)
+    // This list must match the one in slice2matlab.
+    //
+    static const string keywordList[] =
     {
-        assert(scoped[0] == ':');
-        vector<string> ids;
-        string::size_type next = 0;
-        string::size_type pos;
-        while ((pos = scoped.find("::", next)) != string::npos)
+        "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "for", "function", "global",
+        "if", "otherwise", "parfor", "persistent", "return", "spmd", "switch", "try", "while"
+    };
+    bool found = binary_search(&keywordList[0],
+                               &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                               name);
+    return found ? "slice_" + name : name;
+}
+
+//
+// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+//
+vector<string>
+splitScopedName(const string& scoped)
+{
+    assert(scoped[0] == ':');
+    vector<string> ids;
+    string::size_type next = 0;
+    string::size_type pos;
+    while((pos = scoped.find("::", next)) != string::npos)
+    {
+        pos += 2;
+        if(pos != scoped.size())
         {
-            pos += 2;
-            if (pos != scoped.size())
+            string::size_type endpos = scoped.find("::", pos);
+            if(endpos != string::npos)
             {
-                string::size_type endpos = scoped.find("::", pos);
-                if (endpos != string::npos)
-                {
-                    ids.push_back(scoped.substr(pos, endpos - pos));
-                }
+                ids.push_back(scoped.substr(pos, endpos - pos));
             }
-            next = pos;
         }
-        if (next != scoped.size())
-        {
-            ids.push_back(scoped.substr(next));
-        }
-        else
-        {
-            ids.push_back("");
-        }
-
-        return ids;
+        next = pos;
     }
+    if(next != scoped.size())
+    {
+        ids.push_back(scoped.substr(next));
+    }
+    else
+    {
+        ids.push_back("");
+    }
+
+    return ids;
+}
+
 }
 
 string
-IceMatlab::idToClass(const string &id)
+IceMatlab::idToClass(const string& id)
 {
     auto ids = splitScopedName(id);
 #ifdef ICE_CPP11_COMPILER
-transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
+    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
 #else
-transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
 #endif
-stringstream result;
-for(auto i = ids.begin(); i != ids.end(); ++i)
-{
-    if(i != ids.begin())
+    stringstream result;
+    for(auto i = ids.begin(); i != ids.end(); ++i)
     {
-        result << ".";
+        if(i != ids.begin())
+        {
+            result << ".";
+        }
+        result << *i;
     }
-    result << *i;
-}
-return result.str();
+    return result.str();
 }
