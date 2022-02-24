@@ -127,21 +127,12 @@
         "Value.js",
         "ValueFactoryManagerI.js",
         "WSEndpoint.js",
-        "WSEndpointFactory.js"
-    ],
-
-    "node":[
+        "WSEndpointFactory.js",
+        "WSTransceiver.js",
         "Debug.js",
         "Ice.js",
         "ModuleRegistry.js",
         "TcpTransceiver.js",
         "TimerUtil.js"
-    ],
-
-    "browser":[
-        "browser/Debug.js",
-        "browser/ModuleRegistry.js",
-        "browser/TimerUtil.js",
-        "browser/WSTransceiver.js"
     ]
 }

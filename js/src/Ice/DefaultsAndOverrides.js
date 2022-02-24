@@ -3,13 +3,10 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/FormatType",
-        "../Ice/EndpointTypes",
-        "../Ice/Protocol",
-        "../Ice/LocalException"
-    ]);
+require("../Ice/FormatType");
+require("../Ice/EndpointTypes");
+require("../Ice/Protocol");
+require("../Ice/LocalException");
 
 const FormatType = Ice.FormatType;
 const EndpointSelectionType = Ice.EndpointSelectionType;

@@ -3,27 +3,24 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/ArrayUtil",
-        "../Ice/BatchRequestQueue",
-        "../Ice/Debug",
-        "../Ice/HashUtil",
-        "../Ice/OpaqueEndpointI",
-        "../Ice/Promise",
-        "../Ice/ReferenceMode",
-        "../Ice/StringUtil",
-        "../Ice/BuiltinSequences",
-        "../Ice/EndpointTypes",
-        "../Ice/Identity",
-        "../Ice/Router",
-        "../Ice/Locator",
-        "../Ice/LocalException",
-        "../Ice/Version",
-        "../Ice/PropertyNames",
-        "../Ice/ConnectionRequestHandler",
-        "../Ice/MapUtil"
-    ]);
+require("../Ice/ArrayUtil");
+require("../Ice/BatchRequestQueue");
+require("../Ice/Debug");
+require("../Ice/HashUtil");
+require("../Ice/OpaqueEndpointI");
+require("../Ice/Promise");
+require("../Ice/ReferenceMode");
+require("../Ice/StringUtil");
+require("../Ice/BuiltinSequences");
+require("../Ice/EndpointTypes");
+require("../Ice/Identity");
+require("../Ice/Router");
+require("../Ice/Locator");
+require("../Ice/LocalException");
+require("../Ice/Version");
+require("../Ice/PropertyNames");
+require("../Ice/ConnectionRequestHandler");
+require("../Ice/MapUtil");
 
 const ArrayUtil = Ice.ArrayUtil;
 const Debug = Ice.Debug;

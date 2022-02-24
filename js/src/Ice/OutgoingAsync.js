@@ -3,20 +3,17 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncStatus",
-        "../Ice/AsyncResult",
-        "../Ice/Stream",
-        "../Ice/Debug",
-        "../Ice/RetryException",
-        "../Ice/Current",
-        "../Ice/Protocol",
-        "../Ice/BuiltinSequences",
-        "../Ice/Exception",
-        "../Ice/LocalException",
-        "../Ice/Identity"
-    ]);
+require("../Ice/AsyncStatus");
+require("../Ice/AsyncResult");
+require("../Ice/Stream");
+require("../Ice/Debug");
+require("../Ice/RetryException");
+require("../Ice/Current");
+require("../Ice/Protocol");
+require("../Ice/BuiltinSequences");
+require("../Ice/Exception");
+require("../Ice/LocalException");
+require("../Ice/Identity");
 
 const AsyncStatus = Ice.AsyncStatus;
 const AsyncResult = Ice.AsyncResult;

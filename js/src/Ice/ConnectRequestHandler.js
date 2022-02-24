@@ -3,15 +3,12 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncStatus",
-        "../Ice/ConnectionRequestHandler",
-        "../Ice/Debug",
-        "../Ice/RetryException",
-        "../Ice/ReferenceMode",
-        "../Ice/Exception"
-    ]);
+require("../Ice/AsyncStatus");
+require("../Ice/ConnectionRequestHandler");
+require("../Ice/Debug");
+require("../Ice/RetryException");
+require("../Ice/ReferenceMode");
+require("../Ice/Exception");
 
 const AsyncStatus = Ice.AsyncStatus;
 const ConnectionRequestHandler = Ice.ConnectionRequestHandler;

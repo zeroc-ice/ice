@@ -3,37 +3,34 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncResultBase",
-        "../Ice/Debug",
-        "../Ice/DefaultsAndOverrides",
-        "../Ice/EndpointFactoryManager",
-        "../Ice/ImplicitContextI",
-        "../Ice/IdentityUtil",
-        "../Ice/LocatorManager",
-        "../Ice/ObjectAdapterFactory",
-        "../Ice/ValueFactoryManagerI",
-        "../Ice/OutgoingConnectionFactory",
-        "../Ice/Promise",
-        "../Ice/Properties",
-        "../Ice/ProtocolInstance",
-        "../Ice/ProxyFactory",
-        "../Ice/RetryQueue",
-        "../Ice/RouterManager",
-        "../Ice/Timer",
-        "../Ice/TraceLevels",
-        "../Ice/TcpEndpointFactory",
-        "../Ice/WSEndpointFactory",
-        "../Ice/Reference",
-        "../Ice/RequestHandlerFactory",
-        "../Ice/LocalException",
-        "../Ice/Exception",
-        "../Ice/ProcessLogger",
-        "../Ice/ACM",
-        "../Ice/ToStringMode",
-        "../Ice/EndpointInfo"
-    ]);
+require("../Ice/AsyncResultBase");
+require("../Ice/Debug");
+require("../Ice/DefaultsAndOverrides");
+require("../Ice/EndpointFactoryManager");
+require("../Ice/ImplicitContextI");
+require("../Ice/IdentityUtil");
+require("../Ice/LocatorManager");
+require("../Ice/ObjectAdapterFactory");
+require("../Ice/ValueFactoryManagerI");
+require("../Ice/OutgoingConnectionFactory");
+require("../Ice/Promise");
+require("../Ice/Properties");
+require("../Ice/ProtocolInstance");
+require("../Ice/ProxyFactory");
+require("../Ice/RetryQueue");
+require("../Ice/RouterManager");
+require("../Ice/Timer");
+require("../Ice/TraceLevels");
+require("../Ice/TcpEndpointFactory");
+require("../Ice/WSEndpointFactory");
+require("../Ice/Reference");
+require("../Ice/RequestHandlerFactory");
+require("../Ice/LocalException");
+require("../Ice/Exception");
+require("../Ice/ProcessLogger");
+require("../Ice/ACM");
+require("../Ice/ToStringMode");
+require("../Ice/EndpointInfo");
 
 const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;

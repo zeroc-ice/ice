@@ -3,12 +3,9 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/HashUtil",
-        "../Ice/ArrayUtil",
-        "../Ice/StreamHelpers"
-    ]);
+require("../Ice/HashUtil");
+require("../Ice/ArrayUtil");
+require("../Ice/StreamHelpers");
 
 const ArrayUtil = Ice.ArrayUtil;
 

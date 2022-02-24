@@ -3,14 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncResultBase",
-        "../Ice/Debug",
-        "../Ice/Protocol",
-        "../Ice/Exception",
-        "../Ice/Stream"
-    ]);
+require("../Ice/AsyncResultBase");
+require("../Ice/Debug");
+require("../Ice/Protocol");
+require("../Ice/Exception");
+require("../Ice/Stream");
 
 const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;

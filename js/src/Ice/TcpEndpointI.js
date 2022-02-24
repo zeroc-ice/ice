@@ -3,18 +3,15 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/HashUtil",
-        "../Ice/StringUtil",
-        "../Ice/IPEndpointI",
-        "../Ice/TcpTransceiver",
-        "../Ice/LocalException",
-        "../Ice/EndpointInfo"
-    ]);
+require("../Ice/Debug");
+require("../Ice/HashUtil");
+require("../Ice/StringUtil");
+require("../Ice/IPEndpointI");
+require("../Ice/TcpTransceiver");
+require("../Ice/LocalException");
+require("../Ice/EndpointInfo");
 
-const IceSSL = Ice._ModuleRegistry.require(module, ["../Ice/EndpointInfo"]).IceSSL;
+const IceSSL = require("../Ice/EndpointInfo").IceSSL;
 
 const Debug = Ice.Debug;
 const HashUtil = Ice.HashUtil;
@@ -124,7 +121,7 @@ class TcpEndpointI extends Ice.IPEndpointI
         // TCP endpoints are not connectable when running in a browser, SSL
         // isn't currently supported.
         //
-        return TcpTransceiver !== null && !this.secure();
+        return typeof process !== 'undefined' && !this.secure();
     }
 
     connect()

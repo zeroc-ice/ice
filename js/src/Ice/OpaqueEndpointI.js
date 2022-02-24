@@ -3,16 +3,13 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Base64",
-        "../Ice/Debug",
-        "../Ice/FormatType",
-        "../Ice/HashUtil",
-        "../Ice/StringUtil",
-        "../Ice/EndpointI",
-        "../Ice/LocalException"
-    ]);
+require("../Ice/Base64");
+require("../Ice/Debug");
+require("../Ice/FormatType");
+require("../Ice/HashUtil");
+require("../Ice/StringUtil");
+require("../Ice/EndpointI");
+require("../Ice/LocalException");
 
 const Base64 = Ice.Base64;
 const Debug = Ice.Debug;

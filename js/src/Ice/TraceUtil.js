@@ -3,14 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/Protocol",
-        "../Ice/StringUtil",
-        "../Ice/Current",
-        "../Ice/Identity"
-    ]);
+require("../Ice/Debug");
+require("../Ice/Protocol");
+require("../Ice/StringUtil");
+require("../Ice/Current");
+require("../Ice/Identity");
 
 //
 // Local aliases.

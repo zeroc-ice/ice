@@ -3,15 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/HashUtil",
-        "../Ice/EndpointI",
-        "../Ice/LocalException",
-        "../Ice/WSTransceiver",
-        "../Ice/EndpointInfo"
-    ]);
+require("../Ice/HashUtil");
+require("../Ice/EndpointI");
+require("../Ice/LocalException");
+require("../Ice/WSTransceiver");
+require("../Ice/EndpointInfo");
 
 const HashUtil = Ice.HashUtil;
 const EndpointI = Ice.EndpointI;
@@ -211,7 +207,7 @@ class WSEndpoint extends EndpointI
 
     connectable()
     {
-        return typeof Ice.WSTransceiver !== "undefined";
+        return typeof WebSocket !== "undefined";
     }
 }
 

@@ -3,15 +3,12 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/ObjectPrx",
-        "../Ice/StringUtil",
-        "../Ice/Identity",
-        "../Ice/Reference",
-        "../Ice/LocalException"
-    ]);
+require("../Ice/Debug");
+require("../Ice/ObjectPrx");
+require("../Ice/StringUtil");
+require("../Ice/Identity");
+require("../Ice/Reference");
+require("../Ice/LocalException");
 
 const Debug = Ice.Debug;
 const ObjectPrx = Ice.ObjectPrx;

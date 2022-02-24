@@ -3,7 +3,8 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module, ["../Ice/LocalException", "../Ice/Current"]);
+require("../Ice/LocalException");
+require("../Ice/Current");
 
 const Context = Ice.Context;
 const InitializationException = Ice.InitializationException;

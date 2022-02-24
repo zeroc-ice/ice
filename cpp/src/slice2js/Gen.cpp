@@ -719,15 +719,20 @@ Slice::Gen::generate(const UnitPtr& p)
     bool icejs = module == "ice";
 
     //
-    // Check for file "js:es6-module" metadata. If this is set we are using es6 module mapping
+    // Check what kind of JavaScript module to generate:
+    //  "js:es6-module" -> ESM
+    //  "js:cjs-module" -> Common JS
+    //  Default -> IIFE (Immediately Invoked Function Expression)
     //
     bool es6module = dc->findMetaData("js:es6-module") == "js:es6-module";
+    bool cjsmodule = dc->findMetaData("js:cjs-module") == "js:cjs-module";
+    bool iifemodule = !es6module && !cjsmodule;
 
     _jsout << nl << "/* eslint-disable */";
     _jsout << nl << "/* jshint ignore: start */";
     _jsout << nl;
 
-    if(!es6module)
+    if(iifemodule)
     {
         if(icejs)
         {
@@ -757,7 +762,7 @@ Slice::Gen::generate(const UnitPtr& p)
     ExportVisitor exportVisitor(_jsout, icejs, es6module);
     p->visit(&exportVisitor, false);
 
-    if(!es6module)
+    if(iifemodule)
     {
         if(icejs)
         {
@@ -1185,24 +1190,16 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
             }
             else
             {
-                _out << nl << "const " << i->first << " = _ModuleRegistry.require(module,";
-                _out << nl << "[";
-                _out.inc();
-                for(list<string>::const_iterator j = i->second.begin(); j != i->second.end();)
+                for(list<string>::const_iterator j = i->second.begin(); j != i->second.end(); ++j)
                 {
-                    _out << nl << '"';
+                    _out << nl << "require(\"";
                     if(_icejs && iceBuiltinModule(i->first))
                     {
                         _out << "../";
                     }
-                    _out << *j << '"';
-                    if(++j != i->second.end())
-                    {
-                        _out << ",";
-                    }
+                    _out <<  *j << "\");";
                 }
-                _out.dec();
-                _out << nl << "])." << i->first << ";";
+                _out << nl << "const " << i->first << " = _ModuleRegistry.module(\"" << i->first << "\");";
                 _out << sp;
             }
             seenModules.push_back(i->first);

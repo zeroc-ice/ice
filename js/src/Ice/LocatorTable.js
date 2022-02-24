@@ -3,7 +3,9 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module, ["../Ice/HashMap", "../Ice/Debug", "../Ice/IdentityUtil"]);
+require("../Ice/HashMap");
+require("../Ice/Debug");
+require("../Ice/IdentityUtil");
 
 const HashMap = Ice.HashMap;
 const Debug = Ice.Debug;

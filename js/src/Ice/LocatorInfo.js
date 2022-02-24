@@ -3,17 +3,14 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/Promise",
-        "../Ice/Protocol",
-        "../Ice/Locator",
-        "../Ice/LocalException",
-        "../Ice/Exception",
-        "../Ice/HashMap",
-        "../Ice/IdentityUtil"
-    ]);
+require("../Ice/Debug");
+require("../Ice/Promise");
+require("../Ice/Protocol");
+require("../Ice/Locator");
+require("../Ice/LocalException");
+require("../Ice/Exception");
+require("../Ice/HashMap");
+require("../Ice/IdentityUtil");
 
 const Debug = Ice.Debug;
 const Protocol = Ice.Protocol;

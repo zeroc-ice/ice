@@ -3,12 +3,9 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/HashMap",
-        "../Ice/Reference",
-        "../Ice/ConnectRequestHandler"
-    ]);
+require("../Ice/HashMap");
+require("../Ice/Reference");
+require("../Ice/ConnectRequestHandler");
 
 const HashMap = Ice.HashMap;
 const ConnectRequestHandler = Ice.ConnectRequestHandler;

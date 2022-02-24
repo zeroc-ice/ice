@@ -3,13 +3,10 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/HashMap",
-        "../Ice/LocatorInfo",
-        "../Ice/LocatorTable",
-        "../Ice/Locator"
-    ]);
+require("../Ice/HashMap");
+require("../Ice/LocatorInfo");
+require("../Ice/LocatorTable");
+require("../Ice/Locator");
 
 const HashMap = Ice.HashMap;
 const LocatorInfo = Ice.LocatorInfo;

@@ -3,14 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Address",
-        "../Ice/HashUtil",
-        "../Ice/StringUtil",
-        "../Ice/EndpointI",
-        "../Ice/LocalException"
-    ]);
+require("../Ice/Address");
+require("../Ice/HashUtil");
+require("../Ice/StringUtil");
+require("../Ice/EndpointI");
+require("../Ice/LocalException");
 
 const Address = Ice.Address;
 const HashUtil = Ice.HashUtil;

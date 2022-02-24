@@ -12,6 +12,7 @@
 [["ice-prefix"]]
 
 [["js:module:ice"]]
+[["js:cjs-module"]]
 
 [["objc:dll-export:ICEGRID_API"]]
 [["objc:header-dir:objc"]]

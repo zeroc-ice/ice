@@ -4,24 +4,21 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const _ModuleRegistry = Ice._ModuleRegistry;
-_ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/ExUtil",
-        "../Ice/FormatType",
-        "../Ice/Object",
-        "../Ice/Value",
-        "../Ice/OptionalFormat",
-        "../Ice/Protocol",
-        "../Ice/TraceUtil",
-        "../Ice/Buffer",
-        "../Ice/Exception",
-        "../Ice/LocalException",
-        "../Ice/Version",
-        "../Ice/CompactIdRegistry",
-        "../Ice/ArrayUtil",
-        "../Ice/UnknownSlicedValue"
-    ]);
+require("../Ice/Debug");
+require("../Ice/ExUtil");
+require("../Ice/FormatType");
+require("../Ice/Object");
+require("../Ice/Value");
+require("../Ice/OptionalFormat");
+require("../Ice/Protocol");
+require("../Ice/TraceUtil");
+require("../Ice/Buffer");
+require("../Ice/Exception");
+require("../Ice/LocalException");
+require("../Ice/Version");
+require("../Ice/CompactIdRegistry");
+require("../Ice/ArrayUtil");
+require("../Ice/UnknownSlicedValue");
 
 const Debug = Ice.Debug;
 const ExUtil = Ice.ExUtil;
