@@ -10,7 +10,7 @@ require("../Ice/Exception");
 
 let Debug = {};
 
-if (typeof process != 'undefined')
+if (typeof process !== 'undefined')
 {
     const fs = require("fs");
     Debug = class
@@ -46,7 +46,7 @@ else
             if(!b)
             {
                 console.log(msg === undefined ? "assertion failed" : msg);
-                console.log(Error().stack);
+                console.log(new Error().stack);
                 throw new Ice.AssertionFailedException(msg === undefined ? "assertion failed" : msg);
             }
         }

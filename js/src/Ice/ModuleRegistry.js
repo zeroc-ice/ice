@@ -39,24 +39,24 @@ if (typeof process !== 'undefined')
             }
 
             const components = scoped.split(".");
-            let T = modules;
+            let type = modules;
 
             for(let i = 0; i < components.length; ++i)
             {
-                T = T[components[i]];
-                if(T === undefined)
+                type = T[components[i]];
+                if(type === undefined)
                 {
                     return undefined;
                 }
             }
-            return T;
+            return type;
         }
     }
 
     Ice = _ModuleRegistry.module("Ice");
     Ice.Slice = Ice.Slice || {};
     Ice._ModuleRegistry = _ModuleRegistry;
-} 
+}
 else
 {
     /* global
