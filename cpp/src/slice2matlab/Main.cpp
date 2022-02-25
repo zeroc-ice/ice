@@ -878,7 +878,7 @@ parseComment(const ContainedPtr& p)
         doc.overview.push_back(l);
     }
 
-    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated };
+    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated, StateSee };
     State state = StateMisc;
     string name;
     const string ws = " \t";
@@ -926,6 +926,7 @@ parseComment(const ContainedPtr& p)
         {
             if(!line.empty())
             {
+                state = StateSee;
                 doc.seeAlso.push_back(line);
             }
         }
@@ -995,6 +996,11 @@ parseComment(const ContainedPtr& p)
                 case StateDeprecated:
                 {
                     doc.deprecateReason.push_back(l);
+                    break;
+                }
+                case StateSee:
+                {
+                    doc.seeAlso.push_back(l);
                     break;
                 }
             }
