@@ -18,9 +18,6 @@ classdef InputStream < handle
             if obj.classGraphDepthMax < 1 || obj.classGraphDepthMax > intmax('int32')
                 obj.classGraphDepthMax = intmax('int32');
             end
-            obj.enabledReadOptional = @(tag, fmt) obj.readOptionalImpl(tag, fmt);
-            obj.disabledReadOptional = @(tag, format) false;
-            obj.readOptional = obj.disabledReadOptional;
         end
         function r = getCommunicator(obj)
             r = obj.communicator;
@@ -33,7 +30,6 @@ classdef InputStream < handle
             obj.minSeqSize = 0;
             obj.encapsStack = [];
             obj.encapsStackDecoder = [];
-            obj.updateReadOptional();
         end
         function r = readBool(obj)
             pos = obj.pos;
@@ -356,7 +352,6 @@ classdef InputStream < handle
             curr.next = obj.encapsStack;
             obj.encapsStack = curr;
             obj.encapsStackDecoder = curr.decoder;
-            obj.updateReadOptional();
             pos = obj.pos;
 
             %
@@ -428,7 +423,6 @@ classdef InputStream < handle
             obj.encapsStack = curr.next;
             if isobject(obj.encapsStack)
                 obj.encapsStackDecoder = obj.encapsStack.decoder;
-                obj.updateReadOptional();
             end
             curr.next = obj.encapsCache;
             obj.encapsCache = curr;
@@ -533,47 +527,63 @@ classdef InputStream < handle
                 r = int32(b);
             end
         end
-        function r = readOptionalImpl(obj, readTag, expectedFormat)
-            encapsStackEnd = obj.encapsStack.endPos;
-            while true
-                pos = obj.pos;
-                if pos >= encapsStackEnd
-                    r = false; % End of encapsulation also indicates end of optionals.
-                    break;
-                end
-
-                v = obj.buf(pos);
-                if v == 255 %IceInternal.Protocol.OPTIONAL_END_MARKER
-                    r = false;
-                    break;
-                end
-                obj.pos = pos + 1;
-
-                format = bitand(v, uint8(7)); % First 3 bits.
-                tag = uint32(bitshift(v, -3));
-                if tag == 30
-                    tag = obj.readSize();
-                end
-
-                if tag > readTag
-                    if tag < 30
-                        offset = 1;
-                    elseif tag < 255
-                        offset = 2;
-                    else
-                        offset = 6;
-                    end
-                    obj.pos = obj.pos - offset; % Rewind
-                    r = false; % No optional data members with the requested tag.
-                    break;
-                elseif tag < readTag
-                    obj.skipOptional(format); % Skip optional data members
-                elseif format ~= expectedFormat
-                    throw(Ice.MarshalException('', '', ...
-                            sprintf('invalid optional data member ''%d'': unexpected format', tag)));
+        function r = readOptional(obj, tag, fmt)
+            %assert(isobject(obj.encapsStack));
+            if obj.encoding_1_0
+                r = false; % Optional members aren't supported with the 1.0 encoding.
+            elseif isobject(obj.encapsStackDecoder)
+                import IceInternal.Protocol;
+                current = obj.encapsStackDecoder.current;
+                if ~isobject(current) || bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
+                    r = readOptionalImpl(tag, fmt, obj.encapsStack.endPos);
                 else
-                    r = true;
-                    break;
+                    r = false;
+                end
+            else
+                r = readOptionalImpl(tag, fmt, obj.size);
+            end
+
+            function r = readOptionalImpl(readTag, expectedFormat, encapsStackEnd)
+                while true
+                    pos = obj.pos;
+                    if pos >= encapsStackEnd
+                        r = false; % End of encapsulation also indicates end of optionals.
+                        break;
+                    end
+
+                    v = obj.buf(pos);
+                    if v == 255 %IceInternal.Protocol.OPTIONAL_END_MARKER
+                        r = false;
+                        break;
+                    end
+                    obj.pos = pos + 1;
+
+                    format = bitand(v, uint8(7)); % First 3 bits.
+                    tag = uint32(bitshift(v, -3));
+                    if tag == 30
+                        tag = obj.readSize();
+                    end
+
+                    if tag > readTag
+                        if tag < 30
+                            offset = 1;
+                        elseif tag < 255
+                            offset = 2;
+                        else
+                            offset = 6;
+                        end
+                        obj.pos = obj.pos - offset; % Rewind
+                        r = false; % No optional data members with the requested tag.
+                        break;
+                    elseif tag < readTag
+                        obj.skipOptional(format); % Skip optional data members
+                    elseif format ~= expectedFormat
+                        throw(Ice.MarshalException('', '', ...
+                                sprintf('invalid optional data member ''%d'': unexpected format', tag)));
+                    else
+                        r = true;
+                        break;
+                    end
                 end
             end
         end
@@ -844,14 +854,6 @@ classdef InputStream < handle
                                                     obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 end
                 obj.encapsStackDecoder = obj.encapsStack.decoder;
-                obj.updateReadOptional();
-            end
-        end
-        function updateReadOptional(obj)
-            if isobject(obj.encapsStack) && ~obj.encoding_1_0
-                obj.readOptional = obj.enabledReadOptional;
-            else
-                obj.readOptional = obj.disabledReadOptional;
             end
         end
     end
@@ -871,11 +873,6 @@ classdef InputStream < handle
                 sprintf('expected element of type ''%s'' but received ''%s''', expectedType, type), type, ...
                 expectedType));
         end
-    end
-    properties(Access=public)
-        readOptional
-        enabledReadOptional
-        disabledReadOptional
     end
     properties(Access=private)
         communicator

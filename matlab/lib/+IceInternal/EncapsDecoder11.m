@@ -117,7 +117,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         function startInstance(obj, sliceType)
             %assert(obj.current.sliceType == sliceType);
             obj.current.skipFirstSlice = true;
-            obj.current.readOptional = obj.is.readOptional;
         end
 
         function r = endInstance(obj, preserve)
@@ -130,9 +129,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current.indirectionTables = {};
             current.indirectPatchList = [];
             obj.current = current.previous;
-            if isobject(obj.current)
-                obj.is.readOptional = obj.current.readOptional;
-            end
             r = slicedData;
         end
 
@@ -151,12 +147,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
             is = obj.is;
             current.sliceFlags = is.readByte();
-
-            if bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
-                is.readOptional = is.enabledReadOptional;
-            else
-                is.readOptional = is.disabledReadOptional;
-            end
 
             %
             % Read the type ID, for value slices the type ID is encoded as a
