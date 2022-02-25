@@ -3,6 +3,7 @@
 //
 
 const Ice = require("../Ice/Timer").Ice;
+
 const Timer = Ice.Timer;
 
 class P extends Promise

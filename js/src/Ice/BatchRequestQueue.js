@@ -3,9 +3,10 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/Stream");
+
 require("../Ice/Debug");
 require("../Ice/Protocol");
+require("../Ice/Stream");
 
 const OutputStream = Ice.OutputStream;
 const Debug = Ice.Debug;

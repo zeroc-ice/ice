@@ -3,15 +3,16 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
 require("../Ice/Debug");
+require("../Ice/HashMap");
+require("../Ice/IdentityUtil");
 require("../Ice/LocalException");
 require("../Ice/StringUtil");
-require("../Ice/IdentityUtil");
-require("../Ice/HashMap");
 
 const Debug = Ice.Debug;
-const StringUtil = Ice.StringUtil;
 const HashMap = Ice.HashMap;
+const StringUtil = Ice.StringUtil;
 
 //
 // Only for use by Ice.ObjectAdatperI.

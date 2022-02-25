@@ -3,16 +3,17 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
 require("../Ice/Address");
-require("../Ice/HashUtil");
-require("../Ice/StringUtil");
 require("../Ice/EndpointI");
+require("../Ice/HashUtil");
 require("../Ice/LocalException");
+require("../Ice/StringUtil");
 
 const Address = Ice.Address;
+const EndpointParseException = Ice.EndpointParseException;
 const HashUtil = Ice.HashUtil;
 const StringUtil = Ice.StringUtil;
-const EndpointParseException = Ice.EndpointParseException;
 
 class IPEndpointI extends Ice.EndpointI
 {

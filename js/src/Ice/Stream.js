@@ -4,30 +4,31 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const _ModuleRegistry = Ice._ModuleRegistry;
+
+require("../Ice/ArrayUtil");
+require("../Ice/Buffer");
+require("../Ice/CompactIdRegistry");
 require("../Ice/Debug");
 require("../Ice/ExUtil");
+require("../Ice/Exception");
 require("../Ice/FormatType");
+require("../Ice/LocalException");
 require("../Ice/Object");
-require("../Ice/Value");
 require("../Ice/OptionalFormat");
 require("../Ice/Protocol");
 require("../Ice/TraceUtil");
-require("../Ice/Buffer");
-require("../Ice/Exception");
-require("../Ice/LocalException");
-require("../Ice/Version");
-require("../Ice/CompactIdRegistry");
-require("../Ice/ArrayUtil");
 require("../Ice/UnknownSlicedValue");
+require("../Ice/Value");
+require("../Ice/Version");
 
+const ArrayUtil = Ice.ArrayUtil;
 const Debug = Ice.Debug;
 const ExUtil = Ice.ExUtil;
 const FormatType = Ice.FormatType;
 const OptionalFormat = Ice.OptionalFormat;
 const Protocol = Ice.Protocol;
-const TraceUtil = Ice.TraceUtil;
-const ArrayUtil = Ice.ArrayUtil;
 const SlicedData = Ice.SlicedData;
+const TraceUtil = Ice.TraceUtil;
 
 const SliceType =
 {

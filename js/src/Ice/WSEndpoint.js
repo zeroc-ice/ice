@@ -3,14 +3,15 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/HashUtil");
+
 require("../Ice/EndpointI");
+require("../Ice/EndpointInfo");
+require("../Ice/HashUtil");
 require("../Ice/LocalException");
 require("../Ice/WSTransceiver");
-require("../Ice/EndpointInfo");
 
-const HashUtil = Ice.HashUtil;
 const EndpointI = Ice.EndpointI;
+const HashUtil = Ice.HashUtil;
 
 class WSEndpoint extends EndpointI
 {

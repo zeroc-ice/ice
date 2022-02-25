@@ -3,19 +3,21 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
 require("../Ice/Debug");
-require("../Ice/HashUtil");
-require("../Ice/StringUtil");
-require("../Ice/IPEndpointI");
-require("../Ice/TcpTransceiver");
-require("../Ice/LocalException");
 require("../Ice/EndpointInfo");
+require("../Ice/HashUtil");
+require("../Ice/IPEndpointI");
+require("../Ice/LocalException");
+require("../Ice/StringUtil");
+require("../Ice/TcpTransceiver");
 
 const IceSSL = require("../Ice/EndpointInfo").IceSSL;
 
 const Debug = Ice.Debug;
 const HashUtil = Ice.HashUtil;
 const StringUtil = Ice.StringUtil;
+
 const TcpTransceiver = typeof Ice.TcpTransceiver !== "undefined" ? Ice.TcpTransceiver : null;
 
 class TcpEndpointI extends Ice.IPEndpointI

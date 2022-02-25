@@ -4,6 +4,7 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const _ModuleRegistry = Ice._ModuleRegistry;
+
 require("../Ice/Current");
 require("../Ice/Exception");
 require("../Ice/FormatType");

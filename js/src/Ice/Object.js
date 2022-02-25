@@ -8,10 +8,11 @@
 // Using IceObject in this file to avoid collisions with the native Object.
 //
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
 require("../Ice/Exception");
 require("../Ice/FormatType");
-require("../Ice/StreamHelpers");
 require("../Ice/OptionalFormat");
+require("../Ice/StreamHelpers");
 
 Ice.Object = class
 {

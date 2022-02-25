@@ -3,11 +3,12 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
 require("../Ice/Debug");
-require("../Ice/HashMap");
-require("../Ice/Promise");
-require("../Ice/LocalException");
 require("../Ice/Exception");
+require("../Ice/HashMap");
+require("../Ice/LocalException");
+require("../Ice/Promise");
 
 const Debug = Ice.Debug;
 const HashMap = Ice.HashMap;

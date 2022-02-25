@@ -3,6 +3,7 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
 require("../Ice/Debug");
 require("../Ice/LocalException");
 

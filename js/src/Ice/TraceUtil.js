@@ -3,20 +3,22 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
+require("../Ice/Current");
 require("../Ice/Debug");
+require("../Ice/Identity");
 require("../Ice/Protocol");
 require("../Ice/StringUtil");
-require("../Ice/Current");
-require("../Ice/Identity");
 
 //
 // Local aliases.
 //
 const Debug = Ice.Debug;
+const Identity = Ice.Identity;
+const OperationMode = Ice.OperationMode;
 const Protocol = Ice.Protocol;
 const StringUtil = Ice.StringUtil;
-const OperationMode = Ice.OperationMode;
-const Identity = Ice.Identity;
+
 const slicingIds = new Map();
 
 function printIdentityFacetOperation(s, stream)

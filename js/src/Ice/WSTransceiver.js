@@ -4,12 +4,14 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
+require("../Ice/ConnectionInfo");
 require("../Ice/Debug");
-require("../Ice/SocketOperation");
 require("../Ice/Exception");
 require("../Ice/LocalException");
+require("../Ice/SocketOperation");
 require("../Ice/Timer");
-require("../Ice/ConnectionInfo");
+
 const IceSSL = Ice._ModuleRegistry.module("IceSSL");
 
 let WSTransceiver = {};

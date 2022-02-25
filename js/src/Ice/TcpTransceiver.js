@@ -3,10 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/Debug");
-require("../Ice/SocketOperation");
+
 require("../Ice/Connection");
+require("../Ice/Debug");
 require("../Ice/Exception");
+require("../Ice/SocketOperation");
 require("../Ice/Timer");
 
 let TcpTransceiver = {};

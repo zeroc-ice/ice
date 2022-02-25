@@ -3,7 +3,7 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/Stream");
+
 require("../Ice/BuiltinSequences");
 require("../Ice/Connection");
 require("../Ice/Current");
@@ -12,6 +12,7 @@ require("../Ice/Exception");
 require("../Ice/Identity");
 require("../Ice/LocalException");
 require("../Ice/Protocol");
+require("../Ice/Stream");
 require("../Ice/StringUtil");
 
 const OutputStream = Ice.OutputStream;

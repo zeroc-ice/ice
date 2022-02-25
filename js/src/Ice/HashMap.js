@@ -3,10 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
+
 require("../Ice/StringUtil");
 require("../Ice/UUID");
-const _ModuleRegistry = Ice._ModuleRegistry;
 
+const _ModuleRegistry = Ice._ModuleRegistry;
 const StringUtil = Ice.StringUtil;
 
 function setInternal(map, key, value, hash, index)

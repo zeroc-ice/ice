@@ -3,12 +3,13 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-require("../Ice/StringUtil");
-require("../Ice/Stream");
+
 require("../Ice/Debug");
+require("../Ice/LocalException");
 require("../Ice/OpaqueEndpointI");
 require("../Ice/Protocol");
-require("../Ice/LocalException");
+require("../Ice/Stream");
+require("../Ice/StringUtil");
 
 //
 // Local aliases.
