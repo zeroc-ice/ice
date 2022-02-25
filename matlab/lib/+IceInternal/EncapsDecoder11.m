@@ -349,54 +349,36 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             v = [];
             while true
                 compactId = current.compactId;
-                typeId = [];
-
                 if compactId >= 0
-                    %
-                    % Translate a compact (numeric) type ID into a class.
-                    %
-                    if current.compactId <= length(obj.compactIdCache)
+                    if compactId <= length(obj.compactIdCache)
                         constructor = obj.compactIdCache{compactId};
+                    else
+                        constructor = obj.getConstructor(eval(sprintf('IceCompactId.TypeId_%d.typeId', compactId)));
+                        if ~isempty(constructor)
+                            obj.compactIdCache{compactId} = constructor;
+                        end
+                    end
+
+                    if ~isempty(constructor)
                         try
-                            v = constructor('NoInit'); % Invoke the constructor.
-                            if isobject(v)
-                                %
-                                % We have an instance, get out of this loop.
-                                %
-                                break;
-                            end
+                            v = constructor(); % Invoke the constructor.
                         catch e
-                            reason = sprintf('constructor failed for class %s with compact id %d', cls, compactId);
+                            reason = sprintf('constructor failed for type %s with compact id %d', ...
+                                eval(sprintf('IceCompactId.TypeId_%d.typeId', compactId)), compactId);
                             ex = Ice.NoValueFactoryException('', reason, reason, '');
                             ex.addCause(e);
                             throw(ex);
                         end
                     end
-
-                    %
-                    % If we haven't already cached a class for the compact ID, then try to translate the
-                    % compact ID into a type ID.
-                    %
-                    try
-                        typeId = eval(sprintf('IceCompactId.TypeId_%d.typeId', current.compactId));
-                    catch
-                    end
                 else
-                    typeId = current.typeId;
+                    v = obj.newInstance(current.typeIdIndex, current.typeId);
                 end
 
-                if ~isobject(v) && ~isempty(typeId)
-                    v = obj.newInstance(current.typeIdIndex, typeId);
-                    if isobject(v)
-                        if compactId >= 0
-                            obj.compactIdCache{compactId} = str2func(class(v));
-                        end
-
-                        %
-                        % We have an instance, get out of this loop.
-                        %
-                        break;
-                    end
+                if isobject(v)
+                    %
+                    % We have an instance, get out of this loop.
+                    %
+                    break;
                 end
 
                 %

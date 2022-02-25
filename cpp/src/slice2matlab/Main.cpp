@@ -1746,7 +1746,19 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             // Constructor
             //
-            if(!allMembers.empty())
+            if(allMembers.empty())
+            {
+                out << nl << "function " << self << " = " << name << spar << "noInit" << epar;
+                out.inc();
+                out << nl << "if nargin == 1 && ~strcmp(noInit, 'NoInit')";
+                out.inc();
+                out << nl << "narginchk(0,0);";
+                out.dec();
+                out << nl << "end";
+                out.dec();
+                out << nl << "end";
+            }
+            else
             {
                 vector<string> allNames;
                 for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
@@ -1774,10 +1786,20 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     writeBaseClassArrayParams(out, allMembers, false);
                     out.dec();
                     out << nl << "end;";
+
                     out << nl << self << " = " << self << "@" << getAbsolute(base) << "(v{:});";
 
                     out << nl << "if ~strcmp(" << allMembers.begin()->fixedName << ", 'NoInit')";
                     out.inc();
+                    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                    {
+                        if (!q->inherited)
+                        {
+                            out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
+                        }
+                    }
+                    out.dec();
+                    out << nl << "end";
                 }
                 else
                 {
@@ -1785,24 +1807,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out.inc();
                     for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                     {
-                        out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
+                        out << nl << self << "." << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
                     }
                     out.dec();
-                    out << nl << "end;";
-                }
-
-                for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-                {
-                    if(!q->inherited)
+                    out << nl << "elseif ~strcmp(" << allMembers.begin()->fixedName << ", 'NoInit')";
+                    out.inc();
+                    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                     {
                         out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
                     }
-                }
-
-                if(base)
-                {
                     out.dec();
-                    out << nl << "end";
+                    out << nl << "end;";
                 }
 
                 out.dec();

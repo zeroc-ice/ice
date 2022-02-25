@@ -84,25 +84,8 @@ classdef (Abstract) EncapsDecoder < handle
             if typeIdIndex >= 0 && typeIdIndex <= length(obj.typeIdConstructorMap)
                 constructor = obj.typeIdConstructorMap{typeIdIndex};
             else
-                %
-                % Try to find a factory registered for the specific type.
-                %
-                userFactory = obj.valueFactoryManager.find(typeId);
-                if ~isempty(userFactory)
-                    r = userFactory(typeId);
-                    if ~isempty(r)
-                        if (typeIdIndex >= 0)
-                            obj.typeIdConstructorMap{typeIdIndex} = @() userFactory(typeId);
-                        end
-                        return
-                    end
-                end
-
-                %
-                % Last chance: ask the class resolver to find it.
-                %
-                constructor = obj.classResolver.resolve(typeId);
-                if ~isempty(constructor) && typeIdIndex >= 0
+                constructor = obj.getConstructor(typeId);
+                if ~isempty(constructor)
                     obj.typeIdConstructorMap{typeIdIndex} = constructor;
                 end
             end
@@ -118,6 +101,25 @@ classdef (Abstract) EncapsDecoder < handle
                 end
             else
                 r = [];
+            end
+        end
+
+        function r = getConstructor(obj, typeId)
+            %
+            % Try to find a factory registered for the specific type.
+            %
+            r = [];
+            userFactory = obj.valueFactoryManager.find(typeId);
+            if ~isempty(userFactory)
+                r = @() userFactory(typeId);
+            else
+                %
+                % Last chance: ask the class resolver to find it.
+                %
+                constructor = obj.classResolver.resolve(typeId);
+                if ~isempty(constructor)
+                    r = @() constructor('NoInit');
+                end
             end
         end
 
