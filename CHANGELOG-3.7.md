@@ -8,6 +8,8 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.7.8](#changes-in-ice-378)
+  - [JavaScript Changes](#javascript-changes)
 - [Changes in Ice 3.7.7](#changes-in-ice-377)
   - [C++ Changes](#c-changes)
   - [Java Changes](#java-changes)
@@ -15,13 +17,13 @@ particular aspect of Ice.
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes-1)
   - [Java Changes](#java-changes-1)
-  - [JavaScript Changes](#javascript-changes)
+  - [JavaScript Changes](#javascript-changes-1)
   - [Swift Changes](#swift-changes)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
   - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes-2)
   - [C# Changes](#c-changes-3)
-  - [JavaScript Changes](#javascript-changes-1)
+  - [JavaScript Changes](#javascript-changes-2)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
@@ -30,7 +32,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-2)
   - [C++ Changes](#c-changes-4)
   - [C# Changes](#c-changes-5)
-  - [JavaScript Changes](#javascript-changes-2)
+  - [JavaScript Changes](#javascript-changes-3)
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes-1)
@@ -40,7 +42,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes-6)
   - [C# Changes](#c-changes-7)
   - [Java Changes](#java-changes-2)
-  - [JavaScript Changes](#javascript-changes-3)
+  - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-1)
   - [Python Changes](#python-changes-2)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
@@ -48,7 +50,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes-8)
   - [C# Changes](#c-changes-9)
   - [Java Changes](#java-changes-3)
-  - [JavaScript Changes](#javascript-changes-4)
+  - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-2)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes-1)
@@ -58,7 +60,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes-10)
   - [C# Changes](#c-changes-11)
   - [Java Changes](#java-changes-4)
-  - [JavaScript Changes](#javascript-changes-5)
+  - [JavaScript Changes](#javascript-changes-6)
   - [MATLAB Changes](#matlab-changes-3)
   - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes-2)
@@ -69,11 +71,23 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes-12)
   - [C# Changes](#c-changes-13)
   - [Java Changes](#java-changes-5)
-  - [JavaScript Changes](#javascript-changes-6)
+  - [JavaScript Changes](#javascript-changes-7)
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-3)
   - [Python Changes](#python-changes-5)
   - [Ruby Changes](#ruby-changes-3)
+
+# Changes in Ice 3.7.8
+
+These are the changes since Ice 3.7.7.
+
+## JavaScript Changes
+
+- Updated the JavaScript NPM module to be compatible with browser applications, with this change applications
+  targeting the web browser can use the NPM module with a bundler that supports CommonJS modules, like Vite, Rollup
+  or WebPack.
+
+- Added JavaScript module metadata "js:cjs-module" that maps a JavaScript module to a CommonJS module.
 
 # Changes in Ice 3.7.7
 
