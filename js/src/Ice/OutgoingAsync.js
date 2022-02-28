@@ -3,29 +3,27 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncStatus",
-        "../Ice/AsyncResult",
-        "../Ice/Stream",
-        "../Ice/Debug",
-        "../Ice/RetryException",
-        "../Ice/Current",
-        "../Ice/Protocol",
-        "../Ice/BuiltinSequences",
-        "../Ice/Exception",
-        "../Ice/LocalException",
-        "../Ice/Identity"
-    ]);
 
-const AsyncStatus = Ice.AsyncStatus;
+require("../Ice/AsyncResult");
+require("../Ice/AsyncStatus");
+require("../Ice/BuiltinSequences");
+require("../Ice/Current");
+require("../Ice/Debug");
+require("../Ice/Exception");
+require("../Ice/Identity");
+require("../Ice/LocalException");
+require("../Ice/Protocol");
+require("../Ice/RetryException");
+require("../Ice/Stream");
+
 const AsyncResult = Ice.AsyncResult;
+const AsyncStatus = Ice.AsyncStatus;
+const Debug = Ice.Debug;
+const Identity = Ice.Identity;
 const InputStream = Ice.InputStream;
 const OutputStream = Ice.OutputStream;
-const Debug = Ice.Debug;
-const RetryException = Ice.RetryException;
 const Protocol = Ice.Protocol;
-const Identity = Ice.Identity;
+const RetryException = Ice.RetryException;
 
 class OutgoingAsyncBase extends AsyncResult
 {

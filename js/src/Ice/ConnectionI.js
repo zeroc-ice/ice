@@ -3,26 +3,23 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncStatus",
-        "../Ice/Stream",
-        "../Ice/OutgoingAsync",
-        "../Ice/Debug",
-        "../Ice/ExUtil",
-        "../Ice/HashMap",
-        "../Ice/IncomingAsync",
-        "../Ice/RetryException",
-        "../Ice/Promise",
-        "../Ice/Protocol",
-        "../Ice/SocketOperation",
-        "../Ice/Timer",
-        "../Ice/TraceUtil",
-        "../Ice/Version",
-        "../Ice/Exception",
-        "../Ice/LocalException",
-        "../Ice/BatchRequestQueue"
-    ]);
+require("../Ice/AsyncStatus");
+require("../Ice/Stream");
+require("../Ice/OutgoingAsync");
+require("../Ice/Debug");
+require("../Ice/ExUtil");
+require("../Ice/HashMap");
+require("../Ice/IncomingAsync");
+require("../Ice/RetryException");
+require("../Ice/Promise");
+require("../Ice/Protocol");
+require("../Ice/SocketOperation");
+require("../Ice/Timer");
+require("../Ice/TraceUtil");
+require("../Ice/Version");
+require("../Ice/Exception");
+require("../Ice/LocalException");
+require("../Ice/BatchRequestQueue");
 
 const AsyncStatus = Ice.AsyncStatus;
 const AsyncResultBase = Ice.AsyncResultBase;

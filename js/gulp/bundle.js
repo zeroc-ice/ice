@@ -382,6 +382,10 @@ function bundle(args)
                         {
                             continue;
                         }
+                        if(line.match(/require\(".*"\).*;/))
+                        {
+                            continue;
+                        }
                         if(line.match(/_ModuleRegistry\.require\(/))
                         {
                             if(line.lastIndexOf(";") === -1)

@@ -3,19 +3,17 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Stream",
-        "../Ice/BuiltinSequences",
-        "../Ice/Connection",
-        "../Ice/Current",
-        "../Ice/Debug",
-        "../Ice/Exception",
-        "../Ice/Identity",
-        "../Ice/LocalException",
-        "../Ice/Protocol",
-        "../Ice/StringUtil"
-    ]);
+
+require("../Ice/BuiltinSequences");
+require("../Ice/Connection");
+require("../Ice/Current");
+require("../Ice/Debug");
+require("../Ice/Exception");
+require("../Ice/Identity");
+require("../Ice/LocalException");
+require("../Ice/Protocol");
+require("../Ice/Stream");
+require("../Ice/StringUtil");
 
 const OutputStream = Ice.OutputStream;
 const Current = Ice.Current;

@@ -3,16 +3,14 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-                            [
-                                "../Ice/StringUtil",
-                                "../Ice/Identity",
-                                "../Ice/LocalException"
-                            ]);
 
-const StringUtil = Ice.StringUtil;
+require("../Ice/Identity");
+require("../Ice/LocalException");
+require("../Ice/StringUtil");
+
 const Identity = Ice.Identity;
 const IdentityParseException = Ice.IdentityParseException;
+const StringUtil = Ice.StringUtil;
 
 /**
 * Converts a string to an object identity.

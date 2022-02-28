@@ -11,6 +11,9 @@
 
 [["ice-prefix"]]
 
+[["js:module:ice"]]
+[["js:cjs-module"]]
+
 [["objc:dll-export:ICESTORM_API"]]
 [["objc:header-dir:objc"]]
 
@@ -22,7 +25,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX", "js:module:ice", "swift:module:IceStorm:MX"]
+["objc:prefix:ICEMX", "swift:module:IceStorm:MX"]
 module IceMX
 {
 

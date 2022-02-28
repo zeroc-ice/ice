@@ -6,13 +6,10 @@
 // Ice.Value
 //
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Exception",
-        "../Ice/FormatType",
-        "../Ice/StreamHelpers",
-        "../Ice/OptionalFormat"
-    ]);
+require("../Ice/Exception");
+require("../Ice/FormatType");
+require("../Ice/StreamHelpers");
+require("../Ice/OptionalFormat");
 
 Ice.Value = class
 {

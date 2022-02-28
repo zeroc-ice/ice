@@ -3,18 +3,16 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/HashMap",
-        "../Ice/LocatorInfo",
-        "../Ice/LocatorTable",
-        "../Ice/Locator"
-    ]);
+
+require("../Ice/HashMap");
+require("../Ice/Locator");
+require("../Ice/LocatorInfo");
+require("../Ice/LocatorTable");
 
 const HashMap = Ice.HashMap;
 const LocatorInfo = Ice.LocatorInfo;
-const LocatorTable = Ice.LocatorTable;
 const LocatorPrx = Ice.LocatorPrx;
+const LocatorTable = Ice.LocatorTable;
 
 class LocatorManager
 {

@@ -3,13 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Protocol",
-        "../Ice/LocalException",
-        "../Ice/Communicator",
-        "../Ice/Properties"
-    ]);
+
+require("../Ice/Communicator");
+require("../Ice/LocalException");
+require("../Ice/Properties");
+require("../Ice/Protocol");
 
 const Protocol = Ice.Protocol;
 

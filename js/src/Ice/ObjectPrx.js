@@ -3,20 +3,18 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/ArrayUtil",
-        "../Ice/AsyncResult",
-        "../Ice/Debug",
-        "../Ice/FormatType",
-        "../Ice/OutgoingAsync",
-        "../Ice/ReferenceMode",
-        "../Ice/Current",
-        "../Ice/Exception",
-        "../Ice/BuiltinSequences",
-        "../Ice/LocalException",
-        "../Ice/Object"
-    ]);
+
+require("../Ice/ArrayUtil");
+require("../Ice/AsyncResult");
+require("../Ice/BuiltinSequences");
+require("../Ice/Current");
+require("../Ice/Debug");
+require("../Ice/Exception");
+require("../Ice/FormatType");
+require("../Ice/LocalException");
+require("../Ice/Object");
+require("../Ice/OutgoingAsync");
+require("../Ice/ReferenceMode");
 
 const ArrayUtil = Ice.ArrayUtil;
 const AsyncResultBase = Ice.AsyncResultBase;

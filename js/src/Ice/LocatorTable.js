@@ -3,10 +3,13 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module, ["../Ice/HashMap", "../Ice/Debug", "../Ice/IdentityUtil"]);
 
-const HashMap = Ice.HashMap;
+require("../Ice/Debug");
+require("../Ice/HashMap");
+require("../Ice/IdentityUtil");
+
 const Debug = Ice.Debug;
+const HashMap = Ice.HashMap;
 
 class EndpointTableEntry
 {

@@ -3,15 +3,13 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/StringUtil",
-        "../Ice/PropertyNames",
-        "../Ice/Debug",
-        "../Ice/ProcessLogger",
-        "../Ice/ProcessLogger",
-        "../Ice/LocalException"
-    ]);
+
+require("../Ice/Debug");
+require("../Ice/LocalException");
+require("../Ice/ProcessLogger");
+require("../Ice/ProcessLogger");
+require("../Ice/PropertyNames");
+require("../Ice/StringUtil");
 
 const StringUtil = Ice.StringUtil;
 const PropertyNames = Ice.PropertyNames;

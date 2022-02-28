@@ -15,6 +15,7 @@
 [["python:pkgdir:Ice"]]
 
 [["js:module:ice"]]
+[["js:cjs-module"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]

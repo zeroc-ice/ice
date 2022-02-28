@@ -3,13 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/LocalException",
-        "../Ice/ObjectAdapterI",
-        "../Ice/Promise",
-        "../Ice/UUID"
-    ]);
+
+require("../Ice/LocalException");
+require("../Ice/ObjectAdapterI");
+require("../Ice/Promise");
+require("../Ice/UUID");
 
 const ObjectAdapterI = Ice.ObjectAdapterI;
 const _Promise = Ice.Promise;

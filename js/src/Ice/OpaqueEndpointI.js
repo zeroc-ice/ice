@@ -3,22 +3,20 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Base64",
-        "../Ice/Debug",
-        "../Ice/FormatType",
-        "../Ice/HashUtil",
-        "../Ice/StringUtil",
-        "../Ice/EndpointI",
-        "../Ice/LocalException"
-    ]);
+
+require("../Ice/Base64");
+require("../Ice/Debug");
+require("../Ice/EndpointI");
+require("../Ice/FormatType");
+require("../Ice/HashUtil");
+require("../Ice/LocalException");
+require("../Ice/StringUtil");
 
 const Base64 = Ice.Base64;
 const Debug = Ice.Debug;
+const EndpointParseException = Ice.EndpointParseException;
 const HashUtil = Ice.HashUtil;
 const StringUtil = Ice.StringUtil;
-const EndpointParseException = Ice.EndpointParseException;
 
 class OpaqueEndpointI extends Ice.EndpointI
 {

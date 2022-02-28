@@ -3,14 +3,12 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Instance",
-        "../Ice/Debug",
-        "../Ice/UUID",
-        "../Ice/AsyncResultBase",
-        "../Ice/LocalException"
-    ]);
+
+require("../Ice/AsyncResultBase");
+require("../Ice/Debug");
+require("../Ice/Instance");
+require("../Ice/LocalException");
+require("../Ice/UUID");
 
 const Instance = Ice.Instance;
 const Debug = Ice.Debug;

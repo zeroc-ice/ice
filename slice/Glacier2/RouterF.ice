@@ -9,6 +9,7 @@
 [["cpp:header-ext:h"]]
 
 [["js:module:ice"]]
+[["js:cjs-module"]]
 
 [["objc:dll-export:GLACIER2_API"]]
 [["objc:header-dir:objc"]]

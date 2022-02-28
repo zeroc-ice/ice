@@ -3,6 +3,7 @@
 //
 
 const Ice = require("../Ice/StringUtil").Ice;
+
 const StringUtil = Ice.StringUtil;
 
 class HashUtil

@@ -3,22 +3,20 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/Promise",
-        "../Ice/Protocol",
-        "../Ice/Locator",
-        "../Ice/LocalException",
-        "../Ice/Exception",
-        "../Ice/HashMap",
-        "../Ice/IdentityUtil"
-    ]);
+
+require("../Ice/Debug");
+require("../Ice/Exception");
+require("../Ice/HashMap");
+require("../Ice/IdentityUtil");
+require("../Ice/LocalException");
+require("../Ice/Locator");
+require("../Ice/Promise");
+require("../Ice/Protocol");
 
 const Debug = Ice.Debug;
-const Protocol = Ice.Protocol;
-const LocatorRegistryPrx = Ice.LocatorRegisterPrx;
 const HashMap = Ice.HashMap;
+const LocatorRegistryPrx = Ice.LocatorRegisterPrx;
+const Protocol = Ice.Protocol;
 
 class LocatorInfo
 {

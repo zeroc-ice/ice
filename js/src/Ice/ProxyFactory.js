@@ -3,20 +3,18 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/ObjectPrx",
-        "../Ice/StringUtil",
-        "../Ice/Identity",
-        "../Ice/Reference",
-        "../Ice/LocalException"
-    ]);
+
+require("../Ice/Debug");
+require("../Ice/Identity");
+require("../Ice/LocalException");
+require("../Ice/ObjectPrx");
+require("../Ice/Reference");
+require("../Ice/StringUtil");
 
 const Debug = Ice.Debug;
+const Identity = Ice.Identity;
 const ObjectPrx = Ice.ObjectPrx;
 const StringUtil = Ice.StringUtil;
-const Identity = Ice.Identity;
 
 //
 // Only for use by Instance.

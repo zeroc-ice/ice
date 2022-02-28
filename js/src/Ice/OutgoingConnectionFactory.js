@@ -3,24 +3,22 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncResultBase",
-        "../Ice/ConnectionI",
-        "../Ice/Debug",
-        "../Ice/HashMap",
-        "../Ice/Promise",
-        "../Ice/EndpointTypes",
-        "../Ice/LocalException",
-        "../Ice/Exception",
-        "../Ice/ACM"
-    ]);
+
+require("../Ice/ACM");
+require("../Ice/AsyncResultBase");
+require("../Ice/ConnectionI");
+require("../Ice/Debug");
+require("../Ice/EndpointTypes");
+require("../Ice/Exception");
+require("../Ice/HashMap");
+require("../Ice/LocalException");
+require("../Ice/Promise");
 
 const AsyncResultBase = Ice.AsyncResultBase;
 const ConnectionI = Ice.ConnectionI;
 const Debug = Ice.Debug;
-const HashMap = Ice.HashMap;
 const FactoryACMMonitor = Ice.FactoryACMMonitor;
+const HashMap = Ice.HashMap;
 
 //
 // Only for use by Instance.
