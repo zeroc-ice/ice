@@ -160,52 +160,57 @@
 
             out.write("testing AsyncResult operations... ");
             {
-                await testController.holdAdapter();
                 let r1;
                 let r2;
-                try
+                if(!TestHelper.isSafari())
                 {
-                    r1 = p.op();
-                    const seq = new Uint8Array(100000);
-                    while(true)
+                    // Safari WebSocket implementation accepts lots of data before apply backpresure
+                    // making this test very slow.
+                    await testController.holdAdapter();
+                    try
                     {
-                        r2 = p.opWithPayload(seq);
-                        if(r2.sentSynchronously())
+                        r1 = p.op();
+                        const seq = new Uint8Array(100000);
+                        while(true)
                         {
-                            await Ice.Promise.delay(0);
+                            r2 = p.opWithPayload(seq);
+                            if(r2.sentSynchronously())
+                            {
+                                await Ice.Promise.delay(0);
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
-                        else
+
+                        if(await p.ice_getConnection() !== null)
                         {
-                            break;
+                            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
+                                 !r1.sentSynchronously() && !r1.isCompleted());
+
+                            test(!r2.sentSynchronously() && !r2.isCompleted());
+
+                            test(!r1.isCompleted());
+                            test(!r2.isCompleted());
                         }
                     }
-
-                    if(await p.ice_getConnection() !== null)
+                    finally
                     {
-                        test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                             !r1.sentSynchronously() && !r1.isCompleted());
-
-                        test(!r2.sentSynchronously() && !r2.isCompleted());
-
-                        test(!r1.isCompleted());
-                        test(!r2.isCompleted());
+                        await testController.resumeAdapter();
                     }
+
+                    await r1;
+                    test(r1.isSent());
+                    test(r1.isCompleted());
+
+                    await r2;
+                    test(r2.isSent());
+                    test(r2.isCompleted());
+
+                    test(r1.operation == "op");
+                    test(r2.operation == "opWithPayload");
                 }
-                finally
-                {
-                    await testController.resumeAdapter();
-                }
-
-                await r1;
-                test(r1.isSent());
-                test(r1.isCompleted());
-
-                await r2;
-                test(r2.isSent());
-                test(r2.isCompleted());
-
-                test(r1.operation == "op");
-                test(r2.operation == "opWithPayload");
 
                 let r = p.ice_ping();
                 test(r.operation === "ice_ping");
@@ -252,7 +257,10 @@
                 test(r.proxy === null);
             }
 
+            if(!TestHelper.isSafari())
             {
+                // Safari WebSocket implementation accepts lots of data before apply backpresure
+                // making this test very slow.
                 await testController.holdAdapter();
                 const seq = new Uint8Array(new Array(100000));
                 let r;
