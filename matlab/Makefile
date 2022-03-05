@@ -85,7 +85,7 @@ all:: $(icethunk_target)
 # Toolbox
 #
 icetoolbox_file = toolbox/ice-$(version)-R$(matlab_version)-linux.mltbx
-matlab_version	= $(patsubst @@%@@,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('@@%s@@', version('-release'));exit(0);")))
+matlab_version  = $(patsubst @@%@@,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('@@%s@@', version('-release'));exit(0);")))
 
 $(icetoolbox_file): $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x86_64-linux-gnu/ice.mexa64
 	rm -rf $(lang_srcdir)/toolbox/build

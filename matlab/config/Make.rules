@@ -13,8 +13,8 @@ MATLAB_HOME	?= /usr/local/MATLAB/R2019b
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
-matlab	:= $(MATLAB_HOME)/bin/matlab
-mex	:= $(MATLAB_HOME)/bin/mex
+matlab := $(MATLAB_HOME)/bin/matlab
+mex    := $(MATLAB_HOME)/bin/mex
 
 matlab_cflags	= -fexceptions \
     -fno-omit-frame-pointer \
@@ -28,9 +28,9 @@ matlab_cflags	= -fexceptions \
 matlab_cppflags	:= $(matlab_cflags) -DICE_CPP11_MAPPING
 
 ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
-matlab_cppflags          := $(matlab_cppflags) -std=c++11
+matlab_cppflags := $(matlab_cppflags) -std=c++11
 endif
-matlab_ldflags		:= -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
+matlab_ldflags  := -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
 
 #
 # Rules to build a matlab module. We just compute the name of the matlab module and delegate to make-shared-module.
