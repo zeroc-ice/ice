@@ -5,7 +5,7 @@
 #
 # the location of the MATLAB installation.
 #
-MATLAB_HOME	?= /usr/local/MATLAB/R2019b
+MATLAB_HOME ?= /usr/local/MATLAB/R2019b
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -16,7 +16,7 @@ MATLAB_HOME	?= /usr/local/MATLAB/R2019b
 matlab := $(MATLAB_HOME)/bin/matlab
 mex    := $(MATLAB_HOME)/bin/mex
 
-matlab_cflags	= -fexceptions \
+matlab_cflags = -fexceptions \
     -fno-omit-frame-pointer \
     -pthread \
     -DMATLAB_DEFAULT_RELEASE=R2017b \
@@ -25,7 +25,7 @@ matlab_cflags	= -fexceptions \
     -DMATLAB_MEX_FILE \
     -I$(MATLAB_HOME)/extern/include
 
-matlab_cppflags	:= $(matlab_cflags) -DICE_CPP11_MAPPING
+matlab_cppflags := $(matlab_cflags) -DICE_CPP11_MAPPING
 
 ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
 matlab_cppflags := $(matlab_cppflags) -std=c++11
