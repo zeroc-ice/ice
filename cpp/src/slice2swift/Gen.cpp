@@ -466,7 +466,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         writeDefaultInitializer(out, true, rootClass);
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), rootClass, extraParams);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass, extraParams);
 
     out << sp;
     out << nl << "/// Returns the Slice type ID of this exception.";
@@ -1455,7 +1455,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         writeDefaultInitializer(out, true, !base);
     }
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, p->isLocal(), !base);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
 
     out << sp;
     out << nl << "/// Returns the Slice type ID of the most-derived interface supported by this object.";
