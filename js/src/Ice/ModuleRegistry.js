@@ -40,10 +40,9 @@ if (typeof process !== 'undefined')
 
             const components = scoped.split(".");
             let type = modules;
-
             for(let i = 0; i < components.length; ++i)
             {
-                type = T[components[i]];
+                type = type[components[i]];
                 if(type === undefined)
                 {
                     return undefined;
@@ -93,17 +92,16 @@ else
                 return undefined;
             }
             const components = scoped.split(".");
-            let T = root;
-
+            let type = root;
             for(let i = 0, length = components.length; i < length; ++i)
             {
-                T = T[components[i]];
-                if(T === undefined)
+                type = type[components[i]];
+                if(type === undefined)
                 {
                     return undefined;
                 }
             }
-            return T;
+            return type;
         }
     }
 
