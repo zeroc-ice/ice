@@ -3877,6 +3877,14 @@ class MatlabMapping(CppBasedClientMapping):
 class JavaScriptMixin():
 
     def loadTestSuites(self, tests, config, filters, rfilters):
+        # Exclude es5 directory, these are the same tests but transpiled with babel the JavaScript mapping
+        # use them when --es5 option is set.
+        rfilters += [re.compile("es5/*")]
+
+        # Exclude typescript directory when the mapping is not typescript otherwise we endup with duplicate entries
+        if self.name != "typescript":
+            rfilters += [re.compile("typescript/*")]
+
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config)
 
