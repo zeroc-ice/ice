@@ -4714,8 +4714,9 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
         string m = fixStructMember((*q)->name());
         if(isClass((*q)->type()))
         {
-            out << nl << v << "." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v_) " + v + "." + m + ".set(v_)", (*q)->type(), false, 0);
+            out << nl << m << "_ = IceInternal.ValueHolder();";
+            out << nl << v << "." << m << " = " << m << "_;";
+            unmarshal(out, "is", "@(v_) " + m + "_.set(v_)", (*q)->type(), false, 0);
         }
         else
         {
