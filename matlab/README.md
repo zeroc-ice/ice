@@ -82,7 +82,7 @@ The build system requires MATLAB 2017b or MATLAB 2019b for Linux, with a support
 * Use GCC 4.9 for 2017b, see [MATLAB 2017b supported compilers][2].
 * Use GCC 6.3 for 2019b, see [MATLAB 2019b supported compilers][3].
 
-The supported platforms for building Ice for MATLAB on Linux are:
+We recommend using the following build environments:
 
 * Ubuntu 16.04 (Xenial) with g++-4.9 compiler, for MATLAB 2017b.
 * Debian 9 (Stretch) with the default g++ compiler, for MATLAB 2019b.
