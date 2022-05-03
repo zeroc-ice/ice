@@ -70,6 +70,7 @@ $(icethunk_builddir)/icethunk.c: $(icethunk_builddir)/ice.i
 	-outfile=iceproto.m
 
 $(icethunk_proto): $(icethunk_builddir)/icethunk.c
+	mkdir -p $(icethunk_libdir)
 	cp $(icethunk_builddir)/iceproto.m $(icethunk_libdir)/
 
 $(icethunk_target): $(lang_srcdir)/src/build/icethunk.c $(icethunk_proto)
