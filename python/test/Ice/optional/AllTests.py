@@ -754,7 +754,7 @@ def allTests(helper, communicator):
         test(p2 is Ice.Unset)
         test(p3 == 3)
     except Ice.OperationNotExistException:
-        # Expected for language mappings that don't implement this operations when running cross tests
+        # Expected for language mappings that don't implement these operations when running cross tests
         pass
     print("ok")
 
