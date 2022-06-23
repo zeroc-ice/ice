@@ -166,6 +166,12 @@ class InitialI(Test.Initial):
     def opMG2(self, p1, current):
         return Test.Initial.OpMG2MarshaledResult((p1, p1), current)
 
+    def opRequiredAfterOptional(self, p1, p2, p3, current):
+        return (p1, p2, p3)
+
+    def opOptionalAfterRequired(self, p1, p2, p3, current):
+        return (p1, p2, p3)
+
     def supportsRequiredParams(self, current=None):
         return False
 
