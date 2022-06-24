@@ -18,7 +18,7 @@ pip install <URL of Ice source distribution for Python>
 
 ## Building with Visual Studio 2015 and MSBuild (Python 3.10 for Windows)
 
-You can  build an Ice for Python extension that links with the Ice C++ DLLs using Visual Studio and MSBuild.
+You can build an Ice for Python extension that links with the Ice C++ DLLs using Visual Studio and MSBuild.
 
 First, open a Visual Studio 2015 command prompt:
 
