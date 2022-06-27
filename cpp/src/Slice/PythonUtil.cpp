@@ -808,7 +808,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             string inParamsDecl;
 
             // Find the last required parameter, all optional parameters after the last required parameter will use
-            // Ice.Uset as the default.
+            // Ice.Unset as the default.
             ParamDeclPtr lastRequiredParameter;
             for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
