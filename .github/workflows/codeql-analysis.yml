@@ -51,7 +51,7 @@ jobs:
     - if: matrix.language == 'csharp'
       run: |
        sudo apt-get update && sudo apt-get install libmcpp-dev
-       dotnet msbuild csharp/msbuild/ice.proj /t:Net5Build /p:Configuration=Debug
+       dotnet msbuild csharp/msbuild/ice.proj /t:Net6Build /p:Configuration=Debug
 
     - if: matrix.language == 'javascript'
       run: |
