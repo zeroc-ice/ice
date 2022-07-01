@@ -17,11 +17,10 @@ oneways(id<ICECommunicator>__unused communicator, id<TestOperationsMyClassPrx> p
 
     {
         ICEByte b;
-        ICEByte r;
 
         @try
         {
-            r = [p opByte:(ICEByte)0xff p2:(ICEByte)0x0f p3:&b];
+            [p opByte:(ICEByte)0xff p2:(ICEByte)0x0f p3:&b];
             test(NO);
         }
         @catch(ICETwowayOnlyException*)

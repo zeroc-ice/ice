@@ -82,12 +82,11 @@ servicesAllTests(id<ICECommunicator> communicator)
         ICEObjectPrx* base = [communicator stringToProxy:@"test:default -p 12010"];
         ICEGRIDRegistryPrx* registry = [ICEGRIDRegistryPrx uncheckedCast:base];
         ICEGRIDAdminSessionPrx* session;
-        ICEGRIDAdminPrx* admin;
         @try
         {
             session = [registry createAdminSession:@"username" password:@"password"];
             test(NO);
-            admin = [session getAdmin];
+            [session getAdmin];
         }
         @catch(ICEGRIDPermissionDeniedException*)
         {
