@@ -11,9 +11,9 @@ IceSSL.XML
 IceStorm.XML
 test/**/netstandard2.0/netcoreapp2.0
 test/**/netstandard2.0/net4*
-test/**/net5.0/client
-test/**/net5.0/collocated
-test/**/net5.0/serveramd
-test/**/net5.0/serveramdtie
-test/**/net5.0/servertie
-test/**/net5.0/server
+test/**/net*.*/client
+test/**/net*.*/collocated
+test/**/net*.*/serveramd
+test/**/net*.*/serveramdtie
+test/**/net*.*/servertie
+test/**/net*.*/server
