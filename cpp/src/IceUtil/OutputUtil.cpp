@@ -35,9 +35,9 @@ IceUtilInternal::int64ToString(Int64 val)
 #if defined(_WIN32)
     sprintf_s(buf, sizeof(buf), "%I64d", val);
 #elif defined(ICE_64)
-    sprintf(buf, "%ld", val); // Avoids a format warning from GCC.
+    snprintf(buf, sizeof(buf), "%ld", val); // Avoids a format warning from GCC.
 #else
-    sprintf(buf, "%lld", val);
+    snprintf(buf, sizeof(buf), "%lld", val);
 #endif
     return string(buf);
 }
