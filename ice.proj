@@ -58,7 +58,8 @@
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140' or '$(DefaultPlatformToolset)' == 'v141'">
+    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj"
+              Condition="'$(DefaultPlatformToolset)' == 'v140' or '$(DefaultPlatformToolset)' == 'v141' or '$(DefaultPlatformToolset)' == 'v142' or '$(DefaultPlatformToolset)' == 'v143'">
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
   </ItemGroup>
