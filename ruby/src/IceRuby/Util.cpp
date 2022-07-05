@@ -7,10 +7,6 @@
 #include <Ice/Protocol.h>
 #include <stdarg.h>
 
-#ifdef HAVE_RUBY_ENCODING_H
-#  include <ruby/encoding.h>
-#endif
-
 using namespace std;
 using namespace IceRuby;
 
