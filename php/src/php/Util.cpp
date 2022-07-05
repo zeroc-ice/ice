@@ -781,8 +781,11 @@ IcePHP::runtimeError(const char* fmt, ...)
 
 #if defined(_MSC_VER)
     vsprintf_s(msg, fmt, args);
-#else
+#elif defined(__APPLE__)
+    // vsprintf is deprecated with macOS Ventura
     vsnprintf(msg, sizeof(msg), fmt, args);
+#else
+    vsprintf(msg, fmt, args);
 #endif
 
     va_end(args);
@@ -800,8 +803,11 @@ IcePHP::invalidArgument(const char* fmt, ...)
 
 #if defined(_MSC_VER)
     vsprintf_s(msg, fmt, args);
-#else
+#elif defined(__APPLE__)
+    // vsprintf is deprecated with macOS Ventura
     vsnprintf(msg, sizeof(msg), fmt, args);
+#else
+    vsprintf(msg, fmt, args);
 #endif
 
     va_end(args);
