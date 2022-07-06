@@ -36,11 +36,7 @@ IceUtilInternal::int64ToString(Int64 val)
     sprintf_s(buf, sizeof(buf), "%I64d", val);
 #elif defined(__APPLE__)
     // sprintf is deprecated with macOS Ventura
-#   if defined(ICE_64)
     snprintf(buf, sizeof(buf), "%ld", val); // Avoids a format warning from GCC.
-#   else
-    snprintf(buf, sizeof(buf), "%lld", val);
-#   endif
 #else
 #   if defined(ICE_64)
     sprintf(buf, "%ld", val); // Avoids a format warning from GCC.
