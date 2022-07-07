@@ -110,7 +110,16 @@
 
     <Target Name="Package" DependsOnTargets="BuildDist;MatlabHome;MatlabVersion">
         <RemoveDir Directories="$(ToolboxDir)" />
-        <MakeDir Directories="$(ToolboxDir)" />
+        <MakeDir Directories="$(ToolboxDir);$(ToolboxDir)\doc" />
+
+        <ItemGroup>
+            <Docs Include="$(MSBuildThisFileDirectory)..\toolbox\doc\**\*.*" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(Docs)"
+            DestinationFolder="$(ToolboxDir)\doc\%(RecursiveDir)"
+            SkipUnchangedFiles="true"/>
+
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.template.prj"
                                    OutputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.prj"
                                    Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@;@SLICE2MATLAB@;@IS_WINDOWS@;@IS_LINUX@"
