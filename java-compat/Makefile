@@ -36,6 +36,3 @@ distclean clean:
 
 install::
 	$(GRADLE) $(GRADLEARGS) installJars
-
-test::
-	@python ./allTests.py

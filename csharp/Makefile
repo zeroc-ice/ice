@@ -23,6 +23,3 @@ distclean clean:
 
 install::
 	@echo nothing to install
-
-test::
-	@python ./allTests.py

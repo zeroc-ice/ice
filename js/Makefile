@@ -20,8 +20,5 @@ distclean clean: npminstall
 lint: npminstall
 	$(NPM) run lint
 
-test:
-	@python ./allTests.py
-
 npminstall:
 	$(NPM) install --no-optional

@@ -7,7 +7,7 @@
 # version to be used for building the Ice extension, set PYTHON to the
 # location of the python interpreter.
 #
-PYTHON              ?= python
+PYTHON              ?= python3
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

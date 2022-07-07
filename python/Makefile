@@ -5,10 +5,6 @@
 top_srcdir      := ..
 lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(lastword $(abspath $(MAKEFILE_LIST))))))
 
-ifeq ($(PYTHON),)
-    PYTHON = python3
-endif
-
 include $(top_srcdir)/config/Make.rules
 
 #
