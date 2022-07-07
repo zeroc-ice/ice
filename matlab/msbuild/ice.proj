@@ -113,8 +113,8 @@
         <MakeDir Directories="$(ToolboxDir)" />
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.template.prj"
                                    OutputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.prj"
-                                   Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@;@IS_WINDOWS@;@IS_LINUX@"
-                                   Replacements="$(RootDir);$(MatlabHome);3.7.8;$(MatlabVersion);true;false"/>
+                                   Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@;@SLICE2MATLAB@;@IS_WINDOWS@;@IS_LINUX@"
+                                   Replacements="$(RootDir);$(MatlabHome);3.7.8;$(MatlabVersion);slice2matlab.exe;true;false"/>
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\info.template.xml"
                                    OutputFile="$(MSBuildThisFileDirectory)..\toolbox\info.xml"
                                    Tokens="@MatlabVersion@"
