@@ -47,6 +47,3 @@ $(foreach p,$(platforms),$(eval $(call make-xcodebuild-rule,clean,$p,TestDriver,
 
 $(foreach p,$(supported-platforms),$(eval $(call make-xcodebuild-rule,distclean,$p,Ice,clean)))
 $(foreach p,$(supported-platforms),$(eval $(call make-xcodebuild-rule,distclean,$p,TestDriver,clean)))
-
-test::
-	@python ./allTests.py --config $(CONFIG)
