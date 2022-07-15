@@ -7,6 +7,9 @@ lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(lastword $(abs
 
 include $(top_srcdir)/config/Make.rules
 
+matlab_version  = $(patsubst @@%@@,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('@@%s@@', version('-release'));exit(0);")))
+icetoolbox_file = toolbox/ice-$(version)-R$(matlab_version)-linux.mltbx
+
 #
 # Load C++ dependencies
 #
@@ -85,10 +88,7 @@ all:: $(icethunk_target)
 #
 # Toolbox
 #
-icetoolbox_file = toolbox/ice-$(version)-R$(matlab_version)-linux.mltbx
-matlab_version  = $(patsubst @@%@@,%,$(filter VERSION-%,$(shell $(matlab) -nodesktop -nosplash -r "fprintf('@@%s@@', version('-release'));exit(0);")))
-
-$(icetoolbox_file): $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x86_64-linux-gnu/ice.mexa64
+$(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x86_64-linux-gnu/ice.mexa64
 	rm -rf $(lang_srcdir)/toolbox/build
 	mkdir -p $(lang_srcdir)/toolbox/build
 	cp $(lang_srcdir)/toolbox/toolbox.template.prj $(lang_srcdir)/toolbox/toolbox.prj
@@ -132,6 +132,8 @@ clean::
 	rm -rf $(lang_srcdir)/toolbox/info.xml
 
 all:: $(icetoolbox_file)
+
+toolbox:: $(icetoolbox_file)
 
 endif
 
