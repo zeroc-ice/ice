@@ -805,7 +805,20 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             TypePtr ret = (*oli)->returnType();
             ParamDeclList paramList = (*oli)->parameters();
             string inParams;
+            string inParamsDecl;
 
+            // Find the last required parameter, all optional parameters after the last required parameter will use
+            // Ice.Unset as the default.
+            ParamDeclPtr lastRequiredParameter;
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if(!(*q)->isOutParam() && !(*q)->optional())
+                {
+                    lastRequiredParameter = *q;
+                }
+            }
+
+            bool afterLastRequiredParameter = lastRequiredParameter == ICE_NULLPTR;
             for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if(!(*q)->isOutParam())
@@ -813,17 +826,29 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     if(!inParams.empty())
                     {
                         inParams.append(", ");
+                        inParamsDecl.append(", ");
                     }
-                    inParams.append(fixIdent((*q)->name()));
+                    string param = fixIdent((*q)->name());
+                    inParams.append(param);
+                    if(afterLastRequiredParameter)
+                    {
+                        param += "=Ice.Unset";
+                    }
+                    inParamsDecl.append(param);
+
+                    if(*q == lastRequiredParameter)
+                    {
+                        afterLastRequiredParameter = true;
+                    }
                 }
             }
 
             _out << sp;
             writeDocstring(*oli, DocSync, false);
             _out << nl << "def " << fixedOpName << "(self";
-            if(!inParams.empty())
+            if(!inParamsDecl.empty())
             {
-                _out << ", " << inParams;
+                _out << ", " << inParamsDecl;
             }
             const string contextParamName = getEscapedParamName(*oli, "context");
             _out << ", " << contextParamName << "=None):";

@@ -3,18 +3,16 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/Debug",
-        "../Ice/LocalException",
-        "../Ice/StringUtil",
-        "../Ice/IdentityUtil",
-        "../Ice/HashMap"
-    ]);
+
+require("../Ice/Debug");
+require("../Ice/HashMap");
+require("../Ice/IdentityUtil");
+require("../Ice/LocalException");
+require("../Ice/StringUtil");
 
 const Debug = Ice.Debug;
-const StringUtil = Ice.StringUtil;
 const HashMap = Ice.HashMap;
+const StringUtil = Ice.StringUtil;
 
 //
 // Only for use by Ice.ObjectAdatperI.

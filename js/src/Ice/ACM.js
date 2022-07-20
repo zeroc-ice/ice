@@ -3,7 +3,9 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module, ["../Ice/Debug", "../Ice/Connection"]);
+
+require("../Ice/Connection");
+require("../Ice/Debug");
 
 const Debug = Ice.Debug;
 

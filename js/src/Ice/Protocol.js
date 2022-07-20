@@ -3,13 +3,11 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/StringUtil",
-        "../Ice/LocalException",
-        "../Ice/Version",
-        "../Ice/Buffer"
-    ]);
+
+require("../Ice/Buffer");
+require("../Ice/LocalException");
+require("../Ice/StringUtil");
+require("../Ice/Version");
 
 const StringUtil = Ice.StringUtil;
 

@@ -2,11 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_MATLAB_API
-#   if defined(ICE_MATLAB_API_EXPORTS)
-#       define ICE_MATLAB_API __declspec(dllexport)
+// Don't include IceUtil/Config.h the MATLAB mex parser doesn't support C++ code
+#ifdef _MSC_VER
+#   ifndef ICE_MATLAB_API
+#       if defined(ICE_MATLAB_API_EXPORTS)
+#           define ICE_MATLAB_API __declspec(dllexport)
+#       else
+#           define ICE_MATLAB_API __declspec(dllimport)
+#       endif
+#   endif
+#else
+#   ifndef  MATLAB_PROTO
+#       define ICE_MATLAB_API __attribute__((visibility ("default")))
 #   else
-#       define ICE_MATLAB_API __declspec(dllimport)
+#       define ICE_MATLAB_API /**/
 #   endif
 #endif
 

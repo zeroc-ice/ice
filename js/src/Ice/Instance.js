@@ -3,38 +3,37 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncResultBase",
-        "../Ice/Debug",
-        "../Ice/DefaultsAndOverrides",
-        "../Ice/EndpointFactoryManager",
-        "../Ice/ImplicitContextI",
-        "../Ice/IdentityUtil",
-        "../Ice/LocatorManager",
-        "../Ice/ObjectAdapterFactory",
-        "../Ice/ValueFactoryManagerI",
-        "../Ice/OutgoingConnectionFactory",
-        "../Ice/Promise",
-        "../Ice/Properties",
-        "../Ice/ProtocolInstance",
-        "../Ice/ProxyFactory",
-        "../Ice/RetryQueue",
-        "../Ice/RouterManager",
-        "../Ice/Timer",
-        "../Ice/TraceLevels",
-        "../Ice/TcpEndpointFactory",
-        "../Ice/WSEndpointFactory",
-        "../Ice/Reference",
-        "../Ice/RequestHandlerFactory",
-        "../Ice/LocalException",
-        "../Ice/Exception",
-        "../Ice/ProcessLogger",
-        "../Ice/ACM",
-        "../Ice/ToStringMode",
-        "../Ice/EndpointInfo"
-    ]);
 
+require("../Ice/ACM");
+require("../Ice/AsyncResultBase");
+require("../Ice/Debug");
+require("../Ice/DefaultsAndOverrides");
+require("../Ice/EndpointFactoryManager");
+require("../Ice/EndpointInfo");
+require("../Ice/Exception");
+require("../Ice/IdentityUtil");
+require("../Ice/ImplicitContextI");
+require("../Ice/LocalException");
+require("../Ice/LocatorManager");
+require("../Ice/ObjectAdapterFactory");
+require("../Ice/OutgoingConnectionFactory");
+require("../Ice/ProcessLogger");
+require("../Ice/Promise");
+require("../Ice/Properties");
+require("../Ice/ProtocolInstance");
+require("../Ice/ProxyFactory");
+require("../Ice/Reference");
+require("../Ice/RequestHandlerFactory");
+require("../Ice/RetryQueue");
+require("../Ice/RouterManager");
+require("../Ice/TcpEndpointFactory");
+require("../Ice/Timer");
+require("../Ice/ToStringMode");
+require("../Ice/TraceLevels");
+require("../Ice/ValueFactoryManagerI");
+require("../Ice/WSEndpointFactory");
+
+const ACMConfig = Ice.ACMConfig;
 const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;
 const DefaultsAndOverrides = Ice.DefaultsAndOverrides;
@@ -42,17 +41,16 @@ const EndpointFactoryManager = Ice.EndpointFactoryManager;
 const ImplicitContextI = Ice.ImplicitContextI;
 const LocatorManager = Ice.LocatorManager;
 const ObjectAdapterFactory = Ice.ObjectAdapterFactory;
-const ValueFactoryManagerI = Ice.ValueFactoryManagerI;
 const OutgoingConnectionFactory = Ice.OutgoingConnectionFactory;
 const Properties = Ice.Properties;
 const ProxyFactory = Ice.ProxyFactory;
+const ReferenceFactory = Ice.ReferenceFactory;
+const RequestHandlerFactory = Ice.RequestHandlerFactory;
 const RetryQueue = Ice.RetryQueue;
 const RouterManager = Ice.RouterManager;
 const Timer = Ice.Timer;
 const TraceLevels = Ice.TraceLevels;
-const ReferenceFactory = Ice.ReferenceFactory;
-const RequestHandlerFactory = Ice.RequestHandlerFactory;
-const ACMConfig = Ice.ACMConfig;
+const ValueFactoryManagerI = Ice.ValueFactoryManagerI;
 
 const StateActive = 0;
 const StateDestroyInProgress = 1;

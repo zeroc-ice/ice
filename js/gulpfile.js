@@ -140,10 +140,6 @@ function mapFiles(name)
 function libSources(lib, sources)
 {
     let srcs = sources.common || [];
-    if(sources.browser)
-    {
-        srcs = sources.common.concat(sources.browser);
-    }
 
     srcs = srcs.map(f => path.join(srcDir(lib), f));
 

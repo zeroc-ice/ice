@@ -1429,16 +1429,16 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* authorities[] =
         {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
-            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
+            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
+            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
             0
         };
 
         const char* subjects[] =
         {
-            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
-            "15:60:69:5F:C5:27:48:7F:25:99:3F:3D:D8:2E:CB:C2:F4:66:03:53",
-            "14:56:24:99:69:6B:AD:B3:FB:72:0E:4D:B4:DC:9E:A8:7F:DD:B0:E3",
+            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
+            "7F:4D:BF:80:65:E0:EE:A4:18:D5:6A:87:33:63:B3:76:7D:42:82:06",
+            "EB:4A:7A:79:09:65:0F:45:40:E8:8C:E6:A8:27:74:34:AB:EA:AF:48",
             0
         };
 
@@ -1451,7 +1451,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
         unsigned int keyUsage = cert->getKeyUsage();
-        test(keyUsage == 0);
+        test(keyUsage ==
+             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE |
+              IceSSL::KEY_USAGE_KEY_CERT_SIGN |
+              IceSSL::KEY_USAGE_CRL_SIGN));
 
         //  Digital Signature, Certificate Sign, CRL Sign
         cert = IceSSL::Certificate::load(defaultDir + "/cacert3.pem");
@@ -3732,8 +3735,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-            "THUMBPRINT:'10 8D FB DE 94 EE 36 AC AC 3D 58 48 46 AE A4 28 C7 D2 49 A9'",
-            "SUBJECTKEYID:'15 60 69 5F C5 27 48 7F 25 99 3F 3D D8 2E CB C2 F4 66 03 53'",
+            "THUMBPRINT:'8B D3 64 6B 9E 80 AE 56 08 05 0F C8 DE 9B B0 4B CC FD 4D 9C'",
+            "SUBJECTKEYID:'7F 4D BF 80 65 E0 EE A4 18 D5 6A 87 33 63 B3 76 7D 42 82 06'",
             0
         };
 
@@ -3742,8 +3745,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-            "THUMBPRINT:'FF 66 AD CF D5 DA 3E E0 D9 91 E6 6B 8E 74 82 3A 54 E6 68 4A'",
-            "SUBJECTKEYID:'14 56 24 99 69 6B AD B3 FB 72 0E 4D B4 DC 9E A8 7F DD B0 E3'",
+            "THUMBPRINT:'F2 EB 9D E7 A5 DB 32 2B AC 5B 4F 88 8F 5E 62 57 2E 2F 7B 8C'",
+            "SUBJECTKEYID:'EB 4A 7A 79 09 65 0F 45 40 E8 8C E6 A8 27 74 34 AB EA AF 48'",
             0
         };
 
@@ -3978,7 +3981,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
 //            "SUBJECT:Client",
             "LABEL:'Client'",
-            "SUBJECTKEYID:'15 60 69 5F C5 27 48 7F 25 99 3F 3D D8 2E CB C2 F4 66 03 53'",
+            "SUBJECTKEYID:'7F 4D BF 80 65 E0 EE A4 18 D5 6A 87 33 63 B3 76 7D 42 82 06'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
             0
@@ -3991,7 +3994,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECT:Server",
 #endif
             "LABEL:'Server'",
-            "SUBJECTKEYID:'14 56 24 99 69 6B AD B3 FB 72 0E 4D B4 DC 9E A8 7F DD B0 E3'",
+            "SUBJECTKEYID:'EB 4A 7A 79 09 65 0F 45 40 E8 8C E6 A8 27 74 34 AB EA AF 48'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
             0

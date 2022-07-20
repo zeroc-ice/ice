@@ -1,0 +1,111 @@
+#
+# Copyright (c) ZeroC, Inc. All rights reserved.
+#
+
+#
+# the location of the MATLAB installation.
+#
+MATLAB_HOME ?= /usr/local/MATLAB/R2019b
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+-include        $(lang_srcdir)/config/Make.rules.$(os)
+
+matlab := $(MATLAB_HOME)/bin/matlab
+mex    := $(MATLAB_HOME)/bin/mex
+
+matlab_cflags = -fexceptions \
+    -fno-omit-frame-pointer \
+    -pthread \
+    -DMATLAB_DEFAULT_RELEASE=R2017b \
+    -DUSE_MEX_CMD \
+    -D_GNU_SOURCE \
+    -DMATLAB_MEX_FILE \
+    -I$(MATLAB_HOME)/extern/include
+
+matlab_cppflags := $(matlab_cflags) -DICE_CPP11_MAPPING
+
+ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
+matlab_cppflags := $(matlab_cppflags) -std=c++11
+endif
+matlab_ldflags  := -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
+
+#
+# Rules to build a matlab module. We just compute the name of the matlab module and delegate to make-shared-module.
+#
+mkmatlabmodulename ?= $(patsubst lib%.so,%.mexa64,$(call mkshlibname,$(1)))
+make-shared-matlab-module = $(call make-shared-module,$(call mkmatlabmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+get-shared-matlab-module-targets = $(call get-shared-module-targets,$(call mkmatlabmodulename,$1),$2,$3,$4)
+install-shared-matlab-module = $(call install-shared-module,$(call mkmatlabmodulename,$1),$2,$3,$4,$5)
+
+#
+# $(call make-matlab-package,$1=slicedir,$2=generateddir,$3=package,$4=sliceflags)
+#
+# Compile slice files from $(slicedir)/<package> to matlab/<package>.
+#
+define make-matlab-package
+
+ifeq ($(filter all matlab, $(ICE_BIN_DIST)),)
+
+$2/+$3/.depend/%.ice.d: | $2/+$3/.depend ;
+
+$2/+$3/.depend:
+	$(Q)$(MKDIR) -p $$@
+
+.PRECIOUS: $2/+$3/.depend/%.ice.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $2/+$3/.depend/,$(call source-to-dependency,$(wildcard $1/$3/*.ice)))
+endif
+
+$2/+$3/%.m: $1/$3/%.ice $2/+$3/.depend/%.ice.d $(slice2matlab_path)
+	$(E) "Compiling $$<"
+	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$1 --output-dir $2 --depend $$< | \
+		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $2/+$3/.depend/$$(*F).ice.d
+	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$1 --output-dir $2 $$<
+
+distclean clean::
+	$(E) "Cleaning package $3"
+	$(Q)$(RM) -r $2
+
+$(icetoolbox_file) generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/+$3/%.m,$(filter-out $4,$(wildcard $1/$3/*.ice)))
+
+endif
+
+endef
+
+#
+# $(call make-matlab-test-project,$1=testdir)
+#
+define make-matlab-test-project
+
+$1/.depend/%.ice.d: | $1/.depend ;
+
+$1/.depend:
+	$(Q)$(MKDIR) -p $$@
+
+.PRECIOUS: $1/.depend/%.ice.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $1/.depend/,$(call source-to-dependency,$(wildcard $1/*.ice)))
+endif
+
+$1/generated/%.m: $1/%.ice $1/.depend/%.ice.d $(slice2matlab_path)
+	$(E) "Compiling $$<"
+	$(Q)$(MKDIR) -p $1/generated
+	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) --depend $$< | \
+		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $1/.depend/$$(*F).ice.d
+	$(Q)$(slice2matlab_path) $(slice2matlab_flags) -I$(slicedir) -I$1 --output-dir $1/generated $$($1_sliceflags) $$<
+
+distclean clean::
+	$(E) "Cleaning $1"
+	$(Q)$(RM) -r $1/.depend
+	$(Q)$(RM) -r $1/generated
+
+tests generate-srcs srcs all:: $(patsubst $1/%.ice,$1/generated/%.m,$(wildcard $1/*.ice))
+
+endef

@@ -5,7 +5,7 @@
         <Platform>x64</Platform>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <RootDir>$([System.IO.Path]::GetFullPath( $(MSBuildThisFileDirectory)..\msbuild ))</RootDir>
-        <ToolboxDir>$(MSBuildThisFileDirectory)toolbox</ToolboxDir>
+        <ToolboxDir>$(MSBuildThisFileDirectory)..\toolbox\build</ToolboxDir>
     </PropertyGroup>
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -110,22 +110,31 @@
 
     <Target Name="Package" DependsOnTargets="BuildDist;MatlabHome;MatlabVersion">
         <RemoveDir Directories="$(ToolboxDir)" />
-        <MakeDir Directories="$(ToolboxDir)" />
-        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)toolbox.template.prj"
-                                   OutputFile="$(MSBuildThisFileDirectory)toolbox.prj"
-                                   Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@"
-                                   Replacements="$(RootDir);$(MatlabHome);3.7.7;$(MatlabVersion)"/>
-        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)info.template.xml"
-                                   OutputFile="$(MSBuildThisFileDirectory)toolbox\info.xml"
+        <MakeDir Directories="$(ToolboxDir);$(ToolboxDir)\doc" />
+
+        <ItemGroup>
+            <Docs Include="$(MSBuildThisFileDirectory)..\toolbox\doc\**\*.*" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(Docs)"
+            DestinationFolder="$(ToolboxDir)\doc\%(RecursiveDir)"
+            SkipUnchangedFiles="true"/>
+
+        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.template.prj"
+                                   OutputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.prj"
+                                   Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@;@SLICE2MATLAB@;@IS_WINDOWS@;@IS_LINUX@"
+                                   Replacements="$(RootDir);$(MatlabHome);3.7.8;$(MatlabVersion);slice2matlab.exe;true;false"/>
+        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\info.template.xml"
+                                   OutputFile="$(MSBuildThisFileDirectory)..\toolbox\info.xml"
                                    Tokens="@MatlabVersion@"
                                    Replacements="R$(MatlabVersion)"/>
         <MSBuild Projects="ice.toolbox.targets"
                  Properties="Configuration=$(Configuration);Platform=x64" />
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');addFolderToPath '$(ToolboxDir)\ice'&quot;"
+        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');addFolderToPath '$(ToolboxDir)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '3.7.7'&quot;"
+        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');buildToolbox '3.7.8'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
+        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');removeFolderFromPath '$(ToolboxDir)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
         <Delete Files="toolbox.prj"/>
     </Target>

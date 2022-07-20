@@ -3,43 +3,41 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/ArrayUtil",
-        "../Ice/BatchRequestQueue",
-        "../Ice/Debug",
-        "../Ice/HashUtil",
-        "../Ice/OpaqueEndpointI",
-        "../Ice/Promise",
-        "../Ice/ReferenceMode",
-        "../Ice/StringUtil",
-        "../Ice/BuiltinSequences",
-        "../Ice/EndpointTypes",
-        "../Ice/Identity",
-        "../Ice/Router",
-        "../Ice/Locator",
-        "../Ice/LocalException",
-        "../Ice/Version",
-        "../Ice/PropertyNames",
-        "../Ice/ConnectionRequestHandler",
-        "../Ice/MapUtil"
-    ]);
+
+require("../Ice/ArrayUtil");
+require("../Ice/BatchRequestQueue");
+require("../Ice/BuiltinSequences");
+require("../Ice/ConnectionRequestHandler");
+require("../Ice/Debug");
+require("../Ice/EndpointTypes");
+require("../Ice/HashUtil");
+require("../Ice/Identity");
+require("../Ice/LocalException");
+require("../Ice/Locator");
+require("../Ice/MapUtil");
+require("../Ice/OpaqueEndpointI");
+require("../Ice/Promise");
+require("../Ice/PropertyNames");
+require("../Ice/ReferenceMode");
+require("../Ice/Router");
+require("../Ice/StringUtil");
+require("../Ice/Version");
 
 const ArrayUtil = Ice.ArrayUtil;
-const Debug = Ice.Debug;
 const BatchRequestQueue = Ice.BatchRequestQueue;
-const HashUtil = Ice.HashUtil;
-const OpaqueEndpointI = Ice.OpaqueEndpointI;
-const RefMode = Ice.ReferenceMode;
-const StringUtil = Ice.StringUtil;
-const StringSeqHelper = Ice.StringSeqHelper;
-const EndpointSelectionType = Ice.EndpointSelectionType;
-const Identity = Ice.Identity;
-const RouterPrx = Ice.RouterPrx;
-const LocatorPrx = Ice.LocatorPrx;
-const PropertyNames = Ice.PropertyNames;
 const ConnectionRequestHandler = Ice.ConnectionRequestHandler;
+const Debug = Ice.Debug;
+const EndpointSelectionType = Ice.EndpointSelectionType;
+const HashUtil = Ice.HashUtil;
+const Identity = Ice.Identity;
+const LocatorPrx = Ice.LocatorPrx;
 const MapUtil = Ice.MapUtil;
+const OpaqueEndpointI = Ice.OpaqueEndpointI;
+const PropertyNames = Ice.PropertyNames;
+const RefMode = Ice.ReferenceMode;
+const RouterPrx = Ice.RouterPrx;
+const StringSeqHelper = Ice.StringSeqHelper;
+const StringUtil = Ice.StringUtil;
 
 const suffixes =
 [

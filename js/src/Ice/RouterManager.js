@@ -3,7 +3,10 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module, ["../Ice/HashMap", "../Ice/RouterInfo", "../Ice/Router"]);
+
+require("../Ice/HashMap");
+require("../Ice/Router");
+require("../Ice/RouterInfo");
 
 const HashMap = Ice.HashMap;
 const RouterInfo = Ice.RouterInfo;

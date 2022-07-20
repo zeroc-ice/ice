@@ -1514,7 +1514,7 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const DataMemberList& members,
                                            const ContainedPtr& p)
 {
-    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, false, true);
+    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, true);
 }
 
 void
@@ -1523,7 +1523,6 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const DataMemberList& baseMembers,
                                            const DataMemberList& allMembers,
                                            const ContainedPtr& p,
-                                           bool local,
                                            bool rootClass,
                                            const StringPairList& extraParams)
 {
@@ -1531,11 +1530,6 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
     {
         out << sp;
         out << nl;
-        int typeCtx = TypeContextInParam;
-        if(local)
-        {
-            typeCtx |= TypeContextLocal;
-        }
         out << "public init" << spar;
         for(DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {

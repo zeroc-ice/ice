@@ -3,29 +3,27 @@
 //
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module,
-    [
-        "../Ice/AsyncResultBase",
-        "../Ice/Debug",
-        "../Ice/Identity",
-        "../Ice/LocalException",
-        "../Ice/PropertyNames",
-        "../Ice/Router",
-        "../Ice/ServantManager",
-        "../Ice/StringUtil",
-        "../Ice/UUID",
-        "../Ice/ArrayUtil",
-        "../Ice/Promise",
-        "../Ice/Timer"
-    ]);
 
+require("../Ice/ArrayUtil");
+require("../Ice/AsyncResultBase");
+require("../Ice/Debug");
+require("../Ice/Identity");
+require("../Ice/LocalException");
+require("../Ice/Promise");
+require("../Ice/PropertyNames");
+require("../Ice/Router");
+require("../Ice/ServantManager");
+require("../Ice/StringUtil");
+require("../Ice/Timer");
+require("../Ice/UUID");
+
+const ArrayUtil = Ice.ArrayUtil;
 const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;
 const Identity = Ice.Identity;
 const PropertyNames = Ice.PropertyNames;
 const ServantManager = Ice.ServantManager;
 const StringUtil = Ice.StringUtil;
-const ArrayUtil = Ice.ArrayUtil;
 const Timer = Ice.Timer;
 
 const _suffixes =

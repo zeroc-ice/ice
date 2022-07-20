@@ -7,7 +7,7 @@
 # version to be used for building the Ice extension, set PYTHON to the
 # location of the python interpreter.
 #
-PYTHON              ?= python
+PYTHON              ?= python3
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -16,7 +16,6 @@ PYTHON              ?= python
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
 # PYTHON must be set to a value that has a corresponding PYTHON-config
-python-version := $(shell $(PYTHON) -c "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))")
 python-config := $(PYTHON)-config
 
 ifeq ($(os),Linux)

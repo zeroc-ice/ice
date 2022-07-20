@@ -46,8 +46,7 @@ run(id<ICECommunicator> communicator)
         in = [ICEUtil createInputStream:communicator data:byte];
         @try
         {
-            BOOL v;
-            v = [in readBool];
+            [in readBool];
             test(NO);
         }
         @catch(ICEUnmarshalOutOfBoundsException* ex)

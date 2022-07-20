@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-    <CppToolsDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140.3.7.7\tools</CppToolsDir>
+    <CppToolsDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140.3.7.8\tools</CppToolsDir>
   </PropertyGroup>
 
   <!-- Dynamic libraries and import libraries -->
@@ -32,11 +32,11 @@
 
   <!-- Copy required files to the package specific directories -->
   <Target Name="ToolBoxPackage">
-    <Copy SourceFiles="@(Sources)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\%(Sources.RecursiveDir)" />
-    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\" />
-    <Copy SourceFiles="@(Headers)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\" />
-    <Copy SourceFiles="@(Tools)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox" />
-    <Copy SourceFiles="@(Slices)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\slice\%(Slices.RecursiveDir)" />
-    <Copy SourceFiles="@(Doc)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\doc\%(Doc.RecursiveDir)" />
+    <Copy SourceFiles="@(Sources)" DestinationFolder="$(MSBuildThisFileDirectory)..\toolbox\build\%(Sources.RecursiveDir)" />
+    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(MSBuildThisFileDirectory)..\toolbox\build\" />
+    <Copy SourceFiles="@(Headers)" DestinationFolder="$(MSBuildThisFileDirectory)..\toolbox\build\" />
+    <Copy SourceFiles="@(Tools)" DestinationFolder="$(MSBuildThisFileDirectory)..\toolbox\build" />
+    <Copy SourceFiles="@(Slices)" DestinationFolder="$(MSBuildThisFileDirectory)..\toolbox\build\slice\%(Slices.RecursiveDir)" />
+    <Copy SourceFiles="@(Doc)" DestinationFolder="$(MSBuildThisFileDirectory)..\toolbox\build\doc\%(Doc.RecursiveDir)" />
   </Target>
 </Project>

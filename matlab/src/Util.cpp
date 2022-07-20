@@ -6,14 +6,55 @@
 #include <iostream>
 #include <string>
 #include <locale>
-#include <codecvt>
 #include "ice.h"
 #include "Util.h"
+#if defined(ICE_HAS_CODECVT_UTF8)
+#   include <codecvt>
+#else
+#   include <IceUtil/ConvertUTF.h>
+#endif
 
 using namespace std;
 
 namespace
 {
+
+#ifndef ICE_HAS_CODECVT_UTF8
+void
+convertUTF8ToUTF16(const vector<unsigned char>& source, vector<unsigned short>& target)
+{
+    target.resize(source.size());
+    const unsigned char* sourceStart = &source[0];
+    const unsigned char* sourceEnd = &source[0] + source.size();
+
+    unsigned short* targetStart = &target[0];
+    unsigned short* targetEnd = &target[0] + target.size();
+    IceUtilInternal::ConversionResult result = IceUtilInternal::ConvertUTF8toUTF16(
+        &sourceStart,
+        sourceEnd,
+        &targetStart,
+        targetEnd,
+        IceUtilInternal::lenientConversion);
+
+    switch (result)
+    {
+        case IceUtilInternal::conversionOK:
+            break;
+        case IceUtilInternal::sourceExhausted:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "source exhausted");
+        case IceUtilInternal::sourceIllegal:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "source illegal");
+        case IceUtilInternal::targetExhausted:
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__, "source illegal");
+        default:
+        {
+            assert(0);
+            throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
+        }
+    }
+    target.resize(targetStart - &target[0]);
+}
+#endif
 
 string
 replace(string s, string patt, string val)
@@ -59,22 +100,30 @@ IceMatlab::createStringFromUTF8(const string& s)
     }
     else
     {
-#ifdef _MSC_VER
-        //
+#if defined(_MSC_VER)
         // Workaround for Visual Studio bug that causes a link error when using char16_t.
-        //
         wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
-#else
+
+#elif defined(ICE_HAS_CODECVT_UTF8)
         u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
+#else
+        vector<unsigned char> source(
+            reinterpret_cast<const unsigned char*>(s.data()),
+            reinterpret_cast<const unsigned char*>(s.data()) + s.length());
+        vector<unsigned short> utf16;
+        convertUTF8ToUTF16(source, utf16);
 #endif
         mwSize dims[2] = { 1, static_cast<mwSize>(utf16.size()) };
         auto r = mxCreateCharArray(2, dims);
         auto buf = mxGetChars(r);
         int i = 0;
-#ifdef _MSC_VER
+
+#if defined(_MSC_VER)
         for(wchar_t c : utf16)
-#else
+#elif defined(ICE_HAS_CODECVT_UTF8)
         for(char16_t c : utf16)
+#else
+        for(unsigned short c : utf16)
 #endif
         {
             buf[i++] = static_cast<mxChar>(c);
@@ -583,7 +632,7 @@ IceMatlab::getStringList(mxArray* m, vector<string>& v)
     }
     size_t n = mxGetN(m);
     v.clear();
-    for(auto i = 0; i < n; ++i)
+    for(mwIndex i = 0; i < n; ++i)
     {
         mxArray* c = mxGetCell(m, i);
         v.push_back(getStringFromUTF16(c));
@@ -682,14 +731,10 @@ splitScopedName(const string& scoped)
 }
 
 string
-IceMatlab::idToClass(const string& id)
+IceMatlab::idToClass(const string& typeId)
 {
-    auto ids = splitScopedName(id);
-#ifdef ICE_CPP11_COMPILER
+    auto ids = splitScopedName(typeId);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-#else
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
-#endif
     stringstream result;
     for(auto i = ids.begin(); i != ids.end(); ++i)
     {

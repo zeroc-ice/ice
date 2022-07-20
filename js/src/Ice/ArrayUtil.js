@@ -4,7 +4,6 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const _ModuleRegistry = Ice._ModuleRegistry;
-const Slice = Ice.Slice;
 
 const eq = function(e1, e2)
 {
@@ -82,7 +81,7 @@ class ArrayUtil
 
 ArrayUtil.eq = eq;
 
-Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
+Ice.Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
 {
     let helper = null;
     Object.defineProperty(module, name,

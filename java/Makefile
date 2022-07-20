@@ -39,6 +39,3 @@ install::
 
 install-icegridgui::
 	$(GRADLE) $(GRADLEARGS) :IceGridGUI:install
-
-test::
-	@python ./allTests.py

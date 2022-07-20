@@ -14,6 +14,7 @@
 [["ice-prefix"]]
 
 [["js:module:ice"]]
+[["js:cjs-module"]]
 
 [["objc:dll-export:ICE_API"]]
 [["objc:header-dir:objc"]]

@@ -4,16 +4,14 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const _ModuleRegistry = Ice._ModuleRegistry;
-_ModuleRegistry.require(module,
-    [
-        "../Ice/Current",
-        "../Ice/Exception",
-        "../Ice/FormatType",
-        "../Ice/Object",
-        "../Ice/ObjectPrx",
-        "../Ice/OptionalFormat",
-        "../Ice/StreamHelpers"
-    ]);
+
+require("../Ice/Current");
+require("../Ice/Exception");
+require("../Ice/FormatType");
+require("../Ice/Object");
+require("../Ice/ObjectPrx");
+require("../Ice/OptionalFormat");
+require("../Ice/StreamHelpers");
 
 const builtinHelpers =
 [

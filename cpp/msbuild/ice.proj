@@ -9,13 +9,6 @@
         <Platform>Win32</Platform>
     </PropertyGroup>
 
-    <ItemGroup>
-        <CppPlatformToolset Include="v100"/>
-        <CppPlatformToolset Include="v120"/>
-        <CppPlatformToolset Include="v140"/>
-        <CppPlatformToolset Include="v141"/>
-    </ItemGroup>
-
     <PropertyGroup>
         <VCTargetsPath Condition="'$(VCTargetsPath)' == ''">C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0</VCTargetsPath>
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
@@ -27,14 +20,14 @@
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
-    <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v141' OR '$(DefaultPlatformToolset)' == 'v142'">
+    <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v141' OR '$(DefaultPlatformToolset)' == 'v142' OR '$(DefaultPlatformToolset)' == 'v143'">
         <Cpp11Compiler>yes</Cpp11Compiler>
         <UWPCompiler>yes</UWPCompiler>
         <IceConfiguration Condition="$(Configuration.Contains('Release'))">Release</IceConfiguration>
         <IceConfiguration Condition="$(Configuration.Contains('Debug'))">Debug</IceConfiguration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v142' OR '$(DefaultPlatformToolset)' == 'v141' OR '$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v120'">
+    <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v143' OR '$(DefaultPlatformToolset)' == 'v142' OR '$(DefaultPlatformToolset)' == 'v141' OR '$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v120'">
         <OpenSSL>yes</OpenSSL>
     </PropertyGroup>
 

@@ -177,7 +177,7 @@ where the C++ compiler can automatically find the header and library files, you 
 need to set `ICE_HOME`
 
 ```
-make ICE_HOME=/opt/Ice-3.7.7 ICE_BIN_DIST=all
+make ICE_HOME=/opt/Ice-3.7.8 ICE_BIN_DIST=all
 ```
 
 ### Build configurations and platforms
@@ -227,7 +227,7 @@ can open one of:
 - VS2015 x64 Native Tools Command Prompt
 
 Using the first Command Prompt produces `Win32` binaries by default, while
-the second Command Promt produces `x64` binaries by default.
+the second Command Prompt produces `x64` binaries by default.
 
 In the Command Prompt, change to the `cpp` subdirectory:
 ```
@@ -291,7 +291,7 @@ Using the configuration manager choose the platform and configuration you want
 to build.
 
 The solution provide a project for each Ice component and each component can be
-built separatelly. When you build a component its dependencies are built
+built separately. When you build a component its dependencies are built
 automatically.
 
 For Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015, the solutions
@@ -318,7 +318,7 @@ release and debug mode respectively.
 
 The building of the test uses by default the local source build, and you must
 have built the Ice source with the same platform and configuration than you are
-attemping to build the tests.
+attempting to build the tests.
 
 For example to build the `Cpp11-Release/x64` tests you must have built first the
 C++11 mapping using `Release/x64`.
@@ -557,7 +557,7 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-7
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-8
 [3]: https://github.com/zeroc-ice/bzip2
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/
