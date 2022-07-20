@@ -67,7 +67,7 @@ classdef Communicator < IceInternal.WrapperObject
 
             future = libpointer('voidPtr');
             obj.iceCall('destroyAsync', future);
-            %assert(~isNull(future));
+            assert(~isNull(future));
             f = Ice.Future(future, 'destroy', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function r = stringToProxy(obj, str)
@@ -319,7 +319,7 @@ classdef Communicator < IceInternal.WrapperObject
 
             future = libpointer('voidPtr');
             obj.iceCall('flushBatchRequestsAsync', mode, future);
-            %assert(~isNull(future));
+            assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function r = getClassResolver(obj)
