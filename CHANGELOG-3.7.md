@@ -100,6 +100,8 @@ These are the changes since Ice 3.7.7.
 
 - Added Linux support for MATLAB language mapping.
 
+- Improved performances.
+
 ## Python Changes
 
 - Optional parameters declared after all required parameters now use `Ice.Unset` as the default value.
