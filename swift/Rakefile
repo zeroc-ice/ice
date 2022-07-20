@@ -606,15 +606,16 @@ def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix:
     rule.file_type = "pattern.proxy"
 
     slic2swift = <<~EOF
+        BREW_PREFIX=$($SHELL -c 'brew --prefix' 2>/dev/null)
         if [ -f "$ICE_HOME/bin/slice2swift" ]; then
             SLICE2SWIFT="$ICE_HOME/bin/slice2swift"
         elif [ -f "$SRCROOT/../cpp/bin/slice2swift" ]; then
             SLICE2SWIFT="$SRCROOT/../cpp/bin/slice2swift"
         elif [ -f /usr/local/bin/slice2swift ]; then
             SLICE2SWIFT=/usr/local/bin/slice2swift
-        elif command -v brew >/dev/null 2>&1 && [ -f $(brew --prefix)/bin/slice2swift ]; then
-            SLICE2SWIFT=$(brew --prefix)/bin/slice2swift
-            SLICEDIR=$(brew --prefix)/share/ice/slice
+        elif [ -f "$BREW_PREFIX/bin/slice2swift" ]; then
+            SLICE2SWIFT=$BREW_PREFIX/bin/slice2swift
+            SLICEDIR=$BREW_PREFIX/share/ice/slice
         else
             echo "Failed to locate slice2swift compiler"
             exit 1
@@ -671,6 +672,7 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     rule.name = "Slice2Cpp Compiler for #{prefix}/*.ice"
     rule.file_patterns = "*/#{prefix}/*.ice"
     rule.script = <<~EOF
+        BREW_PREFIX=$($SHELL -c 'brew --prefix' 2>/dev/null)
         if [ -f "$ICE_HOME/bin/slice2cpp" ]; then
             SLICE2CPP="$ICE_HOME/bin/slice2cpp"
         elif [ -f "$SRCROOT/../cpp/bin/slice2cpp" ]; then
@@ -679,8 +681,8 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
             SLICE2CPP=/usr/local/opt/slice2swift/libexec/bin/slice2cpp
         elif [ -f /usr/local/bin/slice2cpp ]; then
             SLICE2CPP=/usr/local/bin/slice2cpp
-        elif command -v brew >/dev/null 2>&1 && [ -f $(brew --prefix)/bin/slice2cpp ]; then
-            SLICE2CPP=$(brew --prefix)/bin/slice2cpp
+        elif [ -f "$BREW_PREFIX/bin/slice2cpp" ]; then
+            SLICE2CPP=$$BREW_PREFIX/bin/slice2cpp
         else
             echo "Failed to locate slice2cpp compiler"
             exit 1
