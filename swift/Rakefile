@@ -611,8 +611,6 @@ def target_add_slice2swift_build_rule(project, target, projectPrefix, srcPrefix:
             SLICE2SWIFT="$ICE_HOME/bin/slice2swift"
         elif [ -f "$SRCROOT/../cpp/bin/slice2swift" ]; then
             SLICE2SWIFT="$SRCROOT/../cpp/bin/slice2swift"
-        elif [ -f /usr/local/bin/slice2swift ]; then
-            SLICE2SWIFT=/usr/local/bin/slice2swift
         elif [ -f "$BREW_PREFIX/bin/slice2swift" ]; then
             SLICE2SWIFT=$BREW_PREFIX/bin/slice2swift
             SLICEDIR=$BREW_PREFIX/share/ice/slice
@@ -679,8 +677,6 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
             SLICE2CPP="$SRCROOT/../cpp/bin/slice2cpp"
         elif [ -f /usr/local/opt/slice2swift/libexec/bin/slice2cpp ]; then
             SLICE2CPP=/usr/local/opt/slice2swift/libexec/bin/slice2cpp
-        elif [ -f /usr/local/bin/slice2cpp ]; then
-            SLICE2CPP=/usr/local/bin/slice2cpp
         elif [ -f "$BREW_PREFIX/bin/slice2cpp" ]; then
             SLICE2CPP=$$BREW_PREFIX/bin/slice2cpp
         else
