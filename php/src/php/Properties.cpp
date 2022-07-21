@@ -580,7 +580,7 @@ ZEND_FUNCTION(Ice_createProperties)
     zval* defaultsObj = 0;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS(),
-                             const_cast<char*>("|a!|O!"),
+                             const_cast<char*>("|a!O!"),
                              &arglist, &defaultsObj,
                              propertiesClassEntry) == FAILURE)
     {
