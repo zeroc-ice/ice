@@ -19,7 +19,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 num = obj.is.readSize();
             end
 
-            if ~isempty(obj.patchMap) && obj.patchMap.Count > 0
+            if obj.patchMapLength > 0
                 %
                 % If any entries remain in the patch map, the sender has sent an index for an object, but failed
                 % to supply the object.
@@ -29,7 +29,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function readValue(obj, cb)
-            assert(~isempty(cb));
+            %assert(~isempty(cb));
 
             %
             % Object references are encoded as a negative integer in 1.0.
@@ -48,7 +48,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function throwException(obj)
-            assert(obj.sliceType == IceInternal.SliceType.NoSlice);
+            %assert(obj.sliceType == IceInternal.SliceType.NoSlice);
 
             %
             % User exception with the 1.0 encoding start with a boolean flag
@@ -127,7 +127,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
         function startInstance(obj, sliceType)
-            assert(obj.sliceType == sliceType);
+            %assert(obj.sliceType == sliceType);
             obj.skipFirstSlice = true;
         end
 
@@ -165,8 +165,13 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             % string.
             %
             if obj.sliceType == IceInternal.SliceType.ValueSlice
-                isIndex = obj.is.readBool();
-                obj.typeId = obj.readTypeId(isIndex);
+                if  obj.is.readBool()
+                    typeIdIndex = obj.is.readSize();
+                    obj.typeIdIndex = typeIdIndex;
+                    obj.typeId = obj.getTypeId(obj.typeIdIndex);
+                else
+                    [obj.typeIdIndex, obj.typeId] = obj.readTypeId();
+                end
             else
                 obj.typeId = obj.is.readString();
             end
@@ -185,18 +190,14 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
 
         function skipSlice(obj)
             %obj.is.traceSkipSlice(obj.typeId, obj.sliceType);
-            assert(obj.sliceSize >= 4);
+            %assert(obj.sliceSize >= 4);
             obj.is.skip(obj.sliceSize - 4);
         end
 
-        function r = readOptional(~, ~, ~)
-            r = false;
-        end
     end
     methods(Access=private)
         function readInstance(obj)
             index = obj.is.readInt();
-
             if index <= 0
                 throw(Ice.MarshalException('', '', 'invalid object id'));
             end
@@ -219,7 +220,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                     throw(Ice.NoValueFactoryException('', '', '', mostDerivedId));
                 end
 
-                v = obj.newInstance(obj.typeId);
+                v = obj.newInstance(obj.typeIdIndex, obj.typeId);
 
                 %
                 % We found a factory, we get out of this loop.
@@ -250,12 +251,13 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             %
             obj.classGraphDepth = 0;
 
-            if obj.patchMap.isKey(index)
-                pl = obj.patchMap(index);
-                for i = 1:length(pl.list)
-                    entry = pl.list{i};
-                    if entry.classGraphDepth > obj.classGraphDepth
-                        obj.classGraphDepth = entry.classGraphDepth;
+            if index <= length(obj.patchMap)
+                pl = obj.patchMap{index};
+                for i = 1:length(pl)
+                    entry = pl{i};
+                    classGraphDepth = entry.classGraphDepth;
+                    if classGraphDepth > obj.classGraphDepth
+                        obj.classGraphDepth = classGraphDepth;
                     end
                 end
             end
@@ -276,5 +278,6 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         skipFirstSlice
         sliceSize
         typeId
+        typeIdIndex
     end
 end

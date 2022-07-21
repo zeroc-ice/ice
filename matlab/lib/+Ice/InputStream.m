@@ -9,9 +9,10 @@ classdef InputStream < handle
         function obj = InputStream(communicator, encoding, buf)
             obj.communicator = communicator;
             obj.buf = buf;
+            obj.pos = int32(1);
             obj.encoding = encoding;
             obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
-            obj.size = buf.size;
+            obj.size = length(buf);
             obj.classGraphDepthMax = ...
                 communicator.getProperties().getPropertyAsIntWithDefault('Ice.ClassGraphDepthMax', 100);
             if obj.classGraphDepthMax < 1 || obj.classGraphDepthMax > intmax('int32')
@@ -22,106 +23,114 @@ classdef InputStream < handle
             r = obj.communicator;
         end
         function reset(obj, data)
-            obj.buf.reset(data);
-            obj.pos = 1;
-            obj.size = obj.buf.size;
+            obj.buf = data;
+            obj.pos = int32(1);
+            obj.size = length(data);
             obj.startSeq = -1;
             obj.minSeqSize = 0;
+            obj.encapsStack = [];
+            obj.encapsStackDecoder = [];
         end
         function r = readBool(obj)
-            if obj.pos > obj.size
+            pos = obj.pos;
+            if pos > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            if obj.buf.buf(obj.pos) == 0
+            if obj.buf(pos) == 0
                 r = false;
             else
                 r = true;
             end
-            obj.pos = obj.pos + 1;
+            obj.pos = pos + 1;
         end
         function r = readBoolSeq(obj)
             sz = obj.readAndCheckSeqSize(1);
             if sz == 0
                 r = logical([]);
             else
-                if obj.pos + sz - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = logical(obj.buf.buf(obj.pos:obj.pos + sz - 1));
-                obj.pos = obj.pos + sz;
+                r = logical(obj.buf(pos:pos + sz - 1));
+                obj.pos = pos + sz;
             end
         end
         function r = readBoolOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.F1)
                 r = obj.readBool();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readBoolSeqOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.VSize)
                 r = obj.readBoolSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readByte(obj)
-            if obj.pos > obj.size
+            pos = obj.pos;
+            if pos > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            r = obj.buf.buf(obj.pos);
-            obj.pos = obj.pos + 1;
+            r = obj.buf(pos);
+            obj.pos = pos + 1;
         end
         function r = readByteSeq(obj)
             sz = obj.readAndCheckSeqSize(1);
             if sz == 0
                 r = uint8([]);
             else
-                if obj.pos + sz - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = obj.buf.buf(obj.pos:obj.pos + sz - 1);
-                obj.pos = obj.pos + sz;
+                r = obj.buf(pos:pos + sz - 1);
+                obj.pos = pos + sz;
             end
         end
         function r = readByteOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.F1)
                 r = obj.readByte();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readByteSeqOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.VSize)
                 r = obj.readByteSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readShort(obj)
-            if obj.pos + 1 > obj.size
+            pos = obj.pos;
+            if pos + 1 > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + 1)), 'int16');
-            obj.pos = obj.pos + 2;
+            r = typecast(uint8(obj.buf(pos:pos + 1)), 'int16');
+            obj.pos = pos + 2;
         end
         function r = readShortSeq(obj)
             sz = obj.readAndCheckSeqSize(2);
             if sz == 0
                 r = int16([]);
             else
-                if obj.pos + sz * 2 - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz * 2 - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + sz * 2 - 1)), 'int16');
-                obj.pos = obj.pos + sz * 2;
+                r = typecast(uint8(obj.buf(pos:pos + sz * 2 - 1)), 'int16');
+                obj.pos = pos + sz * 2;
             end
         end
         function r = readShortOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.F2)
                 r = obj.readShort();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readShortSeqOpt(obj, tag)
@@ -129,33 +138,35 @@ classdef InputStream < handle
                 obj.skipSize();
                 r = obj.readShortSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readInt(obj)
-            if obj.pos + 3 > obj.size
+            pos = obj.pos;
+            if pos + 3 > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + 3)), 'int32');
-            obj.pos = obj.pos + 4;
+            r = typecast(uint8(obj.buf(pos:pos + 3)), 'int32');
+            obj.pos = pos + 4;
         end
         function r = readIntSeq(obj)
             sz = obj.readAndCheckSeqSize(4);
             if sz == 0
                 r = int32([]);
             else
-                if obj.pos + sz * 4 - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz * 4 - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + sz * 4 - 1)), 'int32');
-                obj.pos = obj.pos + sz * 4;
+                r = typecast(uint8(obj.buf(pos:pos + sz * 4 - 1)), 'int32');
+                obj.pos = pos + sz * 4;
             end
         end
         function r = readIntOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.F4)
                 r = obj.readInt();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readIntSeqOpt(obj, tag)
@@ -163,33 +174,35 @@ classdef InputStream < handle
                 obj.skipSize();
                 r = obj.readIntSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readLong(obj)
-            if obj.pos + 7 > obj.size
+            pos = obj.pos;
+            if pos + 7 > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + 7)), 'int64');
-            obj.pos = obj.pos + 8;
+            r = typecast(uint8(obj.buf(pos:pos + 7)), 'int64');
+            obj.pos = pos + 8;
         end
         function r = readLongSeq(obj)
             sz = obj.readAndCheckSeqSize(8);
             if sz == 0
                 r = int64([]);
             else
-                if obj.pos + sz * 8 - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz * 8 - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + sz * 8 - 1)), 'int64');
-                obj.pos = obj.pos + sz * 8;
+                r = typecast(uint8(obj.buf(pos:pos + sz * 8 - 1)), 'int64');
+                obj.pos = pos + sz * 8;
             end
         end
         function r = readLongOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.F8)
                 r = obj.readLong();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readLongSeqOpt(obj, tag)
@@ -197,33 +210,35 @@ classdef InputStream < handle
                 obj.skipSize();
                 r = obj.readLongSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readFloat(obj)
-            if obj.pos + 3 > obj.size
+            pos = obj.pos;
+            if pos + 3 > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + 3)), 'single');
-            obj.pos = obj.pos + 4;
+            r = typecast(uint8(obj.buf(pos:pos + 3)), 'single');
+            obj.pos = pos + 4;
         end
         function r = readFloatSeq(obj)
             sz = obj.readAndCheckSeqSize(4);
             if sz == 0
                 r = single([]);
             else
-                if obj.pos + sz * 4 - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz * 4 - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + sz * 4 - 1)), 'single');
-                obj.pos = obj.pos + sz * 4;
+                r = typecast(uint8(obj.buf(pos:pos + sz * 4 - 1)), 'single');
+                obj.pos = pos + sz * 4;
             end
         end
         function r = readFloatOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.F4)
                 r = obj.readFloat();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readFloatSeqOpt(obj, tag)
@@ -231,33 +246,35 @@ classdef InputStream < handle
                 obj.skipSize();
                 r = obj.readFloatSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readDouble(obj)
-            if obj.pos + 7 > obj.size
+            pos = obj.pos;
+            if pos + 7 > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + 7)), 'double');
-            obj.pos = obj.pos + 8;
+            r = typecast(uint8(obj.buf(pos:pos + 7)), 'double');
+            obj.pos = pos + 8;
         end
         function r = readDoubleSeq(obj)
             sz = obj.readAndCheckSeqSize(8);
             if sz == 0
                 r = double([]);
             else
-                if obj.pos + sz * 8 - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz * 8 - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + sz * 8 - 1)), 'double');
-                obj.pos = obj.pos + sz * 8;
+                r = typecast(uint8(obj.buf(pos:pos + sz * 8 - 1)), 'double');
+                obj.pos = pos + sz * 8;
             end
         end
         function r = readDoubleOpt(obj, tag)
             if obj.readOptional(tag, Ice.OptionalFormat.F8)
                 r = obj.readDouble();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readDoubleSeqOpt(obj, tag)
@@ -265,7 +282,7 @@ classdef InputStream < handle
                 obj.skipSize();
                 r = obj.readDoubleSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readString(obj)
@@ -273,11 +290,12 @@ classdef InputStream < handle
             if sz == 0
                 r = '';
             else
-                if obj.pos + sz - 1 > obj.size
+                pos = obj.pos;
+                if pos + sz - 1 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = native2unicode(obj.buf.buf(obj.pos:obj.pos + sz - 1), 'utf-8');
-                obj.pos = obj.pos + sz;
+                r = native2unicode(obj.buf(pos:pos + sz - 1), 'utf-8');
+                obj.pos = pos + sz;
             end
         end
         function r = readStringSeq(obj)
@@ -291,7 +309,7 @@ classdef InputStream < handle
             if obj.readOptional(tag, Ice.OptionalFormat.VSize)
                 r = obj.readString();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readStringSeqOpt(obj, tag)
@@ -299,14 +317,15 @@ classdef InputStream < handle
                 obj.skip(4);
                 r = obj.readStringSeq();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function skip(obj, n)
-            if n < 0 || obj.pos + n > obj.size + 1
+            pos = obj.pos;
+            if n < 0 || pos + n > obj.size + 1
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            obj.pos = obj.pos + n;
+            obj.pos = pos + n;
         end
         function skipSize(obj)
             b = obj.readByte();
@@ -315,16 +334,16 @@ classdef InputStream < handle
             end
         end
         function startException(obj)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
-            obj.encapsStack.decoder.startInstance(IceInternal.SliceType.ExceptionSlice);
+            %assert(isobject(obj.encapsStackDecoder));
+            obj.encapsStackDecoder.startInstance(IceInternal.SliceType.ExceptionSlice);
         end
         function r = endException(obj, preserve)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
-            r = obj.encapsStack.decoder.endInstance(preserve);
+            %assert(isobject(obj.encapsStackDecoder));
+            r = obj.encapsStackDecoder.endInstance(preserve);
         end
         function startEncapsulation(obj)
             curr = obj.encapsCache;
-            if ~isempty(curr)
+            if isobject(curr)
                 curr.reset();
                 obj.encapsCache = obj.encapsCache.next;
             else
@@ -332,8 +351,8 @@ classdef InputStream < handle
             end
             curr.next = obj.encapsStack;
             obj.encapsStack = curr;
-
-            obj.encapsStack.start = obj.pos;
+            obj.encapsStackDecoder = curr.decoder;
+            pos = obj.pos;
 
             %
             % I don't use readSize() for encapsulations, because when creating an encapsulation,
@@ -347,16 +366,17 @@ classdef InputStream < handle
             if obj.pos - 4 + sz > obj.size + 1
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            obj.encapsStack.sz = sz;
+            obj.encapsStack.endPos = pos + sz;
 
             %
             % Inline the encoding version unmarshaling
             %
             % encoding = Ice.EncodingVersion.ice_read(obj);
             %
-            obj.encoding.major = obj.buf.buf(obj.pos);
-            obj.encoding.minor = obj.buf.buf(obj.pos + 1);
-            obj.pos = obj.pos + 2;
+            pos = obj.pos;
+            obj.encoding.major = obj.buf(pos);
+            obj.encoding.minor = obj.buf(pos + 1);
+            obj.pos = pos + 2;
 
             %
             % NOTE: Hardcoding the current encoding version at 1.1
@@ -371,15 +391,15 @@ classdef InputStream < handle
             obj.encoding_1_0 = obj.encapsStack.encoding_1_0;
         end
         function endEncapsulation(obj)
-            assert(~isempty(obj.encapsStack));
+            %assert(isobject(obj.encapsStack));
 
             if ~obj.encoding_1_0
                 obj.skipOptionals();
-                if obj.pos ~= obj.encapsStack.start + obj.encapsStack.sz
+                if obj.pos ~= obj.encapsStack.endPos
                     throw(Ice.EncapsulationException());
                 end
-            elseif obj.pos ~= obj.encapsStack.start + obj.encapsStack.sz
-                if obj.pos + 1 ~= obj.encapsStack.start + obj.encapsStack.sz
+            elseif obj.pos ~= obj.encapsStack.endPos
+                if obj.pos + 1 ~= obj.encapsStack.endPos
                     throw(Ice.EncapsulationException());
                 end
 
@@ -395,17 +415,20 @@ classdef InputStream < handle
             %
             % Give the decoder a chance to clean up.
             %
-            if ~isempty(obj.encapsStack.decoder)
-                obj.encapsStack.decoder.finish();
+            if isobject(obj.encapsStackDecoder)
+                obj.encapsStackDecoder.finish();
             end
 
             curr = obj.encapsStack;
             obj.encapsStack = curr.next;
+            if isobject(obj.encapsStack)
+                obj.encapsStackDecoder = obj.encapsStack.decoder;
+            end
             curr.next = obj.encapsCache;
             obj.encapsCache = curr;
             obj.encapsCache.reset();
 
-            if ~isempty(obj.encapsStack)
+            if isobject(obj.encapsStack)
                 obj.encoding_1_0 = obj.encapsStack.encoding_1_0;
             else
                 obj.encoding_1_0 = obj.encoding.major == 1 && obj.encoding.minor == 0;
@@ -425,9 +448,10 @@ classdef InputStream < handle
             %
             % encoding = Ice.EncodingVersion.ice_read(obj);
             %
-            major = obj.buf.buf(obj.pos);
-            minor = obj.buf.buf(obj.pos + 1);
-            obj.pos = obj.pos + 2;
+            pos = obj.pos;
+            major = obj.buf(pos);
+            minor = obj.buf(pos + 1);
+            obj.pos = pos + 2;
 
             %
             % NOTE: Hardcoding the current encoding version at 1.1
@@ -464,57 +488,117 @@ classdef InputStream < handle
             obj.pos = obj.pos + sz - 4;
         end
         function r = getEncoding(obj)
-            if isempty(obj.encapsStack)
+            if ~isobject(obj.encapsStack)
                 r = obj.encoding;
             else
                 r = obj.encapsStack.encoding;
             end
         end
         function r = startSlice(obj)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
-            r = obj.encapsStack.decoder.startSlice();
+            %assert(isobject(obj.encapsStackDecoder));
+            r = obj.encapsStackDecoder.startSlice();
         end
         function endSlice(obj)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
-            obj.encapsStack.decoder.endSlice();
+            %assert(isobject(obj.encapsStackDecoder));
+            obj.encapsStackDecoder.endSlice();
         end
         function skipSlice(obj)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
-            obj.encapsStack.decoder.skipSlice();
+            %assert(isobject(obj.encapsStackDecoder));
+            obj.encapsStackDecoder.skipSlice();
         end
         function r = readSize(obj)
-            if obj.pos > obj.size
+            pos = obj.pos;
+            if pos > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            b = obj.buf.buf(obj.pos);
-            obj.pos = obj.pos + 1;
+            b = obj.buf(pos);
+            pos = pos + 1;
             if b == 255
-                if obj.pos + 3 > obj.size
+                if pos + 3 > obj.size
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
-                r = typecast(uint8(obj.buf.buf(obj.pos:obj.pos + 3)), 'int32');
-                obj.pos = obj.pos + 4;
+                r = typecast(uint8(obj.buf(pos:pos + 3)), 'int32');
+                obj.pos = pos + 4;
                 if r < 0
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
             else
+                obj.pos = pos;
                 r = int32(b);
             end
         end
         function r = readOptional(obj, tag, fmt)
-            assert(~isempty(obj.encapsStack));
-            if ~isempty(obj.encapsStack.decoder)
-                r = obj.encapsStack.decoder.readOptional(tag, fmt);
+            %assert(isobject(obj.encapsStack));
+            if obj.encoding_1_0
+                r = false; % Optional members aren't supported with the 1.0 encoding.
+            elseif isobject(obj.encapsStackDecoder)
+                import IceInternal.Protocol;
+                current = obj.encapsStackDecoder.current;
+                if ~isobject(current) || bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
+                    r = readOptionalImpl(tag, fmt, obj.encapsStack.endPos);
+                else
+                    r = false;
+                end
             else
-                r = obj.readOptionalImpl(tag, fmt);
+                r = readOptionalImpl(tag, fmt, obj.size);
             end
+
+            function r = readOptionalImpl(readTag, expectedFormat, encapsStackEnd)
+                while true
+                    pos = obj.pos;
+                    if pos >= encapsStackEnd
+                        r = false; % End of encapsulation also indicates end of optionals.
+                        break;
+                    end
+
+                    v = obj.buf(pos);
+                    if v == 255 %IceInternal.Protocol.OPTIONAL_END_MARKER
+                        r = false;
+                        break;
+                    end
+                    obj.pos = pos + 1;
+
+                    format = bitand(v, uint8(7)); % First 3 bits.
+                    tag = uint32(bitshift(v, -3));
+                    if tag == 30
+                        tag = obj.readSize();
+                    end
+
+                    if tag > readTag
+                        if tag < 30
+                            offset = 1;
+                        elseif tag < 255
+                            offset = 2;
+                        else
+                            offset = 6;
+                        end
+                        obj.pos = obj.pos - offset; % Rewind
+                        r = false; % No optional data members with the requested tag.
+                        break;
+                    elseif tag < readTag
+                        obj.skipOptional(format); % Skip optional data members
+                    elseif format ~= expectedFormat
+                        throw(Ice.MarshalException('', '', ...
+                                sprintf('invalid optional data member ''%d'': unexpected format', tag)));
+                    else
+                        r = true;
+                        break;
+                    end
+                end
+            end
+        end
+        function r = skipValue(obj, pos)
+            obj.pos = pos(0)
+            obj.readValue([], '');
+            r = obj.pos;
         end
         function skipOptionals(obj)
             %
             % Skip remaining unread optional members.
             %
+            encapsStackEnd = obj.encapsStack.endPos;
             while true
-                if obj.pos >= obj.encapsStack.start + obj.encapsStack.sz
+                if obj.pos >= encapsStackEnd
                     return; % End of encapsulation also indicates end of optionals.
                 end
 
@@ -523,8 +607,8 @@ classdef InputStream < handle
                     return;
                 end
 
-                format = bitand(v, 7); % Read first 3 bits.
-                if bitshift(v, 3) == 30
+                format = bitand(v, uint8(7)); % Read first 3 bits.
+                if bitshift(v, 3) == uint8(30)
                     obj.skipSize();
                 end
                 obj.skipOptional(format);
@@ -597,7 +681,7 @@ classdef InputStream < handle
             %
             % Now that we've reached the end, extract all of the bytes representing the marshaled form of the proxy.
             %
-            bytes = obj.buf.buf(start:obj.pos - 1);
+            bytes = obj.buf(start:obj.pos - 1);
 
             if nargin == 2
                 %
@@ -614,7 +698,7 @@ classdef InputStream < handle
                 obj.skip(4);
                 r = obj.readProxy();
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
         function r = readEnum(obj, maxValue)
@@ -631,7 +715,9 @@ classdef InputStream < handle
             end
         end
         function readValue(obj, cb, formalType)
-            obj.initEncaps();
+            if ~isobject(obj.encapsStackDecoder)
+                obj.initEncaps();
+            end
             function check(v)
                 if isempty(v) || isa(v, formalType)
                     cb(v);
@@ -640,9 +726,9 @@ classdef InputStream < handle
                 end
             end
             if isempty(cb)
-                obj.encapsStack.decoder.readValue([]);
+                obj.encapsStackDecoder.readValue([]);
             else
-                obj.encapsStack.decoder.readValue(@(v) check(v));
+                obj.encapsStackDecoder.readValue(@(v) check(v));
             end
         end
         function readValueOpt(obj, tag, cb, formalType)
@@ -653,8 +739,8 @@ classdef InputStream < handle
             end
         end
         function readPendingValues(obj)
-            if ~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder)
-                obj.encapsStack.decoder.readPendingValues();
+            if isobject(obj.encapsStackDecoder)
+                obj.encapsStackDecoder.readPendingValues();
             elseif obj.encoding_1_0
                 %
                 % If using the 1.0 encoding and no instances were read, we
@@ -669,16 +755,18 @@ classdef InputStream < handle
             end
         end
         function startValue(obj)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
-            obj.encapsStack.decoder.startInstance(IceInternal.SliceType.ValueSlice);
+            %assert(isobject(obj.encapsStackDecoder));
+            obj.encapsStackDecoder.startInstance(IceInternal.SliceType.ValueSlice);
         end
         function r = endValue(obj, preserve)
-            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
-            r = obj.encapsStack.decoder.endInstance(preserve);
+            %assert(isobject(obj.encapsStackDecoder));
+            r = obj.encapsStackDecoder.endInstance(preserve);
         end
         function throwException(obj)
-            obj.initEncaps();
-            obj.encapsStack.decoder.throwException();
+            if ~isobject(obj.encapsStackDecoder)
+                obj.initEncaps();
+            end
+            obj.encapsStackDecoder.throwException();
         end
         function r = getPos(obj)
             r = obj.pos;
@@ -689,62 +777,13 @@ classdef InputStream < handle
         function r = getSize(obj)
             r = obj.size;
         end
-        function r = readOptionalImpl(obj, readTag, expectedFormat)
-            if obj.encoding_1_0
-                r = false; % Optional members aren't supported with the 1.0 encoding.
-                return;
-            end
-
-            while true
-                if obj.pos >= obj.encapsStack.start + obj.encapsStack.sz
-                    r = false; % End of encapsulation also indicates end of optionals.
-                    return;
-                end
-
-                b = obj.readByte();
-                v = b;
-                if v == IceInternal.Protocol.OPTIONAL_END_MARKER
-                    obj.pos = obj.pos - 1; % Rewind.
-                    r = false;
-                    return;
-                end
-
-                format = bitand(v, 7); % First 3 bits.
-                tag = bitshift(v, -3);
-                if tag == 30
-                    tag = obj.readSize();
-                end
-
-                if tag > readTag
-                    if tag < 30
-                        offset = 1;
-                    elseif tag < 255
-                        offset = 2;
-                    else
-                        offset = 6;
-                    end
-                    obj.pos = obj.pos - offset; % Rewind
-                    r = false; % No optional data members with the requested tag.
-                    return;
-                elseif tag < readTag
-                    obj.skipOptional(format); % Skip optional data members
-                else
-                    if format ~= expectedFormat
-                        throw(Ice.MarshalException('', '', ...
-                                sprintf('invalid optional data member ''%d'': unexpected format', tag)));
-                    end
-                    r = true;
-                    return;
-                end
-            end
-        end
         function r = getBytes(obj, startPos, endPos) % The start and end positions are inclusive
             if startPos > obj.size || endPos > obj.size
                 throw(Ice.UnmarshalOutOfBoundsException());
             elseif startPos < 1 || endPos < 1 || endPos < startPos
                 throw(Ice.MarshalException());
             end
-            r = obj.buf.buf(startPos:endPos);
+            r = obj.buf(startPos:endPos);
         end
         function r = readAndCheckSeqSize(obj, minSize)
             sz = obj.readSize();
@@ -792,19 +831,19 @@ classdef InputStream < handle
     end
     methods(Access=private)
         function initEncaps(obj)
-            if isempty(obj.encapsStack) % Lazy initialization
+            if ~isobject(obj.encapsStack) % Lazy initialization
                 obj.encapsStack = obj.encapsCache;
-                if ~isempty(obj.encapsStack)
+                if isobject(obj.encapsStack)
                     obj.encapsCache = obj.encapsCache.next;
                 else
                     obj.encapsStack = IceInternal.ReadEncaps();
                 end
                 obj.encapsStack.setEncoding(obj.encoding);
-                obj.encapsStack.sz = obj.size;
+                obj.encapsStack.endPos = obj.size;
             end
 
-            valueFactoryManager = obj.communicator.getValueFactoryManager();
-            if isempty(obj.encapsStack.decoder) % Lazy initialization
+            if ~isobject(obj.encapsStack.decoder) % Lazy initialization
+                valueFactoryManager = obj.communicator.getValueFactoryManager();
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder10(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
@@ -814,6 +853,7 @@ classdef InputStream < handle
                         IceInternal.EncapsDecoder11(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
                                                     obj.communicator.getClassResolver(), obj.classGraphDepthMax);
                 end
+                obj.encapsStackDecoder = obj.encapsStack.decoder;
             end
         end
     end
@@ -839,6 +879,7 @@ classdef InputStream < handle
         encoding
         encoding_1_0 logical
         encapsStack
+        encapsStackDecoder
         encapsCache
         sliceValues logical = true
         buf

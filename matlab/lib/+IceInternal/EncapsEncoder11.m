@@ -61,7 +61,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
 
         function startSlice(obj, typeId, compactId, last)
             import IceInternal.Protocol;
-            assert(isempty(obj.current.indirectionTable) && isempty(obj.current.indirectionMap));
+            %assert(isempty(obj.current.indirectionTable) && isempty(obj.current.indirectionMap));
 
             obj.current.sliceFlagsPos = obj.os.getPos() + 1;
 
@@ -138,7 +138,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             % Only write the indirection table if it contains entries.
             %
             if ~isempty(obj.current.indirectionTable)
-                assert(obj.encaps.format == Ice.FormatType.SlicedFormat);
+                %assert(obj.encaps.format == Ice.FormatType.SlicedFormat);
                 obj.current.sliceFlags = bitor(obj.current.sliceFlags, Protocol.FLAG_HAS_INDIRECTION_TABLE);
 
                 %
@@ -175,7 +175,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
     methods(Access=private)
         function writeSlicedData(obj, slicedData)
             import IceInternal.Protocol;
-            assert(~isempty(slicedData));
+            %assert(~isempty(slicedData));
 
             %
             % We only remarshal preserved slices if we are using the sliced
@@ -216,7 +216,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
         end
 
         function writeInstance(obj, v)
-            assert(~isempty(v));
+            %assert(~isempty(v));
 
             %
             % If the instance was already marshaled, just write its ID.

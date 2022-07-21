@@ -31,7 +31,7 @@ classdef Util
         end
 
         function r = idToClass(id)
-            assert(length(id) > 2 && strcmp(id(1:2), '::'));
+            %assert(length(id) > 2 && strcmp(id(1:2), '::'));
             ids = strsplit(id, '::');
             ids = ids(2:end); % Skip empty leading element.
             %
