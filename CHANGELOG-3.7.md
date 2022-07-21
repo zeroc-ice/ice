@@ -100,7 +100,7 @@ These are the changes since Ice 3.7.7.
 
 - Added Linux support for MATLAB language mapping.
 
-- Improved performances.
+- Performance improvements..
 
 ## Python Changes
 

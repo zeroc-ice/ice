@@ -118,7 +118,7 @@ classdef (Abstract) EncapsDecoder < handle
                 %
                 constructor = obj.classResolver.resolve(typeId);
                 if ~isempty(constructor)
-                    r = @() constructor('NoInit');
+                    r = @() constructor(IceInternal.NoInit.Instance);
                 end
             end
         end
