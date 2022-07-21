@@ -24,10 +24,9 @@ class Client extends TestHelper
         $defaults = call_user_func(
             $NS ? "\\Ice\\createProperties" : "Ice_createProperties",
             array("--Ice.Trace.Network=3", "--Ice.Trace.Protocol=1"));
-        $properties = call_user_func(
+        $properties = call_user_func_array(
             $NS ? "\\Ice\\createProperties" : "Ice_createProperties",
-            array("--Ice.Trace.Network=1"),
-            $defaults);
+            array(array("--Ice.Trace.Network=1"), &$defaults));
         test($properties->getProperty("Ice.Trace.Network"), "1");
         test($properties->getProperty("Ice.Trace.Protocol"), "1");
         echo "ok\n";
