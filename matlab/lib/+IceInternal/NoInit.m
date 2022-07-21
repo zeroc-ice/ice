@@ -5,9 +5,9 @@
 %
 % Singleton used to indicate an unset optional value.
 %
-classdef UnsetI < handle
+classdef NoInit < handle
     methods(Access=private)
-        function obj = UnsetI()
+        function obj = NoInit()
         end
     end
     methods
@@ -19,6 +19,6 @@ classdef UnsetI < handle
         end
     end
     properties(Constant)
-        Instance = IceInternal.UnsetI()
+        Instance = IceInternal.NoInit()
     end
 end

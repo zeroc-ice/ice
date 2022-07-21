@@ -837,7 +837,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             if opt.hasValue
                 r = opt.value;
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
 
@@ -867,7 +867,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             if opt.hasValue
                 r = opt.value;
             else
-                r = Ice.Unset;
+                r = IceInternal.UnsetI.Instance;
             end
         end
 
@@ -1045,7 +1045,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 is = [];
                 if ~isempty(res.params)
                     if isempty(obj.cachedInputStream)
-                        is = Ice.InputStream(obj.communicator, obj.encoding, IceInternal.Buffer(res.params));
+                        is = Ice.InputStream(obj.communicator, obj.encoding, res.params);
                         obj.cachedInputStream = is;
                     else
                         is = obj.cachedInputStream;
@@ -1086,7 +1086,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         % res = f.iceCallWithResult('results');
                         %
                         res = IceInternal.Util.callWithResult('Ice_InvocationFuture_results', f.impl_);
-                        is = Ice.InputStream(obj.communicator, obj.encoding, IceInternal.Buffer(res.params));
+                        is = Ice.InputStream(obj.communicator, obj.encoding, res.params);
                         if ~res.ok
                             obj.iceThrowUserException(is, exceptions{:});
                         end

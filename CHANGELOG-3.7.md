@@ -101,6 +101,8 @@ These are the changes since Ice 3.7.7.
 
 - Added Linux support for MATLAB language mapping.
 
+- Performance improvements.
+
 ## PHP Changes
 
 - Fix a bug that result in a warning when calling Ice\\createProperties with no arguments.

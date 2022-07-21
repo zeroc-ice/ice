@@ -23,6 +23,7 @@ classdef EncapsDecoder11_InstanceData < handle
         sliceFlags
         sliceSize
         typeId
+        typeIdIndex
         compactId
         indirectPatchList
         previous

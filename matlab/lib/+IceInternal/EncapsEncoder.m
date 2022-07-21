@@ -30,12 +30,9 @@ classdef (Abstract) EncapsEncoder < handle
     end
     methods(Access=protected)
         function r = registerTypeId(obj, typeId)
-            %
-            % The map raises an exception if the key isn't present.
-            %
-            try
+            if isKey(obj.typeIdMap, typeId)
                 r = obj.typeIdMap(typeId);
-            catch
+            else
                 obj.typeIdIndex = obj.typeIdIndex + 1;
                 obj.typeIdMap(typeId) = obj.typeIdIndex;
                 r = -1;

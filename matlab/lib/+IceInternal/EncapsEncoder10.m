@@ -73,7 +73,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
         end
 
         function writePendingValues(obj)
-            while obj.toBeMarshaledMap.Count > 0
+            while length(obj.toBeMarshaledMap) > 0
                 %
                 % Consider the to be marshalled instances as marshaled now,
                 % this is necessary to avoid adding again the "to be
@@ -84,7 +84,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
 
                 savedMap = obj.toBeMarshaledMap;
                 obj.toBeMarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-                obj.os.writeSize(savedMap.Count);
+                obj.os.writeSize(length(savedMap));
                 keys = savedMap.keys();
                 for i = 1:length(keys)
                     %
@@ -110,7 +110,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
     end
     methods(Access=protected)
         function r = registerValue(obj, v)
-            assert(~isempty(v));
+            %assert(~isempty(v));
 
             %
             % Use the identifier assigned by the Value constructor.

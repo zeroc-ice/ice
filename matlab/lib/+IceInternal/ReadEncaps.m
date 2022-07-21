@@ -4,8 +4,7 @@
 
 classdef ReadEncaps < handle
     properties
-        start int32
-        sz int32
+        endPos int32
         encoding
         encoding_1_0
         decoder

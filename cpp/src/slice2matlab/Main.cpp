@@ -530,7 +530,7 @@ defaultValue(const DataMemberPtr& m)
     }
     else if(m->optional())
     {
-        return "Ice.Unset";
+        return "IceInternal.UnsetI.Instance";
     }
     else
     {
@@ -878,7 +878,7 @@ parseComment(const ContainedPtr& p)
         doc.overview.push_back(l);
     }
 
-    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated };
+    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated, StateSee };
     State state = StateMisc;
     string name;
     const string ws = " \t";
@@ -926,6 +926,7 @@ parseComment(const ContainedPtr& p)
         {
             if(!line.empty())
             {
+                state = StateSee;
                 doc.seeAlso.push_back(line);
             }
         }
@@ -995,6 +996,11 @@ parseComment(const ContainedPtr& p)
                 case StateDeprecated:
                 {
                     doc.deprecateReason.push_back(l);
+                    break;
+                }
+                case StateSee:
+                {
+                    doc.seeAlso.push_back(l);
                     break;
                 }
             }
@@ -1603,6 +1609,8 @@ private:
     void unmarshalStruct(IceUtilInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceUtilInternal::Output&, const StructPtr&, const string&);
 
+    void writeBaseClassArrayParams(IceUtilInternal::Output&, const MemberInfoList&, bool);
+
     const string _dir;
 };
 
@@ -1744,7 +1752,19 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             // Constructor
             //
-            if(!allMembers.empty())
+            if(allMembers.empty())
+            {
+                out << nl << "function " << self << " = " << name << spar << "noInit" << epar;
+                out.inc();
+                out << nl << "if nargin == 1 && ne(noInit, IceInternal.NoInit.Instance)";
+                out.inc();
+                out << nl << "narginchk(0,0);";
+                out.dec();
+                out << nl << "end";
+                out.dec();
+                out << nl << "end";
+            }
+            else
             {
                 vector<string> allNames;
                 for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
@@ -1753,33 +1773,59 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 out << nl << "function " << self << " = " << name << spar << allNames << epar;
                 out.inc();
-                out << nl << "if nargin == 0";
-                out.inc();
-                for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-                {
-                    out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
-                }
-                out.dec();
-                out << nl << "end";
                 if(base)
                 {
-                    out << nl << self << " = " << self << "@" << getAbsolute(base) << spar;
+                    out << nl << "if nargin == 0";
+                    out.inc();
                     for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                     {
-                        if(q->inherited)
+                        out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
+                    }
+                    writeBaseClassArrayParams(out, allMembers, false);
+                    out.dec();
+                    out << nl << "elseif eq(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+                    out.inc();
+                    writeBaseClassArrayParams(out, allMembers, true);
+                    out.dec();
+                    out << nl << "else";
+                    out.inc();
+                    writeBaseClassArrayParams(out, allMembers, false);
+                    out.dec();
+                    out << nl << "end;";
+
+                    out << nl << self << " = " << self << "@" << getAbsolute(base) << "(v{:});";
+
+                    out << nl << "if ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+                    out.inc();
+                    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                    {
+                        if (!q->inherited)
                         {
-                            out << q->fixedName;
+                            out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
                         }
                     }
-                    out << epar << ';';
+                    out.dec();
+                    out << nl << "end";
                 }
-                for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                else
                 {
-                    if(!q->inherited)
+                    out << nl << "if nargin == 0";
+                    out.inc();
+                    for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                    {
+                        out << nl << self << "." << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
+                    }
+                    out.dec();
+                    out << nl << "elseif ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+                    out.inc();
+                    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                     {
                         out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
                     }
+                    out.dec();
+                    out << nl << "end;";
                 }
+
                 out.dec();
                 out << nl << "end";
             }
@@ -3024,18 +3070,18 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     string self = name == "obj" ? "this" : "obj";
     out << nl << "function " << self << " = " << name << spar << memberNames << epar;
     out.inc();
-    out << nl << "if nargin > 0";
-    out.inc();
-    for(vector<string>::const_iterator q = memberNames.begin(); q != memberNames.end(); ++q)
-    {
-        out << nl << self << "." << *q << " = " << *q << ';';
-    }
-    out.dec();
-    out << nl << "else";
+    out << nl << "if nargin == 0";
     out.inc();
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         out << nl << self << "." << fixStructMember((*q)->name()) << " = " << defaultValue(*q) << ';';
+    }
+    out.dec();
+    out << nl << "elseif ne(" << fixStructMember((*members.begin())->name()) << ", IceInternal.NoInit.Instance)";
+    out.inc();
+    for(vector<string>::const_iterator q = memberNames.begin(); q != memberNames.end(); ++q)
+    {
+        out << nl << self << "." << *q << " = " << *q << ';';
     }
     out.dec();
     out << nl << "end";
@@ -3070,7 +3116,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         out.inc();
         out << nl << "function r = ice_read(is)";
         out.inc();
-        out << nl << "r = " << abs << "();";
+        out << nl << "r = " << abs << "(IceInternal.NoInit.Instance);";
         unmarshalStruct(out, p, "r");
         out.dec();
         out << nl << "end";
@@ -4668,8 +4714,9 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
         string m = fixStructMember((*q)->name());
         if(isClass((*q)->type()))
         {
-            out << nl << v << "." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v_) " + v + "." + m + ".set(v_)", (*q)->type(), false, 0);
+            out << nl << m << "_ = IceInternal.ValueHolder();";
+            out << nl << v << "." << m << " = " << m << "_;";
+            unmarshal(out, "is", "@(v_) " + m + "_.set(v_)", (*q)->type(), false, 0);
         }
         else
         {
@@ -4695,6 +4742,29 @@ CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, con
             out << nl << v << "." << m << " = " << v << "." << m << ".value;";
         }
     }
+}
+
+void
+CodeVisitor::writeBaseClassArrayParams(IceUtilInternal::Output& out, const MemberInfoList& members, bool noInit)
+{
+    out << nl << "v = { ";
+    bool first = true;
+    for(MemberInfoList::const_iterator q = members.begin(); q != members.end(); ++q)
+    {
+        if(q->inherited)
+        {
+            if(first)
+            {
+                out << (noInit ? "IceInternal.NoInit.Instance" : q->fixedName);
+                first = false;
+            }
+            else
+            {
+                out << ", " << (noInit ? "[]" : q->fixedName);
+            }
+        }
+    }
+    out << " };";
 }
 
 namespace

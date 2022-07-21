@@ -1205,7 +1205,7 @@ classdef TwowaysAMI
             assert(call(p, 'opByte1', hex2dec('FF')) == hex2dec('FF'));
             assert(call(p, 'opShort1', hex2dec('7FFF')) == hex2dec('7FFF'));
             assert(call(p, 'opInt1', hex2dec('7FFFFFFF')) == hex2dec('7FFFFFFF'));
-            %assert(call(p, 'opLong1', 0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
+            assert(call(p, 'opLong1', int64(9223372036854775807)) == int64(9223372036854775807)); % 0x7FFFFFFFFFFFFFFF
             assert(call(p, 'opFloat1', 1.0) == single(1.0));
             assert(call(p, 'opDouble1', 1.0) == 1.0);
             assert(strcmp(call(p, 'opString1', 'opString1'), 'opString1'));
