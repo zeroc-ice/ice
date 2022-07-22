@@ -3851,8 +3851,10 @@ class MatlabMapping(CppBasedClientMapping):
         mappingDesc = "MATLAB"
 
     def getCommandLine(self, current, process, exe, args):
+        matlabHome = os.getenv("MATLAB_HOME")
         # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
-        return "matlab -nodesktop -nosplash{0} -r \"cd '{1}', runTest {2} {3} {4}\"".format(
+        return "{0} -nodesktop -nosplash{1} -r \"cd '{2}', runTest {3} {4} {5}\"".format(
+            "matlab" if matlabHome is None else os.path.join(matlabHome, "bin", "matlab"),
             " -wait -log -minimize" if isinstance(platform, Windows) else "",
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
             self.getTestCwd(process, current),
