@@ -295,7 +295,7 @@ msbuild msbuild/ice.proj /t:iOSXamarinBuild
 #### Running the Android test suite
 
 ```
-export PATH=~/Library/Android/sdk/tools/bin:$PATH
+export PATH=~/Library/Android/sdk/cmdline-tools/latest/bin:$PATH
 export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
 

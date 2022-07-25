@@ -4,6 +4,7 @@
 
 import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil
 import copy, inspect, xml.sax.saxutils
+from platform import machine as platform_machine
 
 isPython2 = sys.version_info[0] == 2
 if isPython2:
@@ -3389,7 +3390,8 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;x86_64"
+        return "system-images;android-31;google_apis;{}".format(
+            "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "android", "controller", "build", "outputs", "apk", "debug",
@@ -3425,7 +3427,8 @@ class JavaCompatMapping(JavaMapping):
         return { "CLASSPATH" : os.pathsep.join(classPath) }
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;x86_64"
+        return "system-images;android-31;google_apis;{}".format(
+            "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
 class CSharpMapping(Mapping):
 
@@ -3578,7 +3581,8 @@ class CSharpMapping(Mapping):
         return command
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;x86_64"
+        return "system-images;android-31;google_apis;{}".format(
+            "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
     def getApk(self, current):
         return os.path.join(self.getPath(), "test", "xamarin", "controller.Android", "bin", current.config.buildConfig,
