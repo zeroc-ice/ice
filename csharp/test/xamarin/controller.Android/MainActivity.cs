@@ -74,7 +74,9 @@ namespace controller.Droid
 
         public bool isEmulator()
         {
-            return Build.Fingerprint.Contains("vbox") ||
+            return Build.Fingerprint.Contains("google/sdk_gphone_x86_64") ||
+                   Build.Fingerprint.Contains("google/sdk_gphone64_x86_64") ||
+                   Build.Fingerprint.Contains("vbox") ||
                    Build.Fingerprint.Contains("generic") ||
                    Build.Fingerprint.Contains("unknown") ||
                    Build.Model.Contains("google_sdk") ||

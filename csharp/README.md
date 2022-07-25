@@ -252,41 +252,26 @@ application.
 
 #### Windows Build Requirements
 
-* Visual Studio 2017 or Visual Studio 2019 with following workloads:
-  * Universal Windows Platform development
+* Visual Studio 2022 with following workloads:
   * Mobile development with .NET
   * .NET Core cross-platform development
 
 #### Building the Android test controller
 
-Open a Visual Studio 2017 or Visual Studio 2019 command prompt:
+Open a Visual Studio 2022 command prompt:
 
 ```
 MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
 ```
 
-#### Building the UWP test controller
-
-Open a Visual Studio 2019 or Visual Studio 2017 command prompt:
-
-```
-MSBuild msbuild\ice.proj /t:UWPXamarinBuild
-```
-
 #### Running the Android test suite
 
 ```
-set PATH=%LOCALAPPDATA%\Android\sdk\tools\bin;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\cmdline-tools\latest\bin;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 
 python allTests.py --android --controller-app --config Release --platform x64
-```
-
-#### Running the UWP test suite
-
-```
-python allTests.py --uwp --controller-app --config Release --platform x64
 ```
 
 ### Building on macOS
