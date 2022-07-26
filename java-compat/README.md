@@ -176,8 +176,8 @@ for the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 3.5
-- Android SDK 29
+- Android Studio Chipmunk
+- Android SDK 30
 
 Ice requires at minimum API level 21:
 
@@ -216,7 +216,7 @@ directories from the Android SDK to your PATH. On macOS, you can use the
 following commands:
 
 ```
-export PATH=~/Library/Android/sdk/tools/bin:$PATH
+export PATH=~/Library/Android/sdk/cmdline-tools/latest/bin:$PATH
 export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
 ```
@@ -224,7 +224,7 @@ export PATH=~/Library/Android/sdk/emulator:$PATH
 On Windows, you can use the following commands:
 
 ```
-set PATH=%LOCALAPPDATA%\Android\sdk\tools\bin;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\cmdline-tools\latest\bin;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 ```
