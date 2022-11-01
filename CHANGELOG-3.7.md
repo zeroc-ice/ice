@@ -92,7 +92,7 @@ These are the changes since Ice 3.7.8.
 
 - Fixed a bug in the OpenSSL implementation of IceSSL resulting in the SSL protocol error description not being
   included with the `Ice::ProtocolException` exception that is thrown when an SSL protocol error is detected during
-  reading. OpenSSL version previous to `1.1.1e` are not affected.
+  reading. OpenSSL versions previous to `1.1.1e` are not affected.
 
 # Changes in Ice 3.7.8
 
