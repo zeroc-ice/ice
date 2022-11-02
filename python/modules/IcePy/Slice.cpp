@@ -15,7 +15,7 @@
 //
 #include <compile.h>
 // Use ceval.h instead of eval.h with Pyhthon 3.11 and greater
-#if PY_VERSION_HEX > 0x030B0000
+#if PY_VERSION_HEX >= 0x030B0000
 #   include <ceval.h>
 #else
 #   include <eval.h>
