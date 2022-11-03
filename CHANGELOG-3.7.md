@@ -8,25 +8,27 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.7.8](#changes-in-ice-378)
+- [Changes in Ice 3.7.9](#changes-in-ice-379)
   - [C++ Changes](#c-changes)
+- [Changes in Ice 3.7.8](#changes-in-ice-378)
+  - [C++ Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
   - [Python Changes](#python-changes)
   - [PHP Changes](#php-changes)
 - [Changes in Ice 3.7.7](#changes-in-ice-377)
-  - [C++ Changes](#c-changes-1)
+  - [C++ Changes](#c-changes-2)
   - [Java Changes](#java-changes)
 - [Changes in Ice 3.7.6](#changes-in-ice-376)
   - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes-2)
+  - [C++ Changes](#c-changes-3)
   - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes-1)
   - [Swift Changes](#swift-changes)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-3)
-  - [C# Changes](#c-changes-4)
+  - [C++ Changes](#c-changes-4)
+  - [C# Changes](#c-changes-5)
   - [JavaScript Changes](#javascript-changes-2)
   - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes-1)
@@ -34,8 +36,8 @@ particular aspect of Ice.
   - [Swift Changes](#swift-changes-1)
 - [Changes in Ice 3.7.4](#changes-in-ice-374)
   - [General Changes](#general-changes-2)
-  - [C++ Changes](#c-changes-5)
-  - [C# Changes](#c-changes-6)
+  - [C++ Changes](#c-changes-6)
+  - [C# Changes](#c-changes-7)
   - [JavaScript Changes](#javascript-changes-3)
   - [MATLAB Changes](#matlab-changes-1)
   - [Python Changes](#python-changes-2)
@@ -43,16 +45,16 @@ particular aspect of Ice.
   - [Swift Changes](#swift-changes-2)
 - [Changes in Ice 3.7.3](#changes-in-ice-373)
   - [General Changes](#general-changes-3)
-  - [C++ Changes](#c-changes-7)
-  - [C# Changes](#c-changes-8)
+  - [C++ Changes](#c-changes-8)
+  - [C# Changes](#c-changes-9)
   - [Java Changes](#java-changes-2)
   - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-2)
   - [Python Changes](#python-changes-3)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
   - [General Changes](#general-changes-4)
-  - [C++ Changes](#c-changes-9)
-  - [C# Changes](#c-changes-10)
+  - [C++ Changes](#c-changes-10)
+  - [C# Changes](#c-changes-11)
   - [Java Changes](#java-changes-3)
   - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-3)
@@ -61,8 +63,8 @@ particular aspect of Ice.
   - [Python Changes](#python-changes-4)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   - [General Changes](#general-changes-5)
-  - [C++ Changes](#c-changes-11)
-  - [C# Changes](#c-changes-12)
+  - [C++ Changes](#c-changes-12)
+  - [C# Changes](#c-changes-13)
   - [Java Changes](#java-changes-4)
   - [JavaScript Changes](#javascript-changes-6)
   - [MATLAB Changes](#matlab-changes-4)
@@ -72,14 +74,24 @@ particular aspect of Ice.
   - [Ruby Changes](#ruby-changes-2)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   - [General Changes](#general-changes-6)
-  - [C++ Changes](#c-changes-13)
-  - [C# Changes](#c-changes-14)
+  - [C++ Changes](#c-changes-14)
+  - [C# Changes](#c-changes-15)
   - [Java Changes](#java-changes-5)
   - [JavaScript Changes](#javascript-changes-7)
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-4)
   - [Python Changes](#python-changes-6)
   - [Ruby Changes](#ruby-changes-3)
+
+
+# Changes in Ice 3.7.9
+
+These are the changes since Ice 3.7.8.
+
+## C++ Changes
+
+- Fixed an IceSSL bug where the OpenSSL error description was not correctly included with the `Ice::ProtocolException`
+  thrown when a read failure occurred. OpenSSL versions previous to `1.1.1e` are not affected.
 
 # Changes in Ice 3.7.8
 
