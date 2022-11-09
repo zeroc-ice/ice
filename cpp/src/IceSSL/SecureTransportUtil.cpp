@@ -23,6 +23,10 @@ using namespace IceSSL;
 using namespace IceSSL::SecureTransport;
 using namespace std;
 
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace
 {
 
