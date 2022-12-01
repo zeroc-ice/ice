@@ -3233,7 +3233,7 @@ public class Coordinator
             version = version.substring(0, pos);
         }
 
-        String[] tokens = version.split(".");
+        String[] tokens = version.split("\\.");
         if(tokens.length > 2)
         {
             version = tokens[0] + "." + tokens[1];
