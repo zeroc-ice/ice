@@ -17,6 +17,8 @@ require_once('Ice.php');
 
 class TestHelper
 {
+    private $_communicator;
+
     public function __construct()
     {
         $this->_communicator = NULL;
