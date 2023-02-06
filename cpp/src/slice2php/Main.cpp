@@ -838,7 +838,7 @@ CodeVisitor::writeException(const ExceptionPtr &p, bool returnTypeDeclaration)
     //
     if (returnTypeDeclaration)
     {
-        _out << sp << nl << "public function __toString() : string";
+        _out << sp << nl << "public function __toString(): string";
     }
     else
     {
