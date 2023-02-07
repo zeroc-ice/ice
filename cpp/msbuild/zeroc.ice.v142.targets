@@ -30,8 +30,8 @@
     </ItemDefinitionGroup>
 
     <Target Name="ValidateSliceCompilerVersion" BeforeTargets="CLCompile">
-        <Error Text="Detected invalid Ice NuGet package version '$(IceNugetPackageVersion)' expected '3.7.8'"
-               Condition="'$(IceNugetPackageVersion)' != '3.7.8'" />
+        <Error Text="Detected invalid Ice NuGet package version '$(IceNugetPackageVersion)' expected '3.7.9'"
+               Condition="'$(IceNugetPackageVersion)' != '3.7.9'" />
     </Target>
 
     <Target Name="Ice_CopyDLLs_v142" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v142' and '$(Ice_CopyDLLs)' == 'Yes'">
