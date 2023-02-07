@@ -97,7 +97,7 @@ GUI tool.
 The Maven package id for the ProGuard gradle plugin is as follows:
 
 ```
-groupId=com.guardsquare, version=7.1.0, artifactId=proguard-gradle
+groupId=com.guardsquare, version=7.3.1, artifactId=proguard-gradle
 ```
 
 ### Java Application Bundler
