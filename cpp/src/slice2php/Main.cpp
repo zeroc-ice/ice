@@ -84,6 +84,10 @@ private:
     void startNamespace(const ContainedPtr&);
     void endNamespace();
 
+    void writeClassDef(const ClassDefPtr&, bool);
+    void writeException(const ExceptionPtr&, bool);
+    void writeStruct(const StructPtr&, bool);
+
     //
     // Return the PHP name for the given Slice type. When using namespaces,
     // this name is a relative (unqualified) name, otherwise this name is the
@@ -192,6 +196,32 @@ bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string scoped = p->scoped();
+
+    startNamespace(p);
+
+    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
+    _out << sb;
+    writeClassDef(p, false);
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    writeClassDef(p, true);
+    _out << eb;
+
+    endNamespace();
+
+    if(_classHistory.count(scoped) == 0)
+    {
+        _classHistory.insert(scoped); // Avoid redundant declarations.
+    }
+
+    return false;
+}
+
+void
+CodeVisitor::writeClassDef(const ClassDefPtr& p, bool returnTypeDeclaration)
+{
+    string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
@@ -204,8 +234,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     bool isInterface = p->isInterface();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
-
-    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     if(!p->isLocal() && isAbstract)
@@ -358,7 +386,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // __toString
         //
-        _out << sp << nl << "public function __toString()";
+        if (returnTypeDeclaration)
+        {
+            _out << sp << nl << "public function __toString(): string";
+        }
+        else
+        {
+            _out << sp << nl << "public function __toString()";
+        }
+
         _out << sb;
         _out << nl << "global " << type << ';';
         _out << nl << "return IcePHP_stringify($this, " << type << ");";
@@ -703,26 +739,34 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
     }
-
-    endNamespace();
-
-    if(_classHistory.count(scoped) == 0)
-    {
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
-
-    return false;
 }
 
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    startNamespace(p);
+
+    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
+    _out << sb;
+    writeException(p, false);
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    writeException(p, true);
+    _out << eb;
+
+    endNamespace();
+
+    return false;
+}
+
+void
+CodeVisitor::writeException(const ExceptionPtr &p, bool returnTypeDeclaration)
+{
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
-
-    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     _out << nl << "class " << name << " extends ";
@@ -792,7 +836,15 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // __toString
     //
-    _out << sp << nl << "public function __toString()";
+    if (returnTypeDeclaration)
+    {
+        _out << sp << nl << "public function __toString(): string";
+    }
+    else
+    {
+        _out << sp << nl << "public function __toString()";
+    }
+
     _out << sb;
     _out << nl << "global " << type << ';';
     _out << nl << "return IcePHP_stringifyException($this, " << type << ");";
@@ -865,14 +917,29 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << "null";
     }
     _out << ");";
+}
+
+bool
+CodeVisitor::visitStructStart(const StructPtr& p)
+{
+    startNamespace(p);
+
+    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
+    _out << sb;
+    writeStruct(p, false);
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    writeStruct(p, true);
+    _out << eb;
 
     endNamespace();
 
     return false;
 }
 
-bool
-CodeVisitor::visitStructStart(const StructPtr& p)
+void
+CodeVisitor::writeStruct(const StructPtr& p, bool returnTypeDeclaration)
 {
     string scoped = p->scoped();
     string name = getName(p);
@@ -891,8 +958,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         }
     }
 
-    startNamespace(p);
-
     _out << sp << nl << "global " << type << ';';
 
     _out << nl << "class " << name;
@@ -910,7 +975,14 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // __toString
     //
-    _out << sp << nl << "public function __toString()";
+    if (returnTypeDeclaration)
+    {
+        _out << sp << nl << "public function __toString(): string";
+    }
+    else
+    {
+        _out << sp << nl << "public function __toString()";
+    }
     _out << sb;
     _out << nl << "global " << type << ';';
     _out << nl << "return IcePHP_stringify($this, " << type << ");";
@@ -962,9 +1034,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
     }
     _out << "));";
-    endNamespace();
-
-    return false;
 }
 
 void

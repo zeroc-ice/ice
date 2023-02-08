@@ -17,12 +17,10 @@ class Client extends TestHelper
             $communicator = $this->initialize($args);
             $checksum = allTests($this);
             $checksum->shutdown();
-            $communicator->destroy();
         }
-        catch(Exception $ex)
+        finally
         {
             $communicator->destroy();
-            throw $ex;
         }
     }
 }

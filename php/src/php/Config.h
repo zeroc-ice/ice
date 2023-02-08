@@ -34,8 +34,11 @@ extern "C"
 #ifdef _WIN32
 #   pragma warning( disable : 4018) // suppress signed/unsigned mismatch in zend_execute.h (PHP 5.3.x)
 #elif defined(__clang__)
+    // Surpress various warnings emitted from including the PHP headers
 #   pragma clang diagnostic ignored "-Wconversion"
 #   pragma clang diagnostic ignored "-Wsign-conversion"
+#   pragma clang diagnostic ignored "-Wdocumentation"
+#   pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic warning "-Wsign-compare"
 #endif
@@ -120,6 +123,15 @@ ZEND_END_MODULE_GLOBALS(ice)
 ZEND_BEGIN_ARG_INFO(ice_void_arginfo, 0)
 ZEND_END_ARG_INFO()
 
+// An arginfo used for __toString() methods.
+#if PHP_VERSION_ID >= 80200
+ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO(ice_to_string_arginfo, IS_STRING, 0)
+ ZEND_END_ARG_INFO()
++#else
+// The return type declaration is optional with PHP < 8.2
+ZEND_BEGIN_ARG_INFO(ice_to_string_arginfo, 0)
+ZEND_END_ARG_INFO()
+#endif
 #ifdef ZTS
 #   define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
 #else

@@ -224,7 +224,7 @@ static zend_function_entry _interfaceMethods[] =
 static zend_function_entry _endpointMethods[] =
 {
     ZEND_ME(Ice_Endpoint, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Endpoint, __toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Endpoint, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Endpoint, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Endpoint, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
