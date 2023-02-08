@@ -15,7 +15,7 @@ PROJECT ?= ice.xcodeproj
 define make-xcodebuild-rule
 $1:: $(PROJECT)
 	xcodebuild -project $(PROJECT) \
-                   -scheme "$3 $(if $(filter $2,macosx),macOS,iOS)" \
+                   -target "$3 $(if $(filter $2,macosx),macOS,iOS)" \
                    -configuration $(CONFIG) \
                    -sdk $2 $4
 endef

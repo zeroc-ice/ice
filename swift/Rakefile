@@ -237,6 +237,7 @@ def create_platform_targets(project, platform, bindist)
         target.frameworks_build_phases.clear()
         cpp_targets.each do |t|
             target.frameworks_build_phases.add_file_reference(t.product_reference, true)
+            target.add_dependency(t)
         end
         target.build_configurations.each { |config|
             config.build_settings["HEADER_SEARCH_PATHS"] = [
@@ -273,6 +274,7 @@ def create_platform_targets(project, platform, bindist)
         #
         ice_target = project.new_target(:framework, "Ice", platform)
         ice_target.name = "Ice #{platform_name}"
+        ice_target.add_dependency(iceimpl_target)
 
         target = ice_target
         target.frameworks_build_phases.clear()
@@ -429,6 +431,7 @@ def create_platform_targets(project, platform, bindist)
             file = copy_phase.add_file_reference(t.product_reference)
             file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
             target.frameworks_build_phases.add_file_reference(t.product_reference)
+            target.add_dependency(t)
         end
     end
     file = copy_phase.add_file_reference(test_common_target.product_reference)
@@ -449,8 +452,10 @@ def create_platform_targets(project, platform, bindist)
             target_add_carthage_framework(target, platform, "Ice.xcframework")
         else
             target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
+            target.add_dependency(ice_target)
         end
         target.frameworks_build_phases.add_file_reference(test_common_target.product_reference, true)
+        target.add_dependency(test_common_target)
 
         extra_frameworks = $test_extra_frameworks[test] || []
         extra_frameworks.each do |f|
@@ -460,6 +465,7 @@ def create_platform_targets(project, platform, bindist)
                 if framework_targets.include? f
                     target_framework = framework_targets[f]
                     target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
+                    target.add_dependency(target_framework)
                 else
                     target_add_carthage_framework(target, platform, f)
                 end
@@ -526,6 +532,7 @@ def create_platform_targets(project, platform, bindist)
                     if framework_targets.include? f
                         target_framework = framework_targets[f]
                         target.frameworks_build_phases.add_file_reference(target_framework.product_reference, true)
+                        target.add_dependency(target_framework)
                     else
                         target_add_carthage_framework(target, platform, f)
                     end
@@ -712,7 +719,7 @@ def target_add_swiftlint_build_phase(target, basedir)
     phase = target.new_shell_script_build_phase("Swiftformat & Swiftlint")
     phase.shell_script = <<~EOF
         if which swiftlint >/dev/null; then
-            swiftlint --path "$SRCROOT/#{basedir}" --config "$SRCROOT/.swiftlint.yml"
+            swiftlint "$SRCROOT/#{basedir}" --config "$SRCROOT/.swiftlint.yml"
         else
             echo "warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"
         fi
@@ -750,6 +757,7 @@ end
 
 def target_set_common_build_settings(target, product, platform, plist: nil, swift: false, identifier: nil)
     target.build_configurations.each { |config|
+        config.build_settings["BUILD_DIR"] = "build"
         config.build_settings["GCC_SYMBOLS_PRIVATE_EXTERN"] = "YES"
         config.build_settings["ENABLE_TESTABILITY"] = "NO"
         config.build_settings["GCC_TREAT_WARNINGS_AS_ERRORS"] = "YES"
