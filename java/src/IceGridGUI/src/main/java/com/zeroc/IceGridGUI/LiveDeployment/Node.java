@@ -277,7 +277,7 @@ class Node extends Communicator
             if (resolved == null)
             {
                 getRoot().getCoordinator().getCommunicator().getLogger().warning(
-                    "Unable to resolve property set '" + ref + "' in application '" + applicationName + "'");
+                    "Unable to resolve property set `" + ref + "' in application `" + applicationName + "'");
                 continue;
             }
             references.add(expand(resolved, applicationName, resolver));
