@@ -124,9 +124,14 @@ ZEND_BEGIN_ARG_INFO(ice_void_arginfo, 0)
 ZEND_END_ARG_INFO()
 
 // An arginfo used for __toString() methods.
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO(ice_to_string_arginfo, IS_STRING, 0)
+#if PHP_VERSION_ID >= 80200
+ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO(ice_to_string_arginfo, IS_STRING, 0)
+ ZEND_END_ARG_INFO()
++#else
+// The return type declaration is optional with PHP < 8.2
+ZEND_BEGIN_ARG_INFO(ice_to_string_arginfo, 0)
 ZEND_END_ARG_INFO()
-
+#endif
 #ifdef ZTS
 #   define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
 #else
