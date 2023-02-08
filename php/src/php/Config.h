@@ -127,7 +127,7 @@ ZEND_END_ARG_INFO()
 #if PHP_VERSION_ID >= 80200
  ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO(ice_to_string_arginfo, IS_STRING, 0)
  ZEND_END_ARG_INFO()
-+#else
+#else
 // The return type declaration is optional with PHP < 8.2
 ZEND_BEGIN_ARG_INFO(ice_to_string_arginfo, 0)
 ZEND_END_ARG_INFO()
