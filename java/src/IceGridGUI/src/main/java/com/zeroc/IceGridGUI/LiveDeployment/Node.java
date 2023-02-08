@@ -269,16 +269,20 @@ class Node extends Communicator
     Utils.ExpandedPropertySet expand(PropertySetDescriptor descriptor, String applicationName, Utils.Resolver resolver)
     {
         Utils.ExpandedPropertySet result = new Utils.ExpandedPropertySet();
-        result.references = new Utils.ExpandedPropertySet[descriptor.references.length];
+        java.util.ArrayList<Utils.ExpandedPropertySet> references = new java.util.ArrayList<Utils.ExpandedPropertySet>();
 
-        int i = 0;
         for(String ref : descriptor.references)
         {
-            result.references[i++] = expand(findNamedPropertySet(resolver.substitute(ref), applicationName),
-                                            applicationName, resolver);
+            PropertySetDescriptor resolved = findNamedPropertySet(resolver.substitute(ref), applicationName);
+            if (resolved == null)
+            {
+                continue;
+            }
+            references.add(expand(resolved, applicationName, resolver));
         }
 
         result.properties = descriptor.properties;
+        result.references = references.toArray(new Utils.ExpandedPropertySet[0]);
         return result;
     }
 
