@@ -276,8 +276,6 @@ class Node extends Communicator
             PropertySetDescriptor resolved = findNamedPropertySet(resolver.substitute(ref), applicationName);
             if (resolved == null)
             {
-                getRoot().getCoordinator().getCommunicator().getLogger().warning(
-                    "Unable to resolve property set `" + ref + "' in application `" + applicationName + "'");
                 continue;
             }
             references.add(expand(resolved, applicationName, resolver));
