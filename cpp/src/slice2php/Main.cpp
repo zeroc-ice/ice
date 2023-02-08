@@ -746,7 +746,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     startNamespace(p);
 
-    _out << sp << nl << "if (PHP_VERSION_ID < 70000)";
+    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
     _out << sb;
     writeException(p, false);
     _out << eb;
@@ -924,7 +924,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 {
     startNamespace(p);
 
-    _out << sp << nl << "if (PHP_VERSION_ID < 70000)";
+    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
     _out << sb;
     writeStruct(p, false);
     _out << eb;
