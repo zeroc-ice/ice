@@ -199,7 +199,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     startNamespace(p);
 
-    _out << sp << nl << "if (PHP_VERSION_ID < 70000)";
+    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
     _out << sb;
     writeClassDef(p, false);
     _out << eb;
