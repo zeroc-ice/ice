@@ -1121,7 +1121,7 @@ ZEND_FUNCTION(Ice_initialize)
     //
     // Retrieve the arguments.
     //
-    zval*** args = static_cast<zval***>(emalloc(ZEND_NUM_ARGS() * sizeof(zval**)));
+    zval*** args = static_cast<zval***>(ecalloc(1, ZEND_NUM_ARGS() * sizeof(zval**)));
     AutoEfree autoArgs(args); // Call efree on return
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {

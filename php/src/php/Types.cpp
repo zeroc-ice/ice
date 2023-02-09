@@ -3260,7 +3260,7 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 zval*
 IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr& comm)
 {
-    zval* zv = static_cast<zval*>(emalloc(sizeof(zval)));
+    zval* zv = static_cast<zval*>(ecalloc(1, sizeof(zval)));
 
     if(object_init_ex(zv, zce) != SUCCESS)
     {
@@ -4025,7 +4025,7 @@ IcePHP::typesRequestInit(void)
     ICE_G(proxyInfoMap) = 0;
     ICE_G(exceptionInfoMap) = 0;
 
-    zval* unset = static_cast<zval*>(emalloc(sizeof(zval)));
+    zval* unset = static_cast<zval*>(ecalloc(1, sizeof(zval)));
     ZVAL_STRINGL(unset, STRCAST(_unsetGUID.c_str()), static_cast<int>(_unsetGUID.length()));
     ICE_G(unset) = unset;
 

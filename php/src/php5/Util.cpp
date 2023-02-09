@@ -196,13 +196,13 @@ IcePHP::createWrapper(zend_class_entry* ce, size_t sz TSRMLS_DC)
 {
     zend_object* obj;
 
-    obj = static_cast<zend_object*>(emalloc(sz));
+    obj = static_cast<zend_object*>(ecalloc(1, sz));
 
     zend_object_std_init(obj, ce TSRMLS_CC);
 
 #if PHP_VERSION_ID < 50400
     zval* tmp;
-    obj->properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));
+    obj->properties = static_cast<HashTable*>(ecalloc(1, sizeof(HashTable)));
     zend_hash_init(obj->properties, 0, 0, dtor_wrapper, 0);
     zend_hash_copy(obj->properties, &ce->default_properties, (copy_ctor_func_t)zval_add_ref, &tmp, sizeof(zval*));
 #else

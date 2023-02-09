@@ -338,7 +338,7 @@ IcePHP::OperationI::function()
         }
 
         string fixed = fixIdent(name);
-        _zendFunction = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
+        _zendFunction = static_cast<zend_internal_function*>(ecalloc(1, sizeof(zend_internal_function)));
         _zendFunction->type = ZEND_INTERNAL_FUNCTION;
         _zendFunction->function_name = estrndup(STRCAST(fixed.c_str()), static_cast<zend_uint>(fixed.length()));
         _zendFunction->scope = proxyClassEntry;
@@ -757,7 +757,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     //
     // Retrieve the arguments.
     //
-    zval*** args = static_cast<zval***>(emalloc(ZEND_NUM_ARGS() * sizeof(zval**)));
+    zval*** args = static_cast<zval***>(ecalloc(1, ZEND_NUM_ARGS() * sizeof(zval**)));
     AutoEfree autoArgs(args); // Call efree on return
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {
