@@ -299,6 +299,8 @@ IcePHP::endpointInit(void)
                                ZEND_ACC_PUBLIC);
     zend_declare_property_bool(endpointInfoClassEntry, STRCAST("compress"), sizeof("compress") - 1, 0,
                                ZEND_ACC_PUBLIC);
+    zend_declare_property_null(endpointInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
+                               ZEND_ACC_PUBLIC);
 
     //
     // Define the IPEndpointInfo class.
