@@ -45,6 +45,8 @@ namespace Ice
 
     abstract class UserException extends Exception
     {
+        public $_ice_slicedData;
+
         public function __construct($message = '')
         {
             parent::__construct($message);
@@ -61,7 +63,7 @@ namespace Ice
 
     class Value
     {
-        public $_ice_slicedData = null;
+        public $_ice_slicedData;
 
         public static function ice_staticId()
         {

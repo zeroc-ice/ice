@@ -420,7 +420,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
     Ice::SlicedDataPtr slicedData;
 
     string name = "_ice_slicedData";
-    zval* sd = zend_hash_str_find(Z_OBJPROP_P(obj), STRCAST(name.c_str()), name.size());
+    zval* sd = zend_hash_str_find_ind(Z_OBJPROP_P(obj), STRCAST(name.c_str()), name.size());
     if(sd)
     {
         if(Z_TYPE_P(sd) != IS_NULL)

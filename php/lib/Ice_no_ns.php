@@ -41,6 +41,8 @@ abstract class Ice_Exception extends Exception
 
 abstract class Ice_UserException extends Ice_Exception
 {
+    public $_ice_slicedData;
+
     public function __construct($message = '')
     {
         parent::__construct($message);
@@ -57,6 +59,8 @@ abstract class Ice_LocalException extends Ice_Exception
 
 class Ice_Value
 {
+    public $_ice_slicedData;
+
     public static function ice_staticId()
     {
         return "::Ice::Object";
@@ -69,19 +73,14 @@ class Ice_Value
 
     public function ice_getSlicedData()
     {
-        if(property_exists($this, '_ice_slicedData'))
-        {
-            return $this->_ice_slicedData;
-        }
-        else
-        {
-            return null;
-        }
+        return $this->_ice_slicedData;
     }
 }
 
 class Ice_InterfaceByValue extends Ice_Value
 {
+    public $id;
+
     public function __construct($id)
     {
         $this->id =$id;
@@ -125,6 +124,8 @@ $Ice__t_ObjectProxySeq = IcePHP_defineSequence('::Ice::ObjectProxySeq', $Ice__t_
 
 class Ice_UnknownSlicedValue extends Ice_Value
 {
+    public $unknownTypeId;
+
     public function __construct()
     {
     }
