@@ -45,6 +45,8 @@ namespace Ice
 
     abstract class UserException extends Exception
     {
+        public $_ice_slicedData;
+
         public function __construct($message = '')
         {
             parent::__construct($message);
@@ -61,6 +63,8 @@ namespace Ice
 
     class Value
     {
+        public $_ice_slicedData;
+
         public static function ice_staticId()
         {
             return "::Ice::Object";
@@ -73,19 +77,14 @@ namespace Ice
 
         public function ice_getSlicedData()
         {
-            if(property_exists($this, '_ice_slicedData'))
-            {
-                return $this->_ice_slicedData;
-            }
-            else
-            {
-                return null;
-            }
+            return $this->_ice_slicedData;
         }
     }
 
     class InterfaceByValue extends Value
     {
+        public $id;
+
         public function __construct($id)
         {
             $this->id =$id;
@@ -129,6 +128,8 @@ namespace Ice
 
     class UnknownSlicedValue extends Value
     {
+        public $unknownTypeId;
+
         public function __construct()
         {
         }

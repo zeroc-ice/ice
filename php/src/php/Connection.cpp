@@ -591,6 +591,8 @@ IcePHP::connectionInit(void)
                                ZEND_ACC_PUBLIC);
     zend_declare_property_string(connectionInfoClassEntry, STRCAST("adapterName"), sizeof("adapterName") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
+    zend_declare_property_null(connectionInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
+                               ZEND_ACC_PUBLIC);
 
     //
     // Register the IPConnectionInfo class.
@@ -621,6 +623,10 @@ IcePHP::connectionInit(void)
 #endif
     ce.create_object = handleConnectionInfoAlloc;
     tcpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
+    zend_declare_property_long(tcpConnectionInfoClassEntry, STRCAST("rcvSize"), sizeof("rcvSize") - 1, 0,
+                               ZEND_ACC_PUBLIC);
+    zend_declare_property_long(tcpConnectionInfoClassEntry, STRCAST("sndSize"), sizeof("sndSize") - 1, 0,
+                               ZEND_ACC_PUBLIC);
 
     //
     // Register the UDPConnectionInfo class.

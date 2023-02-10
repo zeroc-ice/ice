@@ -539,7 +539,6 @@ function allTests($helper)
         $d3->sb = "D3.sb";
         $d3->pb = $d3;
         $d3->sd3 = "D3.sd3";
-        $d3->pd1 = null;
         $d3->pd3 = $d11;
 
         $d12 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
@@ -598,7 +597,6 @@ function allTests($helper)
             $ss2d3->sb = "D3.sb";
             $ss2d3->sd3 = "D3.sd3";
             $ss2d3->pb = $ss2b;
-            $ss2d3->pd1 = null;
 
             $ss1d1->pd1 = $ss2b;
             $ss1d3->pd3 = $ss2d1;
