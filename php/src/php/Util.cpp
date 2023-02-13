@@ -742,18 +742,9 @@ throwError(const string& name, const string& msg)
     {
         return;
     }
+    zend_class_entry* cls = nameToClass(name);
+    assert(cls);
     zval ex;
-    // AutoDestroy destroy(&ex);
-
-    zend_class_entry* cls;
-    {
-        zend_class_entry* p;
-        zend_string* s = zend_string_init(STRCAST(name.c_str()), static_cast<int>(name.size()), 0);
-        p = zend_lookup_class(s);
-        zend_string_release(s);
-        assert(p);
-        cls = p;
-    }
     if(object_init_ex(&ex, cls) == FAILURE)
     {
         assert(false);
@@ -768,7 +759,6 @@ throwError(const string& name, const string& msg)
     }
 
     zend_throw_exception_object(&ex);
-    // destroy.release();
 }
 
 void
@@ -853,7 +843,9 @@ IcePHP::invokeMethod(zval* obj, const string& name, const string& arg)
 {
     zval param;
     ZVAL_STRINGL(&param, STRCAST(arg.c_str()), static_cast<int>(arg.size()));
-    return invokeMethodHelper(obj, name, &param);
+    AutoDestroy destroy(&param);
+    bool retval = invokeMethodHelper(obj, name, &param);
+    return retval;
 }
 
 bool
