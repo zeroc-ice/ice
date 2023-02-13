@@ -174,6 +174,7 @@ IcePHP::ResultCallback::ResultCallback()
 
 IcePHP::ResultCallback::~ResultCallback()
 {
+    zval_ptr_dtor(&zv);
 }
 
 void
@@ -623,12 +624,12 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret,
         //
         zval* arg = Z_REFVAL_P(&args[i]);
         zval_ptr_dtor(arg);
-        ZVAL_DUP(arg, &(*q)->zv);
+        ZVAL_COPY(arg, &(*q)->zv);
     }
 
     if(_op->returnType)
     {
-        ZVAL_DUP(ret, &retCallback->zv);
+        ZVAL_COPY(ret, &retCallback->zv);
     }
 }
 

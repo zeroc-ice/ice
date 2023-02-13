@@ -2845,8 +2845,19 @@ IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHist
 void
 IcePHP::ProxyInfo::destroy()
 {
-    const_cast<ProxyInfoPtr&>(base) = 0;
+    const_cast<OperationMap&>(operations).clear();
+
+    for(ProxyInfoList::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
+    {
+        (*p)->destroy();
+    }
     const_cast<ProxyInfoList&>(interfaces).clear();
+
+    if (base)
+    {
+        const_cast<ProxyInfoPtr&>(base)->destroy();
+        const_cast<ProxyInfoPtr&>(base) = 0;
+    }
 }
 
 bool
