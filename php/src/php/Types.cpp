@@ -1683,11 +1683,8 @@ IcePHP::SequenceInfo::unmarshaled(zval* zv, zval* target, void* closure)
 #    pragma warning(default:4302)
 #    pragma warning(disable:4311)
 #endif
+    Z_TRY_ADDREF(*zv);
     add_index_zval(target, i, zv);
-    if(Z_REFCOUNTED_P(zv))
-    {
-        Z_ADDREF_P(zv);
-    }
 }
 
 void
@@ -3087,7 +3084,7 @@ IcePHP::ObjectReader::ObjectReader(zval* object, const ClassInfoPtr& info, const
     _info(info), _communicator(comm)
 {
     assert(Z_TYPE_P(object) == IS_OBJECT);
-    ZVAL_DUP(&_object, object);
+    ZVAL_COPY(&_object, object);
 }
 
 IcePHP::ObjectReader::~ObjectReader()
@@ -3245,7 +3242,6 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
         //
         // Verify that the unmarshaled object is compatible with the formal type.
         //
-        zval* obj = reader->getObject();
         if(!_info->interface && !reader->getInfo()->isA(_info->id))
         {
             Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
@@ -3254,6 +3250,7 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
             ex.expectedType = _info->id;
             throw ex;
         }
+        zval* obj = reader->getObject();
         _cb->unmarshaled(obj, &_target, _closure);
     }
     else
@@ -3435,15 +3432,18 @@ IcePHP::ExceptionInfo::isA(const string& typeId) const
 //
 // ExceptionReader implementation.
 //
-IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicatorInfo, const ExceptionInfoPtr& info
-                                        ) :
-    _communicatorInfo(communicatorInfo), _info(info)
+IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicatorInfo, const ExceptionInfoPtr& info) :
+    _communicatorInfo(communicatorInfo), _info(info), _ex(0)
 {
 }
 
 IcePHP::ExceptionReader::~ExceptionReader()
     throw()
 {
+    if (_ex)
+    {
+        zval_ptr_dtor(_ex);
+    }
 }
 
 string
@@ -3966,7 +3966,7 @@ IcePHP::isUnset(zval* zv)
 void
 IcePHP::assignUnset(zval* zv)
 {
-    ZVAL_DUP(zv, ICE_G(unset));
+    ZVAL_COPY(zv, ICE_G(unset));
 }
 
 bool

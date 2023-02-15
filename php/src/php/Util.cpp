@@ -232,7 +232,6 @@ IcePHP::idToClass(const string& id)
 #else
     string cls = scopedToName(id, false);
 #endif
-
     return nameToClass(cls);
 }
 
@@ -812,7 +811,6 @@ invokeMethodHelper(zval* obj, const string& name, zval* param)
     zval ret, method;
     ZVAL_STRING(&method, STRCAST(name.c_str()));
     uint32_t numParams = param ? 1 : 0;
-    // zval** params = param ? &param : 0;
     int status = 0;
     zend_try
     {
