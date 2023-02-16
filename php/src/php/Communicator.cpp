@@ -2023,6 +2023,7 @@ IcePHP::FactoryWrapper::create(const string& id)
     }
 
     zval arg;
+    AutoDestroy destroyArg(&arg);
     ZVAL_STRINGL(&arg, STRCAST(id.c_str()), static_cast<int>(id.length()));
 
     zval obj;
@@ -2051,7 +2052,7 @@ IcePHP::FactoryWrapper::create(const string& id)
         throw AbortMarshaling();
     }
 
-    AutoDestroy destroy(&obj);
+    AutoDestroy destroyObj(&obj);
 
     if(Z_TYPE(obj) == IS_NULL)
     {
@@ -2064,7 +2065,7 @@ IcePHP::FactoryWrapper::create(const string& id)
 void
 IcePHP::FactoryWrapper::getZval(zval* factory)
 {
-    ZVAL_DUP(factory, &_factory);
+    ZVAL_COPY(factory, &_factory);
 }
 
 bool
@@ -2140,6 +2141,9 @@ IcePHP::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
+    // BUGFIX: releasing this object trigers an assert in PHP objects_store
+    // https://github.com/php/php-src/issues/10593
+    // AutoDestroy release(&obj);
     if(!invokeMethod(&obj, ZEND_CONSTRUCTOR_FUNC_NAME))
     {
         throw AbortMarshaling();

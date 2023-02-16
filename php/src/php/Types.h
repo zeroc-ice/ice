@@ -496,7 +496,7 @@ class ExceptionInfo : public IceUtil::Shared
 {
 public:
 
-    zval* unmarshal(Ice::InputStream*, const CommunicatorInfoPtr&);
+    void unmarshal(Ice::InputStream*, const CommunicatorInfoPtr&, zval*);
 
     void print(zval*, IceUtilInternal::Output&);
     void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -612,7 +612,7 @@ private:
 
     CommunicatorInfoPtr _communicatorInfo;
     ExceptionInfoPtr _info;
-    zval* _ex;
+    zval _ex;
     Ice::SlicedDataPtr _slicedData;
 };
 
