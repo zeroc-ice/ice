@@ -1314,7 +1314,7 @@ Slice::CsVisitor::editMarkup(const string& s)
             {
                 // If we found a whitespace before the end tag marker '>', The '<' char doesn't correspond to the start
                 // of a HTML tag, and we replace it with &lt; escape code.
-                result.replace(pos, 1, "&lt", 3);
+                result.replace(pos, 1, "&lt;", 4);
             }
             else
             {
@@ -1324,14 +1324,14 @@ Slice::CsVisitor::editMarkup(const string& s)
     }
     while(pos != string::npos);
 
-    // replace remaining > with &gt; tags have been already strip above
+    // replace remaining '>' chars with '&gt;' escape code, tags have been already strip above.
     pos = 0;
     do
     {
         pos = result.find('>', 0);
         if(pos != string::npos)
         {
-            result.replace(pos, 1, "&gt", 3);
+            result.replace(pos, 1, "&gt;", 4);
         }
     }
     while(pos != string::npos);
