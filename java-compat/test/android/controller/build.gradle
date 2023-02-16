@@ -55,8 +55,8 @@ android {
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"
-        minSdkVersion 21
-        targetSdkVersion 30
+        minSdkVersion 31
+        targetSdkVersion 31
         multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
