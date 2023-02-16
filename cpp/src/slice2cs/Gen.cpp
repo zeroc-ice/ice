@@ -1328,7 +1328,7 @@ Slice::CsVisitor::editMarkup(const string& s)
     pos = 0;
     do
     {
-        pos = result.find('>', 0);
+        pos = result.find('>', pos);
         if(pos != string::npos)
         {
             result.replace(pos, 1, "&gt;", 4);
