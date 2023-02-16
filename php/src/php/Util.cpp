@@ -616,8 +616,6 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
 void
 IcePHP::convertException(zval* zex, const Ice::Exception& ex)
 {
-    ZVAL_UNDEF(zex);
-
     ostringstream ostr;
     ostr << ex;
     string str = ostr.str();

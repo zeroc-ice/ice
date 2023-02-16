@@ -3265,11 +3265,9 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 //
 // ExceptionInfo implementation.
 //
-zval*
-IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr& comm)
+void
+IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr& comm, zval* zv)
 {
-    zval* zv = static_cast<zval*>(ecalloc(1, sizeof(zval)));
-
     if(object_init_ex(zv, zce) != SUCCESS)
     {
         runtimeError("unable to initialize object of type %s", zce->name->val);
@@ -3315,8 +3313,6 @@ IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr
 
         info = info->base;
     }
-
-    return zv;
 }
 
 void
@@ -3433,17 +3429,20 @@ IcePHP::ExceptionInfo::isA(const string& typeId) const
 // ExceptionReader implementation.
 //
 IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicatorInfo, const ExceptionInfoPtr& info) :
-    _communicatorInfo(communicatorInfo), _info(info), _ex(0)
+    _communicatorInfo(communicatorInfo), _info(info)
 {
+    ZVAL_UNDEF(&_ex);
 }
 
 IcePHP::ExceptionReader::~ExceptionReader()
     throw()
 {
-    if (_ex)
-    {
-        zval_ptr_dtor(_ex);
-    }
+    // BUGFIX: releasing this object trigers an assert in PHP objects_store
+    // https://github.com/php/php-src/issues/10593
+    // if (!Z_ISUNDEF(_ex))
+    // {
+    //    zval_ptr_dtor(&_ex);
+    // }
 }
 
 string
@@ -3476,7 +3475,7 @@ IcePHP::ExceptionReader::_read(Ice::InputStream* is)
 {
     is->startException();
 
-    const_cast<zval*&>(_ex) = _info->unmarshal(is, _communicatorInfo);
+    _info->unmarshal(is, _communicatorInfo, const_cast<zval*>(&_ex));
 
     const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
 }
@@ -3496,7 +3495,7 @@ IcePHP::ExceptionReader::getInfo() const
 zval*
 IcePHP::ExceptionReader::getException() const
 {
-    return _ex;
+    return const_cast<zval*>(&_ex);
 }
 
 Ice::SlicedDataPtr
