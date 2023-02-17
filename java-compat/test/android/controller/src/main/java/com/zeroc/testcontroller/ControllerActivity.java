@@ -81,9 +81,9 @@ public class ControllerActivity extends ListActivity
 
         final ControllerApp app = (ControllerApp)getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
-        ArrayAdapter<String> _ipv4Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);
+        ArrayAdapter<String> ipv4Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);
         Spinner s = findViewById(R.id.ipv4);
-        s.setAdapter(_ipv4Adapter);
+        s.setAdapter(ipv4Adapter);
         s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
             {
                 @Override
@@ -100,9 +100,9 @@ public class ControllerActivity extends ListActivity
         s.setSelection(0);
 
         final java.util.List<String> ipv6Addresses = app.getAddresses(true);
-        ArrayAdapter<String> _ipv6Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv6Addresses);
+        ArrayAdapter<String> ipv6Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv6Addresses);
         s = findViewById(R.id.ipv6);
-        s.setAdapter(_ipv6Adapter);
+        s.setAdapter(ipv6Adapter);
         s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
             {
                 @Override
