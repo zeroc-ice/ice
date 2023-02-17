@@ -4,24 +4,25 @@
 
 package com.zeroc.testcontroller;
 
-import java.util.LinkedList;
-import android.app.*;
+import android.app.Activity;
+import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.widget.*;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.util.LinkedList;
 
 public class ControllerActivity extends ListActivity
 {
-    private WifiManager _wifiManager;
-    private WifiManager.MulticastLock _lock;
-    private LinkedList<String> _output = new LinkedList<String>();
+    private final LinkedList<String> _output = new LinkedList<>();
     private ArrayAdapter<String> _outputAdapter;
-    private ArrayAdapter<String> _ipv4Adapter;
-    private ArrayAdapter<String> _ipv6Adapter;
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -31,8 +32,8 @@ public class ControllerActivity extends ListActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        _wifiManager = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        _lock = _wifiManager.createMulticastLock("com.zeroc.testcontroller");
+        WifiManager _wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager.MulticastLock _lock = _wifiManager.createMulticastLock("com.zeroc.testcontroller");
         _lock.acquire();
     }
 
@@ -52,8 +53,15 @@ public class ControllerActivity extends ListActivity
         }
         else if(!adapter.isEnabled())
         {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            try {
+                Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            }
+            catch (SecurityException ex)
+            {
+                // The user didn't grant the required permissions.
+                Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
+            }
         }
         else
         {
@@ -64,35 +72,28 @@ public class ControllerActivity extends ListActivity
     @Override
     protected void onActivityResult(int req, int res, Intent data)
     {
-        switch(req)
+        if(req == REQUEST_ENABLE_BT && _outputAdapter == null)
         {
-            case REQUEST_ENABLE_BT:
+            if(res == Activity.RESULT_OK)
             {
-                if(_outputAdapter == null)
-                {
-                    if(res == Activity.RESULT_OK)
-                    {
-                        setup(true);
-                    }
-                    else
-                    {
-                        Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
-                        setup(false);
-                    }
-                }
-                break;
+                setup(true);
+            }
+            else
+            {
+                Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
+                setup(false);
             }
         }
     }
 
     private synchronized void setup(boolean bluetooth)
     {
-        _outputAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, _output);
+        _outputAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, _output);
         setListAdapter(_outputAdapter);
         final ControllerApp app = (ControllerApp)getApplication();
         final java.util.List<String> ipv4Addresses = app.getAddresses(false);
-        _ipv4Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);
-        Spinner s = (Spinner)findViewById(R.id.ipv4);
+        ArrayAdapter<String> _ipv4Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv4Addresses);
+        Spinner s = findViewById(R.id.ipv4);
         s.setAdapter(_ipv4Adapter);
         s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
             {
@@ -110,8 +111,8 @@ public class ControllerActivity extends ListActivity
         s.setSelection(0);
 
         final java.util.List<String> ipv6Addresses = app.getAddresses(true);
-        _ipv6Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv6Addresses);
-        s = (Spinner)findViewById(R.id.ipv6);
+        ArrayAdapter<String> _ipv6Adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, ipv6Addresses);
+        s = findViewById(R.id.ipv6);
         s.setAdapter(_ipv6Adapter);
         s.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener()
             {
