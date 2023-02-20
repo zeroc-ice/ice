@@ -10,7 +10,6 @@ import java.util.*;
 import Ice.Logger;
 import Ice.Communicator;
 
-import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.app.Application;
@@ -25,7 +24,6 @@ public class ControllerApp extends Application
     private final String TAG = "ControllerApp";
     private ControllerI _controllerI;
     private ControllerActivity _activity;
-    private java.util.Map<String, ClassLoader> _classLoaders = new java.util.HashMap<String, ClassLoader>();
     private String _ipv4Address;
     private String _ipv6Address;
 
@@ -53,9 +51,8 @@ public class ControllerApp extends Application
             return  _loader;
         }
 
-        private String _name;
-        private ClassLoader _loader;
-        private Class<? extends test.TestHelper> _class;
+        private final ClassLoader _loader;
+        private final Class<? extends test.TestHelper> _class;
     }
 
     class AndroidLogger implements Ice.Logger
@@ -111,6 +108,16 @@ public class ControllerApp extends Application
         Ice.Util.setProcessLogger(new AndroidLogger(""));
     }
 
+    @Override
+    public void onTerminate ()
+    {
+        super.onTerminate();
+        if (_controllerI != null)
+        {
+            _controllerI.destroy();
+        }
+    }
+
     synchronized public void setIpv4Address(String address)
     {
         _ipv4Address = address;
@@ -124,7 +131,7 @@ public class ControllerApp extends Application
 
     public List<String> getAddresses(boolean ipv6)
     {
-        List<String> addresses = new java.util.ArrayList<String>();
+        List<String> addresses = new java.util.ArrayList<>();
         try
         {
             java.util.Enumeration<java.net.NetworkInterface> ifaces = java.net.NetworkInterface.getNetworkInterfaces();
@@ -145,6 +152,7 @@ public class ControllerApp extends Application
         }
         catch(java.net.SocketException ex)
         {
+            // Ignore, if we are not able to retrieve the network interfaces, we return an empty list.
         }
         return addresses;
     }
@@ -194,8 +202,6 @@ public class ControllerApp extends Application
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
-            //initData.properties.setProperty("Ice.Trace.Network", "3");
-            //initData.properties.setProperty("Ice.Trace.Protocol", "1");
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
@@ -244,8 +250,8 @@ public class ControllerApp extends Application
                             Ice.Connection connection = registry.ice_getCachedConnection();
                             connection.setAdapter(adapter);
                             connection.setACM(new Ice.IntOptional(5),
-                                              new Ice.Optional<Ice.ACMClose>(Ice.ACMClose.CloseOff),
-                                              new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
+                                new Ice.Optional<>(Ice.ACMClose.CloseOff),
+                                new Ice.Optional<>(Ice.ACMHeartbeat.HeartbeatAlways));
 
                             connection.setCloseCallback(new Ice.CloseCallback()
                                 {
@@ -262,6 +268,7 @@ public class ControllerApp extends Application
                                             }
                                             catch(InterruptedException e)
                                             {
+                                                // Ignore and try again.
                                             }
                                         }
                                         registerProcessController(adapter, registry, processController);
@@ -308,6 +315,7 @@ public class ControllerApp extends Application
                     }
                     catch(InterruptedException e)
                     {
+                        // Ignore and try again.
                     }
                 }
                 registerProcessController(adapter, registry, processController);
@@ -323,13 +331,12 @@ public class ControllerApp extends Application
             _communicator.destroy();
         }
 
-        private ProcessControllerRegistryPrx _registry;
-        private Ice.Communicator _communicator;
+        private final Ice.Communicator _communicator;
     }
 
     class ControllerHelperI extends Thread implements test.TestHelper.ControllerHelper
     {
-        public ControllerHelperI(TestSuiteBundle bundle, String[] args, String exe)
+        public ControllerHelperI(TestSuiteBundle bundle, String[] args)
         {
             _bundle = bundle;
             _args = args;
@@ -360,18 +367,17 @@ public class ControllerApp extends Application
                 _helper.setWriter(new Writer()
                     {
                         @Override
-                        public void close() throws IOException
+                        public void close()
                         {
                         }
 
                         @Override
-                        public void flush() throws IOException
+                        public void flush()
                         {
                         }
 
                         @Override
                         public void write(char[] buf, int offset, int count)
-                            throws IOException
                         {
                             _out.append(buf, offset, count);
                         }
@@ -421,14 +427,15 @@ public class ControllerApp extends Application
             {
                 try
                 {
-                    wait(timeout * 1000);
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > timeout * 1000)
+                    wait(timeout * 1000L);
+                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > timeout * 1000L)
                     {
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
                 }
                 catch(java.lang.InterruptedException ex)
                 {
+                    // Ignore and try again.
                 }
             }
 
@@ -446,22 +453,22 @@ public class ControllerApp extends Application
             {
                 try
                 {
-                    wait(timeout * 1000);
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > timeout * 1000)
+                    wait(timeout * 1000L);
+                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > timeout * 1000L)
                     {
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
                 }
                 catch(java.lang.InterruptedException ex)
                 {
+                    // Ignore and try again.
                 }
             }
             return _status;
         }
 
-        private TestSuiteBundle _bundle;
-        private String[] _args;
-        private String _exe;
+        private final TestSuiteBundle _bundle;
+        private final String[] _args;
         private test.TestHelper _helper;
         private boolean _ready = false;
         private boolean _completed = false;
@@ -480,7 +487,7 @@ public class ControllerApp extends Application
             try
             {
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
-                ControllerHelperI controllerHelper = new ControllerHelperI(bundle, args, exe);
+                ControllerHelperI controllerHelper = new ControllerHelperI(bundle, args);
                 controllerHelper.start();
                 return Test.Common.ProcessPrxHelper.uncheckedCast(
                     current.adapter.addWithUUID(new ProcessI(controllerHelper)));
@@ -488,7 +495,7 @@ public class ControllerApp extends Application
             catch(ClassNotFoundException ex)
             {
                 throw new Test.Common.ProcessFailedException(
-                    "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex.toString());
+                    "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
             }
         }
 
@@ -540,11 +547,12 @@ public class ControllerApp extends Application
                 }
                 catch(InterruptedException ex)
                 {
+                    // Ignore and try again.
                 }
             }
             return _controllerHelper.getOutput();
         }
 
-        private ControllerHelperI _controllerHelper;
+        private final ControllerHelperI _controllerHelper;
     }
 }
