@@ -48,8 +48,13 @@ public class ControllerActivity extends ListActivity
         }
         else if(!adapter.isEnabled())
         {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            try {
+                Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            } catch (SecurityException ex) {
+                // The user didn't grant the required permissions.
+                Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
+            }
         }
         else
         {
