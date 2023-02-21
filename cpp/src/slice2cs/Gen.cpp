@@ -1304,11 +1304,34 @@ Slice::CsVisitor::editMarkup(const string& s)
         if(pos != string::npos)
         {
             string::size_type endpos = result.find('>', pos);
-            if(endpos == string::npos)
+            string::size_type wspos = result.find(' ', pos);
+            if(endpos == string::npos && wspos == string::npos)
             {
                 break;
             }
-            result.erase(pos, endpos - pos + 1);
+
+            if(wspos < endpos)
+            {
+                // If we found a whitespace before the end tag marker '>', The '<' char doesn't correspond to the start
+                // of a HTML tag, and we replace it with &lt; escape code.
+                result.replace(pos, 1, "&lt;", 4);
+            }
+            else
+            {
+                result.erase(pos, endpos - pos + 1);
+            }
+        }
+    }
+    while(pos != string::npos);
+
+    // replace remaining '>' chars with '&gt;' escape code, tags have been already strip above.
+    pos = 0;
+    do
+    {
+        pos = result.find('>', pos);
+        if(pos != string::npos)
+        {
+            result.replace(pos, 1, "&gt;", 4);
         }
     }
     while(pos != string::npos);
