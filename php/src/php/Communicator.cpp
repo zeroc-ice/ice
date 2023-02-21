@@ -2141,9 +2141,11 @@ IcePHP::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
+#ifdef NDEBUG
     // BUGFIX: releasing this object trigers an assert in PHP objects_store
     // https://github.com/php/php-src/issues/10593
-    // AutoDestroy release(&obj);
+    AutoDestroy release(&obj);
+#endif
     if(!invokeMethod(&obj, ZEND_CONSTRUCTOR_FUNC_NAME))
     {
         throw AbortMarshaling();
