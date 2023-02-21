@@ -174,7 +174,11 @@ IcePHP::ResultCallback::ResultCallback()
 
 IcePHP::ResultCallback::~ResultCallback()
 {
+#ifdef NDEBUG
+    // BUGFIX releasing this object triggers an assert in zend_weakrefs_notify
+    // see https://github.com/zeroc-ice/ice/issues/1439
     zval_ptr_dtor(&zv);
+#endif
 }
 
 void

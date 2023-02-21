@@ -3437,12 +3437,14 @@ IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicator
 IcePHP::ExceptionReader::~ExceptionReader()
     throw()
 {
+#ifdef NDEBUG
     // BUGFIX: releasing this object trigers an assert in PHP objects_store
     // https://github.com/php/php-src/issues/10593
-    // if (!Z_ISUNDEF(_ex))
-    // {
-    //    zval_ptr_dtor(&_ex);
-    // }
+    if (!Z_ISUNDEF(_ex))
+    {
+        zval_ptr_dtor(&_ex);
+    }
+#endif
 }
 
 string
