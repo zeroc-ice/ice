@@ -20,20 +20,13 @@ resulting binaries. As an alternative, you can download and install the
 ## Building on Windows
 
 A source build of Ice for .NET on Windows produces three sets of assemblies:
- - assemblies for [.NET 6.0][8]
  - assemblies for the .NET Framework 4.5
  - assemblies for [.NET Standard 2.0][2]
 
 ### Windows Build Requirements
 
 In order to build Ice for .NET from source, you need all of the following:
- - a [supported version][3] of Visual Studio
- - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
- - the [.NET Core 3.1 SDK][5], if you use Visual Studio 2019
- - the [.NET Core 3.1 SDK][5] or the [.NET Core 6.0 SDK][6], if you use Visual Studio 2022
-
-> Note: Visual Studio 2022 version or higher is required for .NET 6.0 builds.
-> Note: Visual Studio 2017 version 15.3 or higher is required for .NET Core builds.
+ - Visual Studio 2022 with the [.NET 6.0 SDK][4]
 
 ### Compiling Ice for .NET on Windows
 
@@ -47,27 +40,21 @@ To build all Ice assemblies and the associated test suite, run:
 msbuild msbuild\ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET 6.0, the .NET Framework 4.5 and .NET Standard
-2.0 are placed in the `lib\net6.0`, `lib\net45` and `lib\netstandard2.0` folders respectively.
-
-> Note: the assemblies for .NET 6.0 are created only when you build with Visual Studio 2022
-> or greater.
-
-> Note: the assemblies for .NET Standard 2.0 are created only when you build with Visual Studio
-> 2017 or greater.
+Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard 2.0 are placed
+in the `lib\net45` and `lib\netstandard2.0` folders respectively.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `Net6Build`, `Net6BuildDist`, `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and
-`NetStandardBuildDist` targets allow you to build assemblies only for .NET 6.0, the .NET
-Framework 4.5 or .NET Standard 2.0, with or without the test suite.
+The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets allow
+you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0, with or without
+the test suite.
 
-The .NET Standard build of iceboxnet and test applications target `netcoreapp3.1` when using
-Visual Studio 2019 and `netcoreapp2.1` when using Visual Studio 2017. You can change
+The .NET Standard build of iceboxnet and test applications target `net6.0` You can change
 the target framework by setting the `AppTargetFramework` property to a different
+
 Target Framework Moniker value, for example:
 
 ```
@@ -93,7 +80,7 @@ If only `KEYFILE` is set, the assemblies are fully signed during the build using
 
 If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed
 during the build using `PUBLIC_KEYFILE` and re-signed after the build using
-`KEYFILE`. This can be used for generating [Enhanced Strong Naming][7]
+`KEYFILE`. This can be used for generating [Enhanced Strong Naming][5]
 signatures.
 
 *Strong Name Signatures can be generated only from Windows builds.*
@@ -122,8 +109,7 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.1 SDK][4], [.NET Core 3.1 SDK][5] or [.NET 6.0 SDK][6]
-to build Ice for .NET from source.
+You need the [.NET 6.0 SDK][4] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -137,25 +123,20 @@ Then run:
 dotnet msbuild msbuild/ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET 6.0 and .NET Standard 2.0 are placed
-in the `lib/net6.0` and `lib/netstandard2.0` directory respectively.
+Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in
+the `lib/netstandard2.0` directory respectively.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
-The `Net6Build`, `Net6BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets
-allow you to build assemblies only for .NET 6.0, or .NET Standard 2.0, with or without the
-test suite.
-
-The .NET Standard build of iceboxnet and test applications target `netcoreapp3.1` when using
-.NET Core 3.1 SDK and `netcoreapp2.1` when using .NET Core 2.1 SDK. You can change the target
-framework by setting the `AppTargetFramework` property to a different Target Framework Moniker
-value, for example:
+The .NET Standard build of iceboxnet and test applications target `net6.0` when using
+You can change the target framework by setting the `AppTargetFramework` property to a
+different Target Framework Moniker value, for example:
 
 ```
-dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=netcoreapp2.2"
+dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=net7.0"
 ```
 
 ## Running the Tests
@@ -176,10 +157,9 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 On Windows, `allTests.py` executes by default the tests for .NET Framework 4.5.
-In order to execute the tests with .NET Core framework add the `--dotnetcore`
-option. For example:
+In order to execute the tests with .NET 6.0 add the `--dotnet` option. For example:
 ```
-python allTests.py --dotnetcore
+python allTests.py --dotnet
 ```
 
 If you want to run the test with .NET 6.0 you must use `--framework` option
@@ -191,9 +171,9 @@ For example:
 python allTests.py --framework=net6.0
 ```
 
-And to run test build against .NET Core 3.1:
+And to run test build against .NET 7:
 ```
-python allTests.py --dotnetcore --framework=netcoreapp3.1
+python allTests.py --dotnet --framework=net7.0
 ```
 
 ## NuGet Package
@@ -208,22 +188,6 @@ msbuild msbuild\ice.proj /t:NuGetPack
 
 This creates the `zeroc.ice.net` Nuget package in the `msbuild\zeroc.ice.net`
 directory.
-
-> Note: The NuGet package always includes assemblies for the .NET Framework 4.5.
->
-> If you build with Visual Studio 2022, the NuGet package also includes assemblies
-> for .NET 6.0.
->
-> If you build with Visual Studio 2017 or Visual Studio 2019, the NuGet package
-> also includes assemblies for .NET Standard 2.0.
->
-> If you build with Visual Studio 2022 the NuGet package include iceboxnet
-> executable targeting .NET 6.0, .NET Framework 4.5, .NET Core 3.1 and .NET
-> Core 2.1.
->
-> If you build with Visual Studio 2017 or Visual Studio 2019  the NuGet package
-> include iceboxnet executables targeting .NET Framework 4.5 and .NET Core 2.1.
->
 
 ### Creating NuGet Packages on Linux or macOS
 
@@ -311,8 +275,5 @@ python allTests.py --controller-app --config Release --platform iphonesimulator
 [1]: https://zeroc.com/downloads/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-9
-[4]: https://dotnet.microsoft.com/download/dotnet-core/2.1
-[5]: https://dotnet.microsoft.com/download/dotnet-core/3.1
-[6]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-[7]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
-[8]: https://devblogs.microsoft.com/dotnet/announcing-net-6/
+[4]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+[5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming

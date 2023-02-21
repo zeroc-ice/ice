@@ -217,10 +217,7 @@ class Platform(object):
             version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            if int(version[0]) == 6:
-                self.defaultFramework = "net6.0"
-            else:
-                self.defaultFramework = "netcoreapp{}".format("3.1" if int(version[0]) >= 3 else "2.1")
+            self.defaultFramework = "net6.0"
         except:
             self.nugetPackageCache = None
 
@@ -514,7 +511,7 @@ class Windows(Platform):
         return None # No default installation directory on Windows
 
     def getNugetPackageDir(self, component, mapping, current):
-        if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
+        if isinstance(mapping, CSharpMapping) and current.config.dotnet:
             return Platform.getNugetPackageDir(self, component, mapping, current)
         else:
             package = "{0}.{1}".format(component.getNugetPackage(mapping), component.getNugetPackageVersion(mapping))
@@ -629,7 +626,7 @@ class Mapping(object):
             self.browser = ""
             self.es5 = False
             self.worker = False
-            self.dotnetcore = False
+            self.dotnet = False
             self.framework = ""
             self.android = False
             self.xamarin = False
@@ -3436,25 +3433,25 @@ class CSharpMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["dotnetcore", "framework="])
+            return ("", ["dotnet", "framework="])
 
         @classmethod
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--dotnetcore                    Run C# tests using .NET Core")
+            print("--dotnet                        Run C# tests using .NET instead of .NET Framework")
             print("--framework=<TargetFramework>   Choose the framework used to run .NET tests")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
             if self.framework == "":
-                self.framework = "net45" if isinstance(platform, Windows) else platform.defaultFramework
+                self.framework = "net45" if (isinstance(platform, Windows) and not self.dotnet) else platform.defaultFramework
 
-            if not self.dotnetcore and not isinstance(platform, Windows):
-                self.dotnetcore = True
+            if not self.dotnet and not isinstance(platform, Windows):
+                self.dotnet = True
 
-            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net6.0", "net45"] else self.framework
+            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net45"] else self.framework
             self.binTargetFramework = self.framework
             self.testTargetFramework = self.framework
 
@@ -3472,7 +3469,7 @@ class CSharpMapping(Mapping):
         return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        if current.config.framework in ["net6.0", "net45"]:
+        if current.config.framework in ["net45"]:
             return os.path.join("msbuild", name, current.config.framework)
         else:
             return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
@@ -3544,7 +3541,7 @@ class CSharpMapping(Mapping):
                 env['PATH'] = os.path.join(self.component.getSourceDir(), "cpp", "msbuild", "packages",
                                            "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
                                            "build", "native", "bin", "x64", "Release")
-            if not current.config.dotnetcore:
+            if not current.config.dotnet:
                 env['DEVPATH'] = self.component.getLibDir(process, self, current)
         return env
 
@@ -3567,8 +3564,7 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
-        useDotnetExe = ((process.isFromBinDir() and current.config.testTargetFramework != "net45")
-                        or current.config.testTargetFramework in ["netcoreapp2.1"])
+        useDotnetExe = process.isFromBinDir() and current.config.testTargetFramework != "net45"
         command = ""
         if useDotnetExe:
             command += "dotnet "
