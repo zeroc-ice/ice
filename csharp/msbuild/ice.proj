@@ -16,7 +16,6 @@
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</DefaultPlatformToolset>
 
         <NetStandardTargets>false</NetStandardTargets>
-        <Net6Targets>false</Net6Targets>
     </PropertyGroup>
 
     <!-- Our .NET Standard build on Windows requires Visual Studio 2022 -->
@@ -221,13 +220,13 @@
     <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
-        <!-- Build iceboxnet with net6 target framework (default) -->
+        <!-- Build iceboxnet with net6.0 target framework (default) -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net6.0;BaseIntermediateOutputPath=obj\net6.0\"
                  Targets="Restore;Publish"
                  Condition="'$(NetStandardTargets)' == 'true'"/>
 
-        <!-- Build iceboxnet with net7 target framework (default) -->
+        <!-- Build iceboxnet with net7.0 target framework -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net7.0;BaseIntermediateOutputPath=obj\net7.0\"
                  Targets="Restore;Publish"
@@ -291,9 +290,6 @@
 
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net6.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Publish"/>
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Publish"/>
