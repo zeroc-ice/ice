@@ -6,14 +6,14 @@ Thank you for your interest in contributing to Ice!
 
 To contribute code or documentation to this project, please follow these steps:
 
-1. Review the [Contributor Agreement](https://gist.github.com/zcabot/1a4c24dca55adaa83d78cdeabc63226b).
-   You will be prompted by the CLAassistant bot to sign the agreement when you
-   submit your first pull request.
+1. Review the [ZeroC Contributor Agreement](https://gist.github.com/zcabot/1a4c24dca55adaa83d78cdeabc63226b).
+   The CLA assistant bot will ask you to sign this agreement when you submit
+   your first pull request.
 
 2. If you're planning to make a significant contribution, such as a new feature
    or major changes, please discuss your ideas with the community first by
    starting a [discussion](https://github.com/zeroc-ice/ice/discussions) or by
-   contacting us via email.
+   contacting us via [email](contributing@zeroc.com).
 
 3. Fork this repository.
 
