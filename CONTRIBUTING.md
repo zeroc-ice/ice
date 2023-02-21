@@ -54,13 +54,13 @@ Some contributions are troublesome and therefore difficult to accept:
   of the Ice encoding
 
 - New features that may be useful for your project but are not obviously useful
-  to other projects\
+  to other projects.\
   We want to keep our software lean and focused!
 
 - Any update that breaks source compatibility with the most recent release
 
 ## Contact
 
-- Community Forums: <https://forums.zeroc.com>
+- GitHub Discussions: <https://github.com/zeroc-ice/ice/discussions>
 - Twitter: <https://twitter.com/zeroc>
 - Email: <contributing@zeroc.com>
