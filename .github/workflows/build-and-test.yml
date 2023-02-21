@@ -13,13 +13,10 @@ jobs:
   build-and-test:
     name: Build and Test
     runs-on: [self-hosted, linux]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Build
         run: make V=1 -j8
-
       - name: Test
         run: ./allTests.py --all
