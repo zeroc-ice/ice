@@ -13,7 +13,7 @@ To contribute code or documentation to this project, please follow these steps:
 2. If you're planning to make a significant contribution, such as a new feature
    or major changes, please discuss your ideas with the community first by
    starting a [discussion](https://github.com/zeroc-ice/ice/discussions) or by
-   contacting us via [email](contributing@zeroc.com).
+   contacting us via [email](mailto:contributing@zeroc.com).
 
 3. Fork this repository.
 
