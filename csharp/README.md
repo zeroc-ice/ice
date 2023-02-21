@@ -19,14 +19,16 @@ resulting binaries. As an alternative, you can download and install the
 
 ## Building on Windows
 
-A source build of Ice for .NET on Windows produces three sets of assemblies:
+A source build of Ice for .NET on Windows produces two sets of assemblies:
  - assemblies for the .NET Framework 4.5
  - assemblies for [.NET Standard 2.0][2]
 
 ### Windows Build Requirements
 
-In order to build Ice for .NET from source, you need all of the following:
- - Visual Studio 2022 with the [.NET 6.0 SDK][4]
+In order to build Ice for .NET from source, you need:
+ - A [supported version][3] of Visual Studio, when building thet .NET Framework 4.5 Assemblies.
+ - Visual Studio 2022 with [.NET 6.0 SDK][4] or [.NET 7.0 SDK][5] when building the .NET Standard 2.0 Assemblies.
+ - Visual Studio 2022 with [.NET 6.0 SDK][4] and [.NET 7.0 SDK][5] when building the NuGet packages.
 
 ### Compiling Ice for .NET on Windows
 
@@ -52,16 +54,18 @@ The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist
 you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0, with or without
 the test suite.
 
+> Note: Visual Studio 2022 version or higher is required for .NET Standard 2.0 builds.
+
 The .NET Standard build of iceboxnet and test applications target `net6.0` You can change
 the target framework by setting the `AppTargetFramework` property to a different
 
 Target Framework Moniker value, for example:
 
 ```
-msbuild msbuild\ice.proj /p:"AppTargetFramework=net462"
+msbuild msbuild\ice.proj /p:"AppTargetFramework=net7.0"
 ```
 
-This builds the test programs for `net462`. The target frameworks you specify
+This builds the test programs for `net7.0`. The target frameworks you specify
 must implement .NET Standard 2.0.
 
 #### Strong Name Signatures
@@ -80,7 +84,7 @@ If only `KEYFILE` is set, the assemblies are fully signed during the build using
 
 If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed
 during the build using `PUBLIC_KEYFILE` and re-signed after the build using
-`KEYFILE`. This can be used for generating [Enhanced Strong Naming][5]
+`KEYFILE`. This can be used for generating [Enhanced Strong Naming][6]
 signatures.
 
 *Strong Name Signatures can be generated only from Windows builds.*
@@ -109,7 +113,7 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET 6.0 SDK][4] to build Ice for .NET from source.
+You need the [.NET 6.0 SDK][4] or [.NET 7.0 SDK][5] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -123,17 +127,17 @@ Then run:
 dotnet msbuild msbuild/ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in
-the `lib/netstandard2.0` directory respectively.
+Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the `lib/netstandard2.0`
+directory.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
-The .NET Standard build of iceboxnet and test applications target `net6.0` when using
-You can change the target framework by setting the `AppTargetFramework` property to a
-different Target Framework Moniker value, for example:
+The .NET Standard build of iceboxnet and test applications target `net6.0`. You can change the target
+framework by setting the `AppTargetFramework` property to a different Target Framework Moniker value,
+for example:
 
 ```
 dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=net7.0"
@@ -157,11 +161,6 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 On Windows, `allTests.py` executes by default the tests for .NET Framework 4.5.
-In order to execute the tests with .NET 6.0 add the `--dotnet` option. For example:
-```
-python allTests.py --dotnet
-```
-
 If you want to run the test with .NET 6.0 you must use `--framework` option
 with `net6.0` target framework.
 
@@ -169,11 +168,6 @@ For example:
 
 ```
 python allTests.py --framework=net6.0
-```
-
-And to run test build against .NET 7:
-```
-python allTests.py --dotnet --framework=net7.0
 ```
 
 ## NuGet Package
@@ -191,8 +185,7 @@ directory.
 
 ### Creating NuGet Packages on Linux or macOS
 
-To create a NuGet package, open a command prompt and run the
-following command:
+To create a NuGet package, open a command prompt and run the following command:
 
 ```
 dotnet msbuild msbuild/ice.proj /t:NuGetPack
@@ -209,7 +202,7 @@ or UWP platforms.
 
 The Xamarin test suite uses the Ice assemblies for .NET Standard 2.0. either
 from the source distribution or using the `zeroc.ice.net` NuGet package. If
-using the assembles from the source distribution, they must be built before this
+using the assemblies from the source distribution, they must be built before this
 application.
 
 ### Building on Windows
@@ -276,4 +269,5 @@ python allTests.py --controller-app --config Release --platform iphonesimulator
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-9
 [4]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-[5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[5]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
+[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming

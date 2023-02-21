@@ -214,7 +214,6 @@ class Platform(object):
 
     def __init__(self):
         try:
-            version = run("dotnet --version").split(".")
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
             self.defaultFramework = "net6.0"
@@ -3433,13 +3432,12 @@ class CSharpMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["dotnet", "framework="])
+            return ("", ["framework="])
 
         @classmethod
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--dotnet                        Run C# tests using .NET instead of .NET Framework")
             print("--framework=<TargetFramework>   Choose the framework used to run .NET tests")
 
         def __init__(self, options=[]):
@@ -3448,10 +3446,9 @@ class CSharpMapping(Mapping):
             if self.framework == "":
                 self.framework = "net45" if (isinstance(platform, Windows) and not self.dotnet) else platform.defaultFramework
 
-            if not self.dotnet and not isinstance(platform, Windows):
-                self.dotnet = True
+            self.dotnet = not isinstance(platform, Windows) or self.framework != "net45"
 
-            self.libTargetFramework = "netstandard2.0" if self.framework not in ["net45"] else self.framework
+            self.libTargetFramework = "netstandard2.0" if self.framework != "net45" else self.framework
             self.binTargetFramework = self.framework
             self.testTargetFramework = self.framework
 
