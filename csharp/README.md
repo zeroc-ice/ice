@@ -160,14 +160,19 @@ python allTests.py
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-On Windows, `allTests.py` executes by default the tests for .NET Framework 4.5.
-If you want to run the test with .NET 6.0 you must use `--framework` option
-with `net6.0` target framework.
+`allTests.py` executes by default the tests for .NET 6.0. If you want to run
+the test with a different .NET Framework you must use `--framework` option.
 
-For example:
+For example, to run .NET 7.0 tests:
 
 ```
-python allTests.py --framework=net6.0
+python allTests.py --framework=net7.0
+```
+
+or to run .NET Framework 4.5 tests on Windows:
+
+```
+python allTests.py --framework=net45
 ```
 
 ## NuGet Package

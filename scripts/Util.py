@@ -216,7 +216,6 @@ class Platform(object):
         try:
             self.nugetPackageCache = re.search("global-packages: (.*)",
                                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            self.defaultFramework = "net6.0"
         except:
             self.nugetPackageCache = None
 
@@ -3386,7 +3385,7 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;{}".format(
+        return "system-images;android-33;google_apis;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
     def getApk(self, current):
@@ -3423,7 +3422,7 @@ class JavaCompatMapping(JavaMapping):
         return { "CLASSPATH" : os.pathsep.join(classPath) }
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;{}".format(
+        return "system-images;android-33;google_apis;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
 class CSharpMapping(Mapping):
@@ -3438,13 +3437,12 @@ class CSharpMapping(Mapping):
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--framework=<TargetFramework>   Choose the framework used to run .NET tests")
+            print("--framework=net45|net6.0|net7.0   Choose the framework used to run .NET tests")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            if self.framework == "":
-                self.framework = "net45" if (isinstance(platform, Windows) and not self.dotnet) else platform.defaultFramework
+            self.framework = "net6.0"
 
             self.dotnet = not isinstance(platform, Windows) or self.framework != "net45"
 
@@ -3574,7 +3572,7 @@ class CSharpMapping(Mapping):
         return command
 
     def getSDKPackage(self):
-        return "system-images;android-31;google_apis;{}".format(
+        return "system-images;android-33;google_apis;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
     def getApk(self, current):
