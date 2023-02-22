@@ -7,6 +7,7 @@ package com.zeroc.testcontroller;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
@@ -32,9 +33,9 @@ public class ControllerActivity extends ListActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        WifiManager _wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiManager.MulticastLock _lock = _wifiManager.createMulticastLock("com.zeroc.testcontroller");
-        _lock.acquire();
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager.MulticastLock lock = _wifiManager.createMulticastLock("com.zeroc.testcontroller");
+        lock.acquire();
     }
 
     @Override
@@ -45,7 +46,8 @@ public class ControllerActivity extends ListActivity
         //
         // Enable Bluetooth if necessary.
         //
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter adapter = bluetoothManager.getAdapter();
         if(adapter == null)
         {
             Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
