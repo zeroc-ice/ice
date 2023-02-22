@@ -8,9 +8,6 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(AppTargetFramework)' == 'netcoreapp3.1'">
-    <UseAppHost>true</UseAppHost>
-  </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../Client.cs" />
     <Compile Include="../../../Collocated.cs" />
