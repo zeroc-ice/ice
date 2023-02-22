@@ -26,7 +26,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 ### Windows Build Requirements
 
 In order to build Ice for .NET from source, you need:
- - A [supported version][3] of Visual Studio, when building thet .NET Framework 4.5 Assemblies.
+ - A [supported version][3] of Visual Studio when building .NET Framework 4.5 Assemblies.
  - Visual Studio 2022 with [.NET 6.0 SDK][4] or [.NET 7.0 SDK][5] when building the .NET Standard 2.0 Assemblies.
  - Visual Studio 2022 with [.NET 6.0 SDK][4] and [.NET 7.0 SDK][5] when building the NuGet packages.
 
