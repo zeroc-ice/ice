@@ -809,7 +809,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     else
     {
         _out << sp << nl << "public function __toString(): string";
-
     }
 
     _out << sb;
