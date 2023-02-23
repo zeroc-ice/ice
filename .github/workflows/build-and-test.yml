@@ -20,4 +20,4 @@ jobs:
       - name: Build
         run: make V=1
       - name: Test
-        run: ./allTests.py
+        run: ./allTests.py --workers=4
