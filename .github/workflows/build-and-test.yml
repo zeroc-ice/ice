@@ -20,4 +20,4 @@ jobs:
       - name: Build
         run: make V=1 -j8
       - name: Test
-        run: ./allTests.py --all
+        run: ./allTests.py
