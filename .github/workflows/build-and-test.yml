@@ -18,6 +18,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build
-        run: make V=1 -j8
+        run: make V=1
       - name: Test
         run: ./allTests.py
