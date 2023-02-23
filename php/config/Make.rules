@@ -18,12 +18,14 @@ USE_NAMESPACES  ?= yes
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+php_major_version       = $(firstword $(subst ., ,$(shell $(PHP_CONFIG) --version)))
+
 ifneq ($(USE_NAMESPACES),yes)
 slice2php_flags         = --no-namespace
 endif
 
-ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo 0),0)
-    slice2php_flags = $(slice2php_flags) --php5
+ifeq ($(php_major_version),5)
+slice2php_flags         += --php5
 endif
 
 #
