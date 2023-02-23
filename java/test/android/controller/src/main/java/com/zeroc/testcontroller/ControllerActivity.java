@@ -34,7 +34,7 @@ public class ControllerActivity extends ListActivity
         setContentView(R.layout.main);
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiManager.MulticastLock lock = _wifiManager.createMulticastLock("com.zeroc.testcontroller");
+        WifiManager.MulticastLock lock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
         lock.acquire();
     }
 
