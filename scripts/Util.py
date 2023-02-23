@@ -3442,7 +3442,8 @@ class CSharpMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            self.framework = "net6.0"
+            if self.framework == "":
+                self.framework = "net6.0"
 
             self.dotnet = not isinstance(platform, Windows) or self.framework != "net45"
 
