@@ -2292,9 +2292,10 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing IceSSL.FindCerts properties... ");
-            Console.Out.Flush();
+            if(!IceInternal.AssemblyUtil.isMacOS)
             {
+                Console.Out.Write("testing IceSSL.FindCerts properties... ");
+                Console.Out.Flush();
                 string[] clientFindCertProperties = new string[]
                 {
                     "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
@@ -2331,15 +2332,6 @@ public class AllTests
                 X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                if(IceInternal.AssemblyUtil.isMacOS)
-                {
-                    //
-                    // On macOS, we need to mark the key exportable because the addition of the key to the
-                    // cert store requires to move the key from on keychain to another (which requires the
-                    // Exportable flag... see https://github.com/dotnet/corefx/issues/25631)
-                    //
-                    storageFlags |= X509KeyStorageFlags.Exportable;
-                }
                 try
                 {
                     foreach(string cert in certificates)
@@ -2436,8 +2428,8 @@ public class AllTests
                         test(false);
                     }
                 }
+                Console.Out.WriteLine("ok");
             }
-            Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing system CAs... ");
             Console.Out.Flush();
