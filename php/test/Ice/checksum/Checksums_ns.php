@@ -37,13 +37,7 @@ function allTests($helper)
     //
     foreach($d as $i => $value)
     {
-        $n = 0;
-        preg_match("/\\d+/", $i, $matches);
-        if($matches)
-        {
-            $n = (int)$matches[0];
-        }
-
+        $n = intval(substr($i, -1));
         test(isset($localChecksums[$i]));
 
         if($n <= 1)
