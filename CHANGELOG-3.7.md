@@ -10,12 +10,13 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.7.9](#changes-in-ice-379)
   - [C++ Changes](#c-changes)
+  - [PHP Changes](#php-changes)
 - [Changes in Ice 3.7.8](#changes-in-ice-378)
   - [C++ Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
+  - [PHP Changes](#php-changes-1)
   - [Python Changes](#python-changes)
-  - [PHP Changes](#php-changes)
 - [Changes in Ice 3.7.7](#changes-in-ice-377)
   - [C++ Changes](#c-changes-2)
   - [Java Changes](#java-changes)
@@ -30,7 +31,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes-4)
   - [C# Changes](#c-changes-5)
   - [JavaScript Changes](#javascript-changes-2)
-  - [PHP Changes](#php-changes-1)
+  - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
   - [Swift Changes](#swift-changes-1)
@@ -59,7 +60,7 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-3)
   - [Objective-C Changes](#objective-c-changes)
-  - [PHP Changes](#php-changes-2)
+  - [PHP Changes](#php-changes-3)
   - [Python Changes](#python-changes-4)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   - [General Changes](#general-changes-5)
@@ -69,7 +70,7 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes-6)
   - [MATLAB Changes](#matlab-changes-4)
   - [Objective-C Changes](#objective-c-changes-1)
-  - [PHP Changes](#php-changes-3)
+  - [PHP Changes](#php-changes-4)
   - [Python Changes](#python-changes-5)
   - [Ruby Changes](#ruby-changes-2)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
@@ -79,10 +80,9 @@ particular aspect of Ice.
   - [Java Changes](#java-changes-5)
   - [JavaScript Changes](#javascript-changes-7)
   - [Objective-C Changes](#objective-c-changes-2)
-  - [PHP Changes](#php-changes-4)
+  - [PHP Changes](#php-changes-5)
   - [Python Changes](#python-changes-6)
   - [Ruby Changes](#ruby-changes-3)
-
 
 # Changes in Ice 3.7.9
 
@@ -92,6 +92,13 @@ These are the changes since Ice 3.7.8.
 
 - Fixed an IceSSL bug where the OpenSSL error description was not correctly included with the `Ice::ProtocolException`
   thrown when a read failure occurred. OpenSSL versions previous to `1.1.1e` are not affected.
+
+## PHP Changes
+
+- Added support for PHP 8.2.
+
+- `slice2php` will now generate code compatible with PHP >= 7 by default. To generate PHP 5 compatible code, use the
+  new `--php5` flag.
 
 # Changes in Ice 3.7.8
 

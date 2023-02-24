@@ -20,7 +20,7 @@ class IceBox(ProcessFromBinDir, Server):
         # file.
         #
         if self.configFile:
-            if isinstance(mapping, CSharpMapping) and (current.config.dotnetcore or current.config.framework):
+            if isinstance(mapping, CSharpMapping) and current.config.dotnet:
                 configFile = self.configFile.format(testdir=current.testsuite.getPath())
                 with open(configFile, 'r') as source:
                     framework = mapping.getTargetFramework(current)
@@ -28,10 +28,7 @@ class IceBox(ProcessFromBinDir, Server):
                     newConfigFile = "{}.{}".format(configFile, framework)
                     with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
-                            if current.config.framework == "net6.0":
-                                line = line.replace("\\net45\\", "\\net6.0\\")
-                            elif current.config.dotnetcore:
-                                line = line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework))
+                            line = line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework))
                             target.write(line)
                         current.files.append(newConfigFile)
 
@@ -60,7 +57,7 @@ class IceBox(ProcessFromBinDir, Server):
         args = Server.getEffectiveArgs(self, current, args)
         if self.configFile:
             mapping = self.getMapping(current)
-            if isinstance(mapping, CSharpMapping) and (current.config.dotnetcore or current.config.framework):
+            if isinstance(mapping, CSharpMapping) and current.config.dotnet:
                 args.append("--Ice.Config={0}.{1}".format(self.configFile, mapping.getTargetFramework(current)))
             else:
                 args.append("--Ice.Config={0}".format(self.configFile))

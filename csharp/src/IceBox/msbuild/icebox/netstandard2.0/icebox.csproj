@@ -8,9 +8,6 @@
     <OutputPath>../../../../../bin</OutputPath>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(AppTargetFramework)' == 'netcoreapp3.1'">
-    <UseAppHost>true</UseAppHost>
-  </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../AssemblyInfoExe.cs" />
     <Compile Include="../../../Server.cs" />

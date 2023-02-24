@@ -16,17 +16,11 @@
         <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</DefaultPlatformToolset>
 
         <NetStandardTargets>false</NetStandardTargets>
-        <Net6Targets>false</Net6Targets>
     </PropertyGroup>
 
-    <!-- NET Standard on Windows requires Visual Studio 2017, Visual Studio 2019 or Visual Studio 2022 -->
-    <PropertyGroup Condition="'$(VisualStudioVersion)' == '15.0' or '$(VisualStudioVersion)' == '16.0' or '$(VisualStudioVersion)' == '17.0' or '$(OS)' != 'Windows_NT'">
-        <NetStandardTargets>true</NetStandardTargets>
-    </PropertyGroup>
-
-    <!-- NET 6 on Windows requires Visual Studio 2022 -->
+    <!-- Our .NET Standard build on Windows requires Visual Studio 2022 -->
     <PropertyGroup Condition="'$(VisualStudioVersion)' == '17.0' or '$(OS)' != 'Windows_NT'">
-        <Net6Targets>true</Net6Targets>
+        <NetStandardTargets>true</NetStandardTargets>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
@@ -70,15 +64,6 @@
     </Target>
 
     <ItemGroup>
-        <!-- .NET 6 Solution files -->
-        <Net6DistSolution Include="ice.net6.0.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-        </Net6DistSolution>
-
-        <Net6TestSolution Include="ice.net6.0.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-        </Net6TestSolution>
-
         <!-- .NET 4.5 Solution files -->
         <Net45DistSolution Include="ice.net45.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
@@ -97,65 +82,6 @@
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
-
-    <!-- NET 6 Targets -->
-    <Target Name="Net6NuGetRestoreDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net6Targets)' == 'true'">
-        <MSBuild Projects="@(Net6DistSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Restore"/>
-    </Target>
-
-    <Target Name="Net6BuildDist"
-            DependsOnTargets="SliceCompilers;Net6NuGetRestoreDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net6Targets)' == 'true'">
-
-        <MSBuild Projects="@(Net6DistSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"/>
-
-    </Target>
-
-    <Target Name="Net6CleanDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(Net6Targets)' == 'true'">
-
-        <MSBuild Projects="@(Net6DistSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
-
-    </Target>
-
-    <Target Name="Net6NuGetRestore"
-            DependsOnTargets="Net6NuGetRestoreDist"
-            Condition="'$(Net6Targets)' == 'true'">
-        <MSBuild Projects="@(Net6TestSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Restore"/>
-    </Target>
-
-    <Target Name="Net6Build"
-            DependsOnTargets="Net6BuildDist;Net6NuGetRestore"
-            Condition="'$(Net6Targets)' == 'true'">
-
-        <MSBuild Projects="@(Net6TestSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"/>
-
-    </Target>
-
-    <Target Name="Net6Clean"
-            DependsOnTargets="Net6CleanDist"
-            Condition="'$(Net6Targets)' == 'true'">
-
-        <MSBuild Projects="@(Net6TestSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
-
-    </Target>
 
     <!-- NET 4.5 Targets -->
     <Target Name="Net45NuGetRestoreDist"
@@ -274,19 +200,19 @@
 
     <!-- Meta targets -->
 
-    <Target Name="BuildDist" DependsOnTargets="NetStandardBuildDist;Net45BuildDist;Net6BuildDist">
+    <Target Name="BuildDist" DependsOnTargets="NetStandardBuildDist;Net45BuildDist">
     </Target>
 
-    <Target Name="CleanDist" DependsOnTargets="NetStandardCleanDist;Net45CleanDist;Net6CleanDist">
+    <Target Name="CleanDist" DependsOnTargets="NetStandardCleanDist;Net45CleanDist">
     </Target>
 
-    <Target Name="NuGetRestore" DependsOnTargets="NetStandardNuGetRestore;Net45NuGetRestore;Net6NuGetRestore">
+    <Target Name="NuGetRestore" DependsOnTargets="NetStandardNuGetRestore;Net45NuGetRestore">
     </Target>
 
-    <Target Name="Build" DependsOnTargets="NetStandardBuild;Net45Build;Net6Build">
+    <Target Name="Build" DependsOnTargets="NetStandardBuild;Net45Build">
     </Target>
 
-    <Target Name="Clean" DependsOnTargets="NetStandardClean;Net45Clean;Net6Clean">
+    <Target Name="Clean" DependsOnTargets="NetStandardClean;Net45Clean">
     </Target>
 
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
@@ -294,23 +220,17 @@
     <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
-        <!-- Build iceboxnet with netcoreapp2.1 target framework (default) -->
+        <!-- Build iceboxnet with net6.0 target framework (default) -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp2.1;BaseIntermediateOutputPath=obj\netcoreapp2.1\"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net6.0;BaseIntermediateOutputPath=obj\net6.0\"
                  Targets="Restore;Publish"
                  Condition="'$(NetStandardTargets)' == 'true'"/>
 
-        <!-- Build iceboxnet with netcoreapp3.1 target framework -->
+        <!-- Build iceboxnet with net7.0 target framework -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp3.1;BaseIntermediateOutputPath=obj\netcoreapp3.1\"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net7.0;BaseIntermediateOutputPath=obj\net7.0\"
                  Targets="Restore;Publish"
-                 Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '17.0'"/>
-
-        <!-- Build iceboxnet with Net6 target framework -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net6.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Restore;Publish"
-                 Condition="'$(Net6Targets)' == 'true' and '$(VisualStudioVersion)' == '17.0'"/>
+                 Condition="'$(NetStandardTargets)' == 'true'"/>
 
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net;NetStandardTargets=$(NetStandardTargets);
@@ -350,21 +270,16 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net6.0"
-              Condition="'$(Net6Targets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+              Condition="'$(NetStandardTargets)' == 'true'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp3.1"
-              Condition="'$(NetStandardTargets)' == 'true' and '$(VisualStudioVersion)' == '16.0'"/>
+              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net7.0"
+              Condition="'$(NetStandardTargets)' == 'true'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45"/>
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp2.1"
-              Condition="'$(NetStandardTargets)' == 'true'"/>
 
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
@@ -375,9 +290,6 @@
 
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\net6.0\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU"
-                 Targets="Publish"/>
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Publish"/>

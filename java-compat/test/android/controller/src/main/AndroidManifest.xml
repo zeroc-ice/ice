@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zeroc.testcontroller"
     android:versionCode="1"
     android:versionName="1.0.0">
 
@@ -9,6 +8,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <!--
       http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
@@ -16,11 +16,10 @@
     <application
         android:icon="@raw/icon"
         android:label="@string/app_name"
-        android:name="ControllerApp"
-        android:allowBackup="false">
+        android:name="ControllerApp">
         <activity
             android:name="ControllerActivity"
-            android:label="@string/app_name">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

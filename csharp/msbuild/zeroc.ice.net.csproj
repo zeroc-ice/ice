@@ -43,11 +43,6 @@
             <PackagePath>lib\netstandard2.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\net6.0\publish\*" Exclude="..\bin\net6.0\publish\iceboxnet">
-            <Pack>true</Pack>
-            <PackagePath>tools\net6.0</PackagePath>
-        </Content>
-
         <Content Include="..\bin\$(AppTargetFramework)\publish\*" Exclude="..\bin\$(AppTargetFramework)\publish\iceboxnet">
             <Pack>true</Pack>
             <PackagePath>tools\$(AppTargetFramework)</PackagePath>

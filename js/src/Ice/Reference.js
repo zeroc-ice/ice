@@ -751,8 +751,7 @@ class ReferenceFactory
             const router = RouterPrx.uncheckedCast(this._communicator.propertyToProxy(property));
             if(router !== null)
             {
-                const match = ".Router";
-                if(propertyPrefix.lastIndexOf(match) == propertyPrefix.length - match.length)
+                if(propertyPrefix.endsWith("Router"))
                 {
                     this._instance.initializationData().logger.warning(
                         "`" + property + "=" + properties.getProperty(property) +
