@@ -1,0 +1,23 @@
+name: "Build and Test"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["3.7"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["3.7"]
+  schedule:
+    - cron: "34 18 * * 3"
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build
+        run: make V=1
+      - name: Test
+        run: ./allTests.py --workers=4

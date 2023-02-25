@@ -68,7 +68,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, bool);
+    CodeVisitor(IceUtilInternal::Output&, bool, bool);
 
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -83,10 +83,6 @@ private:
 
     void startNamespace(const ContainedPtr&);
     void endNamespace();
-
-    void writeClassDef(const ClassDefPtr&, bool);
-    void writeException(const ExceptionPtr&, bool);
-    void writeStruct(const StructPtr&, bool);
 
     //
     // Return the PHP name for the given Slice type. When using namespaces,
@@ -146,14 +142,16 @@ private:
     bool _ns; // Using namespaces?
     list<string> _moduleStack; // TODO: Necessary?
     set<string> _classHistory; // TODO: Necessary?
+    bool _php5; // Generate PHP5 compatible code
 };
 
 //
 // CodeVisitor implementation.
 //
-CodeVisitor::CodeVisitor(Output& out, bool ns) :
+CodeVisitor::CodeVisitor(Output& out, bool ns, bool php5) :
     _out(out),
-    _ns(ns)
+    _ns(ns),
+    _php5(php5)
 {
 }
 
@@ -196,32 +194,6 @@ bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string scoped = p->scoped();
-
-    startNamespace(p);
-
-    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
-    _out << sb;
-    writeClassDef(p, false);
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    writeClassDef(p, true);
-    _out << eb;
-
-    endNamespace();
-
-    if(_classHistory.count(scoped) == 0)
-    {
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
-
-    return false;
-}
-
-void
-CodeVisitor::writeClassDef(const ClassDefPtr& p, bool returnTypeDeclaration)
-{
-    string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
@@ -234,6 +206,8 @@ CodeVisitor::writeClassDef(const ClassDefPtr& p, bool returnTypeDeclaration)
     DataMemberList members = p->dataMembers();
     bool isInterface = p->isInterface();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
+
+    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     if(!p->isLocal() && isAbstract)
@@ -386,13 +360,13 @@ CodeVisitor::writeClassDef(const ClassDefPtr& p, bool returnTypeDeclaration)
         //
         // __toString
         //
-        if (returnTypeDeclaration)
+        if (_php5)
         {
-            _out << sp << nl << "public function __toString(): string";
+            _out << sp << nl << "public function __toString()";
         }
         else
         {
-            _out << sp << nl << "public function __toString()";
+            _out << sp << nl << "public function __toString(): string";
         }
 
         _out << sb;
@@ -739,34 +713,26 @@ CodeVisitor::writeClassDef(const ClassDefPtr& p, bool returnTypeDeclaration)
             }
         }
     }
+
+    endNamespace();
+
+    if(_classHistory.count(scoped) == 0)
+    {
+        _classHistory.insert(scoped); // Avoid redundant declarations.
+    }
+
+    return false;
 }
 
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    startNamespace(p);
-
-    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
-    _out << sb;
-    writeException(p, false);
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    writeException(p, true);
-    _out << eb;
-
-    endNamespace();
-
-    return false;
-}
-
-void
-CodeVisitor::writeException(const ExceptionPtr &p, bool returnTypeDeclaration)
-{
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
+
+    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     _out << nl << "class " << name << " extends ";
@@ -836,13 +802,13 @@ CodeVisitor::writeException(const ExceptionPtr &p, bool returnTypeDeclaration)
     //
     // __toString
     //
-    if (returnTypeDeclaration)
+    if (_php5)
     {
-        _out << sp << nl << "public function __toString(): string";
+        _out << sp << nl << "public function __toString()";
     }
     else
     {
-        _out << sp << nl << "public function __toString()";
+        _out << sp << nl << "public function __toString(): string";
     }
 
     _out << sb;
@@ -917,29 +883,14 @@ CodeVisitor::writeException(const ExceptionPtr &p, bool returnTypeDeclaration)
         _out << "null";
     }
     _out << ");";
-}
-
-bool
-CodeVisitor::visitStructStart(const StructPtr& p)
-{
-    startNamespace(p);
-
-    _out << sp << nl << "if (PHP_VERSION_ID < 80200)";
-    _out << sb;
-    writeStruct(p, false);
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    writeStruct(p, true);
-    _out << eb;
 
     endNamespace();
 
     return false;
 }
 
-void
-CodeVisitor::writeStruct(const StructPtr& p, bool returnTypeDeclaration)
+bool
+CodeVisitor::visitStructStart(const StructPtr& p)
 {
     string scoped = p->scoped();
     string name = getName(p);
@@ -958,6 +909,8 @@ CodeVisitor::writeStruct(const StructPtr& p, bool returnTypeDeclaration)
         }
     }
 
+    startNamespace(p);
+
     _out << sp << nl << "global " << type << ';';
 
     _out << nl << "class " << name;
@@ -975,13 +928,13 @@ CodeVisitor::writeStruct(const StructPtr& p, bool returnTypeDeclaration)
     //
     // __toString
     //
-    if (returnTypeDeclaration)
+    if (_php5)
     {
-        _out << sp << nl << "public function __toString(): string";
+        _out << sp << nl << "public function __toString()";
     }
     else
     {
-        _out << sp << nl << "public function __toString()";
+        _out << sp << nl << "public function __toString(): string";
     }
     _out << sb;
     _out << nl << "global " << type << ';';
@@ -1034,6 +987,10 @@ CodeVisitor::writeStruct(const StructPtr& p, bool returnTypeDeclaration)
         _out.dec();
     }
     _out << "));";
+
+    endNamespace();
+
+    return false;
 }
 
 void
@@ -1553,7 +1510,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 }
 
 static void
-generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<string>& includePaths, Output& out)
+generate(const UnitPtr& un, bool all, bool checksum, bool ns, bool php5, const vector<string>& includePaths, Output& out)
 {
     if(!all)
     {
@@ -1584,7 +1541,7 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<strin
         }
     }
 
-    CodeVisitor codeVisitor(out, ns);
+    CodeVisitor codeVisitor(out, ns, php5);
     un->visit(&codeVisitor, false);
 
     if(checksum)
@@ -1714,6 +1671,7 @@ usage(const string& n)
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore             Allow underscores in Slice identifiers\n"
         "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
+        "--php5                   Generate PHP5 compatible code.\n"
         ;
 }
 
@@ -1738,6 +1696,7 @@ compile(const vector<string>& argv)
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
     opts.addOpt("n", "no-namespace");
+    opts.addOpt("", "php5");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -1808,6 +1767,8 @@ compile(const vector<string>& argv)
     bool checksum = opts.isSet("checksum");
 
     bool ns = !opts.isSet("no-namespace");
+
+    bool php5 = opts.isSet("php5");
 
     if(args.empty())
     {
@@ -1960,7 +1921,7 @@ compile(const vector<string>& argv)
                         //
                         // Generate the PHP mapping.
                         //
-                        generate(u, all, checksum, ns, includePaths, out);
+                        generate(u, all, checksum, ns, php5, includePaths, out);
 
                         out << "?>\n";
                         out.close();

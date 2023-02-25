@@ -16,7 +16,7 @@ You can build the Ice for Python extension from source using `pip`:
 pip install <URL of Ice source distribution for Python>
 ```
 
-## Building with Visual Studio 2015 and MSBuild (Python 3.10 for Windows)
+## Building with Visual Studio 2015 and MSBuild (Python 3.11 for Windows)
 
 You can build an Ice for Python extension that links with the Ice C++ DLLs using Visual Studio and MSBuild.
 
@@ -76,14 +76,14 @@ on the command prompt's default platform.
 The build will use the default location for Python defined in
 `python\msbuild\ice.props`. You can override it by setting the `PythonHome`
 MSBuild property. For example, the following command will use the Python
-installation from `C:\Python36-AMD64` instead of the default location:
+installation from `C:\Python310-AMD64` instead of the default location:
 ```
-msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python36-AMD64
+msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python310-AMD64
 ```
 
 ## Building on Linux or macOS
 
-Ice for Python supports Python versions 2.7 and 3.10. Note however that
+Ice for Python supports Python versions 2.7 and 3.11. Note however that
 your Python installation must have been built with a C++ compiler that is
 compatible with the compiler used to build Ice for C++.
 

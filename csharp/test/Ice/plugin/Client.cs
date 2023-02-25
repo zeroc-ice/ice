@@ -23,12 +23,10 @@ public class Client : Test.TestHelper
     {
 #if NET45
         string pluginPath = "msbuild/plugin/net45/Plugin.dll";
-#elif NET6_0
-        string pluginPath = "msbuild/plugin/net6.0/Plugin.dll";
 #else
         string pluginPath =
             String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",
-                          Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
+                          Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
 #endif
         {
             Console.Write("testing a simple plug-in... ");

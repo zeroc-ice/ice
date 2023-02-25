@@ -51,12 +51,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"
-        minSdkVersion 24
-        targetSdkVersion 30
+        minSdkVersion 31
+        targetSdkVersion 33
         multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
@@ -110,5 +110,5 @@ dependencies {
     runtimeOnly localDependency("icebt")
 
     implementation files("${rootProject.projectDir}/../../../lib/test.jar")
-    runtimeOnly "org.apache.commons:commons-compress:1.14"
+    runtimeOnly "org.apache.commons:commons-compress:1.20"
 }
