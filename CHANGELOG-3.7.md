@@ -11,6 +11,7 @@ particular aspect of Ice.
 - [Changes in Ice 3.7.9](#changes-in-ice-379)
   - [C++ Changes](#c-changes)
   - [PHP Changes](#php-changes)
+  - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.8](#changes-in-ice-378)
   - [C++ Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
@@ -33,7 +34,7 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes-2)
   - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-1)
-  - [Ruby Changes](#ruby-changes)
+  - [Ruby Changes](#ruby-changes-1)
   - [Swift Changes](#swift-changes-1)
 - [Changes in Ice 3.7.4](#changes-in-ice-374)
   - [General Changes](#general-changes-2)
@@ -42,7 +43,7 @@ particular aspect of Ice.
   - [JavaScript Changes](#javascript-changes-3)
   - [MATLAB Changes](#matlab-changes-1)
   - [Python Changes](#python-changes-2)
-  - [Ruby Changes](#ruby-changes-1)
+  - [Ruby Changes](#ruby-changes-2)
   - [Swift Changes](#swift-changes-2)
 - [Changes in Ice 3.7.3](#changes-in-ice-373)
   - [General Changes](#general-changes-3)
@@ -72,7 +73,7 @@ particular aspect of Ice.
   - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes-4)
   - [Python Changes](#python-changes-5)
-  - [Ruby Changes](#ruby-changes-2)
+  - [Ruby Changes](#ruby-changes-3)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   - [General Changes](#general-changes-6)
   - [C++ Changes](#c-changes-14)
@@ -82,7 +83,7 @@ particular aspect of Ice.
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-5)
   - [Python Changes](#python-changes-6)
-  - [Ruby Changes](#ruby-changes-3)
+  - [Ruby Changes](#ruby-changes-4)
 
 # Changes in Ice 3.7.9
 
@@ -99,6 +100,10 @@ These are the changes since Ice 3.7.8.
 
 - `slice2php` will now generate code compatible with PHP >= 7 by default. To generate PHP 5 compatible code, use the
   new `--php5` flag.
+
+## Ruby Changes
+
+- Add supported for Ruby 3.2.
 
 # Changes in Ice 3.7.8
 
