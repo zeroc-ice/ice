@@ -103,7 +103,7 @@ These are the changes since Ice 3.7.8.
 
 ## Ruby Changes
 
-- Add supported for Ruby 3.2.
+- Add support for Ruby 3.2.
 
 # Changes in Ice 3.7.8
 
