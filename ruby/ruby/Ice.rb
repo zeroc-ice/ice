@@ -24,7 +24,7 @@ module Ice
         # sibling of the "rb" directory.
         #
         dir = File::join(rbHome, "slice")
-        if File::exists?(dir)
+        if File::exist?(dir)
             return File::expand_path(dir)
         end
 
@@ -33,7 +33,7 @@ module Ice
         # higher.
         #
         dir = File::join(rbHome, "..", "slice")
-        if File::exists?(dir)
+        if File::exist?(dir)
             return File::expand_path(dir)
         end
 
@@ -42,7 +42,7 @@ module Ice
             # Check the default Linux location.
             #
             dir = File::join("/", "usr", "share", "ice", "slice")
-            if File::exists?(dir)
+            if File::exist?(dir)
                 return dir
             end
         end
