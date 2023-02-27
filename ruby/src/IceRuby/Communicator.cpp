@@ -748,6 +748,7 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_module_function(iceModule, "stringToIdentity", CAST_METHOD(IceRuby_stringToIdentity), 1);
 
     _communicatorClass = rb_define_class_under(iceModule, "CommunicatorI", rb_cObject);
+    rb_undef_alloc_func(_communicatorClass);
     rb_define_method(_communicatorClass, "destroy", CAST_METHOD(IceRuby_Communicator_destroy), 0);
     rb_define_method(_communicatorClass, "shutdown", CAST_METHOD(IceRuby_Communicator_shutdown), 0);
     rb_define_method(_communicatorClass, "isShutdown", CAST_METHOD(IceRuby_Communicator_isShutdown), 0);

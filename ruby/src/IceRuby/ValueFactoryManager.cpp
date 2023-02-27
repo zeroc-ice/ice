@@ -429,6 +429,7 @@ bool
 IceRuby::initValueFactoryManager(VALUE iceModule)
 {
     _valueFactoryManagerClass = rb_define_class_under(iceModule, "ValueFactoryManagerI", rb_cObject);
+    rb_undef_alloc_func(_valueFactoryManagerClass);
 
     //
     // Instance methods.

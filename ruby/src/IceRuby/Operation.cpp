@@ -643,6 +643,7 @@ IceRuby::initOperation(VALUE iceModule)
     // Define a class to represent an operation.
     //
     _operationClass = rb_define_class_under(iceModule, "IceRuby_Operation", rb_cObject);
+    rb_undef_alloc_func(_operationClass);
 
     rb_define_method(_operationClass, "invoke", CAST_METHOD(IceRuby_Operation_invoke), 3);
     rb_define_method(_operationClass, "deprecate", CAST_METHOD(IceRuby_Operation_deprecate), 1);
