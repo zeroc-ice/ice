@@ -3244,7 +3244,9 @@ IceRuby::initTypes(VALUE iceModule)
     // Define a class to represent TypeInfo, and another to represent ExceptionInfo.
     //
     _typeInfoClass = rb_define_class_under(iceModule, "Internal_TypeInfo", rb_cObject);
+    rb_undef_alloc_func(_typeInfoClass);
     _exceptionInfoClass = rb_define_class_under(iceModule, "Internal_ExceptionInfo", rb_cObject);
+    rb_undef_alloc_func(_exceptionInfoClass);
 
     rb_define_const(iceModule, "T_bool", createType(new PrimitiveInfo(PrimitiveInfo::KindBool)));
     rb_define_const(iceModule, "T_byte", createType(new PrimitiveInfo(PrimitiveInfo::KindByte)));

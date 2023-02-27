@@ -326,6 +326,7 @@ IceRuby::initProperties(VALUE iceModule)
     rb_define_module_function(iceModule, "createProperties", CAST_METHOD(IceRuby_createProperties), -1);
 
     _propertiesClass = rb_define_class_under(iceModule, "PropertiesI", rb_cObject);
+    rb_undef_alloc_func(_propertiesClass);
     rb_define_method(_propertiesClass, "getProperty", CAST_METHOD(IceRuby_Properties_getProperty), 1);
     rb_define_method(_propertiesClass, "getPropertyWithDefault",
                      CAST_METHOD(IceRuby_Properties_getPropertyWithDefault), 2);

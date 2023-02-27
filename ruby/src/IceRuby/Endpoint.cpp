@@ -238,6 +238,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     // Endpoint.
     //
     _endpointClass = rb_define_class_under(iceModule, "Endpoint", rb_cObject);
+    rb_undef_alloc_func(_endpointClass);
 
     //
     // Instance methods.

@@ -425,6 +425,7 @@ IceRuby::initConnection(VALUE iceModule)
     // Connection.
     //
     _connectionClass = rb_define_class_under(iceModule, "ConnectionI", rb_cObject);
+    rb_undef_alloc_func(_connectionClass);
 
     //
     // Instance methods.

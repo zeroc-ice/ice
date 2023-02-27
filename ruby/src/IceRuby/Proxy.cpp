@@ -1284,6 +1284,7 @@ IceRuby::initProxy(VALUE iceModule)
     // ObjectPrx.
     //
     _proxyClass = rb_define_class_under(iceModule, "ObjectPrx", rb_cObject);
+    rb_undef_alloc_func(_proxyClass);
 
     //
     // Instance methods.
