@@ -2332,8 +2332,9 @@ allTests(Test::TestHelper* helper, bool collocated)
                         {
                             r->get();
                         }
-                        catch(const Ice::LocalException&)
+                        catch(const Ice::LocalException& ex)
                         {
+                            cerr << ex << endl;
                             test(false);
                         }
                     }
