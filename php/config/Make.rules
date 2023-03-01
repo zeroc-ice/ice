@@ -18,7 +18,7 @@ USE_NAMESPACES  ?= yes
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-php_major_version       = $(firstword $(subst ., ,$(shell $(PHP_CONFIG) --version)))
+php_major_version       = $(firstword $(subst ., ,$(shell php -r "print(PHP_VERSION);")))
 
 ifneq ($(USE_NAMESPACES),yes)
 slice2php_flags         = --no-namespace
