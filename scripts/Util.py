@@ -2433,12 +2433,12 @@ class AndroidProcessController(RemoteProcessController):
             sdk = current.testcase.getMapping().getSDKPackage()
             print("creating virtual device ({0})... ".format(sdk))
             try:
-                run("avdmanager delete avd -n IceTests") # Delete the created device
+                run("avdmanager -v delete avd -n IceTests") # Delete the created device
             except:
                 pass
             # The SDK is downloaded by test VMs instead of here.
             #run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
-            run("avdmanager create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
+            run("avdmanager -v create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
             self.startEmulator("IceTests")
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
@@ -2466,7 +2466,7 @@ class AndroidProcessController(RemoteProcessController):
 
             if self.avd == "IceTests":
                 try:
-                    run("avdmanager delete avd -n IceTests") # Delete the created device
+                    run("avdmanager -v delete avd -n IceTests") # Delete the created device
                 except:
                     pass
 
