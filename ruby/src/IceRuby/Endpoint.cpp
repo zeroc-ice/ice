@@ -255,6 +255,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     // EndpointInfo.
     //
     _endpointInfoClass = rb_define_class_under(iceModule, "EndpointInfo", rb_cObject);
+    rb_undef_alloc_func(_endpointInfoClass);
 
     //
     // Instance methods.
@@ -275,6 +276,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     // IPEndpointInfo
     //
     _ipEndpointInfoClass = rb_define_class_under(iceModule, "IPEndpointInfo", _endpointInfoClass);
+    rb_undef_alloc_func(_ipEndpointInfoClass);
 
     //
     // Instance members.
@@ -287,11 +289,13 @@ IceRuby::initEndpoint(VALUE iceModule)
     // TCPEndpointInfo
     //
     _tcpEndpointInfoClass = rb_define_class_under(iceModule, "TCPEndpointInfo", _ipEndpointInfoClass);
+    rb_undef_alloc_func(_tcpEndpointInfoClass);
 
     //
     // UDPEndpointInfo
     //
     _udpEndpointInfoClass = rb_define_class_under(iceModule, "UDPEndpointInfo", _ipEndpointInfoClass);
+    rb_undef_alloc_func(_udpEndpointInfoClass);
 
     //
     // Instance members.
@@ -303,6 +307,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     // WSEndpointInfo
     //
     _wsEndpointInfoClass = rb_define_class_under(iceModule, "WSEndpointInfo", _endpointInfoClass);
+    rb_undef_alloc_func(_wsEndpointInfoClass);
 
     //
     // Instance members.
@@ -313,6 +318,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     // OpaqueEndpointInfo
     //
     _opaqueEndpointInfoClass = rb_define_class_under(iceModule, "OpaqueEndpointInfo", _endpointInfoClass);
+    rb_undef_alloc_func(_opaqueEndpointInfoClass);
 
     //
     // Instance members.
@@ -324,6 +330,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     // SSLEndpointInfo
     //
     _sslEndpointInfoClass = rb_define_class_under(iceModule, "SSLEndpointInfo", _endpointInfoClass);
+    rb_undef_alloc_func(_sslEndpointInfoClass);
 }
 
 bool

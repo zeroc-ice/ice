@@ -120,6 +120,7 @@ void
 IceRuby::initImplicitContext(VALUE iceModule)
 {
     _implicitContextClass = rb_define_class_under(iceModule, "ImplicitContextI", rb_cObject);
+    rb_undef_alloc_func(_implicitContextClass);
     rb_define_method(_implicitContextClass, "getContext", CAST_METHOD(IceRuby_ImplicitContext_getContext), 0);
     rb_define_method(_implicitContextClass, "setContext", CAST_METHOD(IceRuby_ImplicitContext_setContext), 1);
     rb_define_method(_implicitContextClass, "containsKey", CAST_METHOD(IceRuby_ImplicitContext_containsKey), 1);
