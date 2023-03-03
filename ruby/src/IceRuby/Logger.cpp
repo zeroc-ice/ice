@@ -127,6 +127,7 @@ IceRuby::initLogger(VALUE iceModule)
     // Logger.
     //
     _loggerClass = rb_define_class_under(iceModule, "LoggerI", rb_cObject);
+    rb_undef_alloc_func(_loggerClass);
 
     //
     // Instance methods.

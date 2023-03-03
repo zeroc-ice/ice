@@ -3274,6 +3274,7 @@ IceRuby::initTypes(VALUE iceModule)
 
     _unsetTypeClass = rb_define_class_under(iceModule, "Internal_UnsetType", rb_cObject);
     Unset = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), _unsetTypeClass);
+    rb_undef_alloc_func(_unsetTypeClass);
     rb_define_const(iceModule, "Unset", Unset);
 
     return true;
