@@ -4026,11 +4026,16 @@ class SwiftMapping(Mapping):
 
         targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
-        return "{0}/TestDriver.app/Contents/MacOS/TestDriver {1} {2} {3}".format(
-            targetBuildDir,
-            package,
-            exe,
-            args)
+        testDriver = os.path.join(targetBuildDir, "TestDriver.app/Contents/MacOS/TestDriver")
+        if not os.path.exists(testDriver):
+            # Fallback location, required with Xcode 14.2
+            testDriver = os.path.join(
+                current.testcase.getMapping().getPath(),
+                "build",
+                current.config.buildConfig,
+                "TestDriver.app/Contents/MacOS/TestDriver")
+
+        return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 
     def _getDefaultSource(self, processType):
         return { "client" : "Client.swift",
@@ -4052,7 +4057,15 @@ class SwiftMapping(Mapping):
                                            current.config.buildConfig,
                                            current.config.buildPlatform)
         targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
-        return "{0}/TestDriver.app".format(targetBuildDir)
+
+        testDriver = os.path.join(targetBuildDir, "TestDriver.app")
+        if os.path.exists(testDriver):
+            return testDriver
+        else:
+            # Fallback location, required with Xcode 14.2
+            return "build/{0}-{1}/TestDriver.app".format(
+                current.config.buildConfig,
+                current.config.buildPlatform)
 
     def getSSLProps(self, process, current):
         props = Mapping.getByName("cpp").getSSLProps(process, current)
