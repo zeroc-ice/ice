@@ -115,7 +115,7 @@ TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void
     {
         _pending();
     }
-    _pending = move(response);
+    _pending = std::move(response);
 }
 #else
 void

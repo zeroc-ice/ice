@@ -1083,7 +1083,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
                 CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(ICE_DELEGATE(CloseCallback)) callback) :
                     _connection(connection),
 #ifdef ICE_CPP11_MAPPING
-                    _callback(move(callback))
+                    _callback(std::move(callback))
 #else
                     _callback(callback)
 #endif
@@ -1101,7 +1101,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
                 const ICE_DELEGATE(CloseCallback) _callback;
             };
 #ifdef ICE_CPP11_MAPPING
-            _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, move(callback)));
+            _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, std::move(callback)));
 #else
             _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, callback));
 #endif

@@ -333,8 +333,8 @@ TestI::sequenceTestAsync(shared_ptr<::Test::SS1> p1,
                           const ::Ice::Current&)
 {
     SS3 ss;
-    ss.c1 = move(p1);
-    ss.c2 = move(p2);
+    ss.c1 = std::move(p1);
+    ss.c2 = std::move(p2);
     response(ss);
 }
 

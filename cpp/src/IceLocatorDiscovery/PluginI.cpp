@@ -646,7 +646,7 @@ LocatorI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
                           const Ice::Current& current)
 {
     invoke(nullptr, make_shared<Request>(this, current.operation, current.mode, inParams, current.ctx,
-                                         make_pair(move(responseCB), move(exceptionCB))));
+                                         make_pair(std::move(responseCB), std::move(exceptionCB))));
 }
 #else
 void

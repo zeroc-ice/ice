@@ -1467,8 +1467,8 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto b1 = move(result.p1);
-            auto b2 = move(result.p2);
+            auto b1 = std::move(result.p1);
+            auto b2 = std::move(result.p2);
 
             test(b1);
             test(b1->ice_id() == "::Test::D1");
@@ -1960,8 +1960,8 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto ret = move(result.returnValue);
-            auto b = move(result.p);
+            auto ret = std::move(result.returnValue);
+            auto b = std::move(result.p);
 
             test(b);
             test(b->sb == "D4.sb (1)");

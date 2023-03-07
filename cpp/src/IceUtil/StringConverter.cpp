@@ -2,9 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#if defined(_MSC_VER) && (_MSVC_LANG >= 201703L)
-    // TODO codecvt was deprecated in C++17 and cause build failures with VC++ compiler
-    // we should replace this code with MultiByteToWideChar() and WideCharToMultiByte()
+// TODO codecvt was deprecated in C++17 and cause build failures in C++17 mode
+#if (_cplusplus >= 201703L)
+#   include <IceUtil/DisableWarnings.h>
+#elif defined(_MSC_VER) && (_MSVC_LANG >= 201703L)
+    // For VC++ we should replace this code with MultiByteToWideChar() and WideCharToMultiByte()
 #   define  _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #endif
 

@@ -22,7 +22,7 @@ MyDerivedClassI::ice_isA(ICE_IN(string) id, const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
 #ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClass::ice_isA(move(id), current);
+    return Test::MyDerivedClass::ice_isA(std::move(id), current);
 #else
     return Test::MyDerivedClass::ice_isA(id, current);
 #endif
@@ -61,7 +61,7 @@ class Thread_opVoid : public IceUtil::Thread
 public:
 
     Thread_opVoid(function<void()> response) :
-        _response(move(response))
+        _response(std::move(response))
     {
     }
 

@@ -201,12 +201,12 @@ public:
             proxy->ice_getConnection()->setCloseCallback(
                 [self](Ice::ConnectionPtr connection)
                 {
-                    self->closed(move(connection));
+                    self->closed(std::move(connection));
                 });
             proxy->ice_getConnection()->setHeartbeatCallback(
                 [self](Ice::ConnectionPtr connection)
                 {
-                    self->heartbeat(move(connection));
+                    self->heartbeat(std::move(connection));
                 });
 #else
             proxy->ice_getConnection()->setCloseCallback(ICE_SHARED_FROM_THIS);
@@ -739,7 +739,7 @@ allTests(Test::TestHelper* helper)
             {
                 testCase->run();
             });
-        threads.push_back(make_pair(move(t), testCase));
+        threads.push_back(make_pair(std::move(t), testCase));
     }
     for(auto p = threads.begin(); p != threads.end(); ++p)
     {

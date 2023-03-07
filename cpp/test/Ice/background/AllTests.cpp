@@ -394,7 +394,7 @@ allTests(Test::TestHelper* helper)
             }
             else
             {
-                results.push_back(move(f));
+                results.push_back(std::move(f));
             }
         }
 

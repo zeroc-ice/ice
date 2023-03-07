@@ -130,7 +130,7 @@ Ice::Object::_iceD_ice_isA(Incoming& inS, const Current& current)
     istr->read(iceP_id, false);
     inS.endReadParams();
 #ifdef ICE_CPP11_MAPPING
-    bool ret = ice_isA(move(iceP_id), current);
+    bool ret = ice_isA(std::move(iceP_id), current);
 #else
     bool ret = ice_isA(iceP_id, current);
 #endif

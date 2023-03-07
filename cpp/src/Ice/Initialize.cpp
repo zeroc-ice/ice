@@ -201,7 +201,7 @@ Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator,
     }
 
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    instance->setThreadHook(move(threadStart), move(threadStop));
+    instance->setThreadHook(std::move(threadStart), std::move(threadStop));
 }
 #else
 Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator, const ThreadNotificationPtr& threadHook)

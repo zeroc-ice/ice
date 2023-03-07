@@ -456,7 +456,7 @@ allTests(Test::TestHelper* helper)
         cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inEncaps,
             [&](bool ok, vector<Ice::Byte> outParams)
             {
-                outEncaps = move(outParams);
+                outEncaps = std::move(outParams);
                 completed.set_value(ok);
             },
             [&](exception_ptr ex)
@@ -571,7 +571,7 @@ allTests(Test::TestHelper* helper)
         cl->ice_invokeAsync("opException", Ice::OperationMode::Normal, inEncaps,
             [&](bool ok, vector<Ice::Byte> outParams)
             {
-                outEncaps = move(outParams);
+                outEncaps = std::move(outParams);
                 completed.set_value(ok);
             },
             [&](exception_ptr ex)

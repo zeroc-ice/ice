@@ -164,7 +164,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     int totalSize = 0;
     string line;
 
-    for(int i = 0; is.good(); ++i)
+    while(is.good())
     {
         getline(is, line);
 
