@@ -99,7 +99,13 @@ endif
 #
 cpp11_cppflags          = -DICE_CPP11_MAPPING
 ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
+ifeq ($(os),Darwin)
+# With Xcode 14.3 C++17 deprecations apply when building with -std=c++11, we pass -std=c++17
+# to enable C++17 mode conditional code.
+cpp11_cppflags          := $(cpp11_cppflags) -std=c++17
+else
 cpp11_cppflags          := $(cpp11_cppflags) -std=c++11
+endif
 endif
 cpp11_ldflags           = $(cpp11_cppflags)
 cpp11_targetname        = $(if $(or $(filter-out $($1_target),program),$(filter $(bindir)%,$($4_targetdir))),++11)

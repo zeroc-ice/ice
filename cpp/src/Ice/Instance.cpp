@@ -921,8 +921,8 @@ IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
 void
 IceInternal::Instance::setThreadHook(function<void()> threadStart, function<void()> threadStop)
 {
-    _initData.threadStart = move(threadStart);
-    _initData.threadStop = move(threadStop);
+    _initData.threadStart = std::move(threadStart);
+    _initData.threadStop = std::move(threadStop);
 }
 #else
 void

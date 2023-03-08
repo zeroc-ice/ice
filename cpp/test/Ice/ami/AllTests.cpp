@@ -1831,7 +1831,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 {
                     break;
                 }
-                futures.push_back(move(f));
+                futures.push_back(std::move(f));
             }
         }
         catch(...)
@@ -2007,7 +2007,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     Ice::CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
-                        promise.set_exception(move(ex));
+                        promise.set_exception(std::move(ex));
                     },
                     [&](bool)
                     {
@@ -2059,7 +2059,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     Ice::CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
-                        promise.set_exception(move(ex));
+                        promise.set_exception(std::move(ex));
                     },
                     [&](bool sentSynchronously)
                     {
@@ -2088,7 +2088,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     Ice::CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
-                        promise.set_exception(move(ex));
+                        promise.set_exception(std::move(ex));
                     },
                     [&](bool sentSynchronously)
                     {
@@ -2123,7 +2123,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     Ice::CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
-                        promise.set_exception(move(ex));
+                        promise.set_exception(std::move(ex));
                     },
                     [&](bool sentSynchronously)
                     {
@@ -2161,7 +2161,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     Ice::CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
-                        promise.set_exception(move(ex));
+                        promise.set_exception(std::move(ex));
                     },
                     [&](bool sentSynchronously)
                     {

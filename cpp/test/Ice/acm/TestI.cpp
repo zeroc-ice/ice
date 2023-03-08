@@ -129,7 +129,7 @@ TestI::startHeartbeatCount(const Ice::Current& current)
     HeartbeatCallbackIPtr callback = _callback;
     current.con->setHeartbeatCallback([callback](Ice::ConnectionPtr connection)
     {
-        callback->heartbeat(move(connection));
+        callback->heartbeat(std::move(connection));
     });
 #else
     current.con->setHeartbeatCallback(_callback);

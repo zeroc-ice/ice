@@ -1096,7 +1096,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->ice_idAsync(
             [&](string id)
             {
-                cb->id(move(id));
+                cb->id(std::move(id));
             },
             makeExceptionClosure(cb));
 #else
@@ -1114,7 +1114,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->ice_idsAsync(
             [&](vector<string> ids)
             {
-                cb->ids(move(ids));
+                cb->ids(std::move(ids));
             },
             makeExceptionClosure(cb));
 
@@ -1222,7 +1222,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringAsync("hello", "world",
             [&](string s1P, string s2P)
             {
-                cb->opString(move(s1P), move(s2P));
+                cb->opString(std::move(s1P), std::move(s2P));
             },
             makeExceptionClosure(cb));
 #else
@@ -1258,7 +1258,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opMyClassAsync(p,
                           [&](shared_ptr<Test::MyClassPrx> c1, shared_ptr<Test::MyClassPrx> c2, shared_ptr<Test::MyClassPrx> c3)
             {
-                cb->opMyClass(move(c1), move(c2), move(c3));
+                cb->opMyClass(std::move(c1), std::move(c2), std::move(c3));
             },
             makeExceptionClosure(cb));
 #else
@@ -1285,7 +1285,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStructAsync(si1, si2,
             [&](Test::Structure si3, Test::Structure si4)
             {
-                cb->opStruct(move(si3), move(si4));
+                cb->opStruct(std::move(si3), std::move(si4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1316,7 +1316,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opByteSAsync(bsi1, bsi2,
             [&](Test::ByteS bsi3, Test::ByteS bsi4)
             {
-                cb->opByteS(move(bsi3), move(bsi4));
+                cb->opByteS(std::move(bsi3), std::move(bsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1343,7 +1343,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opBoolSAsync(bsi1, bsi2,
             [&](Test::BoolS bsi3, Test::BoolS bsi4)
             {
-                cb->opBoolS(move(bsi3), move(bsi4));
+                cb->opBoolS(std::move(bsi3), std::move(bsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1378,7 +1378,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opShortIntLongSAsync(ssi, isi, lsi,
             [&](Test::LongS lsi1, Test::ShortS ssi1, Test::IntS isi1, Test::LongS lsi2)
             {
-                cb->opShortIntLongS(move(lsi1), move(ssi1), move(isi1), move(lsi2));
+                cb->opShortIntLongS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2));
             },
             makeExceptionClosure(cb));
 #else
@@ -1405,7 +1405,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opFloatDoubleSAsync(fsi, dsi,
             [&](Test::DoubleS dsi1, Test::FloatS fsi1, Test::DoubleS dsi2)
             {
-                cb->opFloatDoubleS(move(dsi1), move(fsi1), move(dsi2));
+                cb->opFloatDoubleS(std::move(dsi1), std::move(fsi1), std::move(dsi2));
             },
             makeExceptionClosure(cb));
 #else
@@ -1431,7 +1431,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringSAsync(ssi1, ssi2,
             [&](Test::StringS ssi3, Test::StringS ssi4)
             {
-                cb->opStringS(move(ssi3), move(ssi4));
+                cb->opStringS(std::move(ssi3), std::move(ssi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1463,7 +1463,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opByteSSAsync(bsi1, bsi2,
             [&](Test::ByteSS bsi3, Test::ByteSS bsi4)
             {
-                cb->opByteSS(move(bsi3), move(bsi4));
+                cb->opByteSS(std::move(bsi3), std::move(bsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1495,7 +1495,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opBoolSSAsync(bsi1, bsi2,
             [&](Test::BoolSS bsi3, Test::BoolSS bsi4)
             {
-                cb->opBoolSS(move(bsi3), move(bsi4));
+                cb->opBoolSS(std::move(bsi3), std::move(bsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1529,7 +1529,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opShortIntLongSSAsync(ssi, isi, lsi,
             [&](Test::LongSS lsi1, Test::ShortSS ssi1, Test::IntSS isi1, Test::LongSS lsi2)
             {
-                cb->opShortIntLongSS(move(lsi1), move(ssi1), move(isi1), move(lsi2));
+                cb->opShortIntLongSS(std::move(lsi1), std::move(ssi1), std::move(isi1), std::move(lsi2));
             },
             makeExceptionClosure(cb));
 #else
@@ -1559,7 +1559,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opFloatDoubleSSAsync(fsi, dsi,
             [&](Test::DoubleSS dsi1, Test::FloatSS fsi1, Test::DoubleSS dsi2)
             {
-                cb->opFloatDoubleSS(move(dsi1), move(fsi1), move(dsi2));
+                cb->opFloatDoubleSS(std::move(dsi1), std::move(fsi1), std::move(dsi2));
             },
             makeExceptionClosure(cb));
 #else
@@ -1587,7 +1587,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringSSAsync(ssi1, ssi2,
             [&](Test::StringSS ssi3, Test::StringSS ssi4)
             {
-                cb->opStringSS(move(ssi3), move(ssi4));
+                cb->opStringSS(std::move(ssi3), std::move(ssi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1612,7 +1612,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opByteBoolDAsync(di1, di2,
             [&](Test::ByteBoolD di3, Test::ByteBoolD di4)
             {
-                cb->opByteBoolD(move(di3), move(di4));
+                cb->opByteBoolD(std::move(di3), std::move(di4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1637,7 +1637,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opShortIntDAsync(di1, di2,
             [&](Test::ShortIntD di3, Test::ShortIntD di4)
             {
-                cb->opShortIntD(move(di3), move(di4));
+                cb->opShortIntD(std::move(di3), std::move(di4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1662,7 +1662,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opLongFloatDAsync(di1, di2,
             [&](Test::LongFloatD di3, Test::LongFloatD di4)
             {
-                cb->opLongFloatD(move(di3), move(di4));
+                cb->opLongFloatD(std::move(di3), std::move(di4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1687,7 +1687,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringStringDAsync(di1, di2,
             [&](Test::StringStringD di3, Test::StringStringD di4)
             {
-                cb->opStringStringD(move(di3), move(di4));
+                cb->opStringStringD(std::move(di3), std::move(di4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1712,7 +1712,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringMyEnumDAsync(di1, di2,
             [&](Test::StringMyEnumD di3, Test::StringMyEnumD di4)
             {
-                cb->opStringMyEnumD(move(di3), move(di4));
+                cb->opStringMyEnumD(std::move(di3), std::move(di4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1742,7 +1742,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opMyStructMyEnumDAsync(di1, di2,
             [&](Test::MyStructMyEnumD di3, Test::MyStructMyEnumD di4)
             {
-                cb->opMyStructMyEnumD(move(di3), move(di4));
+                cb->opMyStructMyEnumD(std::move(di3), std::move(di4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1779,7 +1779,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opByteBoolDSAsync(dsi1, dsi2,
             [&](Test::ByteBoolDS dsi3, Test::ByteBoolDS dsi4)
             {
-                cb->opByteBoolDS(move(dsi3), move(dsi4));
+                cb->opByteBoolDS(std::move(dsi3), std::move(dsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1815,7 +1815,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opShortIntDSAsync(dsi1, dsi2,
             [&](Test::ShortIntDS dsi3, Test::ShortIntDS dsi4)
             {
-                cb->opShortIntDS(move(dsi3), move(dsi4));
+                cb->opShortIntDS(std::move(dsi3), std::move(dsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1851,7 +1851,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opLongFloatDSAsync(dsi1, dsi2,
             [&](Test::LongFloatDS dsi3, Test::LongFloatDS dsi4)
             {
-                cb->opLongFloatDS(move(dsi3), move(dsi4));
+                cb->opLongFloatDS(std::move(dsi3), std::move(dsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1887,7 +1887,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringStringDSAsync(dsi1, dsi2,
             [&](Test::StringStringDS dsi3, Test::StringStringDS dsi4)
             {
-                cb->opStringStringDS(move(dsi3), move(dsi4));
+                cb->opStringStringDS(std::move(dsi3), std::move(dsi4));
             },
             makeExceptionClosure(cb));
 
@@ -1924,7 +1924,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringMyEnumDSAsync(dsi1, dsi2,
             [&](Test::StringMyEnumDS dsi3, Test::StringMyEnumDS dsi4)
             {
-                cb->opStringMyEnumDS(move(dsi3), move(dsi4));
+                cb->opStringMyEnumDS(std::move(dsi3), std::move(dsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -1958,7 +1958,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opMyEnumStringDSAsync(dsi1, dsi2,
             [&](Test::MyEnumStringDS dsi3, Test::MyEnumStringDS dsi4)
             {
-                cb->opMyEnumStringDS(move(dsi3), move(dsi4));
+                cb->opMyEnumStringDS(std::move(dsi3), std::move(dsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2000,7 +2000,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opMyStructMyEnumDSAsync(dsi1, dsi2,
                                    [&](Test::MyStructMyEnumDS dsi3, Test::MyStructMyEnumDS dsi4)
             {
-                cb->opMyStructMyEnumDS(move(dsi3), move(dsi4));
+                cb->opMyStructMyEnumDS(std::move(dsi3), std::move(dsi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2034,7 +2034,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opByteByteSDAsync(sdi1, sdi2,
             [&](Test::ByteByteSD sdi3, Test::ByteByteSD sdi4)
             {
-                cb->opByteByteSD(move(sdi3), move(sdi4));
+                cb->opByteByteSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2067,7 +2067,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opBoolBoolSDAsync(sdi1, sdi2,
             [&](Test::BoolBoolSD sdi3, Test::BoolBoolSD sdi4)
             {
-                cb->opBoolBoolSD(move(sdi3), move(sdi4));
+                cb->opBoolBoolSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2103,7 +2103,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opShortShortSDAsync(sdi1, sdi2,
             [&](Test::ShortShortSD sdi3, Test::ShortShortSD sdi4)
             {
-                cb->opShortShortSD(move(sdi3), move(sdi4));
+                cb->opShortShortSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2139,7 +2139,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opIntIntSDAsync(sdi1, sdi2,
             [&](Test::IntIntSD sdi3, Test::IntIntSD sdi4)
             {
-                cb->opIntIntSD(move(sdi3), move(sdi4));
+                cb->opIntIntSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2175,7 +2175,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opLongLongSDAsync(sdi1, sdi2,
             [&](Test::LongLongSD sdi3, Test::LongLongSD sdi4)
             {
-                cb->opLongLongSD(move(sdi3), move(sdi4));
+                cb->opLongLongSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2211,7 +2211,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringFloatSDAsync(sdi1, sdi2,
             [&](Test::StringFloatSD sdi3, Test::StringFloatSD sdi4)
             {
-                cb->opStringFloatSD(move(sdi3), move(sdi4));
+                cb->opStringFloatSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2247,7 +2247,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringDoubleSDAsync(sdi1, sdi2,
             [&](Test::StringDoubleSD sdi3, Test::StringDoubleSD sdi4)
             {
-                cb->opStringDoubleSD(move(sdi3), move(sdi4));
+                cb->opStringDoubleSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2285,7 +2285,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opStringStringSDAsync(sdi1, sdi2,
             [&](Test::StringStringSD sdi3, Test::StringStringSD sdi4)
             {
-                cb->opStringStringSD(move(sdi3), move(sdi4));
+                cb->opStringStringSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else
@@ -2321,7 +2321,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         p->opMyEnumMyEnumSDAsync(sdi1, sdi2,
             [&](Test::MyEnumMyEnumSD sdi3, Test::MyEnumMyEnumSD sdi4)
             {
-                cb->opMyEnumMyEnumSD(move(sdi3), move(sdi4));
+                cb->opMyEnumMyEnumSD(std::move(sdi3), std::move(sdi4));
             },
             makeExceptionClosure(cb));
 #else

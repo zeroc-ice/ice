@@ -34,6 +34,7 @@
 #   pragma clang diagnostic ignored "-Wconversion"
 #   pragma clang diagnostic ignored "-Wsign-conversion"
 #   pragma clang diagnostic ignored "-Wdocumentation"
+#   pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
 #endif

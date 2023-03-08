@@ -5028,7 +5028,6 @@ Slice::GenCompat::HelperVisitor::visitSequence(const SequencePtr& p)
         //
         // Determine sequence depth.
         //
-        int depth = 0;
         TypePtr origContent = p->type();
         SequencePtr s = SequencePtr::dynamicCast(origContent);
         while(s)
@@ -5040,7 +5039,6 @@ Slice::GenCompat::HelperVisitor::visitSequence(const SequencePtr& p)
             {
                 break;
             }
-            depth++;
             origContent = s->type();
             s = SequencePtr::dynamicCast(origContent);
         }
