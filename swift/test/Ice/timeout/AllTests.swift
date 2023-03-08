@@ -21,7 +21,8 @@ func connect(_ prx: Ice.ObjectPrx) throws -> Ice.Connection {
 public func allTests(helper: TestHelper) throws {
     let controller = try checkedCast(
         prx: helper.communicator().stringToProxy("controller:\(helper.getTestEndpoint(num: 1))")!,
-        type: ControllerPrx.self)!
+        type: ControllerPrx.self
+    )!
     do {
         try allTestsWithController(helper: helper, controller: controller)
     } catch {
@@ -208,7 +209,6 @@ public func allTestsWithController(helper: TestHelper, controller: ControllerPrx
             } catch let ex as Ice.ConnectionManuallyClosedException {
                 // Expected.
                 try test(ex.graceful)
-                // swiftlint:disable unneeded_break_in_switch
                 break
             }
         }

@@ -44,7 +44,7 @@ class RetryI: Retry {
         throw Ice.RuntimeError("")
     }
 
-    func sleep(delay: Int32, current _:Ice.Current) throws {
+    func sleep(delay: Int32, current _: Ice.Current) throws {
         Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
     }
 
