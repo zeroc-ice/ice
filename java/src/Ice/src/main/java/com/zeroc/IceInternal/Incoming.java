@@ -5,6 +5,7 @@
 package com.zeroc.IceInternal;
 
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -872,7 +873,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
         }
-        catch(ExecutionException ex)
+        catch(ExecutionException | CompletionException ex)
         {
             //
             // Raised by CompletableFuture.get(). The inner exception caused the future to complete exceptionally.
