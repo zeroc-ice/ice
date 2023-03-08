@@ -10,79 +10,82 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.7.9](#changes-in-ice-379)
   - [C++ Changes](#c-changes)
+  - [Java Changes](#java-changes)
   - [PHP Changes](#php-changes)
+  - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+  - [Swift Changes](#swift-changes)
 - [Changes in Ice 3.7.8](#changes-in-ice-378)
   - [C++ Changes](#c-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [MATLAB Changes](#matlab-changes)
   - [PHP Changes](#php-changes-1)
-  - [Python Changes](#python-changes)
+  - [Python Changes](#python-changes-1)
 - [Changes in Ice 3.7.7](#changes-in-ice-377)
   - [C++ Changes](#c-changes-2)
-  - [Java Changes](#java-changes)
+  - [Java Changes](#java-changes-1)
 - [Changes in Ice 3.7.6](#changes-in-ice-376)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes-3)
-  - [Java Changes](#java-changes-1)
+  - [Java Changes](#java-changes-2)
   - [JavaScript Changes](#javascript-changes-1)
-  - [Swift Changes](#swift-changes)
+  - [Swift Changes](#swift-changes-1)
 - [Changes in Ice 3.7.5](#changes-in-ice-375)
   - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes-4)
   - [C# Changes](#c-changes-5)
   - [JavaScript Changes](#javascript-changes-2)
   - [PHP Changes](#php-changes-2)
-  - [Python Changes](#python-changes-1)
+  - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
-  - [Swift Changes](#swift-changes-1)
+  - [Swift Changes](#swift-changes-2)
 - [Changes in Ice 3.7.4](#changes-in-ice-374)
   - [General Changes](#general-changes-2)
   - [C++ Changes](#c-changes-6)
   - [C# Changes](#c-changes-7)
   - [JavaScript Changes](#javascript-changes-3)
   - [MATLAB Changes](#matlab-changes-1)
-  - [Python Changes](#python-changes-2)
+  - [Python Changes](#python-changes-3)
   - [Ruby Changes](#ruby-changes-2)
-  - [Swift Changes](#swift-changes-2)
+  - [Swift Changes](#swift-changes-3)
 - [Changes in Ice 3.7.3](#changes-in-ice-373)
   - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-8)
   - [C# Changes](#c-changes-9)
-  - [Java Changes](#java-changes-2)
+  - [Java Changes](#java-changes-3)
   - [JavaScript Changes](#javascript-changes-4)
   - [MATLAB Changes](#matlab-changes-2)
-  - [Python Changes](#python-changes-3)
+  - [Python Changes](#python-changes-4)
 - [Changes in Ice 3.7.2](#changes-in-ice-372)
   - [General Changes](#general-changes-4)
   - [C++ Changes](#c-changes-10)
   - [C# Changes](#c-changes-11)
-  - [Java Changes](#java-changes-3)
+  - [Java Changes](#java-changes-4)
   - [JavaScript Changes](#javascript-changes-5)
   - [MATLAB Changes](#matlab-changes-3)
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes-3)
-  - [Python Changes](#python-changes-4)
+  - [Python Changes](#python-changes-5)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   - [General Changes](#general-changes-5)
   - [C++ Changes](#c-changes-12)
   - [C# Changes](#c-changes-13)
-  - [Java Changes](#java-changes-4)
+  - [Java Changes](#java-changes-5)
   - [JavaScript Changes](#javascript-changes-6)
   - [MATLAB Changes](#matlab-changes-4)
   - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes-4)
-  - [Python Changes](#python-changes-5)
+  - [Python Changes](#python-changes-6)
   - [Ruby Changes](#ruby-changes-3)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   - [General Changes](#general-changes-6)
   - [C++ Changes](#c-changes-14)
   - [C# Changes](#c-changes-15)
-  - [Java Changes](#java-changes-5)
+  - [Java Changes](#java-changes-6)
   - [JavaScript Changes](#javascript-changes-7)
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-5)
-  - [Python Changes](#python-changes-6)
+  - [Python Changes](#python-changes-7)
   - [Ruby Changes](#ruby-changes-4)
 
 # Changes in Ice 3.7.9
@@ -94,6 +97,10 @@ These are the changes since Ice 3.7.8.
 - Fixed an IceSSL bug where the OpenSSL error description was not correctly included with the `Ice::ProtocolException`
   thrown when a read failure occurred. OpenSSL versions previous to `1.1.1e` are not affected.
 
+## Java Changes
+
+- Fixed an IceGridGUI bug that resulsted in a null pointer exception when failing to resolve a named property set.
+
 ## PHP Changes
 
 - Added support for PHP 8.2.
@@ -101,9 +108,17 @@ These are the changes since Ice 3.7.8.
 - `slice2php` will now generate code compatible with PHP >= 7 by default. To generate PHP 5 compatible code, use the
   new `--php5` flag.
 
+## Python Changes
+
+- Add support for Python 3.11
+
 ## Ruby Changes
 
 - Add support for Ruby 3.2.
+
+## Swift Changes
+
+- Add support for Xcode 14.2
 
 # Changes in Ice 3.7.8
 
@@ -271,7 +286,7 @@ These are the changes since Ice 3.7.4.
 
 ## Swift Changes
 
-- Fix XCode 12 build failures
+- Fix Xcode 12 build failures
 
 # Changes in Ice 3.7.4
 
