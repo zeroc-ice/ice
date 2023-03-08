@@ -304,8 +304,6 @@ def create_platform_targets(project, platform, bindist)
             target_add_slice2swift_build_rule(project, target, item, srcPrefix: "../slice/#{item}")
         end
 
-        target_add_swiftlint_build_phase(target, "src/Ice")
-
         #
         # Glacier2, IceStorm and IceGrid Frameworks
         #
@@ -370,7 +368,6 @@ def create_platform_targets(project, platform, bindist)
         target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
     end
     target_add_slice2swift_build_rule(project, target, "test/TestCommon", test: true)
-    target_add_swiftlint_build_phase(target, "test/TestCommon")
     test_common_target = target
 
     #
@@ -393,7 +390,6 @@ def create_platform_targets(project, platform, bindist)
                                      swift: true,
                                      identifier: "com.zeroc.Swift-Test-Controller")
     target_add_slice2swift_build_rule(project, target, "test/TestDriver", srcPrefix: "../scripts", test: true)
-    target_add_swiftlint_build_phase(target, "test/TestDriver")
 
     group = project_group(project, "test/TestDriver")
     target_add_files(target, group, "test/TestDriver", ["*.ice", "*.swift"])
@@ -479,7 +475,6 @@ def create_platform_targets(project, platform, bindist)
 
         target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
         target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
-        target_add_swiftlint_build_phase(target, "test/#{test}")
 
         #
         # Add .ice and .swift files to the target
@@ -547,7 +542,6 @@ def create_platform_targets(project, platform, bindist)
 
             target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
             target_add_slice2swift_build_rule(project, target, "test/#{test}", test: true)
-            target_add_swiftlint_build_phase(target, "test/#{test}")
 
             #
             # Add .ice and .swift files to the target
@@ -714,20 +708,6 @@ def target_add_slice2cpp_build_rule(project, target, prefix)
     }
     rule.dependency_file= "$(DERIVED_FILE_DIR)/#{prefix}/$(INPUT_FILE_BASE).d"
     target.build_rules << rule
-end
-
-def target_add_swiftlint_build_phase(target, basedir)
-    phase = target.new_shell_script_build_phase("Swiftformat & Swiftlint")
-    phase.shell_script = <<~EOF
-        if which swiftlint >/dev/null; then
-            swiftlint "$SRCROOT/#{basedir}" --config "$SRCROOT/.swiftlint.yml"
-        else
-            echo "warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"
-        fi
-    EOF
-    # Avoid warnings about this script running on every build because it doesn't specify any inputs or
-    # outputs.
-    phase.always_out_of_date = '1'
 end
 
 def find_files(basedir, patterns, exclude = [])
