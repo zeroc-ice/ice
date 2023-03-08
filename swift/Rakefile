@@ -725,6 +725,9 @@ def target_add_swiftlint_build_phase(target, basedir)
             echo "warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"
         fi
     EOF
+    # Avoid warnings about this script running on every build because it doesn't specify any inputs or
+    # outputs.
+    phase.always_out_of_date = '1'
 end
 
 def find_files(basedir, patterns, exclude = [])
