@@ -4063,9 +4063,11 @@ class SwiftMapping(Mapping):
             return testDriver
         else:
             # Fallback location, required with Xcode 14.2
-            return "build/{0}-{1}/TestDriver.app".format(
-                current.config.buildConfig,
-                current.config.buildPlatform)
+            return os.path.join(
+                current.testcase.getMapping().getPath(),
+                "build",
+                "{0}-{1}".format(current.config.buildConfig, current.config.buildPlatform),
+                "/TestDriver.app")
 
     def getSSLProps(self, process, current):
         props = Mapping.getByName("cpp").getSSLProps(process, current)
