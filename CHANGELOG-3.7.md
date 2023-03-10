@@ -10,7 +10,7 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.7.9](#changes-in-ice-379)
   - [C++ Changes](#c-changes)
-- [C# Changes](#c-changes-1)
+  - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
@@ -100,7 +100,7 @@ These are the major changes since Ice 3.7.8.
 - Fixed an IceSSL bug where the OpenSSL error description was not correctly included with the `Ice::ProtocolException`
   thrown when a read failure occurred. OpenSSL versions previous to `1.1.1e` are not affected.
 
-# C# Changes
+## C# Changes
 
 - Added support for .NET 7.
 
