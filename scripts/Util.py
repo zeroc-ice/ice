@@ -4059,15 +4059,14 @@ class SwiftMapping(Mapping):
         targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
         testDriver = os.path.join(targetBuildDir, "TestDriver.app")
-        if os.path.exists(testDriver):
-            return testDriver
-        else:
+        if not os.path.exists(testDriver):
             # Fallback location, required with Xcode 14.2
-            return os.path.join(
+            testDriver = os.path.join(
                 current.testcase.getMapping().getPath(),
                 "build",
                 "{0}-{1}".format(current.config.buildConfig, current.config.buildPlatform),
-                "/TestDriver.app")
+                "TestDriver.app")
+        return testDriver
 
     def getSSLProps(self, process, current):
         props = Mapping.getByName("cpp").getSSLProps(process, current)
