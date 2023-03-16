@@ -219,8 +219,8 @@ the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio Chipmunk
-- Android SDK 30
+- Android Studio Electric Eel
+- Android SDK 33
 
 Using Ice's Java mapping with Java 8 requires at minimum API level 24:
 
@@ -235,6 +235,9 @@ for instructions, then follow these steps:
 2. Select "Open an existing Android Studio project"
 3. Navigate to and select the "java/test/android/controller" subdirectory
 4. Click OK and wait for the project to open and build
+
+To build the tests against the Ice binary distribution you must set `ICE_BIN_DIST` environment
+variable to `all` before starting Android Studio.
 
 ### Running the Android Test Suite
 

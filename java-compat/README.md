@@ -176,18 +176,12 @@ for the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio Chipmunk
-- Android SDK 30
+- Android Studio Electric Eel
+- Android SDK 33
 
 Ice requires at minimum API level 21:
 
 - Android 5 (API21)
-
-If you want to target a later version of the Android API level for the test
-suite, edit `test/android/controller/gradle.properties` and change the
-following variables:
-
-*NOTE: Do not use Android Studio to modify the project's settings.*
 
 ### Building the Android Test Controller
 
@@ -198,6 +192,9 @@ for instructions, then follow these steps:
 2. Select "Open an existing Android Studio project"
 3. Navigate to and select the "android" subdirectory
 4. Click OK and wait for the project to open and build
+
+To build the tests against the Ice binary distribution you must set `ICE_BIN_DIST` environment
+variable to `all` before starting Android Studio.
 
 ## Running the Android Tests
 
