@@ -124,3 +124,7 @@ Carthage
 .project
 .settings
 *.dep
+
+
+# Android Tets
+**/android/**/raw/*.bks
