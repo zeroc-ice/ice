@@ -54,6 +54,16 @@ targets.
 The test programs for macOS and iOS can be built using `TestDriver macOS` and
 `TestDriver iOS` respectively.
 
+Building the `TestDriver iOS` application to deploy to an iOS device requires
+signing the application with a developer certificate. You need to update the Xcode projects
+to use your Apple development certificates by setting `DEVELOPMENT_TEAM` environment
+variable to the Id of your development team and regenerate the projects with `rake`.
+
+```
+export DEVELOPMENT_TEAM=U4TBVKNQ7F
+rake
+```
+
 ## Running the Swift Test Suite
 
 Python is required to run the test suite.
