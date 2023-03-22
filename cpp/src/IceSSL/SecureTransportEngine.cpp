@@ -25,6 +25,9 @@
 
 #include <regex.h>
 
+// Disable deprecation warnings from SecureTransport APIs
+#include <IceUtil/DisableWarnings.h>
+
 using namespace std;
 using namespace IceUtil;
 using namespace Ice;

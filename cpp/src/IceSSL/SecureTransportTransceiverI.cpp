@@ -12,6 +12,9 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
 
+// Disable deprecation warnings from SecureTransport APIs
+#include <IceUtil/DisableWarnings.h>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
