@@ -775,6 +775,11 @@ def target_set_common_build_settings(target, product, platform, plist: nil, swif
             end
         end
 
+        if target.product_type == "com.apple.product-type.application" or
+          target.product_type == "com.apple.product-type.bundle" then
+            config.build_settings["DEAD_CODE_STRIPPING"] = "YES"
+        end
+
         if platform == :osx
             config.build_settings["MACOSX_DEPLOYMENT_TARGET"] = $macOSDeploymentTarget
         else
