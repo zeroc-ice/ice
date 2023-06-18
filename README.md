@@ -20,8 +20,7 @@ You create RPCs with an easy 2-step process:
 For example:
 
 ```slice
-// Slice
-// The contract saved in file Hello.ice.
+// The contract specified using Slice.
 interface Hello
 {
     // The caller says "hello".
@@ -30,7 +29,7 @@ interface Hello
 ```
 
 ```shell
-# Compile Hello.ice with the Slice compiler for C++ (slice2cpp)
+# Compile the Slice contract with the Slice compiler for C++ (slice2cpp)
 slice2cpp Hello.ice
 ```
 
