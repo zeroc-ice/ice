@@ -57,7 +57,7 @@ public:
 
         if (ipInfoPtr)
         {
-            cout << "Hello from "
+            cout << "Received hello from "
                  << ipInfoPtr->remoteAddress << ":" << ipInfoPtr->remotePort
                  << endl;
         }
@@ -80,7 +80,7 @@ The Ice framework provides everything you need to build networked applications:
 - Server deployment, replication and monitoring (IceGrid)
 - Session management and firewall traversal (Glacier2)
 
-The Ice API is defined using the Slice language; a result, it is essentially the same in all programming languages.
+The Ice API is defined almost entirely using Slice; a result, it is essentially the same in all programming languages.
 
 ## Building Ice from source
 
