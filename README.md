@@ -3,8 +3,8 @@
 # The Ice framework
 
 Ice helps you build networked applications with minimal effort. By taking care of all interactions with low-level
-network programming interfaces, Ice allows you to focus your efforts on your application logic. When using Ice, there is
-no need to worry about details such as opening network connections, encoding and decoding data for network transmission,
+network programming interfaces, Ice allows you to focus your efforts on your application logic. You don't need to
+worry about details such as opening network connections, encoding and decoding data for network transmission,
 or retrying failed connection attempts (to name just a few of dozens of such low-level details).
 
 [Downloads][downloads] | [Examples][examples] | [Documentation][docs]
@@ -20,6 +20,7 @@ You create RPCs with an easy 2-step process:
 For example:
 
 ```slice
+// Slice
 // The contract saved in file Hello.ice.
 interface Hello
 {
@@ -34,7 +35,7 @@ slice2cpp Hello.ice
 ```
 
 ```c++
-// Client-side
+// C++ client
 
 // Call operation sayHello on a remote object that implements
 // interface Hello using the generated proxy class (HelloPrx).
@@ -42,7 +43,7 @@ helloPrx->sayHello();
 ```
 
 ```c++
-// Server-side
+// C++ server
 
 // Implement the Hello interface by deriving from the generated
 // Hello abstract base class.
