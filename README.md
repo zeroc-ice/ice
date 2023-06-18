@@ -71,7 +71,7 @@ server; neither side knows the programming language used by the other side.
 ## Complete solution with a uniform API
 
 The Ice framework provides everything you need to build networked applications:
-- RPCs with a high-performance binary protocol over a variety of network transports (TCP, UDP, WebSocket, Bluetooth...)
+- RPCs with a compact binary protocol over a variety of network transports (TCP, UDP, WebSocket, Bluetooth...)
 - Secure communications (IceSSL)
 - Configuration (Ice Properties)
 - Logging (Ice Logger)
