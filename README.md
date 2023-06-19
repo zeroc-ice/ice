@@ -50,17 +50,9 @@ class HelloImpl : public Hello
 {
 public:
 
-    virtual string sayHello(const Ice::Current& current) override
+    virtual string sayHello(const Ice::Current&) override
     {
-        auto ipInfoPtr = dynamic_pointer_cast<Ice::IPConnectionInfo>(
-            current.con->getInfo());
-
-        if (ipInfoPtr)
-        {
-            cout << "Received hello from "
-                 << ipInfoPtr->remoteAddress << ":" << ipInfoPtr->remotePort
-                 << endl;
-        }
+        cout << "Hello World!" << endl;
     }
 };
 ```
@@ -71,16 +63,18 @@ server; neither side knows the programming language used by the other side.
 ## Complete solution with a uniform API
 
 The Ice framework provides everything you need to build networked applications:
-- RPCs with a compact binary protocol over a variety of network transports (TCP, UDP, WebSocket, Bluetooth...)
-- Secure communications (IceSSL)
-- Configuration (Ice Properties)
-- Logging (Ice Logger)
-- Instrumentation and metrics (IceMX)
-- Pub-sub (IceStorm)
-- Server deployment, replication and monitoring (IceGrid)
-- Session management and firewall traversal (Glacier2)
+- RPCs with a compact binary [protocol][protocol] over a variety of network transports (TCP, UDP, WebSocket,
+Bluetooth...)
+- Secure communications ([IceSSL][icessl])
+- Configuration ([Ice Properties][properties])
+- Logging ([Ice Logger][logger])
+- Instrumentation and metrics ([IceMX][icemx])
+- Pub-sub ([IceStorm][icestorm])
+- Server deployment, replication and monitoring ([IceGrid][icegrid])
+- Session management and firewall traversal ([Glacier2][glacier2])
 
-The Ice API is defined almost entirely using Slice; as a result, it is essentially the same in all programming languages.
+The Ice API is defined almost entirely using Slice; as a result, it is essentially the same in all programming
+languages.
 
 ## Building Ice from source
 
@@ -109,7 +103,15 @@ license terms.
 [downloads]: https://zeroc.com/downloads/ice
 [examples]: https://github.com/zeroc-ice/ice-demos
 [gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[glacier2]: https://doc.zeroc.com/ice/3.7/ice-services/glacier2
 [ice-repo]: https://github.com/zeroc-ice/ice
+[icegrid]: https://doc.zeroc.com/ice/3.7/ice-services/icegrid
+[icemx]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/administrative-facility/the-metrics-facet
+[icessl]: https://doc.zeroc.com/ice/3.7/ice-plugins/icessl
+[icestorm]: https://doc.zeroc.com/ice/3.7/ice-services/icestorm
 [idl]: https://en.wikipedia.org/wiki/Interface_description_language
+[logger]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/logger-facility
+[properties]: https://doc.zeroc.com/ice/3.7/properties-and-configuration
+[protocol]: https://doc.zeroc.com/ice/3.7/ice-protocol-and-encoding
 [rpcs]: https://en.wikipedia.org/wiki/Remote_procedure_call
 [slice]: https://doc.zeroc.com/ice/3.7/the-slice-language
