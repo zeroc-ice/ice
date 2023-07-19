@@ -479,7 +479,8 @@ public:
 
     void throwExcept1(const Ice::AsyncResultPtr& result)
     {
-        const wstring& in = getIn<wstring>(InParamPtr::dynamicCast(result->getCookie()));
+        InParamPtr inParam = InParamPtr::dynamicCast(result->getCookie());
+        const wstring& in = getIn<wstring>(inParam);
         try
         {
             Test1::WstringClassPrx t = Test1::WstringClassPrx::uncheckedCast(result->getProxy());
@@ -515,7 +516,8 @@ public:
 
     void throwExcept2(const Ice::AsyncResultPtr& result)
     {
-        const wstring& in = getIn<wstring>(InParamPtr::dynamicCast(result->getCookie()));
+        InParamPtr inParam = InParamPtr::dynamicCast(result->getCookie());
+        const wstring& in = getIn<wstring>(inParam);
         try
         {
             Test2::WstringClassPrx t = Test2::WstringClassPrx::uncheckedCast(result->getProxy());
