@@ -7,7 +7,7 @@
 #import <HashTest.h>
 
 static int
-run()
+run(void)
 {
     void hashAllTests(void);
     hashAllTests();

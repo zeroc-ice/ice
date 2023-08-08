@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-static BOOL isDispatcherThread()
+static BOOL isDispatcherThread(void)
 {
     return strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), "Dispatcher") == 0;
 }

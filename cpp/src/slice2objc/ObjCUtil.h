@@ -52,6 +52,7 @@ protected:
     static std::string inTypeToString(const TypePtr&, bool, bool = false, bool = false);
     static std::string outTypeToString(const TypePtr&, bool, bool = false, bool = false);
     static std::string typeToObjCTypeString(const TypePtr&);
+    static std::string defaultValue(const TypePtr&, bool);
     static bool isValueType(const TypePtr&);
     static bool isString(const TypePtr&);
     static bool isClass(const TypePtr&);
