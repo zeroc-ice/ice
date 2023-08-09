@@ -427,6 +427,46 @@ Slice::ObjCGenerator::typeToObjCTypeString(const TypePtr& type)
     }
 }
 
+string
+Slice::ObjCGenerator::defaultValue(const TypePtr& type, bool isOptional)
+{
+    if(isValueType(type) && !isOptional)
+    {
+         if(EnumPtr::dynamicCast(type))
+         {
+             return "0";
+         }
+         BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+         if(builtin)
+         {
+             switch(builtin->kind())
+             {
+             case Builtin::KindBool:
+                 return "NO";
+             case Builtin::KindByte:
+             case Builtin::KindShort:
+             case Builtin::KindInt:
+             case Builtin::KindLong:
+                 return "0";
+             case Builtin::KindFloat:
+             case Builtin::KindDouble:
+                 return "0.0";
+             default:
+                 {
+                     assert(false);
+                     return "???";
+                 }
+             }
+         }
+         assert(false);
+         return "???";
+    }
+    else
+    {
+        return "nil";
+    }
+}
+
 bool
 Slice::ObjCGenerator::isValueType(const TypePtr& type)
 {

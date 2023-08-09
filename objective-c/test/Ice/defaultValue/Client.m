@@ -7,7 +7,7 @@
 #import <DefaultValueTest.h>
 
 static int
-run()
+run(void)
 {
     void defaultValueAllTests(void);
     defaultValueAllTests();

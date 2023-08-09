@@ -50,8 +50,8 @@ servicesAllTests(id<ICECommunicator> communicator)
         ICESTORMTopicManagerPrx* manager =
                     [ICESTORMTopicManagerPrx uncheckedCast:[communicator stringToProxy:@"test:default -p 12010"]];
 
-        ICESTORMQoS* qos;
-        ICESTORMTopicPrx* topic;
+        ICESTORMQoS* qos = nil;
+        ICESTORMTopicPrx* topic = nil;
         NSString* topicName = @"time";
 
         id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"subscriber" endpoints:@"tcp"];

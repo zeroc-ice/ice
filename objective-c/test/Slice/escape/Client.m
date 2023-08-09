@@ -29,7 +29,7 @@
 // are named correctly. It is not expected to run.
 //
 static void
-testSymbols()
+testSymbols(void)
 {
     andbreakPrx* prx1  = 0;
     [prx1 case_:0 try:0];
