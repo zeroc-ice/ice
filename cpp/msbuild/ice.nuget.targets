@@ -13,8 +13,7 @@
                             $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\ssleay32.dll"/>
 
         <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
-                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
+                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icedb*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icesslopenssl*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;

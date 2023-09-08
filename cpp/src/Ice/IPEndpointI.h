@@ -15,9 +15,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/ObserverHelper.h>
 
-#ifndef ICE_OS_UWP
-#   include <deque>
-#endif
+#include <deque>
 
 namespace IceInternal
 {
@@ -104,11 +102,7 @@ private:
     mutable Ice::Int _hashValue;
 };
 
-#ifndef ICE_OS_UWP
 class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-#else
-class ICE_API EndpointHostResolver : public IceUtil::Shared
-#endif
 {
 public:
 
@@ -123,7 +117,6 @@ public:
 
 private:
 
-#ifndef ICE_OS_UWP
     struct ResolveEntry
     {
         std::string host;
@@ -140,9 +133,6 @@ private:
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
-#else
-    const InstancePtr _instance;
-#endif
 };
 
 #ifndef ICE_CPP11_MAPPING

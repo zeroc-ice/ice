@@ -29,15 +29,9 @@ allTests(Test::TestHelper* helper)
 #endif
     cout << "ok" << endl;
 
-#ifdef ICE_OS_UWP
-    bool uwp = true;
-#else
-    bool uwp = false;
-#endif
-
     {
-        if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-                    communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
+        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+           communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
         {
             cout << "creating/destroying/recreating object adapter... " << flush;
             ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");

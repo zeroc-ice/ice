@@ -18,11 +18,6 @@ GPrxPtr
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-#ifdef ICE_OS_UWP
-    bool uwp = true;
-#else
-    bool uwp = false;
-#endif
 
     cout << "testing Ice.Admin.Facets property... " << flush;
     test(communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets").empty());
@@ -60,8 +55,8 @@ allTests(Test::TestHelper* helper)
         localOAEndpoint = ostr.str();
     }
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
-    if(uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-                 communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
+    if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+       communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
         Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);

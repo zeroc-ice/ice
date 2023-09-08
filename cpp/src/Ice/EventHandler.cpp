@@ -14,7 +14,7 @@ IceUtil::Shared* IceInternal::upCast(EventHandler* p) { return p; }
 #endif
 
 IceInternal::EventHandler::EventHandler() :
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     _pending(SocketOperationNone),
     _started(SocketOperationNone),
     _completed(SocketOperationNone),

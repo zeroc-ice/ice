@@ -232,9 +232,7 @@ Ice::LoggerI::write(const string& message, bool indent)
     }
     else
     {
-#if defined(ICE_OS_UWP)
-        OutputDebugString(stringToWstring(s).c_str());
-#elif defined(_WIN32)
+#if defined(_WIN32)
         //
         // Convert the message from the native narrow string encoding to the console
         // code page encoding for printing. If the _convert member is set to false

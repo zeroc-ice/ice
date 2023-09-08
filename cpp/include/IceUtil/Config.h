@@ -137,23 +137,7 @@
 #if (defined(_MSC_VER) && (_MSC_VER >= 1800)) || \
     defined(__clang__)                        || \
     (defined(ICE_CPP11_COMPILER) && defined(__GNUC__) && (__GNUC__ >= 5))
-#define ICE_HAS_CODECVT_UTF8
-#endif
-
-//
-// Visual Studio 2015 or later
-//
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
-
-//
-// Check if building for UWP
-//
-#   include <winapifamily.h>
-#   if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
-#      define ICE_OS_UWP
-#      define ICE_STATIC_LIBS
-#   endif
-
+#   define ICE_HAS_CODECVT_UTF8
 #endif
 
 //
@@ -298,33 +282,17 @@
 #   endif
 
 #   ifdef ICE_CPP11_MAPPING
-#      if defined(_DEBUG)
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11D.lib"
-#         else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D.lib"
-#         endif
-#      else
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11.lib"
-#         else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11.lib"
-#         endif
-#      endif
+#       if defined(_DEBUG)
+#           define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D.lib"
+#       else
+#           define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11.lib"
+#       endif
 #   else
-#      if defined(_DEBUG)
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwpD.lib"
-#         else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
-#         endif
-#      else
-#         if defined(ICE_OS_UWP)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp.lib"
-#         else
+#       if defined(_DEBUG)
+#           define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
+#       else
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
-#         endif
-#      endif
+#       endif
 #   endif
 
 //

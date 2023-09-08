@@ -350,7 +350,7 @@ Ice::ConnectionI::OutgoingMessage::sent()
 
     if(outAsync)
     {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
         invokeSent = outAsync->sent();
         return invokeSent || receivedReply;
 #else
@@ -1474,7 +1474,7 @@ Ice::ConnectionI::setAdapterAndServantManager(const ObjectAdapterPtr& adapter,
     _servantManager = servantManager;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 bool
 Ice::ConnectionI::startAsync(SocketOperation operation)
 {
@@ -1891,7 +1891,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     {
         for(vector<OutgoingMessage>::const_iterator p = sentCBs.begin(); p != sentCBs.end(); ++p)
         {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
             if(p->invokeSent)
             {
                 p->outAsync->invokeSent();
@@ -2095,7 +2095,7 @@ Ice::ConnectionI::finish(bool close)
             OutgoingMessage* message = &_sendStreams.front();
             _writeStream.swap(*message->stream);
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
             //
             // The current message might be sent but not yet removed from _sendStreams. If
             // the response has been received in the meantime, we remove the message from
@@ -3387,7 +3387,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
 
                     stream.swap(*outAsync->getIs());
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
                     //
                     // If we just received the reply of a request which isn't acknowledge as
                     // sent yet, we queue the reply instead of processing it right away. It

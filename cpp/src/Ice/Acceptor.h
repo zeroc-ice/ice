@@ -22,7 +22,7 @@ public:
     virtual NativeInfoPtr getNativeInfo() = 0;
     virtual void close() = 0;
     virtual EndpointIPtr listen() = 0;
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     virtual void startAccept() = 0;
     virtual void finishAccept() = 0;
 #endif
