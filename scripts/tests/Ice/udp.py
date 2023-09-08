@@ -18,9 +18,4 @@ class UdpTestCase(ClientServerTestCase):
         else:
             self.clients = [Client(args=[5])]
 
-#
-# With UWP, we can't run the UDP tests with the C++ servers (used when SSL is enabled).
-#
-options=lambda current: { "protocol": ["tcp", "ws"] } if current.config.uwp else {}
-
-TestSuite(__name__, [ UdpTestCase() ], multihost=False, options=options)
+TestSuite(__name__, [ UdpTestCase() ], multihost=False)
