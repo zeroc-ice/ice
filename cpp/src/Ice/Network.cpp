@@ -1733,7 +1733,6 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
     return local;
 }
 
-
 Address
 IceInternal::getNumericAddress(const std::string& address)
 {

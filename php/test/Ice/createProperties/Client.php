@@ -19,7 +19,6 @@ class Client extends TestHelper
         test($properties->getProperty("Ice.Trace.Network"), "3");
 	echo "ok\n";
 
-
         echo "testing create properties with defaults... ";
         $defaults = call_user_func(
             $NS ? "\\Ice\\createProperties" : "Ice_createProperties",

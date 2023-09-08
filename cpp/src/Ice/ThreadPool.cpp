@@ -316,7 +316,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     }
 #endif
 
-
     //
     // We use just one thread as the default. This is the fastest
     // possible setting, still allows one level of nesting, and

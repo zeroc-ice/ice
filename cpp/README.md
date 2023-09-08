@@ -373,7 +373,6 @@ This creates `zeroc.ice.v100\zeroc.ice.v100.nupkg`,
 `zeroc.ice.v141\zeroc.ice.v141.nupkg` or `zeroc.ice.v142\zeroc.ice.v142.nupkg`
 depending on the compiler you are using.
 
-
 ## Cleaning the source build on AIX, Linux or macOS
 
 Running `make clean` will remove the binaries created for the default
