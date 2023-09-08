@@ -124,7 +124,6 @@ IceInternal::UdpConnector::UdpConnector(const ProtocolInstancePtr& instance, con
     _mcastTtl(mcastTtl),
     _connectionId(connectionId)
 {
-    UNREFERENCED_PARAMETER(sourceAddr);
 }
 
 IceInternal::UdpConnector::~UdpConnector()
