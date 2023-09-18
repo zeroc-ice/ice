@@ -31,7 +31,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     string value;
 
-#ifndef ICE_OS_UWP
     value = properties->getProperty("Ice.Default.SourceAddress");
     if(!value.empty())
     {
@@ -42,7 +41,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
                                           value + "'");
         }
     }
-#endif
 
     value = properties->getProperty("Ice.Override.Timeout");
     if(!value.empty())

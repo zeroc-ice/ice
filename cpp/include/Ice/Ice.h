@@ -27,7 +27,7 @@
 #include <Ice/OutgoingAsync.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/Process.h>
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 #   include <Ice/Application.h>
 #endif
 #include <Ice/Connection.h>
@@ -42,7 +42,7 @@
 #include <Ice/Instrumentation.h>
 #include <Ice/Metrics.h>
 #include <Ice/SliceChecksums.h>
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 #   include <Ice/Service.h>
 #endif
 #include <Ice/RegisterPlugins.h>

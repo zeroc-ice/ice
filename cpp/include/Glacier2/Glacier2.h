@@ -11,7 +11,7 @@
 #include <Glacier2/Session.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/Metrics.h>
-#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0) && !defined(ICE_OS_UWP)
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 #   include <Glacier2/Application.h>
 #endif
 #include <Glacier2/SessionHelper.h>

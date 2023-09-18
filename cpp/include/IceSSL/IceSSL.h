@@ -10,15 +10,11 @@
 #include <IceSSL/Plugin.h>
 
 #if defined(_WIN32)
-#  if defined(ICE_OS_UWP)
-#    include <IceSSL/UWP.h>
-#  else
-#    include <IceSSL/SChannel.h>
-#  endif
+#   include <IceSSL/SChannel.h>
 #elif defined(__APPLE__)
-#  include <IceSSL/SecureTransport.h>
+#   include <IceSSL/SecureTransport.h>
 #else
-#  include <IceSSL/OpenSSL.h>
+#   include <IceSSL/OpenSSL.h>
 #endif
 
 #include <IceSSL/EndpointInfo.h>

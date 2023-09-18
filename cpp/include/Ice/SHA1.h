@@ -16,7 +16,6 @@ namespace IceInternal
 ICE_API void
 sha1(const unsigned char*, std::size_t, std::vector<unsigned char>&);
 
-#ifndef ICE_OS_UWP
 class ICE_API SHA1
 {
 public:
@@ -36,7 +35,6 @@ private:
     class Hasher;
     UniquePtr<Hasher> _hasher;
 };
-#endif
 
 }
 #endif

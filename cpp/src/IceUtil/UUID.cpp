@@ -20,7 +20,7 @@
 
 using namespace std;
 
-#if defined(ICE_OS_UWP) || !defined(_WIN32)
+#ifndef _WIN32
 
 namespace
 {
@@ -41,11 +41,7 @@ public:
 
     PidInitializer()
     {
-#ifndef _WIN32
         pid_t p = getpid();
-#else
-        int p = GetCurrentProcessId();
-#endif
         myPid[0] = (p >> 8) & 0x7F;
         myPid[1] = static_cast<char>(p & 0xFF);
     }
@@ -87,7 +83,7 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 string
 IceUtil::generateUUID()
 {
-#if defined(_WIN32) && !defined(ICE_OS_UWP)
+#if defined(_WIN32)
 
     UUID uuid;
     RPC_STATUS ret = UuidCreate(&uuid);

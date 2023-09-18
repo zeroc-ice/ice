@@ -17,8 +17,6 @@ NetworkProxy::~NetworkProxy()
     // Out of line to avoid weak vtable
 }
 
-#ifndef ICE_OS_UWP
-
 namespace
 {
 
@@ -287,8 +285,6 @@ HTTPNetworkProxy::getProtocolSupport() const
     return _protocol;
 }
 
-#endif
-
 NetworkProxyPtr
 IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSupport protocolSupport)
 {
@@ -297,27 +293,18 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     proxyHost = properties->getProperty("Ice.SOCKSProxyHost");
     if(!proxyHost.empty())
     {
-#ifdef ICE_OS_UWP
-        UNREFERENCED_PARAMETER(protocolSupport);
-        throw Ice::InitializationException(__FILE__, __LINE__, "SOCKS proxy not supported with UWP");
-#else
         if(protocolSupport == EnableIPv6)
         {
             throw Ice::InitializationException(__FILE__, __LINE__, "IPv6 only is not supported with SOCKS4 proxies");
         }
         int proxyPort = properties->getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
         return new SOCKSNetworkProxy(proxyHost, proxyPort);
-#endif
     }
 
     proxyHost = properties->getProperty("Ice.HTTPProxyHost");
     if(!proxyHost.empty())
     {
-#ifdef ICE_OS_UWP
-        throw Ice::InitializationException(__FILE__, __LINE__, "HTTP proxy not supported with UWP");
-#else
         return new HTTPNetworkProxy(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
-#endif
     }
 
     return 0;

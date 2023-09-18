@@ -128,9 +128,6 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #ifdef _WIN32
     lib += libName;
     lib += version;
-#  ifdef ICE_OS_UWP
-    lib += "uwp";
-#  endif
 
 #  ifdef ICE_CPP11_MAPPING
     lib += "++11";
@@ -212,9 +209,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
     // Don't need to use a wide string converter as the wide string is passed
     // to Windows API.
     //
-#if defined(ICE_OS_UWP)
-    _hnd = LoadPackagedLibrary(stringToWstring(lib, getProcessStringConverter()).c_str(), 0);
-#elif defined(_WIN32)
+#if defined(_WIN32)
     _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());
 #else
     int flags = RTLD_NOW | RTLD_GLOBAL;
@@ -229,9 +224,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
         //
         // Remember the most recent error in _err.
         //
-#if defined(ICE_OS_UWP)
-        _err = "LoadPackagedLibrary on `" + lib + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
-#elif defined(_WIN32)
+#if defined(_WIN32)
         _err = "LoadLibraryW on `" + lib + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();

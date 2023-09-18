@@ -4,6 +4,7 @@
     <IceLanguageMapping Condition="'$(IceLanguageMapping)' == ''">cpp</IceLanguageMapping>
     <IceBuildingSrc>yes</IceBuildingSrc>
     <IceCppMapping>cpp11</IceCppMapping>
+    <IceLibSuffix>++11</IceLibSuffix>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props" />
 </Project>

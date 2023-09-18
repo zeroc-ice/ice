@@ -14,7 +14,6 @@ IceSSL_sliceflags       := --include-dir IceSSL
 # implementation.
 #
 IceSSL_excludes         += $(wildcard src/IceSSL/SChannel*.cpp)
-IceSSL_excludes         += $(wildcard src/IceSSL/UWP*.cpp)
 
 ifeq ($(os),Darwin)
 IceSSL_excludes         += $(wildcard src/IceSSL/OpenSSL*.cpp)

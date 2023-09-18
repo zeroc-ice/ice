@@ -193,7 +193,7 @@ public:
     // Operations from EventHandler
     //
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     virtual bool startAsync(SocketOperation);
     virtual bool finishAsync(SocketOperation);
 #endif
@@ -254,7 +254,7 @@ private:
     std::set<Ice::ConnectionIPtr> _connections;
     State _state;
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
     IceInternal::UniquePtr<Ice::LocalException> _acceptorException;
 #endif
 };

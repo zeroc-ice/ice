@@ -137,11 +137,7 @@ Mutex::Mutex(MutexProtocol protocol)
 inline void
 Mutex::init(MutexProtocol)
 {
-#ifdef ICE_OS_UWP
-    InitializeCriticalSectionEx(&_mutex, 0, 0);
-#else
     InitializeCriticalSection(&_mutex);
-#endif
 }
 
 inline

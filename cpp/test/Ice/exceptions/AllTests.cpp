@@ -498,14 +498,9 @@ allTests(Test::TestHelper* helper)
         }
         localOAEndpoint = ostr.str();
     }
-#ifdef ICE_OS_UWP
-    bool uwp = true;
-#else
-    bool uwp = false;
-#endif
 
-    if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
+    if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+       communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
         cout << "testing object adapter registration exceptions... " << flush;
         {

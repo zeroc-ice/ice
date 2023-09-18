@@ -23,7 +23,7 @@ IceSSL::AcceptorI::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 IceInternal::AsyncInfo*
 IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation status)
 {
@@ -44,7 +44,7 @@ IceSSL::AcceptorI::listen()
     return _endpoint;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+#if defined(ICE_USE_IOCP)
 void
 IceSSL::AcceptorI::startAccept()
 {

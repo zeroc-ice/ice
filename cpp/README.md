@@ -21,9 +21,6 @@ unnecessary.
 - [Building Ice for Windows](#building-ice-for-windows)
   * [Build Using MSBuild](#build-using-msbuild)
   * [Build Using Visual Studio](#build-using-visual-studio)
-- [Building Ice for Universal Windows (UWP)](#building-ice-for-universal-windows--uwp-)
-  * [Build Using MSBuild](#build-using-msbuild-1)
-  * [Build Using Visual Studio](#build-using-visual-studio-1)
 - [Installing a C++ Source Build on AIX, Linux or macOS](#installing-a-c---source-build-on-aix--linux-or-macos)
 - [Creating a NuGet Package on Windows](#creating-a-nuget-package-on-windows)
 - [Cleaning the source build on AIX, Linux or macOS](#cleaning-the-source-build-on-aix--linux-or-macos)
@@ -32,7 +29,6 @@ unnecessary.
   * [iOS](#ios)
     + [iOS Simulator](#ios-simulator)
     + [iOS Device](#ios-device)
-  * [Universal Windows](#universal-windows)
 
 ## C++ Build Requirements
 
@@ -43,9 +39,7 @@ listed on [supported platforms][2].
 
 On Windows, the build requires a recent version of Visual Studio. When building
 with Visual Studio 2017 you have to install Desktop development with C++ workload
-and select the optional component Windows 8.1 SDK and UCRT SDK. For UWP build you
-must also install Windows 10 SDK (10.0.14393.0) available with Visual Studio 2017
-installer.
+and select the optional component Windows 8.1 SDK and UCRT SDK.
 
 ### Third-Party Libraries
 
@@ -331,58 +325,6 @@ Then launch Visual Studio and open the desired test solution, you must now use
 NuGet package manager to restore the NuGet packages, and the build will use Ice
 NuGet packages instead of your local source build.
 
-## Building Ice for Universal Windows (UWP)
-
-### Build Using MSBuild
-
-The steps are the same as for Building Ice for Windows above, except you must
-also use a `UWP` target.
-
-To build Ice for UWP:
-```
-msbuild msbuild\ice.proj /t:UWPBuild
-```
-
-To skip the building of the test suite:
-```
-msbuild msbuild\ice.proj /t:UWPBuildDist
-```
-
-To build the test suite using the NuGet binary distribution use:
-```
-msbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
-```
-
-### Build Using Visual Studio
-
-Before building Ice for UWP using Visual Studio you must build the slice2cpp
-compiler from the C++98 mapping, refer to [Building Ice for
-Windows](#building-ice-for-windows).
-
-Using either Visual Studio 2017 or Visual Studio 2015, open the
-[msbuild/ice.uwp.sln](./msbuild/ice.uwp.sln)
-
-Choose the platform and configuration you want to build using the configuration
-manager.
-
-The solution provides a project for each Ice component and each component can be
-built separately. When you build a component, its dependencies are built
-automatically.
-
-The test suite is built using a separate Visual Studio solution
-[msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln). This solution includes a
-project for each test and a project for the UWP test controller required to run
-the test suite.
-
-It is also possible to build the tests using a C++ binary distribution, to do
-that you must set `ICE_BIN_DIST` environment variable to `all` before starting
-Visual Studio.
-
-Then launch Visual Studio and open the
-[msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln) solution, you must now use
-NuGet package manager to restore the NuGet packages, and the build will use Ice
-NuGet packages instead of your local source build.
-
 ## Installing a C++ Source Build on AIX, Linux or macOS
 
 Simply run `make install`. This will install Ice in the directory specified by
@@ -430,19 +372,6 @@ This creates `zeroc.ice.v100\zeroc.ice.v100.nupkg`,
 `zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg`,
 `zeroc.ice.v141\zeroc.ice.v141.nupkg` or `zeroc.ice.v142\zeroc.ice.v142.nupkg`
 depending on the compiler you are using.
-
-To create UWP NuGet packages, use the `UWPNuGetPack` target instead:
-```
-msbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
-```
-
-This creates: `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
-`zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
-`zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015
-builds or `zeroc.ice.uwp.v141\zeroc.ice.uwp.v141.nupkg`,
-`zeroc.ice.uwp.v141.x64\zeroc.ice.uwp.v141.x64.nupkg` and
-`zeroc.ice.uwp.v141.x86\zeroc.ice.uwp.v141.x86.nupkg` for Visual Studio 2017
-builds.
 
 ## Cleaning the source build on AIX, Linux or macOS
 
@@ -538,23 +467,6 @@ python allTests.py --config=cpp11-xcodesdk --platform=iphoneos
 
 All the test clients and servers run on the iOS device, not on your Mac
 computer.
-
-### Universal Windows
-
-The test scripts require Ice for Python. You can build Ice for Python from
-the [python](../python) folder of this source distribution, or install the
-Python module `zeroc-ice`,  using the following command:
-```
-pip install zeroc-ice
-```
-
-You can run the testsuite from the console using python:
-```
-python allTests.py --uwp --controller-app --platform x64 --config Release
-```
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/downloads/ice
 [2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-9
