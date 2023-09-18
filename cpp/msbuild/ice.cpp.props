@@ -235,20 +235,12 @@
     <!--
         C++11 mapping target names.
     -->
-    <When Condition="'$(IceCppMapping)' == 'cpp11'">
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+    <When Condition="'$(IceCppMapping)' == 'cpp11' and ('$(ConfigurationType)' == 'DynamicLibrary' or '$(ConfigurationType)' == 'StaticLibrary')">
+      <PropertyGroup Condition="'$(IceConfiguration)' == 'Debug'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-        <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11"))</TargetName>
-      </PropertyGroup>
-
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-        <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
-      </PropertyGroup>
-
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)' == 'Release'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11"))</TargetName>
       </PropertyGroup>
     </When>
@@ -266,11 +258,11 @@
       </PropertyGroup>
 
       <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-        <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
+        <TargetName>$(ProjectName)d</TargetName>
       </PropertyGroup>
 
       <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-        <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+        <TargetName>$(ProjectName)</TargetName>
       </PropertyGroup>
     </Otherwise>
   </Choose>
