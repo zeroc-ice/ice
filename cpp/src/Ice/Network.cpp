@@ -54,12 +54,6 @@
 #  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
-#if defined(_WIN32)
-#   ifndef SIO_LOOPBACK_FAST_PATH
-#       define SIO_LOOPBACK_FAST_PATH _WSAIOW(IOC_VENDOR,16)
-#   endif
-#endif
-
 #if defined(__MINGW32__)
 //
 // Work-around for missing definitions in MinGW Windows headers
@@ -182,28 +176,6 @@ setKeepAlive(SOCKET fd)
     }
 }
 
-#if defined(_WIN32)
-void
-setTcpLoopbackFastPath(SOCKET fd)
-{
-    int OptionValue = 1;
-    DWORD NumberOfBytesReturned = 0;
-
-    int status =
-        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), ICE_NULLPTR, 0, &NumberOfBytesReturned, 0, 0);
-    if(status == SOCKET_ERROR)
-    {
-            // On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
-        DWORD LastError = ::GetLastError();
-        if(LastError != WSAEOPNOTSUPP)
-        {
-            closeSocketNoThrow(fd);
-            throw SocketException(__FILE__, __LINE__, getSocketErrno());
-        }
-    }
-}
-#endif
-
 SOCKET
 createSocketImpl(bool udp, int family)
 {
@@ -226,18 +198,6 @@ createSocketImpl(bool udp, int family)
     {
         setTcpNoDelay(fd);
         setKeepAlive(fd);
-
-#if defined(_WIN32)
-        //
-        // FIX: the fast path loopback appears to cause issues with
-        // connection closure when it's enabled. Sometime, a peer
-        // doesn't receive the TCP/IP connection closure (RST) from
-        // the other peer and it ends up hanging. This is showing up
-        // with the background test when ran with WS. The test
-        // sporadically hangs on exit. See bug #6093.
-        //
-        //setTcpLoopbackFastPath(fd);
-#endif
     }
 
     return fd;

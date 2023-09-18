@@ -237,13 +237,6 @@ namespace IceInternal
                 {
                     setTcpNoDelay(socket);
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-                    //
-                    // FIX: the fast path loopback appears to cause issues with
-                    // connection closure when it's enabled. Sometime, a peer
-                    // doesn't receive the TCP/IP connection closure (RST) from
-                    // the other peer and it ends up hanging. See bug #6093.
-                    //
-                    //setTcpLoopbackFastPath(socket);
                 }
                 catch(SocketException ex)
                 {
@@ -317,26 +310,6 @@ namespace IceInternal
                 throw new Ice.SocketException(ex);
             }
         }
-
-        //
-        // FIX: the fast path loopback appears to cause issues with
-        // connection closure when it's enabled. Sometime, a peer
-        // doesn't receive the TCP/IP connection closure (RST) from
-        // the other peer and it ends up hanging. See bug #6093.
-        //
-        // public static void setTcpLoopbackFastPath(Socket socket)
-        // {
-        //     const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
-        //     byte[] OptionInValue = BitConverter.GetBytes(1);
-        //     try
-        //     {
-        //         socket.IOControl(SIO_LOOPBACK_FAST_PATH, OptionInValue, null);
-        //     }
-        //     catch(Exception)
-        //     {
-        //         // Expected on platforms that do not support TCP Loopback Fast Path
-        //     }
-        // }
 
         public static void setBlock(Socket socket, bool block)
         {
