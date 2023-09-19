@@ -1,4 +1,10 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="200" width="200" />
+</p>
+
 [![Join the chat at https://gitter.im/zeroc-ice/ice](https://badges.gitter.im/zeroc-ice/ice.svg)][gitter]
+[![GPL-v2](https://img.shields.io/github/license/zeroc-ice/ice?color=red)][GPL-v2]
+[![Static Badge](https://img.shields.io/badge/license-Commercial-blue)][Commercial]
 
 # The Ice framework
 
@@ -98,12 +104,14 @@ the associated license agreement; the GPL v2 terms and conditions do not apply.
 The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice are the
 license terms.
 
+[Commercial]: https://zeroc.com/ice/pricing
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
 [docs]: https://doc.zeroc.com/ice/3.7
 [downloads]: https://zeroc.com/downloads/ice
 [examples]: https://github.com/zeroc-ice/ice-demos
 [gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [glacier2]: https://doc.zeroc.com/ice/3.7/ice-services/glacier2
+[GPL-v2]: https://github.com/zeroc-ice/ice/blob/3.7/LICENSE
 [ice-repo]: https://github.com/zeroc-ice/ice
 [icegrid]: https://doc.zeroc.com/ice/3.7/ice-services/icegrid
 [icemx]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/administrative-facility/the-metrics-facet
