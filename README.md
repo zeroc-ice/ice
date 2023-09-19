@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="200" width="200" />
+  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="150" width="150" />
 </p>
 
 [![Join the chat at https://gitter.im/zeroc-ice/ice](https://badges.gitter.im/zeroc-ice/ice.svg)][gitter]
@@ -75,9 +75,9 @@ Bluetooth...)
 - Configuration ([Ice Properties][properties])
 - Logging ([Ice Logger][logger])
 - Instrumentation and metrics ([IceMX][icemx])
-- Pub-sub ([IceStorm][icestorm])
+- Pub-sub ([IceStorm][icestorm], [DataStorm][datastorm])
 - Server deployment, replication and monitoring ([IceGrid][icegrid])
-- Session management and firewall traversal ([Glacier2][glacier2])
+- Application gateway ([Glacier2][glacier2])
 
 The Ice API is defined almost entirely using Slice; as a result, it is essentially the same in all programming
 languages.
@@ -96,7 +96,7 @@ As copyright owner, ZeroC can license Ice under different license terms, and off
 - Commercial or closed-source licenses
 
 If you license Ice under GPL v2, there is no license fee or signed license agreement: you just need to comply with the
-GPL v2 terms and conditions. See [ICE_LICENSE](ICE_LICENSE) and [LICENSE](LICENSE) for further information.
+GPL v2 terms and conditions. ZeroC also grants a few [exceptions](ICE_LICENSE) to the GPLv2 terms and conditions.
 
 If you purchase a commercial or closed-source license for Ice, you must comply with the terms and conditions listed in
 the associated license agreement; the GPL v2 terms and conditions do not apply.
@@ -106,6 +106,7 @@ license terms.
 
 [Commercial]: https://zeroc.com/ice/pricing
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
+[datastorm]: https://doc.zeroc.com/datastorm/latest/introduction
 [docs]: https://doc.zeroc.com/ice/3.7
 [downloads]: https://zeroc.com/downloads/ice
 [examples]: https://github.com/zeroc-ice/ice-demos
