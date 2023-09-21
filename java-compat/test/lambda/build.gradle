@@ -28,8 +28,13 @@ dependencies {
 }
 
 jar {
-    archiveName = "IceTestLambda.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        archiveFileName = "IceTestLambda.jar"
+        destinationDirectory = new File("$rootProject.projectDir/lib/")
+    } else {
+        archiveName = "IceTestLambda.jar"
+        destinationDir = new File("$rootProject.projectDir/lib/")
+    }
 }
 
 clean {

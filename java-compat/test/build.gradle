@@ -27,13 +27,18 @@ dependencies {
 
 if(!gradle.startParameter.isOffline()) {
     dependencies {
-        runtime "org.apache.commons:commons-compress:1.14"
+        runtimeOnly "org.apache.commons:commons-compress:1.20"
     }
 }
 
 jar {
-    archiveName = "test.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        archiveFileName = "test.jar"
+        destinationDirectory = new File("$rootProject.projectDir/lib/")
+    } else {
+        archiveName = "test.jar"
+        destinationDir = new File("$rootProject.projectDir/lib/")
+    }
     manifest {
         attributes("Class-Path": configurations.runtimeClasspath.resolve().collect { it.toURI() }.join(' '))
     }

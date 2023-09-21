@@ -52,16 +52,13 @@ with [Apache Commons Compress][4].
 The Maven package id for the commons-compress JAR file is as follows:
 
 ```
-groupId=org.apache.commons, version=1.14, artifactId=commons-compress
+groupId=org.apache.commons, version=1.20, artifactId=commons-compress
 ```
 
 The demos and tests are automatically setup to enable protocol compression by
 adding the commons-compress JAR to the manifest class path. For your own
 applications you must add the commons-compress JAR to the application CLASSPATH
 to enable protocol compression.
-
-> *These classes are a pure Java implementation of the bzip2 algorithm and
-therefore add significant latency to Ice requests.*
 
 ## Building Ice for Java
 
