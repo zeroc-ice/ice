@@ -2661,15 +2661,17 @@ class BrowserProcessController(RemoteProcessController):
                     # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
                     #
                     profilepath = os.path.join(current.driver.getComponent().getSourceDir(), "scripts", "selenium", "firefox")
-                    profile = webdriver.FirefoxProfile(profilepath)
-                    self.driver = webdriver.Firefox(firefox_profile=profile)
+                    options = webdriver.FirefoxOptions()
+                    options.set_preference("profile", profilepath)
+                    self.driver = webdriver.Firefox(options=options)
                 elif driver == "Ie":
                     # Make sure we start with a clean cache
-                    capabilities = webdriver.DesiredCapabilities.INTERNETEXPLORER.copy()
-                    capabilities["ie.ensureCleanSession"] = True
-                    self.driver = webdriver.Ie(capabilities=capabilities)
+                    options = webdriver.IeOptions()
+                    options.ensure_clean_session = True
+                    self.driver = webdriver.Ie(options=options)
                 elif driver == "Safari" and int(port) > 0:
-                    self.driver = webdriver.Safari(port=int(port), reuse_service=True)
+                    service = webdriver.SafariService(port=port, reuse_service=True)
+                    self.driver = webdriver.Safari(service=service)
                 else:
                     self.driver = getattr(webdriver, driver)()
         except:
