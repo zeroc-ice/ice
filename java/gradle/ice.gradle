@@ -67,7 +67,12 @@ if(!(project.hasProperty('android') && project.android.sourceSets)) {
         task compileModuleInfoJava(type: JavaCompile) {
             classpath = files() // empty
             source = 'src/main/java/module-info.java'
-            destinationDir = compileJava.destinationDir // same dir to see classes compiled by compileJava
+            // same dir to see classes compiled by compileJava
+            if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+                destinationDirectory = compileJava.destinationDirectory
+            } else {
+                destinationDir = compileJava.destinationDir
+            }
             doFirst {
                 options.compilerArgs = [
                     '--release', '9',

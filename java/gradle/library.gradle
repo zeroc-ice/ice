@@ -3,13 +3,22 @@
 //
 
 jar {
-    destinationDir = new File("${libDir}")
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        destinationDirectory = new File("${libDir}")
+    } else {
+        destinationDir = new File("${libDir}")
+    }
 }
 
 task jarSources(type:Jar, dependsOn: jar){
     from sourceSets.main.allSource
-    classifier = 'sources'
-    destinationDir = new File("${libDir}")
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        archiveClassifier = 'sources'
+        destinationDirectory = new File("${libDir}")
+    } else {
+        classifier = 'sources'
+        destinationDir = new File("${libDir}")
+    }
 }
 
 javadoc.dependsOn(compileSlice)
@@ -27,9 +36,14 @@ javadoc {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
     from javadoc
-    destinationDir = new File("${libDir}")
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        archiveClassifier = 'javadoc'
+        destinationDirectory = new File("${libDir}")
+    } else {
+        classifier = 'javadoc'
+        destinationDir = new File("${libDir}")
+    }
 }
 
 // The maven plugin change in Gradle 7.3, for compatibility with older gradle versions
@@ -71,14 +85,22 @@ if(project.name == "icebox-compat") {
 }
 
 clean {
-    delete("${libDir}/${jar.archiveName}")
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        delete("${libDir}/${jar.archiveFileName}")
+    } else {
+        delete("${libDir}/${jar.archiveName}")
+    }
     delete("${libDir}/${project.name}-${project.version}-sources.jar")
     delete(project.ext.pomName)
 }
 
 task installJars(type: Copy, dependsOn: jarSources) {
     from "${project.ext.pomName}"
-    from "${libDir}/${jar.archiveName}"
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        from "${libDir}/${jar.archiveFileName}"
+    } else {
+        from "${libDir}/${jar.archiveFileName}"
+    }
     from "${libDir}/${project.name}-${project.version}-sources.jar"
     into "${DESTDIR}${jarDir}"
 }
