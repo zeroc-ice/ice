@@ -99,7 +99,7 @@ task installJars(type: Copy, dependsOn: jarSources) {
     if (GradleVersion.current() >= GradleVersion.version('8.0')) {
         from "${libDir}/${jar.archiveFileName}"
     } else {
-        from "${libDir}/${jar.archiveFileName}"
+        from "${libDir}/${jar.archiveName}"
     }
     from "${libDir}/${project.name}-${project.version}-sources.jar"
     into "${DESTDIR}${jarDir}"
