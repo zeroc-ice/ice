@@ -2670,7 +2670,8 @@ class BrowserProcessController(RemoteProcessController):
                     options.ensure_clean_session = True
                     self.driver = webdriver.Ie(options=options)
                 elif driver == "Safari" and int(port) > 0:
-                    self.driver = webdriver.Safari(port=int(port), reuse_service=True)
+                    service = webdriver.SafariService(port=port, reuse_service=True)
+                    self.driver = webdriver.Safari(service=service)
                 else:
                     self.driver = getattr(webdriver, driver)()
         except:
