@@ -171,7 +171,7 @@ where the C++ compiler can automatically find the header and library files, you 
 need to set `ICE_HOME`
 
 ```
-make ICE_HOME=/opt/Ice-3.7.9 ICE_BIN_DIST=all
+make ICE_HOME=/opt/Ice-3.7.10 ICE_BIN_DIST=all
 ```
 
 ### Build configurations and platforms
@@ -469,7 +469,7 @@ All the test clients and servers run on the iOS device, not on your Mac
 computer.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-9
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
 [3]: https://github.com/zeroc-ice/bzip2
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/
