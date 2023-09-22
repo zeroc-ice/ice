@@ -68,14 +68,14 @@ have not built Ice for C++ in this source distribution, you must set the
 example, on Linux:
 
 ```
-export ICE_HOME=/opt/Ice-3.7.9 (For local build)
+export ICE_HOME=/opt/Ice-3.7.10 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.9 (MSI installation)
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.10 (MSI installation)
 ```
 
 On Windows if you are using Ice for C++ from a source distribution, you must set
@@ -121,15 +121,15 @@ gradlew install
 The installation installs the following JAR files to `<prefix>/lib`.
 
 ```
-glacier2-compat-3.7.9.jar
-ice-compat-3.7.9.jar
-icebox-compat-3.7.9.jar
-icebt-compat-3.7.9.jar
-icediscovery-compat-3.7.9.jar
-icegrid-compat-3.7.9.jar
-icelocatordiscovery-compat-3.7.9.jar
-icepatch2-compat-3.7.9.jar
-icestorm-compat-3.7.9.jar
+glacier2-compat-3.7.10.jar
+ice-compat-3.7.10.jar
+icebox-compat-3.7.10.jar
+icebt-compat-3.7.10.jar
+icediscovery-compat-3.7.10.jar
+icegrid-compat-3.7.10.jar
+icelocatordiscovery-compat-3.7.10.jar
+icepatch2-compat-3.7.10.jar
+icestorm-compat-3.7.10.jar
 ```
 
 POM files are also installed for ease of deployment to a Maven-based
@@ -143,14 +143,14 @@ then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Linux or macOS:
 
 ```
-export ICE_HOME=/opt/Ice-3.7.9 (For local build)
+export ICE_HOME=/opt/Ice-3.7.10 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.9
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.10
 ```
 
 Python is required to run the test suite. To run the tests, open a command
@@ -247,6 +247,6 @@ To run the tests against a `controller` application started from Android
 Studio you should omit the `--controller-app` option from the commands above.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-9
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
 [3]: https://gradle.org
 [4]: https://commons.apache.org/proper/commons-compress/
