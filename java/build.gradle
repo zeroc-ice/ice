@@ -108,4 +108,6 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
     dist.dependsOn(project(":icepatch2").assemble)
     dist.dependsOn(project(":icestorm").assemble)
     dist.dependsOn(project(":IceGridGUI").assemble)
+
+    project(":test").compileJava.dependsOn(dist)
 }

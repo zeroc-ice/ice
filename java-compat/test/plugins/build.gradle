@@ -15,8 +15,13 @@ dependencies {
 }
 
 jar {
-    archiveName = "IceTestPlugins.jar"
-    destinationDir = new File("$rootProject.projectDir/lib/")
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        archiveFileName = "IceTestPlugins.jar"
+        destinationDirectory = new File("$rootProject.projectDir/lib/")
+    } else {
+        archiveName = "IceTestPlugins.jar"
+        destinationDir = new File("$rootProject.projectDir/lib/")
+    }
 }
 
 clean {
