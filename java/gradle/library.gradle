@@ -85,22 +85,15 @@ if(project.name == "icebox-compat") {
 }
 
 clean {
-    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
-        delete("${libDir}/${jar.archiveFileName}")
-    } else {
-        delete("${libDir}/${jar.archiveName}")
-    }
+    delete("${libDir}/${project.name}-${project.version}.jar")
     delete("${libDir}/${project.name}-${project.version}-sources.jar")
+    delete("${libDir}/${project.name}-${project.version}-javadoc.jar")
     delete(project.ext.pomName)
 }
 
 task installJars(type: Copy, dependsOn: jarSources) {
     from "${project.ext.pomName}"
-    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
-        from "${libDir}/${jar.archiveFileName}"
-    } else {
-        from "${libDir}/${jar.archiveName}"
-    }
+    from "${libDir}/${project.name}-${project.version}.jar"
     from "${libDir}/${project.name}-${project.version}-sources.jar"
     into "${DESTDIR}${jarDir}"
 }
