@@ -2,11 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-task copyTmpJars(type: Copy, dependsOn: jar) {
-    from new File("${projectDir}/build/libs/${tmpJarName}")
+task copyTmpJars(type: Copy) {
+    from jar.archiveFile
     into "${libDir}"
     rename("${tmpJarName}", "${jarName}")
 
+    mustRunAfter ":ice:javadoc"
+    mustRunAfter ":icessl:javadoc"
+    mustRunAfter ":icelocatordiscovery:javadoc"
+    mustRunAfter ":icebox:javadoc"
+    mustRunAfter ":icestorm:javadoc"
+    mustRunAfter ":glacier2:javadoc"
+    mustRunAfter ":icegrid:javadoc"
 }
 
 task updateManifest(dependsOn: copyTmpJars) {
