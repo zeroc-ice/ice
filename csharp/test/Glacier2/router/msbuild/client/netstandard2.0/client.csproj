@@ -16,7 +16,7 @@
     <Compile Include="generated\Callback.cs">
       <SliceCompileSource>../../../Callback.ice</SliceCompileSource>
     </Compile>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" />
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../../Callback.ice" />
   </ItemGroup>
   <Choose>

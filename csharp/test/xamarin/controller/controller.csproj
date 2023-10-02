@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2545" />
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" />
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <Compile Update="generated\Controller.cs">
       <SliceCompileSource>..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </Compile>

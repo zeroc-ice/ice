@@ -26,7 +26,7 @@
     <Compile Include="../../../TestI.cs" />
     <Compile Include="../../../TestAMDI.cs" />
 
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" />
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
 
     <ProjectReference Include="..\..\..\..\..\TestCommon\msbuild\testcommon\netstandard2.0\testcommon.csproj" />
     <SliceCompile Include="../../../Test.ice" />

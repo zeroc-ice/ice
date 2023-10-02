@@ -12,8 +12,8 @@
     <Compile Include="../../*.cs" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" PrivateAssets="All" />
-      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" PrivateAssets="All" />
+      <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" PrivateAssets="All" />
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../../Ice/msbuild/netstandard2.0/ice.csproj" />
