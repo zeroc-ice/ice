@@ -29,7 +29,7 @@ ice-test.xcodeproj: Rakefile | carthage-bootstrap
 all:: tests
 
 carthage-bootstrap:
-	$(Q)cd .. && carthage bootstrap --cache-builds --use-xcframeworks
+	$(Q)cd .. && carthage bootstrap --cache-builds --use-xcframeworks --platform macOS,iOS
 
 tests srcs:: carthage-bootstrap
 
