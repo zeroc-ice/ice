@@ -15,7 +15,6 @@ resulting binaries. As an alternative, you can download and install the
   * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
 * [Running the Tests](#running-the-tests)
 * [NuGet Package](#nuget-package)
-* [Building Ice for Xamarin Test Suite](#building-ice-for-xamarin-test-suite)
 
 ## Building on Windows
 
@@ -198,77 +197,6 @@ dotnet msbuild msbuild/ice.proj /t:NuGetPack
 
 This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net`
 directory.
-
-## Building Ice for Xamarin Test Suite
-
-The `msbuild\ice.xamarin.test.sln` Visual Studio solution allows building
-the Ice test suite as a Xamarin application that can be deployed on iOS, Android
-or UWP platforms.
-
-The Xamarin test suite uses the Ice assemblies for .NET Standard 2.0. either
-from the source distribution or using the `zeroc.ice.net` NuGet package. If
-using the assemblies from the source distribution, they must be built before this
-application.
-
-### Building on Windows
-
-#### Windows Build Requirements
-
-* Visual Studio 2022 with following workloads:
-  * Mobile development with .NET
-  * .NET Core cross-platform development
-
-#### Building the Android test controller
-
-Open a Visual Studio 2022 command prompt:
-
-```
-MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
-```
-
-#### Running the Android test suite
-
-```
-set PATH=%LOCALAPPDATA%\Android\sdk\cmdline-tools\latest\bin;%PATH%
-set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
-set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
-
-python allTests.py --android --controller-app --config Release --platform x64
-```
-
-### Building on macOS
-
-#### macOS Build Requirements
-
-* Visual Studio for Mac
-
-#### Building the Android test controller
-
-```
-msbuild msbuild/ice.proj /t:AndroidXamarinBuild
-```
-
-#### Building the iOS test controller
-
-```
-msbuild msbuild/ice.proj /t:iOSXamarinBuild
-```
-
-#### Running the Android test suite
-
-```
-export PATH=~/Library/Android/sdk/cmdline-tools/latest/bin:$PATH
-export PATH=~/Library/Android/sdk/platform-tools:$PATH
-export PATH=~/Library/Android/sdk/emulator:$PATH
-
-python allTests.py --android --controller-app --config Release --platform x64
-```
-
-#### Running the iOS test suite
-
-```
-python allTests.py --controller-app --config Release --platform iphonesimulator
-```
 
 [1]: https://zeroc.com/downloads/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0

@@ -626,7 +626,6 @@ class Mapping(object):
             self.dotnet = False
             self.framework = ""
             self.android = False
-            self.xamarin = False
             self.device = ""
             self.avd = ""
             self.phpVersion = "7.1"
@@ -2345,7 +2344,7 @@ class AndroidProcessController(RemoteProcessController):
 
     def __init__(self, current):
         endpoint = None
-        if current.config.xamarin or current.config.device:
+        if current.config.device:
             endpoint = "tcp -h 0.0.0.0 -p 15001"
         elif current.config.avd or not current.config.device:
             endpoint = "tcp -h 127.0.0.1 -p 15001"
@@ -2361,9 +2360,7 @@ class AndroidProcessController(RemoteProcessController):
         return self.device is not None  # Discovery is only used with devices
 
     def getControllerIdentity(self, current):
-        if isinstance(current.testcase.getMapping(), CSharpMapping):
-            return "AndroidXamarin/ProcessController"
-        elif isinstance(current.testcase.getMapping(), JavaCompatMapping):
+        if isinstance(current.testcase.getMapping(), JavaCompatMapping):
             return "AndroidCompat/ProcessController"
         else:
             return "Android/ProcessController"
@@ -2494,7 +2491,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-13"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "tcp -h 0.0.0.0 -p 15001" if current.config.xamarin else None)
+        RemoteProcessController.__init__(self, current, None)
         self.simulatorID = None
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
@@ -2604,7 +2601,7 @@ class iOSDeviceProcessController(RemoteProcessController):
     appPath = "cpp/test/ios/controller/build"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "tcp -h 0.0.0.0 -p 15001" if current.config.xamarin else None)
+        RemoteProcessController.__init__(self, current, None)
 
     def __str__(self):
         return "iOS Device"
@@ -3333,10 +3330,6 @@ class CSharpMapping(Mapping):
             self.binTargetFramework = self.framework
             self.testTargetFramework = self.framework
 
-            # Set Xamarin flag if iOS or Android testing flag is also specified
-            if self.android or "iphone" in self.buildPlatform:
-                self.xamarin = True
-
     def getBinTargetFramework(self, current):
         return current.config.binTargetFramework
 
@@ -3352,17 +3345,6 @@ class CSharpMapping(Mapping):
         else:
             return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
 
-    def getProps(self, process, current):
-        props = Mapping.getProps(self, process, current)
-        if current.config.xamarin:
-            #
-            # With SSL we need to delay the creation of the admin adapter until the plug-in has
-            # been initialized.
-            #
-            if current.config.protocol in ["ssl", "wss"] and current.config.mx:
-                props["Ice.Admin.DelayCreation"] = "1"
-        return props
-
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
         props.update({
@@ -3372,28 +3354,22 @@ class CSharpMapping(Mapping):
             "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
             "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
         })
-        if current.config.xamarin:
-            props["Ice.InitPlugins"] = 0
-            props["IceSSL.CAs"] = "cacert.der"
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
-        if current.config.xamarin:
-            plugindir = ""
-        else:
-            plugindir = self.component.getLibDir(process, self, current)
+        plugindir = self.component.getLibDir(process, self, current)
 
-            #
-            # If the plug-in assembly exists in the test directory, this is a good indication that the
-            # test include a reference to the plug-in, in this case we must use the test dir as the
-            # plug-in base directory to avoid loading two instances of the same assembly.
-            #
-            proccessType = current.testcase.getProcessType(process)
-            if proccessType:
-                testdir = os.path.join(current.testcase.getPath(current), self.getBuildDir(proccessType, current))
-                if os.path.isfile(os.path.join(testdir, plugin + ".dll")):
-                    plugindir = testdir
-            plugindir += os.sep
+        #
+        # If the plug-in assembly exists in the test directory, this is a good indication that the
+        # test include a reference to the plug-in, in this case we must use the test dir as the
+        # plug-in base directory to avoid loading two instances of the same assembly.
+        #
+        proccessType = current.testcase.getProcessType(process)
+        if proccessType:
+            testdir = os.path.join(current.testcase.getPath(current), self.getBuildDir(proccessType, current))
+            if os.path.isfile(os.path.join(testdir, plugin + ".dll")):
+                plugindir = testdir
+        plugindir += os.sep
 
         return {
             "IceSSL" : plugindir + "IceSSL.dll:IceSSL.PluginFactory",
@@ -3448,23 +3424,6 @@ class CSharpMapping(Mapping):
     def getSDKPackage(self):
         return "system-images;android-33;google_apis;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
-
-    def getApk(self, current):
-        return os.path.join(self.getPath(), "test", "xamarin", "controller.Android", "bin", current.config.buildConfig,
-                            "com.zeroc.testcontroller-Signed.apk")
-
-    def getActivityName(self):
-        return "com.zeroc.testcontroller/controller.MainActivity"
-
-    def getIOSControllerIdentity(self, current):
-        if current.config.buildPlatform == "iphonesimulator":
-            return "iPhoneSimulator/com.zeroc.Xamarin-Test-Controller"
-        else:
-            return "iPhoneOS/com.zeroc.Xamarin-Test-Controller"
-
-    def getIOSAppFullPath(self, current):
-        return os.path.join(self.getPath(), "test", "xamarin", "controller.iOS", "bin", "iPhoneSimulator",
-                            current.config.buildConfig, "controller.iOS.app")
 
 class CppBasedMapping(Mapping):
 

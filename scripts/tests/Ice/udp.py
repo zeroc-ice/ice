@@ -7,7 +7,7 @@ from Util import *
 class UdpTestCase(ClientServerTestCase):
 
     def setupServerSide(self, current):
-        if current.config.android or current.config.xamarin:
+        if current.config.android:
             self.servers = [Server(ready="McastTestAdapter")]
         else:
             self.servers = [Server(args=[i], ready="McastTestAdapter") for i in range(0, 5)]
