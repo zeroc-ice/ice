@@ -6,29 +6,32 @@ import org.gradle.util.GradleVersion
 project.ext.displayName = "IceGridGUI"
 project.ext.description = ""
 
-if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
-    ext.os = System.properties['os.name']
-    if(os == "Mac OS X") {
-        ext.platform = "mac"
-        ext.hasJavaFx = true
-    } else if(os.toLowerCase().contains("windows")) {
-        ext.platform = "win"
-        ext.hasJavaFx = true
-    } else if(os.toLowerCase().contains("linux")) {
-        ext.platform = "linux"
-        ext.hasJavaFx = true
-    } else {
-        ext.hasJavaFx = false
-    }
-} else {
-    ext.javafxJar = ['jfxrt.jar',
-                     'lib/jfxrt.jar',
-                     'lib/ext/jfxrt.jar',
-                     'jre/lib/jfxrt.jar',
-                     'jre/lib/ext/jfxrt.jar',
-                     'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
+ext.hasJavaFx = false
 
-    ext.hasJavaFx = javafxJar != null
+if(iceGridGuiUseJavaFX.toBoolean()) {
+    if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
+        ext.os = System.properties['os.name']
+        if(os == "Mac OS X") {
+            ext.platform = "mac"
+            ext.hasJavaFx = true
+        } else if(os.toLowerCase().contains("windows")) {
+            ext.platform = "win"
+            ext.hasJavaFx = true
+        } else if(os.toLowerCase().contains("linux")) {
+            ext.platform = "linux"
+            ext.hasJavaFx = true
+        } else {
+            ext.hasJavaFx = false
+        }
+    } else {
+        ext.javafxJar = ['jfxrt.jar',
+                         'lib/jfxrt.jar',
+                         'lib/ext/jfxrt.jar',
+                         'jre/lib/jfxrt.jar',
+                         'jre/lib/ext/jfxrt.jar',
+                         'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
+        ext.hasJavaFx = javafxJar != null
+    }
 }
 
 if(!hasJavaFx) {
