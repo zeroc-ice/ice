@@ -248,6 +248,9 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
               DestinationFiles="zeroc.ice.net\LICENSE.txt" />
 
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
+              DestinationFiles="zeroc.ice.net\README.md" />
+
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
               DestinationFiles="zeroc.ice.net\logo.png" />
 
