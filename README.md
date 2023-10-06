@@ -50,9 +50,9 @@ helloPrx->sayHello();
 ```c++
 // C++ server
 
-// Implement the Hello interface by deriving from the generated
+// Implements the Hello interface by deriving from the generated
 // Hello abstract base class.
-class HelloImpl : public Hello
+class Printer : public Hello
 {
 public:
 
