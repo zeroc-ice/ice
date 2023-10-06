@@ -84,7 +84,7 @@ languages.
 
 ## Building Ice from source
 
-[C++](cpp) | [C#](csharp) | [Java](java) | [JavaScript/TypeScript](js) | [MATLAB](matlab) | [Objective-C](objective-c) | [PHP](php) | [Python](python) | [Ruby](ruby) | [Swift](swift)
+[C++](cpp/BUILDING.md) | [C#](csharp/BUILDING.md) | [Java](java) | [JavaScript/TypeScript](js) | [MATLAB](matlab) | [Objective-C](objective-c) | [PHP](php) | [Python](python) | [Ruby](ruby) | [Swift](swift)
 
 ## Copyright and license
 
