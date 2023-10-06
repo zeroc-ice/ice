@@ -1,7 +1,7 @@
 # Ice for Java build instructions
 
 This page describes how to build and install Ice for Java from source. If
-you prefer, you can also download a [binary distribution][1].
+you prefer, you can also download a [binary distribution].
 
 * [Build Requirements](#build-requirements)
   * [Operating Systems](#operating-systems)
@@ -23,42 +23,42 @@ you prefer, you can also download a [binary distribution][1].
 ### Operating Systems
 
 Ice for Java builds and runs properly on Windows, macOS, and any recent Linux
-distribution, and is fully supported on the platforms listed on the
-[supported platforms][2] page.
+distribution. It is fully supported on the platforms listed on the [supported platforms]
+page.
 
 ### Slice to Java Compiler
 
 You need the Slice to Java compiler to build Ice for Java and also to use
 Ice for Java. The Slice to Java compiler (`slice2java`) is a command-line tool
 written in C++. You can build the Slice to Java compiler from source, or
-alternatively you can install an Ice [binary distribution][1] that includes
+alternatively you can install an Ice [binary distribution] that includes
 this compiler.
 
 ### Java Version
 
-Ice for Java requires J2SE 1.8 or later.
+Ice for Java requires Java 8 or later.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
 
-The Metrics Graph feature of the IceGrid GUI tool requires JavaFX support. This
-feature will not be available if you build the source with a JVM that lacks
-support for JavaFX. Alternatively, building the source in an environment with
+The IceGrid GUI tool's Metrics Graph feature requires JavaFX support. If you
+build the source with a JVM that lacks JavaFX support, this feature will be
+unavailable. Alternatively, building the source in an environment with
 JavaFX produces an IceGrid GUI JAR file that can be used in JVMs with or without
 JavaFX support, as the Metrics Graph feature is enabled dynamically.
 
 ### Gradle
 
-Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
+Ice for Java uses the [Gradle] build system, and includes the Gradle wrapper
 in the distribution. You cannot build the Ice for Java source distribution without
 an Internet connection. Gradle will download all required packages automatically
-from Maven Central repository located at https://central.sonatype.com/
+from the Maven Central repository located at https://repo1.maven.org/maven2/
 
 ### Bzip2 Compression
 
 Ice for Java supports protocol compression using the bzip2 classes included
-with [Apache Commons Compress][5].
+with [Apache Commons Compress].
 
-The Maven package id for the commons-compress JAR file is as follows:
+The Maven package ID for the commons-compress JAR file is as follows:
 
 ```gradle
 groupId=org.apache.commons, version=1.20, artifactId=commons-compress
@@ -86,7 +86,7 @@ groupId=com.jgoodies, version=2.7.0, artifactId=jgoodies-looks
 
 ### ProGuard
 
-Gradle uses [ProGuard][4] to create the standalone JAR file for the IceGrid
+Gradle uses [ProGuard] to create the standalone JAR file for the IceGrid
 GUI tool.
 
 The Maven package id for the ProGuard gradle plugin is as follows:
@@ -218,13 +218,13 @@ the Ice test suite controller.
 
 ### Android Build Requirements
 
-Building any Ice application for Android requires Android Studio and the Android
-SDK build tools. We tested with the following components:
+To build an Ice application for Android, you need Android Studio and the Android SDK
+build tools. We tested the following components:
 
 * Android Studio Giraffe
 * Android SDK 33
 
-Using Ice's Java mapping with Java 8 requires at minimum API level 24:
+To use Ice's Java mapping with Java 8, you need at least API level 24:
 
 * Android 7 (API24)
 
@@ -250,8 +250,7 @@ Instant Run.
 
 Tests are started from the dev machine using the `allTests.py` script, similar
 to the other language mappings. The script uses Ice for Python to communicate
-with the Android app, therefore you must build the [Python mapping]
-(../python) before continuing.
+with the Android app, therefore you must build the [Python mapping] before continuing.
 
 You also need to add the `tools\bin`, `platform-tools` and `emulator`
 directories from the Android SDK to your PATH. On macOS, you can use the
@@ -310,8 +309,9 @@ On macOS, the build also creates an application bundle named IceGrid GUI. You
 can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
 Finder.
 
-[1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
-[3]: https://gradle.org
-[4]: http://proguard.sourceforge.net
-[5]: https://commons.apache.org/proper/commons-compress/
+[binary distribution]: https://zeroc.com/downloads/ice
+[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[Gradle]: https://gradle.org
+[ProGuard]: http://proguard.sourceforge.net
+[Apache Commons Compress]: https://commons.apache.org/proper/commons-compress/
+[Python Mapping]: ../python

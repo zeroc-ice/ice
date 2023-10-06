@@ -1,7 +1,7 @@
 # Ice for Java Compat Build Instructions
 
-This page describes how to build and install Ice for Java from source. If
-you prefer, you can also download a [binary distribution][1].
+This page describes how to build and install Ice for Java Compat from source. If you
+prefer, you can also download a [binary distribution].
 
 * [Build Requirements](#build-requirements)
   * [Operating Systems](#operating-systems)
@@ -18,38 +18,37 @@ you prefer, you can also download a [binary distribution][1].
 
 ### Operating Systems
 
-Ice for Java builds and runs properly on Windows, macOS, and any recent
-Linux distribution, and is fully supported on the platforms listed on the
-[supported platforms][2] page.
+Ice for Java Compat builds and runs properly on Windows, macOS, and any recent
+Linux distributions. It is fully supported on the platforms listed on the
+[supported platforms] page.
 
 ### Slice to Java Compiler
 
-You need the Slice to Java compiler to build Ice for Java and also to use
-Ice for Java. The Slice to Java compiler (`slice2java`) is a command-line tool
-written in C++. You can build the Slice to Java compiler from source, or
-alternatively you can install an Ice [binary distribution][1] that includes
-this compiler.
+You need the Slice to Java compiler to build Ice for Java Compat and also to use
+Ice for Java Compat. The Slice to Java compiler (`slice2java`) is a command-line tool
+written in C++. You can build the Slice to Java compiler from source, or alternatively
+you can install an Ice [binary distribution] that includes this compiler.
 
 ### Java Version
 
-Ice for Java requires J2SE 1.7.0 or later.
+Ice for Java Compat requires Java 7 or later.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
 
 ### Gradle
 
-Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
-in the distribution. You cannot build the Ice for Java source distribution
+Ice for Java Compat uses the [Gradle] build system, and includes the Gradle wrapper
+in the distribution. You cannot build the Ice for Java Compat source distribution
 without an Internet connection. Gradle will download all required packages
-automatically from Maven Central repository located at
-http://central.maven.org/maven2/
+automatically from the Maven Central repository located at
+https://repo1.maven.org/maven2/
 
 ### Bzip2 Compression
 
-Ice for Java supports protocol compression using the bzip2 classes included
-with [Apache Commons Compress][4].
+Ice for Java Compat supports protocol compression using the bzip2 classes included
+with [Apache Commons Compress].
 
-The Maven package id for the commons-compress JAR file is as follows:
+The Maven package ID for the commons-compress JAR file is as follows:
 
 ```gradle
 groupId=org.apache.commons, version=1.20, artifactId=commons-compress
@@ -57,7 +56,7 @@ groupId=org.apache.commons, version=1.20, artifactId=commons-compress
 
 The demos and tests are automatically setup to enable protocol compression by
 adding the commons-compress JAR to the manifest class path. For your own
-applications you must add the commons-compress JAR to the application CLASSPATH
+applications you must add the commons-compress JAR to the application `CLASSPATH`
 to enable protocol compression.
 
 ## Building Ice for Java Compat
@@ -90,8 +89,8 @@ set CPP_CONFIGURATION=Debug
 The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
 values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 
-Before building Ice for Java, review the settings in the file
-`gradle.properties` and edit as necessary.
+Before building Ice for Java Compat, review the settings in the file `gradle.properties`
+and edit as necessary.
 
 To build Ice, all services, and tests, run
 
@@ -109,9 +108,9 @@ gradlew clean
 gradlew build
 ```
 
-## Installing Ice for Java
+## Installing Ice for Java Compat
 
-To install Ice for Java in the directory specified by the `prefix` variable in
+To install Ice for Java Compat in the directory specified by the `prefix` variable in
 `gradle.properties` run the following command:
 
 ```shell
@@ -135,7 +134,7 @@ distribution system.
 
 ## Running the Java Compat Tests
 
-Some of the Ice for Java tests employ applications that are part of the Ice for
+Some of the Ice for Java Compat tests employ applications that are part of the Ice for
 C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Linux or macOS:
@@ -180,7 +179,7 @@ Ice requires at minimum API level 21:
 
 ### Building the Android Test Controller
 
-You must first build Ice for Java refer to [Building Ice for Java Compat](#building-ice-for-java-compat)
+You must first build Ice for Java Compat refer to [Building Ice for Java Compat](#building-ice-for-java-compat)
 for instructions, then follow these steps:
 
 1. Start Android Studio
@@ -244,7 +243,7 @@ python allTests.py --android --device=<ip-address> --controller-app
 To run the tests against a `controller` application started from Android
 Studio you should omit the `--controller-app` option from the commands above.
 
-[1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
-[3]: https://gradle.org
-[4]: https://commons.apache.org/proper/commons-compress/
+[binary distribution]: https://zeroc.com/downloads/ice
+[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[Gradle]: https://gradle.org
+[Apache Commons Compress]: https://commons.apache.org/proper/commons-compress/
