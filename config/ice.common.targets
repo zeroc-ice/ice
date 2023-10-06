@@ -10,6 +10,14 @@
                 <NugetURL>https://dist.nuget.org/win-x86-commandline/v5.4.0/nuget.exe</NugetURL>
             </PropertyGroup>
         </When>
+        <When Condition="'$(VisualStudioVersion)' == '15.0' Or '$(VisualStudioVersion)' == '14.0' Or '$(VisualStudioVersion)' == '12.0'">
+            <PropertyGroup>
+                <!-- We use NuGet 6.3.3 because more recent versions fail with Visual Studio 2013,
+                     Visual Studio 2015, and Visual Studio 2017 -->
+                <NugetExe>$(MSBuildThisFileDirectory)NuGet-6.3.3.exe</NugetExe>
+                <NugetURL>https://dist.nuget.org/win-x86-commandline/v6.3.3/nuget.exe</NugetURL>
+            </PropertyGroup>
+        </When>
         <Otherwise>
             <PropertyGroup>
                 <NugetExe>$(MSBuildThisFileDirectory)NuGet-6.7.0.exe</NugetExe>
