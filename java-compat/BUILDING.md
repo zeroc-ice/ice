@@ -1,4 +1,4 @@
-# Building Ice for Java Compat
+# Ice for Java Compat Build Instructions
 
 This page describes how to build and install Ice for Java from source. If
 you prefer, you can also download a [binary distribution][1].
@@ -9,7 +9,7 @@ you prefer, you can also download a [binary distribution][1].
   * [Java Version](#java-version)
   * [Gradle](#gradle)
   * [Bzip2 Compression](#bzip2-compression)
-* [Building Ice for Java Compat](#building-ice-for-java-compat-1)
+* [Building Ice for Java Compat](#building-ice-for-java-compat)
 * [Installing Ice for Java Compat](#installing-ice-for-java-compat)
 * [Running the Java Compat Tests](#running-the-java-compat-tests)
 * [Building the Ice for Android Tests](#building-the-ice-for-android-tests)
@@ -51,7 +51,7 @@ with [Apache Commons Compress][4].
 
 The Maven package id for the commons-compress JAR file is as follows:
 
-```
+```gradle
 groupId=org.apache.commons, version=1.20, artifactId=commons-compress
 ```
 
@@ -67,14 +67,14 @@ have not built Ice for C++ in this source distribution, you must set the
 `ICE_HOME` environment variable with the path name of your Ice installation. For
 example, on Linux:
 
-```
+```shell
 export ICE_HOME=/opt/Ice-3.7.10 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
-```
+```shell
 set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.10 (MSI installation)
 ```
 
@@ -82,7 +82,7 @@ On Windows if you are using Ice for C++ from a source distribution, you must set
 the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
 platform and configuration used in your C++ build:
 
-```
+```shell
 set CPP_PLATFORM=x64
 set CPP_CONFIGURATION=Debug
 ```
@@ -95,7 +95,7 @@ Before building Ice for Java, review the settings in the file
 
 To build Ice, all services, and tests, run
 
-```
+```shell
 gradlew build
 ```
 
@@ -104,7 +104,7 @@ Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
 If at any time you wish to discard the current build and start a new one, use
 these commands:
 
-```
+```shell
 gradlew clean
 gradlew build
 ```
@@ -114,23 +114,21 @@ gradlew build
 To install Ice for Java in the directory specified by the `prefix` variable in
 `gradle.properties` run the following command:
 
-```
+```shell
 gradlew install
 ```
 
 The installation installs the following JAR files to `<prefix>/lib`.
 
-```
-glacier2-compat-3.7.10.jar
-ice-compat-3.7.10.jar
-icebox-compat-3.7.10.jar
-icebt-compat-3.7.10.jar
-icediscovery-compat-3.7.10.jar
-icegrid-compat-3.7.10.jar
-icelocatordiscovery-compat-3.7.10.jar
-icepatch2-compat-3.7.10.jar
-icestorm-compat-3.7.10.jar
-```
+* glacier2-compat-3.7.10.jar
+* ice-compat-3.7.10.jar
+* icebox-compat-3.7.10.jar
+* icebt-compat-3.7.10.jar
+* icediscovery-compat-3.7.10.jar
+* icegrid-compat-3.7.10.jar
+* icelocatordiscovery-compat-3.7.10.jar
+* icepatch2-compat-3.7.10.jar
+* icestorm-compat-3.7.10.jar
 
 POM files are also installed for ease of deployment to a Maven-based
 distribution system.
@@ -142,21 +140,21 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Linux or macOS:
 
-```
+```shell
 export ICE_HOME=/opt/Ice-3.7.10 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
-```
+```shell
 set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.10
 ```
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:
 
-```
+```shell
 python allTests.py
 ```
 
@@ -168,21 +166,21 @@ failure, the tests abort with `failed`.
 The `test/android/controller` directory contains an Android Studio project
 for the Ice test suite controller.
 
-### Build Requirements
+### Android Build Requirements
 
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio Electric Eel
-- Android SDK 33
+* Android Studio Giraffe
+* Android SDK 33
 
 Ice requires at minimum API level 21:
 
-- Android 5 (API21)
+* Android 5 (API21)
 
 ### Building the Android Test Controller
 
-You must first build Ice for Java refer to [Building Ice for Java](#building-ice-for-java-1)
+You must first build Ice for Java refer to [Building Ice for Java](#building-ice-for-java)
 for instructions, then follow these steps:
 
 1. Start Android Studio
@@ -209,7 +207,7 @@ You also need to add the `tools\bin`, `platform-tools` and `emulator`
 directories from the Android SDK to your PATH. On macOS, you can use the
 following commands:
 
-```
+```shell
 export PATH=~/Library/Android/sdk/cmdline-tools/latest/bin:$PATH
 export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
@@ -217,7 +215,7 @@ export PATH=~/Library/Android/sdk/emulator:$PATH
 
 On Windows, you can use the following commands:
 
-```
+```shell
 set PATH=%LOCALAPPDATA%\Android\sdk\cmdline-tools\latest\bin;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
@@ -225,21 +223,21 @@ set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 
 Run the tests with the Android emulator by running the following command:
 
-```
+```shell
 python allTests.py --android --controller-app
 ```
 
 To run the tests on a Android device connected through USB, you can use
 the `--device=usb` option as shown below:
 
-```
+```shell
 python allTests.py --android --device=usb --controller-app
 ```
 
 To connect to an Android device that is running adb you can use the
 `--device=<ip-address>`
 
-```
+```shell
 python allTests.py --android --device=<ip-address> --controller-app
 ```
 
