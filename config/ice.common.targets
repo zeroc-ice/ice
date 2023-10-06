@@ -5,7 +5,7 @@
     <Choose>
         <When Condition="'$(VisualStudioVersion)' == '10.0'">
             <PropertyGroup>
-                <!-- Use NuGet 5.4.0 more recent versions (5.6.0) fails with Visual Studio 2010 -->
+                <!-- We use NuGet 5.4.0 because more recent versions fail with Visual Studio 2010 -->
                 <NugetExe>$(MSBuildThisFileDirectory)NuGet-5.4.0.exe</NugetExe>
                 <NugetURL>https://dist.nuget.org/win-x86-commandline/v5.4.0/nuget.exe</NugetURL>
             </PropertyGroup>

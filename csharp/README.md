@@ -1,45 +1,62 @@
 # Ice for .NET
 
-[Getting started] | [Examples] | [NuGet packages] | [Documentation] | [Building from source]
+[Getting started] | [Examples] | [NuGet package] | [Documentation] | [Building from source]
 
-Ice is a full featured framework for creating networked applications with RPC, pub/sub, server deployment
-and more.
+The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
+
+Ice for .NET is the C# / .NET implementation of Ice.
 
 ## Sample Code
 
 ```slice
+#pragma once
+
 module Demo
 {
     interface Hello
     {
-        idempotent void sayHello(int delay);
-        void shutdown();
+        void sayHello();
     }
 }
 ```
 
 ```csharp
 // Client application
-using var communicator = Ice.Util.initialize(ref args);
-var hello = HelloPrxHelper.uncheckedCast(
+using(var communicator = Ice.Util.initialize(ref args))
+var hello = HelloPrxHelper.checkedCast(
     communicator.stringToProxy("hello:default -h localhost -p 10000"));
 hello.sayHello();
 ```
 
 ```csharp
 // Server application
-using var communicator = Ice.Util.initialize(ref args);
+ using(var communicator = Ice.Util.initialize(ref args))
 
-// Destroy the communicator on Ctrl+C or Ctrl+Break
-Console.CancelKeyPress += (sender, eventArgs) => communicator.destroy();
+// Shut down the communicator on Ctrl+C or Ctrl+Break.
+Console.CancelKeyPress += (sender, eventArgs) =>
+{
+    eventArgs.Cancel = true;
+    communicator.shutdown();
+};
+
 var adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default -h localhost -p 10000");
-adapter.add(new HelloI(), Ice.Util.stringToIdentity("hello"));
+adapter.add(new Printer(), Ice.Util.stringToIdentity("hello"));
 adapter.activate();
 communicator.waitForShutdown();
+
+public class Printer : HelloDisp_
+{
+    /// <summary>Prints a message to the standard output.</summary>
+    public override void sayHello(Ice.Current current)
+    {
+        Console.WriteLine("Hello World!");
+    }
+}
 ```
 
 [Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-c-sharp
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/csharp
-[NuGet packages]: https://www.nuget.org/profiles/ZeroC
+[NuGet packages]: https://www.nuget.org/packages/zeroc.ice.net
 [Documentation]: https://doc.zeroc.com/ice/3.7
 [Building from source]: BUILDING.md
+[Ice framework]: https://github.com/zeroc-ice/ice
