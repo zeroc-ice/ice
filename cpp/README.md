@@ -6,10 +6,11 @@ The [Ice framework] provides everything you need to build networked applications
 
 Ice for C++ is the C++ implementation of Ice.
 
-## Sample Code C++11 mapping
+## Sample Code with the Ice C++11 Mapping
 
 ```slice
 // Slice definitions (Hello.ice)
+
 #pragma once
 
 module Demo
@@ -23,6 +24,7 @@ module Demo
 
 ```cpp
 // Client application (Client.cpp)
+
 #include <Ice/Ice.h>
 #include <Hello.h>
 
@@ -48,20 +50,19 @@ main(int argc, char* argv[])
 ```
 
 ```cpp
-// Server application
+// Server application (Server.cpp)
+
 #include <Ice/Ice.h>
 #include <Printer.h>
 
 using namespace std;
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     try
     {
-        //
-        // CtrlCHandler must be created before the communicator or any other threads are started
-        //
+        // CtrlCHandler must be created before the communicator or any other threads
+        // are started
         Ice::CtrlCHandler ctrlCHandler;
 
         const Ice::CommunicatorHolder ich(argc, argv);
@@ -73,7 +74,9 @@ main(int argc, char* argv[])
                 communicator->shutdown();
             });
 
-        auto adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default -h localhost -p 10000");
+        auto adapter = communicator->createObjectAdapterWithEndpoints(
+            "Hello",
+            "default -h localhost -p 10000");
         adapter->add(make_shared<HelloI>(), Ice::stringToIdentity("hello"));
         adapter->activate();
         communicator->waitForShutdown();
@@ -88,7 +91,7 @@ main(int argc, char* argv[])
 ```
 
 ```cpp
-// Printer.h
+// Printer implementation (Printer.h)
 
 #include <Ice/Ice.h>
 #include <Hello.h>
@@ -106,10 +109,11 @@ public:
 }
 ```
 
-## Sample Code C++98 mapping
+## Sample Code with the Ice C++98 Mapping
 
 ```slice
 // Slice definitions (Hello.ice)
+
 #pragma once
 
 module Demo
@@ -123,19 +127,20 @@ module Demo
 
 ```cpp
 // Client application (Client.cpp)
+
 #include <Ice/Ice.h>
 #include <Hello.h>
 
 using namespace std;
 using namespace Demo;
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     try
     {
         Ice::CommunicatorHolder ich(argc, argv);
-        HelloPrx hello = HelloPrx::checkedCast(ich->stringToProxy("hello:default -h localhost -p 10000"));
+        HelloPrx hello = HelloPrx::checkedCast(
+            ich->stringToProxy("hello:default -h localhost -p 10000"));
         hello->sayHello();
     }
     catch(const std::exception& ex)
@@ -148,20 +153,21 @@ main(int argc, char* argv[])
 ```
 
 ```cpp
-// Server application
+// Server application (Server.cpp)
+
 #include <Ice/Ice.h>
 #include <HelloI.h>
 
 using namespace std;
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     try
     {
         Ice::CommunicatorHolder ich(argc, argv);
-        Ice::ObjectAdapterPtr adapter =
-            ich->createObjectAdapterWithEndpoints("Hello", "default -h localhost -p 10000");
+        Ice::ObjectAdapterPtr adapter = ich->createObjectAdapterWithEndpoints(
+            "Hello",
+            "default -h localhost -p 10000");
         adapter->add(new HelloI, Ice::stringToIdentity("hello"));
         adapter->activate();
         ich->waitForShutdown();
@@ -176,7 +182,7 @@ main(int argc, char* argv[])
 ```
 
 ```cpp
-// Printer.h
+// Printer implementation (Printer.h)
 
 #include <Ice/Ice.h>
 #include <Hello.h>
