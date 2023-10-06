@@ -244,6 +244,10 @@
                  Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset);DefaultBuild=$(DefaultBuild)"
                  Condition="'$(Platform)|$(Configuration)' == 'x64|Release' or '$(BuildAllConfigurations)' == 'yes'"/>
 
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
+              DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\README.md"
+              Condition="'$(DefaultPlatformToolset)' != 'v100'"/>
+
         <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\THIRD_PARTY_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
