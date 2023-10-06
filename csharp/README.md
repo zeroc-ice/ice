@@ -56,7 +56,7 @@ public class Printer : HelloDisp_
 
 [Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-c-sharp
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/csharp
-[NuGet packages]: https://www.nuget.org/packages/zeroc.ice.net
+[NuGet package]: https://www.nuget.org/packages/zeroc.ice.net
 [Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: BUILDING.md
+[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/csharp/BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
