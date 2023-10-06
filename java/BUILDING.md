@@ -51,7 +51,7 @@ JavaFX support, as the Metrics Graph feature is enabled dynamically.
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
 in the distribution. You cannot build the Ice for Java source distribution without
 an Internet connection. Gradle will download all required packages automatically
-from Maven Central repository located at http://central.maven.org/maven2/
+from Maven Central repository located at https://central.sonatype.com/
 
 ### Bzip2 Compression
 
@@ -66,7 +66,7 @@ groupId=org.apache.commons, version=1.20, artifactId=commons-compress
 
 The demos and tests are automatically setup to enable protocol compression by
 adding the commons-compress JAR to the manifest class path. For your own
-applications you must add the commons-compress JAR to the application CLASSPATH
+applications you must add the commons-compress JAR to the application `CLASSPATH`
 to enable protocol compression.
 
 ### JGoodies

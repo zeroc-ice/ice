@@ -60,7 +60,7 @@ adding the commons-compress JAR to the manifest class path. For your own
 applications you must add the commons-compress JAR to the application CLASSPATH
 to enable protocol compression.
 
-## Building Ice for Java
+## Building Ice for Java Compat
 
 The build system requires the Slice to Java compiler from Ice for C++. If you
 have not built Ice for C++ in this source distribution, you must set the
@@ -133,7 +133,7 @@ The installation installs the following JAR files to `<prefix>/lib`.
 POM files are also installed for ease of deployment to a Maven-based
 distribution system.
 
-## Running the Java Tests
+## Running the Java Compat Tests
 
 Some of the Ice for Java tests employ applications that are part of the Ice for
 C++ distribution. If you have not built Ice for C++ in this source distribution
@@ -180,7 +180,7 @@ Ice requires at minimum API level 21:
 
 ### Building the Android Test Controller
 
-You must first build Ice for Java refer to [Building Ice for Java](#building-ice-for-java)
+You must first build Ice for Java refer to [Building Ice for Java Compat](#building-ice-for-java-compat)
 for instructions, then follow these steps:
 
 1. Start Android Studio
@@ -200,8 +200,8 @@ Instant Run.
 
 Tests are started from the dev machine using the `allTests.py` script, similar
 to the other language mappings. The script uses Ice for Python to communicate
-with the Android app, therefore you must build the [Python mapping]
-(../../python) before continuing.
+with the Android app, therefore you must build the [Python mapping](../../python)
+before continuing.
 
 You also need to add the `tools\bin`, `platform-tools` and `emulator`
 directories from the Android SDK to your PATH. On macOS, you can use the
