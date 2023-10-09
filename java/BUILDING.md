@@ -6,7 +6,7 @@ you prefer, you can also download a [binary distribution].
 * [Build Requirements](#build-requirements)
   * [Operating Systems](#operating-systems)
   * [Slice to Java Compiler](#slice-to-java-compiler)
-  * [Java Version](#java-version)
+  * [JDK Version](#jdk-version)
   * [Gradle](#gradle)
   * [Bzip2 Compression](#bzip2-compression)
   * [JGoodies](#jgoodies)
@@ -34,11 +34,13 @@ written in C++. You can build the Slice to Java compiler from source, or
 alternatively you can install an Ice [binary distribution] that includes
 this compiler.
 
-### Java Version
+### JDK Version
 
-Ice for Java requires Java 8 or later.
+You need JDK 8, JDK 11, JDK 17 or JDK 21 to build Ice for Java.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
+
+> The build produces bytecode in the Java 8 class file format ([major version] 52).
 
 The IceGrid GUI tool's Metrics Graph feature requires JavaFX support. If you
 build the source with a JVM that lacks JavaFX support, this feature will be
@@ -310,6 +312,7 @@ can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
 Finder.
 
 [binary distribution]: https://zeroc.com/downloads/ice
+[major version]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.1-200-B.2
 [supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
 [Gradle]: https://gradle.org
 [ProGuard]: http://proguard.sourceforge.net
