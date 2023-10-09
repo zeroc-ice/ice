@@ -210,28 +210,6 @@ writeParamList(Output& out, vector<string> params, bool end = true, bool newLine
     }
 }
 
-// Returns the "length" of the constructor parameter list from the given data member list.
-// All types are counted as 1 unit, except for long and double which are counted as 2 units.
-// See https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.3.3
-int
-constructorParameterLength(const DataMemberList& members)
-{
-    int length = 0;
-    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast((*i)->type());
-        if(builtin && (builtin->kind() == Builtin::KindLong || builtin->kind() == Builtin::KindDouble))
-        {
-            length += 2;
-        }
-        else
-        {
-            length++;
-        }
-    }
-    return length;
-}
-
 }
 
 Slice::JavaCompatVisitor::JavaCompatVisitor(const string& dir) :
@@ -2967,9 +2945,9 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         //
-        // A method cannot have more than 255 parameters (including the implicit "this" argument).
+        // Generate constructor if the parameter list is not too large.
         //
-        if(constructorParameterLength(allDataMembers) < 255)
+        if(isValidMethodParameterList(members))
         {
             DataMemberList baseDataMembers;
             if(baseClass)
@@ -3277,9 +3255,9 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
 
         //
-        // A method cannot have more than 255 parameters (including the implicit "this" argument).
+        // Generate constructor if the parameter list is not too large.
         //
-        if(constructorParameterLength(allDataMembers) < 255)
+        if(isValidMethodParameterList(members))
         {
             if(hasRequiredMembers && hasOptionalMembers)
             {
@@ -3341,8 +3319,9 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
                 //
                 // Create constructor that takes all data members plus a Throwable.
+                // Do this only when the parameter list is not too large.
                 //
-                if(allDataMembers.size() < 254)
+                if(isValidMethodParameterList(allDataMembers, 1))
                 {
                     const string causeParamName = getEscapedParamName(allDataMembers, "cause");
                     paramDecl.push_back("Throwable " + causeParamName);
@@ -3419,9 +3398,10 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             out << eb;
 
             //
-            // Create constructor that takes all data members plus a Throwable
+            // Create constructor that takes all data members plus a Throwable.
+            // Do this only when the parameter list is not too large.
             //
-            if(allDataMembers.size() < 254)
+            if(isValidMethodParameterList(allDataMembers, 1))
             {
                 const string causeParamName = getEscapedParamName(allDataMembers, "cause");
                 paramDecl.push_back("Throwable " + causeParamName);
@@ -3692,9 +3672,9 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     //
-    // A method cannot have more than 255 parameters (including the implicit "this" argument).
+    // Generate constructor if the parameter list is not too large.
     //
-    if(constructorParameterLength(members) < 255)
+    if(isValidMethodParameterList(members))
     {
         vector<string> paramDecl;
         vector<string> paramNames;

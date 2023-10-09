@@ -669,6 +669,28 @@ Slice::computeSerialVersionUUID(const ExceptionPtr& p)
     return hashCode;
 }
 
+bool
+Slice::isValidMethodParameterList(const DataMemberList& members, int additionalUnits)
+{
+    // The maximum length of a method parameter list is 255 units, including the implicit 'this' parameter.
+    // Each parameter is 1 unit, except for long and double parameters, which are 2 units.
+    // Start the length at 1 to account for the implicit 'this' parameter (plus any additional units).
+    int length = 1 + additionalUnits;
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
+        if(builtin && (builtin->kind() == Builtin::KindLong || builtin->kind() == Builtin::KindDouble))
+        {
+            length += 2;
+        }
+        else
+        {
+            length++;
+        }
+    }
+    return length <= 255;
+}
+
 Slice::JavaOutput::JavaOutput()
 {
 }
