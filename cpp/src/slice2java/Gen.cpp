@@ -137,7 +137,7 @@ string ofFactory(const TypePtr& type)
 }
 
 // Returns the "length" of the constructor parameter list from the given data member list.
-// All types are counted as 1, except for long and double which are counted as 2.
+// All types are counted as 1 unit, except for long and double which are counted as 2 units.
 // See https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.3.3
 int
 constructorParameterLength(const DataMemberList& members)
