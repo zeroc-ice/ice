@@ -6,7 +6,7 @@ prefer, you can also download a [binary distribution].
 * [Build Requirements](#build-requirements)
   * [Operating Systems](#operating-systems)
   * [Slice to Java Compiler](#slice-to-java-compiler)
-  * [Java Version](#java-version)
+  * [JDK Version](#jdk-version)
   * [Gradle](#gradle)
   * [Bzip2 Compression](#bzip2-compression)
 * [Building Ice for Java Compat](#building-ice-for-java-compat)
@@ -29,11 +29,13 @@ Ice for Java Compat. The Slice to Java compiler (`slice2java`) is a command-line
 written in C++. You can build the Slice to Java compiler from source, or alternatively
 you can install an Ice [binary distribution] that includes this compiler.
 
-### Java Version
+### JDK Version
 
-Ice for Java Compat requires Java 7 or later.
+You need JDK 8, JDK 11, or JDK 17 to build Ice for Java Compat.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
+
+> The build produces bytecode in the Java 7 class file format ([major version] 51).
 
 ### Gradle
 
@@ -247,3 +249,4 @@ Studio you should omit the `--controller-app` option from the commands above.
 [supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
 [Gradle]: https://gradle.org
 [Apache Commons Compress]: https://commons.apache.org/proper/commons-compress/
+[major version]: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.1-200-B.2
