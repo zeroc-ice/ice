@@ -36,7 +36,7 @@ this compiler.
 
 ### JDK Version
 
-You need JDK 8, JDK 11, JDK 17 or JDK 21 to build Ice for Java.
+You need JDK 8, JDK 11, JDK 17, or JDK 21 to build Ice for Java.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
 
