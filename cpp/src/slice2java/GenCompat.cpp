@@ -210,6 +210,28 @@ writeParamList(Output& out, vector<string> params, bool end = true, bool newLine
     }
 }
 
+// Returns the "length" of the a constructor parameter list from the given data member list.
+// All types are counted as 1, except for long and double which are counted as 2.
+// See https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.3.3
+int
+constructorParameterLength(const DataMemberList& members)
+{
+    int length = 0;
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    {
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast((*i)->type());
+        if(builtin && (builtin->kind() == Builtin::KindLong || builtin->kind() == Builtin::KindDouble))
+        {
+            length += 2;
+        }
+        else
+        {
+            length++;
+        }
+    }
+    return length;
+}
+
 }
 
 Slice::JavaCompatVisitor::JavaCompatVisitor(const string& dir) :
@@ -2947,7 +2969,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // A method cannot have more than 255 parameters (including the implicit "this" argument).
         //
-        if(allDataMembers.size() < 255)
+        if(constructorParameterLength(allDataMembers) < 255)
         {
             DataMemberList baseDataMembers;
             if(baseClass)
@@ -3257,7 +3279,7 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         //
         // A method cannot have more than 255 parameters (including the implicit "this" argument).
         //
-        if(allDataMembers.size() < 255)
+        if(constructorParameterLength(allDataMembers) < 255)
         {
             if(hasRequiredMembers && hasOptionalMembers)
             {
@@ -3672,7 +3694,7 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
     //
     // A method cannot have more than 255 parameters (including the implicit "this" argument).
     //
-    if(members.size() < 255)
+    if(constructorParameterLength(members) < 255)
     {
         vector<string> paramDecl;
         vector<string> paramNames;
