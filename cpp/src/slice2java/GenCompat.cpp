@@ -210,7 +210,7 @@ writeParamList(Output& out, vector<string> params, bool end = true, bool newLine
     }
 }
 
-// Returns the "length" of the a constructor parameter list from the given data member list.
+// Returns the "length" of the constructor parameter list from the given data member list.
 // All types are counted as 1, except for long and double which are counted as 2.
 // See https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.3.3
 int
