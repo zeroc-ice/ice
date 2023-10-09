@@ -69,6 +69,7 @@ server; neither side knows the programming language used by the other side.
 ## Complete solution with a uniform API
 
 The Ice framework provides everything you need to build networked applications:
+
 - RPCs with a compact binary [protocol][protocol] over a variety of network transports (TCP, UDP, WebSocket,
 Bluetooth...)
 - Secure communications ([IceSSL][icessl])
@@ -84,17 +85,7 @@ languages.
 
 ## Building Ice from source
 
-- [C++](cpp/BUILDING.md)
-- [C#](csharp/BUILDING.md)
-- [Java](java/BUILDING.md)
-- [Java Compat](java-compat/BUILDING.md)
-- [JavaScript/TypeScript](js)
-- [MATLAB](matlab)
-- [Objective-C](objective-c)
-- [PHP](php)
-- [Python](python)
-- [Ruby](ruby)
-- [Swift](swift)
+[C++](cpp/BUILDING.md) | [C#](csharp/BUILDING.md) | [Java](java/BUILDING.md) | [Java Compat](java-compat/BUILDING.md) | [JavaScript/TypeScript](js) | [MATLAB](matlab) | [Objective-C](objective-c) | [PHP](php) | [Python](python) | [Ruby](ruby) | [Swift](swift)
 
 ## Copyright and license
 
@@ -102,6 +93,7 @@ Ice is a single-copyright project: all the source code in this [ice repository][
 Copyright &copy; ZeroC, Inc., with very few exceptions.
 
 As copyright owner, ZeroC can license Ice under different license terms, and offers the following licenses for Ice:
+
 - [GPLv2], a popular open-source license with strong [copyleft][copyleft] conditions (the default license)
 - Commercial or closed-source licenses
 

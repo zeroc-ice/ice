@@ -15,7 +15,6 @@ Slice-to-Java mapping introduced in Ice 3.7.
 
 #pragma once
 
-["java:package:com.zeroc.demos.Ice.minimal"]
 module Demo
 {
     interface Hello
@@ -28,13 +27,14 @@ module Demo
 ```java
 // Client implementation (Client.java)
 
-import com.zeroc.demos.Ice.minimal.Demo.*;
+import com.zeroc.Ice.*;
+import Demo.*;
 
 public class Client
 {
     public static void main(String[] args)
     {
-        try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args))
+        try(Communicator communicator = Util.initialize(args))
         {
             HelloPrx hello = HelloPrx.checkedCast(
                 communicator.stringToProxy("hello:default -h localhost -p 10000"));
@@ -47,19 +47,21 @@ public class Client
 ```java
 // Server implementation (Server.java)
 
+import com.zeroc.Ice.*;
+
 public class Server
 {
     public static void main(String[] args)
     {
-        try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args))
+        try(Communicator communicator = Util.initialize(args))
         {
-            // Install a shutdown hook to ensure the communicator gets shutdown when
+            // Install a shutdown hook to ensure the communicator gets shut down when
             // the user interrupts the application with Ctrl-C.
             Runtime.getRuntime().addShutdownHook(new Thread(() -> communicator.shutdown()));
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
+            ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
                 "Hello",
                 "default -h localhost -p 10000");
-            adapter.add(new Printer(), com.zeroc.Ice.Util.stringToIdentity("hello"));
+            adapter.add(new Printer(), Util.stringToIdentity("hello"));
             adapter.activate();
             communicator.waitForShutdown();
         }
@@ -70,7 +72,7 @@ public class Server
 ```java
 // Printer implementation (Printer.java)
 
-import com.zeroc.demos.Ice.minimal.Demo.*;
+import Demo.*;
 
 public class Printer implements Hello
 {
