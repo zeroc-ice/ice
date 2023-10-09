@@ -2,9 +2,11 @@
 
 [Getting started] | [Examples] | [Maven packages] | [Documentation] | [Building from source]
 
-The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
+The [Ice framework] provides everything you need to build networked applications,
+including RPC, pub/sub, server deployment, and more.
 
-Ice for Java is the Ice Java implementation.
+Ice for Java is the Java implementation of the Ice framework. It includes the latest
+Slice-to-Java mapping introduced in Ice 3.7.
 
 ## Sample Code
 
@@ -34,9 +36,6 @@ public class Client
     {
         try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args))
         {
-            communicator.getProperties().setProperty(
-                "Ice.Default.Package",
-                "com.zeroc.demos.Ice.minimal");
             HelloPrx hello = HelloPrx.checkedCast(
                 communicator.stringToProxy("hello:default -h localhost -p 10000"));
             hello.sayHello();
@@ -54,21 +53,14 @@ public class Server
     {
         try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args))
         {
-            communicator.getProperties().setProperty(
-                "Ice.Default.Package",
-                "com.zeroc.demos.Ice.minimal");
-
-            // Install shutdown hook to (also) destroy communicator during JVM shutdown.
-            // This ensures the communicator gets destroyed when the user interrupts the
-            // application with Ctrl-C.
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> communicator.destroy()));
-
+            // Install a shutdown hook to ensure the communicator gets shutdown when
+            // the user interrupts the application with Ctrl-C.
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> communicator.shutdown()));
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
                 "Hello",
                 "default -h localhost -p 10000");
             adapter.add(new Printer(), com.zeroc.Ice.Util.stringToIdentity("hello"));
             adapter.activate();
-
             communicator.waitForShutdown();
         }
     }

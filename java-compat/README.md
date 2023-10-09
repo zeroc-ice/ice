@@ -2,9 +2,11 @@
 
 [Getting started] | [Examples] | [Maven packages] | [Documentation] | [Building from source]
 
-The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
+The [Ice framework] provides everything you need to build networked applications,
+including RPC, pub/sub, server deployment, and more.
 
-Ice for Java Compat is the Ice Java implementation that is backward-compatible with prior Ice releases.
+Ice for Java Compat is a Java implementation of the Ice framework that is largely source
+compatible with Ice for Java 3.6 and prior releases.
 
 ## Sample Code
 
@@ -46,29 +48,12 @@ public class Client
 
 public class Server
 {
-    static class ShutdownHook extends Thread
-    {
-        @Override
-        public void run()
-        {
-            _communicator.destroy();
-        }
-
-        ShutdownHook(Ice.Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        private final Ice.Communicator _communicator;
-    }
-
     public static void main(String[] args)
     {
         try(Ice.Communicator communicator = Ice.Util.initialize(args))
         {
-            // Install shutdown hook to (also) destroy communicator during JVM shutdown.
-            // This ensures the communicator gets destroyed when the user interrupts the
-            // application with Ctrl-C.
+            // Install a shutdown hook to ensure the communicator gets shutdown when
+            // the user interrupts the application with Ctrl-C.
             Runtime.getRuntime().addShutdownHook(new ShutdownHook(communicator));
 
             Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
@@ -78,6 +63,22 @@ public class Server
             adapter.activate();
             communicator.waitForShutdown();
         }
+    }
+
+    static class ShutdownHook extends Thread
+    {
+        @Override
+        public void run()
+        {
+            _communicator.shutdown();
+        }
+
+        ShutdownHook(Ice.Communicator communicator)
+        {
+            _communicator = communicator;
+        }
+
+        private final Ice.Communicator _communicator;
     }
 }
 ```
