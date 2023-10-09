@@ -2945,9 +2945,9 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         //
-        // A method cannot have more than 255 parameters (including the implicit "this" argument).
+        // Generate constructor if the parameter list is not too large.
         //
-        if(allDataMembers.size() < 255)
+        if(isValidMethodParameterList(members))
         {
             DataMemberList baseDataMembers;
             if(baseClass)
@@ -3255,9 +3255,9 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
 
         //
-        // A method cannot have more than 255 parameters (including the implicit "this" argument).
+        // Generate constructor if the parameter list is not too large.
         //
-        if(allDataMembers.size() < 255)
+        if(isValidMethodParameterList(members))
         {
             if(hasRequiredMembers && hasOptionalMembers)
             {
@@ -3319,8 +3319,9 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
                 //
                 // Create constructor that takes all data members plus a Throwable.
+                // Do this only when the parameter list is not too large.
                 //
-                if(allDataMembers.size() < 254)
+                if(isValidMethodParameterList(allDataMembers, 1))
                 {
                     const string causeParamName = getEscapedParamName(allDataMembers, "cause");
                     paramDecl.push_back("Throwable " + causeParamName);
@@ -3397,9 +3398,10 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             out << eb;
 
             //
-            // Create constructor that takes all data members plus a Throwable
+            // Create constructor that takes all data members plus a Throwable.
+            // Do this only when the parameter list is not too large.
             //
-            if(allDataMembers.size() < 254)
+            if(isValidMethodParameterList(allDataMembers, 1))
             {
                 const string causeParamName = getEscapedParamName(allDataMembers, "cause");
                 paramDecl.push_back("Throwable " + causeParamName);
@@ -3670,9 +3672,9 @@ Slice::GenCompat::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     //
-    // A method cannot have more than 255 parameters (including the implicit "this" argument).
+    // Generate constructor if the parameter list is not too large.
     //
-    if(members.size() < 255)
+    if(isValidMethodParameterList(members))
     {
         vector<string> paramDecl;
         vector<string> paramNames;
