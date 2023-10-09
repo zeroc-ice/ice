@@ -36,7 +36,7 @@ computeSerialVersionUUID(const StructPtr&);
 // See https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.3.3
 //
 bool
-isValidMethodParameterList(const DataMemberList &, int additionalUnits = 0);
+isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
 
 class JavaOutput : public ::IceUtilInternal::Output
 {
