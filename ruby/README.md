@@ -9,8 +9,8 @@ Ice for Ruby is the Ruby implementation of Ice.
 
 ## Sample Code
 
-```slice (Hello.ice)
-#pragma once
+```slice
+// Slice definitions (Hello.ice)
 
 module Demo
 {

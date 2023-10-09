@@ -9,8 +9,8 @@ Ice for Python is the Python implementation of Ice.
 
 ## Sample Code
 
-```slice (Hello.ice)
-#pragma once
+```slice
+// Slice definitions (Hello.ice)
 
 module Demo
 {

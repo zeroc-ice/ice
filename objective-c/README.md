@@ -9,7 +9,7 @@ Ice for Objective-C is the Objective-C implementation of Ice.
 ## Sample Code
 
 ```slice
-#pragma once
+// Slice definitions (Hello.ice)
 
 module Demo
 {

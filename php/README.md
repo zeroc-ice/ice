@@ -10,7 +10,7 @@ Ice for PHP is the PHP implementation of Ice.
 ## Sample Code
 
 ```slice
-#pragma once
+// Slice definitions (Hello.ice)
 
 module Demo
 {

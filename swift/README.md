@@ -9,7 +9,7 @@ Ice for Swift is the swift implementation of Ice.
 ## Sample Code
 
 ```slice
-#pragma once
+// Slice definitions (Hello.ice)
 
 module Demo
 {

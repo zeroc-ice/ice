@@ -1,15 +1,16 @@
-# Ice for .NET
+# Ice for MATLAB
 
-[Getting started] | [Examples] | [NuGet package] | [Documentation] | [Building from source]
+[Getting started] | [Examples] | [Documentation] | [Building from source]
 
-The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
+The [Ice framework] provides everything you need to build networked applications,
+including RPC, pub/sub, server deployment, and more.
 
 Ice for MATLAB is the MATLAB implementation of Ice.
 
 ## Sample Code
 
 ```slice
-#pragma once
+// Slice definitions (Hello.ice)
 
 module Demo
 {
