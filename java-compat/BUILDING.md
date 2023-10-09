@@ -31,7 +31,7 @@ you can install an Ice [binary distribution] that includes this compiler.
 
 ### JDK Version
 
-You need JDK 8, JDK 11 or JDK 17 to build Ice for Java Compat.
+You need JDK 8, JDK 11, or JDK 17 to build Ice for Java Compat.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
 
