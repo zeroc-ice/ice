@@ -5,7 +5,7 @@
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
 
-Ice for JavaScript is the JavaScript implementation of Ice.
+Ice for JavaScript is the JavaScript implementation of the Ice framework.
 
 ## Sample Code
 

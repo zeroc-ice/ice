@@ -4,7 +4,7 @@
 
 The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
 
-Ice for Objective-C is the Objective-C implementation of Ice.
+Ice for Objective-C is the Objective-C implementation of the Ice framework.
 
 ## Sample Code
 
@@ -72,12 +72,12 @@ main(int argc, char* argv[])
         {
             communicator = [ICEUtil createCommunicator:&argc argv:argv];
 
-              id<ICEObjectAdapter> adapter = [communicator
-                  createObjectAdapterWithEndpoints: @"Hello"
-                  endpoints:@"default -p 10000"];
-              [adapter add:[HelloI hello] identity:[ICEUtil stringToIdentity:@"hello"]];
-              [adapter activate];
-              [communicator waitForShutdown];
+            id<ICEObjectAdapter> adapter = [communicator
+                createObjectAdapterWithEndpoints: @"Hello"
+                endpoints:@"default -p 10000"];
+            [adapter add:[HelloI hello] identity:[ICEUtil stringToIdentity:@"hello"]];
+            [adapter activate];
+            [communicator waitForShutdown];
         }
         @catch(ICELocalException* ex)
         {

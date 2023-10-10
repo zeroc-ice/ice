@@ -5,7 +5,7 @@
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
 
-Ice for Python is the Python implementation of Ice.
+Ice for Python is the Python implementation of the Ice framework.
 
 ## Sample Code
 
@@ -47,11 +47,9 @@ import Ice
 Ice.loadSlice('Hello.ice')
 import Demo
 
-
 class Printer(Demo.Hello):
     def sayHello(self, current):
         print("Hello World!")
-
 
 # Ice.initialize returns an initialized Ice communicator, the communicator is destroyed
 # once it goes out of scope.

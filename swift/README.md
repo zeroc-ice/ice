@@ -4,7 +4,7 @@
 
 The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
 
-Ice for Swift is the swift implementation of Ice.
+Ice for Swift is the swift implementation of the Ice framework.
 
 ## Sample Code
 
