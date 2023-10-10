@@ -20,6 +20,7 @@ or retrying failed connection attempts (to name just a few of dozens of such low
 Remote procedure calls ([RPCs][rpcs]) are at the heart of the Ice framework.
 
 You create RPCs with an easy 2-step process:
+
 1. Define the contract between your client and your server with the [Slice][slice] language—Ice's [IDL][idl].
 2. Run the Slice compiler on these Slice definitions to generate stubs in the programming language(s) of your choice.
 
@@ -85,7 +86,7 @@ languages.
 
 ## Building Ice from source
 
-[C++](cpp/BUILDING.md) | [C#](csharp/BUILDING.md) | [Java](java/BUILDING.md) | [Java Compat](java-compat/BUILDING.md) | [JavaScript/TypeScript](js) | [MATLAB](matlab) | [Objective-C](objective-c) | [PHP](php) | [Python](python) | [Ruby](ruby) | [Swift](swift)
+[C++](cpp/BUILDING.md) | [C#](csharp/BUILDING.md) | [Java](java/BUILDING.md) | [Java Compat](java-compat/BUILDING.md) | [JavaScript/TypeScript](js/BUILDING.md) | [MATLAB](matlab/BUILDING.md) | [Objective-C](objective-c/BUILDING.md) | [PHP](php/BUILDING.md) | [Python](python/BUILDING.md) | [Ruby](ruby/BUILDING.md) | [Swift](swift/BUILDING.md)
 
 ## Copyright and license
 

@@ -2,7 +2,8 @@
 
 [Getting started C++11] | [Examples C++11] | [Getting started C++98] | [Examples C++98] | [NuGet packages] | [Documentation] | [Building from source]
 
-The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
+The [Ice framework] provides everything you need to build networked applications,
+including RPC, pub/sub, server deployment, and more.
 
 Ice for C++ is the C++ implementation of Ice.
 
