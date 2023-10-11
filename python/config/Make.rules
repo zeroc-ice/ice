@@ -58,7 +58,7 @@ python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$
 #
 # Python installation directory
 #
-install_pythondir       = $(or $(PYTHON_INSTALLDIR),$(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python))
+install_pythondir       = $(or $(PYTHON_INSTALLDIR),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir $(prefix)))
 
 #
 # Rules to build a python module. We just compute the name of the python module
