@@ -167,16 +167,21 @@ namespace Ice
 
             private static T inOut<T>(T o, Ice.Communicator communicator)
             {
+#if NET8_0_OR_GREATER
+                // .NET 8.0 and greater removed support for BinaryFormatter
+                // See also #1549.
+                return o;
+#else
                 BinaryFormatter bin = new BinaryFormatter(null,
                     new StreamingContext(StreamingContextStates.All, communicator));
                 using(MemoryStream mem = new MemoryStream())
                 {
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
+
                     bin.Serialize(mem, o);
                     mem.Seek(0, 0);
                     return(T)bin.Deserialize(mem);
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
                 }
+#endif
             }
         }
     }

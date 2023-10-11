@@ -2973,6 +2973,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if(!dataMembers.empty())
     {
         _out << sp;
+        _out << nl << "#if !NET8_0_OR_GREATER";
         emitGeneratedCodeAttribute();
         _out << nl << "public override void GetObjectData(global::System.Runtime.Serialization.SerializationInfo info, "
              << "global::System.Runtime.Serialization.StreamingContext context)";
@@ -2984,6 +2985,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         _out << sp << nl << "base.GetObjectData(info, context);";
         _out << eb;
+        _out << nl << "#endif";
     }
 
     _out << sp << nl << "#endregion"; // Object members
