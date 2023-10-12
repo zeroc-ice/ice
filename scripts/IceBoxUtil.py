@@ -16,7 +16,7 @@ class IceBox(ProcessFromBinDir, Server):
         mapping = self.getMapping(current)
 
         #
-        # If running IceBox tests with non default framweork we need to generate a custom config
+        # If running IceBox tests with non default framework we need to generate a custom config
         # file.
         #
         if self.configFile:
@@ -29,6 +29,8 @@ class IceBox(ProcessFromBinDir, Server):
                     with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
                             line = line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework))
+                            if "\\" != os.sep:
+                                line = line.replace("\\", os.sep)
                             target.write(line)
                         current.files.append(newConfigFile)
 
