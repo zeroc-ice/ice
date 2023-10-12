@@ -885,6 +885,7 @@ namespace Ice
                     callback.called();
                 }
 
+                #if !NET8_0_OR_GREATER // See #1549
                 public void opSerialSmallCSharpNullI(Ice.AsyncResult result)
                 {
                     try
@@ -980,6 +981,7 @@ namespace Ice
                         // OK, talking to non-C# server.
                     }
                 }
+                #endif
 
                 public virtual void check()
                 {
@@ -1843,6 +1845,7 @@ namespace Ice
                     cb.check();
                 }
 
+                #if !NET8_0_OR_GREATER // See #1549
                 {
                     Serialize.Small i = null;
 
@@ -1889,6 +1892,7 @@ namespace Ice
                     p.begin_opSerialStructCSharp(i, null, cb.opSerialStructCSharpI, i);
                     cb.check();
                 }
+                #endif
             }
         }
     }
