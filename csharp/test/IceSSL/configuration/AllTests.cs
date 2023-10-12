@@ -2443,16 +2443,8 @@ public class AllTests
 
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
-                initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                initData.properties.setProperty("IceSSL.VerifyDepthMax", "5");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
-                if(IceInternal.AssemblyUtil.isWindows)
-                {
-                    //
-                    // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-                    // can cause SSL handshake errors when connecting to the remote zeroc server.
-                    //
-                    initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
-                }
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
                 while(true)
@@ -2492,17 +2484,9 @@ public class AllTests
                 retryCount = 0;
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
-                initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                initData.properties.setProperty("IceSSL.VerifyDepthMax", "5");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
-                if(IceInternal.AssemblyUtil.isWindows)
-                {
-                    //
-                    // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-                    // can cause SSL handshake errors when connecting to the remote zeroc server.
-                    //
-                    initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
-                }
                 comm = Ice.Util.initialize(initData);
                 p = comm.stringToProxy("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
                 while(true)
