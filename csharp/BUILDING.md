@@ -45,6 +45,13 @@ To build all Ice assemblies and the associated test suite, run:
 msbuild msbuild\ice.proj
 ```
 
+> Depending on your Visual Studio environment, you may need to specify the platform.
+> For example:
+>
+> ```shell
+> msbuild msbuild\ice.proj /p:Platform=x64
+> ```
+
 Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard 2.0 are placed
 in the `lib\net45` and `lib\netstandard2.0` folders respectively.
 

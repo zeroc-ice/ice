@@ -87,7 +87,10 @@ namespace Ice
                 mo1.ioopd.Value.Add(5, communicator.stringToProxy("test"));
 
                 mo1.bos = new bool[] { false, true, false };
+
+                #if !NET8_0_OR_GREATER // See #1549
                 mo1.ser = new Test.SerializableClass(56);
+                #endif
 
                 test(mo1.a.Value ==(byte)15);
                 test(mo1.b.Value);
@@ -121,7 +124,12 @@ namespace Ice
                 test(mo1.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
 
                 test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
+
+                #if NET8_0_OR_GREATER
+                test(!mo1.ser.HasValue);
+                #else
                 test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
+                #endif
 
                 output.WriteLine("ok");
 
@@ -170,7 +178,12 @@ namespace Ice
 
                 test(!mo4.ser.HasValue);
 
+                #if NET8_0_OR_GREATER
+                bool supportsCsharpSerializable = false;
+                #else
                 bool supportsCsharpSerializable = initial.supportsCsharpSerializable();
+                #endif
+
                 if(!supportsCsharpSerializable)
                 {
                     mo1.ser = Ice.Util.None;

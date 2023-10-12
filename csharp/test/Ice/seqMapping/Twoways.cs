@@ -1238,6 +1238,7 @@ namespace Ice
                     }
                 }
 
+                #if !NET8_0_OR_GREATER // See #1549
                 {
                     Serialize.Small i = null;
                     Serialize.Small o;
@@ -1345,6 +1346,7 @@ namespace Ice
                         // OK, talking to non-C# server.
                     }
                 }
+                #endif
             }
         }
     }

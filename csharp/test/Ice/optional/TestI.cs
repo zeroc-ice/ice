@@ -401,7 +401,11 @@ namespace Ice
 
             public override bool supportsCsharpSerializable(Ice.Current current)
             {
+                #if NET8_0_OR_GREATER
+                return false;
+                #else
                 return true;
+                #endif
             }
 
             public override bool supportsCppStringView(Ice.Current current)
