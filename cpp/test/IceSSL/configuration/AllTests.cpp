@@ -4043,15 +4043,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, false);
             initData.properties->setProperty("IceSSL.DefaultDir", "");
-            initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
+            initData.properties->setProperty("IceSSL.VerifyDepthMax", "5");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
-#   ifdef _WIN32
-            //
-            // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-            // can cause SSL handshake errors when connecting to the remote zeroc server.
-            //
-            initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
-#   endif
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
@@ -4092,16 +4085,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, false);
             initData.properties->setProperty("IceSSL.DefaultDir", "");
-            initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
+            initData.properties->setProperty("IceSSL.VerifyDepthMax", "5");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
-#   ifdef _WIN32
-            //
-            // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-            // can cause SSL handshake errors when connecting to the remote zeroc server.
-            //
-            initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
-#   endif
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
