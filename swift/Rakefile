@@ -283,7 +283,7 @@ def create_platform_targets(project, platform, bindist)
         target_set_common_build_settings(target, "Ice", platform, plist: "src/Ice/Info.plist", swift: true)
 
         target.build_configurations.each { |config|
-            config.build_settings["DEFINES_MODULE"] = "YES"
+            config.build_settings["DEFINES_MODULE"] = "NO"
         }
         target_set_framework_build_settings(target)
         target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
@@ -330,7 +330,7 @@ def create_platform_targets(project, platform, bindist)
                                              swift: true)
 
             target.build_configurations.each { |config|
-                config.build_settings["DEFINES_MODULE"] = "YES"
+                config.build_settings["DEFINES_MODULE"] = "NO"
             }
             target_set_framework_build_settings(target)
             target_add_carthage_framework(target, platform, "PromiseKit.xcframework")
