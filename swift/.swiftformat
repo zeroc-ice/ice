@@ -1,1 +1,2 @@
 --commas "inline"
+--disable wrapMultilineStatementBraces
