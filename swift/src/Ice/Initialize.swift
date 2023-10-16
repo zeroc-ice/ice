@@ -12,7 +12,7 @@ import IceImpl
 // should check `factoriesRegistered' to ensure lazzy initinialization occurrs before
 // the factories are used.
 //
-internal let factoriesRegistered: Bool = {
+let factoriesRegistered: Bool = {
     ICEUtil.registerFactories(exception: ExceptionFactory.self,
                               connectionInfo: ConnectionInfoFactory.self,
                               endpointInfo: EndpointInfoFactory.self,
@@ -159,6 +159,7 @@ private func initializeImpl(args: [String],
         } else {
             // swiftlint:disable force_cast
             return (communicator, remArgs as! [String])
+            // swiftlint:enable force_cast
         }
     }
 }
@@ -222,6 +223,7 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
 
         // swiftlint:disable force_cast
         args = remArgs as! [String]
+        // swiftlint:enable force_cast
         return PropertiesI(handle: propertiesHandle)
     }
 }

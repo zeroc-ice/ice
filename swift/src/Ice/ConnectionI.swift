@@ -20,7 +20,7 @@ public extension Connection {
                                                     if let sentCB = sentCB {
                                                         sentCB($0)
                                                     }
-            })
+                                                })
         }
     }
 
@@ -145,6 +145,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
     func getInfo() throws -> ConnectionInfo {
         // swiftlint:disable force_cast
         return try handle.getInfo() as! ConnectionInfo
+        // swiftlint:enable force_cast
     }
 
     func setBufferSize(rcvSize: Int32, sndSize: Int32) throws {

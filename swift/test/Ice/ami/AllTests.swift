@@ -385,7 +385,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) throws {
                 do {
                     try con.setCloseCallback { _ in seal.fulfill(()) }
                 } catch {
-                    precondition(false)
+                    preconditionFailure()
                 }
             }
             let r = p.sleepAsync(100)

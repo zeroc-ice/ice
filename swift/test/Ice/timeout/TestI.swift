@@ -31,7 +31,7 @@ class ControllerI: Controller {
                     do {
                         try self._adapter.activate()
                     } catch {
-                        precondition(false)
+                        preconditionFailure()
                     }
                 }
             }
