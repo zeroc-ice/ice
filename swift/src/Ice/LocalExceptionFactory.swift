@@ -198,9 +198,7 @@ class ExceptionFactory: ICEExceptionFactory {
     }
 
     static func badMagicException(_ reason: String, badMagic: Data, file: String, line: Int) -> Error {
-        // swiftlint:disable force_cast
         return BadMagicException(reason: reason, badMagic: badMagic, file: file, line: line)
-        // swiftlint:enable force_cast
     }
 
     static func unsupportedProtocolException(_ reason: String,
