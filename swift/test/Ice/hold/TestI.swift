@@ -30,7 +30,7 @@ class HoldI: Hold {
                 do {
                     try self.putOnHold(seconds: 0, current: current)
                 } catch is Ice.ObjectAdapterDeactivatedException {} catch {
-                    precondition(false)
+                    preconditionFailure()
                 }
             }
         }
@@ -46,7 +46,7 @@ class HoldI: Hold {
                 // This shouldn't occur. The test ensures all the waitForHold timers are
                 // finished before shutting down the communicator.
                 //
-                precondition(false)
+                preconditionFailure()
             }
         }
     }

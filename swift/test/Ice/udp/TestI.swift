@@ -9,7 +9,7 @@ class TestIntfI: TestIntf {
         do {
             try reply!.reply()
         } catch {
-            precondition(false)
+            preconditionFailure()
         }
     }
 
@@ -17,7 +17,7 @@ class TestIntfI: TestIntf {
         do {
             try reply!.reply()
         } catch {
-            precondition(false)
+            preconditionFailure()
         }
     }
 
@@ -37,7 +37,7 @@ class TestIntfI: TestIntf {
             try uncheckedCast(prx: current.con!.createProxy(reply),
                               type: PingReplyPrx.self).reply()
         } catch {
-            precondition(false)
+            preconditionFailure()
         }
     }
 

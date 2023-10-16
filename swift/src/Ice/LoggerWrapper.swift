@@ -62,5 +62,6 @@ class ObjcLoggerWrapper: LocalObject<ICELogger>, Logger {
     func cloneWithPrefix(_ prefix: String) -> Logger {
         // swiftlint:disable force_cast
         return ObjcLoggerWrapper(handle: handle.cloneWithPrefix(prefix) as! ICELogger)
+        // swiftlint:enable force_cast
     }
 }

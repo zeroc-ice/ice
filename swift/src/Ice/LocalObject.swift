@@ -28,6 +28,7 @@ extension ICELocalObject {
             precondition(swiftClass is LocalObjectClass)
             // swiftlint:disable force_cast
             return swiftClass as! LocalObjectClass
+            // swiftlint:enable force_cast
         }
 
         return initializer()

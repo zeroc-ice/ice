@@ -157,7 +157,7 @@ class TestCase {
         _closed = false
         _semaphore = DispatchSemaphore(value: 0)
 
-        _queue = DispatchQueue(label: name)
+        _queue = DispatchQueue(label: name, qos: .background)
         _group = DispatchGroup()
     }
 
@@ -250,13 +250,13 @@ class TestCase {
         }
 
         if _semaphore.wait(timeout: .now() + Double(30)) == .timedOut {
-            precondition(false) // Waited for more than 30s for close, something's wrong.
+            preconditionFailure() // Waited for more than 30s for close, something's wrong.
         }
         precondition(_closed)
     }
 
     func runTestCase(adapter _: RemoteObjectAdapterPrx, proxy _: TestIntfPrx) throws {
-        precondition(false, "Abstract Method")
+        preconditionFailure("Abstract Method")
     }
 
     func setClientACM(timeout: Int32, close: Int32, heartbeat: Int32) {
@@ -531,7 +531,7 @@ class SetACMTest: TestCase {
         }.wait()
 
         con.setHeartbeatCallback { _ in
-            precondition(false)
+            preconditionFailure()
         }
     }
 }

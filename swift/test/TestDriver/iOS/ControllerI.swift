@@ -49,8 +49,8 @@ class ProcessControllerI: CommonProcessController {
         _ipv4 = ipv4
         _ipv6 = ipv6
 
-        _serverDispatchQueue = DispatchQueue(label: "Server", qos: .userInitiated)
-        _clientDispatchQueue = DispatchQueue(label: "Client", qos: .userInitiated)
+        _serverDispatchQueue = DispatchQueue(label: "Server", qos: .background)
+        _clientDispatchQueue = DispatchQueue(label: "Client", qos: .background)
     }
 
     func start(testsuite: String,
