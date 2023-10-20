@@ -11,6 +11,13 @@ if len(sys.argv) != 2:
    sys.exit(1)
 
 prefix = sys.argv[1]
+libdir = os.path.join(prefix, "lib", "python{}.{}".format(sys.version_info.major, sys.version_info.minor))
+
+for dir in site.getsitepackages():
+    if dir.startswith(libdir):
+       print(dir)
+       sys.exit(0)
+
 libdir = os.path.join(prefix, "lib")
 
 for dir in site.getsitepackages():
