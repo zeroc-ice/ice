@@ -827,22 +827,21 @@ module M25
 module M26
 {
 
-                                        //       A0    B0  C0     D0    //
-    interface A0 {                      //        \    /    \    /  \   //
-        void ia0();                     //         \  /      \  /    \  //
-    }                                  //          A1        B1     C1 //
-                                        //         /  \      /  \    /  //
-    interface B0 {                      //        /    \    /    \  /   //
-        void ib0();                     //       A2    B2  C2     D2    //
-    }                                  //        \    /    \    /      //
-                                        //         \  /      \  /       //
-    interface C0 {                      //          A3        B3        //
-        void ic0();                     //           \        /         //
-    }                                  //            \      /          //
-                                        //             \    /           //
-    interface D0 {                      //              \  /            //
-        void id0();                     //               A4             //
-    }
+    interface A0 {                      // A0    B0  C0     D0    //
+        void ia0();                     //  \    /    \    /  \   //
+    }                                   //   \  /      \  /    \  //
+                                        //    A1        B1     C1 //
+    interface B0 {                      //   /  \      /  \    /  //
+        void ib0();                     //  /    \    /    \  /   //
+    }                                   // A2    B2  C2     D2    //
+                                        //  \    /    \    /      //
+    interface C0 {                      //   \  /      \  /       //
+        void ic0();                     //    A3        B3        //
+    }                                   //     \        /         //
+                                        //      \      /          //
+    interface D0 {                      //       \    /           //
+        void id0();                     //        \  /            //
+    }                                   //         A4             //
 
     interface A1 extends A0, B0
     {
