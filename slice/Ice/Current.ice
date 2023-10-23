@@ -73,7 +73,7 @@ enum OperationMode
      * <p class="Deprecated"><code>Nonmutating</code> is deprecated; Use the
      * <code>idempotent</code> keyword instead. For C++, to retain the mapping
      * of <code>nonmutating</code> operations to C++ <code>const</code>
-     * member functions, use the <code>\["cpp:const"]</code> metadata
+     * member functions, use the <code>["cpp:const"]</code> metadata
      * directive.
      */
     \Nonmutating,
