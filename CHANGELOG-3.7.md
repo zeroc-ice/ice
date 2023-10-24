@@ -9,10 +9,10 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.7.10](#changes-in-ice-3710)
- - [C++ Changes](#c-changes)
- - [C# Changes](#c-changes-1)
- - [Java Changes](#java-changes)
- - [Python Changes](#python-changes)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
+  - [Python Changes](#python-changes)
 - [Changes in Ice 3.7.9](#changes-in-ice-379)
   - [C++ Changes](#c-changes-2)
   - [C# Changes](#c-changes-3)
