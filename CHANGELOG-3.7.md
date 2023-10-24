@@ -108,7 +108,8 @@ These are the major changes since Ice 3.7.9.
 
 ## C# Changes
 
-- Fix generated code for compatability with .NET 8 https://github.com/zeroc-ice/ice/issues/1548
+- Fix generated code for compatability with .NET 8. (https://github.com/zeroc-ice/ice/issues/1548)
+- ```
 
 ## Java Changes
 
