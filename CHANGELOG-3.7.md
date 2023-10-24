@@ -100,7 +100,7 @@ These are the major changes since Ice 3.7.9.
 
 ## C++ Changes
 
-- Fixes failures building from source with G++ 13  https://github.com/zeroc-ice/ice/issues/1489
+- Fixed build failures with G++ 13. (https://github.com/zeroc-ice/ice/issues/1489)
 
 - Fixed the C++11 library names produced by Windows build https://github.com/zeroc-ice/ice/issues/1502
 
