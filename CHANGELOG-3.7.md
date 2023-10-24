@@ -100,7 +100,7 @@ These are the major changes since Ice 3.7.9.
 
 ## C++ Changes
 
-- Fixed build failures with G++ 13. (https://github.com/zeroc-ice/ice/issues/1489)
+- Fixed failures building from source with G++ 13. (https://github.com/zeroc-ice/ice/issues/1489)
 
 - Fixed the C++11 library names produced by Windows builds. (https://github.com/zeroc-ice/ice/issues/1502)
 
@@ -108,18 +108,17 @@ These are the major changes since Ice 3.7.9.
 
 ## C# Changes
 
-- Fix generated code for compatability with .NET 8. (https://github.com/zeroc-ice/ice/issues/1548)
-- ```
+- Fixed generated code for compatability with .NET 8. (https://github.com/zeroc-ice/ice/issues/1548)
 
 ## Java Changes
 
-- Build fixes for compatibility with JDK 21
+- Add support for JDK 21.
 
-- Fix generated Java constructors to correctly count the max parameters https://github.com/zeroc-ice/ice/issues/1540
+- Fixed generated Java constructors to correctly count the max parameters. (https://github.com/zeroc-ice/ice/issues/1540)
 
 ## Python Changes
 
-- Fix Python 3.12 build failures https://github.com/zeroc-ice/ice/issues/1558
+- Add support for Python 3.12. (https://github.com/zeroc-ice/ice/issues/1558)
 
 # Changes in Ice 3.7.9
 
