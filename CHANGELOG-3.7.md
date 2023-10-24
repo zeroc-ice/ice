@@ -104,7 +104,7 @@ These are the major changes since Ice 3.7.9.
 
 - Fixed the C++11 library names produced by Windows builds. (https://github.com/zeroc-ice/ice/issues/1502)
 
-- Removed UWP support https://github.com/zeroc-ice/ice/issues/1503
+- Removed UWP support. (https://github.com/zeroc-ice/ice/issues/1503)
 
 ## C# Changes
 
