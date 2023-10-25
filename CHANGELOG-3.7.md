@@ -110,14 +110,14 @@ These are the major changes since Ice 3.7.9.
 
 ## Java Changes
 
-- Add support for JDK 21.
+- Added support for JDK 21.
 
-- Fixed generated Java code to correctly count the max constructors parameters, and not generate constructors
-  with more parameters than allowed by JDK. (https://github.com/zeroc-ice/ice/issues/1540)
+- Fixed the generated Java code to ensure constructor parameters don't exceed JDK limits.
+  (https://github.com/zeroc-ice/ice/issues/1540)
 
 ## Python Changes
 
-- Add support for Python 3.12. (https://github.com/zeroc-ice/ice/issues/1558)
+- Added support for Python 3.12. (https://github.com/zeroc-ice/ice/issues/1558)
 
 # Changes in Ice 3.7.9
 
