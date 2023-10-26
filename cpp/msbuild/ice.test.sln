@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33502.453
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\acm\msbuild\client\client.vcxproj", "{CD25A05C-228D-473F-A86F-6C2DD22085B4}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -1141,8 +1141,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "consumer", "..\test\Ice\lib
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "alltests", "..\test\Ice\library\msbuild\alltests\alltests.vcxproj", "{A9537443-BB6C-4324-B1B9-B9492CAE1CD5}"
 	ProjectSection(ProjectDependencies) = postProject
-		{2454F754-3A55-4875-9D8E-57B63673C231} = {2454F754-3A55-4875-9D8E-57B63673C231}
 		{73C0E333-6476-4B7E-A52D-AB5E9CA36906} = {73C0E333-6476-4B7E-A52D-AB5E9CA36906}
+		{2454F754-3A55-4875-9D8E-57B63673C231} = {2454F754-3A55-4875-9D8E-57B63673C231}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\library\msbuild\client\client.vcxproj", "{28347243-F75F-4B28-89F9-7EA84478D9C9}"
@@ -1198,6 +1198,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "persistent", "persistent", "{372EA6E7-43FD-49F2-A7CB-FC863BAD9E14}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\IceStorm\persistent\msbuild\client\client.vcxproj", "{7D48DD81-247D-467E-B94C-D23EC94BDAB0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "time", "time", "{D9C2B6FE-1031-4C1F-883A-D8A8D307C2D4}"
 EndProject
