@@ -3115,6 +3115,10 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             {
                 out << "adaptive" ;
             }
+            else if(OrderedLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+            {
+                out << "ordered";
+            }
             else
             {
                 out << "<unknown load balancing policy>";
