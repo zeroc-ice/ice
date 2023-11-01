@@ -3107,6 +3107,10 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             {
                 out << "random";
             }
+            else if(OrderedLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+            {
+                out << "ordered";
+            }
             else if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
             {
                 out << "round-robin";
