@@ -3109,7 +3109,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             }
             else if(OrderedLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
             {
-                out << "ordered"
+                out << "ordered";
             }
             else if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
             {
