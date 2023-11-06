@@ -581,7 +581,7 @@
             {
                 const out = this.getWriter();
                 [communicator, args] = this.initialize(args);
-                if(typeof navigator !== 'undefined' && isSafari() && isWorker())
+                if(isBrowser && isSafari() && isWorker())
                 {
                     //
                     // BUGFIX:
