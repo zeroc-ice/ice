@@ -334,7 +334,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
         {
             if(e.getKey().indexOf("IceMX.") == 0)
             {
-                // Udpate the metrics views using the new configuration.
+                // Update the metrics views using the new configuration.
                 try
                 {
                     updateViews();

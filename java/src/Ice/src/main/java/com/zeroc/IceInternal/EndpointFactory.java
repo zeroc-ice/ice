@@ -8,7 +8,7 @@ public interface EndpointFactory
 {
     default void initialize()
     {
-        // Nothing to do, can be overriden by specialization to finish initialization.
+        // Nothing to do, can be overridden by specialization to finish initialization.
     }
 
     short type();

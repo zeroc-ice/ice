@@ -92,7 +92,7 @@ class Component(object):
     or the mapping directory if using a source distribution.
     """
     def getInstallDir(self, mapping, current):
-        raise Error("must be overriden")
+        raise Error("must be overridden")
 
     def getSourceDir(self):
         return toplevel
@@ -108,7 +108,7 @@ class Component(object):
         return os.path.join(self.getSourceDir(), "scripts", "tests")
 
     def getPhpExtension(self, mapping, current):
-        raise RuntimeError("must be overriden if component provides php mapping")
+        raise RuntimeError("must be overridden if component provides php mapping")
 
     def getNugetPackage(self, mapping):
         return "zeroc.{0}.{1}".format(self.__class__.__name__.lower(),
@@ -131,7 +131,7 @@ class Component(object):
         return self.nugetVersion[mapping]
 
     def getNugetPackageVersionFile(self, mapping):
-        raise RuntimeError("must be overriden if component provides C++ or C# nuget packages")
+        raise RuntimeError("must be overridden if component provides C++ or C# nuget packages")
 
     def getFilters(self, mapping, config):
         return ([], [])
@@ -290,7 +290,7 @@ class Platform(object):
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
-        # Return the build sub-directory, to be overriden by specializations
+        # Return the build sub-directory, to be overridden by specializations
         buildPlatform = current.driver.configs[mapping].buildPlatform
         buildConfig = current.driver.configs[mapping].buildConfig
         return os.path.join("build", buildPlatform, buildConfig)
@@ -1547,7 +1547,7 @@ class TestCase(Runnable):
         return self.options(current) if callable(self.options) else self.options
 
     def canRun(self, current):
-        # Can be overriden
+        # Can be overridden
         return True
 
     def setupServerSide(self, current):

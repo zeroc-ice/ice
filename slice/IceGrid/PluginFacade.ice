@@ -46,7 +46,7 @@ local interface ReplicaGroupFilter
 {
     /**
      *
-     * Filter the the given set of adapters.
+     * Filter the given set of adapters.
      *
      * @param replicaGroupId The replica group ID.
      *
@@ -79,7 +79,7 @@ local interface TypeFilter
 {
     /**
      *
-     * Filter the the given set of proxies.
+     * Filter the given set of proxies.
      *
      * @param type The type.
      *

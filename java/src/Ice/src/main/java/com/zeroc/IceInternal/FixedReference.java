@@ -103,7 +103,7 @@ public class FixedReference extends Reference
     public java.util.OptionalInt
     getTimeout()
     {
-        return  java.util.OptionalInt.empty();
+        return java.util.OptionalInt.empty();
     }
 
     @Override

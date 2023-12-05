@@ -800,7 +800,7 @@ classdef LocalTests
             end
 
             %
-            % Test: dictionary with struct key and struct value type containig class. The dictionary maps to a
+            % Test: dictionary with struct key and struct value type containing class. The dictionary maps to a
             % struct array and temporarily stores IceInternal.ValueHolder objects as its values until converted.
             %
 

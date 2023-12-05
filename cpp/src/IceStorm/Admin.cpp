@@ -8,7 +8,7 @@
 #include <Ice/SliceChecksums.h>
 #include <IceStorm/Parser.h>
 
-#ifdef  _WIN32
+#ifdef _WIN32
 #   include <fcntl.h>
 #   include <io.h>
 #endif

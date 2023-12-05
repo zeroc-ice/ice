@@ -1120,7 +1120,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
 
     string t = "";
     //
-    // The current module were the type is being used
+    // The current module where the type is being used
     //
     string currentModule = getSwiftModule(getTopLevelModule(toplevel));
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

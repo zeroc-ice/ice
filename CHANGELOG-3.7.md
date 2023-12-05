@@ -515,7 +515,7 @@ These are the changes since Ice 3.7.1.
 
 - Fixed bug where Ice thread pools would print an invalid and harmless "low on
   threads" warning message when the thread pool was destroyed and if the number
-  of threads in  the thread pool was superior or equal to the SizeWarn property.
+  of threads in the thread pool was superior or equal to the SizeWarn property.
 
 - Fixed a bug where the callback set with the `IceUtil::CtrlCHandler` was not
   cleared on destruction of the `CtrlCHandler` object. Variables captured by the
@@ -591,7 +591,7 @@ These are the changes since Ice 3.7.1.
 
 - Fixed bug where Ice thread pools would print an invalid and harmless "low on
   threads" warning message when the thread pool was destroyed and if the number
-  of threads in  the thread pool was superior or equal to the SizeWarn property.
+  of threads in the thread pool was superior or equal to the SizeWarn property.
 
 - Fixed Android IceSSL issue that caused SSL connections to hang
   with Android >= 8.0.

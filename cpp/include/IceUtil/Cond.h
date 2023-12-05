@@ -282,7 +282,7 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
 #   ifdef __APPLE__
     //
     // The monotonic time is based on mach_absolute_time and pthread
-    // condition variables require time from gettimeofday  so we get
+    // condition variables require time from gettimeofday so we get
     // the realtime time.
     //
     timeval tv = Time::now(Time::Realtime) + timeout;

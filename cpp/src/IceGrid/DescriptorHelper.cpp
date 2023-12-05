@@ -2606,19 +2606,19 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 
     if(_def.loadFactor != helper._def.loadFactor)
     {
-        out << nl << "load factor udpated";
+        out << nl << "load factor updated";
     }
     if(_def.description != helper._def.description)
     {
-        out << nl << "description udpated";
+        out << nl << "description updated";
     }
     if(!updatedPs.empty() || !removedPs.empty())
     {
-        out << nl << "property sets udpated";
+        out << nl << "property sets updated";
     }
     if(!variables.empty() || !removeVariables.empty())
     {
-        out << nl << "variables udpated";
+        out << nl << "variables updated";
     }
     if(!updated.empty() || !removed.empty())
     {
@@ -3180,7 +3180,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         Ice::StringSeq removeVariables = getDictRemovedElts(helper._def.variables, _def.variables);
         if(!variables.empty() || !removeVariables.empty())
         {
-            out << nl << "variables udpated";
+            out << nl << "variables updated";
         }
     }
     {
@@ -3194,7 +3194,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         Ice::StringSeq removed = getDictRemovedElts(helper._def.propertySets, _def.propertySets);
         if(!updt.empty() || !removed.empty())
         {
-            out << nl << "property sets udpated";
+            out << nl << "property sets updated";
         }
     }
     {

@@ -784,7 +784,7 @@ Subscriber::error(bool dec, const Ice::Exception& e)
 
     //
     // It's possible to be already in the error state if the queue maximum size
-    // has been reached or if an ObjectNotExistException occured before.
+    // has been reached or if an ObjectNotExistException occurred before.
     //
     if(_state >= SubscriberStateError)
     {

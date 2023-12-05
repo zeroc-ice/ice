@@ -2253,7 +2253,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     _stdOutFile = getProperty(props, "Ice.StdOut");
 
     //
-    // If the server is a session server and it wasn't udpated but
+    // If the server is a session server and it wasn't updated but
     // just released by a session, we don't update the configuration,
     // it will be done when the server is re-allocated.
     //

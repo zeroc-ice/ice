@@ -36,7 +36,7 @@ namespace IceInternal
 
         public virtual bool response()
         {
-            Debug.Assert(false); // Must be overriden by request that can handle responses
+            Debug.Assert(false); // Must be overridden by request that can handle responses
             return false;
         }
 

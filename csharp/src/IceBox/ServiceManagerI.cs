@@ -1030,7 +1030,7 @@ class ServiceManagerI : ServiceManagerDisp_
     private string[] _argv; // Filtered server argument vector
     private List<ServiceInfo> _services = new List<ServiceInfo>();
     private bool _pendingStatusChanges = false;
-    private Dictionary<ServiceObserverPrx, bool> _observers = new  Dictionary<ServiceObserverPrx, bool>();
+    private Dictionary<ServiceObserverPrx, bool> _observers = new Dictionary<ServiceObserverPrx, bool>();
     private int _traceServiceObserver = 0;
 }
 

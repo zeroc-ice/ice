@@ -312,7 +312,7 @@ EndpointI::operator<(const Ice::LocalObject& r) const
 int
 EndpointI::hash() const
 {
-    return  _endpoint->hash();
+    return _endpoint->hash();
 }
 
 string
