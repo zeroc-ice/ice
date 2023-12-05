@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../msbuild/ice.common.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>iceboxnet</AssemblyName>
+    <Version>$(IceVersion)</Version>
+    <OutputPath>../../bin</OutputPath>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Ice/Ice.csproj" />
+    <ProjectReference Include="../IceSSL/IceSSL.csproj" />
+    <ProjectReference Include="../IceBox/IceBox.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+  <Import Project="../../msbuild/ice.sign.targets" />
+</Project>

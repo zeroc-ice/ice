@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../msbuild/ice.common.props" />
+  <PropertyGroup>
+    <Version>$(IceVersion)</Version>
+    <OutputPath>../../lib</OutputPath>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <SliceCompile Include="../../../slice/IceBox/IceBox.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Ice/Ice.csproj" />
+  </ItemGroup>
+  <Import Project="../../msbuild/ice.sign.targets" />
+</Project>
