@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../../../msbuild/ice.common.props" />
+  <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>collocated</AssemblyName>
     <OutputType>Exe</OutputType>
@@ -10,20 +10,20 @@
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../../AllTests.cs" />
-    <Compile Include="../../../BI.cs" />
-    <Compile Include="../../../CI.cs" />
-    <Compile Include="../../../Collocated.cs" />
-    <Compile Include="../../../DI.cs" />
-    <Compile Include="../../../EI.cs" />
-    <Compile Include="../../../FI.cs" />
-    <Compile Include="../../../HI.cs" />
-    <Compile Include="../../../II.cs" />
-    <Compile Include="../../../InitialI.cs" />
-    <Compile Include="../../../JI.cs" />
-    <Compile Include="../../../F2I.cs" />
-    <Compile Include="../../../UnexpectedObjectExceptionTestI.cs" />
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../AllTests.cs" />
+    <Compile Include="../../BI.cs" />
+    <Compile Include="../../CI.cs" />
+    <Compile Include="../../Collocated.cs" />
+    <Compile Include="../../DI.cs" />
+    <Compile Include="../../EI.cs" />
+    <Compile Include="../../FI.cs" />
+    <Compile Include="../../HI.cs" />
+    <Compile Include="../../II.cs" />
+    <Compile Include="../../InitialI.cs" />
+    <Compile Include="../../JI.cs" />
+    <Compile Include="../../F2I.cs" />
+    <Compile Include="../../UnexpectedObjectExceptionTestI.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>
     </Compile>
@@ -31,8 +31,8 @@
       <SliceCompileSource>../../../Forward.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
-    <SliceCompile Include="../../../Test.ice" />
-    <SliceCompile Include="../../../Forward.ice" />
+    <SliceCompile Include="../../Test.ice" />
+    <SliceCompile Include="../../Forward.ice" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
@@ -42,7 +42,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
+        <Reference Include="../../../../../lib/netstandard2.0/Ice.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../../../msbuild/ice.common.props" />
+  <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>user</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -10,17 +10,17 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <SliceCompile>
-      <IncludeDirectories>../../..</IncludeDirectories>
+      <IncludeDirectories>../..</IncludeDirectories>
     </SliceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="../../../User.ice" />
+    <SliceCompile Include="../../User.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../core/netstandard2.0/core.csproj" />
+    <ProjectReference Include="../core/core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="generated\User.cs">
@@ -35,7 +35,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
+        <Reference Include="../../../../../lib/netstandard2.0/Ice.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>

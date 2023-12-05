@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../../../msbuild/ice.common.props" />
+  <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>client</AssemblyName>
     <OutputType>Exe</OutputType>
@@ -15,9 +15,9 @@
     </SliceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Compile Include="../../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../../AllTests.cs" />
-    <Compile Include="../../../Client.cs" />
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../AllTests.cs" />
+    <Compile Include="../../Client.cs" />
     <Compile Include="generated\ClientTypes.cs">
       <SliceCompileSource>../../../ClientTypes.ice</SliceCompileSource>
     </Compile>
@@ -25,8 +25,8 @@
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
-    <SliceCompile Include="../../../Test.ice" />
-    <SliceCompile Include="../../../ClientTypes.ice" />
+    <SliceCompile Include="../../Test.ice" />
+    <SliceCompile Include="../../ClientTypes.ice" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
@@ -36,7 +36,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
+        <Reference Include="../../../../../lib/netstandard2.0/Ice.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../../../../msbuild/ice.common.props" />
+  <Import Project="../../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>serveramd</AssemblyName>
     <OutputType>Exe</OutputType>
@@ -11,13 +11,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <SliceCompile>
-      <IncludeDirectories>../../..</IncludeDirectories>
+      <IncludeDirectories>../..</IncludeDirectories>
     </SliceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Compile Include="../../../../../../TestCommon/TestHelper.cs" />
-    <Compile Include="../../../TestAMDI.cs" />
-    <Compile Include="../../../ServerAMD.cs" />
+    <Compile Include="../../../../../TestCommon/TestHelper.cs" />
+    <Compile Include="../../TestAMDI.cs" />
+    <Compile Include="../../ServerAMD.cs" />
     <Compile Include="generated\ServerPrivateAMD.cs">
       <SliceCompileSource>../../../ServerPrivateAMD.ice</SliceCompileSource>
     </Compile>
@@ -25,8 +25,8 @@
       <SliceCompileSource>../../../TestAMD.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
-    <SliceCompile Include="../../../TestAMD.ice" />
-    <SliceCompile Include="../../../ServerPrivateAMD.ice" />
+    <SliceCompile Include="../../TestAMD.ice" />
+    <SliceCompile Include="../../ServerPrivateAMD.ice" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
@@ -36,7 +36,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../../../lib/netstandard2.0/Ice.dll" />
+        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>
