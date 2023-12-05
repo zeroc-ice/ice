@@ -65,20 +65,11 @@ protected:
     void writeThrowsClause(const std::string&, const ExceptionList&, const OperationPtr& op = 0);
 
     //
-    // Generate code to compute a hash code for a type.
-    //
-    void writeHashCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int&,
-                       const std::list<std::string>& = std::list<std::string>());
-
-    //
     // Marshal/unmarshal a data member.
     //
     void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
     void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
                                   bool, int&, bool = false);
-    void writeStreamMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
-    void writeStreamUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
-                                        bool, int&);
 
     //
     // Generate a patcher class.
