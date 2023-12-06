@@ -702,7 +702,7 @@ allTests(Test::TestHelper* helper)
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service4@IceBox1.Service4.Service4"));
     test(obj->getProperty("ServerInstanceServiceProperty") == "service4");
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service4@IceBox2.Service4.Service4"));
-    test(obj->getProperty("IceBoxInstanceProperty") == "overriden");
+    test(obj->getProperty("IceBoxInstanceProperty") == "overridden");
 
     cout << "ok" << endl;
 
