@@ -271,7 +271,7 @@ public class AllTests
             _clientACMHeartbeat = heartbeat;
         }
 
-        public void  setServerACM(int timeout, int close, int heartbeat)
+        public void setServerACM(int timeout, int close, int heartbeat)
         {
             _serverACMTimeout = timeout;
             _serverACMClose = close;

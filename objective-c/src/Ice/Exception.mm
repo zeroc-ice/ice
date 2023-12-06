@@ -31,7 +31,7 @@
 
 -(NSString*)ice_id
 {
-    NSAssert(false, @"ice_id not overriden");
+    NSAssert(false, @"ice_id not overridden");
     return nil;
 }
 
@@ -48,7 +48,7 @@
 
 -(id) copyWithZone:(NSZone*)__unused zone
 {
-    NSAssert(false, @"copyWithZone: must be overriden");
+    NSAssert(false, @"copyWithZone: must be overridden");
     return nil;
 }
 
@@ -92,7 +92,7 @@ localExceptionToString(const Ice::LocalException& ex)
 
 -(void)rethrowCxx
 {
-    NSAssert(false, @"rethrowCxx must be overriden");
+    NSAssert(false, @"rethrowCxx must be overridden");
 }
 
 +(id)localExceptionWithLocalException:(const Ice::LocalException&)ex

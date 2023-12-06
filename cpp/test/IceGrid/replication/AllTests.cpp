@@ -1438,7 +1438,7 @@ allTests(Test::TestHelper* helper)
         admin->sendSignal("Node2", "SIGSTOP");
         try
         {
-            // Wait for Node2 to be stopped by getting the TestAdapter.Server2 enpdoints
+            // Wait for Node2 to be stopped by getting the TestAdapter.Server2 endpoints
             while(true)
             {
                 masterAdmin->ice_invocationTimeout(100)->getAdapterInfo("TestAdapter.Server2");

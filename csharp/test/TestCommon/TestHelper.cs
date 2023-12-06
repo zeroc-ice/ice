@@ -145,7 +145,7 @@ namespace Test
             {
                 _controllerHelper.communicatorInitialized(communicator);
             }
-            return  communicator;
+            return communicator;
         }
 
         public Ice.Communicator communicator()

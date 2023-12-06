@@ -140,7 +140,7 @@ class ClientSSLSessionManagerI : public virtual Glacier2::SSLSessionManager
 {
 public:
 
-    ClientSSLSessionManagerI(const  ClientSessionFactoryPtr&);
+    ClientSSLSessionManagerI(const ClientSessionFactoryPtr&);
 
     virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&,
                                         const Ice::Current&);

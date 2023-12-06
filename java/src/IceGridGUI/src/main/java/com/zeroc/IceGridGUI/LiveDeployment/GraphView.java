@@ -999,7 +999,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     java.util.Set<MetricsViewInfo> metrics = null;
                     synchronized(GraphView.this)
                     {
-                        metrics = new  java.util.HashSet<>(_series.keySet());
+                        metrics = new java.util.HashSet<>(_series.keySet());
                     }
 
                     for(final MetricsViewInfo m : metrics)

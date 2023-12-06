@@ -20,7 +20,7 @@ ICEIMPL_API @interface ICEConnection : ICELocalObject
 -(void) flushBatchRequestsAsync:(uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent;
--(BOOL) setCloseCallback:(nullable void (^)(ICEConnection*))callback  error:(NSError* _Nullable * _Nullable)error;
+-(BOOL) setCloseCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable * _Nullable)error;
 -(void) setHeartbeatCallback:(nullable void (^)(ICEConnection*))callback;
 -(BOOL) heartbeat:(NSError* _Nullable * _Nullable)error;
 -(void) heartbeatAsync:(void (^)(NSError*))exception

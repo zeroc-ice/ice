@@ -67,7 +67,7 @@ For older browsers that do not support all of the required ECMAScript 6
 features used by Ice for JavaScript, we provide pre-compiled versions of
 the libraries using the [Babel] JavaScript compiler. These libraries
 depend on the [core-js] and [regenerator-runtime] packages
-and  are available in the `lib/es5` subdirectory with the same names as
+and are available in the `lib/es5` subdirectory with the same names as
 the main libraries.
 
 ## Running the JavaScript Tests

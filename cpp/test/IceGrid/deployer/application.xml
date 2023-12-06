@@ -89,7 +89,7 @@
           <property name="IceBoxInstanceProperty" value="${name}"/>
         </properties>
         <properties service="${service4}">
-          <property name="IceBoxInstanceProperty" value="overriden"/>
+          <property name="IceBoxInstanceProperty" value="overridden"/>
         </properties>
       </server-instance>
 

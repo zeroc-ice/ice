@@ -443,7 +443,7 @@ IceSSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
 
     if(buf.i == buf.b.end())
     {
-        return  IceInternal::SocketOperationNone;
+        return IceInternal::SocketOperationNone;
     }
 
     //
@@ -522,7 +522,7 @@ IceSSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
 
     if(buf.i == buf.b.end())
     {
-        return  IceInternal::SocketOperationNone;
+        return IceInternal::SocketOperationNone;
     }
 
     _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);

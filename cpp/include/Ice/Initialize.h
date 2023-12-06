@@ -630,7 +630,7 @@ typedef Ice::Plugin* (*PluginFactory)(const ::Ice::CommunicatorPtr& communicator
  * @param factory The factory function.
  * @param loadOnInit If true, the plug-in is always loaded (created) during communicator initialization,
  * even if Ice.Plugin.name is not set. When false, the plug-in is loaded (created) during communication
- * initialization only if Ice.Plugin.name  is set to a non-empty value (e.g.: Ice.Plugin.IceSSL=1).
+ * initialization only if Ice.Plugin.name is set to a non-empty value (e.g.: Ice.Plugin.IceSSL=1).
  */
 ICE_API void registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInit);
 
@@ -921,7 +921,7 @@ public:
 
 private:
 
-    CommunicatorPtr  _communicator;
+    CommunicatorPtr _communicator;
 };
 
 /**

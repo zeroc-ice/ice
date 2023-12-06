@@ -972,7 +972,7 @@ namespace IceInternal
             {
                 if(e.Key.IndexOf("IceMX.") == 0)
                 {
-                    // Udpate the metrics views using the new configuration.
+                    // Update the metrics views using the new configuration.
                     try
                     {
                         updateViews();

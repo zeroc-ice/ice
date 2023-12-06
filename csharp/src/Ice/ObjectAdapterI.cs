@@ -718,7 +718,7 @@ namespace Ice
             }
         }
 
-        public void  updateThreadObservers()
+        public void updateThreadObservers()
         {
             ThreadPool threadPool = null;
             lock(this)
@@ -1160,7 +1160,7 @@ namespace Ice
                 // Get the router's server proxy endpoints and use them as the published endpoints.
                 //
                 endpoints = new List<EndpointI>();
-                foreach(EndpointI endpt in  _routerInfo.getServerEndpoints())
+                foreach(EndpointI endpt in _routerInfo.getServerEndpoints())
                 {
                     if(!endpoints.Contains(endpt))
                     {
@@ -1179,7 +1179,7 @@ namespace Ice
                 if(endpoints.Count == 0)
                 {
                     //
-                    // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+                    // If the PublishedEndpoints property isn't set, we compute the published endpoints
                     // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
                     // to include actual addresses in the published endpoints.
                     //

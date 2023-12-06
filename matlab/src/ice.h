@@ -12,7 +12,7 @@
 #       endif
 #   endif
 #else
-#   ifndef  MATLAB_PROTO
+#   ifndef MATLAB_PROTO
 #       define ICE_MATLAB_API __attribute__((visibility ("default")))
 #   else
 #       define ICE_MATLAB_API /**/

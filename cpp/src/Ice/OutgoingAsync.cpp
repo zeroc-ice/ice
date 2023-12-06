@@ -53,7 +53,7 @@ OutgoingAsyncBase::exception(const Exception& ex)
 bool
 OutgoingAsyncBase::response()
 {
-    assert(false); // Must be overriden by request that can handle responses
+    assert(false); // Must be overridden by request that can handle responses
     return false;
 }
 
@@ -409,7 +409,7 @@ OutgoingAsyncBase::getCookie() const
 const std::string&
 OutgoingAsyncBase::getOperation() const
 {
-    assert(false); // Must be overriden
+    assert(false); // Must be overridden
     static string empty;
     return empty;
 }

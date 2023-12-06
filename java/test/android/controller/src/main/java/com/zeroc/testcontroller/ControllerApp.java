@@ -47,7 +47,7 @@ public class ControllerApp extends Application
 
         ClassLoader getClassLoader()
         {
-            return  _loader;
+            return _loader;
         }
 
         private final ClassLoader _loader;

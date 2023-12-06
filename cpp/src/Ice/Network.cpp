@@ -1860,7 +1860,7 @@ IceInternal::recvTruncated()
 {
 #ifdef _WIN32
     int err = WSAGetLastError();
-    return  err == WSAEMSGSIZE || err == ERROR_MORE_DATA;
+    return err == WSAEMSGSIZE || err == ERROR_MORE_DATA;
 #else
     // We don't get an error under Linux if a datagram is truncated.
     return false;

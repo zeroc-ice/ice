@@ -93,6 +93,6 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
 bool
 IceInternal::EndpointI::checkOption(const string&, const string&, const string&)
 {
-    // Must be overriden to check for options.
+    // Must be overridden to check for options.
     return false;
 }
