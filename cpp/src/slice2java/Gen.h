@@ -57,13 +57,6 @@ protected:
     // op is provided only when we want to check for the java:UserException metadata
     //
     void writeThrowsClause(const std::string&, const ExceptionList&, const OperationPtr& op = 0);
-
-    //
-    // Generate code to compute a hash code for a type.
-    //
-    void writeHashCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int&,
-                       const std::list<std::string>& = std::list<std::string>());
-
     //
     // Marshal/unmarshal a data member.
     //
