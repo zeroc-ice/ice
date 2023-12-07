@@ -278,9 +278,9 @@ class Platform(object):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             if component.useBinDist(mapping, current):
-                return os.path.join(installDir, "tools", mapping.getBinTargetFramework(current))
+                return os.path.join(installDir, "tools", mapping.getTargetFramework(current))
             else:
-                return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
+                return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):
@@ -463,7 +463,7 @@ class Windows(Platform):
             elif isinstance(process, SliceTranslator):
                 return os.path.join(installDir, "tools")
             elif isinstance(mapping, CSharpMapping):
-                return os.path.join(installDir, "tools", mapping.getBinTargetFramework(current))
+                return os.path.join(installDir, "tools", mapping.getTargetFramework(current))
             elif process.isReleaseOnly():
                 # Some services are only available in release mode in the Nuget package
                 return os.path.join(installDir, "build", "native", "bin", platform, "Release")
@@ -471,7 +471,7 @@ class Windows(Platform):
                 return os.path.join(installDir, "build", "native", "bin", platform, config)
         else:
             if isinstance(mapping, CSharpMapping):
-                return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
+                return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
             elif isinstance(mapping, PhpMapping):
                 return os.path.join(self.getNugetPackageDir(component, mapping, current),
                                     "build", "native", "bin", platform, config)
@@ -481,7 +481,7 @@ class Windows(Platform):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", mapping.getLibTargetFramework(current))
+            return os.path.join(installDir, "lib/netstandard2.0")
         else:
             platform = current.driver.configs[mapping].buildPlatform
             config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
@@ -3316,7 +3316,7 @@ class CSharpMapping(Mapping):
         def usage(self):
             print("")
             print("C# mapping options:")
-            print("--framework=net45|net6.0|net7.0   Choose the framework used to run .NET tests")
+            print("--framework=net48|net6.0|net8.0 Choose the framework used to run .NET tests")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -3324,26 +3324,11 @@ class CSharpMapping(Mapping):
             if self.framework == "":
                 self.framework = "net6.0"
 
-            self.dotnet = not isinstance(platform, Windows) or self.framework != "net45"
-
-            self.libTargetFramework = "netstandard2.0" if self.framework != "net45" else self.framework
-            self.binTargetFramework = self.framework
-            self.testTargetFramework = self.framework
-
-    def getBinTargetFramework(self, current):
-        return current.config.binTargetFramework
-
-    def getLibTargetFramework(self, current):
-        return current.config.libTargetFramework
-
     def getTargetFramework(self, current):
-        return current.config.testTargetFramework
+        return current.config.framework
 
     def getBuildDir(self, name, current):
-        if current.config.framework in ["net45"]:
-            return os.path.join("msbuild", name, current.config.framework)
-        else:
-            return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
+        return os.path.join("msbuild", name, self.getTargetFramework(current))
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -3386,8 +3371,6 @@ class CSharpMapping(Mapping):
                 env['PATH'] = os.path.join(self.component.getSourceDir(), "cpp", "msbuild", "packages",
                                            "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
                                            "build", "native", "bin", "x64", "Release")
-            if not current.config.dotnet:
-                env['DEVPATH'] = self.component.getLibDir(process, self, current)
         return env
 
     def _getDefaultSource(self, processType):
@@ -3408,22 +3391,7 @@ class CSharpMapping(Mapping):
             path = self.component.getBinDir(process, self, current)
         else:
             path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
-
-        useDotnetExe = process.isFromBinDir() and current.config.testTargetFramework != "net45"
-        command = ""
-        if useDotnetExe:
-            command += "dotnet "
-        command += os.path.join(path, exe)
-        if useDotnetExe:
-            command += ".dll "
-        elif isinstance(platform, Windows):
-            command += ".exe"
-        command += " {}".format(args)
-        return command
-
-    def getSDKPackage(self):
-        return "system-images;android-33;google_apis;{}".format(
-            "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
+        return "dotnet {}.dll {}".format(os.path.join(path, exe), args)
 
 class CppBasedMapping(Mapping):
 

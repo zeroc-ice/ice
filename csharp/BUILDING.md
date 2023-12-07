@@ -7,7 +7,6 @@ resulting binaries. As an alternative, you can download and install the
 * [Building on Windows](#building-on-windows)
   * [Windows Build Requirements](#windows-build-requirements)
   * [Compiling Ice for \.NET on Windows](#compiling-ice-for-net-on-windows)
-    * [Strong Name Signatures for .NET Framework 4.5 Assemblies](#strong-name-signatures-for-net-framework-45-assemblies)
     * [Authenticode Signatures](#authenticode-signatures)
     * [Building only the Test Suite](#building-only-the-test-suite)
 * [Building on Linux or macOS](#building-on-linux-or-macos)
@@ -78,27 +77,6 @@ msbuild msbuild\ice.proj /p:"AppTargetFramework=net7.0"
 
 This builds the test programs for `net7.0`. The target frameworks you specify
 must implement .NET Standard 2.0.
-
-#### Strong Name Signatures
-
-You can add Strong Naming signatures to the Ice assemblies by setting the
-following environment variables before building these assemblies:
-
-* `PUBLIC_KEYFILE` Identity public key used to delay sign the assembly
-* `KEYFILE` Identity full key pair used to sign the assembly
-
-If only `PUBLIC_KEYFILE` is set, the assemblies are delay-signed during the
-build and you must re-sign the assemblies later with the full identity key pair.
-
-If only `KEYFILE` is set, the assemblies are fully signed during the build using
-`KEYFILE`.
-
-If both `PUBLIC_KEYFILE` and `KEYFILE` are set, assemblies are delay-signed
-during the build using `PUBLIC_KEYFILE` and re-signed after the build using
-`KEYFILE`. This can be used for generating [Enhanced Strong Naming][6]
-signatures.
-
-*Strong Name Signatures can be generated only from Windows builds.*
 
 #### Authenticode Signatures
 
@@ -184,13 +162,7 @@ the test with a different .NET Framework you must use `--framework` option.
 For example, to run .NET 7.0 tests:
 
 ```shell
-python allTests.py --framework=net7.0
-```
-
-or to run .NET Framework 4.5 tests on Windows:
-
-```shell
-python allTests.py --framework=net45
+python allTests.py --framework=net8.0
 ```
 
 ## NuGet Package
@@ -223,4 +195,3 @@ directory.
 [3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
 [4]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 [5]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
-[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
