@@ -183,18 +183,18 @@ string typeToString(const TypePtr& type, const string& scope, bool optional)
 
     static const char* builtinTable[] =
     {
-        "uint8",                // KindByte
-        "bool",                 // KindBool
-        "int16",                // KindShort
-        "int32",                // KindInt
-        "int64",                // KindLong
-        "float32",              // KindFloat
-        "float64",              // KindDouble
-        "string",               // KindString
-        "???",                  // KindObject
-        "::Ice::ObjectProxy",   // KindObjectProxy
-        "???",                  // KindLocalObject
-        "???"                   // KindValue
+        "uint8",                        // KindByte
+        "bool",                         // KindBool
+        "int16",                        // KindShort
+        "int32",                        // KindInt
+        "int64",                        // KindLong
+        "float32",                      // KindFloat
+        "float64",                      // KindDouble
+        "string",                       // KindString
+        "AnyClass?",                    // KindObject
+        "::IceRpc::ServiceAddress?",    // KindObjectProxy
+        "???",                          // KindLocalObject
+        "AnyClass?"                     // KindValue
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

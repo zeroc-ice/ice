@@ -180,8 +180,6 @@ compile(const vector<string>& argv)
         }
     }
 
-    map<string, vector<string> > moduleInfo;
-
     for(vector<string>::const_iterator i = sources.begin(); i != sources.end();)
     {
         PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
@@ -226,23 +224,6 @@ compile(const vector<string>& argv)
             {
                 DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
                 assert(dc);
-                const string prefix = "js:module:";
-                string m = dc->findMetaData(prefix);
-                if(!m.empty())
-                {
-                    m = m.substr(prefix.size());
-                }
-
-                if(moduleInfo.find(m) == moduleInfo.end())
-                {
-                    vector<string> files;
-                    files.push_back(*i);
-                    moduleInfo[m] = files;
-                }
-                else
-                {
-                    moduleInfo[m].push_back(*i);
-                }
 
                 try
                 {
