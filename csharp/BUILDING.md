@@ -17,18 +17,11 @@ resulting binaries. As an alternative, you can download and install the
 
 ## Building on Windows
 
-A source build of Ice for .NET on Windows produces two sets of assemblies:
-
-* assemblies for the .NET Framework 4.5
-* assemblies for [.NET Standard 2.0][2]
-
 ### Windows Build Requirements
 
 In order to build Ice for .NET from source, you need:
 
-* A [supported version][3] of Visual Studio when building .NET Framework 4.5 Assemblies.
-* Visual Studio 2022 with [.NET 6.0 SDK][4] or [.NET 7.0 SDK][5] when building the .NET Standard 2.0 Assemblies.
-* Visual Studio 2022 with [.NET 6.0 SDK][4] and [.NET 7.0 SDK][5] when building the NuGet packages.
+* Visual Studio 2022 with [.NET 6.0 SDK][2] or [.NET 8.0 SDK][3].
 
 ### Compiling Ice for .NET on Windows
 
@@ -51,8 +44,7 @@ msbuild msbuild\ice.proj
 > msbuild msbuild\ice.proj /p:Platform=x64
 > ```
 
-Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard 2.0 are placed
-in the `lib\net45` and `lib\netstandard2.0` folders respectively.
+Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the `lib\netstandard2.0` folder.
 
 You can skip the build of the test suite with the `BuildDist` target:
 
@@ -60,22 +52,16 @@ You can skip the build of the test suite with the `BuildDist` target:
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets allow
-you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0, with or without
-the test suite.
-
-> Note: Visual Studio 2022 version or higher is required for .NET Standard 2.0 builds.
-
-The .NET Standard build of iceboxnet and test applications target `net6.0` You can change
+The iceboxnet executable and test applications target `net6.0` You can change
 the target framework by setting the `AppTargetFramework` property to a different
 
 Target Framework Moniker value, for example:
 
 ```shell
-msbuild msbuild\ice.proj /p:"AppTargetFramework=net7.0"
+msbuild msbuild\ice.proj /p:"AppTargetFramework=net8.0"
 ```
 
-This builds the test programs for `net7.0`. The target frameworks you specify
+This builds the test programs for `net8.0`. The target frameworks you specify
 must implement .NET Standard 2.0.
 
 #### Authenticode Signatures
@@ -104,7 +90,7 @@ necessary.
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET 6.0 SDK][4] or [.NET 7.0 SDK][5] to build Ice for .NET from source.
+You need the [.NET 6.0 SDK][2] or [.NET 8.0 SDK][3] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -120,8 +106,7 @@ Then run:
 dotnet msbuild msbuild/ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the `lib/netstandard2.0`
-directory.
+Upon completion, the Ice assemblies are placed in the `lib/netstandard2.0` directory.
 
 You can skip the build of the test suite with the `BuildDist` target:
 
@@ -129,12 +114,12 @@ You can skip the build of the test suite with the `BuildDist` target:
 dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
-The .NET Standard build of iceboxnet and test applications target `net6.0`. You can change the target
+The iceboxnet executable and test applications target `net6.0`. You can change the target
 framework by setting the `AppTargetFramework` property to a different Target Framework Moniker value,
 for example:
 
 ```shell
-dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=net7.0"
+dotnet msbuild msbuild/ice.proj /p:"AppTargetFramework=net8.0"
 ```
 
 ## Running the Tests
@@ -159,7 +144,7 @@ failure, the tests abort with `failed`.
 `allTests.py` executes by default the tests for .NET 6.0. If you want to run
 the test with a different .NET Framework you must use `--framework` option.
 
-For example, to run .NET 7.0 tests:
+For example, to run .NET 8.0 tests:
 
 ```shell
 python allTests.py --framework=net8.0
@@ -191,7 +176,5 @@ This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net`
 directory.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
-[3]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
-[4]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-[5]: https://dotnet.microsoft.com/en-us/download/dotnet/7.0
+[2]: https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+[3]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
