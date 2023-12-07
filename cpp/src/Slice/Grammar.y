@@ -1481,7 +1481,7 @@ interface_exports
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
     if(contained && !metaData->v.empty())
     {
-    contained->setMetaData(metaData->v);
+        contained->setMetaData(metaData->v);
     }
 }
 | error ';' interface_exports
