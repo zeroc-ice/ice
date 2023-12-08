@@ -427,7 +427,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     if (p->isLocal())
     {
-        // No loca types in Slice
+        // No local types in IceRPC Slice
         return false;
     }
 
