@@ -538,7 +538,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     if (p->isLocal())
     {
-        // No loca types in Slice
+        // No local types in IceRPC Slice
         return false;
     }
     ExceptionPtr base = p->base();
