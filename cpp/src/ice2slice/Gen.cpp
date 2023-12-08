@@ -566,7 +566,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     if (p->isLocal())
     {
-        // No loca types in Slice
+        // No local types in IceRPC Slice
         return false;
     }
     const string scope = p->scope();
