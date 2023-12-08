@@ -302,7 +302,7 @@ environment variables:
 Open the Visual Studio solution that corresponds to the Visual Studio version
 you are using.
 
-- For Visual Studio 2022 use [msbuild/ice.v142.sln](./msbuild/ice.v143.sln)
+- For Visual Studio 2022 use [msbuild/ice.v143.sln](./msbuild/ice.v143.sln)
 - For Visual Studio 2019 use [msbuild/ice.v142.sln](./msbuild/ice.v142.sln)
 - For Visual Studio 2017 use [msbuild/ice.v141.sln](./msbuild/ice.v141.sln)
 - For Visual Studio 2015 use [msbuild/ice.v140.sln](./msbuild/ice.v140.sln)
