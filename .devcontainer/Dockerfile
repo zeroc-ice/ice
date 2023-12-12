@@ -12,6 +12,3 @@ RUN set -eux \
     && sudo apt-get install -y libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev \
     && sudo rm -rf /var/lib/apt/lists/* \
     && sudo apt-get clean
-
-# Set environment variables
-ENV PATH=/home/vscode/.cargo/bin:$PATH
