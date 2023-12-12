@@ -288,7 +288,6 @@ public class Coordinator
             _newMenu.addSeparator();
 
             _newMenu.add(_appActionsForMenu.get(com.zeroc.IceGridGUI.Application.TreeNode.NEW_ADAPTER));
-            _newMenu.add(_appActionsForMenu.get(com.zeroc.IceGridGUI.Application.TreeNode.NEW_DBENV));
             _newMenu.add(_appActionsForMenu.get(com.zeroc.IceGridGUI.Application.TreeNode.NEW_NODE));
             _newMenu.add(_appActionsForMenu.get(com.zeroc.IceGridGUI.Application.TreeNode.NEW_PROPERTY_SET));
             _newMenu.add(_appActionsForMenu.get(com.zeroc.IceGridGUI.Application.TreeNode.NEW_REPLICA_GROUP));
