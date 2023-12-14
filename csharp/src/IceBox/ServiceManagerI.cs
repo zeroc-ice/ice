@@ -49,11 +49,6 @@ class ServiceManagerI : ServiceManagerDisp_
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
-    public override Dictionary<string, string> getSliceChecksums(Ice.Current current)
-    {
-        return Ice.SliceChecksums.checksums;
-    }
-
     public override void startService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();

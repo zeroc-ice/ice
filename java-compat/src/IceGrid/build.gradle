@@ -7,7 +7,7 @@ project.ext.description = "Locate, deploy, and manage Ice servers"
 
 slice {
     java {
-        args = "--tie --checksum IceGrid.SliceChecksums"
+        args = "--tie"
         files = fileTree(dir: "$project.ext.topSrcDir/slice/IceGrid", includes:['*.ice'], excludes:["*F.ice"])
     }
 }

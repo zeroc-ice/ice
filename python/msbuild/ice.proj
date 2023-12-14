@@ -28,7 +28,6 @@
     <ItemDefinitionGroup>
         <SliceCompile>
             <OutputDir>$(MSBuildThisFileDirectory)..\python</OutputDir>
-            <AdditionalOptions>--checksum</AdditionalOptions>
         </SliceCompile>
     </ItemDefinitionGroup>
 

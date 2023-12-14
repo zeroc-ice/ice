@@ -236,11 +236,6 @@ module Ice
 
         private_class_method :new
     end
-
-    #
-    # Slice checksum dictionary.
-    #
-    SliceChecksums = {}
 end
 
 #

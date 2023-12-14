@@ -71,7 +71,6 @@ usage(const string& n)
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--all                    Generate code for Slice definitions in included files.\n"
-        "--checksum               Generate checksums for Slice definitions.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore             Allow underscores in Slice identifiers\n"
@@ -99,7 +98,6 @@ Slice::Ruby::compile(const vector<string>& argv)
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
     opts.addOpt("", "all");
-    opts.addOpt("", "checksum");
 
     vector<string> args;
     try
@@ -161,8 +159,6 @@ Slice::Ruby::compile(const vector<string>& argv)
     bool underscore = opts.isSet("underscore");
 
     bool all = opts.isSet("all");
-
-    bool checksum = opts.isSet("checksum");
 
     if(args.empty())
     {
@@ -306,7 +302,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                         //
                         // Generate the Ruby mapping.
                         //
-                        generate(u, all, checksum, includePaths, out);
+                        generate(u, all, includePaths, out);
 
                         out.close();
                     }

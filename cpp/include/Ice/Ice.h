@@ -41,7 +41,6 @@
 #include <Ice/NativePropertiesAdmin.h>
 #include <Ice/Instrumentation.h>
 #include <Ice/Metrics.h>
-#include <Ice/SliceChecksums.h>
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 #   include <Ice/Service.h>
 #endif
