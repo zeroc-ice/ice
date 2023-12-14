@@ -83,7 +83,7 @@ class Ice_InterfaceByValue extends Ice_Value
 
     public function __construct($id)
     {
-        $this->id = $id;
+        $this->id =$id;
     }
 
     public function ice_id()
@@ -94,12 +94,12 @@ class Ice_InterfaceByValue extends Ice_Value
 
 class Ice_ObjectPrxHelper
 {
-    public static function checkedCast($proxy, $facetOrContext = null, $context = null)
+    public static function checkedCast($proxy, $facetOrContext=null, $context=null)
     {
         return $proxy->ice_checkedCast('::Ice::Object', $facetOrContext, $context);
     }
 
-    public static function uncheckedCast($proxy, $facet = null)
+    public static function uncheckedCast($proxy, $facet=null)
     {
         return $proxy->ice_uncheckedCast('::Ice::Object', $facet);
     }
@@ -152,7 +152,7 @@ interface Ice_ValueFactory
 
 class Ice_InitializationData
 {
-    public function __construct($properties = null, $logger = null)
+    public function __construct($properties=null, $logger=null)
     {
         $this->properties = $properties;
         $this->logger = $logger;
@@ -220,23 +220,36 @@ IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ids', 2, 1, 0, null, null, array(
 //
 function Ice_proxyIdentityCompare($lhs, $rhs)
 {
-    if (($lhs != null && !($lhs instanceof Ice_ObjectPrx)) || ($rhs != null && !($rhs instanceof Ice_ObjectPrx))) {
+    if(($lhs != null && !($lhs instanceof Ice_ObjectPrx)) || ($rhs != null && !($rhs instanceof Ice_ObjectPrx)))
+    {
         throw new InvalidArgumentException('argument is not a proxy');
     }
-    if ($lhs == null && $rhs == null) {
+    if($lhs == null && $rhs == null)
+    {
         return 0;
-    } elseif ($lhs == null && $rhs != null) {
+    }
+    elseif($lhs == null && $rhs != null)
+    {
         return -1;
-    } elseif ($lhs != null && $rhs == null) {
+    }
+    elseif($lhs != null && $rhs == null)
+    {
         return 1;
-    } else {
+    }
+    else
+    {
         $lid = $lhs->ice_getIdentity();
         $rid = $rhs->ice_getIdentity();
-        if ($lid < $rid) {
+        if($lid < $rid)
+        {
             return -1;
-        } elseif ($lid > $rid) {
+        }
+        elseif($lid > $rid)
+        {
             return 1;
-        } else {
+        }
+        else
+        {
             return 0;
         }
     }
@@ -250,7 +263,8 @@ function Ice_proxyIdentityEqual($lhs, $rhs)
 function Ice_proxyIdentityAndFacetCompare($lhs, $rhs)
 {
     $n = Ice_proxyIdentityCompare($lhs, $rhs);
-    if ($n == 0 && $lhs != null && $rhs != null) {
+    if($n == 0 && $lhs != null && $rhs != null)
+    {
         $n = strcmp($lhs->ice_getFacet(), $rhs->ice_getFacet());
     }
     return $n;
@@ -260,3 +274,5 @@ function Ice_proxyIdentityAndFacetEqual($lhs, $rhs)
 {
     return Ice_proxyIdentityAndFacetCompare($lhs, $rhs) == 0;
 }
+
+?>
