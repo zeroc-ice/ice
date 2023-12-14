@@ -60,7 +60,7 @@ extern int slice_debug;
 #define YYINITDEPTH YYMAXDEPTH
 
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
-#define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
+#define yyoverflow(a, b, c, d, e, f, g, h) YYNOMEM
 
 
 #line 67 "src/Slice/Grammar.h"
