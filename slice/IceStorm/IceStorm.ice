@@ -20,7 +20,6 @@
 [["python:pkgdir:IceStorm"]]
 
 #include <Ice/Identity.ice>
-#include <Ice/SliceChecksumDict.ice>
 
 #include <IceStorm/Metrics.ice>
 
@@ -186,10 +185,6 @@ interface TopicManager
     /// Retrieve all topics managed by this topic manager.
     /// @return A dictionary of string, topic proxy pairs.
     ["nonmutating", "cpp:const"] idempotent TopicDict retrieveAll();
-
-    /// Returns the checksums for the IceStorm Slice definitions.
-    /// @return A dictionary mapping Slice type ids to their checksums.
-    ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 }
 
 /// This interface is advertised by the IceStorm service through the Ice object with the identity `IceStorm/Finder'.

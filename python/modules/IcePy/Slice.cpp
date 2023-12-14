@@ -69,7 +69,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
-    opts.addOpt("", "checksum");
     opts.addOpt("", "all");
 
     vector<string> files;
@@ -100,7 +99,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
     bool underscore = opts.isSet("underscore");
     bool all = false;
-    bool checksum = false;
     if(opts.isSet("D"))
     {
         vector<string> optargs = opts.argVec("D");
@@ -127,7 +125,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     }
     debug = opts.isSet("d") || opts.isSet("debug");
     all = opts.isSet("all");
-    checksum = opts.isSet("checksum");
 
     bool ignoreRedefs = false;
     bool keepComments = true;
@@ -166,7 +163,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         // It must be the first or second line.
         //
         out << "# -*- coding: utf-8 -*-\n";
-        generate(u, all, checksum, includePaths, out);
+        generate(u, all, includePaths, out);
         u->destroy();
 
         string code = codeStream.str();

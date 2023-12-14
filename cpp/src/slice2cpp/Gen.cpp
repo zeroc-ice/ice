@@ -8,7 +8,6 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/StringUtil.h>
-#include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
 #include <IceUtil/FileUtil.h>
 
@@ -661,7 +660,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
                 const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
-                bool implCpp98, bool implCpp11, bool checksum, bool ice) :
+                bool implCpp98, bool implCpp11, bool ice) :
     _base(base),
     _headerExtension(headerExtension),
     _implHeaderExtension(headerExtension),
@@ -673,7 +672,6 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
     _dir(dir),
     _implCpp98(implCpp98),
     _implCpp11(implCpp11),
-    _checksum(checksum),
     _ice(ice)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
@@ -698,38 +696,6 @@ Slice::Gen::~Gen()
     {
         implH << "\n\n#endif\n";
         implC << '\n';
-    }
-}
-
-void
-Slice::Gen::generateChecksumMap(const UnitPtr& p)
-{
-    if(_checksum)
-    {
-        ChecksumMap map = createChecksums(p);
-        if(!map.empty())
-        {
-            C << sp << nl << "namespace";
-            C << nl << "{";
-            C << sp << nl << "const char* iceSliceChecksums[] =";
-            C << sb;
-            for(ChecksumMap::const_iterator q = map.begin(); q != map.end(); ++q)
-            {
-                C << nl << "\"" << q->first << "\", \"";
-                ostringstream str;
-                str.flags(ios_base::hex);
-                str.fill('0');
-                for(vector<unsigned char>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
-                {
-                    str << static_cast<int>(*r);
-                }
-                C << str.str() << "\",";
-            }
-            C << nl << "0";
-            C << eb << ';';
-            C << nl << "const IceInternal::SliceChecksumInit iceSliceChecksumInit(iceSliceChecksums);";
-            C << sp << nl << "}";
-        }
     }
 }
 
@@ -944,11 +910,6 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/SlicedData.h>";
     }
 
-    if(_checksum)
-    {
-        C << "\n#include <Ice/SliceChecksums.h>";
-    }
-
     C << "\n#include <IceUtil/PopDisableWarnings.h>";
 
     StringList includes = p->includeFiles();
@@ -1088,9 +1049,8 @@ Slice::Gen::generate(const UnitPtr& p)
 
         Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
         p->visit(&compatibilityVisitor, false);
-
-        generateChecksumMap(p);
     }
+
     H << sp;
     H.zeroIndent();
     H << nl << "#else // C++98 mapping";
@@ -1165,8 +1125,6 @@ Slice::Gen::generate(const UnitPtr& p)
             ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
         }
-
-        generateChecksumMap(p);
     }
 
     H << sp;

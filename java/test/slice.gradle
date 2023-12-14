@@ -61,20 +61,10 @@ task testSliceTask {
                                                      'Slice/structure/*.ice'])
             }
             set2 {
-                args = "--checksum test.Ice.checksum.Test.SliceChecksums"
-                files = fileTree(dir: testDir, includes:['Ice/checksum/Test.ice',
-                                                     'Ice/checksum/Types.ice'])
-            }
-            set3 {
-                args = "--checksum test.Ice.checksum.server.Test.SliceChecksums"
-                files = fileTree(dir: testDir, includes:['Ice/checksum/TestServer.ice',
-                                                     'Ice/checksum/TypesServer.ice'])
-            }
-            set4 {
                 include = ["${testDir}/Ice/packagemd"]
                 files = fileTree(dir: testDir, includes:['Ice/packagemd/*.ice'])
             }
-            set5 {
+            set3 {
                 args = "--impl"
                 files = fileTree(dir: testDir, includes:['Ice/impl/Test.ice',
                                                          'Ice/impl/TestAMD.ice'])

@@ -22,7 +22,6 @@
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Properties.ice>
-#include <Ice/SliceChecksumDict.ice>
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
@@ -584,10 +583,6 @@ interface Admin
 
     /// Shut down the IceGrid registry.
     void shutdown();
-
-    /// Returns the checksums for the IceGrid Slice definitions.
-    /// @return A dictionary mapping Slice type ids to their checksums.
-    ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 }
 
 /// This interface provides access to IceGrid log file contents.

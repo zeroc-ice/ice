@@ -260,9 +260,6 @@
     <Compile Include="..\..\ServantManager.cs">
       <Link>ServantManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\SliceChecksums.cs">
-      <Link>SliceChecksums.cs</Link>
-    </Compile>
     <Compile Include="..\..\SlicedData.cs">
       <Link>SlicedData.cs</Link>
     </Compile>
@@ -373,7 +370,6 @@
     <Compile Include="generated\RemoteLogger.cs" />
     <Compile Include="generated\Router.cs" />
     <Compile Include="generated\ServantLocator.cs" />
-    <Compile Include="generated\SliceChecksumDict.cs" />
     <Compile Include="generated\ValueFactory.cs" />
     <Compile Include="generated\Version.cs" />
   </ItemGroup>
@@ -446,9 +442,6 @@
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocator.ice">
       <Link>ServantLocator.ice</Link>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\SliceChecksumDict.ice">
-      <Link>SliceChecksumDict.ice</Link>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\ValueFactory.ice">
       <Link>ValueFactory.ice</Link>

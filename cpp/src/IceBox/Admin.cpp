@@ -3,7 +3,6 @@
 //
 
 #include <Ice/Ice.h>
-#include <Ice/SliceChecksums.h>
 #include <Ice/ConsoleUtil.h>
 #include <IceUtil/Options.h>
 #include <IceBox/IceBox.h>

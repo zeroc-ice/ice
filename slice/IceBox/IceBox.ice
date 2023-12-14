@@ -21,7 +21,6 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>
 #include <Ice/PropertiesF.ice>
-#include <Ice/SliceChecksumDict.ice>
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
@@ -89,10 +88,6 @@ interface ServiceObserver
 /// @see Service
 interface ServiceManager
 {
-    /// Returns the checksums for the IceBox Slice definitions.
-    /// @return A dictionary mapping Slice type ids to their checksums.
-    ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
-
     /// Start an individual service.
     /// @param service The service name.
     /// @throws AlreadyStartedException If the service is already running.

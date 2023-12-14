@@ -166,18 +166,23 @@ class ICE_DB_API Txn
 {
 public:
 
-    virtual ~Txn();
-
     void commit();
     void rollback();
 
     MDB_txn* mtxn() const;
 
+    bool isReadOnly() const
+    {
+        return _readOnly;
+    }
+
 protected:
 
-    explicit Txn(const Env&, unsigned int);
+    Txn(const Env&, unsigned int);
+    ~Txn();
 
     MDB_txn* _mtxn;
+    const bool _readOnly;
 
 private:
 
@@ -190,9 +195,8 @@ class ICE_DB_API ReadOnlyTxn : public Txn
 {
 public:
 
-    virtual ~ReadOnlyTxn();
-
     explicit ReadOnlyTxn(const Env&);
+     ~ReadOnlyTxn();
 
     void reset();
     void renew();
@@ -202,9 +206,8 @@ class ICE_DB_API ReadWriteTxn : public Txn
 {
 public:
 
-    virtual ~ReadWriteTxn();
-
     explicit ReadWriteTxn(const Env&);
+     ~ReadWriteTxn();
 };
 
 class ICE_DB_API DbiBase
@@ -214,12 +217,11 @@ public:
     void clear(const ReadWriteTxn&);
     MDB_dbi mdbi() const;
 
-    virtual ~DbiBase();
-
 protected:
 
     DbiBase(const Txn&, const std::string&, unsigned int, MDB_cmp_func*);
     DbiBase();
+    ~DbiBase();
 
     // default copy ctor and assignment operator are OK
 
@@ -245,6 +247,10 @@ public:
     }
 
     Dbi()
+    {
+    }
+
+    ~Dbi()
     {
     }
 
@@ -343,14 +349,12 @@ class ICE_DB_API CursorBase
 public:
 
     void close();
-
     MDB_cursor* mcursor() const;
-
-    virtual ~CursorBase();
 
 protected:
 
-    CursorBase(MDB_dbi dbi, const Txn& txn, bool);
+    CursorBase(MDB_dbi dbi, const Txn& txn);
+    ~CursorBase();
 
     bool get(MDB_val*, MDB_val*, MDB_cursor_op);
     void put(MDB_val*, MDB_val*, unsigned int);
@@ -374,21 +378,13 @@ class Cursor : public CursorBase
 {
 public:
 
-    Cursor(const Dbi<K, D, C, H>& dbi, const ReadOnlyTxn& txn) :
-        CursorBase(dbi.mdbi(), txn, true),
-        _marshalingContext(dbi.marshalingContext())
-    {
-    }
-
-    Cursor(const Dbi<K, D, C, H>& dbi, const ReadWriteTxn& txn) :
-        CursorBase(dbi.mdbi(), txn, false),
-        _marshalingContext(dbi.marshalingContext())
-    {
-    }
-
     Cursor(const Dbi<K, D, C, H>& dbi, const Txn& txn) :
-        CursorBase(dbi.mdbi(), txn, dynamic_cast<const ReadOnlyTxn*>(&txn) != 0),
+        CursorBase(dbi.mdbi(), txn),
         _marshalingContext(dbi.marshalingContext())
+    {
+    }
+
+    ~Cursor()
     {
     }
 

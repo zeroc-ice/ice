@@ -11,7 +11,6 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/ConsoleUtil.h>
-#include <Slice/Checksum.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/PHPUtil.h>
@@ -1510,7 +1509,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 }
 
 static void
-generate(const UnitPtr& un, bool all, bool checksum, bool ns, bool php5, const vector<string>& includePaths, Output& out)
+generate(const UnitPtr& un, bool all, bool ns, bool php5, const vector<string>& includePaths, Output& out)
 {
     if(!all)
     {
@@ -1543,55 +1542,6 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, bool php5, const v
 
     CodeVisitor codeVisitor(out, ns, php5);
     un->visit(&codeVisitor, false);
-
-    if(checksum)
-    {
-        ChecksumMap checksums = createChecksums(un);
-        if(!checksums.empty())
-        {
-            out << sp;
-            if(ns)
-            {
-                out << "namespace"; // Global namespace.
-                out << sb;
-                out << "new Ice\\SliceChecksumInit(array(";
-                for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end();)
-                {
-                    out << nl << "\"" << p->first << "\" => \"";
-                    ostringstream str;
-                    str.flags(ios_base::hex);
-                    str.fill('0');
-                    for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-                    {
-                        str << static_cast<int>(*q);
-                    }
-                    out << str.str() << "\"";
-                    if(++p != checksums.end())
-                    {
-                        out << ",";
-                    }
-                }
-                out << "));";
-                out << eb;
-            }
-            else
-            {
-                out << nl << "global $Ice_sliceChecksums;";
-                for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
-                {
-                    out << nl << "$Ice_sliceChecksums[\"" << p->first << "\"] = \"";
-                    ostringstream str;
-                    str.flags(ios_base::hex);
-                    str.fill('0');
-                    for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-                    {
-                        str << static_cast<int>(*q);
-                    }
-                    out << str.str() << "\";";
-                }
-            }
-        }
-    }
 
     out << nl; // Trailing newline.
 }
@@ -1666,7 +1616,6 @@ usage(const string& n)
         "--validate               Validate command line options.\n"
         "--all                    Generate code for Slice definitions in included files.\n"
         "--no-namespace           Do not use PHP namespaces (deprecated).\n"
-        "--checksum               Generate checksums for Slice definitions.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore             Allow underscores in Slice identifiers\n"
@@ -1694,7 +1643,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
     opts.addOpt("", "all");
-    opts.addOpt("", "checksum");
     opts.addOpt("n", "no-namespace");
     opts.addOpt("", "php5");
 
@@ -1763,8 +1711,6 @@ compile(const vector<string>& argv)
     bool underscore = opts.isSet("underscore");
 
     bool all = opts.isSet("all");
-
-    bool checksum = opts.isSet("checksum");
 
     bool ns = !opts.isSet("no-namespace");
 
@@ -1921,7 +1867,7 @@ compile(const vector<string>& argv)
                         //
                         // Generate the PHP mapping.
                         //
-                        generate(u, all, checksum, ns, php5, includePaths, out);
+                        generate(u, all, ns, php5, includePaths, out);
 
                         out << "?>\n";
                         out.close();
