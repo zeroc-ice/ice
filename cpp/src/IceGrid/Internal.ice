@@ -210,11 +210,7 @@ interface Server extends FileReader
     void sendSignal(string signal)
         throws BadSignalException;
 
-    ///
-     *
-     * Write message on servers' stdout or stderr.
-     *
-     **/
+    /// Write message on servers' stdout or stderr.
     void writeMessage(string message, int fd);
 
     /// Return the server state.
