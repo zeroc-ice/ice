@@ -22,9 +22,6 @@
 #define YYMAXDEPTH  10000
 #define YYINITDEPTH YYMAXDEPTH
 
-// Newer bison versions allow to disable stack resizing by defining yyoverflow.
-#define yyoverflow(a, b, c, d, e, f, g, h) YYNOMEM
-
 }
 
 %code top{
