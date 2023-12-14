@@ -90,7 +90,6 @@ public:
     void generate(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
-    void generateChecksums(const UnitPtr&);
     void closeOutput();
 
 private:

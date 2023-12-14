@@ -7,7 +7,6 @@ project.ext.description = "Locate, deploy, and manage Ice servers"
 
 slice {
     java {
-        args = "--checksum com.zeroc.IceGrid.SliceChecksums"
         files = fileTree(dir: "$project.ext.topSrcDir/slice/IceGrid", includes:['*.ice'], excludes:["*F.ice"])
     }
 }

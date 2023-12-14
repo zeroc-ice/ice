@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.gohtml": "html",
+        "Make.*": "makefile",
+        "__config": "cpp",
+        "algorithm": "cpp",
+        "charconv": "cpp",
+        "random": "cpp"
+    }
+}

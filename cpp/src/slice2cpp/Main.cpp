@@ -76,7 +76,6 @@ usage(const string& n)
         "--include-dir DIR        Use DIR as the header include directory in source files.\n"
         "--impl-c++11             Generate sample implementations for C++11 mapping.\n"
         "--impl-c++98             Generate sample implementations for C++98 mapping.\n"
-        "--checksum               Generate checksums for Slice definitions.\n"
         "--dll-export SYMBOL      Use SYMBOL for DLL exports\n"
         "                         deprecated: use instead [[\"cpp:dll-export:SYMBOL\"]] metadata.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
@@ -111,7 +110,6 @@ compile(const vector<string>& argv)
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
-    opts.addOpt("", "checksum");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> args;
@@ -189,8 +187,6 @@ compile(const vector<string>& argv)
     bool ice = opts.isSet("ice");
 
     bool underscore = opts.isSet("underscore");
-
-    bool checksum = opts.isSet("checksum");
 
     if(args.empty())
     {
@@ -335,7 +331,7 @@ compile(const vector<string>& argv)
                     try
                     {
                         Gen gen(icecpp->getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
-                                includePaths, dllExport, output, implCpp98, implCpp11, checksum, ice);
+                                includePaths, dllExport, output, implCpp98, implCpp11, ice);
                         gen.generate(u);
                     }
                     catch(const Slice::FileException& ex)

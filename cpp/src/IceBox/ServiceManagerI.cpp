@@ -7,7 +7,6 @@
 #include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/DynamicLibrary.h>
-#include <Ice/SliceChecksums.h>
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
 #include <IceBox/ServiceManagerI.h>
@@ -113,12 +112,6 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
 
 IceBox::ServiceManagerI::~ServiceManagerI()
 {
-}
-
-SliceChecksumDict
-IceBox::ServiceManagerI::getSliceChecksums(const Current&) const
-{
-    return sliceChecksums();
 }
 
 void

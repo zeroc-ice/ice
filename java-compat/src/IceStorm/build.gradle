@@ -7,7 +7,7 @@ project.ext.description = "Publish-subscribe event distribution service"
 
 slice {
     java {
-        args = "--tie --checksum IceStorm.SliceChecksums"
+        args = "--tie"
         files = fileTree(dir: "$project.ext.topSrcDir/slice/IceStorm", includes:['*.ice'], excludes:["*F.ice"])
     }
 }

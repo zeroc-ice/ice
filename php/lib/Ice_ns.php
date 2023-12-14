@@ -6,8 +6,7 @@
 //
 // Definitions for IcePHP with namespaces enabled
 //
-namespace
-{
+namespace {
     //
     // These symbols are defined by the extension but must be declared global
     // here to ensure they are visible to scripts regardless of the scope in
@@ -23,8 +22,7 @@ namespace
     global $IcePHP__t_string;
 }
 
-namespace Ice
-{
+namespace Ice {
     //
     // Exceptions.
     //
@@ -87,7 +85,7 @@ namespace Ice
 
         public function __construct($id)
         {
-            $this->id =$id;
+            $this->id = $id;
         }
 
         public function ice_id()
@@ -98,12 +96,12 @@ namespace Ice
 
     class ObjectPrxHelper
     {
-        public static function checkedCast($proxy, $facetOrContext=null, $context=null)
+        public static function checkedCast($proxy, $facetOrContext = null, $context = null)
         {
             return $proxy->ice_checkedCast('::Ice::Object', $facetOrContext, $context);
         }
 
-        public static function uncheckedCast($proxy, $facet=null)
+        public static function uncheckedCast($proxy, $facet = null)
         {
             return $proxy->ice_uncheckedCast('::Ice::Object', $facet);
         }
@@ -141,8 +139,15 @@ namespace Ice
     }
 
     global $Ice__t_UnknownSlicedValue;
-    $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, true,
-                                                    false, $Ice__t_Value, null);
+    $Ice__t_UnknownSlicedValue = IcePHP_defineClass(
+        '::Ice::UnknownSlicedValue',
+        "\\Ice\\UnknownSlicedValue",
+        -1,
+        true,
+        false,
+        $Ice__t_Value,
+        null
+    );
 
     interface ObjectFactory
     {
@@ -157,7 +162,7 @@ namespace Ice
 
     class InitializationData
     {
-        public function __construct($properties=null, $logger=null)
+        public function __construct($properties = null, $logger = null)
         {
             $this->properties = $properties;
             $this->logger = $logger;
@@ -188,30 +193,9 @@ namespace Ice
         const CompactFormat = 1;
         const SlicedFormat = 2;
     }
-
-    class SliceChecksumInit
-    {
-        public function __construct($checksums)
-        {
-            SliceChecksumInit::$_checksums = array_merge(SliceChecksumInit::$_checksums, $checksums);
-        }
-
-        public static function checksums()
-        {
-            return SliceChecksumInit::$_checksums;;
-        }
-
-        private static $_checksums = array();
-    };
-
-    function sliceChecksums()
-    {
-        return SliceChecksumInit::checksums();
-    }
 }
 
-namespace
-{
+namespace {
     //
     // Include certain generated files.
     //
@@ -238,15 +222,23 @@ namespace
     $Ice_Encoding_1_0 = new Ice\EncodingVersion(1, 0);
     $Ice_Encoding_1_1 = new Ice\EncodingVersion(1, 1);
 
-    IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_isA', 2, 1, 0, array(array($IcePHP__t_string)), null,
-                           array($IcePHP__t_bool), null);
+    IcePHP_defineOperation(
+        $Ice__t_ObjectPrx,
+        'ice_isA',
+        2,
+        1,
+        0,
+        array(array($IcePHP__t_string)),
+        null,
+        array($IcePHP__t_bool),
+        null
+    );
     IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ping', 2, 1, 0, null, null, null, null);
     IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_id', 2, 1, 0, null, null, array($IcePHP__t_string), null);
     IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ids', 2, 1, 0, null, null, array($Ice__t_StringSeq), null);
 }
 
-namespace Ice
-{
+namespace Ice {
     $Protocol_1_0 = new ProtocolVersion(1, 0);
     $Encoding_1_0 = new EncodingVersion(1, 0);
     $Encoding_1_1 = new EncodingVersion(1, 1);
@@ -256,36 +248,23 @@ namespace Ice
     //
     function proxyIdentityCompare($lhs, $rhs)
     {
-        if(($lhs != null && !($lhs instanceof ObjectPrx)) || ($rhs != null && !($rhs instanceof ObjectPrx)))
-        {
+        if (($lhs != null && !($lhs instanceof ObjectPrx)) || ($rhs != null && !($rhs instanceof ObjectPrx))) {
             throw new InvalidArgumentException('argument is not a proxy');
         }
-        if($lhs == null && $rhs == null)
-        {
+        if ($lhs == null && $rhs == null) {
             return 0;
-        }
-        elseif($lhs == null && $rhs != null)
-        {
+        } elseif ($lhs == null && $rhs != null) {
             return -1;
-        }
-        elseif($lhs != null && $rhs == null)
-        {
+        } elseif ($lhs != null && $rhs == null) {
             return 1;
-        }
-        else
-        {
+        } else {
             $lid = $lhs->ice_getIdentity();
             $rid = $rhs->ice_getIdentity();
-            if($lid < $rid)
-            {
+            if ($lid < $rid) {
                 return -1;
-            }
-            elseif($lid > $rid)
-            {
+            } elseif ($lid > $rid) {
                 return 1;
-            }
-            else
-            {
+            } else {
                 return 0;
             }
         }
@@ -299,8 +278,7 @@ namespace Ice
     function proxyIdentityAndFacetCompare($lhs, $rhs)
     {
         $n = proxyIdentityCompare($lhs, $rhs);
-        if($n == 0 && $lhs != null && $rhs != null)
-        {
+        if ($n == 0 && $lhs != null && $rhs != null) {
             $n = strcmp($lhs->ice_getFacet(), $rhs->ice_getFacet());
         }
         return $n;
@@ -312,8 +290,7 @@ namespace Ice
     }
 }
 
-namespace
-{
+namespace {
     function Ice_proxyIdentityCompare($lhs, $rhs)
     {
         return Ice\proxyIdentityCompare($lhs, $rhs);
@@ -334,4 +311,3 @@ namespace
         return Ice\proxyIdentityAndFacetEqual($lhs, $rhs);
     }
 }
-?>

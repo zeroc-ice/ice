@@ -20,7 +20,6 @@
 [["python:pkgdir:IceStorm"]]
 
 #include <Ice/Identity.ice>
-#include <Ice/SliceChecksumDict.ice>
 
 #include <IceStorm/Metrics.ice>
 
@@ -379,15 +378,6 @@ interface TopicManager
      *
      **/
     ["nonmutating", "cpp:const"] idempotent TopicDict retrieveAll();
-
-    /**
-     *
-     * Returns the checksums for the IceStorm Slice definitions.
-     *
-     * @return A dictionary mapping Slice type ids to their checksums.
-     *
-     **/
-    ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 }
 
 /**

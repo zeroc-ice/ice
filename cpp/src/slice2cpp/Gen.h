@@ -25,12 +25,10 @@ public:
         const std::string&,
         bool,
         bool,
-        bool,
         bool);
     ~Gen();
 
     void generate(const UnitPtr&);
-    void generateChecksumMap(const UnitPtr&);
     void closeOutput();
 
     static int setUseWstring(ContainedPtr, std::list<int>&, int);
@@ -69,7 +67,6 @@ private:
     std::string _dir;
     bool _implCpp98;
     bool _implCpp11;
-    bool _checksum;
     bool _ice;
 
     class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor

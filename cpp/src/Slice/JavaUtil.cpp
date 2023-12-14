@@ -155,12 +155,7 @@ public:
                 if(s.find(prefix) == 0)
                 {
                     static const string packagePrefix = "java:package:";
-                    static const string checksumPrefix = "java:checksum:";
                     if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
-                    {
-                        continue;
-                    }
-                    else if(s.find(checksumPrefix) == 0 && s.size() > checksumPrefix.size())
                     {
                         continue;
                     }

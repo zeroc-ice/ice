@@ -55,7 +55,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         opts.addOpt("d", "debug");
         opts.addOpt("", "ice");
         opts.addOpt("", "underscore");
-        opts.addOpt("", "checksum");
         opts.addOpt("", "all");
 
         vector<string> files;
@@ -83,7 +82,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
         bool underscore = opts.isSet("underscore");
         bool all = false;
-        bool checksum = false;
         if(opts.isSet("D"))
         {
             vector<string> optargs = opts.argVec("D");
@@ -110,7 +108,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         }
         debug = opts.isSet("d") || opts.isSet("debug");
         all = opts.isSet("all");
-        checksum = opts.isSet("checksum");
 
         bool ignoreRedefs = false;
 
@@ -144,7 +141,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             // Ruby magic comment to set the file encoding, it must be first or second line
             //
             out << "# encoding: utf-8\n";
-            generate(u, all, checksum, includePaths, out);
+            generate(u, all, includePaths, out);
             u->destroy();
 
             string code = codeStream.str();

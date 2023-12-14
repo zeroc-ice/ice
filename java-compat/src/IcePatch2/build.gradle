@@ -7,7 +7,7 @@ project.ext.description = "File distribution and patching for Ice"
 
 slice {
     java {
-         args = "--tie --checksum IcePatch2.SliceChecksums"
+         args = "--tie"
          files = fileTree(dir: "$project.ext.topSrcDir/slice/IcePatch2", includes:['*.ice'], excludes:["*F.ice"])
     }
 }
