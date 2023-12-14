@@ -1025,9 +1025,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ServantLocatorF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\SliceChecksumDict.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ValueFactory.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -1140,9 +1137,6 @@
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ServantLocatorF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\SliceChecksumDict.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ValueFactory.h">
@@ -1259,9 +1253,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ServantLocatorF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\SliceChecksumDict.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ValueFactory.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
@@ -1374,9 +1365,6 @@
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ServantLocatorF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\SliceChecksumDict.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ValueFactory.h">
@@ -1493,9 +1481,6 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\ServantLocatorF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\SliceChecksumDict.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\ValueFactory.ice">
