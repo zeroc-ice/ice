@@ -324,7 +324,6 @@
 		35AB1852E9BD9225D9EF5877 /* TwowaysAMI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48BA9AE0FA08C1E5FE891D1B /* TwowaysAMI.swift */; };
 		35C6EDE81A425474D5EF5F1A /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D82E883EABC3C98C3AE73B6 /* Object.swift */; };
 		36976B752263CCC92A7B762B /* PromiseKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4A826A8D811B0B8E79AAE0E /* PromiseKit.xcframework */; };
-		3734045D1532210A8165A94F /* SliceChecksums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */; };
 		3787C96AF5B2D1F547543377 /* Process.ice in Sources */ = {isa = PBXBuildFile; fileRef = 13B8C9F26D492CDE5B741F5C /* Process.ice */; };
 		379D54382B1AA3B63DF35CCA /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1908F3431A069483082964DD /* Ice.framework */; };
 		37B8CAB7A4185BD64104D23B /* Connection.ice in Sources */ = {isa = PBXBuildFile; fileRef = 04E2C2B7F6CA67B025042F55 /* Connection.ice */; };
@@ -1137,7 +1136,6 @@
 		C4ECA2D8B1CB7F3F42B4E895 /* IceGrid.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 89B68C84ACAA5FCB74C7578B /* IceGrid.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C51441B406C51F93C709153F /* ServantLocator.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1681A2A583D5C08A66D62A52 /* ServantLocator.ice */; };
 		C526783DABC89877D290EC4C /* IceDiscovery.ice in Sources */ = {isa = PBXBuildFile; fileRef = 68AB6FAA0F29143D512E8601 /* IceDiscovery.ice */; };
-		C55FE9FD56A72D4DD2312A3E /* SliceChecksums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */; };
 		C5627E184003A4DD3BBD8B2A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FF496BF165F1B2886D0EDC7 /* Cocoa.framework */; };
 		C562880E492ED3A0A8CE8934 /* PromiseKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB7EC20A77AF3B7CDF9A6722 /* PromiseKit.xcframework */; };
 		C57ED9BEB1A72054538009A6 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 566DD5B6D0E79208B992927E /* Exception.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -5387,7 +5385,6 @@
 		0BAF494C629079D8F4E09B05 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/acm/AllTests.swift; sourceTree = "<group>"; };
 		0BC9926BB50F3218C6F52A83 /* SliceFlags.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SliceFlags.swift; path = src/Ice/SliceFlags.swift; sourceTree = "<group>"; };
 		0C08087A7761F14C6A2CCF42 /* FactoryTableInit.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = FactoryTableInit.cpp; path = ../cpp/src/Ice/FactoryTableInit.cpp; sourceTree = "<group>"; };
-		0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SliceChecksums.cpp; path = ../cpp/src/Ice/SliceChecksums.cpp; sourceTree = "<group>"; };
 		0CE3C096A53EE8986B341B1E /* ObjectAdapter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ObjectAdapter.h; path = src/IceImpl/ObjectAdapter.h; sourceTree = "<group>"; };
 		0CF1AA600CA4E9D8F738BF86 /* Communicator.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Communicator.h; path = src/IceImpl/Communicator.h; sourceTree = "<group>"; };
 		0D82E883EABC3C98C3AE73B6 /* Object.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Object.swift; path = src/Ice/Object.swift; sourceTree = "<group>"; };
@@ -7934,7 +7931,6 @@
 				4D8D36A576FF86E13D53DF0C /* ServantManager.cpp */,
 				A1C777BBFCF5653D7B17E072 /* Service.cpp */,
 				70537556B46C765F6F6DAE81 /* SHA1.cpp */,
-				0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */,
 				6ABF11848FB93632AD8F8E8E /* SlicedData.cpp */,
 				9FDC07E062FEE5CE217082AE /* StreamSocket.cpp */,
 				AC5CA662E92EE48583199443 /* StringConverterPlugin.cpp */,
@@ -11865,7 +11861,6 @@
 				C32BF4EC7DD834D25AC65F3A /* Service.cpp in Sources */,
 				1679FBE8C4EEE5B8311C3A56 /* SHA1.cpp in Sources */,
 				1293B22292607A1B2F434D58 /* Shared.cpp in Sources */,
-				C55FE9FD56A72D4DD2312A3E /* SliceChecksums.cpp in Sources */,
 				8BCB8FE0AA780C05B3546C3D /* SlicedData.cpp in Sources */,
 				574D197262DEFA78AED3953D /* StreamSocket.cpp in Sources */,
 				E29E475FB872B1AFEB264083 /* StringConverter.cpp in Sources */,
@@ -12467,7 +12462,6 @@
 				1E78938E760455B47D962460 /* Service.cpp in Sources */,
 				4EFC6F19369AF77CCF71CFC2 /* SHA1.cpp in Sources */,
 				7E41EB72317EFADAD8367AE7 /* Shared.cpp in Sources */,
-				3734045D1532210A8165A94F /* SliceChecksums.cpp in Sources */,
 				1E2D673378C8D51056638C85 /* SlicedData.cpp in Sources */,
 				0DAE61A616D3047B19CE365A /* StreamAcceptor.cpp in Sources */,
 				D400832B200A9F7E76875C81 /* StreamConnector.cpp in Sources */,

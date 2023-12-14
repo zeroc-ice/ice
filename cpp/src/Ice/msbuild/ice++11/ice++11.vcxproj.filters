@@ -832,9 +832,6 @@
     <ClCompile Include="..\..\SHA1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\SliceChecksums.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\SlicedData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

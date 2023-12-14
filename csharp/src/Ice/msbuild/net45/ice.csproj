@@ -260,9 +260,6 @@
     <Compile Include="..\..\ServantManager.cs">
       <Link>ServantManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\SliceChecksums.cs">
-      <Link>SliceChecksums.cs</Link>
-    </Compile>
     <Compile Include="..\..\SlicedData.cs">
       <Link>SlicedData.cs</Link>
     </Compile>
