@@ -109,7 +109,6 @@
     <ClCompile Include="..\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Checksum.h" />
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />

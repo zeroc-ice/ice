@@ -290,9 +290,6 @@
     <ClCompile Include="..\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -306,9 +303,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -322,9 +316,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -338,9 +329,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -354,9 +342,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -370,9 +355,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -386,9 +368,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -402,9 +381,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -418,9 +394,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -434,9 +407,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -450,9 +420,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -466,9 +433,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -482,9 +446,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -498,9 +459,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
