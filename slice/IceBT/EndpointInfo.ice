@@ -23,34 +23,18 @@
 [["java:package:com.zeroc"]]
 #endif
 
-/**
- *
- * IceBT provides a Bluetooth transport for Ice.
- *
- **/
+/// IceBT provides a Bluetooth transport for Ice.
 ["objc:prefix:ICEBT", "swift:module:Ice:SSL"]
 module IceBT
 {
 
-/**
- *
- * Provides access to Bluetooth endpoint information.
- *
- **/
+/// Provides access to Bluetooth endpoint information.
 local class EndpointInfo extends Ice::EndpointInfo
 {
-    /**
-     *
-     * The address configured with the endpoint.
-     *
-     **/
+    /// The address configured with the endpoint.
     string addr;
 
-    /**
-     *
-     * The UUID configured with the endpoint.
-     *
-     **/
+    /// The UUID configured with the endpoint.
     string uuid;
 }
 

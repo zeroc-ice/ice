@@ -26,22 +26,14 @@
 module Ice
 {
 
-/**
- *
- * A version structure for the protocol version.
- *
- **/
+/// A version structure for the protocol version.
 struct ProtocolVersion
 {
     byte major;
     byte minor;
 }
 
-/**
- *
- * A version structure for the encoding version.
- *
- **/
+/// A version structure for the encoding version.
 struct EncodingVersion
 {
     byte major;

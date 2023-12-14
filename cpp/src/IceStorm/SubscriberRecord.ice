@@ -12,17 +12,14 @@
 module IceStorm
 {
     /// The key for persistent subscribers, or topics.
-    ///
-    /// If the subscriber identity is empty then the record is used as a
-    /// place holder for the creation of a topic, otherwise the record
-    /// holds a subscription record.
+    /// If the subscriber identity is empty then the record is used as a place holder for the creation of a topic,
+    /// otherwise the record holds a subscription record.
     struct SubscriberRecordKey
     {
         /// The topic identity.
         Ice::Identity topic;
 
-        /// The identity of the subscriber. If this is empty then the key
-        /// is a placeholder for a topic.
+        /// The identity of the subscriber. If this is empty then the key is a placeholder for a topic.
         Ice::Identity id;
     }
 
