@@ -133,31 +133,22 @@ exception AdapterNotActiveException
 
 interface Adapter
 {
-    /// Activate this adapter. If this adapter can be activated, this
-    /// will activate the adapter and return the direct proxy of the
-    /// adapter once it's active. If this adapter can be activated on
-    /// demand, this will return 0 if the adapter is inactive or the
-    /// adapter direct proxy it's active.
+    /// Activate this adapter. If this adapter can be activated, this will activate the adapter and return the direct
+    /// proxy of the adapter once it's active. If this adapter can be activated on demand, this will return 0 if the
+    /// adapter is inactive or the adapter direct proxy it's active.
     ["amd"] Object* activate();
 
-    /// Get the adapter direct proxy. The adapter direct proxy is a
-    /// proxy created with the object adapter. The proxy contains the
-    /// last known adapter endpoints.
-    /// 
-    /// @return A direct proxy containing the last known adapter
-    /// endpoints if the adapter is already active.
+    /// Get the adapter direct proxy. The adapter direct proxy is a proxy created with the object adapter. The proxy
+    /// contains the last known adapter endpoints.
+    /// @return A direct proxy containing the last known adapter endpoints if the adapter is already active.
     ["nonmutating", "cpp:const"] idempotent Object* getDirectProxy()
         throws AdapterNotActiveException;
 
     /// Set the direct proxy for this adapter.
-    /// 
-    /// @param The direct proxy. The direct proxy should be created
-    /// with the object adapter and should contain the object adapter
-    /// endpoints.
-    /// 
-    /// @throws AdapterActiveException The adapter is already
-    /// active. It's not possible to override the direct proxy of an
-    /// active adapter.
+    /// @param The direct proxy. The direct proxy should be created with the object adapter and should contain the
+    /// object adapter endpoints.
+    /// @throws AdapterActiveException The adapter is already active. It's not possible to override the direct proxy of
+    /// an active adapter.
     void setDirectProxy(Object* proxy)
         throws AdapterActiveException;
 }
@@ -193,9 +184,7 @@ interface Server extends FileReader
         throws ServerStopException;
 
     /// Check if the given server can be loaded on this node.
-    ///
     /// @return True if the server is inactive.
-    ///
     /// @throws DeploymentException Raised if the server can't be updated.
     bool checkUpdate(InternalServerDescriptor svr, bool noRestart)
         throws DeploymentException;
@@ -214,9 +203,7 @@ interface Server extends FileReader
     void writeMessage(string message, int fd);
 
     /// Return the server state.
-    ///
     /// @return The server state.
-    ///
     /// @see ServerState
     ["nonmutating", "cpp:const"] idempotent ServerState getState();
 
@@ -347,7 +334,7 @@ interface NodeSession
     void destroy();
 }
 
-/// This exception is raised if a replica is already registered and
+/// This exception is raised if a replica is already registered and active.
 exception ReplicaActiveException
 {
 }
@@ -441,7 +428,6 @@ interface InternalRegistry extends FileReader
 {
     /// Register a node with the registry. If a node with the same name is already registered, [registerNode] will
     /// overide the previous node only if it's not active.
-    ///
     /// @param info Some information on the node.
     /// @param prx The proxy of the node.
     /// @param loadInf The load information of the node.
@@ -452,7 +438,6 @@ interface InternalRegistry extends FileReader
 
     /// Register a replica with the registry. If a replica with the  same name is already registered, [registerReplica]
     /// will overide the previous replica only if it's not active.
-    ///
     /// @param info Some information on the replica.
     /// @param prx The proxy of the replica.
     /// @return The replica session proxy.
