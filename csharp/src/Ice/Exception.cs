@@ -4,7 +4,6 @@
 
 using System;
 using System.Globalization;
-using System.Runtime.Serialization;
 using System.Diagnostics;
 
 namespace IceInternal
@@ -68,13 +67,6 @@ namespace Ice
         public Exception(System.Exception ex) : base("", ex) {}
 
         /// <summary>
-        /// Initializes a new instance of the exception with serialized data.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected Exception(SerializationInfo info, StreamingContext context) : base(info, context) {}
-
-        /// <summary>
         /// ice_name() is deprecated, use ice_id() instead.
         /// Returns the name of this exception.
         /// </summary>
@@ -136,7 +128,6 @@ namespace Ice
     /// <summary>
     /// Base class for Ice run-time exceptions.
     /// </summary>
-    [Serializable]
     public abstract class LocalException : Exception
     {
         /// <summary>
@@ -150,20 +141,12 @@ namespace Ice
         /// </summary>
         /// <param name="ex">The inner exception.</param>
         public LocalException(System.Exception ex) : base(ex) {}
-
-        /// <summary>
-        /// Initializes a new instance of the exception with serialized data.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected LocalException(SerializationInfo info, StreamingContext context) : base(info, context) {}
     }
 
     /// <summary>
     /// Base class for Ice system exceptions.
     /// Ice system exceptions are currently Ice internal, non-documented exceptions.
     /// </summary>
-    [Serializable]
     public abstract class SystemException : Exception
     {
         /// <summary>
@@ -177,19 +160,11 @@ namespace Ice
         /// </summary>
         /// <param name="ex">The inner exception.</param>
         public SystemException(System.Exception ex) : base(ex) {}
-
-        /// <summary>
-        /// Initializes a new instance of the exception with serialized data.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected SystemException(SerializationInfo info, StreamingContext context) : base(info, context) {}
     }
 
     /// <summary>
     /// Base class for Slice user exceptions.
     /// </summary>
-    [Serializable]
     public abstract class UserException : Exception
     {
         /// <summary>
@@ -203,13 +178,6 @@ namespace Ice
         /// </summary>
         /// <param name="ex">The inner exception.</param>
         public UserException(System.Exception ex) : base(ex) {}
-
-        /// <summary>
-        /// Initializes a new instance of the exception with serialized data.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) {}
 
         /// <summary>
         /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
