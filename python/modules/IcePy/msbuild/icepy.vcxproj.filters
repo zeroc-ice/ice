@@ -79,9 +79,6 @@
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Grammar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\MD5.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -98,9 +95,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\SliceUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\MD5I.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
