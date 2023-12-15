@@ -17,10 +17,13 @@
     <Compile Include="../../ServantLocatorAMDI.cs" />
     <Compile Include="../../TestActivationAMDI.cs" />
     <Compile Include="generated\TestAMD.cs">
-      <SliceCompileSource>../../../TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../TestAMD.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="generated\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">

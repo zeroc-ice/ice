@@ -14,13 +14,13 @@
     <Compile Include="../../TestI.cs" />
     <Compile Include="../../Server.cs" />
     <Compile Include="generated\Test.cs">
-      <SliceCompileSource>../../../Test.ice</SliceCompileSource>
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../serializable/serializable.csproj" />
+    <Folder Include="generated\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
