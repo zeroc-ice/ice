@@ -11,7 +11,7 @@
 
     <!-- Ice for PHP configurations -->
     <PropertyGroup>
-        <CppDistTargets>c++98\slice2php;c++98\slice2html;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
+        <CppDistTargets>c++98\slice2php;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Debug' or '$(Configuration)' == 'Debug'">Debug</CppConfiguration>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Release' or '$(Configuration)' == 'Release'">Release</CppConfiguration>
         <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v142'">8.0</BuildWithPhpVersion>

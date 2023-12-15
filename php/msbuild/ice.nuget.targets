@@ -15,8 +15,7 @@
 
     <!-- For PHP we use Slice compiler from x64 Release builds -->
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'x64|Release'">
-        <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\x64\Release\slice2php.exe;
-                                 $(IceSrcRootDir)..\cpp\bin\x64\Release\slice2html.exe" />
+        <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\x64\Release\slice2php.exe" />
 
         <PhpSources Include="$(IceSrcRootDir)..\php\lib\**\*.php" />
 
