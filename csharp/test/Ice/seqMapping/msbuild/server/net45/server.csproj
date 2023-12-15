@@ -55,12 +55,6 @@
       <Link>Test.ice</Link>
     </SliceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\serializable\net45\serializable.csproj">
-      <Project>{ca52cedb-3e14-4450-a3a2-f71e5b24e516}</Project>
-      <Name>serializable</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\..\..\msbuild\ice.test.props" />
   <Target BeforeTargets="PrepareForBuild" Name="EnsureNuGetPackageBuildImports">

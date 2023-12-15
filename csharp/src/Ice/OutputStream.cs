@@ -4,12 +4,8 @@
 
 namespace Ice
 {
-
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
     using Protocol = IceInternal.Protocol;
 
     /// <summary>
@@ -709,32 +705,6 @@ namespace Ice
             if(writeOptional(tag, OptionalFormat.VSize))
             {
                 writeByteSeq(count, v);
-            }
-        }
-
-        /// <summary>
-        /// Writes a serializable object to the stream.
-        /// </summary>
-        /// <param name="o">The serializable object to write.</param>
-        public void writeSerializable(object o)
-        {
-            if(o == null)
-            {
-                writeSize(0);
-                return;
-            }
-            try
-            {
-                IceInternal.OutputStreamWrapper w = new IceInternal.OutputStreamWrapper(this);
-                IFormatter f = new BinaryFormatter();
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
-                f.Serialize(w, o);
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
-                w.Close();
-            }
-            catch(System.Exception ex)
-            {
-                throw new MarshalException("cannot serialize object:", ex);
             }
         }
 

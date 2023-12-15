@@ -366,19 +366,6 @@ namespace Ice
                     test(Compare(arr2S, arrS));
                 }
 
-                #if !NET8_0_OR_GREATER // See #1549
-                {
-                    Serialize.Small small = new Serialize.Small();
-                    small.i = 99;
-                    outS = new Ice.OutputStream(communicator);
-                    outS.writeSerializable(small);
-                    var data = outS.finished();
-                    inS = new Ice.InputStream(communicator, data);
-                    var small2 =(Serialize.Small)inS.readSerializable();
-                    test(small2.i == 99);
-                }
-                #endif
-
                 {
                     short[] arr = { 0x01, 0x11, 0x12, 0x22 };
                     outS = new Ice.OutputStream(communicator);

@@ -6,7 +6,6 @@ namespace Ice
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Serialization;
 
     public struct NoneType
     {
@@ -15,8 +14,7 @@ namespace Ice
     /// <summary>
     /// Encapsulates an optional value. Instances of this type are immutable.
     /// </summary>
-    [Serializable]
-    public struct Optional<T> : ISerializable
+    public struct Optional<T>
     {
         /// <summary>
         /// Creates an optional value whose state is unset.
@@ -43,24 +41,6 @@ namespace Ice
         {
             _value = v._value;
             _isSet = v._isSet;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the exception with serialized data.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        public Optional(SerializationInfo info, StreamingContext context)
-        {
-            _isSet = info.GetBoolean("isSet");
-            if(_isSet)
-            {
-                _value = (T)info.GetValue("value", typeof(T));
-            }
-            else
-            {
-                _value = default(T);
-            }
         }
 
         /// <summary>
@@ -157,20 +137,6 @@ namespace Ice
             else
             {
                 return _value.GetHashCode();
-            }
-        }
-
-        /// <summary>
-        /// Serializes an optional value.
-        /// </summary>
-        /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">Contains contextual information about the source or destination.</param>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("isSet", _isSet);
-            if(_isSet)
-            {
-                info.AddValue("value", _value, typeof(T));
             }
         }
 

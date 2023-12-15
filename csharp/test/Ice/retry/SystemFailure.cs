@@ -6,7 +6,6 @@ namespace Ice
 {
     namespace retry
     {
-        [System.Serializable]
         public class SystemFailure : Ice.SystemException
         {
             public override string

@@ -8,8 +8,6 @@ namespace Ice
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
     using Protocol = IceInternal.Protocol;
 
     /// <summary>
@@ -1080,30 +1078,6 @@ namespace Ice
             else
             {
                 v = null;
-            }
-        }
-
-        /// <summary>
-        /// Extracts a serializable object from the stream.
-        /// </summary>
-        /// <returns>The serializable object.</returns>
-        public object readSerializable()
-        {
-            int sz = readAndCheckSeqSize(1);
-            if(sz == 0)
-            {
-                return null;
-            }
-            try
-            {
-                var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _instance));
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
-                return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
-            }
-            catch(System.Exception ex)
-            {
-                throw new MarshalException("cannot deserialize object:", ex);
             }
         }
 
