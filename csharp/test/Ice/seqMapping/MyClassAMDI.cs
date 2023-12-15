@@ -466,24 +466,6 @@ namespace Ice
                 {
                     return Task.FromResult(new Test.MyClass_OpCustomCVSSResult(i, i));
                 }
-
-                public override Task<Test.MyClass_OpSerialSmallCSharpResult>
-                opSerialSmallCSharpAsync(Serialize.Small i, Ice.Current current)
-                {
-                    return Task.FromResult(new Test.MyClass_OpSerialSmallCSharpResult(i, i));
-                }
-
-                public override Task<Test.MyClass_OpSerialLargeCSharpResult>
-                opSerialLargeCSharpAsync(Serialize.Large i, Ice.Current current)
-                {
-                    return Task.FromResult(new Test.MyClass_OpSerialLargeCSharpResult(i, i));
-                }
-
-                public override Task<Test.MyClass_OpSerialStructCSharpResult>
-                opSerialStructCSharpAsync(Serialize.Struct i, Ice.Current current)
-                {
-                    return Task.FromResult(new Test.MyClass_OpSerialStructCSharpResult(i, i));
-                }
             }
         }
     }

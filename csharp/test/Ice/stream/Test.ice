@@ -143,8 +143,6 @@ sequence<Ice::StringSeq> StringSStack;
 ["clr:generic:SortedDictionary"]
 dictionary<string, string> SortedStringStringD;
 
-["clr:serializable:Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
-
 class MyClass
 {
     MyClass c;
@@ -161,7 +159,6 @@ class MyClass
     MyEnumS seq9;
     MyClassS seq10;
     StringMyClassD d;
-    SerialSmall ss;
 }
 
 exception MyException

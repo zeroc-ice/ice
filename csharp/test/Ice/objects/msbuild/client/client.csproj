@@ -21,15 +21,18 @@
     <Compile Include="../../HI.cs" />
     <Compile Include="../../II.cs" />
     <Compile Include="../../JI.cs" />
-    <Compile Include="generated\Test.cs">
-      <SliceCompileSource>../../../Test.ice</SliceCompileSource>
-    </Compile>
     <Compile Include="generated\Forward.cs">
-      <SliceCompileSource>../../../Forward.ice</SliceCompileSource>
+      <SliceCompileSource>../../Forward.ice</SliceCompileSource>
+    </Compile>
+    <Compile Include="generated\Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../Test.ice" />
     <SliceCompile Include="../../Forward.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="generated\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">

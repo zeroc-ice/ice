@@ -16,8 +16,11 @@
     <SliceCompile Include="../../Core.ice" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="generated\" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="generated\Core.cs">
-      <SliceCompileSource>../../../Core.ice</SliceCompileSource>
+      <SliceCompileSource>../../Core.ice</SliceCompileSource>
     </Compile>
   </ItemGroup>
   <Choose>

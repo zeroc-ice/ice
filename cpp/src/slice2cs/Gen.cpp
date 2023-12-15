@@ -2368,7 +2368,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         emitComVisibleAttribute();
         emitPartialTypeAttributes();
-        _out << nl << "[global::System.Serializable]";
         if(p->allOperations().size() > 0) // See bug 4747
         {
             _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1012\")]";
@@ -2701,7 +2700,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Suppress FxCop diagnostic about a missing constructor MyException(String).
     //
     _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
-    _out << nl << "[global::System.Serializable]";
 
     emitPartialTypeAttributes();
     _out << nl << "public partial class " << name << " : ";
@@ -2803,17 +2801,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if(hasDataMemberInitializers)
     {
         _out << nl << "_initDM();";
-    }
-    _out << eb;
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public " << name << "(global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
-    _out << sb;
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name(), DotNet::Exception, false);
-        writeSerializeDeserializeCode(_out, (*q)->type(), ns, memberName, (*q)->optional(), (*q)->tag(), false);
     }
     _out << eb;
 
@@ -2997,7 +2984,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-    _out << nl << "[global::System.Serializable]";
     _out << nl << "public partial " << (isValueType(p) ? "struct" : "class") << ' ' << name;
 
     StringList baseNames;
@@ -3510,9 +3496,8 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
             if(seq)
             {
                 string meta;
-                bool isSerializable = seq->findMetaData("cs:serializable:", meta);
                 bool isGeneric = seq->findMetaData("cs:generic:", meta);
-                bool isArray = !isSerializable && !isGeneric;
+                bool isArray = !isGeneric;
                 if(isArray)
                 {
                     //
@@ -4158,19 +4143,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
-    _out << nl << "[global::System.Serializable]";
     _out << nl << "public sealed class " << name << "PrxHelper : " << getUnqualified("Ice.ObjectPrxHelperBase", ns)
          << ", " << name << "Prx";
     _out << sb;
 
     _out << sp;
     _out << nl << "public " << name << "PrxHelper()";
-    _out << sb;
-    _out << eb;
-
-    _out << sp;
-    _out << nl << "public " << name << "PrxHelper(global::System.Runtime.Serialization.SerializationInfo info, "
-         << "global::System.Runtime.Serialization.StreamingContext context) : base(info, context)";
     _out << sb;
     _out << eb;
 

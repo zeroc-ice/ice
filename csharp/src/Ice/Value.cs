@@ -7,7 +7,6 @@ using System.ComponentModel;
 
 namespace Ice
 {
-    [Serializable]
     public abstract class Value : ICloneable
     {
         private const string _id = "::Ice::Object";

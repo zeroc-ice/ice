@@ -88,10 +88,6 @@ namespace Ice
 
                 mo1.bos = new bool[] { false, true, false };
 
-                #if !NET8_0_OR_GREATER // See #1549
-                mo1.ser = new Test.SerializableClass(56);
-                #endif
-
                 test(mo1.a.Value ==(byte)15);
                 test(mo1.b.Value);
                 test(mo1.c.Value == 19);
@@ -124,12 +120,6 @@ namespace Ice
                 test(mo1.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
 
                 test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
-
-                #if NET8_0_OR_GREATER
-                test(!mo1.ser.HasValue);
-                #else
-                test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
-                #endif
 
                 output.WriteLine("ok");
 
@@ -176,19 +166,6 @@ namespace Ice
 
                 test(!mo4.bos.HasValue);
 
-                test(!mo4.ser.HasValue);
-
-                #if NET8_0_OR_GREATER
-                bool supportsCsharpSerializable = false;
-                #else
-                bool supportsCsharpSerializable = initial.supportsCsharpSerializable();
-                #endif
-
-                if(!supportsCsharpSerializable)
-                {
-                    mo1.ser = Ice.Util.None;
-                }
-
                 Test.MultiOptional mo5 =(Test.MultiOptional)initial.pingPong(mo1);
                 test(mo5.a.Value == mo1.a.Value);
                 test(mo5.b.Value == mo1.b.Value);
@@ -221,10 +198,6 @@ namespace Ice
                 test(mo5.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
 
                 test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
-                if(supportsCsharpSerializable)
-                {
-                    test(mo5.ser.Value.Equals(new Test.SerializableClass(56)));
-                }
 
                 // Clear the first half of the optional members
                 Test.MultiOptional mo6 = new Test.MultiOptional();
@@ -276,7 +249,6 @@ namespace Ice
                 test(!mo7.ioopd.HasValue);
 
                 test(ArraysEqual(mo7.bos.Value, new bool[] { false, true, false }));
-                test(!mo7.ser.HasValue);
 
                 // Clear the second half of the optional members
                 Test.MultiOptional mo8 = new Test.MultiOptional();
@@ -297,10 +269,6 @@ namespace Ice
                 mo8.ied = mo5.ied;
                 mo8.ivsd = mo5.ivsd;
                 mo8.ioopd = mo5.ioopd;
-                if(supportsCsharpSerializable)
-                {
-                    mo8.ser = new Test.SerializableClass(56);
-                }
 
                 Test.MultiOptional mo9 =(Test.MultiOptional)initial.pingPong(mo8);
                 test(mo9.a.Equals(mo1.a));
@@ -335,10 +303,6 @@ namespace Ice
                 test(mo9.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
 
                 test(!mo9.bos.HasValue);
-                if(supportsCsharpSerializable)
-                {
-                    test(mo9.ser.Value.Equals(new Test.SerializableClass(56)));
-                }
 
                 {
                     Test.OptionalWithCustom owc1 = new Test.OptionalWithCustom();
@@ -1924,52 +1888,6 @@ namespace Ice
                     @in.skip(4);
                     arr = Test.VarStructSeqHelper.read(@in);
                     test(ArraysEqual(arr, p1.Value));
-                    @in.endEncapsulation();
-
-                    @in = new Ice.InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
-                }
-
-                if(supportsCsharpSerializable)
-                {
-                    Ice.Optional<Test.SerializableClass> p1 = new Ice.Optional<Test.SerializableClass>();
-                    Ice.Optional<Test.SerializableClass> p3;
-                    Ice.Optional<Test.SerializableClass> p2 = initial.opSerializable(p1, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opSerializable(Ice.Util.None, out p3);
-                    test(!p2.HasValue && !p3.HasValue);
-
-                    p1 = new Test.SerializableClass(58);
-                    p2 = initial.opSerializable(p1, out p3);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    Ice.AsyncResult r = initial.begin_opSerializable(p1);
-                    p2 = initial.end_opSerializable(out p3, r);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    p2 = initial.opSerializable(p1.Value, out p3);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    r = initial.begin_opSerializable(p1.Value);
-                    p2 = initial.end_opSerializable(out p3, r);
-                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-
-                    p2 = initial.opSerializable(new Ice.Optional<Test.SerializableClass>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
-
-                    os = new Ice.OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, Ice.OptionalFormat.VSize);
-                    os.writeSerializable(p1.Value);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
-                    initial.ice_invoke("opSerializable", Ice.OperationMode.Normal, inEncaps, out outEncaps);
-                    @in = new Ice.InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(1, Ice.OptionalFormat.VSize));
-                    Test.SerializableClass sc = Test.SerializableHelper.read(@in);
-                    test(sc.Equals(p1.Value));
-                    test(@in.readOptional(3, Ice.OptionalFormat.VSize));
-                    sc = Test.SerializableHelper.read(@in);
-                    test(sc.Equals(p1.Value));
                     @in.endEncapsulation();
 
                     @in = new Ice.InputStream(communicator, outEncaps);

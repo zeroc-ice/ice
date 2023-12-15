@@ -451,13 +451,6 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             }
         }
 
-        prefix = "cs:serializable:";
-        if(seq->findMetaData(prefix, meta))
-        {
-            string customType = meta.substr(prefix.size());
-            return "global::" + customType;
-        }
-
         return typeToString(seq->type(), package, optional, local) + "[]";
     }
 
@@ -1465,21 +1458,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             default:
             {
-                string prefix = "cs:serializable:";
-                string meta;
-                if(seq->findMetaData(prefix, meta))
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << ".writeSerializable(" << param << ");";
-                    }
-                    else
-                    {
-                        out << nl << param << " = (" << typeToString(seq, scope) << ")" << stream << ".readSerializable();";
-                    }
-                    break;
-                }
-
                 string func = typeS;
                 func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
                 if(marshal)
@@ -1967,19 +1945,10 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         {
             string func = typeS;
             func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
-            const bool isSerializable = seq->findMetaData("cs:serializable:", meta);
 
             if(marshal)
             {
-                if(isSerializable)
-                {
-                    out << nl << "if(" << param << ".HasValue && " << stream << ".writeOptional(" << tag
-                        << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".VSize))";
-                    out << sb;
-                    out << nl << stream << ".writeSerializable(" << param << ".Value);";
-                    out << eb;
-                }
-                else if(isArray)
+                if(isArray)
                 {
                     out << nl << stream << ".write" << func << "Seq(" << tag << ", " << param << ");";
                 }
@@ -2134,264 +2103,6 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         out << sb;
         out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">();";
         out << eb;
-    }
-}
-
-void
-Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
-                                                  const TypePtr& type,
-                                                  const string& scope,
-                                                  const string& param,
-                                                  bool optional,
-                                                  int /*tag*/,
-                                                  bool serialize)
-{
-    //
-    // Could do it only when param == "info", but not as good for testing
-    //
-    string dataMember = "this." + param;
-    if(optional)
-    {
-        const string typeName = typeToString(type, scope, true);
-        if(serialize)
-        {
-            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
-        }
-        else
-        {
-            out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-                << "));";
-        }
-        return;
-    }
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindByte:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetByte(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindBool:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetBoolean(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindShort:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetInt16(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindInt:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetInt32(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindLong:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetInt64(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetSingle(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetDouble(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindString:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << " == null ? \"\" : "
-                        << dataMember << ");";
-                }
-                else
-                {
-                    out << nl << dataMember << " = " << "info.GetString(\"" << param << "\");";
-                }
-                break;
-            }
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            case Builtin::KindLocalObject:
-            {
-                const string typeName = typeToString(type, scope, false);
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
-                }
-                else
-                {
-                    out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof("
-                        << typeName << "));";
-                }
-                break;
-            }
-            case Builtin::KindObjectProxy:
-            {
-                if(serialize)
-                {
-                    out << nl << "info.AddValue(\"" << param << "\", " << dataMember
-                        << ", typeof(Ice.ObjectPrxHelperBase));";
-                }
-                else
-                {
-                    out << nl << dataMember << " = (Ice.ObjectPrx)info.GetValue(\"" << param
-                        << "\", typeof(Ice.ObjectPrxHelperBase));";
-                }
-                break;
-            }
-        }
-        return;
-    }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
-    {
-        const string typeName = typeToString(type, scope, false);
-        if(serialize)
-        {
-            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "Helper));";
-        }
-        else
-        {
-            out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-                << "Helper));";
-        }
-        return;
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        const string typeName = typeToString(type, scope, false);
-        if(serialize)
-        {
-            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
-        }
-        else
-        {
-            out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-                << "));";
-        }
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        const string typeName = typeToString(type, scope, false);
-        if(serialize)
-        {
-            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
-        }
-        else
-        {
-            out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-                << "));";
-        }
-        return;
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
-    {
-        const string typeName = typeToString(type, scope, false);
-        if(serialize)
-        {
-            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
-        }
-        else
-        {
-            out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-                << "));";
-        }
-        return;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        const string typeName = typeToString(type, scope, false);
-        if(serialize)
-        {
-            out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
-        }
-        else
-        {
-            out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-                << "));";
-        }
-        return;
-    }
-
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    assert(d);
-    const string typeName = typeToString(type, scope, false);
-    if(serialize)
-    {
-        out << nl << "info.AddValue(\"" << param << "\", " << dataMember << ", typeof(" << typeName << "));";
-    }
-    else
-    {
-        out << nl << dataMember << " = (" << typeName << ")info.GetValue(\"" << param << "\", typeof(" << typeName
-            << "));";
     }
 }
 
@@ -2610,24 +2321,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     {
                         newLocalMetaData.push_back(s);
                         continue; // Custom type or List<T>
-                    }
-                }
-                static const string csSerializablePrefix = csPrefix + "serializable:";
-                if(s.find(csSerializablePrefix) == 0)
-                {
-                    string meta;
-                    if(cont->findMetaData(csPrefix + "generic:", meta))
-                    {
-                        dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + meta + "':\n" +
-                                    "serialization can only be used with the array mapping for byte sequences");
-                        continue;
-                    }
-                    string type = s.substr(csSerializablePrefix.size());
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                    if(!type.empty() && builtin && builtin->kind() == Builtin::KindByte)
-                    {
-                        newLocalMetaData.push_back(s);
-                        continue;
                     }
                 }
             }

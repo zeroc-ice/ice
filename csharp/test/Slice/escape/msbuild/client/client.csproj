@@ -13,14 +13,17 @@
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../Client.cs" />
     <Compile Include="generated\Clash.cs">
-      <SliceCompileSource>../../../Clash.ice</SliceCompileSource>
+      <SliceCompileSource>../../Clash.ice</SliceCompileSource>
     </Compile>
     <Compile Include="generated\Key.cs">
-      <SliceCompileSource>../../../Key.ice</SliceCompileSource>
+      <SliceCompileSource>../../Key.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../Clash.ice" />
     <SliceCompile Include="../../Key.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="generated\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
