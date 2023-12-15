@@ -19,7 +19,6 @@ class PlainService extends Communicator implements Service, Cloneable
     {
         ServiceDescriptor copy = sd.clone();
         copy.adapters = Adapter.copyDescriptors(copy.adapters);
-        copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
         return copy;
     }
@@ -57,15 +56,13 @@ class PlainService extends Communicator implements Service, Cloneable
         Object clipboard = getCoordinator().getClipboard();
         if(clipboard != null &&
            (clipboard instanceof ServiceInstanceDescriptor
-            || clipboard instanceof Adapter.AdapterCopy
-            || clipboard instanceof DbEnvDescriptor))
+            || clipboard instanceof Adapter.AdapterCopy))
         {
             actions[PASTE] = true;
         }
 
         actions[DELETE] = true;
         actions[NEW_ADAPTER] = !_ephemeral;
-        actions[NEW_DBENV] = !_ephemeral;
 
         if(_parent instanceof Server && !_ephemeral)
         {
@@ -86,7 +83,6 @@ class PlainService extends Communicator implements Service, Cloneable
         {
             _popup = new JPopupMenu();
             _popup.add(actions.get(NEW_ADAPTER));
-            _popup.add(actions.get(NEW_DBENV));
             _popup.addSeparator();
             _popup.add(actions.get(MOVE_UP));
             _popup.add(actions.get(MOVE_DOWN));
@@ -223,7 +219,6 @@ class PlainService extends Communicator implements Service, Cloneable
         assert _parent == from._parent;
 
         _adapters = from._adapters;
-        _dbEnvs = from._dbEnvs;
         _services = from._services;
         _childListArray = from._childListArray;
 
@@ -240,7 +235,6 @@ class PlainService extends Communicator implements Service, Cloneable
         _resolver = resolver;
 
         _adapters.init(_descriptor.descriptor.adapters);
-        _dbEnvs.init(_descriptor.descriptor.dbEnvs);
     }
 
     //
@@ -279,7 +273,6 @@ class PlainService extends Communicator implements Service, Cloneable
             writeLogs(writer, _descriptor.descriptor.logs, _descriptor.descriptor.propertySet.properties);
 
             _adapters.write(writer, _descriptor.descriptor.propertySet.properties);
-            _dbEnvs.write(writer);
             writer.writeEndTag("service");
         }
     }

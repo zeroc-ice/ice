@@ -92,7 +92,7 @@ class Component(object):
     or the mapping directory if using a source distribution.
     """
     def getInstallDir(self, mapping, current):
-        raise Error("must be overriden")
+        raise Error("must be overridden")
 
     def getSourceDir(self):
         return toplevel
@@ -108,7 +108,7 @@ class Component(object):
         return os.path.join(self.getSourceDir(), "scripts", "tests")
 
     def getPhpExtension(self, mapping, current):
-        raise RuntimeError("must be overriden if component provides php mapping")
+        raise RuntimeError("must be overridden if component provides php mapping")
 
     def getNugetPackage(self, mapping):
         return "zeroc.{0}.{1}".format(self.__class__.__name__.lower(),
@@ -131,7 +131,7 @@ class Component(object):
         return self.nugetVersion[mapping]
 
     def getNugetPackageVersionFile(self, mapping):
-        raise RuntimeError("must be overriden if component provides C++ or C# nuget packages")
+        raise RuntimeError("must be overridden if component provides C++ or C# nuget packages")
 
     def getFilters(self, mapping, config):
         return ([], [])
@@ -243,7 +243,7 @@ class Platform(object):
     def hasSwift(self, version):
         if self._hasSwift is None:
             try:
-                m = re.search("Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version"))
+                m = re.search(r"Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version"))
                 if m and m.group(1):
                     self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
                 else:
@@ -290,7 +290,7 @@ class Platform(object):
         return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
-        # Return the build sub-directory, to be overriden by specializations
+        # Return the build sub-directory, to be overridden by specializations
         buildPlatform = current.driver.configs[mapping].buildPlatform
         buildConfig = current.driver.configs[mapping].buildConfig
         return os.path.join("build", buildPlatform, buildConfig)
@@ -1547,7 +1547,7 @@ class TestCase(Runnable):
         return self.options(current) if callable(self.options) else self.options
 
     def canRun(self, current):
-        # Can be overriden
+        # Can be overridden
         return True
 
     def setupServerSide(self, current):
@@ -3810,7 +3810,7 @@ class SwiftMapping(Mapping):
             "macOS",
             current.config.buildConfig)
 
-        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
         testDriver = os.path.join(targetBuildDir, "TestDriver.app/Contents/MacOS/TestDriver")
         if not os.path.exists(testDriver):

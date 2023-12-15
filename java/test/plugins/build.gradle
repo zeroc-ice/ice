@@ -22,8 +22,8 @@ jar {
         archiveFileName = "IceTestPlugins.jar"
         destinationDirectory = new File("$rootProject.projectDir/lib/")
     } else {
-        archiveFileName = "IceTestPlugins.jar"
-        destinationDirectory = new File("$rootProject.projectDir/lib/")
+        archiveName = "IceTestPlugins.jar"
+        destinationDir = new File("$rootProject.projectDir/lib/")
     }
 }
 

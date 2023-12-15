@@ -144,7 +144,7 @@ public abstract class TestHelper
     {
         InitializationData initData = new InitializationData();
         initData.properties = properties;
-        return  initialize(initData);
+        return initialize(initData);
     }
 
     public Communicator initialize(InitializationData initData)

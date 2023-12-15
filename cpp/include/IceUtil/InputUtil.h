@@ -35,7 +35,7 @@ ICE_API IceUtil::Int64 strToInt64(const char*, char**, int);
 //      - result == 0 indicates that no digits were available for conversion
 //      - result == "Int64 Min" or result == "Int64 Max" indicate underflow or overflow.
 //
-ICE_API  bool stringToInt64(const std::string&, IceUtil::Int64&);
+ICE_API bool stringToInt64(const std::string&, IceUtil::Int64&);
 
 }
 

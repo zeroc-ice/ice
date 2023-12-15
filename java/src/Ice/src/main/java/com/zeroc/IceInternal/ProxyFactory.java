@@ -155,7 +155,7 @@ public final class ProxyFactory
         else if(ex instanceof com.zeroc.Ice.RequestFailedException)
         {
             //
-            // For all other cases, we don't retry  ObjectNotExistException
+            // For all other cases, we don't retry ObjectNotExistException
             //
             throw ex;
         }

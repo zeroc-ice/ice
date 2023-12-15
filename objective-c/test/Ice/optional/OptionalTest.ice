@@ -70,7 +70,7 @@ dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 class MultiOptional
 {
     optional(1) byte a;
-    optional(2) bool  b;
+    optional(2) bool b;
     optional(3) short c;
     optional(4) int d;
     optional(5) long e;

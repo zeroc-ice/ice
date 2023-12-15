@@ -115,7 +115,7 @@ namespace IceInternal
                 }
                 catch(Exception ex)
                 {
-                    throw  new Ice.MarshalException("Could not read Count property during patching", ex);
+                    throw new Ice.MarshalException("Could not read Count property during patching", ex);
                 }
             }
 
@@ -128,7 +128,7 @@ namespace IceInternal
                 }
                 catch(Exception ex)
                 {
-                    throw  new Ice.MarshalException("Could not invoke Add method during patching", ex);
+                    throw new Ice.MarshalException("Could not invoke Add method during patching", ex);
                 }
             }
 
@@ -141,7 +141,7 @@ namespace IceInternal
                 }
                 catch(Exception ex)
                 {
-                    throw  new Ice.MarshalException("Could not call indexer during patching", ex);
+                    throw new Ice.MarshalException("Could not call indexer during patching", ex);
                 }
             }
 

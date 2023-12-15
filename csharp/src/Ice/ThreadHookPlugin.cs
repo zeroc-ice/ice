@@ -9,7 +9,7 @@ namespace Ice
     /// <summary>
     /// Class to support thread notification hooks. Applications using
     /// thread notification hooks instantiate a ThreadHookPlugin with a
-    /// thread notification hook  and return the instance from their
+    /// thread notification hook and return the instance from their
     /// PluginFactory implementation.
     /// </summary>
     public class ThreadHookPlugin : Plugin

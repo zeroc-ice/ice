@@ -184,9 +184,6 @@ class Ice_FormatType
     const SlicedFormat = 2;
 }
 
-global $Ice_sliceChecksums;
-$Ice_sliceChecksums = array();
-
 //
 // Include certain generated files.
 //

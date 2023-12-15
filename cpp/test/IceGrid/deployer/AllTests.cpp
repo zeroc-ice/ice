@@ -653,7 +653,6 @@ allTests(Test::TestHelper* helper)
     test(info.descriptor->id == "SimpleServer");
     test(info.descriptor->description == "SERVER NodeVar");
     test(info.descriptor->adapters[0].description == "ADAPTER NodeVar");
-    test(info.descriptor->dbEnvs[0].description == "DBENV NodeVar");
     cout << "ok" << endl;
 
     cout << "testing property sets..." << flush;
@@ -702,7 +701,7 @@ allTests(Test::TestHelper* helper)
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service4@IceBox1.Service4.Service4"));
     test(obj->getProperty("ServerInstanceServiceProperty") == "service4");
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service4@IceBox2.Service4.Service4"));
-    test(obj->getProperty("IceBoxInstanceProperty") == "overriden");
+    test(obj->getProperty("IceBoxInstanceProperty") == "overridden");
 
     cout << "ok" << endl;
 

@@ -802,7 +802,7 @@ classdef InputStream < handle
             % top-level sequence or enclosed sequence it doesn't really matter).
             %
             % Otherwise, we are reading an enclosed sequence and we have to bump
-            % _minSeqSize by the minimum size that this sequence will  require on
+            % _minSeqSize by the minimum size that this sequence will require on
             % the stream.
             %
             % The goal of this check is to ensure that when we start un-marshalling

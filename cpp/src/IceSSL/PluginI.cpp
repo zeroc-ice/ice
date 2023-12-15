@@ -147,7 +147,7 @@ IceSSL::getTrustErrorDescription(TrustError error)
 {
     switch(error)
     {
-        case  IceSSL::ICE_ENUM(TrustError, NoError):
+        case IceSSL::ICE_ENUM(TrustError, NoError):
         {
             return "no error";
         }

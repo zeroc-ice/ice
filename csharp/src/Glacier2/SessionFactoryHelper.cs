@@ -301,7 +301,7 @@ public class SessionFactoryHelper
     /// <summary>
     /// Connects to the Glacier2 router using the associated SSL credentials.
     ///
-    /// Once the connection is established, SesssionCallback.connected is called on
+    /// Once the connection is established, SessionCallback.connected is called on
     /// the callback object; upon failure, SessionCallback.connectFailed is called
     /// with the exception.
     /// </summary>

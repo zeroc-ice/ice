@@ -31,8 +31,10 @@ subprojects {
     }
 
     // Only enable infer module path with Java 9 and up
-    java {
-        modularity.inferModulePath = targetJavaRelease.toInteger() > 8
+    if(GradleVersion.current() >= GradleVersion.version('6.4')) {
+        java {
+            modularity.inferModulePath = targetJavaRelease.toInteger() > 8
+        }
     }
 
     jar {

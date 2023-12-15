@@ -36,6 +36,8 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                 with open(os.path.join(testdir, regex1.sub(".err", file)), "r") as f:
                     lines2 = f.readlines()
                     if len(lines1) != len(lines2):
+                        current.writeln("lines1 = {0}".format(lines1))
+                        current.writeln("lines2 = {0}".format(lines2))
                         raise RuntimeError("failed (lines1 = {0}, lines2 = {1})!".format(len(lines1), len(lines2)))
 
                     regex2 = re.compile("^.*(?=" + os.path.basename(file) + ")")

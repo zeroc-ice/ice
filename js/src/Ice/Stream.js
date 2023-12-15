@@ -1576,12 +1576,12 @@ class InputStream
         // top-level sequence or enclosed sequence it doesn't really matter).
         //
         // Otherwise, we are reading an enclosed sequence and we have to bump
-        // _minSeqSize by the minimum size that this sequence will  require on
+        // _minSeqSize by the minimum size that this sequence will require on
         // the stream.
         //
         // The goal of this check is to ensure that when we start unmarshaling
         // a new sequence, we check the minimal size of this new sequence against
-        // the estimated remaining buffer size. This estimatation is based on
+        // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's _minSeqSize.
         //
         if(this._startSeq === -1 || this._buf.position > (this._startSeq + this._minSeqSize))

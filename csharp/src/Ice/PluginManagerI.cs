@@ -396,7 +396,7 @@ namespace Ice
             string err = "unable to load plug-in `" + entryPoint + "': ";
             //
             // Always check the static plugin factory table first, it takes
-            // precedence over the the entryPoint specified in the plugin
+            // precedence over the entryPoint specified in the plugin
             // property value.
             //
             PluginFactory pluginFactory = null;

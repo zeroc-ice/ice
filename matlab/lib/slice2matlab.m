@@ -40,7 +40,7 @@ function status = slice2matlab(args)
     if isempty(path)
         status = 1;
         fprintf('\nerror: Cannot locate slice2matlab compiler\n');
-    elseif  isempty(searchPath)
+    elseif isempty(searchPath)
         status = 1;
         fprintf('\nerror: Cannot locate slice dir.\n');
     else

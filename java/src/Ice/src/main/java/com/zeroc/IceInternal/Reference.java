@@ -264,7 +264,7 @@ public abstract class Reference implements Cloneable
         {
             return Boolean.valueOf(_compress);
         }
-        return null; // Null indicates that compress is not overriden.
+        return null; // Null indicates that compress is not overridden.
     }
 
     //

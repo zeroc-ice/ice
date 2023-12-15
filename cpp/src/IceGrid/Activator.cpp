@@ -886,7 +886,7 @@ Activator::activate(const string& name,
         }
 
         //
-        // If an error occured before the exec() we do some cleanup and throw.
+        // If an error occurred before the exec() we do some cleanup and throw.
         //
         if(!message.empty())
         {

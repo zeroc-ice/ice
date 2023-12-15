@@ -7,7 +7,6 @@ project.ext.description = "Firewall traversal for Ice"
 
 slice {
     java {
-        args = "--tie --checksum Glacier2.SliceChecksums"
         files = fileTree(dir: "$project.ext.topSrcDir/slice/Glacier2", includes:['*.ice'], excludes:["*F.ice"])
     }
 }

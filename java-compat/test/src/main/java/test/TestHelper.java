@@ -163,7 +163,7 @@ public abstract class TestHelper
             _controllerHelper.communicatorInitialized(communicator);
         }
 
-        return  communicator;
+        return communicator;
     }
 
     synchronized public void setControllerHelper(ControllerHelper controllerHelper)
@@ -209,7 +209,7 @@ public abstract class TestHelper
         return _communicator;
     }
 
-    public  void  shutdown()
+    public void shutdown()
     {
         if(_communicator != null)
         {

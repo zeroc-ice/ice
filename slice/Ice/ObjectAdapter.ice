@@ -639,7 +639,7 @@ local interface ObjectAdapter
      /**
      * Get the Ice locator used by this object adapter.
      *
-     * @return  The locator used by this object adapter, or null if no locator is
+     * @return The locator used by this object adapter, or null if no locator is
      * used by this object adapter.
      *
      * @see Locator

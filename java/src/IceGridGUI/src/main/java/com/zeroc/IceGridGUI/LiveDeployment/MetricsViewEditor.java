@@ -886,7 +886,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             }
             return field;
         }
-        catch(NoSuchMethodException  ex)
+        catch(NoSuchMethodException ex)
         {
             ex.printStackTrace();
         }

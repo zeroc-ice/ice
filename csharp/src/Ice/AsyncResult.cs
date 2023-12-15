@@ -155,7 +155,7 @@ namespace IceInternal
         public bool sentSynchronously()
         {
             Debug.Assert(outgoing_ != null);
-            return  outgoing_.sentSynchronously(); // No lock needed
+            return outgoing_.sentSynchronously(); // No lock needed
         }
 
         //

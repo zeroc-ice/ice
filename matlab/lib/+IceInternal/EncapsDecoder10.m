@@ -165,7 +165,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             % string.
             %
             if obj.sliceType == IceInternal.SliceType.ValueSlice
-                if  obj.is.readBool()
+                if obj.is.readBool()
                     typeIdIndex = obj.is.readSize();
                     obj.typeIdIndex = typeIdIndex;
                     obj.typeId = obj.getTypeId(obj.typeIdIndex);

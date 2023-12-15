@@ -17,7 +17,7 @@ IceUtilInternal::CountDownLatch::CountDownLatch(int count) :
     _event = CreateEvent(0, TRUE, FALSE, 0);
     if(_event == 0)
     {
-        throw  IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 #else
     int rc = pthread_mutex_init(&_mutex, 0);

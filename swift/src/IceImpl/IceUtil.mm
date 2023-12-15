@@ -156,7 +156,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
 +(BOOL) stringToIdentity:(NSString*)str
                     name:(NSString* __strong _Nonnull *  _Nonnull)name
-                category:(NSString* __strong  _Nonnull *  _Nonnull)category
+                category:(NSString* __strong _Nonnull *  _Nonnull)category
                    error:(NSError* _Nullable * _Nullable)error
 {
     try
@@ -189,7 +189,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
 +(NSString*) escapeString:(NSString *)string
                   special:(NSString *)special
-                     communicator:(ICECommunicator*)communicator error:(NSError *__autoreleasing  _Nullable *)error
+                     communicator:(ICECommunicator*)communicator error:(NSError *__autoreleasing _Nullable *)error
 {
     try
     {

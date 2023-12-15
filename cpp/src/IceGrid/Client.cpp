@@ -11,7 +11,6 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <Ice/Ice.h>
-#include <Ice/SliceChecksums.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/FileParserI.h>
 #include <IceGrid/Registry.h>

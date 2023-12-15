@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0"
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{86EEC4C6-451D-4E42-AC48-87773B310643}</UniqueIdentifier>
@@ -15,9 +16,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -34,9 +32,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -53,9 +48,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -72,9 +64,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -91,9 +80,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -110,9 +96,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -129,9 +112,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -148,9 +128,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -167,9 +144,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -186,9 +160,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -205,9 +176,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -224,9 +192,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -243,9 +208,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -262,9 +224,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -281,9 +240,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -300,9 +256,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -319,9 +272,6 @@
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
@@ -340,9 +290,6 @@
     <ClCompile Include="..\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -356,9 +303,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -372,9 +316,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -388,9 +329,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -404,9 +342,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -420,9 +355,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -436,9 +368,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -452,9 +381,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -468,9 +394,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -484,9 +407,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -500,9 +420,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -516,9 +433,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -532,9 +446,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
@@ -548,9 +459,6 @@
     <ClInclude Include="..\PythonUtil.h" />
     <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
-    <ClInclude Include="..\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />

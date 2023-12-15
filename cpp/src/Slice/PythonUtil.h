@@ -27,7 +27,7 @@ std::string getImportFileName(const std::string&, const Slice::UnitPtr&, const s
 //
 // Generate Python code for a translation unit.
 //
-void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
+void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
 
 //
 // Convert a scoped name into a Python name.

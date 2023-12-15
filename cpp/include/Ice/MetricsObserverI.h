@@ -34,7 +34,7 @@ public:
 
     virtual void initMetrics(const ICE_INTERNAL_HANDLE<T>&) const
     {
-        // To be overriden in specialization to initialize state attributes
+        // To be overridden in specialization to initialize state attributes
     }
 
 protected:

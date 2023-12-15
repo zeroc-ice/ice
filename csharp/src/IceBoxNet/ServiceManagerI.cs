@@ -49,11 +49,6 @@ class ServiceManagerI : ServiceManagerDisp_
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
-    public override Dictionary<string, string> getSliceChecksums(Ice.Current current)
-    {
-        return Ice.SliceChecksums.checksums;
-    }
-
     public override void startService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();
@@ -1030,7 +1025,7 @@ class ServiceManagerI : ServiceManagerDisp_
     private string[] _argv; // Filtered server argument vector
     private List<ServiceInfo> _services = new List<ServiceInfo>();
     private bool _pendingStatusChanges = false;
-    private Dictionary<ServiceObserverPrx, bool> _observers = new  Dictionary<ServiceObserverPrx, bool>();
+    private Dictionary<ServiceObserverPrx, bool> _observers = new Dictionary<ServiceObserverPrx, bool>();
     private int _traceServiceObserver = 0;
 }
 

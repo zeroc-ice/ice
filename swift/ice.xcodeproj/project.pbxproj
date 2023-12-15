@@ -18,7 +18,6 @@
 		01A996CF77725B8F8AEF3F8D /* IceSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 75D2FDDB424C8E78799E088A /* IceSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01FDACEC086A854FFBDCC764 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = DD1F0D86A0189EA0B2B0DC3F /* Test.ice */; };
 		022CF029F23ADC3C0044F1A4 /* PromiseKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4A826A8D811B0B8E79AAE0E /* PromiseKit.xcframework */; };
-		0235B0F4EE72EA1F3C542FD8 /* SliceChecksumDict.ice in Sources */ = {isa = PBXBuildFile; fileRef = 08BA0C1411A82042AF78A91C /* SliceChecksumDict.ice */; };
 		02476471F2584A802A914FEA /* ValueFactory.ice in Sources */ = {isa = PBXBuildFile; fileRef = 088390A7DBE55BB0EDC45860 /* ValueFactory.ice */; };
 		024823C84E0A0220ADA08991 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E72F8FBB8BCCCA171C7A31 /* Server.swift */; };
 		025BBB280BF7BB2CE17E6979 /* Collocated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AB383A1FB216AEE7D39F21 /* Collocated.swift */; };
@@ -321,12 +320,10 @@
 		3467552A506603B977F4E2EE /* Transceiver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6D62F09BCF1781DBC1B26FBB /* Transceiver.cpp */; };
 		34F8BF634550E98C7AE11B74 /* ClientPrivate.ice in Sources */ = {isa = PBXBuildFile; fileRef = B12BC4A2B52F84582BA3C876 /* ClientPrivate.ice */; };
 		3526A11520207B7288CB9828 /* IceStorm.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8FC87CC0B6F5D80B0A8313D0 /* IceStorm.ice */; };
-		352F809D08DEC2F2FC99C1C6 /* SliceChecksumDict.ice in Sources */ = {isa = PBXBuildFile; fileRef = 08BA0C1411A82042AF78A91C /* SliceChecksumDict.ice */; };
 		353F06B65A7613E212222EFF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7412E7C8752F088C848F16E4 /* Foundation.framework */; };
 		35AB1852E9BD9225D9EF5877 /* TwowaysAMI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48BA9AE0FA08C1E5FE891D1B /* TwowaysAMI.swift */; };
 		35C6EDE81A425474D5EF5F1A /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D82E883EABC3C98C3AE73B6 /* Object.swift */; };
 		36976B752263CCC92A7B762B /* PromiseKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4A826A8D811B0B8E79AAE0E /* PromiseKit.xcframework */; };
-		3734045D1532210A8165A94F /* SliceChecksums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */; };
 		3787C96AF5B2D1F547543377 /* Process.ice in Sources */ = {isa = PBXBuildFile; fileRef = 13B8C9F26D492CDE5B741F5C /* Process.ice */; };
 		379D54382B1AA3B63DF35CCA /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1908F3431A069483082964DD /* Ice.framework */; };
 		37B8CAB7A4185BD64104D23B /* Connection.ice in Sources */ = {isa = PBXBuildFile; fileRef = 04E2C2B7F6CA67B025042F55 /* Connection.ice */; };
@@ -879,7 +876,6 @@
 		98A347B31817AF3C28954D3E /* PromiseKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4A826A8D811B0B8E79AAE0E /* PromiseKit.xcframework */; };
 		98AC376A3BDE5E2CBB425A26 /* NativePropertiesAdmin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B97E1536BA07F5D6362FF3 /* NativePropertiesAdmin.swift */; };
 		98C3C6ECA659D2E374F83B6B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7412E7C8752F088C848F16E4 /* Foundation.framework */; };
-		98D67A6FB7645F692FA702A9 /* SliceChecksumDict.ice in Sources */ = {isa = PBXBuildFile; fileRef = 08BA0C1411A82042AF78A91C /* SliceChecksumDict.ice */; };
 		98D6A2AC59B0B640545F4505 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2286993985018A8F272E821E /* Ice.framework */; };
 		98E5D35E97DEE59C35FB7954 /* Collocated.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FEDB4FA2B810DEBA6621C /* Collocated.swift */; };
 		9911A8AF66FD94C9F7BD1F68 /* TestI.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC466C5AE71BAF4275D85431 /* TestI.swift */; };
@@ -1103,7 +1099,6 @@
 		BFD63D88A8F2FED5725559AA /* PromiseKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB7EC20A77AF3B7CDF9A6722 /* PromiseKit.xcframework */; };
 		BFD80D3137502B8724967E37 /* Connection.ice in Sources */ = {isa = PBXBuildFile; fileRef = 04E2C2B7F6CA67B025042F55 /* Connection.ice */; };
 		BFEAD0B3472678CB8C7785F2 /* Exception.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0B1DB06FCB7AB8139582F9EC /* Exception.mm */; };
-		C05F3CAB0F4D7EC99E7CFC91 /* SliceChecksumDict.ice in Sources */ = {isa = PBXBuildFile; fileRef = 08BA0C1411A82042AF78A91C /* SliceChecksumDict.ice */; };
 		C0643773D0CEE94CE316C6C2 /* CountDownLatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 880DB5F8CC4B00DC9037BF37 /* CountDownLatch.cpp */; };
 		C0CA6D6EDE77BB8B00CE09E0 /* AllTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD1B415EC4464485E794FEB /* AllTests.swift */; };
 		C0F4D2056EE6A8A77C2AD47D /* TestI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B4D085FD23CE8EE5B608FD /* TestI.swift */; };
@@ -1141,7 +1136,6 @@
 		C4ECA2D8B1CB7F3F42B4E895 /* IceGrid.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 89B68C84ACAA5FCB74C7578B /* IceGrid.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C51441B406C51F93C709153F /* ServantLocator.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1681A2A583D5C08A66D62A52 /* ServantLocator.ice */; };
 		C526783DABC89877D290EC4C /* IceDiscovery.ice in Sources */ = {isa = PBXBuildFile; fileRef = 68AB6FAA0F29143D512E8601 /* IceDiscovery.ice */; };
-		C55FE9FD56A72D4DD2312A3E /* SliceChecksums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */; };
 		C5627E184003A4DD3BBD8B2A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FF496BF165F1B2886D0EDC7 /* Cocoa.framework */; };
 		C562880E492ED3A0A8CE8934 /* PromiseKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB7EC20A77AF3B7CDF9A6722 /* PromiseKit.xcframework */; };
 		C57ED9BEB1A72054538009A6 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = 566DD5B6D0E79208B992927E /* Exception.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1540,7 +1534,6 @@
 			fileType = pattern.proxy;
 			inputFiles = (
 				"$SRCROOT/../slice/Ice/ObjectAdapter.ice",
-				"$SRCROOT/../slice/Ice/SliceChecksumDict.ice",
 				"$SRCROOT/../slice/Ice/ImplicitContextF.ice",
 				"$SRCROOT/../slice/Ice/Logger.ice",
 				"$SRCROOT/../slice/Ice/Connection.ice",
@@ -1835,7 +1828,6 @@
 			fileType = pattern.proxy;
 			inputFiles = (
 				"$SRCROOT/../slice/Ice/ObjectAdapter.ice",
-				"$SRCROOT/../slice/Ice/SliceChecksumDict.ice",
 				"$SRCROOT/../slice/Ice/ImplicitContextF.ice",
 				"$SRCROOT/../slice/Ice/Logger.ice",
 				"$SRCROOT/../slice/Ice/Connection.ice",
@@ -2297,7 +2289,6 @@
 			fileType = pattern.proxy;
 			inputFiles = (
 				"$SRCROOT/../slice/Ice/ObjectAdapter.ice",
-				"$SRCROOT/../slice/Ice/SliceChecksumDict.ice",
 				"$SRCROOT/../slice/Ice/ImplicitContextF.ice",
 				"$SRCROOT/../slice/Ice/Logger.ice",
 				"$SRCROOT/../slice/Ice/Connection.ice",
@@ -2457,7 +2448,6 @@
 			fileType = pattern.proxy;
 			inputFiles = (
 				"$SRCROOT/../slice/Ice/ObjectAdapter.ice",
-				"$SRCROOT/../slice/Ice/SliceChecksumDict.ice",
 				"$SRCROOT/../slice/Ice/ImplicitContextF.ice",
 				"$SRCROOT/../slice/Ice/Logger.ice",
 				"$SRCROOT/../slice/Ice/Connection.ice",
@@ -5384,7 +5374,6 @@
 		088390A7DBE55BB0EDC45860 /* ValueFactory.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = ValueFactory.ice; path = ../slice/Ice/ValueFactory.ice; sourceTree = "<group>"; };
 		08941D4F239C466EAD39AA9D /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/ami/Client.swift; sourceTree = "<group>"; };
 		08AF8690EDC78CB3DE2694C3 /* LocalObject.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LocalObject.cpp; path = ../cpp/src/Ice/LocalObject.cpp; sourceTree = "<group>"; };
-		08BA0C1411A82042AF78A91C /* SliceChecksumDict.ice */ = {isa = PBXFileReference; includeInIndex = 1; name = SliceChecksumDict.ice; path = ../slice/Ice/SliceChecksumDict.ice; sourceTree = "<group>"; };
 		08E37B1BD7F6E8602E9DAF55 /* IceStorm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceStorm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		090B5E2D754AC35726D2E134 /* SSLEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SSLEngine.cpp; path = ../cpp/src/IceSSL/SSLEngine.cpp; sourceTree = "<group>"; };
 		09BD50254FEB46FCDAA01590 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/invoke/AllTests.swift; sourceTree = "<group>"; };
@@ -5396,7 +5385,6 @@
 		0BAF494C629079D8F4E09B05 /* AllTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AllTests.swift; path = test/Ice/acm/AllTests.swift; sourceTree = "<group>"; };
 		0BC9926BB50F3218C6F52A83 /* SliceFlags.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SliceFlags.swift; path = src/Ice/SliceFlags.swift; sourceTree = "<group>"; };
 		0C08087A7761F14C6A2CCF42 /* FactoryTableInit.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = FactoryTableInit.cpp; path = ../cpp/src/Ice/FactoryTableInit.cpp; sourceTree = "<group>"; };
-		0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SliceChecksums.cpp; path = ../cpp/src/Ice/SliceChecksums.cpp; sourceTree = "<group>"; };
 		0CE3C096A53EE8986B341B1E /* ObjectAdapter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ObjectAdapter.h; path = src/IceImpl/ObjectAdapter.h; sourceTree = "<group>"; };
 		0CF1AA600CA4E9D8F738BF86 /* Communicator.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Communicator.h; path = src/IceImpl/Communicator.h; sourceTree = "<group>"; };
 		0D82E883EABC3C98C3AE73B6 /* Object.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Object.swift; path = src/Ice/Object.swift; sourceTree = "<group>"; };
@@ -7542,7 +7530,6 @@
 				5C7495EEBC72C97F42C19BF6 /* RouterF.ice */,
 				1681A2A583D5C08A66D62A52 /* ServantLocator.ice */,
 				FEEE028697DA76ECC5AD14D7 /* ServantLocatorF.ice */,
-				08BA0C1411A82042AF78A91C /* SliceChecksumDict.ice */,
 				088390A7DBE55BB0EDC45860 /* ValueFactory.ice */,
 				A0FB86394563C9A90BA74520 /* Version.ice */,
 			);
@@ -7944,7 +7931,6 @@
 				4D8D36A576FF86E13D53DF0C /* ServantManager.cpp */,
 				A1C777BBFCF5653D7B17E072 /* Service.cpp */,
 				70537556B46C765F6F6DAE81 /* SHA1.cpp */,
-				0CA1B8BBC69613CEE258F862 /* SliceChecksums.cpp */,
 				6ABF11848FB93632AD8F8E8E /* SlicedData.cpp */,
 				9FDC07E062FEE5CE217082AE /* StreamSocket.cpp */,
 				AC5CA662E92EE48583199443 /* StringConverterPlugin.cpp */,
@@ -11875,8 +11861,6 @@
 				C32BF4EC7DD834D25AC65F3A /* Service.cpp in Sources */,
 				1679FBE8C4EEE5B8311C3A56 /* SHA1.cpp in Sources */,
 				1293B22292607A1B2F434D58 /* Shared.cpp in Sources */,
-				98D67A6FB7645F692FA702A9 /* SliceChecksumDict.ice in Sources */,
-				C55FE9FD56A72D4DD2312A3E /* SliceChecksums.cpp in Sources */,
 				8BCB8FE0AA780C05B3546C3D /* SlicedData.cpp in Sources */,
 				574D197262DEFA78AED3953D /* StreamSocket.cpp in Sources */,
 				E29E475FB872B1AFEB264083 /* StringConverter.cpp in Sources */,
@@ -12207,7 +12191,6 @@
 				CCBEF0CF5789D60647834937 /* ServantLocator.ice in Sources */,
 				803A98181532CF2F2975D31E /* ServantLocatorF.ice in Sources */,
 				1B089F6EF5E8B64B8389768D /* ServantManager.swift in Sources */,
-				0235B0F4EE72EA1F3C542FD8 /* SliceChecksumDict.ice in Sources */,
 				146BE84456008AF8A077DD7D /* SlicedData.swift in Sources */,
 				807AE5F8827CA0FEABB5A512 /* SliceFlags.swift in Sources */,
 				292B5A49C679CC246FA9DF8B /* SliceInfo.swift in Sources */,
@@ -12479,8 +12462,6 @@
 				1E78938E760455B47D962460 /* Service.cpp in Sources */,
 				4EFC6F19369AF77CCF71CFC2 /* SHA1.cpp in Sources */,
 				7E41EB72317EFADAD8367AE7 /* Shared.cpp in Sources */,
-				C05F3CAB0F4D7EC99E7CFC91 /* SliceChecksumDict.ice in Sources */,
-				3734045D1532210A8165A94F /* SliceChecksums.cpp in Sources */,
 				1E2D673378C8D51056638C85 /* SlicedData.cpp in Sources */,
 				0DAE61A616D3047B19CE365A /* StreamAcceptor.cpp in Sources */,
 				D400832B200A9F7E76875C81 /* StreamConnector.cpp in Sources */,
@@ -13029,7 +13010,6 @@
 				94D184C6A79C867E7595DB12 /* ServantLocator.ice in Sources */,
 				AB07A9B98E3A5155C1553708 /* ServantLocatorF.ice in Sources */,
 				AE6A7041FB3F3AFEF6241842 /* ServantManager.swift in Sources */,
-				352F809D08DEC2F2FC99C1C6 /* SliceChecksumDict.ice in Sources */,
 				541347CD7D1314A719F4EF8A /* SlicedData.swift in Sources */,
 				77122A8132C505BCF7B2D39F /* SliceFlags.swift in Sources */,
 				3426725F856436918C69C256 /* SliceInfo.swift in Sources */,

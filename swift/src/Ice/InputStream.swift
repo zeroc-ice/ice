@@ -591,12 +591,12 @@ public extension InputStream {
         // top-level sequence or enclosed sequence it doesn't really matter).
         //
         // Otherwise, we are reading an enclosed sequence and we have to bump
-        // minSeqSize by the minimum size that this sequence will  require on
+        // minSeqSize by the minimum size that this sequence will require on
         // the stream.
         //
         // The goal of this check is to ensure that when we start un-marshalling
         // a new sequence, we check the minimal size of this new sequence against
-        // the estimated remaining buffer size. This estimatation is based on
+        // the estimated remaining buffer size. This estimation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
         if startSeq == -1 || pos > (startSeq + minSeqSize) {
