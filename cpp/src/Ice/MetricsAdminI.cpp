@@ -656,7 +656,7 @@ MetricsAdminI::updated(const PropertyDict& props)
     {
         if(p->first.find("IceMX.") == 0)
         {
-            // Udpate the metrics views using the new configuration.
+            // Update the metrics views using the new configuration.
             try
             {
                 updateViews();

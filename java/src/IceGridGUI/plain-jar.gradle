@@ -3,7 +3,11 @@
 //
 
 task copyTmpJars(type: Copy) {
-    from jar.archiveFile
+    if (GradleVersion.current() >= GradleVersion.version('8.0')) {
+        from jar.archiveFile
+    } else {
+        from jar.baseName
+    }
     into "${libDir}"
     rename("${tmpJarName}", "${jarName}")
 

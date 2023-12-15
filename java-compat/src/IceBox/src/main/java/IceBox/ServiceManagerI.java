@@ -69,13 +69,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
     }
 
     @Override
-    public java.util.Map<String, String>
-    getSliceChecksums(Ice.Current current)
-    {
-        return SliceChecksums.checksums;
-    }
-
-    @Override
     public void
     startService(String name, Ice.Current current)
         throws AlreadyStartedException, NoSuchServiceException

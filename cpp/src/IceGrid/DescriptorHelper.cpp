@@ -1091,12 +1091,6 @@ CommunicatorHelper::operator==(const CommunicatorHelper& helper) const
         }
     }
 
-    if(set<DbEnvDescriptor>(_desc->dbEnvs.begin(), _desc->dbEnvs.end()) !=
-       set<DbEnvDescriptor>(helper._desc->dbEnvs.begin(), helper._desc->dbEnvs.end()))
-    {
-        return false;
-    }
-
     if(_desc->logs != helper._desc->logs)
     {
         return false;
@@ -1211,16 +1205,6 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
         }
     }
 
-    for(DbEnvDescriptorSeq::const_iterator s = _desc->dbEnvs.begin(); s != _desc->dbEnvs.end(); ++s)
-    {
-        DbEnvDescriptor dbEnv;
-        dbEnv.name = resolve(s->name, "database environment name", false);
-        dbEnv.description = resolve(s->description, "database environment description");
-        dbEnv.dbHome = resolve(s->dbHome, "database environment home directory");
-        dbEnv.properties = resolve(s->properties, "database environment property");
-        instance->dbEnvs.push_back(dbEnv);
-    }
-
     for(Ice::StringSeq::const_iterator l = _desc->logs.begin(); l != _desc->logs.end(); ++l)
     {
         instance->logs.push_back(resolve(*l, "log path", false));
@@ -1238,12 +1222,6 @@ CommunicatorHelper::print(const Ice::CommunicatorPtr& communicator, Output& out)
         out << eb;
     }
     set<string> hiddenProperties;
-    {
-        for(DbEnvDescriptorSeq::const_iterator p = _desc->dbEnvs.begin(); p != _desc->dbEnvs.end(); ++p)
-        {
-            printDbEnv(out, *p);
-        }
-    }
     {
         for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
         {
@@ -1274,35 +1252,6 @@ CommunicatorHelper::print(const Ice::CommunicatorPtr& communicator, Output& out)
             {
                 out << nl << q->name << " = `" << q->value << "'";
             }
-        }
-        out << eb;
-    }
-}
-
-void
-CommunicatorHelper::printDbEnv(Output& out, const DbEnvDescriptor& dbEnv) const
-{
-    out << nl << "database environment `" << dbEnv.name << "'";
-    if(!dbEnv.dbHome.empty() || !dbEnv.properties.empty() || !dbEnv.description.empty())
-    {
-        out << sb;
-        if(!dbEnv.dbHome.empty())
-        {
-            out << nl << "home = `" << dbEnv.dbHome << "'";
-        }
-        if(!dbEnv.description.empty())
-        {
-            out << nl << "description = `" << dbEnv.description << "'";
-        }
-        if(!dbEnv.properties.empty())
-        {
-            out << nl << "properties";
-            out << sb;
-            for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
-            {
-                out << nl << p->name << " = `" << p->value << "'";
-            }
-            out << eb;
         }
         out << eb;
     }
@@ -2606,19 +2555,19 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 
     if(_def.loadFactor != helper._def.loadFactor)
     {
-        out << nl << "load factor udpated";
+        out << nl << "load factor updated";
     }
     if(_def.description != helper._def.description)
     {
-        out << nl << "description udpated";
+        out << nl << "description updated";
     }
     if(!updatedPs.empty() || !removedPs.empty())
     {
-        out << nl << "property sets udpated";
+        out << nl << "property sets updated";
     }
     if(!variables.empty() || !removeVariables.empty())
     {
-        out << nl << "variables udpated";
+        out << nl << "variables updated";
     }
     if(!updated.empty() || !removed.empty())
     {
@@ -3180,7 +3129,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         Ice::StringSeq removeVariables = getDictRemovedElts(helper._def.variables, _def.variables);
         if(!variables.empty() || !removeVariables.empty())
         {
-            out << nl << "variables udpated";
+            out << nl << "variables updated";
         }
     }
     {
@@ -3194,7 +3143,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         Ice::StringSeq removed = getDictRemovedElts(helper._def.propertySets, _def.propertySets);
         if(!updt.empty() || !removed.empty())
         {
-            out << nl << "property sets udpated";
+            out << nl << "property sets updated";
         }
     }
     {

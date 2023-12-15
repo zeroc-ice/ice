@@ -43,7 +43,7 @@ NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:adminFacet
                                       error:(NSError* _Nullable * _Nullable)error;
 +(BOOL) stringToIdentity:(NSString*)str
                     name:(NSString* __strong _Nonnull *  _Nonnull)name
-                category:(NSString* __strong  _Nonnull *  _Nonnull)category
+                category:(NSString* __strong _Nonnull *  _Nonnull)category
                    error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(stringToIdentity(str:name:category:));
 
 +(NSString*) identityToString:(NSString*)name

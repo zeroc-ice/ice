@@ -1,4 +1,4 @@
-name: "Build and Test"
+name: ci
 
 on:
   workflow_dispatch:
@@ -12,7 +12,6 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test
     runs-on: [self-hosted, linux]
     steps:
       - name: Checkout repository

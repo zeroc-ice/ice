@@ -24,10 +24,10 @@ class SliceHeadersTestCase(ClientTestCase):
         def runTest(args):
             slice2cpp.run(current, args=args.split(" "))
             f = open("b.h")
-            if not re.search('#include <dir1\/a1\.h>\n'
-                             '#include <linktodir1\/a2\.h>\n'
-                             '#include <linktodir1\/linktoa3\.h>\n'
-                             '#include <Ice\/Identity\.h>\n', f.read(), re.S):
+            if not re.search(r'#include <dir1\/a1\.h>\n'
+                             r'#include <linktodir1\/a2\.h>\n'
+                             r'#include <linktodir1\/linktoa3\.h>\n'
+                             r'#include <Ice\/Identity\.h>\n', f.read(), re.S):
                 raise RuntimeError("failed!")
 
             os.unlink("b.h")

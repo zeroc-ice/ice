@@ -108,7 +108,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 
     if(is.bad())
     {
-        throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
     }
 
     if(lines.empty())
@@ -205,7 +205,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
     if(is.bad())
     {
-        throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
     }
 
     return is.eof();

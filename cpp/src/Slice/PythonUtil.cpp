@@ -3,7 +3,6 @@
 //
 
 #include <Slice/PythonUtil.h>
-#include <Slice/Checksum.h>
 #include <Slice/Util.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
@@ -2986,7 +2985,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
 }
 
 void
-Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths,
+Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths,
                         Output& out)
 {
     Slice::Python::MetaDataVisitor visitor;
@@ -3017,27 +3016,6 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
 
     CodeVisitor codeVisitor(out, moduleHistory);
     un->visit(&codeVisitor, false);
-
-    if(checksum)
-    {
-        ChecksumMap checksums = createChecksums(un);
-        if(!checksums.empty())
-        {
-            out << sp;
-            for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
-            {
-                out << nl << "Ice.sliceChecksums[\"" << p->first << "\"] = \"";
-                ostringstream str;
-                str.flags(ios_base::hex);
-                str.fill('0');
-                for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-                {
-                    str << static_cast<int>(*q);
-                }
-                out << str.str() << "\"";
-            }
-        }
-    }
 
     out << nl; // Trailing newline.
 }

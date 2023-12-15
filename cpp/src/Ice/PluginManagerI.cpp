@@ -427,7 +427,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
 
     //
     // Always check the static plugin factory table first, it takes
-    // precedence over the the entryPoint specified in the plugin
+    // precedence over the entryPoint specified in the plugin
     // property value.
     //
     if(factories)

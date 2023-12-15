@@ -1,9 +1,6 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-//
-// Ice version 3.7.1
-//
 
 /// <reference path="./Admin.d.ts"/>
 /// <reference path="./Descriptor.d.ts"/>

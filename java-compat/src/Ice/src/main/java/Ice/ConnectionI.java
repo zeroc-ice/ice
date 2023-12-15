@@ -2143,7 +2143,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                 setState(StateClosingPending);
 
                 //
-                // Notify the the transceiver of the graceful connection closure.
+                // Notify the transceiver of the graceful connection closure.
                 //
                 int op = _transceiver.closing(true, _exception);
                 if(op != 0)
@@ -2683,7 +2683,7 @@ public final class ConnectionI extends IceInternal.EventHandler
                         setState(StateClosingPending, new CloseConnectionException());
 
                         //
-                        // Notify the the transceiver of the graceful connection closure.
+                        // Notify the transceiver of the graceful connection closure.
                         //
                         int op = _transceiver.closing(false, _exception);
                         if(op != 0)

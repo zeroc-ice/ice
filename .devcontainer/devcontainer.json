@@ -1,0 +1,20 @@
+{
+    // Use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    // Configure tool-specific properties
+    "customizations": {
+        "vscode": {
+            /* spell-checker:disable */
+            "extensions": [
+                "davidson.vscode-markdownlint",
+                "editorconfig.editorconfig",
+                "ms-azuretools.vscode-docker",
+                "streetsidesoftware.code-spell-checker",
+                "zerocinc.slice"
+            ]
+            /* spell-checker:enable */
+        }
+    }
+}

@@ -116,7 +116,7 @@ class ServantLocatorI(Ice.ServantLocator):
         test(self._requestId == current.requestId)
         self._requestId = -1
 
-        test(current.id.category == self._category  or self._category == "")
+        test(current.id.category == self._category or self._category == "")
         test(current.id.name == "locate" or current.id.name == "finished")
 
         if current.id.name == "finished":

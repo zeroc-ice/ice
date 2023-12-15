@@ -169,7 +169,7 @@ public class SimpleInternalFrame extends JPanel {
 
     /**
      * Sets a new title text.
-     *      * @param newText  the title text tp be set     */
+     *      * @param newText the title text tp be set     */
     public void setTitle(String newText) {
         String oldText = getTitle();
         titleLabel.setText(newText);
@@ -232,8 +232,8 @@ public class SimpleInternalFrame extends JPanel {
      * or not. In the selected state, the header background will be
      * rendered differently.
      *
-     * @return boolean  a boolean, where true means the frame is selected
-     *                  (currently active) and false means it is not
+     * @return boolean a boolean, where true means the frame is selected
+     *                 (currently active) and false means it is not
      */
     public boolean isSelected() {
         return selected;
@@ -245,8 +245,8 @@ public class SimpleInternalFrame extends JPanel {
      * has the focus, or should get more attention than other
      * simple internal frames.
      *
-     * @param newValue  a boolean, where true means the frame is selected
-     *                  (currently active) and false means it is not
+     * @param newValue a boolean, where true means the frame is selected
+     *                 (currently active) and false means it is not
      */
     public void setSelected(boolean newValue) {
         boolean oldValue = isSelected();

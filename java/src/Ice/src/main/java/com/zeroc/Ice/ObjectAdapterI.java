@@ -1284,7 +1284,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             if(endpoints.isEmpty())
             {
                 //
-                // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+                // If the PublishedEndpoints property isn't set, we compute the published endpoints
                 // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
                 // to include actual addresses in the published endpoints.
                 //

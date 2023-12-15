@@ -41,7 +41,7 @@ Ice.Object = class
     }
 
     //
-    // _iceMostDerivedType returns the the most derived Ice generated class. This is
+    // _iceMostDerivedType returns the most derived Ice generated class. This is
     // necessary because the user might extend Slice generated classes. The user
     // class extensions don't have _iceId, _iceIds, etc static members so the implementation
     // of ice_id and ice_ids would fail trying to access those members of the user

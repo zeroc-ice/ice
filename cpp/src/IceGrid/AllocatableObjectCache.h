@@ -34,7 +34,7 @@ public:
     virtual void released(const SessionIPtr&);
     virtual bool canTryAllocate();
 
-    void  destroy();
+    void destroy();
     virtual void checkAllocatable();
 
 private:

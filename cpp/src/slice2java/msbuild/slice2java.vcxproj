@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
+    <ClInclude Include="..\GenCompat.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">

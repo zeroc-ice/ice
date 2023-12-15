@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0"
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,7 +20,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Checksum.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\FileTracker.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Grammar.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\MD5.cpp" />
@@ -187,25 +187,20 @@
   </Target>
 
   <PropertyGroup>
-      <TargetSuffix Condition="'$(Configuration)' == 'Debug'">d</TargetSuffix>
+    <TargetSuffix Condition="'$(Configuration)' == 'Debug'">d</TargetSuffix>
   </PropertyGroup>
 
   <Target Name="CopyDependencies">
-      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\bzip2$(TargetSuffix).dll"
-            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
-      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\ice$(IceSoVersion)$(TargetSuffix).dll"
-            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
-      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion)$(TargetSuffix).dll"
-            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
-      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icediscovery$(IceSoVersion)$(TargetSuffix).dll"
-            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
-      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icelocatordiscovery$(IceSoVersion)$(TargetSuffix).dll"
-            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+    <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\bzip2$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+    <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\ice$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+    <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+    <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icediscovery$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+    <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icelocatordiscovery$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
   </Target>
   <PropertyGroup>
-        <BuildDependsOn>
+    <BuildDependsOn>
             $(BuildDependsOn);
             CopyDependencies
-        </BuildDependsOn>
+    </BuildDependsOn>
   </PropertyGroup>
 </Project>

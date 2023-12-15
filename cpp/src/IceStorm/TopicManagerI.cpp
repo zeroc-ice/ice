@@ -10,7 +10,6 @@
 #include <IceStorm/Observers.h>
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/Util.h>
-#include <Ice/SliceChecksums.h>
 
 #include <functional>
 
@@ -81,12 +80,6 @@ public:
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
         return _impl->retrieveAll();
-    }
-
-    virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const
-    {
-        // This doesn't require the replication to be running.
-        return Ice::sliceChecksums();
     }
 
     virtual NodePrx getReplicaNode(const Ice::Current&) const
