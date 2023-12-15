@@ -6,7 +6,6 @@
 #include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
-#include <Slice/MD5.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/FileUtil.h>
 
