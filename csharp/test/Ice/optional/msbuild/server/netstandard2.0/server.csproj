@@ -19,9 +19,6 @@
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../../Test.ice" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="../../serializable/netstandard2.0/serializable.csproj" />
-  </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
       <ItemGroup>

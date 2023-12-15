@@ -474,27 +474,6 @@ namespace Ice
                 o = i;
                 return i;
             }
-
-            public override Serialize.Small opSerialSmallCSharp(Serialize.Small i, out Serialize.Small o,
-                                                                Ice.Current current)
-            {
-                o = i;
-                return i;
-            }
-
-            public override Serialize.Large opSerialLargeCSharp(Serialize.Large i, out Serialize.Large o,
-                                                                Ice.Current current)
-            {
-                o = i;
-                return i;
-            }
-
-            public override Serialize.Struct opSerialStructCSharp(Serialize.Struct i, out Serialize.Struct o,
-                                                                  Ice.Current current)
-            {
-                o = i;
-                return i;
-            }
         }
     }
 }

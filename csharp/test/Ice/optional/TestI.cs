@@ -279,15 +279,6 @@ namespace Ice
                 return p1;
             }
 
-            public override Ice.Optional<Test.SerializableClass>
-            opSerializable(Ice.Optional<Test.SerializableClass> p1,
-                           out Ice.Optional<Test.SerializableClass> p3,
-                           Ice.Current current)
-            {
-                p3 = p1;
-                return p1;
-            }
-
             public override Ice.Optional<Dictionary<int, int>>
             opIntIntDict(Ice.Optional<Dictionary<int, int>> p1,
                          out Ice.Optional<Dictionary<int, int>> p3,
@@ -397,15 +388,6 @@ namespace Ice
             public override bool supportsJavaSerializable(Ice.Current current)
             {
                 return false;
-            }
-
-            public override bool supportsCsharpSerializable(Ice.Current current)
-            {
-                #if NET8_0_OR_GREATER
-                return false;
-                #else
-                return true;
-                #endif
             }
 
             public override bool supportsCppStringView(Ice.Current current)
