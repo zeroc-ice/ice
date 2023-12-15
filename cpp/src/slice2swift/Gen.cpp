@@ -389,8 +389,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         //
         ostringstream factory;
         factory << prefix;
-        StringList parts = splitScopedName(p->scoped());
-        for(StringList::const_iterator it = parts.begin(); it != parts.end();)
+        vector<string> parts = splitScopedName(p->scoped());
+        for(vector<string>::const_iterator it = parts.begin(); it != parts.end();)
         {
             factory << (*it);
             if(++it != parts.end())
@@ -1403,8 +1403,8 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     ostringstream factory;
     factory << prefix;
-    StringList parts = splitScopedName(p->scoped());
-    for(StringList::const_iterator it = parts.begin(); it != parts.end();)
+    vector<string> parts = splitScopedName(p->scoped());
+    for(vector<string>::const_iterator it = parts.begin(); it != parts.end();)
     {
         factory << (*it);
         if(++it != parts.end())

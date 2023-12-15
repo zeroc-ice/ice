@@ -979,8 +979,8 @@ bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string suffix;
-    StringList names = splitScopedName(p->scoped());
-    for(StringList::const_iterator i = names.begin(); i != names.end(); ++i)
+    vector<string> names = splitScopedName(p->scoped());
+    for(vector<string>::const_iterator i = names.begin(); i != names.end(); ++i)
     {
         if(i != names.begin())
         {

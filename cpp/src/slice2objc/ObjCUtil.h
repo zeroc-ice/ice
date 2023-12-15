@@ -61,7 +61,6 @@ protected:
     static std::string getBuiltinSelector(const BuiltinPtr&, bool);
     static std::string getOptionalHelperGetter(const TypePtr&);
     static std::string getOptionalStreamHelper(const TypePtr&);
-    static StringList splitScopedName(const std::string&);
     static std::string getOptionalFormat(const TypePtr&);
 
     //
