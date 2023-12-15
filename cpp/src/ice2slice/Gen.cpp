@@ -265,18 +265,24 @@ string typeToCsString(const TypePtr& type, bool optional)
     return os.str();
 }
 
+string paramToString(ParamInfo param, string scope)
+{
+    ostringstream os;
+    if (param.optional)
+    {
+        os << "tag(" << param.tag << ") ";
+    }
+    os << param.name << ": " << typeToString(param.type, scope, param.optional);
+    return os.str();
+}
+
 string getParamList(const ParamInfoList& params, string scope)
 {
     ostringstream os;
     os << "(";
     for (ParamInfoList::const_iterator q = params.begin(); q != params.end();)
     {
-        ParamInfo param = *q;
-        if (param.optional)
-        {
-            os << "tag(" << param.tag << ") ";
-        }
-        os << param.name << ": " << typeToString(param.type, scope, param.optional);
+        os << paramToString(*q, scope);
         q++;
         if (q != params.end())
         {
@@ -473,9 +479,13 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             ParamInfoList inParams = getAllInParams(op);
             out << getParamList(inParams, scope);
             ParamInfoList outParams = getAllOutParams(op);
-            if (outParams.size() > 0)
+            if (outParams.size() > 1)
             {
                 out << " -> " << getParamList(outParams, scope);
+            }
+            else if (outParams.size() > 0)
+            {
+                out << " -> " << paramToString(outParams.front(), scope);
             }
 
             ExceptionList throws = op->throws();
