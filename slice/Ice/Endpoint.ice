@@ -62,7 +62,7 @@ const short iAPSEndpointType = 9;
 /// Base class providing access to the endpoint details.
 local class EndpointInfo
 {
-    /// The information of the underyling endpoint of null if there's no underlying endpoint.
+    /// The information of the underyling endpoint or null if there's no underlying endpoint.
     EndpointInfo underlying;
 
     /// The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
@@ -124,7 +124,7 @@ local class UDPEndpointInfo extends IPEndpointInfo
     string mcastInterface;
 
     /// The multicast time-to-live (or hops).
-     int mcastTtl;
+    int mcastTtl;
 }
 
 /// Provides access to a WebSocket endpoint information.

@@ -93,37 +93,37 @@ local enum ACMClose
     CloseOff,
     /// Gracefully closes a connection that has been idle for the configured timeout period.
     CloseOnIdle,
-    /// Forcefully closes a connection that has been idle for the configured timeout period,
-    /// but only if the connection has pending invocations.
+    /// Forcefully closes a connection that has been idle for the configured timeout period, but only if the connection
+    /// has pending invocations.
     CloseOnInvocation,
     /// Combines the behaviors of CloseOnIdle and CloseOnInvocation.
     CloseOnInvocationAndIdle,
-    /// Forcefully closes a connection that has been idle for the configured timeout period,
-    /// regardless of whether the connection has pending invocations or dispatch.
+    /// Forcefully closes a connection that has been idle for the configured timeout period, regardless of whether the
+    /// connection has pending invocations or dispatch.
     CloseOnIdleForceful
 }
 
 /// Specifies the heartbeat semantics for Active Connection Management.
 local enum ACMHeartbeat
 {
-    ///Disables heartbeats.
+    /// Disables heartbeats.
     HeartbeatOff,
-    ///Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch.
+    /// Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch.
     HeartbeatOnDispatch,
-    ///Send a heartbeat at regular intervals when the connection is idle.
+    /// Send a heartbeat at regular intervals when the connection is idle.
     HeartbeatOnIdle,
-    ///Send a heartbeat at regular intervals until the connection is closed.
+    /// Send a heartbeat at regular intervals until the connection is closed.
     HeartbeatAlways
 }
 
 /// A collection of Active Connection Management configuration settings.
 local struct ACM
 {
-    ///A timeout value in seconds.
+    /// A timeout value in seconds.
     int timeout;
-    ///The close semantics.
+    /// The close semantics.
     ACMClose close;
-    ///The heartbeat semantics.
+    /// The heartbeat semantics.
     ACMHeartbeat heartbeat;
 }
 
@@ -134,8 +134,8 @@ local enum ConnectionClose
     /// Close the connection immediately without sending a close connection protocol message to the peer and waiting
     /// for the peer to acknowledge it.
     Forcefully,
-    /// Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete.
-    /// On the server side, the connection will not be closed until all incoming invocations have completed.
+    /// Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete. On the
+    /// server side, the connection will not be closed until all incoming invocations have completed.
     Gracefully,
     /// Wait for all pending invocations to complete before closing the connection.
     GracefullyWithWait
@@ -241,16 +241,16 @@ local interface Connection
 /// Provides access to the connection details of an IP connection
 local class IPConnectionInfo extends ConnectionInfo
 {
-    ///The local address.
+    /// The local address.
     string localAddress = "";
 
-    ///The local port.
+    /// The local port.
     int localPort = -1;
 
-    ///The remote address.
+    /// The remote address.
     string remoteAddress = "";
 
-    ///The remote port.
+    /// The remote port.
     int remotePort = -1;
 }
 

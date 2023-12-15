@@ -37,7 +37,7 @@ interface Router
     /// @param hasRoutingTable Indicates whether or not the router supports a routing table. If it is supported, the
     /// Ice runtime will call addProxies to populate the routing table. This out parameter is only supported starting
     /// with Ice 3.7.
-    /// The Ice runtime assumes the router has a routing table if the optional is not set.
+    /// The Ice runtime assumes the router has a routing table if the <code>hasRoutingTable</code> is not set.
     /// @return The router's client proxy.
     ["nonmutating", "cpp:const"] idempotent Object* getClientProxy(out tag(1) bool hasRoutingTable);
 

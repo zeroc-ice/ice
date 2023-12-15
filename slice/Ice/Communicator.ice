@@ -43,7 +43,7 @@
 module Ice
 {
 
-///  The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
+/// The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
 /// instantiation is language-specific, and not specified in Slice code. 
 /// @see Logger
 /// @see ObjectAdapter
@@ -62,10 +62,9 @@ local interface Communicator
     void close();
 #endif
 
-    /// Destroy the communicator.
-    /// This operation calls {@link #shutdown} implicitly.  Calling {@link #destroy} cleans up memory, and shuts down
-    /// this communicator's client functionality and destroys all object adapters. Subsequent calls to {@link #destroy}
-    /// are ignored.
+    /// Destroy the communicator. This operation calls {@link #shutdown} implicitly. Calling {@link #destroy} cleans up
+    /// memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
+    /// calls to {@link #destroy} are ignored.
     /// @see #shutdown
     /// @see ObjectAdapter#destroy
     ["cpp:noexcept", "swift:noexcept", "js:async"] void destroy();
@@ -81,10 +80,9 @@ local interface Communicator
     /// @see ObjectAdapter#deactivate
     ["cpp:noexcept", "swift:noexcept", "js:async"] void shutdown();
 
-    /// Wait until the application has called {@link #shutdown} (or {@link #destroy}).
-    /// On the server side, this operation blocks the calling thread until all currently-executing operations have
-    /// completed. On the client side, the operation simply blocks until another thread has called {@link #shutdown}
-    /// or {@link #destroy}.
+    /// Wait until the application has called {@link #shutdown} (or {@link #destroy}). On the server side, this
+    /// operation blocks the calling thread until all currently-executing operations have completed. On the client
+    /// side, the operation simply blocks until another thread has called {@link #shutdown} or {@link #destroy}.
     /// A typical use of this operation is to call it from the main thread, which then waits until some other thread
     /// calls {@link #shutdown}. After shut-down is complete, the main thread returns and can do some cleanup work
     /// before it finally calls {@link #destroy} to shut down the client functionality, and then exits the application.
@@ -150,8 +148,7 @@ local interface Communicator
     /// <code><em>name</em>.Endpoints</code>. 
     /// It is legal to create an object adapter with the empty string as its name. Such an object adapter is accessible
     /// via bidirectional connections or by collocated invocations that originate from the same communicator as is used
-    /// by the adapter.
-    /// Attempts to create a named object adapter for which no configuration can be found raise
+    /// by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
     /// InitializationException.
     /// @param name The object adapter name.
     /// @return The new object adapter.
@@ -160,10 +157,10 @@ local interface Communicator
     /// @see Properties
     ["js:async", "swift:nonnull"] ObjectAdapter createObjectAdapter(string name);
 
-    /// Create a new object adapter with endpoints.
-    /// This operation sets the property <code><em>name</em>.Endpoints</code>, and then calls
-    /// {@link #createObjectAdapter}. It is provided as a convenience function.
-    /// Calling this operation with an empty name will result in a UUID being generated for the name.
+    /// Create a new object adapter with endpoints. This operation sets the property
+    /// <code><em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided as a
+    /// convenience function. Calling this operation with an empty name will result in a UUID being generated for the
+    /// name.
     /// @param name The object adapter name.
     /// @param endpoints The endpoints for the object adapter.
     /// @return The new object adapter.
@@ -243,7 +240,7 @@ local interface Communicator
     ["cpp:const", "cpp:noexcept"] Instrumentation::CommunicatorObserver getObserver();
 #endif
 
-    /// Get the default router this communicator.
+    /// Get the default router for this communicator.
     /// @return The default router for this communicator.
     /// @see #setDefaultRouter
     /// @see Router
@@ -259,7 +256,7 @@ local interface Communicator
     /// @see Router
     ["swift:noexcept"] void setDefaultRouter(Router* rtr);
 
-    /// Get the default locator this communicator.
+    /// Get the default locator for this communicator.
     /// @return The default locator for this communicator.
     /// @see #setDefaultLocator
     /// @see Locator
@@ -289,18 +286,18 @@ local interface Communicator
     ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"]
     ValueFactoryManager getValueFactoryManager();
 
-    /// Flush any pending batch requests for this communicator.
-    /// This means all batch requests invoked on fixed proxies for all connections associated with the communicator.
-    /// Any errors that occur while flushing a connection are ignored.
+    /// Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
+    /// for all connections associated with the communicator. Any errors that occur while flushing a connection are
+    /// ignored.
     /// @param compress Specifies whether or not the queued batch requests should be compressed before being sent over
     /// the wire.
     ["async-oneway"] void flushBatchRequests(CompressBatch compress);
 
 #ifndef __SLICE2JS__
-    /// Add the Admin object with all its facets to the provided object adapter.
-    /// If Ice.Admin.ServerId is set and the provided object adapter has a {@link Locator}, createAdmin registers the
-    /// Admin's Process facet with the {@link Locator}'s {@link LocatorRegistry}.
-    /// createAdmin must only be called once; subsequent calls raise InitializationException.
+    /// Add the Admin object with all its facets to the provided object adapter. If <code>Ice.Admin.ServerId</code> is
+    /// set and the provided object adapter has a {@link Locator}, createAdmin registers the Admin's Process facet with
+    /// the {@link Locator}'s {@link LocatorRegistry}. createAdmin must only be called once; subsequent calls raise
+    /// InitializationException.
     /// @param adminAdapter The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints is set,
     /// create, activate and use the Ice.Admin object adapter.
     /// @param adminId The identity of the Admin object.
@@ -308,12 +305,11 @@ local interface Communicator
     /// @see #getAdmin
     ["swift:nonnull"] Object* createAdmin(ObjectAdapter adminAdapter, Identity adminId);
 
-    /// Get a proxy to the main facet of the Admin object.
-    /// getAdmin also creates the Admin object and creates and activates the Ice.Admin object adapter to host this
-    /// Admin object if Ice.Admin.Enpoints is set. The identity of the Admin object created by getAdmin is
-    /// {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when Ice.Admin.InstanceName is not set.
-    /// If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator initialization, after
-    /// initialization of all plugins.
+    /// Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
+    /// activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of
+    /// the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when
+    /// <code>Ice.Admin.InstanceName</code> is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called
+    /// by the communicator initialization, after initialization of all plugins.
     /// @return A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is configured.
     /// @see #createAdmin
     ["cpp:const"] Object* getAdmin();
@@ -356,12 +352,12 @@ local interface Communicator
 
 #endif
 
-/// The output mode for xxxToString method such as identityToString and proxyToString.
-/// The actual encoding format for the string is the same for all modes: you don't need to specify an encoding format
-/// or mode when reading such a string.
+/// The output mode for xxxToString method such as identityToString and proxyToString. The actual encoding format for
+/// the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
+/// string.
 local enum ToStringMode
 {
-    /// Characters with ordinal values greater than 127 are kept as-is in the resulting string.  Non-printable ASCII
+    /// Characters with ordinal values greater than 127 are kept as-is in the resulting string. Non-printable ASCII
     /// characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
     Unicode,
 

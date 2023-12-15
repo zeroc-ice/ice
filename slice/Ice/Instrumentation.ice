@@ -204,9 +204,8 @@ local interface CommunicatorObserver
     Observer getConnectionEstablishmentObserver(Endpoint endpt, string connector);
 
     /// This method should return an observer for the given endpoint information. The Ice run-time calls this method to
-    /// resolve an endpoint and obtain the list of connectors. 
-    /// For IP endpoints, this typically involves doing a DNS lookup to obtain the IP addresses associated with the DNS
-    /// name.
+    /// resolve an endpoint and obtain the list of connectors. For IP endpoints, this typically involves doing a DNS
+    /// lookup to obtain the IP addresses associated with the DNS name.
     /// @param endpt The endpoint.
     /// @return The observer to instrument the endpoint lookup.
     Observer getEndpointLookupObserver(Endpoint endpt);
@@ -234,7 +233,7 @@ local interface CommunicatorObserver
     /// This method should return an invocation observer for the given invocation. The Ice run-time calls this method
     /// for each new invocation on a proxy.
     /// @param prx The proxy used for the invocation.
-    /// @param operation The name of the invocation.
+    /// @param operation The name of the operation.
     /// @param ctx The context specified by the user.
     /// @return The invocation observer to instrument the invocation.
     InvocationObserver getInvocationObserver(Object* prx, string operation, Context ctx);

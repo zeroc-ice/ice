@@ -54,15 +54,15 @@ interface Router extends Ice::Router
     /// If a session proxy is returned, it must be configured to route through the router that created it. This will
     /// happen automatically if the router is configured as the client's default router at the time the session proxy
     /// is created in the client process, otherwise the client must configure the session proxy explicitly.
-    /// @see Session
-    /// SessionManager
-    /// @see PermissionsVerifier
-    /// @return A proxy for the newly created session, or null if no {@link SessionManager} has been installed.
     /// @param userId The user id for which to check the password.
     /// @param password The password for the given user id.
+    /// @return A proxy for the newly created session, or null if no {@link SessionManager} has been installed.
     /// @throws PermissionDeniedException Raised if the password for the given user id is not correct, or if the user
     /// is not allowed access.
     /// @throws CannotCreateSessionException Raised if the session cannot be created.
+    /// @see Session
+    /// @see SessionManager
+    /// @see PermissionsVerifier
     ["amd", "format:sliced"] Session* createSession(string userId, string password)
         throws PermissionDeniedException, CannotCreateSessionException;
 
@@ -76,8 +76,7 @@ interface Router extends Ice::Router
     /// @see Session
     /// @see SessionManager
     /// @see PermissionsVerifier
-    /// @return A proxy for the newly created session, or null if no
-    /// {@link SessionManager} has been installed.
+    /// @return A proxy for the newly created session, or null if no {@link SessionManager} has been installed.
     /// @throws PermissionDeniedException Raised if the user cannot be authenticated or if the user is not allowed
     /// access.
     /// @throws CannotCreateSessionException Raised if the session cannot be created.

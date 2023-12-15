@@ -33,9 +33,9 @@
 module Ice
 {
 
-/// The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects.
-/// The object adapter is responsible for receiving requests from endpoints, and for mapping between servants,
-/// identities, and proxies.
+/// The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
+/// object adapter is responsible for receiving requests from endpoints, and for mapping between servants, identities,
+/// and proxies.
 /// @see Communicator
 /// @see ServantLocator
 local interface ObjectAdapter

@@ -52,9 +52,9 @@ local exception CollocationOptimizationException
 {
 }
 
-/// An attempt was made to register something more than once with the Ice run time.
-/// This exception is raised if an attempt is made to register a servant, servant locator, facet, value factory,
-/// plug-in, object adapter, object, or user exception factory more than once for the same ID.
+/// An attempt was made to register something more than once with the Ice run time. This exception is raised if an
+/// attempt is made to register a servant, servant locator, facet, value factory, plug-in, object adapter, object, or
+/// user exception factory more than once for the same ID.
 ["cpp:ice_print"]
 local exception AlreadyRegisteredException
 {
@@ -68,9 +68,9 @@ local exception AlreadyRegisteredException
 
 /// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
 /// This exception is raised if an attempt is made to remove a servant, servant locator, facet, value factory, plug-in,
-/// object adapter, object, or user exception factory that is not currently registered.
-/// It's also raised if the Ice locator can't find an object or object adapter when resolving an indirect proxy or when
-/// an object adapter is activated.
+/// object adapter, object, or user exception factory that is not currently registered. It's also raised if the Ice
+/// locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
+/// activated.
 ["cpp:ice_print"]
 local exception NotRegisteredException
 {
@@ -82,10 +82,9 @@ local exception NotRegisteredException
     string id;
 }
 
-/// The operation can only be invoked with a twoway request.
-/// This exception is raised if an attempt is made to invoke an operation with <code>ice_oneway</code>, 
-/// <code>ice_batchOneway</code>, <code>ice_datagram</code>, or <code>ice_batchDatagram</code> and the operation has
-/// a return value, out-parameters, or an exception specification.
+/// The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
+/// an operation with <code>ice_oneway</code>, <code>ice_batchOneway</code>, <code>ice_datagram</code>, or
+/// <code>ice_batchDatagram</code> and the operation has a return value, out-parameters, or an exception specification.
 ["cpp:ice_print"]
 local exception TwowayOnlyException
 {
@@ -93,10 +92,10 @@ local exception TwowayOnlyException
     string operation;
 }
 
-/// An attempt was made to clone a class that does not support cloning.
-/// This exception is raised if <code>ice_clone</code> is called on a class that is derived from an abstract Slice
-/// class (that is, a class containing operations), and the derived class does not provide an implementation of the
-/// <code>ice_clone</code> operation (C++ only).
+/// An attempt was made to clone a class that does not support cloning. This exception is raised if
+/// <code>ice_clone</code> is called on a class that is derived from an abstract Slice class (that is, a class
+/// containing operations), and the derived class does not provide an implementation of the <code>ice_clone</code>
+/// operation (C++ only).
 ["cpp:ice_print"]
 local exception CloneNotImplementedException
 {
@@ -122,12 +121,11 @@ local exception UnknownLocalException extends UnknownException
 {
 }
 
-/// An operation raised an incorrect user exception.
-/// This exception is raised if an operation raises a user exception that is not declared in the exception's
-///  <code>throws</code> clause. Such undeclared exceptions are not transmitted from the server to the client by the
-/// Ice protocol, but instead the client just gets an {@link UnknownUserException}. This is necessary in order to not
-/// violate the contract established by an operation's signature: Only local exceptions and user exceptions declared in
-/// the <code>throws</code> clause can be raised.
+/// An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
+/// that is not declared in the exception's <code>throws</code> clause. Such undeclared exceptions are not transmitted
+/// from the server to the client by the Ice protocol, but instead the client just gets an {@link UnknownUserException}.
+/// This is necessary in order to not violate the contract established by an operation's signature: Only local
+/// exceptions and user exceptions declared in the <code>throws</code> clause can be raised.
 ["cpp:ice_print"]
 local exception UnknownUserException extends UnknownException
 {
@@ -146,8 +144,7 @@ local exception CommunicatorDestroyedException
 {
 }
 
-/// This exception is raised if an attempt is made to use a deactivated
-/// {@link ObjectAdapter}.
+/// This exception is raised if an attempt is made to use a deactivated {@link ObjectAdapter}.
 /// @see ObjectAdapter#deactivate
 /// @see Communicator#shutdown
 ["cpp:ice_print"]
@@ -226,11 +223,7 @@ local exception IllegalIdentityException
 ["cpp:ice_print"]
 local exception IllegalServantException
 {
-    /**
-     *
-     * Describes why this servant is illegal.
-     *
-     **/
+    /// Describes why this servant is illegal.
     string reason;
 }
 
@@ -438,7 +431,7 @@ local exception UnknownReplyStatusException extends ProtocolException
 {
 }
 
-///  This exception indicates that the connection has been gracefully shut down by the server. The operation call that
+/// This exception indicates that the connection has been gracefully shut down by the server. The operation call that
 /// caused this exception has not been executed by the server. In most cases you will not get this exception, because
 /// the client will automatically retry the operation call in case the server shut down the connection. However, if
 /// upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
@@ -540,8 +533,8 @@ local exception EncapsulationException extends MarshalException
 {
 }
 
-/// This exception is raised if an unsupported feature is used. The unsupported feature string contains the name
-/// of the unsupported feature.
+/// This exception is raised if an unsupported feature is used. The unsupported feature string contains the name of the
+/// unsupported feature.
 ["cpp:ice_print"]
 local exception FeatureNotSupportedException
 {

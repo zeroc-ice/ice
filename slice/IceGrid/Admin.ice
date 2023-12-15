@@ -591,10 +591,9 @@ interface FileIterator
     /// Read lines from the log file.
     /// @param size Specifies the maximum number of bytes to be received. The server will ensure that the returned
     /// message doesn't exceed the given size.
-    /// @param lines The lines read from the file. If there was nothing to
-    /// read from the file since the last call to read, an empty sequence is returned. The last line of the sequence is
-    /// always incomplete (and therefore no '\n' should be added when writing the last line to the to the output
-    /// device).
+    /// @param lines The lines read from the file. If there was nothing to read from the file since the last call to
+    /// read, an empty sequence is returned. The last line of the sequence is always incomplete (and therefore no '\n'
+    /// should be added when writing the last line to the to the output device).
     /// @return True if EOF is encountered.
     /// @throws FileNotAvailableException Raised if there was a problem to read lines from the file.
     bool read(int size, out Ice::StringSeq lines)

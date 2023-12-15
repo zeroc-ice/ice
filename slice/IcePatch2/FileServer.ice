@@ -41,7 +41,7 @@ exception PartitionOutOfRangeException
 /// This exception is raised if a file's contents cannot be read.
 exception FileAccessException
 {
-    ///  An explanation of the reason for the failure.
+    /// An explanation of the reason for the failure.
     string reason;
 }
 
@@ -54,9 +54,8 @@ exception FileSizeRangeException extends FileAccessException
 /// The interface that provides access to files.
 interface FileServer
 {
-    /// Return file information for the specified partition.
-    /// <p class="Deprecated"> This operation is deprecated and only present for compatibility with old Ice clients
-    /// (older than version 3.6).
+    /// Return file information for the specified partition. <p class="Deprecated"> This operation is deprecated and
+    /// only present for compatibility with old Ice clients (older than version 3.6).
     /// @param partition The partition number in the range 0-255.
     /// @return A sequence containing information about the files in the specified partition.
     /// @throws PartitionOutOfRangeException If the partition number is out of range.
@@ -84,9 +83,8 @@ interface FileServer
     ["nonmutating", "cpp:const"] idempotent Ice::ByteSeq getChecksum();
 
     /// Read the specified file. This operation may only return fewer bytes than requested in case there was an end-of-file
-    /// condition.
-    /// <p class="Deprecated"> This operation is deprecated and only present for compatibility with old Ice clients
-    /// (older than version 3.6).
+    /// condition. <p class="Deprecated"> This operation is deprecated and only present for compatibility with old Ice
+    /// clients (older than version 3.6).
     /// @param path The pathname (relative to the data directory) for the file to be read.
     /// @param pos The file offset at which to begin reading.
     /// @param num The number of bytes to be read.
@@ -98,8 +96,8 @@ interface FileServer
     idempotent Ice::ByteSeq getFileCompressed(string path, int pos, int num)
         throws FileAccessException, FileSizeRangeException;
 
-    /// Read the specified file. This operation may only return fewer bytes than requested in case there was an end-of-file
-    /// condition.
+    /// Read the specified file. This operation may only return fewer bytes than requested in case there was an
+    /// end-of-file condition.
     /// @param path The pathname (relative to the data directory) for the file to be read.
     /// @param pos The file offset at which to begin reading.
     /// @param num The number of bytes to be read.

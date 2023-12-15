@@ -57,14 +57,14 @@ exception ServerNotFoundException
 interface LocatorRegistry;
 
 /// The Ice locator interface. This interface is used by clients to lookup adapters and objects. It is also used by
-/// servers to get the locator registry proxy.
-/// <p class="Note">The {@link Locator} interface is intended to be used by Ice internals and by locator
-/// implementations. Regular user code should not attempt to use any functionality of this interface directly.
+/// servers to get the locator registry proxy. <p class="Note">The {@link Locator} interface is intended to be used by
+/// Ice internals and by locator implementations. Regular user code should not attempt to use any functionality of this
+/// interface directly.
 interface Locator
 {
     /// Find an object by identity and return a proxy that contains the adapter ID or endpoints which can be used to
     /// access the object.
-    ///  @param id The identity.
+    /// @param id The identity.
     /// @return The proxy, or null if the object is not active.
     /// @throws ObjectNotFoundException Raised if the object cannot be found.
     ["amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Identity id)
@@ -83,9 +83,8 @@ interface Locator
 }
 
 /// The Ice locator registry interface. This interface is used by servers to register adapter endpoints with the
-/// locator.
-/// <p class="Note"> The {@link LocatorRegistry} interface is intended to be used by Ice internals and by locator
-/// implementations. Regular user code should not attempt to use any functionality of this interface directly.
+/// locator. <p class="Note"> The {@link LocatorRegistry} interface is intended to be used by Ice internals and by
+/// locator implementations. Regular user code should not attempt to use any functionality of this interface directly.
 interface LocatorRegistry
 {
     /// Set the adapter endpoints with the locator registry.
@@ -119,9 +118,9 @@ interface LocatorRegistry
         throws ServerNotFoundException;
 }
 
-/// This interface should be implemented by services implementing the Ice::Locator interface. It should be advertised
-/// through an Ice object with the identity `Ice/LocatorFinder'. This allows clients to retrieve the locator proxy with
-/// just the endpoint information of the service.
+/// This interface should be implemented by services implementing the <code>Ice::Locator interface</code>. It should be
+/// advertised through an Ice object with the identity <code>`Ice/LocatorFinder'</code>. This allows clients to
+/// retrieve the locator proxy with just the endpoint information of the service.
 interface LocatorFinder
 {
     /// Get the locator proxy implemented by the process hosting this finder object. The proxy might point to several

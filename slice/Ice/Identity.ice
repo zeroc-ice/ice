@@ -40,15 +40,9 @@ struct Identity
     string category;
 }
 
-/**
- *
- * A mapping between identities and Ice objects.
- *
- **/
+/// A mapping between identities and Ice objects.
 #ifndef __SLICE2PHP__
-//
 // dictionary key type not supported in PHP
-//
 local dictionary<Identity, Object> ObjectDict;
 #endif
 

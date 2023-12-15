@@ -42,7 +42,7 @@ dictionary<string, string> Context;
 /// Determines the retry behavior an invocation in case of a (potentially) recoverable error.
 enum OperationMode
 {
-    /// Ordinary operations have <code>Normal</code> mode.  These operations modify object state; invoking such an
+    /// Ordinary operations have <code>Normal</code> mode. These operations modify object state; invoking such an
     /// operation twice in a row has different semantics than invoking it once. The Ice run time guarantees that it
     /// will not violate at-most-once semantics for <code>Normal</code> operations.
     Normal,
