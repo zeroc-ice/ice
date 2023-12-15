@@ -6,7 +6,7 @@ namespace IceInternal
 {
     using System.Diagnostics;
 
-    public sealed class Time
+    public static class Time
     {
         static Time()
         {
