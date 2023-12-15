@@ -6,6 +6,7 @@ $(project)_libraries    := Slice
 
 Slice_targetdir         := $(libdir)
 Slice_libs              := mcpp
+Slice_cppflags          := -std=c++17
 
 # Always enable the static configuration for the Slice library and never
 # install it
