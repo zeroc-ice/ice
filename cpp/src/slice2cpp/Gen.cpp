@@ -3035,15 +3035,11 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         ClassList allBases = p->allBases();
         StringList ids;
-#ifdef ICE_CPP11_COMPILER
         transform(allBases.begin(), allBases.end(), back_inserter(ids),
                   [](const ContainedPtr& it)
                   {
                       return it->scoped();
                   });
-#else
-        transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
-#endif
         StringList other;
         other.push_back(p->scoped());
         other.push_back("::Ice::Object");
@@ -3183,12 +3179,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(!allOps.empty())
         {
             StringList allOpNames;
-#ifdef ICE_CPP11_COMPILER
             transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto& it) { return it->name(); });
-#else
-            transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
-                      ::IceUtil::constMemFun(&Contained::name));
-#endif
             allOpNames.push_back("ice_id");
             allOpNames.push_back("ice_ids");
             allOpNames.push_back("ice_isA");
@@ -6132,15 +6123,11 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         ClassList allBases = p->allBases();
         StringList ids;
-#ifdef ICE_CPP11_COMPILER
         transform(allBases.begin(), allBases.end(), back_inserter(ids),
                   [](const ContainedPtr& it)
                   {
                       return it->scoped();
                   });
-#else
-        transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
-#endif
         StringList other;
         other.push_back(p->scoped());
         other.push_back("::Ice::Object");
@@ -6161,15 +6148,11 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << eb << ';';
 
         StringList allOpNames;
-#ifdef ICE_CPP11_COMPILER
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
                   [](const ContainedPtr& it)
                   {
                       return it->name();
                   });
-#else
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
-#endif
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -7963,15 +7946,11 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList ids;
-#ifdef ICE_CPP11_COMPILER
     transform(allBases.begin(), allBases.end(), back_inserter(ids),
               [](const ContainedPtr& it)
               {
                   return it->scoped();
               });
-#else
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
-#endif
     StringList other;
     other.push_back(p->scoped());
     other.push_back("::Ice::Object");
@@ -8069,15 +8048,11 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if(!allOps.empty())
     {
         StringList allOpNames;
-#ifdef ICE_CPP11_COMPILER
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
                   [](const ContainedPtr& it)
                   {
                       return it->name();
                   });
-#else
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
-#endif
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
