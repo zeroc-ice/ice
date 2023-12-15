@@ -622,41 +622,6 @@ Slice::ObjCGenerator::getOptionalHelperGetter(const TypePtr& type)
     return "get";
 }
 
-//
-// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
-StringList
-Slice::ObjCGenerator::splitScopedName(const string& scoped)
-{
-    assert(scoped[0] == ':');
-    StringList ids;
-    string::size_type next = 0;
-    string::size_type pos;
-    while((pos = scoped.find("::", next)) != string::npos)
-    {
-        pos += 2;
-        if(pos != scoped.size())
-        {
-            string::size_type endpos = scoped.find("::", pos);
-            if(endpos != string::npos)
-            {
-                ids.push_back(scoped.substr(pos, endpos - pos));
-            }
-        }
-        next = pos;
-    }
-    if(next != scoped.size())
-    {
-        ids.push_back(scoped.substr(next));
-    }
-    else
-    {
-        ids.push_back("");
-    }
-
-    return ids;
-}
-
 string
 Slice::ObjCGenerator::getOptionalFormat(const TypePtr& type)
 {
@@ -1296,9 +1261,9 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 
         if(!error && !foundPrefix)
         {
-            StringList names = splitScopedName(m->scoped());
+            vector<string> names = splitScopedName(m->scoped());
             string name;
-            for(StringList::const_iterator i = names.begin(); i != names.end(); ++i)
+            for(vector<string>::const_iterator i = names.begin(); i != names.end(); ++i)
             {
                 name += *i;
             }

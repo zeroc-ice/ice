@@ -11,7 +11,6 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <Prefer32Bit>false</Prefer32Bit>
     <FileAlignment>512</FileAlignment>
     <ErrorReport>prompt</ErrorReport>
@@ -19,7 +18,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
-    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45;$(DefineConstants)</DefineConstants>
     <!-- Source Link Settings -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -65,37 +63,15 @@
       </When>
   </Choose>
 
-  <Choose>
-      <When Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">
-          <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-              <DebugSymbols>true</DebugSymbols>
-              <DebugType>full</DebugType>
-              <Optimize>false</Optimize>
-              <DefineConstants>DEBUG;$(DefineConstants)</DefineConstants>
-          </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <DebugType>portable</DebugType>
+        <Optimize>false</Optimize>
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
 
-          <PropertyGroup Condition="'$(OS)|$(VisualStudioVersion)' == 'Windows_NT|12.0'">
-              <!-- No warn about ivalid warning numbers, this are emit because we have pragramas to supress some new warnings
-                   that are not valid with old C# compilers -->
-              <NoWarn>1692;$(NoWarn)</NoWarn>
-          </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <DebugType>portable</DebugType>
+        <Optimize>true</Optimize>
+    </PropertyGroup>
 
-          <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-              <DebugType>pdbonly</DebugType>
-              <Optimize>true</Optimize>
-          </PropertyGroup>
-      </When>
-      <Otherwise>
-          <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-              <DebugType>portable</DebugType>
-              <Optimize>false</Optimize>
-              <DebugSymbols>true</DebugSymbols>
-          </PropertyGroup>
-
-          <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-              <DebugType>portable</DebugType>
-              <Optimize>true</Optimize>
-          </PropertyGroup>
-      </Otherwise>
-  </Choose>
 </Project>
