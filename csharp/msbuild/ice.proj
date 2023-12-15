@@ -19,12 +19,12 @@
     <Choose>
         <When Condition="'$(OS)' != 'Windows_NT'">
             <ItemGroup>
-                <SliceCompilers Include="slice2cs;slice2html"/>
+                <SliceCompilers Include="slice2cs"/>
             </ItemGroup>
         </When>
         <Otherwise>
             <ItemGroup>
-                <SliceCompilers Include="c++98\slice2cs;c++98\slice2html"/>
+                <SliceCompilers Include="c++98\slice2cs"/>
             </ItemGroup>
         </Otherwise>
     </Choose>
