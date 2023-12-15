@@ -11,16 +11,6 @@ namespace Ice
     using System.Runtime.InteropServices;
     using System.Threading;
 
-#if NET45
-    internal static class SafeNativeMethods
-    {
-        [DllImport("kernel32.dll")]
-        [return: MarshalAsAttribute(UnmanagedType.Bool)]
-        internal static extern bool
-        SetConsoleCtrlHandler(CtrlCEventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
-    }
-#endif
-
     /// <summary>
     /// The signal policy for Ice.Application signal handling.
     /// </summary>

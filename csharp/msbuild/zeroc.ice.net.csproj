@@ -17,7 +17,7 @@
         <PackageIcon>logo.png</PackageIcon>
         <Copyright>Copyright (c) ZeroC, Inc. All rights reserved</Copyright>
         <Description>Ice C#/.NET SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</Description>
-        <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-5-release-notes</PackageReleaseNotes>
+        <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
     </PropertyGroup>
