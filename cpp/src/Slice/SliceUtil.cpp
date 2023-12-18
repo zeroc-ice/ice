@@ -427,7 +427,7 @@ Slice::argvToArgs(int argc, char* argv[])
  // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
  //
  vector<string>
- Slice::splitScopedName(const string& scoped)
+ Slice::splitScopedName(const string& scoped, bool allowEmpty)
  {
      assert(scoped[0] == ':');
      vector<string> ids;
@@ -450,7 +450,7 @@ Slice::argvToArgs(int argc, char* argv[])
      {
          ids.push_back(scoped.substr(next));
      }
-     else
+     else if(allowEmpty)
      {
          ids.push_back("");
      }
