@@ -177,14 +177,6 @@
 #   define ICE_MEMBER(API) /**/
 #endif
 
-// With IBM xlC, the visibility attribute must be at the end of the
-// declaration of global variables.
-#if defined(__IBMCPP__) && !defined(ICE_STATIC_LIBS)
-#   define ICE_GLOBAL_VAR_SUFFIX __attribute__((visibility ("default")))
-#else
-#   define ICE_GLOBAL_VAR_SUFFIX /**/
-#endif
-
 //
 // Let's use these extensions with Ice:
 //
