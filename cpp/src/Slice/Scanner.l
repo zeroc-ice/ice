@@ -392,7 +392,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     {
         yy_push_state(INITIAL);
     }
-    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a new file.
+    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a file.
     {
         yy_pop_state();
     }
