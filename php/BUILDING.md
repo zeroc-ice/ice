@@ -3,16 +3,13 @@
 This page describes how to build and install Ice for PHP from source.
 
 ZeroC provides [binary distributions] for many platforms, including
-Linux and Windows, so building Ice for PHP from source is usually
-unnecessary.
+Linux, so building Ice for PHP from source is usually unnecessary.
 
 * [PHP Build Requirements](#php-build-requirements)
 * [Building the PHP Extension](#building-the-php-extension)
   * [Linux or macOS](#linux-or-macos)
-  * [Windows](#windows)
 * [Installing the PHP Extension](#installing-the-php-extension)
   * [Linux or macOS](#linux-or-macos-1)
-  * [Windows](#windows-1)
 * [PHP Dependencies](#php-dependencies)
 * [PHP Source Files](#php-source-files)
 * [Running the PHP Tests](#running-the-php-tests)
@@ -51,71 +48,6 @@ Ensure that `php` and `php-config` for the version of PHP you wish to
 build against are first in your PATH.
 
 Run `make` to build the extension.
-
-### Windows
-
-Open a Visual Studio command prompt. For example, with Visual Studio 2015, you
-can open one of:
-
-* VS2015 x86 Native Tools Command Prompt
-* VS2015 x64 Native Tools Command Prompt
-
-Using the first Command Prompt produces `Win32` binaries by default, while
-the second Command Prompt produces `x64` binaries by default.
-
-In the Command Prompt, change to the `php` subdirectory:
-
-```shell
-cd php
-```
-
-Now you're ready to build Ice for PHP:
-
-```shell
-msbuild msbuild\ice.proj
-```
-
-This builds the extension with `Release` binaries for the default platform. The
-extension will be placed in `lib\x64\Release\php_ice.dll` for the `x64` platform
-and `lib\Win32\Release\php_ice.dll` for the `Win32` platform.
-
-The default configuration builds the extension against the thread-safe PHP run
-time. You can build with the non-thread-safe run time using the `NTS-Release` or
-`NTS-Debug` configuration:
-
-```shell
-msbuild msbuild\ice.proj /p:Configuration=NTS-Release
-```
-
-The extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for
-the `x64` platform and `lib\Win32\Release\php_ice_nts.dll` for the `Win32`
-platform.
-
-The extension is built by default with namespaces enabled. You can build the PHP
-extension with namespaces disabled by setting the MSBuild property
-`PhpUseNamespaces` to `no`:
-
-```shell
-msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
-```
-
-The PHP extension is build by default using PHP 7.1, the extension can be build
-with PHP 7.1, 7.2 or 7.3 by setting MSBuildProperty `BuildWithPhpVersion` to the
-desired version for example you can use the following command to build the
-extension with PHP 7.2:
-
-```shell
-msbuild msbuild\ice.proj /p:BuildWithPhpVersion=7.2
-```
-
-The PHP extension depends on Ice for C++ components from the `cpp` subdirectory,
-and those are built if required. It is also possible to build the PHP extension
-using the Ice for C++ NuGet packages by setting the`ICE_BIN_DIST` msbuild
-property to `cpp`:
-
-```shell
-msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
-```
 
 ## Installing the PHP Extension
 
@@ -176,40 +108,6 @@ directory containing the Ice shared libraries.
 Read the PHP Dependencies and PHP Source Files sections below for more
 information about installing the Ice extension.
 
-### Windows
-
-To install the Ice extension, you must move the extension's shared library into
-PHP's extension directory. This directory is determined by the PHP configuration
-directive `extension_dir`. You can determine the default value for this
-directive by running the command-line version of PHP with the `-i` option:
-
-```shell
-php -i
-```
-
-Review the output for a line like this:
-```
-extension_dir => C:\Program Files\iis express\PHP\v7.1\ext\ => C:\Program Files\iis express\PHP\v7.1\ext\
-```
-
-Once you've copied the extension to the appropriate directory, you will need
-to enable the extension in your PHP configuration. First you must discover the
-location of PHP's configuration file (`php.ini`), which is also displayed by
-the `-i` option. Look for the following line:
-
-```shell
-Loaded Configuration File => C:\Program Files\iis express\PHP\v7.1\php.ini
-```
-
-Open `php.ini` and append the following directive:
-
-```shell
-extension=php_ice_nts.dll
-```
-
-Read the PHP Dependencies and PHP Source Files sections below for more
-information about installing the Ice extension.
-
 ## PHP Dependencies
 
 PHP needs to locate the libraries for the Ice run-time libraries and its
@@ -225,23 +123,10 @@ libIceSSL
 libbz2
 ```
 
-* Windows
-
-```shell
-bzip2.dll
-ice37.dll
-icediscovery37.dll
-icelocatordiscovery37.dll
-icessl37.dll
-```
-
 In general, these libraries must reside in a directory of the user's PATH.
 For Web servers, the libraries may need to reside in a system directory. For
 example, on Linux you can add the directory containing the Ice run-time
 libraries to `/etc/ld.so.conf` and run `ldconfig`.
-
-For IIS configured to run PHP as FastCGI, the simplest solution is to copy the
-libraries next to the `php-cgi.exe` in `C:\Program Files\iis express\PHP\v7.1`.
 
 You can verify that the Ice extension is installed properly by examining the
 output of the `php -m` command, or by calling the `phpInfo()` function from a
@@ -299,14 +184,6 @@ that the CLI version of the PHP interpreter be available in your PATH.
 After a successful build, you can run the tests as follows:
 
 ```shell
-python allTests.py
-```
-
-If you have built the extension using the Ice for C++ NuGet packages, you must
-also set the `ICE_BIN_DIST` environment variable to `cpp` for testing:
-
-```shell
-set ICE_BIN_DIST=cpp
 python allTests.py
 ```
 

@@ -37,9 +37,7 @@ unnecessary.
 Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
-On Windows, the build requires a recent version of Visual Studio. When building
-with Visual Studio 2017 you have to install Desktop development with C++ workload
-and select the optional component Windows 8.1 SDK and UCRT SDK.
+On Windows, the build requires Visual Studio 2022.
 
 ### Third-Party Libraries
 
@@ -238,11 +236,11 @@ The Xcode SDKs are built into `ice/sdk`.
 
 ### Build Using MSBuild
 
-Open a Visual Studio command prompt. For example, with Visual Studio 2015, you
+Open a Visual Studio command prompt. For example, with Visual Studio 2022, you
 can open one of:
 
-- VS2015 x86 Native Tools Command Prompt
-- VS2015 x64 Native Tools Command Prompt
+- VS2022 x86 Native Tools Command Prompt
+- VS2022 x64 Native Tools Command Prompt
 
 Using the first Command Prompt produces `Win32` binaries by default, while
 the second Command Prompt produces `x64` binaries by default.
@@ -303,11 +301,6 @@ Open the Visual Studio solution that corresponds to the Visual Studio version
 you are using.
 
 - For Visual Studio 2022 use [msbuild/ice.v143.sln](./msbuild/ice.v143.sln)
-- For Visual Studio 2019 use [msbuild/ice.v142.sln](./msbuild/ice.v142.sln)
-- For Visual Studio 2017 use [msbuild/ice.v141.sln](./msbuild/ice.v141.sln)
-- For Visual Studio 2015 use [msbuild/ice.v140.sln](./msbuild/ice.v140.sln)
-- For Visual Studio 2013 use [msbuild/ice.v120.sln](./msbuild/ice.v120.sln)
-- For Visual Studio 2010 use [msbuild/ice.v100.sln](./msbuild/ice.v100.sln)
 
 Restore the solution NuGet packages using the NuGet package manager, if the
 automatic download of packages during build is not enabled.
@@ -319,22 +312,15 @@ The solution provide a project for each Ice component and each component can be
 built separately. When you build a component its dependencies are built
 automatically.
 
-For Visual Studio 2019, Visual Studio 2017 and Visual Studio 2015, the solutions
-organize the projects in two solution folders, C++11 and C++98, which correspond
-to the C++11 and C++98 mappings. If you want to build all the C++11 mapping
+The solutions organize the projects in two solution folders, C++11 and C++98, which
+correspond to the C++11 and C++98 mappings. If you want to build all the C++11 mapping
 components, build the C++11 solution folder; likewise if you want to build all
 the C++98 mapping components, build the C++98 solution folder.
 
-For Visual Studio 2013 and Visual Studio 2010. there is no separate solution
-folder because only the C++98 mapping is supported with these compilers.
-
 The test suite is built using separate Visual Studio solutions:
 
-- Ice Test Suite for Visual Studio 2022, Visual Studio 2019, Visual Studio 2017,
-  Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.test.sln](./msbuild/ice.test.sln)
-- Ice Test Suite for Visual Studio 2010 [msbuild/ice.test.v100.sln](./msbuild/ice.test.v100.sln)
-- Ice OpenSSL Test Suite for Visual Studio 2019, Visual Studio 2017,
-  Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
+- Ice Test Suite  [msbuild/ice.test.sln](./msbuild/ice.test.sln)
+- Ice OpenSSL Test Suite [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
 The solution provides a separate project for each test component, the
 `Cpp11-Release` and `Cpp11-Debug` build configurations are setup to use the
@@ -401,10 +387,7 @@ You can create a NuGet package with the following command:
 msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 ```
 
-This creates `zeroc.ice.v100\zeroc.ice.v100.nupkg`,
-`zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg`,
-`zeroc.ice.v141\zeroc.ice.v141.nupkg`, `zeroc.ice.v142\zeroc.ice.v142.nupkg`
-or `zeroc.ice.v143\zeroc.ice.v143.nupkg`depending on the compiler you are using.
+This creates `zeroc.ice.v143\zeroc.ice.v143.nupkg`.
 
 ## Cleaning the source build on AIX, Linux or macOS
 

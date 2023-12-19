@@ -22,12 +22,12 @@ usually unnecessary.
 
 ### Prerequisites
 
-The build system requires MATLAB 2016a or later for Windows, Visual Studio 2015
+The build system requires MATLAB 2016a or later for Windows, Visual Studio 2022
 and a Perl installation.
 
 ### Build Instructions
 
-Open a Visual Studio x64 command prompt, `VS2015 x64 Native Tools Command Prompt`. In this Command Prompt, change to the
+Open a Visual Studio x64 command prompt, `VS2022 x64 Native Tools Command Prompt`. In this Command Prompt, change to the
 `matlab` subdirectory:
 
 ```shell
