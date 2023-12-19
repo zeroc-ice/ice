@@ -33,10 +33,6 @@ IceUtil::Mutex* processStringConverterMutex = 0;
 IceUtil::StringConverterPtr processStringConverter;
 IceUtil::WstringConverterPtr processWstringConverter;
 
-#ifndef ICE_HAS_THREAD_SAFE_LOCAL_STATIC
-IceUtil::WstringConverterPtr unicodeWstringConverter;
-#endif
-
 #ifdef ICE_HAS_CODECVT_UTF8
 
 template<size_t wcharSize>
