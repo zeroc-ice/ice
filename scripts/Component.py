@@ -72,8 +72,6 @@ class Ice(Component):
         elif "static" in config.buildConfig:
             return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
                     ["Ice/library", "Ice/plugin"])
-        elif isinstance(platform, Windows) and platform.getCompiler() in ["v100"]:
-            return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
         elif isinstance(mapping, JavaMapping) and config.android:
             return (["Ice/.*"],
                     ["Ice/hash",
