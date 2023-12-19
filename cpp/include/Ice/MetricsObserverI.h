@@ -652,7 +652,7 @@ private:
     IceInternal::MetricsAdminIPtr _metrics;
     const std::string _name;
     MetricsMapSeqType _maps;
-    std::atomic<int> _enabled;
+    std::atomic<bool> _enabled;
     UpdaterPtr _updater;
 };
 
