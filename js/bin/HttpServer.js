@@ -38,11 +38,7 @@ function Init()
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
                      "/lib/Glacier2.js", "/lib/Glacier2.min.js",
                      "/lib/IceStorm.js", "/lib/IceStorm.min.js",
-                     "/lib/IceGrid.js", "/lib/IceGrid.min.js",
-                     "/lib/es5/Ice.js", "/lib/es5/Ice.min.js",
-                     "/lib/es5/Glacier2.js", "/lib/es5/Glacier2.min.js",
-                     "/lib/es5/IceStorm.js", "/lib/es5/IceStorm.min.js",
-                     "/lib/es5/IceGrid.js", "/lib/es5/IceGrid.min.js"];
+                     "/lib/IceGrid.js", "/lib/IceGrid.min.js"];
 
     var commonPath = path.join(__dirname, "..", "test", "Common");
     TestData.TestSuites = fs.readFileSync(path.join(commonPath, "TestSuites.json"), "utf8");
@@ -65,18 +61,11 @@ function Init()
         var matchController = req.url.pathname.match("^\/test/(.*)/controller\\.html");
         if(matchController)
         {
-            var es5 = matchController[1].indexOf("es5/") !== -1;
-            var m = es5 ? matchController[1].replace("es5/", "") : matchController[1];
+
+            var m = matchController[1];
             var testpath = path.resolve(path.join(this._basePath, "test", matchController[1]))
             var worker = req.url.query.worker == "True";
-            var scripts = es5 ? [
-                "/node_modules/core-js-bundle/minified.js",
-                "/node_modules/regenerator-runtime/runtime.js",
-                "/lib/es5/Ice.js",
-                "/test/es5/Common/TestHelper.js",
-                "/test/es5/Common/Controller.js",
-                "/test/es5/Common/ControllerI.js",
-            ] : [
+            var scripts = [
                 "/lib/Ice.js",
                 "/test/Common/TestHelper.js",
                 "/test/Common/Controller.js",
@@ -90,10 +79,6 @@ function Init()
                     if(f.indexOf("/") === -1)
                     {
                         return "/test/" + matchController[1] + "/" + f;
-                    }
-                    else if(f.indexOf("/lib") === 0 && es5)
-                    {
-                        return f.replace("/lib", "/lib/es5");
                     }
                     else
                     {
@@ -109,12 +94,6 @@ function Init()
                                                                                   }));
             }
 
-            if(worker)
-            {
-                // Do not include babel polyfill when using workers, it is bundle with the controllerwoker
-                TestData.workerScripts = TestData.scripts.filter(script => script.indexOf("/@babel/polyfill/") === -1);
-            }
-
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(controller.render(TestData))
             console.log("HTTP/200 (Ok) " + req.method + " " + req.url.pathname);
@@ -124,14 +103,6 @@ function Init()
             res.writeHead(302,
             {
                 "Location": "/test/Ice/acm/controller.html&port=15002"
-            });
-            res.end();
-        }
-        else if(req.url.pathname === '/es5/start')
-        {
-            res.writeHead(302,
-            {
-                "Location": "/test/es5/Ice/acm/controller.html&port=15002"
             });
             res.end();
         }
@@ -165,21 +136,12 @@ function Init()
                 return;
             }
             var sourceMap;
-            if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != ".js")
-            {
-                // We only host JS files in the es5 subdirectory, other files
-                // (such as config/escapes.cfg are in test)
-                filePath = filePath.replace("es5/", "")
-            }
             filePath = path.resolve(path.join(basePath, filePath))
             if(iceLib)
             {
                 sourceMap = req.url.pathname.replace(".js", ".js.map");
             }
-            //
-            // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
-            // versions.
-            //
+            // If OPTIMIZE is set resolve Ice libraries to the corresponding minified versions.
             if(process.env.OPTIMIZE == "yes")
             {
                 if(iceLib && filePath.substr(-7) !== ".min.js")
