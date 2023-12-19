@@ -19,9 +19,7 @@
 
 [["python:pkgdir:IceGrid"]]
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEGRID"]
 module IceGrid

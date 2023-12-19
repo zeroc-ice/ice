@@ -22,9 +22,7 @@
 
 /// The Ice Management eXtension facility. It provides the {@link IceMX#MetricsAdmin} interface for management clients
 /// to retrieve metrics from Ice applications.
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEMX", "swift:module:Ice:MX"]
 module IceMX

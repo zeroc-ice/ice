@@ -1,5 +1,0 @@
-Ice.Admin.InstanceName=DemoIceBox
-Ice.Admin.Endpoints=default -p 9996 -h 127.0.0.1
-Ice.ProgramName=IceBox
-
-IceBox.Service.TestService=test.IceBox.admin.TestServiceI --Ice.Config=config.service

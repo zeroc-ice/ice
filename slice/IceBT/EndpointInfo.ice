@@ -19,9 +19,7 @@
 
 #include <Ice/Endpoint.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 /// IceBT provides a Bluetooth transport for Ice.
 ["objc:prefix:ICEBT", "swift:module:Ice:SSL"]

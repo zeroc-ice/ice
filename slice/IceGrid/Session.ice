@@ -22,9 +22,7 @@
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEGRID"]
 module IceGrid

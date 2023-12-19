@@ -19,9 +19,7 @@
 
 #include <Ice/Connection.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEBT"]
 module IceBT
@@ -45,10 +43,10 @@ local class ConnectionInfo extends Ice::ConnectionInfo
     /// The UUID of the service being offered (in a server) or targeted (in a client).
     string uuid = "";
 
-    /// The connection buffer receive size.
+    /// The connection buffer receive size. **/
     int rcvSize = 0;
 
-    /// The connection buffer send size.
+    /// The connection buffer send size. **/
     int sndSize = 0;
 }
 
