@@ -14,10 +14,10 @@ dictionary<string, NV> NDV;
 dictionary<string, NR> NDR;
 
 sequence<int> AIS;
-["clr:generic:List"] sequence<int> GIS;
+["cs:generic:List"] sequence<int> GIS;
 
 sequence<string> ASS;
-["clr:generic:List"] sequence<string> GSS;
+["cs:generic:List"] sequence<string> GSS;
 
 dictionary<string, AIS> NDAIS;
 dictionary<string, GIS> NDGIS;

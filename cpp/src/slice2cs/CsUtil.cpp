@@ -2142,17 +2142,11 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         StringList globalMetaData = dc->getMetaData();
         StringList newGlobalMetaData;
         static const string csPrefix = "cs:";
-        static const string clrPrefix = "clr:";
 
         for(StringList::iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
             string& s = *r;
             string oldS = s;
-
-            if(s.find(clrPrefix) == 0)
-            {
-                s.replace(0, clrPrefix.size(), csPrefix);
-            }
 
             if(s.find(csPrefix) == 0)
             {
@@ -2293,13 +2287,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         string oldS = s;
 
         const string csPrefix = "cs:";
-        const string clrPrefix = "clr:";
-
-        if(s.find(clrPrefix) == 0)
-        {
-            s.replace(0, clrPrefix.size(), csPrefix);
-        }
-
         if(s.find(csPrefix) == 0)
         {
             SequencePtr seq = SequencePtr::dynamicCast(cont);

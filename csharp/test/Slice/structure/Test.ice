@@ -14,7 +14,7 @@ class C
     int i;
 }
 
-["clr:class"]
+["cs:class"]
 struct S1
 {
     string name;

@@ -11,61 +11,61 @@ module Test
 {
 
 sequence<byte> AByteS;
-["clr:generic:List"] sequence<byte> LByteS;
-["clr:generic:LinkedList"] sequence<byte> KByteS;
-["clr:generic:Queue"] sequence<byte> QByteS;
-["clr:generic:Stack"] sequence<byte> SByteS;
+["cs:generic:List"] sequence<byte> LByteS;
+["cs:generic:LinkedList"] sequence<byte> KByteS;
+["cs:generic:Queue"] sequence<byte> QByteS;
+["cs:generic:Stack"] sequence<byte> SByteS;
 
 sequence<bool> ABoolS;
-["clr:generic:List"] sequence<bool> LBoolS;
-["clr:generic:LinkedList"] sequence<bool> KBoolS;
-["clr:generic:Queue"] sequence<bool> QBoolS;
-["clr:generic:Stack"] sequence<bool> SBoolS;
+["cs:generic:List"] sequence<bool> LBoolS;
+["cs:generic:LinkedList"] sequence<bool> KBoolS;
+["cs:generic:Queue"] sequence<bool> QBoolS;
+["cs:generic:Stack"] sequence<bool> SBoolS;
 
 sequence<short> AShortS;
-["clr:generic:List"] sequence<short> LShortS;
-["clr:generic:LinkedList"] sequence<short> KShortS;
-["clr:generic:Queue"] sequence<short> QShortS;
-["clr:generic:Stack"] sequence<short> SShortS;
+["cs:generic:List"] sequence<short> LShortS;
+["cs:generic:LinkedList"] sequence<short> KShortS;
+["cs:generic:Queue"] sequence<short> QShortS;
+["cs:generic:Stack"] sequence<short> SShortS;
 
 sequence<int> AIntS;
-["clr:generic:List"] sequence<int> LIntS;
-["clr:generic:LinkedList"] sequence<int> KIntS;
-["clr:generic:Queue"] sequence<int> QIntS;
-["clr:generic:Stack"] sequence<int> SIntS;
+["cs:generic:List"] sequence<int> LIntS;
+["cs:generic:LinkedList"] sequence<int> KIntS;
+["cs:generic:Queue"] sequence<int> QIntS;
+["cs:generic:Stack"] sequence<int> SIntS;
 
 sequence<long> ALongS;
-["clr:generic:List"] sequence<long> LLongS;
-["clr:generic:LinkedList"] sequence<long> KLongS;
-["clr:generic:Queue"] sequence<long> QLongS;
-["clr:generic:Stack"] sequence<long> SLongS;
+["cs:generic:List"] sequence<long> LLongS;
+["cs:generic:LinkedList"] sequence<long> KLongS;
+["cs:generic:Queue"] sequence<long> QLongS;
+["cs:generic:Stack"] sequence<long> SLongS;
 
 sequence<float> AFloatS;
-["clr:generic:List"] sequence<float> LFloatS;
-["clr:generic:LinkedList"] sequence<float> KFloatS;
-["clr:generic:Queue"] sequence<float> QFloatS;
-["clr:generic:Stack"] sequence<float> SFloatS;
+["cs:generic:List"] sequence<float> LFloatS;
+["cs:generic:LinkedList"] sequence<float> KFloatS;
+["cs:generic:Queue"] sequence<float> QFloatS;
+["cs:generic:Stack"] sequence<float> SFloatS;
 
 sequence<double> ADoubleS;
-["clr:generic:List"] sequence<double> LDoubleS;
-["clr:generic:LinkedList"] sequence<double> KDoubleS;
-["clr:generic:Queue"] sequence<double> QDoubleS;
-["clr:generic:Stack"] sequence<double> SDoubleS;
+["cs:generic:List"] sequence<double> LDoubleS;
+["cs:generic:LinkedList"] sequence<double> KDoubleS;
+["cs:generic:Queue"] sequence<double> QDoubleS;
+["cs:generic:Stack"] sequence<double> SDoubleS;
 
 sequence<string> AStringS;
-["clr:generic:List"] sequence<string> LStringS;
-["clr:generic:LinkedList"] sequence<string> KStringS;
-["clr:generic:Queue"] sequence<string> QStringS;
-["clr:generic:Stack"] sequence<string> SStringS;
+["cs:generic:List"] sequence<string> LStringS;
+["cs:generic:LinkedList"] sequence<string> KStringS;
+["cs:generic:Queue"] sequence<string> QStringS;
+["cs:generic:Stack"] sequence<string> SStringS;
 
 sequence<Object> AObjectS;
-["clr:generic:List"] sequence<Object> LObjectS;
+["cs:generic:List"] sequence<Object> LObjectS;
 
 sequence<Object*> AObjectPrxS;
-["clr:generic:List"] sequence<Object*> LObjectPrxS;
-["clr:generic:LinkedList"] sequence<Object*> KObjectPrxS;
-["clr:generic:Queue"] sequence<Object*> QObjectPrxS;
-["clr:generic:Stack"] sequence<Object*> SObjectPrxS;
+["cs:generic:List"] sequence<Object*> LObjectPrxS;
+["cs:generic:LinkedList"] sequence<Object*> KObjectPrxS;
+["cs:generic:Queue"] sequence<Object*> QObjectPrxS;
+["cs:generic:Stack"] sequence<Object*> SObjectPrxS;
 
 struct S
 {
@@ -73,10 +73,10 @@ struct S
 }
 
 sequence<S> AStructS;
-["clr:generic:List"] sequence<S> LStructS;
-["clr:generic:LinkedList"] sequence<S> KStructS;
-["clr:generic:Queue"] sequence<S> QStructS;
-["clr:generic:Stack"] sequence<S> SStructS;
+["cs:generic:List"] sequence<S> LStructS;
+["cs:generic:LinkedList"] sequence<S> KStructS;
+["cs:generic:Queue"] sequence<S> QStructS;
+["cs:generic:Stack"] sequence<S> SStructS;
 
 struct SD
 {
@@ -84,10 +84,10 @@ struct SD
 }
 
 sequence<SD> AStructSD;
-["clr:generic:List"] sequence<SD> LStructSD;
-["clr:generic:LinkedList"] sequence<SD> KStructSD;
-["clr:generic:Queue"] sequence<SD> QStructSD;
-["clr:generic:Stack"] sequence<SD> SStructSD;
+["cs:generic:List"] sequence<SD> LStructSD;
+["cs:generic:LinkedList"] sequence<SD> KStructSD;
+["cs:generic:Queue"] sequence<SD> QStructSD;
+["cs:generic:Stack"] sequence<SD> SStructSD;
 
 class CV
 {
@@ -95,14 +95,14 @@ class CV
 }
 
 sequence<CV> ACVS;
-["clr:generic:List"] sequence<CV> LCVS;
+["cs:generic:List"] sequence<CV> LCVS;
 
 interface I {}
 sequence<I*> AIPrxS;
-["clr:generic:List"] sequence<I*> LIPrxS;
-["clr:generic:LinkedList"] sequence<I*> KIPrxS;
-["clr:generic:Queue"] sequence<I*> QIPrxS;
-["clr:generic:Stack"] sequence<I*> SIPrxS;
+["cs:generic:List"] sequence<I*> LIPrxS;
+["cs:generic:LinkedList"] sequence<I*> KIPrxS;
+["cs:generic:Queue"] sequence<I*> QIPrxS;
+["cs:generic:Stack"] sequence<I*> SIPrxS;
 
 class CR
 {
@@ -110,21 +110,21 @@ class CR
 }
 
 sequence<CR> ACRS;
-["clr:generic:List"] sequence<CR> LCRS;
+["cs:generic:List"] sequence<CR> LCRS;
 
 enum En { A, B, C }
 
 sequence<En> AEnS;
-["clr:generic:List"] sequence<En> LEnS;
-["clr:generic:LinkedList"] sequence<En> KEnS;
-["clr:generic:Queue"] sequence<En> QEnS;
-["clr:generic:Stack"] sequence<En> SEnS;
+["cs:generic:List"] sequence<En> LEnS;
+["cs:generic:LinkedList"] sequence<En> KEnS;
+["cs:generic:Queue"] sequence<En> QEnS;
+["cs:generic:Stack"] sequence<En> SEnS;
 
-["clr:generic:Ice.seqMapping.Custom"] sequence<int> CustomIntS;
-["clr:generic:Ice.seqMapping.Custom"] sequence<CV> CustomCVS;
+["cs:generic:Ice.seqMapping.Custom"] sequence<int> CustomIntS;
+["cs:generic:Ice.seqMapping.Custom"] sequence<CV> CustomCVS;
 
-["clr:generic:Ice.seqMapping.Custom"] sequence<CustomIntS> CustomIntSS;
-["clr:generic:Ice.seqMapping.Custom"] sequence<CustomCVS> CustomCVSS;
+["cs:generic:Ice.seqMapping.Custom"] sequence<CustomIntS> CustomIntSS;
+["cs:generic:Ice.seqMapping.Custom"] sequence<CustomCVS> CustomCVSS;
 
 ["amd"] interface MyClass
 {
