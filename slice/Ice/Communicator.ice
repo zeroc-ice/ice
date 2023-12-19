@@ -47,7 +47,7 @@ module Ice
 /// @see ObjectAdapter
 /// @see Properties
 /// @see ValueFactory
-["clr:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable"]
+["cs:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable"]
 
 #if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 local interface Communicator

@@ -35,7 +35,7 @@ struct VarStruct
     string m;
 }
 
-["clr:class"]
+["cs:class"]
 struct ClassVarStruct
 {
     int a;
@@ -51,14 +51,14 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-["clr:generic:List"] sequence<SmallStruct> SmallStructList;
+["cs:generic:List"] sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-["clr:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
+["cs:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
 
-["clr:serializable:Ice.optional.Test.SerializableClass"]
+["cs:serializable:Ice.optional.Test.SerializableClass"]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;
@@ -156,7 +156,7 @@ exception RequiredException extends OptionalException
     OneOptional o2;
 }
 
-["clr:property"]
+["cs:property"]
 class OptionalWithCustom
 {
     optional(1) SmallStructList l;

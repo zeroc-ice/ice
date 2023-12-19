@@ -212,7 +212,7 @@ private:
     virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
     IceUtil::Mutex _mutex;
-    std::atomic<int> _hasObserver;
+    std::atomic<bool> _hasObserver;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 };
 
