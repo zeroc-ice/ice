@@ -43,7 +43,7 @@
 #       endif
 #   endif
 
-#   if !defined(_AIX) && !defined(__sun) && !defined(__FreeBSD__) && !defined(ICE_STATIC_LIBS)
+#   if !defined(_AIX) && !defined(__FreeBSD__) && !defined(ICE_STATIC_LIBS)
 #       include <execinfo.h>
 #       include <cxxabi.h>
 #       include <stdint.h>
@@ -58,6 +58,7 @@
 #   define ICE_DBGHELP
 #   define DBGHELP_TRANSLATE_TCHAR
 #   include <IceUtil/StringConverter.h>
+// TODO: check if this is still needed for VS2022
 #   pragma warning(disable:4091) // VS 2015 RC issues this warning for code in DbgHelp.h
 #   include <DbgHelp.h>
 #   include <tchar.h>
