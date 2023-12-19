@@ -8,11 +8,6 @@
       <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
-  <!-- Visual Studio 2010 doesn't set DefaultPlatformToolset -->
-  <PropertyGroup>
-    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
-  </PropertyGroup>
-
   <!--
       Import version settings required for library targets.
   -->
@@ -148,7 +143,7 @@
   <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions Condition="'$(DefaultPlatformToolset)' == 'v141' OR '$(DefaultPlatformToolset)' == 'v142' OR '$(DefaultPlatformToolset)' == 'v143'">/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
 
     <ResourceCompile>
@@ -168,23 +163,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
 
-  <!--
-      The correct value for GenerateDebugInformation depends on the compiler:
-  -->
   <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
-    <Link>
-      <GenerateDebugInformation>Yes</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and '$(DefaultPlatformToolset)'=='v140'">
-    <Link>
-      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
-      <GenerateDebugInformation>Debug</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and ('$(DefaultPlatformToolset)'=='v141' or '$(DefaultPlatformToolset)'=='v142' or '$(DefaultPlatformToolset)'=='v143')">
     <Link>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -203,21 +182,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <!-- Disable additional warnings with VS2013 -->
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120'">
-    <ClCompile>
-       <DisableSpecificWarnings>%(DisableSpecificWarnings);4127;4505;4512</DisableSpecificWarnings>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <!-- Disable additional warnings with VS2010 -->
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v100'">
-    <ClCompile>
-       <DisableSpecificWarnings>%(DisableSpecificWarnings);4127;4428;4505;4512</DisableSpecificWarnings>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'!='v100'">
+  <ItemDefinitionGroup>
     <Link>
       <!--
          We disable incremental linking (see above), which turns on
@@ -228,13 +193,9 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <!--
-      Base target names.
-  -->
+  <!-- Base target names. -->
   <Choose>
-    <!--
-        C++11 mapping target names.
-    -->
+    <!-- C++11 mapping target names. -->
     <When Condition="'$(IceCppMapping)' == 'cpp11' and ('$(ConfigurationType)' == 'DynamicLibrary' or '$(ConfigurationType)' == 'StaticLibrary')">
       <PropertyGroup Condition="'$(IceConfiguration)' == 'Debug'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
@@ -245,9 +206,7 @@
       </PropertyGroup>
     </When>
 
-    <!--
-        C++98 mapping target names.
-    -->
+    <!-- C++98 mapping target names. -->
     <Otherwise>
       <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
         <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>

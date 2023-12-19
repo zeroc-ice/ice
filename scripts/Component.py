@@ -72,8 +72,6 @@ class Ice(Component):
         elif "static" in config.buildConfig:
             return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
                     ["Ice/library", "Ice/plugin"])
-        elif isinstance(platform, Windows) and platform.getCompiler() in ["v100"]:
-            return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
         elif isinstance(mapping, JavaMapping) and config.android:
             return (["Ice/.*"],
                     ["Ice/hash",
@@ -85,7 +83,7 @@ class Ice(Component):
                      "Ice/logger",
                      "Ice/properties"])
         elif isinstance(mapping, JavaScriptMapping):
-            return ([], ["typescript/.*", "es5/*"])
+            return ([], ["typescript/.*"])
         elif isinstance(mapping, SwiftMapping) and config.buildPlatform in ["iphonesimulator", "iphoneos"]:
             return (["Ice/.*", "IceSSL/configuration", "Slice/*"], ["Ice/properties", "Ice/udp"])
         return ([], [])
@@ -217,7 +215,7 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
     elif m == "ruby" or re.match("ruby-.*", m):
         Mapping.add(m, RubyMapping(), component, enable=not isinstance(platform, Windows))
     elif m == "php" or re.match("php-.*", m):
-        Mapping.add(m, PhpMapping(), component)
+        Mapping.add(m, PhpMapping(), component, enable=not isinstance(platform, Windows))
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
@@ -228,13 +226,6 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add("swift", SwiftMapping(), component, enable=platform.hasSwift((5, 0)))
     elif m == "csharp" or re.match("charp-.*", m):
         Mapping.add("csharp", CSharpMapping(), component, enable=isinstance(platform, Windows) or platform.hasDotNet())
-
-if isinstance(platform, Windows):
-    # Windows doesn't support all the mappings, we take them out here.
-    if platform.getCompiler() not in ["v140", "v141", "v142", "v143"]:
-        Mapping.disable("python")
-    if platform.getCompiler() not in ["v140", "v141", "v142"]:
-        Mapping.disable("php")
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping

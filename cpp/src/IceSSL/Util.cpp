@@ -20,12 +20,6 @@
 
 #include <fstream>
 
-#ifdef __IBMCPP__
-// Work-around for xlC visibility bug
-// See "ifstream::tellg visibility error" thread on IBM xlC forum
-extern template class std::fpos<char*>;
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

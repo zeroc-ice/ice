@@ -83,7 +83,7 @@ Glacier2::Blobject::invokeResponse(bool ok, const pair<const Byte*, const Byte*>
 void
 Glacier2::Blobject::invokeSent(bool, const AMD_Object_ice_invokePtr& amdCB)
 {
-#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+#if defined(_MSC_VER)
     amdCB->ice_response(true, pair<const Byte*, const Byte*>(static_cast<const Byte*>(nullptr),
                                                              static_cast<const Byte*>(nullptr)));
 #else

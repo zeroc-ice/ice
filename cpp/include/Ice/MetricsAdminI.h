@@ -15,12 +15,7 @@
 #  define ICE_CPP11_COMPILER_REGEXP
 #endif
 
-#ifdef __MINGW32__
-    //
-    // No regexp support with MinGW, when MinGW C++11 mode is not experimental
-    // we can use std::regex.
-    //
-#elif defined(ICE_CPP11_COMPILER_REGEXP)
+#if defined(ICE_CPP11_COMPILER_REGEXP)
 #  include <regex>
 #else
 #  include <regex.h>
@@ -81,17 +76,8 @@ public:
 
         const std::string _attribute;
 
-#ifdef __MINGW32__
-    //
-    // No regexp support with MinGW, when MinGW C++11 mode is not experimental
-    // we can use std::regex.
-    //
-#elif defined(ICE_CPP11_COMPILER_REGEXP)
-#   if _MSC_VER < 1600
-        std::tr1::regex _regex;
-#   else
+#if defined(ICE_CPP11_COMPILER_REGEXP)
         std::regex _regex;
-#   endif
 #else
         regex_t _preg;
 #endif

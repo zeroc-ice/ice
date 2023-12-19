@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-    <IceHome>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140.$(IceJSOnVersion)</IceHome>
+    <IceHome>$(MSBuildThisFileDirectory)packages\zeroc.ice.v143.$(IceJSOnVersion)</IceHome>
     <IceToolsDir>$(IceHome)\tools</IceToolsDir>
   </PropertyGroup>
 

@@ -144,7 +144,6 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
 
     start(testSuite, exe, args, current)
     {
-        const es5 = document.location.pathname.indexOf("/es5/") !== -1;
         let promise;
         let out;
         if(exe === "Server" || exe === "ServerAMD")
@@ -164,9 +163,7 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
             promise = new Promise(
                 (resolve, reject) =>
                     {
-                        const worker = new Worker(es5 ?
-                                                "/test/es5/Common/ControllerWorker.js" :
-                                                "/test/Common/ControllerWorker.js");
+                        const worker = new Worker("/test/Common/ControllerWorker.js");
                         this._worker = worker;
                         worker.onmessage = function(e)
                         {

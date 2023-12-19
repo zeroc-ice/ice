@@ -33,7 +33,7 @@ function status = slice2matlab(args)
                      fullfile('slice2matlab.exe')
                      fullfile('..', '..', 'cpp', 'bin', 'x64', 'Release', 'slice2matlab.exe')
                      fullfile('..', '..', 'cpp', 'bin', 'x64', 'Debug', 'slice2matlab.exe')
-                     fullfile('..', 'msbuild', 'packages', 'zeroc.ice.v140', 'build', 'native', 'tools', 'slice2matlab.exe')}, rootDir, 2);
+                     fullfile('..', 'msbuild', 'packages', 'zeroc.ice.v143', 'build', 'native', 'tools', 'slice2matlab.exe')}, rootDir, 2);
 
     searchPath = findFile({fullfile('slice') ...
                            fullfile('..', '..', 'slice')}, rootDir, 7);

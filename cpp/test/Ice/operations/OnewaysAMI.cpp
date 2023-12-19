@@ -8,12 +8,7 @@
 
 using namespace std;
 
-// Work-around for anonymous namspace bug in xlclang++
-#ifdef __ibmxl__
-namespace OnewaysAMINamespace
-#else
 namespace
-#endif
 {
 
 class CallbackBase
@@ -79,10 +74,6 @@ public:
 ICE_DEFINE_PTR(CallbackPtr, Callback);
 
 }
-
-#ifdef __ibmxl__
-using namespace OnewaysAMINamespace;
-#endif
 
 void
 onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)

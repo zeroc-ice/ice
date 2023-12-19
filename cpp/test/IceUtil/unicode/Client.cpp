@@ -27,8 +27,7 @@ using namespace std;
 // converts these BOMs back and forth.
 //
 
-//COMPILERFIX: MINGW doesn't support wmain for console applications.
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32)
 
 int
 wmain(int argc, wchar_t* argv[])
@@ -46,11 +45,7 @@ main(int argc, char* argv[])
     {
 #ifdef _WIN32
 
-#   ifdef __MINGW32__
-        dir = argv[1];
-#   else
         dir = wstringToString(argv[1]);
-#   endif
         dir += "\\";
 #else
         dir = argv[1];
@@ -184,15 +179,10 @@ main(int argc, char* argv[])
     {
         cout << "testing wstring with surrogates... ";
 
-        //
         // Euro sign (U+20AC) is encoded with 1 UTF-16 code unit, and 3 UTF-8 code units
         // U+10437 is a Deseret character, encoded with 2 UTF-16 code units, and 4 UTF-8 code units
         // xlC in 32-bit mode truncates U+10437 into a single UTF-16 character
-#if defined(__IBMCPP__) && !defined(__64BIT__)
-        wstring ws = L"\u20ac\u20ac\ud801\udc37";
-#else
         wstring ws = L"\u20ac\u20ac\U00010437";
-#endif
 
         if(sizeof(wchar_t) == 2)
         {
@@ -204,7 +194,6 @@ main(int argc, char* argv[])
             test(ws.length() == 3);
         }
 
-        //
         // The Unicode string converter implementation allocates an initial buffer
         // of size max(2 * (sourceEnd - sourceStart), 4).
         // With UTF-16 encoding, that's 8 and the first 2 euros will use the first 6

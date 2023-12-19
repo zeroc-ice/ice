@@ -22,9 +22,7 @@
 #if defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
-#  if !defined(__MINGW32__)
 typedef int ssize_t;
-#  endif
 #else
 #   include <unistd.h>
 #   include <fcntl.h>
@@ -80,21 +78,6 @@ typedef int socklen_t;
 
 #ifndef NETDB_SUCCESS
 #   define NETDB_SUCCESS 0
-#endif
-
-#if defined(__MINGW32__) && !defined WSAID_CONNECTEX
-#  define WSAID_CONNECTEX {0x25a207b9,0xddf3,0x4660,{0x8e,0xe9,0x76,0xe5,0x8c,0x74,0x06,0x3e}}
-#  define WSAID_ACCEPTEX {0xb5367df1,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
-#  define SO_UPDATE_ACCEPT_CONTEXT   0x700B
-#  define SO_UPDATE_CONNECT_CONTEXT  0x7010
-    typedef BOOL (PASCAL FAR * LPFN_CONNECTEX) (IN SOCKET s, IN const struct sockaddr FAR *name, IN int namelen,
-                                                IN PVOID lpSendBuffer OPTIONAL, IN DWORD dwSendDataLength,
-                                                OUT LPDWORD lpdwBytesSent, IN LPOVERLAPPED lpOverlapped);
-
-    typedef BOOL (PASCAL FAR * LPFN_ACCEPTEX)(IN SOCKET sListenSocket, IN SOCKET sAcceptSocket,
-                                              IN PVOID lpOutputBuffer, IN DWORD dwReceiveDataLength,
-                                              IN DWORD dwLocalAddressLength, IN DWORD dwRemoteAddressLength,
-                                              OUT LPDWORD lpdwBytesReceived, IN LPOVERLAPPED lpOverlapped);
 #endif
 
 namespace IceInternal
