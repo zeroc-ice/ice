@@ -11,7 +11,7 @@ on:
     - cron: "34 18 * * 3"
 
 jobs:
-  build-and-test:
+  linux-ci:
     runs-on: [self-hosted, linux]
     steps:
       - name: Checkout repository
@@ -20,3 +20,27 @@ jobs:
         run: make -j8 V=1
       - name: Test
         run: ./allTests.py --workers=4
+
+  macos-ci:
+    runs-on: [macos-latest]
+    steps:
+      - name: Install brew dependencies
+        run: brew install python3 ruby openjdk node php lmdb mcpp
+      - name: Install brew cask dependencies
+        run: brew install --cask  dotnet-sdk
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build
+        run: make -j3 V=1
+      - name: Test
+        run: ./allTests.py --workers=3
+
+  # windows-ci:
+  #   runs-on: [windows-latest]
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+  #     - name: Build
+  #       run: make -j3 V=1
+  #     - name: Test
+  #       run: ./allTests.py --workers=3
