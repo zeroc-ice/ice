@@ -85,7 +85,7 @@ class Ice(Component):
                      "Ice/logger",
                      "Ice/properties"])
         elif isinstance(mapping, JavaScriptMapping):
-            return ([], ["typescript/.*", "es5/*"])
+            return ([], ["typescript/.*"])
         elif isinstance(mapping, SwiftMapping) and config.buildPlatform in ["iphonesimulator", "iphoneos"]:
             return (["Ice/.*", "IceSSL/configuration", "Slice/*"], ["Ice/properties", "Ice/udp"])
         return ([], [])

@@ -11,7 +11,6 @@ supported platforms.
 - [Running the JavaScript Tests](#running-the-javascript-tests)
   - [Browser Information](#browser-information)
     - [Self-Signed Certificate](#self-signed-certificate)
-    - [Windows 8](#windows-8)
     - [Secure WebSockets on iOS and Android](#secure-websockets-on-ios-and-android)
       - [Installing Certificates on iOS](#installing-certificates-on-ios)
       - [Installing Certificates on Android](#installing-certificates-on-android)
@@ -63,13 +62,6 @@ npm run build
 Upon successful completion, the build generates libraries in the `lib`
 subdirectory, including compressed and minified versions.
 
-For older browsers that do not support all of the required ECMAScript 6
-features used by Ice for JavaScript, we provide pre-compiled versions of
-the libraries using the [Babel] JavaScript compiler. These libraries
-depend on the [core-js] and [regenerator-runtime] packages
-and are available in the `lib/es5` subdirectory with the same names as
-the main libraries.
-
 ## Running the JavaScript Tests
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
@@ -109,17 +101,6 @@ Then open the test page (http://127.0.0.1:8080/start) using a web browser.
 These tests require a web browser with ECMAScript 6 support, such as
 a recent version of Chrome, Firefox, Microsoft Edge or Safari.
 
-If you are using another web browser, such as Internet Explorer, you should
-use instead:
-
-```shell
-python allTests.py --browser Manual --es5
-```
-
-Then open the test page (http://127.0.0.1:8080/es5/start)
-
-This runs a version of the test suite transpiled to ECMAScript 5 using [Babel].
-
 On macOS the first time you run the tests, you will be prompted for your
 password. This is necessary to configure the trust setting for the HTTP
 server certificate, which will enable you to connect to the HTTP server
@@ -150,7 +131,7 @@ depending on the browser you're using:
    After closing the dialogs, reload the test page to continue. You should
    uninstall this certificate after running the tests.
 
-- Internet Explorer and Microsoft Edge
+- Microsoft Edge
    Run the management console (mmc.exe) and add the Certificates snap-in for
    the computer account. Then select Console Root > Certificates (Local
    Computer) > Trusted Root Certificate Authorities. In the Action menu, choose
@@ -158,12 +139,6 @@ depending on the browser you're using:
    the Trusted Root Certificate Authorities. Reload the test page to continue.
    You should uninstall this certificate after running the tests.
 
-#### Windows 8
-
-On Windows 8, network isolation prevents Internet Explorer from
-connecting to 127.0.0.1. To work around this limitation, you'll need to disable
-Internet Explorer's "Protected Mode". Open the "Internet Options" dialog and in
-the "Security" settings tab, deselect the "Enable Protected Mode" checkbox.
 
 #### Secure WebSockets on iOS and Android
 
@@ -215,6 +190,3 @@ To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.
 
 [binary distributions]: https://zeroc.com/downloads/ice
-[Babel]: https://babeljs.io
-[core-js]: https://www.npmjs.com/package/core-js
-[regenerator-runtime]: https://www.npmjs.com/package/regenerator-runtime
