@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Install brew dependencies
         run: brew install python3 ruby openjdk node php lmdb mcpp
+      - name: Install test dependencies
+        run: python3 -m pip install passlib
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build
@@ -33,12 +35,14 @@ jobs:
       - name: Test
         run: ./allTests.py --workers=3
 
-  # windows-ci:
-  #   runs-on: [windows-latest]
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Build
-  #       run: make -j3 V=1
-  #     - name: Test
-  #       run: ./allTests.py --workers=3
+  windows-ci:
+    runs-on: [windows-latest]
+    steps:
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build
+        run: msbuild /m ice\msbuild\ice.proj
+      # - name: Test
+      #   run: ./allTests.py --workers=3
