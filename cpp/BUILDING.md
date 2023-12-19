@@ -37,7 +37,7 @@ unnecessary.
 Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
-On Windows, the build requires a recent version of Visual Studio 2022.
+On Windows, the build requires Visual Studio 2022.
 
 ### Third-Party Libraries
 
@@ -236,11 +236,11 @@ The Xcode SDKs are built into `ice/sdk`.
 
 ### Build Using MSBuild
 
-Open a Visual Studio command prompt. For example, with Visual Studio 2015, you
+Open a Visual Studio command prompt. For example, with Visual Studio 2022, you
 can open one of:
 
-- VS2015 x86 Native Tools Command Prompt
-- VS2015 x64 Native Tools Command Prompt
+- VS2022 x86 Native Tools Command Prompt
+- VS2022 x64 Native Tools Command Prompt
 
 Using the first Command Prompt produces `Win32` binaries by default, while
 the second Command Prompt produces `x64` binaries by default.

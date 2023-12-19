@@ -8,7 +8,6 @@ Linux, so building Ice for PHP from source is usually unnecessary.
 * [PHP Build Requirements](#php-build-requirements)
 * [Building the PHP Extension](#building-the-php-extension)
   * [Linux or macOS](#linux-or-macos)
-  * [Windows](#windows)
 * [Installing the PHP Extension](#installing-the-php-extension)
   * [Linux or macOS](#linux-or-macos-1)
 * [PHP Dependencies](#php-dependencies)
