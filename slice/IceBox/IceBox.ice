@@ -22,9 +22,7 @@
 #include <Ice/CommunicatorF.ice>
 #include <Ice/PropertiesF.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 /// IceBox is an application server specifically for Ice applications. IceBox can easily run and administer Ice
 /// services that are dynamically loaded as a DLL, shared library, or Java class.

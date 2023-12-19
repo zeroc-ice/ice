@@ -19,9 +19,7 @@
 
 #include <Ice/Connection.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEBT"]
 module IceBT

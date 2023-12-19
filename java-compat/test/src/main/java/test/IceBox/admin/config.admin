@@ -1,4 +1,0 @@
-#
-# Proxy to the IceBox ServiceManager:
-#
-IceBoxAdmin.ServiceManager.Proxy=DemoIceBox/admin -f IceBox.ServiceManager:default -p 9996

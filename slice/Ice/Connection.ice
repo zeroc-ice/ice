@@ -22,9 +22,7 @@
 #include <Ice/Identity.ice>
 #include <Ice/Endpoint.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICE"]
 module Ice
