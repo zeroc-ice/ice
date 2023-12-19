@@ -11,7 +11,7 @@ on:
     - cron: "34 18 * * 3"
 
 jobs:
-  linux-ci:
+  linux-latest:
     runs-on: [self-hosted, linux]
     steps:
       - name: Checkout repository
@@ -21,7 +21,7 @@ jobs:
       - name: Test
         run: ./allTests.py --workers=4
 
-  macos-ci:
+  macos-latest:
     runs-on: [macos-latest]
     steps:
       - name: Install brew dependencies
