@@ -26,8 +26,6 @@ jobs:
     steps:
       - name: Install brew dependencies
         run: brew install python3 ruby openjdk node php lmdb mcpp
-      - name: Install brew cask dependencies
-        run: brew install --cask  dotnet-sdk
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build
