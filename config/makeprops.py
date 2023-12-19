@@ -99,13 +99,6 @@ public final class %(classname)s
 {
 """
 
-javaCompatPreamble = commonPreamble + """
-package IceInternal;
-
-public final class %(classname)s
-{
-"""
-
 csPreamble = commonPreamble + """
 namespace IceInternal
 {
@@ -131,7 +124,7 @@ module.exports.Ice = Ice;
 
 def usage():
     global progname
-    print >> sys.stderr, "Usage: " + progname + " [--{cpp|java|java-compat|csharp|js} file]"
+    print >> sys.stderr, "Usage: " + progname + " [--{cpp|java|csharp|js} file]"
 
 def progError(msg):
     global progname
@@ -462,20 +455,6 @@ class JavaPropertyHandler(PropertyHandler):
             os.remove(os.path.join(dest, self.className + ".java"))
         shutil.move(self.className + ".java", dest)
 
-class JavaCompatPropertyHandler(JavaPropertyHandler):
-    def __init__(self, inputfile, c):
-        JavaPropertyHandler.__init__(self, inputfile, c)
-
-    def startFiles(self):
-        self.srcFile = open(self.className + "-compat.java", "w")
-        self.srcFile.write(javaCompatPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-
-    def moveFiles(self, location):
-        dest = os.path.join(location, "java-compat", "src", "Ice", "src", "main", "java", "IceInternal")
-        if os.path.exists(os.path.join(dest, self.className + ".java")):
-            os.remove(os.path.join(dest, self.className + ".java"))
-        shutil.move(self.className + "-compat.java", os.path.join(dest, self.className + ".java"))
-
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
         PropertyHandler.__init__(self, inputfile, c)
@@ -685,8 +664,6 @@ def main():
             lang = "cpp"
         elif option == "--java":
             lang = "java"
-        elif option == "--java-compat":
-            lang = "java-compat"
         elif option == "--csharp":
             lang = "csharp"
         elif option == "--js":
@@ -705,7 +682,6 @@ def main():
         contentHandler = MultiHandler(infile, "")
         contentHandler.addHandlers([CppPropertyHandler(infile, className),
             JavaPropertyHandler(infile, className),
-            JavaCompatPropertyHandler(infile, className),
             CSPropertyHandler(infile, className),
             JSPropertyHandler(infile, className)])
     else:
@@ -713,8 +689,6 @@ def main():
             contentHandler = CppPropertyHandler(infile, className)
         elif lang == "java":
             contentHandler = JavaPropertyHandler(infile, className)
-        elif lang == "java-compat":
-            contentHandler = JavaCompatPropertyHandler(infile, className)
         elif lang == "csharp":
             contentHandler = CSPropertyHandler(infile, className)
         elif lang == "js":
