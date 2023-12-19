@@ -1,10 +1,15 @@
-%{
-
+%top{
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/GrammarUtil.h>  // Before Grammer.h, so that YYSTYPE is defined
+#include <IceUtil/ScannerConfig.h>
+
+}
+
+%{
+
+#include <Slice/GrammarUtil.h>
 #include <Slice/Grammar.h>
 #include <IceUtil/InputUtil.h>
 
@@ -13,34 +18,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#if defined(_MSC_VER)
-// '<' : signed/unsigned mismatch
-#   pragma warning(disable:4018)
+#ifdef _MSC_VER
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 #   pragma warning(disable:4244)
-
-#   if defined(ICE_64)
-//
-// '=' : conversion from 'size_t' to 'int', possible loss of data
-// The result of fread() is a size_t and gets inserted into an int
-//
-#       pragma warning(disable:4267)
-#   endif
-#endif
-
-#if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wsign-compare"
-#endif
-
-//
-// Avoid clang conversion warnings
-//
-#if defined(__clang__)
-#   pragma clang diagnostic ignored "-Wconversion"
-#   pragma clang diagnostic ignored "-Wsign-conversion"
-#endif
-
-#ifdef _MSC_VER
 #   ifdef slice_wrap
 #      undef slice_wrap
 #      define slice_wrap() 1
@@ -53,9 +33,6 @@
 #      undef slice_wrap
 #      define slice_wrap() 1
 #   endif
-#   ifdef ICE_64
-#       pragma error_messages(off,truncwarn)
-#   endif
 #endif
 
 using namespace std;
@@ -64,409 +41,272 @@ using namespace Slice;
 namespace Slice
 {
 
-//
 // Definitions for the case-insensitive keyword-token map.
-//
-typedef std::map<std::string, int> StringTokenMap;
-static StringTokenMap keywordMap;
+typedef map<string, int> StringTokenMap;
+StringTokenMap keywordMap;
 
-void initScanner();
 int checkKeyword(string&);
-int checkIdentifier(string&);
+int checkIdentifier(const string&);
 
 }
 
+// Stores the scanner's current column position. Flex also automatically
+// generates 'yylineno', which stores the scanner's current line number.
+int yycolno = 0;
+// Stores a copy of the filename that the scanner is currently scanning.
+string yyfilename;
+
+namespace
+{
+
+void nextLine(int = 1);
+int scanPosition(const char*);
+void setLocation(TokenContext*);
+void startLocation(TokenContext*);
+void endLocation(TokenContext*);
+
+void initScanner();
+void preAction();
+
+}
+
+// Override some of the functions flex auto-generates with our own implementations.
 #define YY_USER_INIT initScanner();
+#define YY_USER_ACTION preAction();
 
 %}
 
-%option noyywrap
-%option never-interactive
+  /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
 %option prefix="slice_"
+  /* Instructs flex to not suppress any warnings when generating the scanner. */
+%option warn
+  /* Instructs flex to generate a scanner that supports verbose outputting (debug mode). */
+%option debug
+  /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
+   * option disables default-matching (it throws 'scanner jammed' instead) to make grammar holes more obvious. */
+%option nodefault
+  /* Directs flex to generate a scanner tailored for use by bison, and that supports bison's token location mechanism.
+   * These options change the signature of the main lexing function, which must match the one declared in Grammar.y */
+%option bison-bridge bison-locations
 
+  /* Enables the use of flex's built in start-condition state stack. */
+%option stack
+  /* Ensures flex generates a scanner that supports reading 8-bit characters. */
+%option 8bit
+  /* Directs flex to generate lookup tables that are better aligned in memory to
+   * improve access speeds, even if this means allocating larger tables. */
+%option align
+  /* Enables batching for improved performance. */
+%option batch
+  /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
+%option pointer
+  /* Disables the scanner's interactive modes for improved performance. */
+%option never-interactive
+
+  /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
+%option noinput nounput noyywrap
+%option noyy_scan_buffer noyy_scan_bytes noyy_scan_string
+%option noyyget_extra noyyset_extra noyyget_leng noyyget_text
+%option noyyget_in noyyset_in noyyget_out noyyset_out
+%option noyyget_lineno noyyset_lineno noyyget_lloc noyyset_lloc
+%option noyyget_lval noyyset_lval noyyget_debug noyyset_debug
+
+  /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
+%x C_COMMENT
+%s PRE_SLICE
+%s SLICE
+%x PREPROCESS
+%x METADATA
+%x STRING_LITERAL
+  /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
+   * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
+
+oct                 [0-7]
+dec                 [0-9]
+hex                 [0-9a-fA-F]
+bom                 "\357\273\277"
+whitespace          ([[:space:]]{-}[\n])+
+preprocessor_prefix [[:blank:]]*#[[:blank:]]*
+preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
-integer_constant    (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
-fractional_constant (\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
-exponent_part       (e|E)(\+|-)?[[:digit:]]+
-floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{exponent_part}))[fF]?
-
-%s BOMSCAN
-%s MAINSCAN
+integer_constant    (\+|-)?((0{oct}+)|(0x{hex}+)|({dec}+))
+fractional_constant (\+|-)?(({dec}*\.{dec}+)|({dec}+\.))
+exponent_part       (e|E)(\+|-)?{dec}+
+floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{exponent_part}))[fF]?
 
 %%
 
-^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]*$ {
-    if(unit->scanPosition(yytext))
-    {
-        BEGIN(BOMSCAN);
-    }
-}
+  /* ========== Literals ========== */
+  /* Matches the start of a double-quoted string literal. */
+"\"" {
+    yy_push_state(STRING_LITERAL);
+    startLocation(yylloc);
 
-^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    if(unit->scanPosition(yytext))
-    {
-        BEGIN(BOMSCAN);
-    }
-}
-
-^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]*$ {
-    if(unit->scanPosition(yytext))
-    {
-        BEGIN(BOMSCAN);
-    }
-}
-
-^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    if(unit->scanPosition(yytext))
-    {
-        BEGIN(BOMSCAN);
-    }
-}
-
-"//" {
-    // C++-style comment
-    BEGIN(MAINSCAN);
-    int c;
-    do
-    {
-        c = yyinput();
-        if(c == '\n')
-        {
-            unit->nextLine();
-        }
-    }
-    while(c != '\n' && c != EOF);
-}
-
-"/*" {
-    // C-style comment
-    BEGIN(MAINSCAN);
-    string comment = yytext + 2;
-    while(true)
-    {
-        int c = yyinput();
-        if(c == '\n')
-        {
-            comment += static_cast<char>(c);
-            unit->nextLine();
-        }
-        else if(c == '*')
-        {
-            int next = yyinput();
-            if(next == '/')
-            {
-                break;
-            }
-            else
-            {
-                comment += static_cast<char>(c);
-                unput(next);
-            }
-        }
-        else if(c == EOF)
-        {
-            unit->warning(All, "EOF in comment");
-            break;
-        }
-        else
-        {
-            comment += static_cast<char>(c);
-        }
-    }
-    if(!comment.empty() && comment[0] == '*')
-    {
-        unit->setComment(comment);
-    }
-}
-
-"[" {
-    BEGIN(MAINSCAN);
-    return ICE_METADATA_OPEN;
-}
-
-"]" {
-    BEGIN(MAINSCAN);
-    return ICE_METADATA_CLOSE;
-}
-
-"[[" {
-    BEGIN(MAINSCAN);
-    return ICE_GLOBAL_METADATA_OPEN;
-}
-
-"]]" {
-    BEGIN(MAINSCAN);
-    return ICE_GLOBAL_METADATA_CLOSE;
-}
-
-{identifier}[[:space:]]*"(" {
-    BEGIN(MAINSCAN);
-    StringTokPtr ident = new StringTok;
-    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
-    ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
-    *yylvalp = ident;
-    if(*yytext == '\\')
-    {
-        if(checkIdentifier(ident->v) == ICE_SCOPED_IDENTIFIER)
-        {
-            unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
-        }
-        return ICE_IDENT_OP;
-    }
-    int st = checkKeyword(ident->v);
-    if(st == ICE_IDENTIFIER)
-    {
-        return ICE_IDENT_OP;
-    }
-    else if(st == ICE_SCOPED_IDENTIFIER)
-    {
-        unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
-        return ICE_IDENT_OP;
-    }
-    else if(st == ICE_OPTIONAL)
-    {
-        return ICE_OPTIONAL_OP;
-    }
-    else
-    {
-        return ICE_KEYWORD_OP;
-    }
-}
-
-{identifier} {
-    BEGIN(MAINSCAN);
-    StringTokPtr ident = new StringTok;
-    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
-    *yylvalp = ident;
-    return *yytext == '\\' ? checkIdentifier(ident->v) : checkKeyword(ident->v);
-}
-
-\" {
-    BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
-    while(true)
+    *yylval = str;
+}
+
+  /* Matches a single escaped backslash, or as many characters as it can,
+   * except backslashes, new-lines, double quotes, and non-printable ASCII characters. */
+
+  /* Matches Escaped backslashes and any other valid string characters. Invalid characters are
+   * new-lines, non-printable ASCII characters, and double-quotes. */
+<STRING_LITERAL>"\\\\"+               |
+<STRING_LITERAL>[^\\\n"\x0-\x1f\x7f]+ {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += yytext;
+}
+
+  /* Matches an escaped double-quote, single-quote, or question mark. */
+<STRING_LITERAL>"\\\"" |
+<STRING_LITERAL>"\\\'" |
+<STRING_LITERAL>"\\?"  {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += yytext[1];
+}
+
+  /* Matches an ANSI-C escape code pattern. */
+<STRING_LITERAL>"\\"[abfnrtv] {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    char ansiCode;
+    switch(yytext[1])
     {
-        int c = yyinput();
-        str->literal += static_cast<char>(c);
-        if(c == '"')
-        {
-            break;
-        }
-        else if(c == EOF)
-        {
-            unit->error("EOF in string");
-            break;
-        }
-        else if(c < 32 || c == 127)
-        {
-            unit->error("a string literal can only contain printable ASCII characters and non-ASCII characters");
-            break;
-        }
-        else if(c == '\\')
-        {
-            int next = yyinput();
-            str->literal += static_cast<char>(next);
-            switch(next)
-            {
-                case '\\':
-                {
-                    //
-                    // add extra escape to our internal string
-                    //
-                    str->v += '\\';
-                    str->v += '\\';
-                    break;
-                }
-                case '"':
-                case '\'':
-                case '?':
-                {
-                    str->v += static_cast<char>(next);
-                    break;
-                }
-                case 'a':
-                {
-                    str->v += '\a';
-                    break;
-                }
-                case 'b':
-                {
-                    str->v += '\b';
-                    break;
-                }
-                case 'f':
-                {
-                    str->v += '\f';
-                    break;
-                }
-                case 'n':
-                {
-                    str->v += '\n';
-                    break;
-                }
-                case 'r':
-                {
-                    str->v += '\r';
-                    break;
-                }
-                case 't':
-                {
-                    str->v += '\t';
-                    break;
-                }
-                case 'v':
-                {
-                    str->v += '\v';
-                    break;
-                }
-
-                //
-                // Octal value \nnn limited to three octal digits but terminate at the first character
-                // that is not a valid octal digit if encountered sooner.
-                //
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                {
-                    static string octalDigits = "01234567";
-                    string escape;
-                    escape += static_cast<char>(next);
-                    for(int i = 0; i < 2; ++i)
-                    {
-                        next = yyinput();
-                        if(octalDigits.find_first_of(static_cast<char>(next)) == string::npos)
-                        {
-                            unput(next);
-                            break;
-                        }
-                        escape += static_cast<char>(next);
-                    }
-                    str->literal += escape;
-                    IceUtil::Int64 value = IceUtilInternal::strToInt64(escape.c_str(), 0, 8);
-                    if(value > 255)
-                    {
-                        unit->error(string("octal escape sequence out of range: `\\") + escape + "'");
-                    }
-                    str->v += static_cast<char>(value);
-                    break;
-                }
-
-                case 'x':
-                {
-                    string escape = "";
-                    next = yyinput();
-
-                    //
-                    // Unlike C++, we limit hex escape sequences to 2 hex digits
-                    //
-                    while(isxdigit(static_cast<char>(next)) && escape.length() < 2)
-                    {
-                        escape += static_cast<char>(next);
-                        next = yyinput();
-                    }
-                    unput(next);
-
-                    if(escape.length() == 0)
-                    {
-                        unit->error("no hex digit in hex escape sequence");
-                    }
-
-                    str->literal += escape;
-                    IceUtil::Int64 value = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
-
-                    assert(value >= 0 && value <= 255);
-                    str->v += static_cast<char>(value);
-                    break;
-                }
-
-                //
-                // Universal character name
-                //
-                case 'u':
-                case 'U':
-                {
-                    string escape = "";
-                    c = next;
-                    int size = (c == 'u') ? 4 : 8;
-                    while(size > 0)
-                    {
-                        next = yyinput();
-                        if(!isxdigit(next))
-                        {
-                            unit->error(string("unknown escape sequence in string literal: `\\") +
-                                               static_cast<char>(c) + escape + static_cast<char>(next) + "'");
-                            unput(next);
-                            break;
-                        }
-                        escape += static_cast<char>(next);
-                        --size;
-                    }
-
-                    if(size == 0)
-                    {
-                        // All digits read, check value
-                        IceUtil::Int64 codePoint = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
-                        if(codePoint >= 0xd800 && codePoint <= 0xdfff)
-                        {
-                            unit->error(string("a universal character name cannot designate a surrogate: `\\") +
-                                               static_cast<char>(c) + escape + "'");
-                        }
-                    }
-
-                    str->literal += escape;
-                    str->v += string("\\") + static_cast<char>(c) + escape;
-                    break;
-                }
-
-                default:
-                {
-                    ostringstream os;
-                    os << "unknown escape sequence `\\" << static_cast<char>(next) << "'";
-                    unit->warning(All, os.str());
-
-                    // Escape the \ in this unknown escape sequence
-                    str->v += '\\';
-                    str->v += '\\';
-                    unput(next);
-                }
-            }
-        }
-        else
-        {
-            str->v += static_cast<char>(c);
-        }
+        case 'a': ansiCode = '\a'; break;
+        case 'b': ansiCode = '\b'; break;
+        case 'f': ansiCode = '\f'; break;
+        case 'n': ansiCode = '\n'; break;
+        case 'r': ansiCode = '\r'; break;
+        case 't': ansiCode = '\t'; break;
+        case 'v': ansiCode = '\v'; break;
+        default: ansiCode = '\0'; assert(false);
     }
-    *yylvalp = str;
+    str->literal += yytext;
+    str->v += ansiCode;
+}
+
+  /* Matches an escaped octal value. Octal literals are limited to a max of 3 digits. */
+<STRING_LITERAL>"\\"{oct}{1,3} {
+    IceUtil::Int64 value = strtoull((yytext + 1), 0, 8);
+    if(value > 255)
+    {
+        unit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+    }
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += static_cast<char>(value);
+}
+
+  /* Matches an escaped hexadecimal value. Hexadecimal literals are limited to a max of 2 digits. */
+<STRING_LITERAL>"\\x"{hex}{1,2} {
+    IceUtil::Int64 value = strtoull((yytext + 2), 0, 16);
+    assert(value <= 255);
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += static_cast<char>(value);
+}
+
+  /* Matches an empty hexadecimal escape value. */
+<STRING_LITERAL>"\\x" {
+    unit->error("no hex digit in hex escape sequence");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+}
+
+  /* Matches a 4-char or 8-char size universal character code. */
+<STRING_LITERAL>"\\u"{hex}{4} |
+<STRING_LITERAL>"\\U"{hex}{8} {
+    IceUtil::Int64 codePoint = strtoull((yytext + 2), 0, 16);
+    if(codePoint <= 0xdfff && codePoint >= 0xd800)
+    {
+        unit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+    }
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += yytext;
+}
+
+  /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
+<STRING_LITERAL>"\\u"{hex}{0,3}[g-zG-Z]* |
+<STRING_LITERAL>"\\U"{hex}{0,7}[g-zG-Z]* {
+    unit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += yytext;
+}
+
+  /* Matches an unescaped newline in a string literal, and issues an error. */
+<STRING_LITERAL>\n {
+    yy_pop_state();
+    endLocation(yylloc);
+    nextLine();
+
+    unit->error("encountered un-escaped EOL while scanning a string literal.");
+    return ICE_STRING_LITERAL;
+}
+
+  /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
+   * it only matches 2 characters (the lowest any match), and it's beneath the others. */
+<STRING_LITERAL>"\\". {
+    unit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    // Escape the entire sequence.
+    str->literal += yytext;
+    str->v += "\\" + string(yytext);
+}
+
+  /* Matches a dangling backslash, with nothing to escape. This rule is mostly included for grammar completeness. */
+<STRING_LITERAL>\\ {
+    unit->warning(All, "dangling backslash in string literal");
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+}
+
+  /* Matches the end of a double-quoted string literal, but only while scanning a string literal. Flex always prefers
+   * to match the longest string it can, so quotes preceeded with a literal '\' will match the rules above this one. */
+<STRING_LITERAL>"\"" {
+    yy_pop_state();
+    endLocation(yylloc);
+
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    return ICE_STRING_LITERAL;
+}
+
+  /* Matches EOF, but only while scanning a string literal. */
+<STRING_LITERAL><<EOF>> {
+    yy_pop_state();
+    endLocation(yylloc);
+
+    unit->error("encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
 }
 
 {integer_constant} {
-    BEGIN(MAINSCAN);
+    setLocation(yylloc);
+
     IntegerTokPtr itp = new IntegerTok;
     itp->literal = string(yytext);
-    *yylvalp = itp;
+    *yylval = itp;
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
     {
         assert(itp->v != 0);
-        string msg = "integer constant `";
-        msg += yytext;
-        msg += "' out of range";
-        unit->error(msg);
+        unit->error("integer constant `" + string(yytext) + "' out of range");
     }
     return ICE_INTEGER_LITERAL;
 }
 
 {floating_literal} {
-    BEGIN(MAINSCAN);
+    setLocation(yylloc);
+
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
-    *yylvalp = ftp;
+    *yylval = ftp;
     string literal(yytext);
     ftp->literal = literal;
     char lastChar = literal[literal.size() - 1];
@@ -477,118 +317,257 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     ftp->v = strtod(literal.c_str(), 0);
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        string msg = "floating-point constant `";
-        msg += yytext;
-        msg += "' too large (overflow)";
-        unit->error(msg);
+        unit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
     }
     else if(ftp->v == 0 && errno == ERANGE)
     {
-        string msg = "floating-point constant `";
-        msg += yytext;
-        msg += "' too small (underflow)";
-    unit->error(msg);
+        unit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
 
-[[:space:]] {
-    // Ignore white-space
+  /* ========== Comments ========== */
 
-    if(unit->currentLine() != 0)
+  /* Matches and records a triple-slash style doc comment. */
+<*>"///".* {
+    unit->addToComment(yytext + 3);
+}
+
+  /* Matches and consumes a C++ style comment. */
+<*>"//".* {}
+
+  /* Matches the start of a C style comment, and switches the scanner to the C_COMMENT state. */
+<*>"/*" {
+    yy_push_state(C_COMMENT);
+}
+
+  /* Matches any character except for newlines and adds them to the comments. '*' are matched one at a time to ensure
+   * Flex scans '* /' correctly. Flex prioritizes longer matches over shorter ones, so '* /' will match before '*'. */
+<C_COMMENT>"*"     |
+<C_COMMENT>[^\n*]+ {
+    yymore();
+}
+
+  /* Matches as many newlines as are available and adds them to the comment, after incrementing the line count. */
+<C_COMMENT>\n+ {
+    nextLine(yyleng);
+    yymore();
+}
+
+  /* Matches the end of a C style comment, and reverts the scanner state to what it previously was. */
+<C_COMMENT>"*/" {
+    yy_pop_state();
+
+    string comment(yytext);
+    // The last 2 characters are the '*/' matched by this rule.
+    unit->setComment(comment.substr(0, yyleng - 2));
+}
+
+  /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
+<C_COMMENT><<EOF>> {
+    yy_pop_state();
+
+    unit->error("encountered EOF while scanning a comment");
+    unit->setComment(yytext);
+}
+
+  /* ========== Preprocessor Statements ========== */
+
+  /* Matches the empty preprocessor directive. */
+<*>^{preprocessor_prefix} {
+    yy_push_state(PREPROCESS);
+}
+
+  /* Matches a line preprocessor directive, but missing a line number. */
+<*>^{preprocessor_prefix}line {
+    yy_push_state(PREPROCESS);
+    unit->error("missing line number in line preprocessor directive");
+}
+
+  /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
+<*>^{preprocessor_lineno}                         |
+<*>^{preprocessor_lineno}[[:blank:]]+\"[^\"\n]*\" {
+    int includeAction = scanPosition(yytext);
+    if(yylineno == 0 || includeAction == 1) // Push: Indicated the scanner has started scanning a new file.
     {
-        BEGIN(MAINSCAN);
+        yy_push_state(INITIAL);
     }
-    if(yytext[0] == '\n')
+    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a file.
     {
-        unit->nextLine();
+        yy_pop_state();
+    }
+    yy_push_state(PREPROCESS);
+}
+
+  /* Matches any non white-space character. This is a catch-all to report any invalid characters
+   * found while scanning a preprocessor directive. */
+<PREPROCESS>[^[:space:]]+ {
+    unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
+}
+
+  /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
+<PREPROCESS>\n      |
+<PREPROCESS><<EOF>> {
+    yy_pop_state();
+    nextLine();
+}
+
+  /* ========== Metadata ========== */
+
+"[" {
+    yy_push_state(METADATA);
+    return ICE_METADATA_OPEN;
+}
+
+"[[" {
+    yy_push_state(METADATA);
+
+    // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
+    if(yy_top_state() == PRE_SLICE)
+    {
+        return ICE_GLOBAL_METADATA_OPEN;
+    }
+    else
+    {
+        return ICE_GLOBAL_METADATA_IGNORE;
     }
 }
 
-<BOMSCAN>^"\357\273\277" {
-    // Ignore UTF-8 BOM, rule only active when parsing start of file.
+  /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
+<METADATA>"\"" {
+    yy_push_state(STRING_LITERAL);
+    startLocation(yylloc);
 
-    BEGIN(MAINSCAN);
+    StringTokPtr str = new StringTok;
+    str->literal = "\"";
+    *yylval = str;
 }
 
+  /* Matches commas between string literals in quoted metadata and forwards them to the parser. */
+<METADATA>"," {
+    return yytext[0];
+}
+
+  /* Matches and consumes newlines in between metadata after incrementing the line count. */
+<METADATA>\n+ {
+    nextLine(yyleng);
+}
+
+<METADATA>"]" {
+    yy_pop_state();
+    return ICE_METADATA_CLOSE;
+}
+
+<METADATA>"]]" {
+    yy_pop_state();
+    return ICE_GLOBAL_METADATA_CLOSE;
+}
+
+  /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
+<METADATA>[^[:space:]] {
+    unit->error("invalid character between metadata");
+}
+
+  /* ========== Identifiers and Keywords ========== */
+
+{identifier}[[:space:]]*"(" {
+    StringTokPtr ident = new StringTok;
+    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
+    ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
+    *yylval = ident;
+    if(*yytext == '\\')
+    {
+        if(checkIdentifier(ident->v) == ICE_SCOPED_IDENTIFIER)
+        {
+            unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        }
+        return ICE_IDENT_OPEN;
+    }
+    int st = checkKeyword(ident->v);
+    if(st == ICE_IDENTIFIER)
+    {
+        return ICE_IDENT_OPEN;
+    }
+    else if(st == ICE_SCOPED_IDENTIFIER)
+    {
+        unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        return ICE_IDENT_OPEN;
+    }
+    else if(st == ICE_TAG)
+    {
+        return ICE_TAG_OPEN;
+    }
+    else if(st == ICE_OPTIONAL)
+    {
+        return ICE_OPTIONAL_OPEN;
+    }
+    else
+    {
+        return ICE_KEYWORD_OPEN;
+    }
+}
+
+{identifier} {
+    StringTokPtr ident = new StringTok;
+    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
+    *yylval = ident;
+    return *yytext == '\\' ? checkIdentifier(ident->v) : checkKeyword(ident->v);
+}
+
+  /* ========== Whitespace ========== */
+
+  /* Matches and consumes any whitespace, except for newlines. */
+<*>{whitespace}+ {}
+
+  /* Matches and consumes newlines, but only when the scanner isn't in a sub-scanner. */
+\n+ {
+    nextLine(yyleng);
+}
+
+  /* ========== Others ========== */
+
+  /* Matches and consumes a BOM, but only when the scanner has just started scanning a new file. */
+<INITIAL>{bom} {}
+
+  /* Matches invalid characters, one at a time to make this the 2nd lowest priority rule. All printable ASCII
+   * characters are valid (those between 32 and 127 inclusively), anything outside this range is invalid. */
+[^\x20-\x7f] {
+    stringstream s;
+    s << "illegal input character: '\\";
+    s.width(3);
+    s.fill('0');
+    s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
+    s << "'";
+
+    unit->error(s.str());
+    return BAD_CHAR;
+}
+
+  /* Matches any valid character (except newlines) not matched by another rule and fowards it to the parser.
+   * This is the lowest priority rule in the scanner, and is only active while not in a sub-scanner. */
 . {
-    BEGIN(MAINSCAN);
-    if(yytext[0] < 32 || yytext[0] > 126)
-    {
-        stringstream s;
-        s << "illegal input character: '\\";
-        s.width(3);
-        s.fill('0');
-        s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
-        s << "'";
-        unit->error(s.str());
-        return BAD_CHAR;
-    }
+    setLocation(yylloc);
     return yytext[0];
 }
 
 %%
 
-namespace Slice {
-
-//
-// initScanner() fills the keyword map with all keyword-token pairs.
-//
-
-void
-initScanner()
+namespace Slice
 {
-    keywordMap["module"] = ICE_MODULE;
-    keywordMap["class"] = ICE_CLASS;
-    keywordMap["interface"] = ICE_INTERFACE;
-    keywordMap["exception"] = ICE_EXCEPTION;
-    keywordMap["struct"] = ICE_STRUCT;
-    keywordMap["sequence"] = ICE_SEQUENCE;
-    keywordMap["dictionary"] = ICE_DICTIONARY;
-    keywordMap["enum"] = ICE_ENUM;
-    keywordMap["out"] = ICE_OUT;
-    keywordMap["extends"] = ICE_EXTENDS;
-    keywordMap["implements"] = ICE_IMPLEMENTS;
-    keywordMap["throws"] = ICE_THROWS;
-    keywordMap["void"] = ICE_VOID;
-    keywordMap["byte"] = ICE_BYTE;
-    keywordMap["bool"] = ICE_BOOL;
-    keywordMap["short"] = ICE_SHORT;
-    keywordMap["int"] = ICE_INT;
-    keywordMap["long"] = ICE_LONG;
-    keywordMap["float"] = ICE_FLOAT;
-    keywordMap["double"] = ICE_DOUBLE;
-    keywordMap["string"] = ICE_STRING;
-    keywordMap["Object"] = ICE_OBJECT;
-    keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
-    keywordMap["local"] = ICE_LOCAL;
-    keywordMap["const"] = ICE_CONST;
-    keywordMap["false"] = ICE_FALSE;
-    keywordMap["true"] = ICE_TRUE;
-    keywordMap["idempotent"] = ICE_IDEMPOTENT;
-    keywordMap["optional"] = ICE_OPTIONAL;
-    keywordMap["Value"] = ICE_VALUE;
-}
 
-//
 // Check if an identifier looks like a keyword.
 // If the identifier is a keyword, return the
 // corresponding keyword token; otherwise, return
 // an identifier token.
-//
-
-int
-checkKeyword(string& id)
+int checkKeyword(string& id)
 {
-    StringTokenMap::const_iterator pos = keywordMap.find(id);
+    const StringTokenMap::const_iterator pos = keywordMap.find(id);
     if(pos != keywordMap.end())
     {
         if(pos->first != id)
         {
-            string msg;
-            msg = "illegal identifier: `" + id + "' differs from keyword `";
-            msg += pos->first + "' only in capitalization";
-            unit->error(msg);
+            unit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+                        "' only in capitalization");
             id = pos->first;
         }
         return pos->second;
@@ -596,14 +575,11 @@ checkKeyword(string& id)
     return checkIdentifier(id);
 }
 
-//
 // Checks an identifier for any illegal syntax and
 // determines whether it's scoped. If it is, this
 // returns a scoped identifier token; otherwise this
 // returns a normal identifier token.
-//
-
-int checkIdentifier(string& id)
+int checkIdentifier(const string& id)
 {
     // check whether the identifier is scoped
     size_t scopeIndex = id.rfind("::");
@@ -671,6 +647,132 @@ int checkIdentifier(string& id)
     }
 
     return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
+}
+
+}
+
+namespace
+{
+
+void nextLine(int count)
+{
+    yylineno += count;
+    yycolno = 0;
+}
+
+int scanPosition(const char* s)
+{
+    string line(s);
+    // Skip the leading '#', optional 'line', and any whitespace before the line number.
+    string::size_type idx = line.find_first_not_of(" \t\r", (line.find('#') + 1));
+    if(line.find("line", idx) == idx)
+    {
+        idx = line.find_first_not_of(" \t\r", (idx + 4));
+    }
+    line.erase(0, idx);
+
+    // Read the line number
+    yylineno = stoi(line.c_str(), &idx) - 1;
+
+    // Scan the remainder of the line for a filename.
+    idx = line.find_first_not_of(" \t\r", idx);
+    line.erase(0, idx);
+
+    int lineTypeCode = 0;
+    if(!line.empty())
+    {
+        if(line[0] == '"')
+        {
+            string::size_type edx = line.rfind('"');
+            if(edx != string::npos)
+            {
+                line = line.substr(1, edx - 1);
+            }
+            else
+            {
+                unit->error("mismatched quotations in line directive");
+                line = line.substr(1);
+            }
+        }
+        lineTypeCode = unit->setCurrentFile(line, yylineno);
+        yyfilename = string(line);
+    }
+    return lineTypeCode;
+}
+
+void setLocation(TokenContext* location)
+{
+    startLocation(location);
+    endLocation(location);
+}
+
+void startLocation(TokenContext* location)
+{
+    location->firstLine = yylineno;
+    // The string has already been scanned, so the scanner is positioned at the end of it.
+    location->firstColumn = yycolno - yyleng;
+    location->filename = yyfilename;
+}
+
+void endLocation(TokenContext* location)
+{
+    location->lastLine = yylineno;
+    location->lastColumn = yycolno;
+}
+
+// This function is always called once, right before scanning begins.
+void initScanner()
+{
+    // Ensure the scanner starts at line number 1, column position 0.
+    yylineno = 1;
+
+    keywordMap["module"] = ICE_MODULE;
+    keywordMap["class"] = ICE_CLASS;
+    keywordMap["interface"] = ICE_INTERFACE;
+    keywordMap["exception"] = ICE_EXCEPTION;
+    keywordMap["struct"] = ICE_STRUCT;
+    keywordMap["sequence"] = ICE_SEQUENCE;
+    keywordMap["dictionary"] = ICE_DICTIONARY;
+    keywordMap["enum"] = ICE_ENUM;
+    keywordMap["out"] = ICE_OUT;
+    keywordMap["extends"] = ICE_EXTENDS;
+    keywordMap["implements"] = ICE_IMPLEMENTS;
+    keywordMap["throws"] = ICE_THROWS;
+    keywordMap["void"] = ICE_VOID;
+    keywordMap["byte"] = ICE_BYTE;
+    keywordMap["bool"] = ICE_BOOL;
+    keywordMap["short"] = ICE_SHORT;
+    keywordMap["int"] = ICE_INT;
+    keywordMap["long"] = ICE_LONG;
+    keywordMap["float"] = ICE_FLOAT;
+    keywordMap["double"] = ICE_DOUBLE;
+    keywordMap["string"] = ICE_STRING;
+    keywordMap["Object"] = ICE_OBJECT;
+    keywordMap["const"] = ICE_CONST;
+    keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
+    keywordMap["local"] = ICE_LOCAL;
+    keywordMap["false"] = ICE_FALSE;
+    keywordMap["true"] = ICE_TRUE;
+    keywordMap["idempotent"] = ICE_IDEMPOTENT;
+    keywordMap["tag"] = ICE_TAG;
+    // 'optional' is kept as an alias for 'tag' for backwards compatability.
+    // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
+    // But for 'tag' we require an optional (nullable) type. No inferencing is done.
+    keywordMap["optional"] = ICE_OPTIONAL;
+    keywordMap["Value"] = ICE_VALUE;
+}
+
+// This function is always called directly after a match has been made, but directly before it's action block is run.
+void preAction()
+{
+    yycolno += yyleng;
+
+    // We only use the 'INITIAL' state to consume BOMs, which can only validly be the first match in a file. This
+    // function being called means a match has already been made, so we switch states since BOMs are no longer valid.
+    if(YY_START == INITIAL)
+    {
+        BEGIN(PRE_SLICE);
+    }
 }
 
 }

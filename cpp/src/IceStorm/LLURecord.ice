@@ -8,14 +8,12 @@
 
 module IceStormElection
 {
-
-/** A struct used for marking the last log update. */
-struct LogUpdate
-{
-    /** The generation. */
-    long generation;
-    /** The iteration within this generation. */
-    long iteration;
-}
-
+    /// A struct used for marking the last log update.
+    struct LogUpdate
+    {
+        /// The generation.
+        long generation;
+        /// The iteration within this generation.
+        long iteration;
+    }
 }

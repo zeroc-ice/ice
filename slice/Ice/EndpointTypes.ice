@@ -26,22 +26,12 @@
 module Ice
 {
 
-/**
- *
- * Determines the order in which the Ice run time uses the endpoints
- * in a proxy when establishing a connection.
- *
- **/
+/// Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
 local enum EndpointSelectionType
 {
-    /**
-     * <code>Random</code> causes the endpoints to be arranged in a random order.
-     */
+    /// <code>Random</code> causes the endpoints to be arranged in a random order.
     Random,
-    /**
-     * <code>Ordered</code> forces the Ice run time to use the endpoints in the
-     * order they appeared in the proxy.
-     */
+    /// <code>Ordered</code> forces the Ice run time to use the endpoints in the order they appeared in the proxy.
     Ordered
 }
 

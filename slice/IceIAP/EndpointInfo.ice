@@ -17,51 +17,24 @@
 
 #include <Ice/Endpoint.ice>
 
-/**
- *
- * IceIAP provides a secure transport for Ice.
- *
- **/
+/// IceIAP provides a secure transport for Ice.
 ["objc:prefix:ICEIAP", "swift:module:Ice:IAP"]
 module IceIAP
 {
 
-/**
- *
- * Provides access to an IAP endpoint information.
- *
- **/
+/// Provides access to an IAP endpoint information.
 local class EndpointInfo extends Ice::EndpointInfo
 {
-    /**
-     *
-     * The accessory manufacturer or empty to not match against
-     * a manufacturer.
-     *
-     **/
+    /// The accessory manufacturer or empty to not match against a manufacturer.
     string manufacturer;
 
-    /**
-     *
-     * The accessory model number or empty to not match against
-     * a model number.
-     *
-     **/
+    /// The accessory model number or empty to not match against a model number.
     string modelNumber;
 
-    /**
-     *
-     * The accessory name or empty to not match against
-     * the accessory name.
-     *
-     **/
+    /// The accessory name or empty to not match against the accessory name.
     string name;
 
-    /**
-     *
-     * The protocol supported by the accessory.
-     *
-     **/
+    /// The protocol supported by the accessory.
     string protocol;
 }
 
