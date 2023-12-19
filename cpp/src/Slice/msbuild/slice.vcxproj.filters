@@ -20,8 +20,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -36,8 +34,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -52,8 +48,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -68,8 +62,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -84,8 +76,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -100,8 +90,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -116,8 +104,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -132,8 +118,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -148,8 +132,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -164,8 +146,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -180,8 +160,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -196,8 +174,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -212,8 +188,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -228,8 +202,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -244,8 +216,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -260,8 +230,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -276,8 +244,6 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\JavaUtil.cpp" />
-    <ClCompile Include="..\MD5.cpp" />
-    <ClCompile Include="..\MD5I.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -295,8 +261,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -308,8 +272,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -321,8 +283,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -334,8 +294,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -347,8 +305,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -360,8 +316,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -373,8 +327,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -386,8 +338,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -399,8 +349,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -412,8 +360,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -425,8 +371,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -438,8 +382,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -451,8 +393,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
@@ -464,8 +404,6 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\JavaUtil.h" />
-    <ClInclude Include="..\MD5.h" />
-    <ClInclude Include="..\MD5I.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />

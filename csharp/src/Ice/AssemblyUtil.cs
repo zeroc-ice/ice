@@ -12,17 +12,10 @@ namespace IceInternal
 
     public sealed class AssemblyUtil
     {
-#if NETSTANDARD2_0
         public static readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static readonly bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        public static readonly bool isMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
-#else
-        public static readonly bool isWindows = true;
-        public static readonly bool isMacOS = false;
-        public static readonly bool isLinux = false;
-        public static readonly bool isMono = false;
-#endif
+
         public static Type findType(Instance instance, string csharpId)
         {
             lock(_mutex)

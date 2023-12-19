@@ -3,10 +3,10 @@ name: ci
 on:
   workflow_dispatch:
   push:
-    branches: ["3.7"]
+    branches: ["3.7", "main"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: ["3.7"]
+    branches: ["3.7", "main"]
   schedule:
     - cron: "34 18 * * 3"
 
@@ -17,6 +17,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build
-        run: make V=1
+        run: make -j8 V=1
       - name: Test
         run: ./allTests.py --workers=4

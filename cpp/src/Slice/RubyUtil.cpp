@@ -1460,7 +1460,7 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
         return lookupKwd(id);
     }
 
-    vector<string> ids = splitScopedName(ident);
+    vector<string> ids = splitScopedName(ident, false);
     assert(!ids.empty());
 
     ostringstream result;
