@@ -101,7 +101,7 @@ struct Struct2
 // the string members, but we use metadata to force it to be mapped
 // to a class.
 //
-["clr:class"]
+["cs:class"]
 struct Struct3
 {
     bool boolFalse = false;
@@ -130,7 +130,7 @@ struct Struct3
 
 //
 // Struct4 would normally map to a C# struct because we have omitted
-// the string members, and don't contains clr:class metadata, but as it
+// the string members, and don't contains cs:class metadata, but as it
 // contains default values it is mapped to a class.
 //
 struct Struct4
@@ -221,7 +221,7 @@ exception DerivedEx extends BaseEx
     Nested::Color nc3 = ConstNestedColor3;
 }
 
-["clr:property"]
+["cs:property"]
 class ClassProperty
 {
     bool boolFalse = false;
@@ -242,7 +242,7 @@ class ClassProperty
     double zeroDotD = 0;
 }
 
-["clr:property"]
+["cs:property"]
 struct StructProperty
 {
     bool boolFalse = false;
@@ -264,10 +264,10 @@ struct StructProperty
 }
 
 //
-// Exceptions don't support "clr:property" metadata, but
+// Exceptions don't support "cs:property" metadata, but
 // we want to ensure that the generated code compiles.
 //
-["clr:property"]
+["cs:property"]
 exception ExceptionProperty
 {
     bool boolFalse = false;
