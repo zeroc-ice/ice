@@ -693,6 +693,41 @@ lookupKwd(const string& name)
     return found ? "slice_" + name : name;
 }
 
+//
+// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+//
+vector<string>
+splitScopedName(const string& scoped)
+{
+    assert(scoped[0] == ':');
+    vector<string> ids;
+    string::size_type next = 0;
+    string::size_type pos;
+    while ((pos = scoped.find("::", next)) != string::npos)
+    {
+        pos += 2;
+        if (pos != scoped.size())
+        {
+            string::size_type endpos = scoped.find("::", pos);
+            if (endpos != string::npos)
+            {
+                ids.push_back(scoped.substr(pos, endpos - pos));
+            }
+        }
+        next = pos;
+    }
+    if (next != scoped.size())
+    {
+        ids.push_back(scoped.substr(next));
+    }
+    else
+    {
+        ids.push_back("");
+    }
+
+    return ids;
+}
+
 }
 
 string
@@ -700,7 +735,7 @@ IceMatlab::idToClass(const string& typeId)
 {
     auto ids = splitScopedName(typeId);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-    stringstream result;
+    ostringstream result;
     for(auto i = ids.begin(); i != ids.end(); ++i)
     {
         if(i != ids.begin())

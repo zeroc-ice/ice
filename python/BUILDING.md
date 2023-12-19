@@ -4,7 +4,7 @@ This document describes how to build and install Ice for Python from source.
 You can also download and install a [binary distribution].
 
 * [Building with Pip](#building-with-pip)
-* [Building with Visual Studio 2015 and MSBuild (Python 3\.11 for Windows)](#building-with-visual-studio-2015-and-msbuild-python-311-for-windows)
+* [Building with Visual Studio 2022 and MSBuild (Python 3\.11 for Windows)](#building-with-visual-studio-2022-and-msbuild-python-311-for-windows)
 * [Building on Linux or macOS](#building-on-linux-or-macos)
 * [Configuring your Environment for Python](#configuring-your-environment-for-python)
 * [Running the Python Tests](#running-the-python-tests)
@@ -17,17 +17,17 @@ You can build the Ice for Python extension from source using `pip`:
 pip install <URL of Ice source distribution for Python>
 ```
 
-## Building with Visual Studio 2015 and MSBuild (Python 3.11 for Windows)
+## Building with Visual Studio 2022 and MSBuild (Python 3.12 for Windows)
 
 You can build an Ice for Python extension that links with the Ice C++ DLLs using Visual Studio and MSBuild.
 
-First, open a Visual Studio 2015 command prompt:
+First, open a Visual Studio 2022 command prompt:
 
-* VS2015 x86 Native Tools Command Prompt
+* VS2022 x86 Native Tools Command Prompt
 
 or
 
-* VS2015 x64 Native Tools Command Prompt
+* VS2022 x64 Native Tools Command Prompt
 
 Using the first Command Prompt produces `Win32` binaries by default, while
 the second Command Prompt produces `x64` binaries by default.
