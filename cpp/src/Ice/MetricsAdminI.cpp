@@ -89,33 +89,19 @@ parseRule(const PropertiesPtr& properties, const string& name)
 
 MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _attribute(attribute)
 {
-#ifdef __MINGW32__
-    //
-    // No regexp support with MinGW, when MinGW C++11 mode is not experimental
-    // we can use std::regex.
-    //
-#elif !defined(ICE_CPP11_COMPILER_REGEXP)
+#if !defined(ICE_CPP11_COMPILER_REGEXP)
     if(regcomp(&_preg, regexp.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
     {
         throw SyscallException(__FILE__, __LINE__);
     }
 #else
-#   if _MSC_VER < 1600
-    _regex = std::tr1::regex(regexp, std::tr1::regex_constants::extended | std::tr1::regex_constants::nosubs);
-#   else
     _regex = regex(regexp, std::regex_constants::extended | std::regex_constants::nosubs);
-#   endif
 #endif
 }
 
 MetricsMapI::RegExp::~RegExp()
 {
-#ifdef __MINGW32__
-    //
-    // No regexp support with MinGW, when MinGW C++11 mode is not experimental
-    // we can use std::regex.
-    //
-#elif !defined(ICE_CPP11_COMPILER_REGEXP)
+#if !defined(ICE_CPP11_COMPILER_REGEXP)
     regfree(&_preg);
 #endif
 }
@@ -123,20 +109,10 @@ MetricsMapI::RegExp::~RegExp()
 bool
 MetricsMapI::RegExp::match(const string& value)
 {
-#ifdef __MINGW32__
-    //
-    // No regexp support with MinGW, when MinGW C++11 mode is not experimental
-    // we can use std::regex.
-    //
-    return false;
-#elif !defined(ICE_CPP11_COMPILER_REGEXP)
+#if !defined(ICE_CPP11_COMPILER_REGEXP)
     return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
 #else
-#   if _MSC_VER < 1600
-    return std::tr1::regex_match(value, _regex);
-#   else
     return regex_match(value, _regex);
-#   endif
 #endif
 }
 

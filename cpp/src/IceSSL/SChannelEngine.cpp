@@ -36,15 +36,6 @@
 
 const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
 
-//
-// COMPILERFIX SCH_USE_STRONG_CRYPTO not defined with v90
-//
-#if defined(_MSC_VER) && (_MSC_VER <= 1600)
-#  ifndef SCH_USE_STRONG_CRYPTO
-#    define SCH_USE_STRONG_CRYPTO 0x00400000
-#  endif
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceUtil;
@@ -330,31 +321,6 @@ findCertificates(const string& location, const string& storeName, const string& 
     }
     return certs;
 }
-
-#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
-//
-// CERT_CHAIN_ENGINE_CONFIG struct in mingw headers doesn't include
-// new members added in Windows 7, we add our ouwn definition and
-// then cast it to CERT_CHAIN_ENGINE_CONFIG this works because the
-// linked libraries include the new version.
-//
-struct CertChainEngineConfig
-{
-    DWORD cbSize;
-    HCERTSTORE hRestrictedRoot;
-    HCERTSTORE hRestrictedTrust;
-    HCERTSTORE hRestrictedOther;
-    DWORD cAdditionalStore;
-    HCERTSTORE *rghAdditionalStore;
-    DWORD dwFlags;
-    DWORD dwUrlRetrievalTimeout;
-    DWORD MaximumCachedCertificates;
-    DWORD CycleDetectionModulus;
-    HCERTSTORE hExclusiveRoot;
-    HCERTSTORE hExclusiveTrustedPeople;
-};
-
-#endif
 
 void
 addCertificatesToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert = 0)
@@ -720,15 +686,9 @@ SChannel::SSLEngine::initialize()
         //
         // Create a chain engine that uses our Trusted Root Store
         //
-#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
-        CertChainEngineConfig config;
-        memset(&config, 0, sizeof(CertChainEngineConfig));
-        config.cbSize = sizeof(CertChainEngineConfig);
-#else
         CERT_CHAIN_ENGINE_CONFIG config;
         memset(&config, 0, sizeof(CERT_CHAIN_ENGINE_CONFIG));
         config.cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG);
-#endif
         config.hExclusiveRoot = _rootStore;
 
         //
@@ -740,11 +700,7 @@ SChannel::SSLEngine::initialize()
             config.dwFlags = CERT_CHAIN_USE_LOCAL_MACHINE_STORE;
         }
 
-#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
-        if(!CertCreateCertificateChainEngine(reinterpret_cast<CERT_CHAIN_ENGINE_CONFIG*>(&config), &_chainEngine))
-#else
         if(!CertCreateCertificateChainEngine(&config, &_chainEngine))
-#endif
         {
             throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: error creating certificate chain engine:\n" +
