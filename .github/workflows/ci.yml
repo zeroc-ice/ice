@@ -35,7 +35,7 @@ jobs:
       - name: Test
         run: ./allTests.py --workers=3
 
-  windows-ci:
+  windows-latest:
     runs-on: [windows-latest]
     steps:
       - name: Add msbuild to PATH
@@ -43,6 +43,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build
-        run: msbuild /m ice\msbuild\ice.proj
+        run: msbuild /m cpp\msbuild\ice.proj
       # - name: Test
       #   run: ./allTests.py --workers=3
