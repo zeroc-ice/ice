@@ -6,6 +6,7 @@
 #define ICE_UTIL_SHARED_H
 
 #include <IceUtil/Config.h>
+#include <atomic>
 
 //
 // Base classes for reference counted types. The IceUtil::Handle
