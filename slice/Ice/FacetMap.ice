@@ -26,11 +26,7 @@
 module Ice
 {
 
-/**
- *
- * A mapping from facet name to servant.
- *
- **/
+/// A mapping from facet name to servant.
 local dictionary<string, ["swift:nonnull"] Object> FacetMap;
 
 }

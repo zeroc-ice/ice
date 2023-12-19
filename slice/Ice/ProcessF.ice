@@ -25,7 +25,5 @@
 ["objc:prefix:ICE"]
 module Ice
 {
-
-interface Process;
-
+    interface Process;
 }

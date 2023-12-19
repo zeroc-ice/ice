@@ -33,11 +33,7 @@ local class UDPEndpointInfo;
 local class WSEndpointInfo;
 local interface Endpoint;
 
-/**
- *
- * A sequence of endpoints.
- *
- **/
+/// A sequence of endpoints.
 ["swift:nonnull"] local sequence<Endpoint> EndpointSeq;
 
 }
