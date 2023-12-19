@@ -33,10 +33,6 @@ IceUtil::Mutex* processStringConverterMutex = 0;
 IceUtil::StringConverterPtr processStringConverter;
 IceUtil::WstringConverterPtr processWstringConverter;
 
-#ifndef ICE_HAS_THREAD_SAFE_LOCAL_STATIC
-IceUtil::WstringConverterPtr unicodeWstringConverter;
-#endif
-
 #ifdef ICE_HAS_CODECVT_UTF8
 
 template<size_t wcharSize>
@@ -248,9 +244,6 @@ public:
     Init()
     {
         processStringConverterMutex = new IceUtil::Mutex;
-#ifndef ICE_HAS_THREAD_SAFE_LOCAL_STATIC
-        unicodeWstringConverter = ICE_MAKE_SHARED(UnicodeWstringConverter);
-#endif
     }
 
     ~Init()
@@ -265,9 +258,7 @@ Init init;
 const WstringConverterPtr&
 getUnicodeWstringConverter()
 {
-#ifdef ICE_HAS_THREAD_SAFE_LOCAL_STATIC
     static const WstringConverterPtr unicodeWstringConverter = ICE_MAKE_SHARED(UnicodeWstringConverter);
-#endif
     return unicodeWstringConverter;
 }
 
@@ -446,17 +437,8 @@ IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& conv
 
 #ifdef ICE_HAS_CODECVT_UTF8
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1900)
-//
-// Workaround for compiler bug - see http://stackoverflow.com/questions/32055357
-//
-typedef unsigned short Char16T;
-typedef unsigned int Char32T;
-
-#else
 typedef char16_t Char16T;
 typedef char32_t Char32T;
-#endif
 
 #endif
 

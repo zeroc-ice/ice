@@ -21,7 +21,7 @@ public:
 
 static FactoryTableInit factoryTableInitializer;    // Dummy variable to force initialization of factoryTable
 
-extern ICE_API FactoryTable* factoryTable ICE_GLOBAL_VAR_SUFFIX;
+extern ICE_API FactoryTable* factoryTable;
 
 class ICE_API CompactIdInit
 {

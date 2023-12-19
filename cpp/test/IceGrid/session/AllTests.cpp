@@ -480,7 +480,7 @@ testFailedAndPrintObservers(const char* expr, const char* file, unsigned int lin
 #undef test
 #define test(ex) ((ex) ? ((void)0) : testFailedAndPrintObservers(#ex, __FILE__, __LINE__))
 
-#if defined(_AIX) && defined(__GNUC__) && !defined(__ibmxl__)
+#if defined(_AIX) && defined(__GNUC__)
 // Strange optimization bug with catching ExtendedPermissionDeniedException with GCC 8.1 on AIX
 __attribute__((optimize("O0")))
 #endif

@@ -3000,7 +3000,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 C.zeroIndent();
                 C << sp;
-                C << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+                C << nl << "#if defined(_MSC_VER)";
                 C << nl << "#   pragma warning(push)";
                 C << nl << "#   pragma warning(disable:4589)";
                 C << nl << "#endif";
@@ -3026,7 +3026,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             if(hasGCObjectBaseClass)
             {
                 C.zeroIndent();
-                C << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+                C << nl << "#if defined(_MSC_VER)";
                 C << nl << "#   pragma warning(pop)";
                 C << nl << "#endif";
                 C.restoreIndent();
@@ -3046,10 +3046,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         other.sort();
         ids.merge(other);
         ids.unique();
-        StringList::const_iterator firstIter = ids.begin();
         StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
         assert(scopedIter != ids.end());
-        StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
 
         H << sp;
         H << nl << "/**";
@@ -3126,18 +3124,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << sp;
         C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
         C << sb;
-        C.zeroIndent();
-        C << nl << "#ifdef ICE_HAS_THREAD_SAFE_LOCAL_STATIC";
-        C.restoreIndent();
         C << nl << "static const ::std::string typeId = \"" << *scopedIter << "\";";
         C << nl << "return typeId;";
-        C.zeroIndent();
-        C << nl << "#else";
-        C.restoreIndent();
-        C << nl << "return " << flatName << '[' << scopedPos << "];";
-        C.zeroIndent();
-        C << nl << "#endif";
-        C.restoreIndent();
         C << eb;
 
         emitGCFunctions(p);
@@ -5167,7 +5155,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 
     H.zeroIndent();
     H << sp;
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+    H << nl << "#if defined(_MSC_VER)";
     H << nl << "#   pragma warning(push)";
     H << nl << "#   pragma warning(disable:4239)";
     H << nl << "#endif";
@@ -5189,7 +5177,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 
     H.zeroIndent();
     H << sp;
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+    H << nl << "#if defined(_MSC_VER)";
     H << nl << "#   pragma warning(pop)";
     H << nl << "#endif";
     H.restoreIndent();

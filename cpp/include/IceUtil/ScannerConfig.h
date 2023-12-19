@@ -16,7 +16,7 @@
 // header is included by inttypes.h, that is included by the generated
 // Scanners.
 //
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#if defined(_MSC_VER)
 #   include <stdint.h>
 #endif
 
@@ -26,7 +26,7 @@
 //
 #if defined(__clang__)
 #   pragma clang diagnostic ignored "-Wdeprecated-register"
-#elif defined(_MSC_VER) && (_MSC_VER >= 1900)
+#elif defined(_MSC_VER)
 #   pragma warning(disable:5033)
 #endif
 
