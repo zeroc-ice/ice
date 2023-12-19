@@ -20,11 +20,7 @@
 
 #include <Ice/Endpoint.ice>
 
-/**
- *
- * IceSSL provides a secure transport for Ice.
- *
- **/
+/// IceSSL provides a secure transport for Ice.
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
@@ -33,11 +29,7 @@
 module IceSSL
 {
 
-/**
- *
- * Provides access to an SSL endpoint information.
- *
- **/
+/// Provides access to an SSL endpoint information.
 local class EndpointInfo extends Ice::EndpointInfo
 {
 }

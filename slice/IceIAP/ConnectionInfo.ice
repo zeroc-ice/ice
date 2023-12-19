@@ -21,53 +21,25 @@
 module IceIAP
 {
 
-/**
- *
- * Provides access to the connection details of an IAP connection
- *
- **/
+/// Provides access to the connection details of an IAP connection.
 local class ConnectionInfo extends Ice::ConnectionInfo
 {
-    /**
-     *
-     * The accessory name.
-     *
-     **/
+    /// The accessory name.
     string name;
 
-    /**
-     *
-     * The accessory manufacturer.
-     *
-     **/
+    /// The accessory manufacturer.
     string manufacturer;
 
-    /**
-     *
-     * The accessory model number.
-     *
-     **/
+    /// The accessory model number.
     string modelNumber;
 
-    /**
-     *
-     * The accessory firmare revision.
-     *
-     **/
+    /// The accessory firmare revision.
     string firmwareRevision;
 
-    /**
-     *
-     * The accessory hardware revision.
-     *
-     **/
+    /// The accessory hardware revision.
     string hardwareRevision;
 
-    /**
-     *
-     * The protocol used by the accessory.
-     *
-     **/
+    /// The protocol used by the accessory.
     string protocol;
 }
 

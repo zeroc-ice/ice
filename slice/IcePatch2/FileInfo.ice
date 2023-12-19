@@ -28,58 +28,42 @@
 module IcePatch2
 {
 
-/**
- *
- * Basic information about a single file.
- *
- **/
+/// Basic information about a single file.
 struct FileInfo
 {
-    /** The pathname. **/
+    /// The pathname.
     string path;
 
-    /** The SHA-1 checksum of the file. **/
+    /// The SHA-1 checksum of the file.
     Ice::ByteSeq checksum;
 
-    /** The size of the compressed file in number of bytes. **/
+    /// The size of the compressed file in number of bytes.
     int size;
 
-    /** The executable flag. */
+    /// The executable flag.
     bool executable;
 }
 
-/**
- *
- * A sequence with information about many files.
- *
- **/
+/// A sequence with information about many files.
 sequence<FileInfo> FileInfoSeq;
 
-/**
- *
- * Basic information about a single file.
- *
- **/
+/// Basic information about a single file.
 struct LargeFileInfo
 {
-    /** The pathname. **/
+    /// The pathname.
     string path;
 
-    /** The SHA-1 checksum of the file. **/
+    /// The SHA-1 checksum of the file.
     Ice::ByteSeq checksum;
 
-    /** The size of the compressed file in number of bytes. **/
+    /// The size of the compressed file in number of bytes.
     long size;
 
-    /** The executable flag. */
+    /// The executable flag.
     bool executable;
 }
 
-/**
- *
- * A sequence with information about many files.
- *
- **/
+/// A sequence with information about many files.
 sequence<LargeFileInfo> LargeFileInfoSeq;
 
 }
