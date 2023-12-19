@@ -1,4 +1,3 @@
-#include <IceUtil/ScannerConfig.h>
 #line 2 "src/Slice/Scanner.cpp"
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
@@ -1935,7 +1934,7 @@ YY_RULE_SETUP
     {
         yy_push_state(INITIAL);
     }
-    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a new file.
+    else if(includeAction == 2) // Pop: Indicates the scanner has completed scanning a file.
     {
         yy_pop_state();
     }
@@ -3228,7 +3227,7 @@ int checkIdentifier(const string& id)
     {
         DefinitionContextPtr dc = unit->currentDefinitionContext();
         assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' global metadata
+        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
         {
             unit->error("illegal underscore in identifier `" + name + "'");
         }

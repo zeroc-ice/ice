@@ -139,7 +139,7 @@ while(0)
 #  pragma GCC diagnostic ignored "-Wunused-label"
 #endif
 
-// Avoid clang conversion warnings
+// Avoid clang warnings in generate grammar
 #if defined(__clang__)
 #   pragma clang diagnostic ignored "-Wconversion"
 #   pragma clang diagnostic ignored "-Wsign-conversion"
