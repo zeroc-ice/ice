@@ -29,7 +29,9 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: Install dependencies
-        run: sudo apt-get install -y python3 python3-pip ruby openjdk-8-jdk nodejs php-cli liblmdb-dev libmcpp-dev
+        run: sudo apt-get install -y python3 python3-pip ruby openjdk-8-jdk nodejs php-cli liblmdb-dev libmcpp-dev libreadline-dev libssl-dev
+      - name: Install test dependencies
+        run: python3 -m pip install passlib cryptography
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Setup ccache
