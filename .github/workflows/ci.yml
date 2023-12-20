@@ -41,7 +41,7 @@ jobs:
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           make -j3 V=1
       - name: Test
-        run: ./allTests.py --workers=3
+        run: python3 allTests.py --workers=3
 
   macos-latest:
     runs-on: [macos-latest]
@@ -59,7 +59,7 @@ jobs:
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           make -j3 V=1
       - name: Test
-        run: ./allTests.py --workers=3
+        run: python3 allTests.py --workers=3
 
   windows-latest:
     runs-on: [windows-latest]
@@ -79,5 +79,5 @@ jobs:
             ${{ runner.os }}-build-
       - name: Build
         run: msbuild /m cpp\msbuild\ice.proj
-      # - name: Test
-      #   run: ./allTests.py --workers=3
+      - name: Test
+        run: python allTests.py --workers=3 --language=cpp
