@@ -72,6 +72,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-
       - name: Build
-        run: msbuild /m cpp\msbuild\ice.proj
+        run: msbuild /m ice.proj
       - name: Test
-        run: python allTests.py --workers=3 --language=cpp
+        run: python allTests.py --workers=3
