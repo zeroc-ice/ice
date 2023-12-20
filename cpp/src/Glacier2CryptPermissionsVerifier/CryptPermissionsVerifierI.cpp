@@ -431,7 +431,7 @@ CryptPermissionsVerifierI::checkPermissions(string userId, string password, stri
 }
 
 CryptPermissionsVerifierPlugin::CryptPermissionsVerifierPlugin(shared_ptr<Communicator> communicator) :
-    _communicator(move(communicator))
+    _communicator(std::move(communicator))
 {
 }
 

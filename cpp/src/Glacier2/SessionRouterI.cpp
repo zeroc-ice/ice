@@ -45,9 +45,9 @@ public:
 
     SessionControlI(shared_ptr<SessionRouterI> sessionRouter, shared_ptr<Connection> connection,
                     shared_ptr<FilterManager> filterManager) :
-        _sessionRouter(move(sessionRouter)),
-        _connection(move(connection)),
-        _filters(move(filterManager))
+        _sessionRouter(std::move(sessionRouter)),
+        _connection(std::move(connection)),
+        _filters(std::move(filterManager))
     {
     }
 
@@ -98,8 +98,8 @@ public:
                               const string& user, const string& password,
                               const Ice::Current& current, const shared_ptr<SessionRouterI>& sessionRouter) :
         CreateSession(sessionRouter, user, current),
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _password(password)
     {
     }
@@ -170,7 +170,7 @@ public:
         _sessionRouter->_sessionManager->createAsync(_user, _control,
                                                      [self](shared_ptr<SessionPrx> response)
                                                      {
-                                                         self->sessionCreated(move(response));
+                                                         self->sessionCreated(std::move(response));
                                                      },
                                                      [self](exception_ptr e)
                                                      {
@@ -209,8 +209,8 @@ public:
                      const string& user,
                      const SSLInfo& sslInfo, const Ice::Current& current, const shared_ptr<SessionRouterI>& sessionRouter) :
         CreateSession(sessionRouter, user, current),
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _sslInfo(sslInfo)
     {
     }
@@ -283,7 +283,7 @@ public:
         _sessionRouter->_sslSessionManager->createAsync(_sslInfo, _control,
                                                         [self](shared_ptr<SessionPrx> response)
                                                         {
-                                                            self->sessionCreated(move(response));
+                                                            self->sessionCreated(std::move(response));
                                                         },
                                                         [self](exception_ptr e)
                                                         {
@@ -316,7 +316,7 @@ private:
 
 CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const string& user, const Ice::Current& current) :
     _instance(sessionRouter->_instance),
-    _sessionRouter(move(sessionRouter)),
+    _sessionRouter(std::move(sessionRouter)),
     _user(user),
     _current(current)
 {
@@ -380,7 +380,7 @@ CreateSession::create()
 void
 CreateSession::addPendingCallback(shared_ptr<CreateSession> callback)
 {
-    _pendingCallbacks.push_back(move(callback));
+    _pendingCallbacks.push_back(std::move(callback));
 }
 
 void
@@ -554,13 +554,13 @@ SessionRouterI::SessionRouterI(shared_ptr<Instance> instance,
                                shared_ptr<SessionManagerPrx> sessionManager,
                                shared_ptr<SSLPermissionsVerifierPrx> sslVerifier,
                                shared_ptr<SSLSessionManagerPrx> sslSessionManager) :
-    _instance(move(instance)),
+    _instance(std::move(instance)),
     _sessionTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Trace.Session")),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
-    _verifier(move(verifier)),
-    _sessionManager(move(sessionManager)),
-    _sslVerifier(move(sslVerifier)),
-    _sslSessionManager(move(sslSessionManager)),
+    _verifier(std::move(verifier)),
+    _sessionManager(std::move(sessionManager)),
+    _sslVerifier(std::move(sslVerifier)),
+    _sslSessionManager(std::move(sslSessionManager)),
     _routersByConnectionHint(_routersByConnection.cend()),
     _routersByCategoryHint(_routersByCategory.cend()),
     _destroy(false)
@@ -622,7 +622,7 @@ SessionRouterI::addProxies(ObjectProxySeq proxies, const Current& current)
     //
     // Forward to the per-client router.
     //
-    return getRouter(current.con, current.id)->addProxies(move(proxies), current);
+    return getRouter(current.con, current.id)->addProxies(std::move(proxies), current);
 }
 
 string
@@ -651,10 +651,10 @@ SessionRouterI::createSessionAsync(string userId, string password,
         return;
     }
 
-    auto session = make_shared<UserPasswordCreateSession>(move(response),
-                                                          move(exception),
-                                                          move(userId),
-                                                          move(password),
+    auto session = make_shared<UserPasswordCreateSession>(std::move(response),
+                                                          std::move(exception),
+                                                          std::move(userId),
+                                                          std::move(password),
                                                           current,
                                                           shared_from_this());
     session->create();
@@ -713,7 +713,7 @@ SessionRouterI::createSessionFromSecureConnectionAsync(function<void(const std::
         return;
     }
 
-    auto session = make_shared<SSLCreateSession>(move(response), move(exception), userDN, sslinfo, current, shared_from_this());
+    auto session = make_shared<SSLCreateSession>(std::move(response), std::move(exception), userDN, sslinfo, current, shared_from_this());
     session->create();
 }
 
@@ -745,11 +745,11 @@ SessionRouterI::refreshSessionAsync(function<void()> response, function<void(exc
         // Ping the session to ensure it does not timeout.
         //
 
-        session->ice_pingAsync([responseCb = move(response)]
+        session->ice_pingAsync([responseCb = std::move(response)]
                                {
                                    responseCb();
                                },
-                               [exceptionCb = move(exception),
+                               [exceptionCb = std::move(exception),
                                 sessionRouter = shared_from_this(),
                                 connection = current.con](exception_ptr e)
                                {

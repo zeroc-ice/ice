@@ -515,7 +515,7 @@ class AddressRule final : public Glacier2::ProxyRule
 public:
     AddressRule(shared_ptr<Communicator> communicator, const vector<AddressMatcher*>& address, MatchesNumber* port,
                 const int traceLevel) :
-        _communicator(move(communicator)),
+        _communicator(std::move(communicator)),
         _addressRules(address),
         _portMatcher(port),
         _traceLevel(traceLevel)
@@ -817,7 +817,7 @@ class ProxyLengthRule : public ProxyRule
 {
 public:
     ProxyLengthRule(shared_ptr<Communicator> communicator, const string& count, int traceLevel) :
-        _communicator(move(communicator)),
+        _communicator(std::move(communicator)),
         _traceLevel(traceLevel)
     {
         istringstream s(count);
@@ -854,7 +854,7 @@ private:
 } // End proxy rule implementations.
 
 Glacier2::ProxyVerifier::ProxyVerifier(shared_ptr<Communicator> communicator):
-    _communicator(move(communicator)),
+    _communicator(std::move(communicator)),
     _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
     //

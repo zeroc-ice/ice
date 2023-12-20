@@ -16,9 +16,9 @@ Glacier2::ClientBlobject::ClientBlobject(shared_ptr<Instance>instance,
                                          const Ice::Context& sslContext,
                                          shared_ptr<RoutingTable>routingTable):
 
-    Glacier2::Blobject(move(instance), nullptr, sslContext),
-    _routingTable(move(routingTable)),
-    _filters(move(filters)),
+    Glacier2::Blobject(std::move(instance), nullptr, sslContext),
+    _routingTable(std::move(routingTable)),
+    _filters(std::move(filters)),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
 }
@@ -113,7 +113,7 @@ Glacier2::ClientBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParam
         throw ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
-    invoke(proxy, inParams, move(response), move(error), current);
+    invoke(proxy, inParams, std::move(response), std::move(error), current);
 }
 
 shared_ptr<StringSet>

@@ -21,7 +21,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{541CF1D6-95FD-4499-AB02-75CCCEE660B0}</ProjectGuid>
-    <ProjectName>glacier2router</ProjectName>
+    <ProjectName>glacier2router++11</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

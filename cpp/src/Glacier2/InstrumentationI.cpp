@@ -36,7 +36,7 @@ public:
     static Attributes attributes;
 
     SessionHelper(const string& instanceName, const string& id, shared_ptr<Ice::Connection> connection, int rtSize) :
-        _instanceName(instanceName), _id(id), _connection(move(connection)), _routingTableSize(rtSize)
+        _instanceName(instanceName), _id(id), _connection(std::move(connection)), _routingTableSize(rtSize)
     {
     }
 
@@ -92,7 +92,7 @@ private:
 
     const string& _instanceName;
     const string& _id;
-    const shared_ptr<Ice::Connection>& _connection;
+    const shared_ptr<Ice::Connection> _connection;
     const int _routingTableSize;
     mutable shared_ptr<Ice::EndpointInfo> _endpointInfo;
 };
@@ -174,7 +174,7 @@ SessionObserverI::routingTableSize(int delta)
 }
 
 RouterObserverI::RouterObserverI(shared_ptr<IceInternal::MetricsAdminI> metrics, const string& instanceName) :
-    _metrics(move(metrics)), _instanceName(instanceName), _sessions(_metrics, "Session")
+    _metrics(std::move(metrics)), _instanceName(instanceName), _sessions(_metrics, "Session")
 {
 }
 

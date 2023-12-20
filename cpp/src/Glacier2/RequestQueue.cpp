@@ -14,13 +14,13 @@ Glacier2::Request::Request(shared_ptr<ObjectPrx> proxy, const std::pair<const By
                  const Current& current, bool forwardContext, const Ice::Context& sslContext,
                  function<void(bool, pair<const Byte*, const Byte*>)> response,
                  function<void(exception_ptr)> exception) :
-    _proxy(move(proxy)),
+    _proxy(std::move(proxy)),
     _inParams(inParams.first, inParams.second),
     _current(current),
     _forwardContext(forwardContext),
     _sslContext(sslContext),
-    _response(move(response)),
-    _exception(move(exception))
+    _response(std::move(response)),
+    _exception(std::move(exception))
 {
     Context::const_iterator p = current.ctx.find("_ovrd");
     if(p != current.ctx.end())
@@ -52,12 +52,12 @@ Glacier2::Request::invoke(function<void(bool, pair<const Byte*, const Byte*>)>&&
             Ice::Context ctx = _current.ctx;
             ctx.insert(_sslContext.begin(), _sslContext.end());
             _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    move(response), move(exception), move(sent), ctx);
+                                    std::move(response), std::move(exception), std::move(sent), ctx);
         }
         else
         {
             _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    move(response), move(exception), move(sent), _current.ctx);
+                                    std::move(response), std::move(exception), std::move(sent), _current.ctx);
         }
     }
     else
@@ -65,12 +65,12 @@ Glacier2::Request::invoke(function<void(bool, pair<const Byte*, const Byte*>)>&&
         if(_sslContext.size() > 0)
         {
             _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    move(response), move(exception), move(sent), _sslContext);
+                                    std::move(response), std::move(exception), std::move(sent), _sslContext);
         }
         else
         {
             _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    move(response), move(exception), move(sent));
+                                    std::move(response), std::move(exception), std::move(sent));
         }
     }
 }
@@ -140,9 +140,9 @@ Glacier2::Request::queued()
 Glacier2::RequestQueue::RequestQueue(shared_ptr<RequestQueueThread> requestQueueThread,
                                      shared_ptr<Instance> instance,
                                      shared_ptr<Ice::Connection> connection) :
-    _requestQueueThread(move(requestQueueThread)),
-    _instance(move(instance)),
-    _connection(move(connection)),
+    _requestQueueThread(std::move(requestQueueThread)),
+    _instance(std::move(instance)),
+    _connection(std::move(connection)),
     _pendingSend(false),
     _destroyed(false)
 {
@@ -172,7 +172,7 @@ Glacier2::RequestQueue::addRequest(shared_ptr<Request> request)
                     _observer->overridden(!_connection);
                 }
                 request->queued();
-                r = move(request);
+                r = std::move(request);
                 return true;
             }
         }
@@ -186,7 +186,7 @@ Glacier2::RequestQueue::addRequest(shared_ptr<Request> request)
         _requestQueueThread->flushRequestQueue(shared_from_this()); // This might throw if the thread is destroyed.
     }
     request->queued();
-    _requests.push_back(move(request));
+    _requests.push_back(std::move(request));
     if(_observer)
     {
         _observer->queued(!_connection);
@@ -340,7 +340,7 @@ Glacier2::RequestQueue::sent(bool sentSynchronously, const shared_ptr<Request>& 
 }
 
 Glacier2::RequestQueueThread::RequestQueueThread(std::chrono::milliseconds sleepTime) :
-    _sleepTime(move(sleepTime)),
+    _sleepTime(std::move(sleepTime)),
     _destroy(false),
     _sleep(false),
     _thread([this] { run(); })
@@ -382,7 +382,7 @@ Glacier2::RequestQueueThread::flushRequestQueue(shared_ptr<RequestQueue> queue)
     {
         _condVar.notify_one();
     }
-    _queues.push_back(move(queue));
+    _queues.push_back(std::move(queue));
 }
 
 void

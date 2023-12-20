@@ -22,11 +22,11 @@ const string clientBuffered = "Glacier2.Client.Buffered";
 
 Glacier2::Instance::Instance(shared_ptr<Ice::Communicator> communicator, shared_ptr<Ice::ObjectAdapter> clientAdapter,
                    shared_ptr<Ice::ObjectAdapter> serverAdapter) :
-    _communicator(move(communicator)),
+    _communicator(std::move(communicator)),
     _properties(_communicator->getProperties()),
     _logger(_communicator->getLogger()),
-    _clientAdapter(move(clientAdapter)),
-    _serverAdapter(move(serverAdapter)),
+    _clientAdapter(std::move(clientAdapter)),
+    _serverAdapter(std::move(serverAdapter)),
     _proxyVerifier(make_shared<ProxyVerifier>(_communicator))
 {
     if(_properties->getPropertyAsIntWithDefault(serverBuffered, 0) > 0)
@@ -73,5 +73,5 @@ void
 Glacier2::Instance::setSessionRouter(shared_ptr<SessionRouterI> sessionRouter)
 {
     assert(_sessionRouter == nullptr);
-    _sessionRouter = move(sessionRouter);
+    _sessionRouter = std::move(sessionRouter);
 }

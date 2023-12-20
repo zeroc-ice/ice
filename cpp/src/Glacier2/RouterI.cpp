@@ -17,14 +17,14 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
                            const string& userId, shared_ptr<SessionPrx> session,
                            const Identity& controlId, shared_ptr<FilterManager> filters,
                            const Context& context) :
-    _instance(move(instance)),
+    _instance(std::move(instance)),
     _routingTable(make_shared<RoutingTable>(_instance->communicator(), _instance->proxyVerifier())),
-    _clientBlobject(make_shared<ClientBlobject>(_instance, move(filters), context, _routingTable)),
+    _clientBlobject(make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable)),
     _clientBlobjectBuffered(_instance->clientRequestQueueThread()),
     _serverBlobjectBuffered(_instance->serverRequestQueueThread()),
-    _connection(move(connection)),
+    _connection(std::move(connection)),
     _userId(userId),
-    _session(move(session)),
+    _session(std::move(session)),
     _controlId(controlId),
     _context(context),
     _timestamp(chrono::steady_clock::now())
@@ -90,11 +90,11 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
 
         if(_context.size() > 0)
         {
-            _session->destroyAsync(nullptr, move(error), nullptr, _context);
+            _session->destroyAsync(nullptr, std::move(error), nullptr, _context);
         }
         else
         {
-            _session->destroyAsync(nullptr, move(error), nullptr);
+            _session->destroyAsync(nullptr, std::move(error), nullptr);
         }
     }
 
@@ -125,7 +125,7 @@ Glacier2::RouterI::getServerProxy(const Current&) const
 ObjectProxySeq
 Glacier2::RouterI::addProxies(ObjectProxySeq proxies, const Current& current)
 {
-    return _routingTable->add(move(proxies), current);
+    return _routingTable->add(std::move(proxies), current);
 }
 
 string

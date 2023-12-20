@@ -10,6 +10,7 @@
 #include <Glacier2/Instrumentation.h>
 
 #include <deque>
+#include <thread>
 
 namespace Glacier2
 {

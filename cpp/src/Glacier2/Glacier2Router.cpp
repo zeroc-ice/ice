@@ -24,7 +24,7 @@ class ClientLocator final : public ServantLocator
 public:
 
     ClientLocator(shared_ptr<SessionRouterI> sessionRouter) :
-        _sessionRouter(move(sessionRouter))
+        _sessionRouter(std::move(sessionRouter))
     {
     }
 
@@ -54,7 +54,7 @@ class ServerLocator final : public ServantLocator
 public:
 
     ServerLocator(shared_ptr<SessionRouterI> sessionRouter) :
-        _sessionRouter(move(sessionRouter))
+        _sessionRouter(std::move(sessionRouter))
     {
     }
 
@@ -103,7 +103,7 @@ class FinderI : public Ice::RouterFinder
 {
 public:
 
-    FinderI(shared_ptr<Glacier2::RouterPrx> router) : _router(move(router))
+    FinderI(shared_ptr<Glacier2::RouterPrx> router) : _router(std::move(router))
     {
     }
 
@@ -395,8 +395,8 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    _sessionRouter = make_shared<SessionRouterI>(_instance, move(verifier), move(sessionManager), move(sslVerifier),
-                                                 move(sslSessionManager));
+    _sessionRouter = make_shared<SessionRouterI>(_instance, std::move(verifier), std::move(sessionManager), std::move(sslVerifier),
+                                                 std::move(sslSessionManager));
 
     //
     // Registers session router and all required servant locators

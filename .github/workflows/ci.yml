@@ -17,6 +17,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build
-        run: make -j8 V=1
+        run: make -j8 V=1 CONFIGS="shared cpp11-shared"
       - name: Test
         run: ./allTests.py --workers=4

@@ -25,8 +25,8 @@ const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 
 Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, shared_ptr<Connection> reverseConnection,
                              const Context& context) :
-    _instance(move(instance)),
-    _reverseConnection(move(reverseConnection)),
+    _instance(std::move(instance)),
+    _reverseConnection(std::move(reverseConnection)),
     _forwardContext(_reverseConnection ?
                     _instance->properties()->getPropertyAsInt(serverForwardContext) > 0 :
                     _instance->properties()->getPropertyAsInt(clientForwardContext) > 0),
@@ -207,7 +207,7 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
         try
         {
             override = _requestQueue->addRequest(make_shared<Request>(proxy, inParams, current, _forwardContext,
-                                                                      _context, move(response), exception));
+                                                                      _context, std::move(response), exception));
         }
         catch(const ObjectNotExistException&)
         {
@@ -257,11 +257,11 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
 
             if(proxy->ice_isTwoway())
             {
-                amiResponse = move(response);
+                amiResponse = std::move(response);
             }
             else
             {
-                amiSent = [amdResponse = move(response)](bool)
+                amiSent = [amdResponse = std::move(response)](bool)
                     {
                         amdResponse(true, {nullptr, nullptr});
                     };
@@ -274,12 +274,12 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
                     Context ctx = current.ctx;
                     ctx.insert(_context.begin(), _context.end());
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(exception), move(amiSent), ctx);
+                                           std::move(amiResponse), std::move(exception), std::move(amiSent), ctx);
                 }
                 else
                 {
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(exception), move(amiSent), current.ctx);
+                                           std::move(amiResponse), std::move(exception), std::move(amiSent), current.ctx);
                 }
             }
             else
@@ -287,12 +287,12 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
                 if(_context.size() > 0)
                 {
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(exception), move(amiSent), _context);
+                                           std::move(amiResponse), std::move(exception), std::move(amiSent), _context);
                 }
                 else
                 {
                     proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                           move(amiResponse), move(exception), move(amiSent));
+                                           std::move(amiResponse), std::move(exception), std::move(amiSent));
                 }
             }
         }
