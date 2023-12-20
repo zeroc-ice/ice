@@ -104,7 +104,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Gen.cpp" />
-    <ClCompile Include="..\GenCompat.cpp" />
     <ClCompile Include="..\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -112,7 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
-    <ClInclude Include="..\GenCompat.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">

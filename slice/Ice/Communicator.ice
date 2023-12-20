@@ -35,9 +35,7 @@
 /// The Ice core library. Among many other features, the Ice core library manages all the communication tasks using an
 /// efficient protocol (including protocol compression and support for both TCP and UDP), provides a thread pool for
 /// multi-threaded servers, and additional functionality that supports high scalability.
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICE"]
 module Ice
@@ -49,7 +47,7 @@ module Ice
 /// @see ObjectAdapter
 /// @see Properties
 /// @see ValueFactory
-["clr:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable"]
+["cs:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable"]
 
 #if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 local interface Communicator

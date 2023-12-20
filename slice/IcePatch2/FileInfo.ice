@@ -20,9 +20,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEPATCH2"]
 module IcePatch2

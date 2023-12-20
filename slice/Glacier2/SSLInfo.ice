@@ -19,9 +19,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:GLACIER2"]
 module Glacier2

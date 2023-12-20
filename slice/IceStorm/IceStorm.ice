@@ -23,9 +23,7 @@
 
 #include <IceStorm/Metrics.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 /// A messaging service with support for federation. In contrast to most other messaging or event services, IceStorm
 /// supports typed events, meaning that broadcasting a message over a federation is as easy as invoking a method on an

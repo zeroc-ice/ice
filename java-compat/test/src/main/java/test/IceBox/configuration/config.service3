@@ -1,8 +1,0 @@
-Service3OA.Endpoints=default -p 12012 -h 127.0.0.1
-
-#Ice.ProgramName
-Service=3
-Prop=2
-Service3.Prop=1
-
-Ice.Trace.Slicing=2

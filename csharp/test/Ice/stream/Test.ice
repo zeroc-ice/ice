@@ -69,39 +69,39 @@ dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyClass> StringMyClassD;
 
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<bool> BoolList;
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<byte> ByteList;
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<MyEnum> MyEnumList;
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<SmallStruct> SmallStructList;
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<MyClass> MyClassList;
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<MyClass*> MyClassProxyList;
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<MyInterface*> MyInterfaceProxyList;
 
-["clr:generic:LinkedList"]
+["cs:generic:LinkedList"]
 sequence<short> ShortLinkedList;
-["clr:generic:LinkedList"]
+["cs:generic:LinkedList"]
 sequence<int> IntLinkedList;
-["clr:generic:LinkedList"]
+["cs:generic:LinkedList"]
 sequence<MyEnum> MyEnumLinkedList;
-["clr:generic:LinkedList"]
+["cs:generic:LinkedList"]
 sequence<SmallStruct> SmallStructLinkedList;
 
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<long> LongStack;
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<float> FloatStack;
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<SmallStruct> SmallStructStack;
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<MyClass*> MyClassProxyStack;
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<MyInterface*> MyInterfaceProxyStack;
 
 //
@@ -109,7 +109,7 @@ sequence<MyInterface*> MyInterfaceProxyStack;
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<Object> ObjectStack;
 
 //
@@ -117,7 +117,7 @@ sequence<Object> ObjectStack;
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<MyClass> MyClassStack;
 
 //
@@ -125,22 +125,22 @@ sequence<MyClass> MyClassStack;
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<MyInterface> MyInterfaceStack;
 
-["clr:generic:Queue"]
+["cs:generic:Queue"]
 sequence<double> DoubleQueue;
-["clr:generic:Queue"]
+["cs:generic:Queue"]
 sequence<string> StringQueue;
-["clr:generic:Queue"]
+["cs:generic:Queue"]
 sequence<SmallStruct> SmallStructQueue;
 
-["clr:generic:List"]
+["cs:generic:List"]
 sequence<Ice::StringSeq> StringSList;
-["clr:generic:Stack"]
+["cs:generic:Stack"]
 sequence<Ice::StringSeq> StringSStack;
 
-["clr:generic:SortedDictionary"]
+["cs:generic:SortedDictionary"]
 dictionary<string, string> SortedStringStringD;
 
 class MyClass

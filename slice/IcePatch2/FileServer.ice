@@ -20,9 +20,7 @@
 
 #include <IcePatch2/FileInfo.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 /// IcePatch can be used to update file hierarchies in a simple and efficient manner. Checksums ensure file integrity,
 /// and data is compressed before downloading.

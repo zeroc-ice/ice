@@ -1,5 +1,0 @@
-Service4OA.Endpoints=default -p 12013 -h 127.0.0.1
-
-#Ice.ProgramName
-Service=4
-Prop=
