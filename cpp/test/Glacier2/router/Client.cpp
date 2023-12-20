@@ -458,8 +458,9 @@ CallbackClient::run(int argc, char** argv)
 
     {
         cout << "getting the session timeout... " << flush;
-        Ice::Long timeout = router->getSessionTimeout();
-        test(timeout == 30);
+        Ice::Long sessionTimeout = router->getSessionTimeout();
+        Ice::Long acmTimeout = router->getACMTimeout();
+        test(sessionTimeout == 30 && sessionTimeout == acmTimeout);
         cout << "ok" << endl;
     }
 

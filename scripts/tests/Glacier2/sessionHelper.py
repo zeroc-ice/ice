@@ -3,4 +3,4 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-Glacier2TestSuite(__name__, routerProps = { "Glacier2.SessionTimeout" : 30 })
+Glacier2TestSuite(__name__, routerProps = { "Glacier2.Client.ACM.Timeout" : 30 })

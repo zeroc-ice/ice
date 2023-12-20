@@ -7,38 +7,28 @@
 #include <Glacier2/Session.h>
 
 #include <Ice/Identity.h>
+
+#include <list>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <list>
-
-#ifdef _MSC_VER
-#   pragma warning(disable:4505) // unreferenced local function has been removed
-#endif
 
 namespace Glacier2
 {
 
 template <typename T, class P>
-class FilterT : public P, public IceUtil::Monitor<IceUtil::Mutex>
+class FilterT : public P
 {
 public:
-
-    //
-    // These typedefs are a compiler workaround for GCC and iterators
-    // depending on nested templates.
-    //
-    typedef typename std::vector<T>::const_iterator const_iterator;
-    typedef typename std::vector<T>::iterator iterator;
-    typedef typename std::list<iterator>::iterator literator;
 
     FilterT(const std::vector<T>&);
 
     //
     // Slice to C++ mapping.
     //
-    virtual void add(const std::vector<T>&, const Ice::Current&);
-    virtual void remove(const std::vector<T>&, const Ice::Current&);
-    virtual std::vector<T> get(const Ice::Current&);
+    virtual void add(std::vector<T>, const Ice::Current&) override;
+    virtual void remove(std::vector<T>, const Ice::Current&) override;
+    virtual std::vector<T> get(const Ice::Current&) override;
 
     //
     // Internal functions.
@@ -46,7 +36,7 @@ public:
     bool
     match(const T& candidate) const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        std::lock_guard<std::mutex> lg(_mutex);
         //
         // Empty vectors mean no filtering, so all matches will succeed.
         //
@@ -61,13 +51,15 @@ public:
     bool
     empty() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        std::lock_guard<std::mutex> lg(_mutex);
         return _items.size() == 0;
     }
 
 private:
 
     std::vector<T> _items;
+
+    mutable std::mutex _mutex;
 };
 
 template<class T, class P>
@@ -79,7 +71,7 @@ FilterT<T, P>::FilterT(const std::vector<T>& accept):
 }
 
 template<class T, class P> void
-FilterT<T, P>::add(const std::vector<T>& additions, const Ice::Current&)
+FilterT<T, P>::add(std::vector<T> additions, const Ice::Current&)
 {
     //
     // Sort the filter elements first, erasing duplicates. Then we can
@@ -89,7 +81,7 @@ FilterT<T, P>::add(const std::vector<T>& additions, const Ice::Current&)
     sort(newItems.begin(), newItems.end());
     newItems.erase(unique(newItems.begin(), newItems.end()), newItems.end());
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    std::lock_guard<std::mutex> lg(_mutex);
     std::vector<T> merged(_items.size() + newItems.size());
     merge(newItems.begin(), newItems.end(), _items.begin(), _items.end(), merged.begin());
     merged.erase(unique(merged.begin(), merged.end()), merged.end());
@@ -97,7 +89,7 @@ FilterT<T, P>::add(const std::vector<T>& additions, const Ice::Current&)
 }
 
 template<class T, class P> void
-FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
+FilterT<T, P>::remove(std::vector<T> deletions, const Ice::Current&)
 {
     //
     // Our removal algorithm depends on the filter elements to be
@@ -107,7 +99,7 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
     sort(toRemove.begin(), toRemove.end());
     toRemove.erase(unique(toRemove.begin(), toRemove.end()), toRemove.end());
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    std::lock_guard<std::mutex> lg(_mutex);
 
     //
     // Our vectors are both sorted, so if we keep track of our first
@@ -117,18 +109,13 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
     // itemwise.
     //
 
-    //
-    // The presence of the 'typename' is a GCC specific workaround. The
-    // iterator types apparently resolve to a 'void' in GCC type
-    // causing compiler errors.
-    //
-    const_iterator r = toRemove.begin();
-    iterator mark = _items.begin();
-    std::list<iterator> deleteList;
+    typename std::vector<T>::const_iterator r = toRemove.begin();
+    typename std::vector<T>::iterator mark = _items.begin();
+    std::list<typename std::vector<T>::iterator> deleteList;
 
     while(r != toRemove.end())
     {
-        iterator i = mark;
+        typename std::vector<T>::iterator i = mark;
         while(i != _items.end() && r != toRemove.end())
         {
             if(*r == *i)
@@ -155,25 +142,22 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
         ++r;
     }
 
-    for(literator i = deleteList.begin(); i != deleteList.end(); ++i)
+    for(const auto& item : deleteList)
     {
-        _items.erase(*i);
+        _items.erase(item);
     }
 }
 
 template<class T, class P> std::vector<T>
 FilterT<T, P>::get(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    std::lock_guard<std::mutex> lg(_mutex);
     return _items;
 }
 
-typedef FilterT<Ice::Identity, Glacier2::IdentitySet> IdentitySetI;
-typedef IceUtil::Handle< FilterT<Ice::Identity, Glacier2::IdentitySet> > IdentitySetIPtr;
+using IdentitySetI = FilterT<Ice::Identity, Glacier2::IdentitySet>;
+using StringSetI = FilterT<std::string, Glacier2::StringSet>;
 
-typedef FilterT<std::string, Glacier2::StringSet> StringSetI;
-typedef IceUtil::Handle< FilterT<std::string, Glacier2::StringSet> > StringSetIPtr;
-
-};
+}
 
 #endif

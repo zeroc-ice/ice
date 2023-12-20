@@ -9,7 +9,7 @@
 #
 # Supported configurations
 #
-supported-configs = shared static cpp11-shared cpp11-static
+supported-configs = cpp98-shared cpp98-static cpp11-shared cpp11-static
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
@@ -59,10 +59,15 @@ static_projects         = test/Common \
 static_excludes         = test/Ice/library test/Ice/plugin
 
 #
+# Components and projects which are built with C++98
+#
+cpp98_projects          = %
+cpp98_excludes          = glacier2router
+
+#
 # Components and projects which are built with C++11
 #
-cpp11_components        = $(coreandstub_components) icebox
-
+cpp11_components        = $(coreandstub_components) glacier2router Glacier2CryptPermissionsVerifier icebox
 cpp11_projects          = test/Common \
                           test/IceUtil/% \
                           test/Slice/% \
@@ -97,16 +102,7 @@ endif
 # the cpp11 name to the target directory if building outside the build
 # directory.
 #
-cpp11_cppflags          = -DICE_CPP11_MAPPING
-ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
-ifeq ($(os),Darwin)
-# With Xcode 14.3 C++17 deprecations apply when building with -std=c++11, we pass -std=c++17
-# to enable C++17 mode conditional code.
-cpp11_cppflags          := $(cpp11_cppflags) -std=c++17
-else
-cpp11_cppflags          := $(cpp11_cppflags) -std=c++11
-endif
-endif
+cpp11_cppflags          = -DICE_CPP11_MAPPING -std=c++17
 cpp11_ldflags           = $(cpp11_cppflags)
 cpp11_targetname        = $(if $(or $(filter-out $($1_target),program),$(filter $(bindir)%,$($4_targetdir))),++11)
 cpp11_targetdir         = $(if $(filter %/build,$5),cpp11)
