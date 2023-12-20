@@ -43,9 +43,9 @@ jobs:
         run: python3 -m pip install passlib cryptography
       - name: Checkout repository
         uses: actions/checkout@v3
-        - name: Setup ccache
-          uses: hendrikmuhs/ccache-action@v1.2
-          key: ${{ runner.os }}-ccache-build
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        key: ${{ runner.os }}-ccache-build
       - name: Build
         run: |
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
