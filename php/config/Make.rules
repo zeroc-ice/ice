@@ -24,10 +24,6 @@ ifneq ($(USE_NAMESPACES),yes)
 slice2php_flags         = --no-namespace
 endif
 
-ifeq ($(php_major_version),5)
-slice2php_flags         += --php5
-endif
-
 #
 # $(call make-php-test-project,$1=testdir)
 #

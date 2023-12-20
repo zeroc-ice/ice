@@ -67,7 +67,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, bool, bool);
+    CodeVisitor(IceUtilInternal::Output&, bool);
 
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -141,16 +141,14 @@ private:
     bool _ns; // Using namespaces?
     list<string> _moduleStack; // TODO: Necessary?
     set<string> _classHistory; // TODO: Necessary?
-    bool _php5; // Generate PHP5 compatible code
 };
 
 //
 // CodeVisitor implementation.
 //
-CodeVisitor::CodeVisitor(Output& out, bool ns, bool php5) :
+CodeVisitor::CodeVisitor(Output& out, bool ns) :
     _out(out),
-    _ns(ns),
-    _php5(php5)
+    _ns(ns)
 {
 }
 
@@ -359,14 +357,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // __toString
         //
-        if (_php5)
-        {
-            _out << sp << nl << "public function __toString()";
-        }
-        else
-        {
-            _out << sp << nl << "public function __toString(): string";
-        }
+        _out << sp << nl << "public function __toString(): string";
 
         _out << sb;
         _out << nl << "global " << type << ';';
@@ -801,14 +792,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // __toString
     //
-    if (_php5)
-    {
-        _out << sp << nl << "public function __toString()";
-    }
-    else
-    {
-        _out << sp << nl << "public function __toString(): string";
-    }
+    _out << sp << nl << "public function __toString(): string";
 
     _out << sb;
     _out << nl << "global " << type << ';';
@@ -927,14 +911,8 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // __toString
     //
-    if (_php5)
-    {
-        _out << sp << nl << "public function __toString()";
-    }
-    else
-    {
-        _out << sp << nl << "public function __toString(): string";
-    }
+    _out << sp << nl << "public function __toString(): string";
+
     _out << sb;
     _out << nl << "global " << type << ';';
     _out << nl << "return IcePHP_stringify($this, " << type << ");";
@@ -1509,7 +1487,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 }
 
 static void
-generate(const UnitPtr& un, bool all, bool ns, bool php5, const vector<string>& includePaths, Output& out)
+generate(const UnitPtr& un, bool all, bool ns, const vector<string>& includePaths, Output& out)
 {
     if(!all)
     {
@@ -1540,7 +1518,7 @@ generate(const UnitPtr& un, bool all, bool ns, bool php5, const vector<string>& 
         }
     }
 
-    CodeVisitor codeVisitor(out, ns, php5);
+    CodeVisitor codeVisitor(out, ns);
     un->visit(&codeVisitor, false);
 
     out << nl; // Trailing newline.
@@ -1620,7 +1598,6 @@ usage(const string& n)
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
         "--underscore             Allow underscores in Slice identifiers\n"
         "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
-        "--php5                   Generate PHP5 compatible code.\n"
         ;
 }
 
@@ -1644,7 +1621,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("n", "no-namespace");
-    opts.addOpt("", "php5");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -1713,8 +1689,6 @@ compile(const vector<string>& argv)
     bool all = opts.isSet("all");
 
     bool ns = !opts.isSet("no-namespace");
-
-    bool php5 = opts.isSet("php5");
 
     if(args.empty())
     {
@@ -1867,7 +1841,7 @@ compile(const vector<string>& argv)
                         //
                         // Generate the PHP mapping.
                         //
-                        generate(u, all, ns, php5, includePaths, out);
+                        generate(u, all, ns, includePaths, out);
 
                         out << "?>\n";
                         out.close();
