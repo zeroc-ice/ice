@@ -7,8 +7,6 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["3.7", "main"]
-  schedule:
-    - cron: "34 18 * * 3"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -61,7 +59,7 @@ jobs:
       # - name: Install dependencies
       #   run: choco --yes install
       - name: Install test dependencies
-        run: python -m pip install passlib cryptography
+        run: python -m pip install passlib cryptography python-dev
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
       - name: Checkout repository
@@ -72,9 +70,9 @@ jobs:
           path: |
             **/bin
             **/obj
-          key: ${{ runner.os }}-build-${{ github.event.pull_request.number || github.ref }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ github.event.pull_request.number || github.ref }}
+            ${{ runner.os }}-build-${{ github.sha }}
             ${{ runner.os }}-build-
       - name: Build
         run: msbuild /m ice.proj
