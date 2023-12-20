@@ -15,16 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # linux-self-hosted:
-  #   runs-on: [self-hosted, linux]
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Build
-  #       run: make -j8 V=1
-  #     - name: Test
-  #       run: ./allTests.py --workers=4
-
   linux-latest:
     runs-on: [ubuntu-latest]
     steps:
@@ -64,6 +54,8 @@ jobs:
   windows-latest:
     runs-on: [windows-latest]
     steps:
+      # - name: Install dependencies
+      #   run: choco --yes install
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
       - name: Checkout repository
