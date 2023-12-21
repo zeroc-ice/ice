@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  ci:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
@@ -22,8 +22,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Build Dependencies
-        uses: ./.github/actions/setup-build-dependencies
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -31,26 +31,8 @@ jobs:
           key: ${{ runner.os }}-build
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
-      - name: Build Ice
+      - name: Build
         uses: ./.github/actions/build
-
-  test:
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    needs: build
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Setup Test Dependencies
-        uses: ./.github/actions/setup-test-dependencies
-
-      - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: ${{ runner.os }}-build
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
       - name: Test
         run: python3 allTests.py --workers=3
