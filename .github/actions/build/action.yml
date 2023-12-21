@@ -1,6 +1,7 @@
 name: Build Ice
 
 runs:
+  using: "composite"
   steps:
     - name: Build
       run: |

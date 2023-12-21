@@ -1,6 +1,7 @@
 name: Test Ice
 
 runs:
+  using: "composite"
   steps:
     - name: Test
       run: python allTests.py --workers=3
