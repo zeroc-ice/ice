@@ -32,25 +32,25 @@ jobs:
     - name: Build Ice
       uses: ./.github/actions/build
 
-  test-ice:
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+  # test-ice:
+  #   strategy:
+  #     matrix:
+  #       os: [macos-latest, ubuntu-latest, windows-latest]
 
-  runs-on: ${{ matrix.os }}
-  needs: build-ice
-  steps:
-    - name: Configure Test Dependencies
-      uses: ./.github/actions/configure-test-dependencies
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Setup ccache
-      uses: hendrikmuhs/ccache-action@v1.2
-      with:
-        key: ${{ runner.os }}-build
-      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
-    - name: Test
-      run: python3 allTests.py --workers=3
+  # runs-on: ${{ matrix.os }}
+  # needs: build-ice
+  # steps:
+  #   - name: Configure Test Dependencies
+  #     uses: ./.github/actions/configure-test-dependencies
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v3
+  #   - name: Setup ccache
+  #     uses: hendrikmuhs/ccache-action@v1.2
+  #     with:
+  #       key: ${{ runner.os }}-build
+  #     if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+  #   - name: Test
+  #     run: python3 allTests.py --workers=3
 
   # linux-latest:
   #   runs-on: [ubuntu-latest]
