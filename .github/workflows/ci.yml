@@ -84,5 +84,6 @@ jobs:
         run: msbuild /m /p:Platform=x64 ice.proj
         env:
           PythonHome: C:\hostedtoolcache\windows\Python\3.12.1\x64
+          # Python_ROOT_DIR
       - name: Test
-        run: python allTests.py --workers=3
+        run: python allTests.py --platform=x64 --workers=3
