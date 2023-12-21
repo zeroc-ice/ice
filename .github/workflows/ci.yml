@@ -92,4 +92,4 @@ jobs:
           python-version: "3.12"
       - name: path
         run: |
-          echo "${{ env.RUNNER_TOOL_CACHE }}"
+          echo $env:PATH
