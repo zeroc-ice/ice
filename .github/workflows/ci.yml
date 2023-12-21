@@ -13,83 +13,74 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # linux-latest:
-  #   runs-on: [ubuntu-latest]
-  #   steps:
-  #     - name: Install dependencies
-  #       run: sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
-  #     - name: Install test dependencies
-  #       run: python3 -m pip install passlib cryptography
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Setup ccache
-  #       uses: hendrikmuhs/ccache-action@v1.2
-  #       with:
-  #         key: ${{ runner.os }}-build
-  #     - name: Build
-  #       run: |
-  #         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-  #         make -j3 V=1
-  #     - name: Test
-  #       run: python3 allTests.py --workers=3
+  linux-latest:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
+      - name: Install test dependencies
+        run: python3 -m pip install passlib cryptography
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-build
+      - name: Build
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          make -j3 V=1
+      - name: Test
+        run: python3 allTests.py --workers=3
 
-  # macos-latest:
-  #   runs-on: [macos-latest]
-  #   steps:
-  #     - name: Install brew dependencies
-  #       run: brew install python3 ruby openjdk node php lmdb mcpp
-  #     - name: Install test dependencies
-  #       run: python3 -m pip install passlib cryptography
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Setup ccache
-  #       uses: hendrikmuhs/ccache-action@v1.2
-  #       with:
-  #         key: ${{ runner.os }}-build
-  #     - name: Build
-  #       run: |
-  #         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-  #         make -j3 V=1
-  #     - name: Test
-  #       run: python3 allTests.py --workers=3
+  macos-latest:
+    runs-on: [macos-latest]
+    steps:
+      - name: Install brew dependencies
+        run: brew install python3 ruby openjdk node php lmdb mcpp
+      - name: Install test dependencies
+        run: python3 -m pip install passlib cryptography
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-build
+      - name: Build
+        run: |
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          make -j3 V=1
+      - name: Test
+        run: python3 allTests.py --workers=3
 
-  # windows-latest:
-  #   runs-on: [windows-latest]
-  #   steps:
-  #     # - name: Install dependencies
-  #     #   run: choco --yes install
-  #     - name: Install test dependencies
-  #       run: python -m pip install passlib cryptography python-dev-tools
-  #     - name: Setup MSBuild
-  #       uses: microsoft/setup-msbuild@v1.1
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: "3.12"
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           **/bin
-  #           **/obj
-  #         key: ${{ runner.os }}-build-${{ github.sha }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-build-${{ github.sha }}
-  #           ${{ runner.os }}-build-
-  #     - name: Build
-  #       run: msbuild /m ice.proj
-  #     - name: Test
-  #       run: python allTests.py --workers=3
-
-  where-python:
+  windows-latest:
     runs-on: [windows-latest]
     steps:
+      # - name: Install dependencies
+      #   run: choco --yes install
+      - name: Install test dependencies
+        run: python -m pip install passlib cryptography python-dev-tools
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: path
-        run: |
-          echo $env:PATH
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/bin
+            **/obj
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ github.sha }}
+            ${{ runner.os }}-build-
+      - name: Build
+        run: msbuild /m ice.proj
+        env:
+          PythonHome: C:\hostedtoolcache\windows\Python\3.12.1\x64
+      - name: Test
+        run: python allTests.py --workers=3
