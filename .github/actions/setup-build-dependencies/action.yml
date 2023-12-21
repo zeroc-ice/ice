@@ -5,15 +5,18 @@ runs:
   steps:
     - name: Install brew dependencies
       run: brew install python3 ruby openjdk node php lmdb mcpp
+      shell: bash
       if: startsWith(matrix.os, 'macos')
 
     - name: Install apt dependencies
       run: sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
+      shell: bash
       if: startsWith(matrix.os, 'ubuntu')
 
     # - name: Install dependencies
     #   run: choco --yes install
     - name: Setup MSBuild
+      shell: powershell
       uses: microsoft/setup-msbuild@v1.1
       with:
         msbuild-architecture: x64
@@ -22,12 +25,16 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.12"
+      shell: powershell
       if: startsWith(matrix.os, 'windows')
+
     - name: Configure Environment
       run: |
         echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
+      shell: powershell
       if: startsWith(matrix.os, 'windows')
 
     - name: Install testing dependencies from pip
       run: python3 -m pip install passlib cryptography
+      shell: powershell
       if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu')
