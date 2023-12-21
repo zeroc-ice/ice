@@ -21,14 +21,14 @@ runs:
       with:
         msbuild-architecture: x64
       if: startsWith(matrix.os, 'windows')
+
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.12"
-      shell: powershell
       if: startsWith(matrix.os, 'windows')
 
-    - name: Configure Environment
+    - name: Configure Windows Python Environment
       run: |
         echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
       shell: powershell
