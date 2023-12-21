@@ -1,4 +1,4 @@
-name: Test Ice on ${{ matrix.os }}
+name: Test Ice
 
 runs:
   steps:
