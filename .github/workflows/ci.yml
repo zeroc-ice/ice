@@ -86,5 +86,5 @@ jobs:
   where-python:
     runs-on: [windows-latest]
     steps:
-      - name: where python?
-        run: where python
+      - name: path
+        run: echo %PATH%
