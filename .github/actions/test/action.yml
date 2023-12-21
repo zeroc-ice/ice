@@ -9,5 +9,5 @@ runs:
 
     - name: Test
       run: python allTests.py --platform=x64 --workers=3
-      shell: bash
+      shell: powershell
       if: startsWith(matrix.os, 'windows')

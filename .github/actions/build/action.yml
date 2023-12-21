@@ -6,8 +6,10 @@ runs:
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         make -j3 V=1
+      shell: bash
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
     - name: Build
       run: msbuild /m /p:Platform=x64 ice.proj
+      shell: powershell
       if: startsWith(matrix.os, 'windows')
