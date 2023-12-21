@@ -88,5 +88,4 @@ jobs:
     steps:
       - name: path
         run: |
-          echo %PATH%
-          dir %RUNNER_TOOL_CACHE%/Python
+          echo "${{ env }}""
