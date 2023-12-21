@@ -55,7 +55,7 @@ local interface ObserverUpdater
     void updateSubscriberObservers();
 }
 
-enum SubscriberState
+local enum SubscriberState
 {
     /// Online waiting to send events.
     SubscriberStateOnline,

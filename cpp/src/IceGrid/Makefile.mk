@@ -43,6 +43,7 @@ local_registry_srcs     = Internal.ice \
                           ServerCache.cpp \
                           SessionI.cpp \
                           SessionServantManager.cpp \
+                          SynchronizationException.cpp \
                           Topics.cpp \
                           Util.cpp \
                           WellKnownObjectsManager.cpp

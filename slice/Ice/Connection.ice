@@ -279,7 +279,7 @@ local class UDPConnectionInfo extends IPConnectionInfo
 }
 
 /// A collection of HTTP headers.
-dictionary<string, string> HeaderDict;
+local dictionary<string, string> HeaderDict;
 
 /// Provides access to the connection details of a WebSocket connection
 local class WSConnectionInfo extends ConnectionInfo

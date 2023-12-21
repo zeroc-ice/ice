@@ -15,6 +15,12 @@ IceSSL_sliceflags       := --include-dir IceSSL
 #
 IceSSL_excludes         += $(wildcard src/IceSSL/SChannel*.cpp)
 
+# We exclude the following Slice files that contain only local definitions, as we don't want two header files with the
+# same name.
+IceSSL_excludes            += ../slice/IceSSL/ConnectionInfo.ice \
+                              ../slice/IceSSL/ConnectionInfoF.ice \
+                              ../slice/IceSSL/EndpointInfo.ice \
+
 ifeq ($(os),Darwin)
 IceSSL_excludes         += $(wildcard src/IceSSL/OpenSSL*.cpp)
 else

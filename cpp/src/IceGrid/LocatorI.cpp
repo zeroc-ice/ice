@@ -9,6 +9,8 @@
 #include <IceGrid/SessionI.h>
 #include <IceGrid/Util.h>
 
+#include "SynchronizationException.h"
+
 using namespace std;
 using namespace IceGrid;
 

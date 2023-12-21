@@ -49,6 +49,7 @@
 #include <Ice/StringConverter.h>
 #include <Ice/IconvStringConverter.h>
 #include <Ice/UUID.h>
+#include <Ice/EndpointTypes.h>
 #include <IceUtil/PopDisableWarnings.h>
 
 #endif
