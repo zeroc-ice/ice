@@ -19,10 +19,11 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Configure Build Dependencies
-        uses: ./.github/actions/setup-build-dependencies
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Configure Build Dependencies
+        uses: ./.github/actions/setup-build-dependencies
+
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
