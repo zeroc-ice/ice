@@ -13,14 +13,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-ice:
+  build:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Configure Build Dependencies
-        uses: ./.github/actions/configure-build-dependencies
+        uses: ./.github/actions/setup-build-dependencies
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Setup ccache
