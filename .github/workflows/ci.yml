@@ -13,7 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  ci:
+    name: ${{ matrix.language }} / ${{ matrix.os }}
     strategy:
       matrix:
         language: [cpp, csharp, java, python, js] # available on all os
