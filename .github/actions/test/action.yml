@@ -1,0 +1,13 @@
+name: Test Ice on ${{ matrix.os }}
+
+runs:
+  steps:
+    - name: Test
+      run: python allTests.py --workers=3
+      shell: bash
+      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+
+    - name: Test
+      run: python allTests.py --platform=x64 --workers=3
+      shell: bash
+      if: startsWith(matrix.os, 'windows')
