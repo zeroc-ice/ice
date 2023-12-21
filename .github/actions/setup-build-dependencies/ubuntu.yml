@@ -1,8 +1,0 @@
-name: Configure Linux Dependencies
-
-runs:
-  steps:
-    - name: Install dependencies
-      run: sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
-    - name: Install test dependencies
-      run: python3 -m pip install passlib cryptography
