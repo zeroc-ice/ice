@@ -17,20 +17,20 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-  runs-on: ${{ matrix.os }}
-  steps:
-    - name: Configure Build Dependencies
-      uses: ./.github/actions/configure-build-dependencies
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Setup ccache
-      uses: hendrikmuhs/ccache-action@v1.2
-      with:
-        key: ${{ runner.os }}-build
-      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Configure Build Dependencies
+        uses: ./.github/actions/configure-build-dependencies
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-build
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
-    - name: Build Ice
-      uses: ./.github/actions/build
+      - name: Build Ice
+        uses: ./.github/actions/build
 
   # test-ice:
   #   strategy:
