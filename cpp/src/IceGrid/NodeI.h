@@ -12,6 +12,7 @@
 #include <IceGrid/UserAccountMapper.h>
 #include <IceGrid/FileCache.h>
 #include <set>
+#include <exception>
 
 namespace IceGrid
 {
@@ -66,6 +67,16 @@ public:
                                           std::function<void()>,
                                           std::function<void(std::exception_ptr)>,
                                           const ::Ice::Current& current) override;
+
+    void patchAsync(
+        std::shared_ptr<PatcherFeedbackPrx> feedback,
+        std::string application,
+        std::string server,
+        std::shared_ptr<InternalDistributionDescriptor> appDistrib,
+        bool shutdown,
+        std::function<void()> response,
+        std::function<void(std::exception_ptr)> exception,
+        const Ice::Current&) override;
 
     void registerWithReplica(std::shared_ptr<InternalRegistryPrx>, const Ice::Current&) override;
 
@@ -123,6 +134,7 @@ public:
 private:
 
     std::vector<std::shared_ptr<ServerCommand>> checkConsistencyNoSync(const Ice::StringSeq&);
+    void patch(const std::shared_ptr<IcePatch2::FileServerPrx>&, const std::string&, const std::vector<std::string>&);
 
     std::set<std::shared_ptr<ServerI>> getApplicationServers(const std::string&) const;
     std::string getFilePath(const std::string&) const;
@@ -170,8 +182,10 @@ private:
 
     mutable std::mutex _serversMutex;
     std::map<std::string, std::set<std::shared_ptr<ServerI>> > _serversByApplication;
+    std::set<std::string> _patchInProgress;
 
     std::mutex _mutex;
+    std::condition_variable _condVar;
 };
 
 }

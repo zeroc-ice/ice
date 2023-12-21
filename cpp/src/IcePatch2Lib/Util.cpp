@@ -76,10 +76,17 @@ bool
 IcePatch2Internal::writeFileInfo(FILE* fp, const LargeFileInfo& info)
 {
     int rc = fprintf(fp, "%s\t%s\t" ICE_INT64_FORMAT "\t%d\n",
-                     escapeString(info.path, "", IceUtilInternal::Compat).c_str(),
-                     bytesToString(info.checksum).c_str(),
-                     info.size,
-                     static_cast<int>(info.executable));
+        IceUtilInternal::escapeString(
+            info.path, "", 
+#ifdef ICE_CPP11_MAPPING
+            IceUtilInternal::ToStringMode::Compat
+#else
+            IceUtilInternal::Compat
+#endif // ICE_CPP11_MAPPING
+        ).c_str(),
+        bytesToString(info.checksum).c_str(),
+        info.size,
+        static_cast<int>(info.executable));
     return rc > 0;
 }
 

@@ -8,6 +8,7 @@
 #include <IcePatch2Lib/Util.h>
 #include <list>
 #include <iterator>
+#include <optional>
 
 using namespace std;
 using namespace Ice;
@@ -57,7 +58,7 @@ class PatcherI : public Patcher
 public:
 
     PatcherI(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
-    PatcherI(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
+    PatcherI(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
     virtual ~PatcherI();
 
     virtual bool prepare();
@@ -66,7 +67,7 @@ public:
 
 private:
 
-    void init(const FileServerPrx&);
+    void init(const FileServerPrxPtr&);
     bool removeFiles(const LargeFileInfoSeq&);
     bool updateFiles(const LargeFileInfoSeq&);
     bool updateFilesInternal(const LargeFileInfoSeq&, const DecompressorPtr&);
@@ -77,8 +78,8 @@ private:
     const bool _thorough;
     const Ice::Int _chunkSize;
     const Ice::Int _remove;
-    const FileServerPrx _serverCompress;
-    const FileServerPrx _serverNoCompress;
+    const FileServerPrxPtr _serverCompress;
+    const FileServerPrxPtr _serverNoCompress;
 
     LargeFileInfoSeq _localFiles;
     LargeFileInfoSeq _updateFiles;
@@ -209,7 +210,7 @@ PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr
         throw runtime_error("property `IcePatch2Client.Proxy' is not set");
     }
 
-    FileServerPrx server = FileServerPrx::checkedCast(communicator->stringToProxy(clientProxy));
+    FileServerPrxPtr server = ICE_CHECKED_CAST(FileServerPrx, communicator->stringToProxy(clientProxy));
     if(!server)
     {
         throw runtime_error("proxy `" + clientProxy + "' is not a file server.");
@@ -218,7 +219,7 @@ PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr
     init(server);
 }
 
-PatcherI::PatcherI(const FileServerPrx& server,
+PatcherI::PatcherI(const FileServerPrxPtr& server,
                    const PatcherFeedbackPtr& feedback,
                    const string& dataDir,
                    bool thorough,
@@ -243,6 +244,59 @@ PatcherI::~PatcherI()
     }
 }
 
+#ifdef  ICE_CPP11_MAPPING
+class GetFileInfoSeqAsyncCB
+{
+public:
+
+    GetFileInfoSeqAsyncCB(bool useSmallFileAPI) :
+        _useSmallFileAPI(useSmallFileAPI)
+    {}
+
+    void complete(FileInfoSeq fileInfoSeq)
+    {
+        assert(_useSmallFileAPI);
+        _fileInfoSeq.set_value(fileInfoSeq);
+    }
+
+    void complete(LargeFileInfoSeq largeFileInfoSeq)
+    {
+        assert(!_useSmallFileAPI);
+        _largeFileInfoSeq.set_value(largeFileInfoSeq);
+    }
+
+    void exception(std::exception_ptr exception)
+    {
+        if (_useSmallFileAPI)
+        {
+            _fileInfoSeq.set_exception(exception);
+        }
+        else
+        {
+            _largeFileInfoSeq.set_exception(exception);
+        }
+    }
+
+    std::future<FileInfoSeq> getFileInfoSeq()
+    {
+        assert(_useSmallFileAPI);
+        return _fileInfoSeq.get_future();
+    }
+
+    std::future<LargeFileInfoSeq> getLargeFileInfoSeq()
+    {
+        assert(!_useSmallFileAPI);
+        return _largeFileInfoSeq.get_future();
+    }
+
+private:
+
+    std::promise<LargeFileInfoSeq> _largeFileInfoSeq;
+    std::promise<FileInfoSeq> _fileInfoSeq;
+    bool _useSmallFileAPI;
+};
+#endif
+
 class PatcherGetFileInfoSeqCB : public GetFileInfoSeqCB
 {
 public:
@@ -253,13 +307,13 @@ public:
     }
 
     virtual bool
-    remove(const string&)
+        remove(const string&)
     {
         return true;
     }
 
     virtual bool
-    checksum(const string& path)
+        checksum(const string& path)
     {
         return _feedback->checksumProgress(path);
     }
@@ -337,18 +391,52 @@ PatcherI::prepare()
 
         while(true)
         {
+#ifdef ICE_CPP11_MAPPING
+            auto curCB = std::make_shared<GetFileInfoSeqAsyncCB>(_useSmallFileAPI);
+            std::shared_ptr<GetFileInfoSeqAsyncCB> nxtCB;
+#else
             AsyncResultPtr curCB;
             AsyncResultPtr nxtCB;
+#endif
             try
             {
                 for(size_t node0 = 0; node0 < 256; ++node0)
                 {
                     if(tree0.nodes[node0].checksum != checksumSeq[node0])
                     {
-                        if(!curCB)
+#ifdef  ICE_CPP11_MAPPING
+                        if (_useSmallFileAPI)
+                        {
+                            _serverCompress->getFileInfoSeqAsync(
+                                static_cast<Int>(node0),
+                                [curCB](FileInfoSeq fileInfoSeq)
+                                {
+                                    curCB->complete(fileInfoSeq);
+                                },
+                                [curCB](exception_ptr exception)
+                                {
+                                    curCB->exception(exception);
+                                });
+                        }
+                        else
+                        {
+                            _serverCompress->getLargeFileInfoSeqAsync(
+                                static_cast<Int>(node0),
+                                [curCB](LargeFileInfoSeq fileInfoSeq)
+                                {
+                                    curCB->complete(fileInfoSeq);
+                                },
+                                [curCB](exception_ptr exception)
+                                {
+                                    curCB->exception(exception);
+                                });
+                        }
+#else
+                        if (!curCB)
                         {
                             assert(!nxtCB);
-                            curCB = _useSmallFileAPI ? _serverCompress->begin_getFileInfoSeq(static_cast<Int>(node0)) :
+                            curCB = _useSmallFileAPI ?
+                                _serverCompress->begin_getFileInfoSeq(static_cast<Int>(node0)) :
                                 _serverCompress->begin_getLargeFileInfoSeq(static_cast<Int>(node0));
                         }
                         else
@@ -356,6 +444,9 @@ PatcherI::prepare()
                             assert(nxtCB);
                             swap(nxtCB, curCB);
                         }
+#endif //  ICE_CPP11_MAPPING
+
+
 
                         size_t node0Nxt = node0;
 
@@ -367,12 +458,54 @@ PatcherI::prepare()
 
                         if(node0Nxt < 256)
                         {
+#ifdef ICE_CPP11_MAPPING
+                            nxtCB = std::make_shared<GetFileInfoSeqAsyncCB>(_useSmallFileAPI);
+                            if (_useSmallFileAPI)
+                            {
+                                _serverCompress->getFileInfoSeqAsync(
+                                    static_cast<Int>(node0),
+                                    [curCB](FileInfoSeq fileInfoSeq)
+                                    {
+                                        curCB->complete(fileInfoSeq);
+                                    },
+                                    [curCB](exception_ptr exception)
+                                    {
+                                        curCB->exception(exception);
+                                    });
+                            }
+                            else
+                            {
+                                _serverCompress->getLargeFileInfoSeqAsync(
+                                    static_cast<Int>(node0),
+                                    [curCB](LargeFileInfoSeq fileInfoSeq)
+                                    {
+                                        curCB->complete(fileInfoSeq);
+                                    },
+                                    [curCB](exception_ptr exception)
+                                    {
+                                        curCB->exception(exception);
+                                    });
+                            }
+#else
                             nxtCB = _useSmallFileAPI ?
                                 _serverCompress->begin_getFileInfoSeq(static_cast<Int>(node0Nxt)) :
                                 _serverCompress->begin_getLargeFileInfoSeq(static_cast<Int>(node0Nxt));
+#endif
                         }
 
                         LargeFileInfoSeq files;
+#ifdef ICE_CPP11_MAPPING
+                        if (_useSmallFileAPI)
+                        {
+                            FileInfoSeq smallFiles = curCB->getFileInfoSeq().get();
+                            files.resize(smallFiles.size());
+                            transform(smallFiles.begin(), smallFiles.end(), files.begin(), toLargeFileInfo);
+                        }
+                        else
+                        {
+                            files = curCB->getLargeFileInfoSeq().get();
+                        }
+#else
                         if(_useSmallFileAPI)
                         {
                             FileInfoSeq smallFiles = _serverCompress->end_getFileInfoSeq(curCB);
@@ -383,7 +516,7 @@ PatcherI::prepare()
                         {
                             files = _serverCompress->end_getLargeFileInfoSeq(curCB);
                         }
-
+#endif
                         sort(files.begin(), files.end(), FileInfoLess());
                         files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
 
@@ -590,7 +723,7 @@ PatcherI::finish()
 }
 
 void
-PatcherI::init(const FileServerPrx& server)
+PatcherI::init(const FileServerPrxPtr& server)
 {
     if(_dataDir.empty())
     {
@@ -633,8 +766,10 @@ PatcherI::init(const FileServerPrx& server)
         const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
     }
 
-    const_cast<FileServerPrx&>(_serverCompress) = FileServerPrx::uncheckedCast(server->ice_compress(true));
-    const_cast<FileServerPrx&>(_serverNoCompress) = FileServerPrx::uncheckedCast(server->ice_compress(false));
+    const_cast<FileServerPrxPtr&>(_serverCompress) =
+        ICE_UNCHECKED_CAST(FileServerPrx, server->ice_compress(true));
+    const_cast<FileServerPrxPtr&>(_serverNoCompress) =
+        ICE_UNCHECKED_CAST(FileServerPrx, server->ice_compress(false));
 }
 
 bool
@@ -725,6 +860,74 @@ PatcherI::updateFiles(const LargeFileInfoSeq& files)
     return result;
 }
 
+#ifdef  ICE_CPP11_MAPPING
+class GetFileCompressedCB
+{
+public:
+
+    void complete(ByteSeq bytes)
+    {
+        _bytes.set_value(bytes);
+    }
+
+    void exception(std::exception_ptr exception)
+    {
+        _bytes.set_exception(exception);
+    }
+
+    std::future<ByteSeq> getFileCompressed()
+    {
+        return _bytes.get_future();
+    }
+
+private:
+
+    std::promise<ByteSeq> _bytes;
+};
+
+void getFileCompressed(
+    FileServerPrxPtr serverNoCompress,
+    std::string path,
+    Ice::Long pos,
+    int chunkSize,
+    std::shared_ptr<GetFileCompressedCB> cb,
+    bool useSmallFileAPI)
+{
+    if (useSmallFileAPI)
+    {
+        serverNoCompress->getFileCompressedAsync(
+            path,
+            static_cast<Ice::Int>(pos),
+            chunkSize,
+            [cb](std::pair<const Byte*, const Byte*> result)
+            {
+                ByteSeq bytes(result.first, result.second);
+                cb->complete(bytes);
+            },
+            [cb](exception_ptr exception)
+            {
+                cb->exception(exception);
+            });
+    }
+    else
+    {
+        serverNoCompress->getLargeFileCompressedAsync(
+            path,
+            pos,
+            chunkSize,
+            [cb](std::pair<const Byte*, const Byte*> result)
+            {
+                ByteSeq bytes(result.first, result.second);
+                cb->complete(bytes);
+            },
+            [cb](exception_ptr exception)
+            {
+                cb->exception(exception);
+            });
+    }
+}
+#endif
+
 bool
 PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorPtr& decompressor)
 {
@@ -739,8 +942,13 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
         }
     }
 
+#ifdef ICE_CPP11_MAPPING
+    auto curCB = std::make_shared<GetFileCompressedCB>();
+    shared_ptr<GetFileCompressedCB> nxtCB;
+#else
     AsyncResultPtr curCB;
     AsyncResultPtr nxtCB;
+#endif // ICE_CPP11_MAPPING
 
     for(LargeFileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
@@ -802,9 +1010,20 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         if(!curCB)
                         {
                             assert(!nxtCB);
+#ifdef  ICE_CPP11_MAPPING
+                            getFileCompressed(
+                                _serverNoCompress,
+                                p->path,
+                                pos,
+                                _chunkSize,
+                                curCB,
+                                _useSmallFileAPI);
+#else
+
                             curCB = _useSmallFileAPI ?
                                 _serverNoCompress->begin_getFileCompressed(p->path, static_cast<Ice::Int>(pos), _chunkSize) :
                                 _serverNoCompress->begin_getLargeFileCompressed(p->path, pos, _chunkSize);
+#endif //  ICE_CPP11_MAPPING
                         }
                         else
                         {
@@ -814,9 +1033,20 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 
                         if(pos + _chunkSize < p->size)
                         {
+#ifdef ICE_CPP11_MAPPING
+                            nxtCB = std::make_shared<GetFileCompressedCB>();
+                            getFileCompressed(
+                                _serverNoCompress,
+                                p->path,
+                                pos + _chunkSize,
+                                _chunkSize,
+                                nxtCB,
+                                _useSmallFileAPI);
+#else
                             nxtCB = _useSmallFileAPI ?
                                 _serverNoCompress->begin_getFileCompressed(p->path, static_cast<Ice::Int>(pos + _chunkSize), _chunkSize) :
                                 _serverNoCompress->begin_getLargeFileCompressed(p->path, pos + _chunkSize, _chunkSize);
+#endif
                         }
                         else
                         {
@@ -829,9 +1059,20 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 
                             if(q != files.end())
                             {
+#ifdef ICE_CPP11_MAPPING
+                                nxtCB = std::make_shared<GetFileCompressedCB>();
+                                getFileCompressed(
+                                    _serverNoCompress,
+                                    p->path,
+                                    0,
+                                    _chunkSize,
+                                    nxtCB,
+                                    _useSmallFileAPI);
+#else
                                 nxtCB = _useSmallFileAPI ?
                                     _serverNoCompress->begin_getFileCompressed(q->path, 0, _chunkSize) :
                                     _serverNoCompress->begin_getLargeFileCompressed(q->path, 0, _chunkSize);
+#endif
                             }
                         }
 
@@ -839,8 +1080,12 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 
                         try
                         {
+#ifdef  ICE_CPP11_MAPPING
+                            bytes = curCB->getFileCompressed().get();
+#else
                             bytes = _useSmallFileAPI ? _serverNoCompress->end_getFileCompressed(curCB) :
-                                                       _serverNoCompress->end_getLargeFileCompressed(curCB);
+                                _serverNoCompress->end_getLargeFileCompressed(curCB);
+#endif //  ICE_CPP11_MAPPING
                         }
                         catch(const FileAccessException& ex)
                         {
@@ -980,7 +1225,7 @@ PatcherFactory::create(const Ice::CommunicatorPtr& communicator, const PatcherFe
 // are equivalent to the configuration properties described above.
 //
 PatcherPtr
-PatcherFactory::create(const FileServerPrx& server,
+PatcherFactory::create(const FileServerPrxPtr& server,
                        const PatcherFeedbackPtr& feedback,
                        const string& dataDir,
                        bool thorough,

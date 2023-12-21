@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" />
+  <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -45,7 +45,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\msbuild\ice.cpp98.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp98.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -93,133 +93,133 @@
     </SliceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\slice\IcePatch2\FileInfo.ice" />
-    <SliceCompile Include="..\..\..\..\slice\IcePatch2\FileServer.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\IcePatch2\FileInfo.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\IcePatch2\FileServer.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ClientUtil.cpp" />
-    <ClCompile Include="..\Util.cpp" />
+    <ClCompile Include="..\..\ClientUtil.cpp" />
+    <ClCompile Include="..\..\Util.cpp" />
     <ClCompile Include="Win32\Debug\FileInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\FileServer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\FileInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\FileServer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\FileInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\FileServer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\FileInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\FileServer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileServer.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileServer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileServer.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileServer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileServer.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileServer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileInfo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileInfo.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileServer.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileServer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\..\..\..\slice\IcePatch2\FileServer.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\IcePatch2\ClientUtil.h" />
-    <ClInclude Include="..\..\..\include\IcePatch2\Config.h" />
-    <ClInclude Include="..\..\..\include\IcePatch2\IcePatch2.h" />
-    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\..\..\..\include\IcePatch2\ClientUtil.h" />
+    <ClInclude Include="..\..\..\..\include\IcePatch2\Config.h" />
+    <ClInclude Include="..\..\..\..\include\IcePatch2\IcePatch2.h" />
+    <ClInclude Include="..\..\Util.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\IcePatch2.rc" />
+    <ResourceCompile Include="..\..\IcePatch2.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" />
-    <Import Project="..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" />
   </ImportGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets'))" />
   </Target>
 </Project>

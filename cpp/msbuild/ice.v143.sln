@@ -81,7 +81,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icestorm++11", "..\src\IceS
 		{3AB9772C-6113-4F1C-90FB-5368E7486C11} = {3AB9772C-6113-4F1C-90FB-5368E7486C11}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2", "..\src\IcePatch2Lib\msbuild\icepatch2.vcxproj", "{994ADD25-20A0-4715-A3EC-9F86AFD481D0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2", "..\src\IcePatch2Lib\msbuild\icepatch2\icepatch2.vcxproj", "{994ADD25-20A0-4715-A3EC-9F86AFD481D0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6485EC94-6B47-428D-B42D-AAA11F08DB59} = {6485EC94-6B47-428D-B42D-AAA11F08DB59}
 	EndProjectSection
@@ -282,6 +282,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glacier2cryptpermissionsverifier", "..\src\Glacier2CryptPermissionsVerifier\msbuild\glacier2cryptpermissionsverifier\glacier2cryptpermissionsverifier.vcxproj", "{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2940A3C2-A9BA-44AA-AF65-00479C783407} = {2940A3C2-A9BA-44AA-AF65-00479C783407}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2++11", "..\src\IcePatch2Lib\msbuild\icepatch2++11\icepatch2++11.vcxproj", "{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3AB9772C-6113-4F1C-90FB-5368E7486C11} = {3AB9772C-6113-4F1C-90FB-5368E7486C11}
 	EndProjectSection
 EndProject
 Global
@@ -692,6 +697,14 @@ Global
 		{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B3}.Release|Win32.Build.0 = Release|Win32
 		{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B3}.Release|x64.ActiveCfg = Release|x64
 		{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B3}.Release|x64.Build.0 = Release|x64
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Debug|Win32.Build.0 = Debug|Win32
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Debug|x64.ActiveCfg = Debug|x64
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Debug|x64.Build.0 = Debug|x64
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Release|Win32.ActiveCfg = Release|Win32
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Release|Win32.Build.0 = Release|Win32
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Release|x64.ActiveCfg = Release|x64
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -747,6 +760,7 @@ Global
 		{0D08F6B8-39C0-413B-84CE-D73230BCC740} = {2DC2B270-B7AE-48CF-8FB0-41A55A9747E9}
 		{773EA63E-40AE-45B8-82B4-82B54CF309F8} = {2DC2B270-B7AE-48CF-8FB0-41A55A9747E9}
 		{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B3} = {F48CC091-6F26-4EC8-A2FB-485975E7C908}
+		{18F381D8-BA61-4E6A-B877-9F6BC28C07E5} = {F48CC091-6F26-4EC8-A2FB-485975E7C908}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AAB39BE9-A7ED-4C54-80FE-D63A173ABB06}

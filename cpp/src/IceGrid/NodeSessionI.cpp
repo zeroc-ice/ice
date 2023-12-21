@@ -11,6 +11,47 @@
 using namespace std;
 using namespace IceGrid;
 
+namespace IceGrid
+{
+
+class PatcherFeedbackI : public PatcherFeedback, public std::enable_shared_from_this<PatcherFeedback>
+{
+public:
+
+    PatcherFeedbackI(
+        const string& node,
+        const shared_ptr<NodeSessionI>& session,
+        const Ice::Identity id,
+        const shared_ptr<PatcherFeedbackAggregator>& aggregator) :
+        _node(node),
+        _session(session),
+        _id(id),
+        _aggregator(aggregator)
+    {
+    }
+
+    void finished(const Ice::Current&)
+    {
+        _aggregator->finished(_node);
+        _session->removeFeedback(shared_from_this(), _id);
+    }
+
+    virtual void failed(const string& reason, const Ice::Current & = Ice::Current())
+    {
+        _aggregator->failed(_node, reason);
+        _session->removeFeedback(shared_from_this(), _id);
+    }
+
+private:
+
+    const std::string _node;
+    const shared_ptr<NodeSessionI> _session;
+    const Ice::Identity _id;
+    const shared_ptr<PatcherFeedbackAggregator> _aggregator;
+};
+
+}
+
 shared_ptr<NodeSessionI>
 NodeSessionI::create(const shared_ptr<Database>& database,
                      const shared_ptr<NodePrx>& node,
@@ -185,6 +226,39 @@ NodeSessionI::shutdown()
     destroyImpl(true);
 }
 
+void
+NodeSessionI::patch(
+    const shared_ptr<PatcherFeedbackAggregator>& aggregator,
+    const string& application,
+    const string& server,
+    const shared_ptr<InternalDistributionDescriptor>& dist,
+    bool shutdown)
+{
+    Ice::Identity id;
+    id.category = _database->getInstanceName();
+    id.name = Ice::generateUUID();
+
+    auto obj = make_shared<PatcherFeedbackI>(_info->name, this, id, aggregator);
+    try
+    {
+        auto feedback = Ice::uncheckedCast<PatcherFeedbackPrx>(_database->getInternalAdapter()->add(obj, id));
+        _node->patch(feedback, application, server, dist, shutdown);
+
+        lock_guard lock(_mutex);
+        if (_destroy)
+        {
+            throw NodeUnreachableException(_info->name, "node is down");
+        }
+        _feedbacks.insert(obj);
+    }
+    catch (const Ice::LocalException& ex)
+    {
+        ostringstream os;
+        os << "node unreachable:\n" << ex;
+        obj->failed(os.str());
+    }
+}
+
 const shared_ptr<NodePrx>&
 NodeSessionI::getNode() const
 {
@@ -276,4 +350,20 @@ NodeSessionI::destroyImpl(bool shutdown)
         {
         }
     }
+}
+
+void NodeSessionI::removeFeedback(
+    const shared_ptr<PatcherFeedback>& feedback,
+    const Ice::Identity& id)
+{
+    try
+    {
+        _database->getInternalAdapter()->remove(id);
+    }
+    catch (const Ice::LocalException&)
+    {
+    }
+
+    lock_guard lock(_mutex);
+    _feedbacks.erase(feedback);
 }

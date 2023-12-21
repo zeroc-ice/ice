@@ -821,6 +821,18 @@ ServerDescriptorBuilder::addServiceInstance(const ServiceInstanceDescriptor& /*d
     assert(false);
 }
 
+void
+ServerDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
+{
+    _descriptor->distrib.icepatch = attrs("icepatch", "${application}.IcePatch2/server");
+}
+
+void
+ServerDescriptorBuilder::addDistributionDirectory(const string& directory)
+{
+    _descriptor->distrib.directories.push_back(directory);
+}
+
 IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
                                                  const XmlAttributesHelper& attrs) :
     ServerDescriptorBuilder(communicator)

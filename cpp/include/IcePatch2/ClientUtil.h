@@ -135,7 +135,7 @@ public:
     // Create a patcher with the given parameters. These parameters
     // are equivalent to the configuration properties described above.
     //
-    static PatcherPtr create(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
+    static PatcherPtr create(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
 };
 
 }

@@ -38,13 +38,6 @@ void setupThreadPool(const std::shared_ptr<Ice::Properties>&, const std::string&
 
 int getMMVersion(const std::string&);
 
-std::string simplify(const std::string&);
-void remove(const std::string&);
-void removeRecursive(const std::string&);
-Ice::StringSeq readDirectory(const std::string&);
-void createDirectory(const std::string&);
-void createDirectoryRecursive(const std::string&);
-
 int secondsToInt(const std::chrono::seconds&);
 
 inline void

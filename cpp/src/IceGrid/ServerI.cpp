@@ -610,6 +610,57 @@ DestroyCommand::clearDir() const
     return _clearDir;
 }
 
+PatchCommand::PatchCommand(const std::shared_ptr<ServerI>& server) :
+    ServerCommand(server),
+    _notified(false),
+    _destroyed(false)
+{
+}
+
+bool
+PatchCommand::canExecute(ServerI::InternalServerState state)
+{
+    return state == ServerI::Inactive;
+}
+
+ServerI::InternalServerState
+PatchCommand::nextState()
+{
+    return ServerI::Patching;
+}
+
+void
+PatchCommand::execute()
+{
+    unique_lock lock(_mutex);
+    _notified = true;
+    _condVar.notify_all();
+}
+
+bool
+PatchCommand::waitForPatch()
+{
+    unique_lock lock(_mutex);
+    while (!_notified && !_destroyed)
+    {
+        _condVar.wait(lock);
+    }
+    return _destroyed;
+}
+
+void
+PatchCommand::destroyed()
+{
+    unique_lock lock(_mutex);
+    _destroyed = true;
+    _condVar.notify_all();
+}
+
+void
+PatchCommand::finished()
+{
+}
+
 bool
 StartCommand::canExecute(ServerI::InternalServerState state)
 {
@@ -1022,14 +1073,14 @@ ServerI::getId() const
 InternalDistributionDescriptorPtr
 ServerI::getDistribution() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _desc ? _desc->distrib : InternalDistributionDescriptorPtr();
 }
 
 bool
 ServerI::dependsOnApplicationDistrib() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _desc ? _desc->applicationDistrib : false;
 }
 
@@ -1327,9 +1378,9 @@ ServerI::destroy(const string& uuid, int revision, const string& replicaName, bo
 bool
 ServerI::startPatch(bool shutdown)
 {
-    ServerCommandPtr command;
+    shared_ptr<ServerCommand> command;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         checkDestroyed();
         if(!StopCommand::isStopped(_state))
         {
@@ -1339,12 +1390,12 @@ ServerI::startPatch(bool shutdown)
             }
             else if(!_stop)
             {
-                _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
+                _stop = make_shared<StopCommand>(this, _node->getTimer(), _deactivationTimeout);
             }
         }
         if(!_patch)
         {
-            _patch = new PatchCommand(this);
+            _patch = make_shared<PatchCommand>(this);
         }
         command = nextCommand();
     }
@@ -1358,9 +1409,9 @@ ServerI::startPatch(bool shutdown)
 bool
 ServerI::waitForPatch()
 {
-    PatchCommandPtr patch;
+    shared_ptr<PatchCommand> patch;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(!_patch)
         {
             return true;
@@ -1375,7 +1426,7 @@ ServerI::finishPatch()
 {
 #ifndef _WIN32
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         try
         {
             chownRecursive(_serverDir + "/distrib", _uid, _gid);
@@ -2169,7 +2220,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     //
     for(const auto& log : _desc->logs)
     {
-        string path = simplify(log);
+        string path = IcePatch2Internal::simplify(log);
         if(IceUtilInternal::isAbsolutePath(path))
         {
             _logs.push_back(path);
@@ -2257,7 +2308,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             {
                 try
                 {
-                    remove(_serverDir + "/config/" + str);
+                    IcePatch2Internal::remove(_serverDir + "/config/" + str);
                 }
                 catch(const exception& ex)
                 {
@@ -2299,7 +2350,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         {
             try
             {
-                removeRecursive(_serverDir + "/" + str);
+                IcePatch2Internal::removeRecursive(_serverDir + "/" + str);
             }
             catch(const exception& ex)
             {

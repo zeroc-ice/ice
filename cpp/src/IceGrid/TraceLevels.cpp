@@ -26,6 +26,8 @@ TraceLevels::TraceLevels(const shared_ptr<Ice::Communicator>& communicator, cons
     objectCat("Object"),
     activator(),
     activatorCat("Activator"),
+    patch(),
+    patchCat("Patch"),
     locator(),
     locatorCat("Locator"),
     session(),

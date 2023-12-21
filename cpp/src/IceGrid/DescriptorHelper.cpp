@@ -2703,6 +2703,11 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
     updt.propertySets = getDictUpdatedElts(helper._def.propertySets, _def.propertySets);
     updt.removePropertySets = getDictRemovedElts(helper._def.propertySets, _def.propertySets);
 
+    if(_def.distrib != helper._def.distrib)
+    {
+        updt.distrib = make_shared<BoxedDistributionDescriptor>(_def.distrib);
+    }
+
     updt.replicaGroups = getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId, replicaGroupEqual);
     updt.removeReplicaGroups = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId);
 
@@ -2744,6 +2749,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 
     def.name = _def.name;
     def.description = updt.description ? updt.description->value : _def.description;
+    def.distrib = updt.distrib ? updt.distrib->value : _def.distrib;
     def.replicaGroups = updateSeqElts(_def.replicaGroups, updt.replicaGroups, updt.removeReplicaGroups, getReplicaGroupId);
     def.variables = updateDictElts(_def.variables, updt.variables, updt.removeVariables);
     def.propertySets = updateDictElts(_def.propertySets, updt.propertySets, updt.removePropertySets);

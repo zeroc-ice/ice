@@ -584,7 +584,7 @@ TopicImpl::unsubscribe(const shared_ptr<Ice::ObjectPrx>& subscriber)
 
     Ice::Identity id = subscriber->ice_getIdentity();
 
-    IceUtil::Mutex::Lock sync(_subscribersMutex);
+    lock_guard<mutex> lg(_subscribersMutex);
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
@@ -596,8 +596,7 @@ TopicImpl::unsubscribe(const shared_ptr<Ice::ObjectPrx>& subscriber)
             trace(out, _instance, _subscribers);
         }
     }
-
-    lock_guard<mutex> lg(_subscribersMutex);
+    
     Ice::IdentitySeq ids;
     ids.push_back(id);
     removeSubscribers(ids);

@@ -14,6 +14,40 @@ namespace IceGrid
 class Database;
 class TraceLevels;
 
+class PatcherFeedbackAggregator
+{
+public:
+
+    PatcherFeedbackAggregator(
+        Ice::Identity,
+        const std::shared_ptr<TraceLevels>&,
+        const std::string&,
+        const std::string&, int);
+    virtual ~PatcherFeedbackAggregator();
+
+    void finished(const std::string&);
+    void failed(const std::string&, const std::string&);
+
+protected:
+
+    virtual void exception(const Ice::Exception&) = 0;
+    virtual void response() = 0;
+
+private:
+
+    void checkIfDone();
+
+    const Ice::Identity _id;
+    const std::shared_ptr<TraceLevels> _traceLevels;
+    const std::string _type;
+    const std::string _name;
+    const int _count;
+    std::set<std::string> _successes;
+    std::set<std::string> _failures;
+    Ice::StringSeq _reasons;
+    std::mutex _mutex;
+};
+
 class NodeSessionI : public NodeSession
 {
 public:
@@ -35,6 +69,11 @@ public:
 
     std::chrono::steady_clock::time_point timestamp() const;
     void shutdown();
+    void patch(
+        const std::shared_ptr<PatcherFeedbackAggregator>&,
+        const std::string&,
+        const std::string&,
+        const std::shared_ptr<InternalDistributionDescriptor>&, bool);
 
     const std::shared_ptr<NodePrx>& getNode() const;
     const std::shared_ptr<InternalNodeInfo>& getInfo() const;
@@ -42,6 +81,7 @@ public:
     std::shared_ptr<NodeSessionPrx> getProxy() const;
 
     bool isDestroyed() const;
+    void removeFeedback(const std::shared_ptr<PatcherFeedback>&, const Ice::Identity&);
 
 private:
 
@@ -61,6 +101,7 @@ private:
     std::chrono::steady_clock::time_point _timestamp;
     LoadInfo _load;
     bool _destroy;
+    std::set<std::shared_ptr<PatcherFeedback>> _feedbacks;
 
     mutable std::mutex _mutex;
 };

@@ -55,77 +55,77 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ClientUtil.cpp">
+    <ClCompile Include="..\..\ClientUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Util.cpp">
+    <ClCompile Include="..\..\Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\FileInfo.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\FileServer.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\FileInfo.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\FileServer.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\FileInfo.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\FileServer.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\FileInfo.cpp">
       <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\FileServer.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\FileServer.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\FileServer.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\FileServer.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Util.h">
+    <ClInclude Include="..\..\..\..\include\IcePatch2\ClientUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\IcePatch2\Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IcePatch2\IcePatch2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileInfo.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileServer.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileInfo.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileInfo.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileInfo.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IcePatch2\FileServer.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileServer.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Debug\IcePatch2\FileServer.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileServer.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\Win32\Release\IcePatch2\FileServer.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileInfo.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileServer.h">
       <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\generated\cpp98\x64\Release\IcePatch2\FileServer.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\IcePatch2\IcePatch2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\IcePatch2\Config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\IcePatch2\ClientUtil.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\IcePatch2.rc">
+    <ResourceCompile Include="..\..\IcePatch2.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -133,10 +133,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\..\slice\IcePatch2\FileInfo.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\IcePatch2\FileInfo.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\slice\IcePatch2\FileServer.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\IcePatch2\FileServer.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>
