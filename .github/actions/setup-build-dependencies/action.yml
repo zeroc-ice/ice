@@ -2,10 +2,34 @@ name: Configure Dev Dependencies
 
 runs:
   using: "composite"
+  if: startsWith(matrix.os, 'macos')
   steps:
-    - uses: "./.github/actions/setup-build-dependencies/macos.yml"
-      if: startsWith(matrix.os, 'macos')
-    - uses: "./.github/actions/setup-build-dependencies/ubuntu.yml"
-      if: startsWith(matrix.os, 'ubuntu')
-    - uses: "./.github/actions/setup-build-dependencies/windows.yml"
-      if: startsWith(matrix.os, 'windows')
+    - name: Install brew dependencies
+      run: brew install python3 ruby openjdk node php lmdb mcpp
+    - name: Install test dependencies
+      run: python3 -m pip install passlib cryptography
+
+  if: startsWith(matrix.os, 'ubuntu')
+  steps:
+    - name: Install dependencies
+      run: sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
+    - name: Install test dependencies
+      run: python3 -m pip install passlib cryptography
+
+  if: startsWith(matrix.os, 'windows')
+  steps:
+   # - name: Install dependencies
+    #   run: choco --yes install
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+      with:
+        msbuild-architecture: x64
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Configure Environment
+      run: |
+        echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
+    - name: Install test dependencies
+      run: python -m pip install passlib cryptography python-dev-tools
