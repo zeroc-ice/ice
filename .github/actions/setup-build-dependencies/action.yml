@@ -1,7 +1,6 @@
 name: Configure Dev Dependencies
 
 runs:
-  steps:
   using: "composite"
   steps:
     - uses: "./macos.yml"
