@@ -83,7 +83,7 @@ jobs:
       - name: Test
         run: python allTests.py --workers=3
 
-  windows-latest:
+  where-python:
     runs-on: [windows-latest]
     steps:
       - name: where python?
