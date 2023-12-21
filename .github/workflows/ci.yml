@@ -88,4 +88,4 @@ jobs:
     steps:
       - name: path
         run: |
-          echo "${{ env }}""
+          echo "${{ env }}"
