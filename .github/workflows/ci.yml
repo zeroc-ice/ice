@@ -16,15 +16,18 @@ jobs:
   build:
     strategy:
       matrix:
+        language: [cpp, csharp, java, python, js] # available on all os
         os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - language: swift
+            os: macos-latest
+          - language: php
+            os: [ubuntu-latest, macos-latest]
+          - language: ruby
+            os: [ubuntu-latest, macos-latest]
+
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Setup Build Cache
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: ${{ runner.os }}-build-${{ github.sha }}
-
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -52,18 +55,7 @@ jobs:
       - name: Build ${{ matrix.os }}
         uses: ./.github/actions/build
 
-  test:
-    needs: build
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Restore Build Cache
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: ${{ runner.os }}-build-${{ github.sha }}
-
       - name: Build ${{ matrix.os }}
         uses: ./.github/actions/test
+        with:
+          language: ${{ matrix.language }}
