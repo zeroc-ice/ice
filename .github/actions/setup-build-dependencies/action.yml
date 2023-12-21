@@ -16,7 +16,6 @@ runs:
     # - name: Install dependencies
     #   run: choco --yes install
     - name: Setup MSBuild
-      shell: powershell
       uses: microsoft/setup-msbuild@v1.1
       with:
         msbuild-architecture: x64
