@@ -65,5 +65,5 @@ jobs:
           path: .
           key: ${{ runner.os }}-build-${{ github.sha }}
 
-      - name: Test ${{ matrix.os }}
-        run: python3 allTests.py --workers=3
+      - name: Build ${{ matrix.os }}
+        uses: ./.github/actions/test
