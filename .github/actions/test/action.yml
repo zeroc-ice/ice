@@ -4,7 +4,7 @@ runs:
   using: "composite"
   steps:
     - name: Test
-      run: python allTests.py --workers=3
+      run: python3 allTests.py --workers=3
       shell: bash
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 

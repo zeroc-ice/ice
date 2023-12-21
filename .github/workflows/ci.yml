@@ -13,12 +13,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  build:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Setup Build Cache
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: ${{ runner.os }}-build-${{ github.sha }}
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -43,8 +49,21 @@ jobs:
             ${{ runner.os }}-build-${{ github.sha }}
             ${{ runner.os }}-build-
 
-      - name: Build
+      - name: Build ${{ matrix.os }}
         uses: ./.github/actions/build
 
-      - name: Test
+  test:
+    needs: build
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Restore Build Cache
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: ${{ runner.os }}-build-${{ github.sha }}
+
+      - name: Test ${{ matrix.os }}
         run: python3 allTests.py --workers=3
