@@ -81,7 +81,7 @@ jobs:
             ${{ runner.os }}-build-${{ github.sha }}
             ${{ runner.os }}-build-
       - name: Build
-        run: msbuild /m ice.proj
+        run: msbuild /m /p:Platform=x64 ice.proj
         env:
           PythonHome: C:\hostedtoolcache\windows\Python\3.12.1\x64
       - name: Test
