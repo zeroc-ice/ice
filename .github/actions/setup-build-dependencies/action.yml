@@ -3,9 +3,9 @@ name: Configure Dev Dependencies
 runs:
   using: "composite"
   steps:
-    - uses: "./macos.yml"
+    - uses: "./.github/actions/setup-build-dependencies/macos.yml"
       if: startsWith(matrix.os, 'macos')
-    - uses: "./ubuntu.yml"
+    - uses: "./.github/actions/setup-build-dependencies/ubuntu.yml"
       if: startsWith(matrix.os, 'ubuntu')
-    - uses: "./windows.yml"
+    - uses: "./.github/actions/setup-build-dependencies/windows.yml"
       if: startsWith(matrix.os, 'windows')
