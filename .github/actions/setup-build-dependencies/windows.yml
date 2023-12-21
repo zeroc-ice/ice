@@ -1,0 +1,19 @@
+name: Configure macOS Dependencies
+
+runs:
+  steps:
+    # - name: Install dependencies
+    #   run: choco --yes install
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+      with:
+        msbuild-architecture: x64
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Configure Environment
+      run: |
+        echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
+    - name: Install test dependencies
+      run: python -m pip install passlib cryptography python-dev-tools

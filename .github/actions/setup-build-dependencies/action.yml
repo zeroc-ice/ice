@@ -1,0 +1,10 @@
+name: Configure Dev Dependencies
+
+runs:
+  using: "composite"
+  - uses: "./macos.yml"
+    if: startsWith(matrix.os, 'macos')
+  - uses: "./ubuntu.yml"
+    if: startsWith(matrix.os, 'ubuntu')
+  - uses: "./windows.yml"
+    if: startsWith(matrix.os, 'windows')
