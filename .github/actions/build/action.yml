@@ -1,0 +1,13 @@
+name: Build Ice on ${{ matrix.os }}
+
+runs:
+  steps:
+    - name: Build
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        make -j3 V=1
+      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+
+    - name: Build
+      run: msbuild /m /p:Platform=x64 ice.proj
+      if: startsWith(matrix.os, 'windows')
