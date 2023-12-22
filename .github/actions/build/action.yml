@@ -3,30 +3,23 @@ name: Build Ice
 runs:
   using: "composite"
   steps:
-    - name: Build Slice compilers
-      run: |
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        make -C cpp -j3 V=1 slice2cpp slice2js slice2py slice2rb slice2php slice2java slice2cs slice2swift slice2objc
-      shell: bash
-      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
-
     - name: Build C++
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        export CONFIGS="shared cpp11-shared ${{ matrix.additional_make_configs }}"
+        export CONFIGS="shared cpp11-shared"
         make -C cpp -j3 V=1
       shell: bash
-      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+      if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Build join(matrix.languages, ', ')
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        export CONFIGS="shared cpp11-shared ${{ matrix.additional_make_configs }}"
+        export CONFIGS="shared cpp11-shared"
         make -j3 V=1 LANGUAGES="${{ join(matrix.languages, ' ') }}"
       shell: bash
-      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+      if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Build
       run: msbuild /m /p:Platform=x64 ice.proj
       shell: powershell
-      if: startsWith(matrix.os, 'windows')
+      if: runner.os == 'Windows'

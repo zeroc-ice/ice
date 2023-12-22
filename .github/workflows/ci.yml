@@ -41,9 +41,9 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
+          use-symlinks: true
           key: ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
             ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
             ${{ runner.os }}-build-
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
@@ -53,8 +53,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            **/bin
-            **/obj
+            **/msbuild/**/x64
           key: ${{ runner.os }}-build-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-build-${{ github.sha }}
