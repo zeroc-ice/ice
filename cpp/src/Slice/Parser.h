@@ -255,6 +255,7 @@ public:
     void setSeenDefinition();
 
     bool hasMetaData() const;
+    bool hasMetaDataDirective(const std::string&) const;
     void setMetaData(const StringList&);
     std::string findMetaData(const std::string&) const;
     StringList getMetaData() const;

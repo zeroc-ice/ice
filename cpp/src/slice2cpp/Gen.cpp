@@ -703,6 +703,8 @@ void
 Slice::Gen::generate(const UnitPtr& p)
 {
     string file = p->topLevelFile();
+    DefinitionContextPtr dc = p->findDefinitionContext(file);
+    assert(dc);
 
     //
     // Give precedence to header-ext/source-ext file metadata.
@@ -724,8 +726,6 @@ Slice::Gen::generate(const UnitPtr& p)
     //
     if(_dllExport.empty())
     {
-        DefinitionContextPtr dc = p->findDefinitionContext(file);
-        assert(dc);
         static const string dllExportPrefix = "cpp:dll-export:";
         string meta = dc->findMetaData(dllExportPrefix);
         if(meta.size() > dllExportPrefix.size())
@@ -839,75 +839,20 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#endif";
     }
 
+    C << "\n#define ICE_BUILDING_GENERATED_CODE";
     C << "\n#include <";
     if(_include.size())
     {
         C << _include << '/';
     }
     C << _base << "." << _headerExtension << ">";
-    C <<  "\n#include <IceUtil/PushDisableWarnings.h>";
+    C << "\n#include <IceUtil/PushDisableWarnings.h>";
 
     H << "\n#include <IceUtil/PushDisableWarnings.h>";
-    H << "\n#include <Ice/ProxyF.h>";
-    H << "\n#include <Ice/ObjectF.h>";
-    H << "\n#include <Ice/ValueF.h>";
-    H << "\n#include <Ice/Exception.h>";
-    H << "\n#include <Ice/LocalObject.h>";
-    H << "\n#include <Ice/StreamHelpers.h>";
-    H << "\n#include <Ice/Comparable.h>";
 
-    if(p->hasNonLocalClassDefs())
+    if(!dc->hasMetaDataDirective("cpp:no-default-include"))
     {
-        H << "\n#include <Ice/Proxy.h>";
-        H << "\n#include <Ice/Object.h>";
-        H << "\n#include <Ice/GCObject.h>";
-        H << "\n#include <Ice/Value.h>";
-        H << "\n#include <Ice/Incoming.h>";
-        if(p->hasContentsWithMetaData("amd"))
-        {
-            H << "\n#include <Ice/IncomingAsync.h>";
-        }
-        C << "\n#include <Ice/LocalException.h>";
-        C << "\n#include <Ice/ValueFactory.h>";
-        C << "\n#include <Ice/OutgoingAsync.h>";
-    }
-    else if(p->hasLocalClassDefsWithAsync())
-    {
-        H << "\n#include <Ice/OutgoingAsync.h>";
-    }
-    else if(p->hasNonLocalClassDecls())
-    {
-        H << "\n#include <Ice/Proxy.h>";
-    }
-
-    if(p->hasNonLocalClassDefs() || p->hasNonLocalExceptions())
-    {
-        H << "\n#include <Ice/FactoryTableInit.h>";
-    }
-
-    H << "\n#include <IceUtil/ScopedArray.h>";
-    H << "\n#include <Ice/Optional.h>";
-
-    if(p->hasExceptions())
-    {
-        H << "\n#include <Ice/ExceptionHelpers.h>";
-    }
-
-    if(p->usesNonLocals())
-    {
-        C << "\n#include <Ice/InputStream.h>";
-        C << "\n#include <Ice/OutputStream.h>";
-    }
-
-    if(p->hasNonLocalExceptions())
-    {
-        C << "\n#include <Ice/LocalException.h>";
-    }
-
-    if(p->hasContentsWithMetaData("preserve-slice"))
-    {
-        H << "\n#include <Ice/SlicedDataF.h>";
-        C << "\n#include <Ice/SlicedData.h>";
+        H << "\n#include <Ice/Ice.h>";
     }
 
     C << "\n#include <IceUtil/PopDisableWarnings.h>";
@@ -931,8 +876,6 @@ Slice::Gen::generate(const UnitPtr& p)
     // in the top-level Slice file.
     //
     {
-        DefinitionContextPtr dc = p->findDefinitionContext(file);
-        assert(dc);
         StringList globalMetaData = dc->getMetaData();
         for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end();)
         {
@@ -5231,13 +5174,18 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
             if(s.find(prefix) == 0)
             {
                 static const string cppIncludePrefix = "cpp:include:";
+                static const string cppNoDefaultInclude = "cpp:no-default-include";
                 static const string cppSourceIncludePrefix = "cpp:source-include";
                 static const string cppHeaderExtPrefix = "cpp:header-ext:";
                 static const string cppSourceExtPrefix = "cpp:source-ext:";
                 static const string cppDllExportPrefix = "cpp:dll-export:";
                 static const string cppDoxygenIncludePrefix = "cpp:doxygen:include:";
 
-                if(s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
+                if(s == "cpp:no-default-include")
+                {
+                    continue;
+                }
+                else if(s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
                 {
                     continue;
                 }

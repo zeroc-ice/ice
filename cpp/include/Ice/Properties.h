@@ -32,7 +32,7 @@
 #include <Ice/FactoryTableInit.h>
 #include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
-#include <Ice/PropertiesAdmin.h>
+#include <Ice/PropertyDict.h>
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_IGNORE_VERSION

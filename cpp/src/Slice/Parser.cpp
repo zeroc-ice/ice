@@ -229,6 +229,12 @@ Slice::DefinitionContext::hasMetaData() const
     return !_metaData.empty();
 }
 
+bool
+Slice::DefinitionContext::hasMetaDataDirective(const string& directive) const
+{
+    return findMetaData(directive) == directive;
+}
+
 void
 Slice::DefinitionContext::setMetaData(const StringList& metaData)
 {
