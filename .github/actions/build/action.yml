@@ -26,8 +26,6 @@ runs:
       if: inputs.cpp == true && (startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos'))
 
     - name: Build join(matrix.languages, ', ')
-      env:
-
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         export CONFIGS="shared cpp11-shared ${{ matrix.additional_make_configs }}"
