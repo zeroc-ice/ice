@@ -1040,6 +1040,9 @@
     <ClInclude Include="..\..\EndpointI.h" />
   </ItemGroup>
   <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice">
+      <FileType>Document</FileType>
+    </SliceCompile>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

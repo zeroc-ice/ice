@@ -941,5 +941,8 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\OperationMode.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>
