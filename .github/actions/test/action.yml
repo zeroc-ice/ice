@@ -1,28 +1,25 @@
 name: Test Ice
 
 inputs:
-  language:
+  languages:
     description: "Language to test"
     required: true
-    # default: "1"
-    # options: ["cpp", "csharp", "java", "python", "js", "swift", "php", "ruby"]
 
   flags:
     description: "Flags to pass to the test"
     required: false
     default: ""
-    # options: ["cpp", "csharp", "java", "python", "js", "swift", "php", "ruby"]
 
 runs:
   using: "composite"
   steps:
     - name: Test
-      run: python3 allTests.py --all --workers=4 --export-xml=test-report.xml --languages=${{ inputs.language }} ${{ inputs.flags }}
+      run: python3 allTests.py --all --workers=4 --export-xml=test-report.xml --languages=${{ join(inputs.languages, ', ') }} ${{ inputs.flags }}
       shell: bash
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
     - name: Test
-      run: python allTests.py --all --export-xml=test-report.xml --platform=x64 --workers=4 --languages=${{ inputs.language }} ${{ inputs.flags }}
+      run: python allTests.py --all --export-xml=test-report.xml --platform=x64 --workers=4 --languages=${{ join(inputs.languages, ', ') }} ${{ inputs.flags }}
       shell: powershell
       if: startsWith(matrix.os, 'windows')
 

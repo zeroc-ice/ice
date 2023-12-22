@@ -17,19 +17,15 @@ jobs:
     name: ${{ matrix.language }} / ${{ matrix.os }}
     strategy:
       matrix:
-        language: [cpp, csharp, java, python, js] # available on all os
+        languages: [[cpp], [csharp], [java], [python], [js]] # languages available on all os
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
-          - language: swift
-            os: macos-latest
-          - language: php
-            os: macos-latest
-          - language: php
-            os: ubuntu-latest
-          - language: ruby
-            os: macos-latest
-          - language: ruby
-            os: ubuntu-latest
+          - os: macos-latest
+            languages: swift
+          - os: macos-latest
+            languages: [php, ruby]
+          -  os: ubuntu-latest
+            languages: [php, ruby]
       fail-fast: false
 
     runs-on: ${{ matrix.os }}
@@ -58,10 +54,12 @@ jobs:
             ${{ runner.os }}-build-${{ github.sha }}
             ${{ runner.os }}-build-
 
-      - name: Build ${{ matrix.language }} on ${{ matrix.os }}
+      - name: Build ${{ matrix.languages }} on ${{ matrix.os }}
         uses: ./.github/actions/build
+        with:
+          languages: ${{ matrix.languages }}
 
-      - name: Test ${{ matrix.language }} on ${{ matrix.os }}
+      - name: Test ${{ matrix.languages }} on ${{ matrix.os }}
         uses: ./.github/actions/test
         with:
-          language: ${{ matrix.language }}
+          languages: ${{ matrix.languages }}

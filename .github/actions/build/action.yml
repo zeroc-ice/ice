@@ -1,12 +1,17 @@
 name: Build Ice
 
+inputs:
+  languages:
+    description: "Language to build"
+    required: true
+
 runs:
   using: "composite"
   steps:
     - name: Build
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        make -j3 V=1
+        make -j3 V=1 LANGUAGES="${{ join(inputs.languages, ' ') }}"
       shell: bash
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
