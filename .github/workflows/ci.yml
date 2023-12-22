@@ -17,15 +17,17 @@ jobs:
     name: ${{ join(matrix.languages, ',') }} / ${{ matrix.os }}
     strategy:
       matrix:
-        languages: [[cpp], [csharp], [java], [python], [js]] # languages available on all os
+        languages: [[cpp], [csharp], [java], [js]] # languages available on all os
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
             languages: swift
           - os: macos-latest
-            languages: [php, ruby]
+            languages: [php, ruby, python]
+            cpp: true
           - os: ubuntu-latest
-            languages: [php, ruby]
+            languages: [php, ruby, python]
+            cpp: true
       fail-fast: false
 
     runs-on: ${{ matrix.os }}
@@ -56,10 +58,6 @@ jobs:
 
       - name: Build ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
         uses: ./.github/actions/build
-        # with:
-        #   languages: ${{ matrix.languages }}
 
       - name: Test ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
         uses: ./.github/actions/test
-        # with:
-        #   languages: ${{ matrix.languages }}
