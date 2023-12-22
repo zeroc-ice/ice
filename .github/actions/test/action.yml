@@ -4,6 +4,7 @@ inputs:
   languages:
     description: "Language to test"
     required: true
+    type: array
 
   flags:
     description: "Flags to pass to the test"

@@ -4,6 +4,7 @@ inputs:
   languages:
     description: "Language to build"
     required: true
+    type: array
 
 runs:
   using: "composite"
