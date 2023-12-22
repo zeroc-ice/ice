@@ -47,11 +47,10 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
-          restore-keys:
-            key: |
-              ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
-              ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
-              ${{ runner.os }}-build-
+          restore-keys: |
+            ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
+            ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
+            ${{ runner.os }}-build-
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
       - name: Window Cache
