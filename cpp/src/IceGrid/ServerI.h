@@ -244,8 +244,11 @@ class StopCommand : public TimedServerCommand
 {
 public:
 
-    StopCommand(const std::shared_ptr<ServerI>&, const IceUtil::TimerPtr&, std::chrono::seconds,
-                bool = true);
+    StopCommand(
+        const std::shared_ptr<ServerI>&,
+        const IceUtil::TimerPtr&,
+        std::chrono::seconds,
+        bool = true);
 
     static bool isStopped(ServerI::InternalServerState);
 

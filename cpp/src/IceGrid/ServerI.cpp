@@ -1390,12 +1390,12 @@ ServerI::startPatch(bool shutdown)
             }
             else if(!_stop)
             {
-                _stop = make_shared<StopCommand>(this, _node->getTimer(), _deactivationTimeout);
+                _stop = make_shared<StopCommand>(shared_from_this(), _node->getTimer(), _deactivationTimeout);
             }
         }
         if(!_patch)
         {
-            _patch = make_shared<PatchCommand>(this);
+            _patch = make_shared<PatchCommand>(shared_from_this());
         }
         command = nextCommand();
     }

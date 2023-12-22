@@ -22,15 +22,16 @@ public:
         Ice::Identity,
         const std::shared_ptr<TraceLevels>&,
         const std::string&,
-        const std::string&, int);
+        const std::string&,
+        int);
     virtual ~PatcherFeedbackAggregator();
 
     void finished(const std::string&);
-    void failed(const std::string&, const std::string&);
+    void failed(std::string, const std::string&);
 
 protected:
 
-    virtual void exception(const Ice::Exception&) = 0;
+    virtual void exception(std::exception_ptr) = 0;
     virtual void response() = 0;
 
 private:
@@ -48,7 +49,7 @@ private:
     std::mutex _mutex;
 };
 
-class NodeSessionI : public NodeSession
+class NodeSessionI : public NodeSession, public std::enable_shared_from_this<NodeSessionI>
 {
 public:
 

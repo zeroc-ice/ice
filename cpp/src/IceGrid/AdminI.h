@@ -27,6 +27,12 @@ public:
     void syncApplicationWithoutRestart(ApplicationDescriptor, const Ice::Current&) override;
     void updateApplicationWithoutRestart(ApplicationUpdateDescriptor, const Ice::Current&) override;
     void removeApplication(std::string, const Ice::Current&) override;
+    void patchApplicationAsync(
+        std::string,
+        bool,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
     void instantiateServer(std::string, std::string, ServerInstanceDescriptor, const Ice::Current&) override;
     ApplicationInfo getApplicationInfo(std::string, const Ice::Current&) const override;
     ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const override;
@@ -41,6 +47,13 @@ public:
                           const Ice::Current&) override;
     void stopServerAsync(std::string, std::function<void()>, std::function<void(std::exception_ptr)>,
                          const Ice::Current&) override;
+
+    void patchServerAsync(
+        std::string,
+        bool,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
     void sendSignal(std::string, std::string, const Ice::Current&) override;
     Ice::StringSeq getAllServerIds(const Ice::Current&) const override;
     void enableServer(std::string, bool, const Ice::Current&) override;

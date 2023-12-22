@@ -36,9 +36,9 @@ public:
         _session->removeFeedback(shared_from_this(), _id);
     }
 
-    virtual void failed(const string& reason, const Ice::Current & = Ice::Current())
+    virtual void failed(string reason, const Ice::Current & = Ice::Current())
     {
-        _aggregator->failed(_node, reason);
+        _aggregator->failed(_node, move(reason));
         _session->removeFeedback(shared_from_this(), _id);
     }
 
@@ -50,6 +50,87 @@ private:
     const shared_ptr<PatcherFeedbackAggregator> _aggregator;
 };
 
+}
+
+PatcherFeedbackAggregator::PatcherFeedbackAggregator(
+    Ice::Identity id,
+    const shared_ptr<TraceLevels>& traceLevels,
+    const string& type,
+    const string& name,
+    int nodeCount) :
+    _id(id),
+    _traceLevels(traceLevels),
+    _type(type),
+    _name(name),
+    _count(nodeCount)
+{
+}
+
+PatcherFeedbackAggregator::~PatcherFeedbackAggregator()
+{
+}
+
+void
+PatcherFeedbackAggregator::finished(const string& node)
+{
+    lock_guard lock(_mutex);
+    if (_successes.find(node) != _successes.end() || _failures.find(node) != _failures.end())
+    {
+        return;
+    }
+
+    if (_traceLevels->patch > 0)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+        out << "finished patching of " << _type << " `" << _name << "' on node `" << node << "'";
+    }
+
+    _successes.insert(node);
+    checkIfDone();
+}
+
+void
+PatcherFeedbackAggregator::failed(string node, const string& failure)
+{
+    lock_guard lock(_mutex);
+    if (_successes.find(node) != _successes.end() || _failures.find(node) != _failures.end())
+    {
+        return;
+    }
+
+    if (_traceLevels->patch > 0)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+        out << "patching of " << _type << " `" << _name << "' on node `" << node << "' failed:\n" << failure;
+    }
+
+    _failures.insert(node);
+    _reasons.push_back("patch on node `" + node + "' failed:\n" + failure);
+    checkIfDone();
+}
+
+void
+PatcherFeedbackAggregator::checkIfDone()
+{
+    if (static_cast<int>(_successes.size() + _failures.size()) == _count)
+    {
+        if (!_failures.empty())
+        {
+            try
+            {
+                sort(_reasons.begin(), _reasons.end());
+                throw PatchException(_reasons);
+            }
+            catch (...)
+            {
+                exception(current_exception());
+            }
+        }
+        else
+        {
+            response();
+        }
+    }
 }
 
 shared_ptr<NodeSessionI>
@@ -238,7 +319,7 @@ NodeSessionI::patch(
     id.category = _database->getInstanceName();
     id.name = Ice::generateUUID();
 
-    auto obj = make_shared<PatcherFeedbackI>(_info->name, this, id, aggregator);
+    auto obj = make_shared<PatcherFeedbackI>(_info->name, shared_from_this(), id, aggregator);
     try
     {
         auto feedback = Ice::uncheckedCast<PatcherFeedbackPrx>(_database->getInternalAdapter()->add(obj, id));

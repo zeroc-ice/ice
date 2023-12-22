@@ -120,19 +120,21 @@ namespace
         string _node;
     };
 
-    template<class AmdCB>
     class AMDPatcherFeedbackAggregator : public PatcherFeedbackAggregator
     {
     public:
 
-        AMDPatcherFeedbackAggregator(const AmdCB& cb,
-                                    Ice::Identity id,
-                                    const shared_ptr<TraceLevels>& traceLevels,
-                                    const string& type,
-                                    const string& name,
-                                    int nodeCount) :
+        AMDPatcherFeedbackAggregator(
+            function<void()> response,
+            function<void(exception_ptr)> exception,
+            Ice::Identity id,
+            const shared_ptr<TraceLevels>& traceLevels,
+            const string& type,
+            const string& name,
+            int nodeCount) :
             PatcherFeedbackAggregator(id, traceLevels, type, name, nodeCount),
-            _cb(cb)
+            _response(move(response)),
+            _exception(move(exception))
         {
         }
 
@@ -140,27 +142,36 @@ namespace
 
         void response()
         {
-            _cb->ice_response();
+            _response();
         }
 
-        void exception(const Ice::Exception& ex)
+        void exception(exception_ptr ex)
         {
-            _cb->ice_exception(ex);
+            _exception(ex);
         }
 
-        const AmdCB _cb;
+        function<void()> _response;
+        function<void(exception_ptr)> _exception;
     };
 
-    template<typename AmdCB> shared_ptr<PatcherFeedbackAggregator>
+    shared_ptr<AMDPatcherFeedbackAggregator>
     static newPatcherFeedback(
-        const AmdCB& cb,
+        function<void()> response,
+        function<void(exception_ptr)> exception,
         Ice::Identity id,
         const shared_ptr<TraceLevels>& traceLevels,
         const string& type,
         const string& name,
         int nodeCount)
     {
-        return new AMDPatcherFeedbackAggregator<AmdCB>(cb, id, traceLevels, type, name, nodeCount);
+        return make_shared<AMDPatcherFeedbackAggregator>(
+            response,
+            exception,
+            id,
+            traceLevels,
+            type,
+            name,
+            nodeCount);
     }
 
 }
@@ -245,7 +256,7 @@ AdminI::instantiateServer(string app, string node, ServerInstanceDescriptor desc
 
 void
 AdminI::patchApplicationAsync(
-    const string& name,
+    string name,
     bool shutdown,
     function<void()> response,
     function<void(exception_ptr)> exception,
@@ -267,7 +278,14 @@ AdminI::patchApplicationAsync(
     id.name = Ice::generateUUID();
 
     shared_ptr<PatcherFeedbackAggregator> feedback =
-        newPatcherFeedback(amdCB, id, _traceLevels, "application", name, static_cast<int>(nodes.size()));
+        newPatcherFeedback(
+            response,
+            exception,
+            id,
+            _traceLevels,
+            "application",
+            name,
+            static_cast<int>(nodes.size()));
 
     for(vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
@@ -440,7 +458,7 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
 
 void
 AdminI::patchServerAsync(
-    const string& id,
+    string id,
     bool shutdown,
     function<void()> response,
     function<void(exception_ptr)> exception,
@@ -465,8 +483,15 @@ AdminI::patchServerAsync(
     identity.category = current.id.category;
     identity.name = Ice::generateUUID();
 
-    PatcherFeedbackAggregatorPtr feedback =
-        newPatcherFeedback(amdCB, identity, _traceLevels, "server", id, static_cast<int>(nodes.size()));
+    shared_ptr<PatcherFeedbackAggregator> feedback =
+        newPatcherFeedback(
+            response,
+            exception,
+            identity,
+            _traceLevels,
+            "server",
+            id,
+            static_cast<int>(nodes.size()));
 
     vector<string>::const_iterator p = nodes.begin();
     try
@@ -480,8 +505,8 @@ AdminI::patchServerAsync(
         shared_ptr<NodeEntry> node = _database->getNode(*p);
         Resolver resolve(node->getInfo(), _database->getCommunicator());
         DistributionDescriptor desc = resolve(appDistrib);
-        InternalDistributionDescriptorPtr intAppDistrib = new InternalDistributionDescriptor(desc.icepatch,
-                                                                                             desc.directories);
+        shared_ptr<InternalDistributionDescriptor> intAppDistrib =
+            make_shared<InternalDistributionDescriptor>(desc.icepatch, desc.directories);
         node->getSession()->patch(feedback, info.application, id, intAppDistrib, shutdown);
     }
     catch(const NodeNotExistException&)

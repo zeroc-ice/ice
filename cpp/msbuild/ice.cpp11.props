@@ -5,7 +5,6 @@
     <IceBuildingSrc>yes</IceBuildingSrc>
     <IceCppMapping>cpp11</IceCppMapping>
     <IceLibSuffix>++11</IceLibSuffix>
-    <LanguageStandard>stdcpp17</LanguageStandard>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props" />
 </Project>
