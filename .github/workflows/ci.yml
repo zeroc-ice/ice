@@ -58,10 +58,10 @@ jobs:
             ${{ runner.os }}-build-${{ github.sha }}
             ${{ runner.os }}-build-
 
-      - name: Build ${{ matrix.os }}
+      - name: Build ${{ matrix.language }} on ${{ matrix.os }}
         uses: ./.github/actions/build
 
-      - name: Test ${{ matrix.os }}
+      - name: Test ${{ matrix.language }} on ${{ matrix.os }}
         uses: ./.github/actions/test
         with:
           language: ${{ matrix.language }}
