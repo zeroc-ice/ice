@@ -24,7 +24,7 @@ jobs:
             languages: swift
           - os: macos-latest
             languages: [php, ruby]
-          -  os: ubuntu-latest
+          - os: ubuntu-latest
             languages: [php, ruby]
       fail-fast: false
 
