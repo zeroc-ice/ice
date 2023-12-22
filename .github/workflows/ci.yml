@@ -54,12 +54,12 @@ jobs:
             ${{ runner.os }}-build-${{ github.sha }}
             ${{ runner.os }}-build-
 
-      - name: Build ${{ matrix.languages }} on ${{ matrix.os }}
+      - name: Build ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         with:
           languages: ${{ matrix.languages }}
 
-      - name: Test ${{ matrix.languages }} on ${{ matrix.os }}
+      - name: Test ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
         uses: ./.github/actions/test
         with:
           languages: ${{ matrix.languages }}
