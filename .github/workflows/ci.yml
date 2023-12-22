@@ -41,7 +41,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          use-symlinks: true
+          create-symlink: true
           key: ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
