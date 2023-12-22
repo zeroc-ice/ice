@@ -14,53 +14,50 @@ using namespace std;
 using namespace Test;
 using namespace IceGrid;
 
-class Callback : public IceUtil::Monitor<IceUtil::Mutex>, public virtual IceUtil::Shared
+class Callback
 {
 public:
 
-    Callback() : _response(false), _exception(false)
+    Callback() :
+        _response(false),
+        _exception(false)
     {
     }
 
-    void
-    response(const Ice::ObjectPrx& obj)
+    void response(const Ice::ObjectPrxPtr& obj)
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         _response = true;
         _obj = obj;
-        notify();
+        _condVar.notify_all();
     }
 
-    void
-    exception(const Ice::Exception&)
+    void exception()
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         _exception = true;
-        notify();
+        _condVar.notify_all();
     }
 
-    void
-    waitResponse(const char*, int)
+    void waitResponse(const char*, int)
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         while(!_response && !_exception)
         {
-            wait();
+            _condVar.wait(lock);
         }
     }
 
-    bool
-    hasResponse(Ice::ObjectPrx& obj)
+    bool hasResponse(Ice::ObjectPrxPtr& obj)
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         obj = _obj;
         return _response;
     }
 
-    bool
-    hasException()
+    bool hasException()
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         return _exception;
     }
 
@@ -68,15 +65,16 @@ private:
 
     bool _response;
     bool _exception;
-    Ice::ObjectPrx _obj;
+    shared_ptr<Ice::ObjectPrx> _obj;
+    std::mutex _mutex;
+    std::condition_variable _condVar;
 };
-typedef IceUtil::Handle<Callback> CallbackPtr;
 
-class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class StressClient
 {
 public:
 
-    StressClient(int id, const RegistryPrx& registry, bool destroySession) :
+    StressClient(int id, shared_ptr<RegistryPrx> registry, bool destroySession) :
         _communicator(registry->ice_getCommunicator()),
         _id(id),
         _registry(registry),
@@ -86,7 +84,7 @@ public:
     {
     }
 
-    StressClient(int id, const SessionPrx& session) :
+    StressClient(int id, shared_ptr<SessionPrx> session) :
         _communicator(session->ice_getCommunicator()),
         _id(id),
         _session(session),
@@ -96,22 +94,21 @@ public:
     {
     }
 
-    virtual
-    void run()
+    virtual void run()
     {
         {
-            Lock sync(*this);
+            unique_lock lock(_mutex);
             while(!_notified)
             {
-                wait();
+                _condVar.wait(lock);
             }
         }
 
-        SessionPrx session;
+        shared_ptr<SessionPrx> session;
         while(true)
         {
             {
-                Lock sync(*this);
+                unique_lock lock(_mutex);
                 if(_terminated)
                 {
                     if(!_session && session)
@@ -140,7 +137,7 @@ public:
             assert(session);
             session->keepAlive();
 
-            Ice::ObjectPrx object;
+            Ice::ObjectPrxPtr object;
             switch(IceUtilInternal::random(_destroySession ? 4 : 2))
             {
             case 0:
@@ -179,8 +176,8 @@ public:
         }
     }
 
-    Ice::ObjectPrx
-    allocate(const SessionPrx& session)
+    shared_ptr<Ice::ObjectPrx>
+    allocate(shared_ptr<SessionPrx> session)
     {
         ostringstream os;
         os << "stress-" << IceUtilInternal::random(6) + 1;
@@ -197,11 +194,10 @@ public:
             // and the object is already allocated.
             test(_session);
         }
-        return 0;
+        return nullptr;
     }
 
-    Ice::ObjectPrx
-    allocateByType(const SessionPrx& session)
+    shared_ptr<Ice::ObjectPrx> allocateByType(shared_ptr<SessionPrx> session)
     {
         try
         {
@@ -210,72 +206,84 @@ public:
         catch(const AllocationTimeoutException&)
         {
         }
-        return 0;
+        return nullptr;
     }
 
-    void
-    allocateAndDestroy(const SessionPrx& session)
+    void allocateAndDestroy(const SessionPrxPtr& session)
     {
         ostringstream os;
         os << "stress-" << IceUtilInternal::random(3);
-        CallbackPtr asyncCB = new Callback();
-        IceGrid::Callback_Session_allocateObjectByIdPtr cb =
-            IceGrid::newCallback_Session_allocateObjectById(asyncCB, &Callback::response, &Callback::exception);
-        session->begin_allocateObjectById(Ice::stringToIdentity(os.str()), cb);
+        auto cb = make_shared<Callback>();
+        session->allocateObjectByIdAsync(
+            Ice::stringToIdentity(os.str()),
+            [cb](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb->response(obj);
+            },
+            [cb](exception_ptr)
+            {
+                cb->exception();
+            });
         session->destroy();
     }
 
-    void
-    allocateByTypeAndDestroy(const SessionPrx& session)
+    void allocateByTypeAndDestroy(shared_ptr<SessionPrx> session)
     {
-        CallbackPtr asyncCB = new Callback();
-        IceGrid::Callback_Session_allocateObjectByTypePtr cb =
-            IceGrid::newCallback_Session_allocateObjectByType(asyncCB, &Callback::response, &Callback::exception);
-        session->begin_allocateObjectByType("::StressTest", cb);
+        auto cb = make_shared<Callback>();
+        session->allocateObjectByTypeAsync(
+            "::StressTest",
+            [cb](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb->response(obj);
+            },
+            [cb](exception_ptr)
+            {
+                cb->exception();
+            });
         session->destroy();
     }
 
-    void
-    notifyThread()
+    void notifyThread()
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         _notified = true;
-        notify();
+        _condVar.notify_all();
     }
 
-    void
-    terminate()
+    void terminate()
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         _terminated = true;
-        notify();
+        _condVar.notify_all();
     }
 
 protected:
 
     const Ice::CommunicatorPtr _communicator;
     const int _id;
-    const RegistryPrx _registry;
-    const SessionPrx _session;
+    const shared_ptr<RegistryPrx>_registry;
+    const shared_ptr<SessionPrx> _session;
     bool _notified;
     bool _terminated;
     const bool _destroySession;
+    std::mutex _mutex;
+    std::condition_variable _condVar;
 };
-typedef IceUtil::Handle<StressClient> StressClientPtr;
 
 void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+    IceGrid::RegistryPrxPtr registry = ICE_CHECKED_CAST(
+        IceGrid::RegistryPrx,
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
-    AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          IceUtil::None,
                                          Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
-    AdminPrx admin = session->getAdmin();
+    AdminPrxPtr admin = session->getAdmin();
     test(admin);
 
     cout << "starting router... " << flush;
@@ -292,14 +300,14 @@ allTests(Test::TestHelper* helper)
 
     const int allocationTimeout = 5000;
 
-    Ice::ObjectPrx obj;
-    Ice::ObjectPrx dummy;
+    Ice::ObjectPrxPtr obj;
+    Ice::ObjectPrxPtr dummy;
 
     try
     {
         cout << "testing create session... " << flush;
-        SessionPrx session1 = registry->createSession("Client1", "");
-        SessionPrx session2 = registry->createSession("Client2", "");
+        SessionPrxPtr session1 = registry->createSession("Client1", "");
+        SessionPrxPtr session2 = registry->createSession("Client2", "");
         cout << "ok" << endl;
 
         cout << "testing allocate object by identity... " << flush;
@@ -427,17 +435,22 @@ allTests(Test::TestHelper* helper)
 
         session2->setAllocationTimeout(allocationTimeout);
 
-        CallbackPtr asyncCB1 = new Callback();
-        IceGrid::Callback_Session_allocateObjectByIdPtr cb1 = IceGrid::newCallback_Session_allocateObjectById(asyncCB1,
-                                                 &Callback::response,
-                                                 &Callback::exception);
-
-        session2->begin_allocateObjectById(allocatable, cb1);
+        auto cb1 = make_shared<Callback>();
+        session2->allocateObjectByIdAsync(
+            allocatable,
+            [cb1](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb1->response(obj);
+            },
+            [cb1](exception_ptr)
+            {
+                cb1->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB1->hasResponse(dummy));
+        test(!cb1->hasResponse(dummy));
         session1->releaseObject(allocatable);
-        asyncCB1->waitResponse(__FILE__, __LINE__);
-        test(asyncCB1->hasResponse(dummy));
+        cb1->waitResponse(__FILE__, __LINE__);
+        test(cb1->hasResponse(dummy));
 
         session1->setAllocationTimeout(0);
         try
@@ -457,16 +470,22 @@ allTests(Test::TestHelper* helper)
         {
         }
         session1->setAllocationTimeout(allocationTimeout);
-        asyncCB1 = new Callback();
-        cb1 = IceGrid::newCallback_Session_allocateObjectById(asyncCB1,
-                                                 &Callback::response,
-                                                 &Callback::exception);
-        session1->begin_allocateObjectById(allocatable, cb1);
+        cb1 = make_shared<Callback>();
+        session1->allocateObjectByIdAsync(
+            allocatable,
+            [cb1](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb1->response(obj);
+            },
+            [cb1](exception_ptr)
+            {
+                cb1->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB1->hasResponse(dummy));
+        test(!cb1->hasResponse(dummy));
         session2->releaseObject(allocatable);
-        asyncCB1->waitResponse(__FILE__, __LINE__);
-        test(asyncCB1->hasResponse(dummy));
+        cb1->waitResponse(__FILE__, __LINE__);
+        test(cb1->hasResponse(dummy));
 
         session1->releaseObject(allocatable);
 
@@ -578,16 +597,22 @@ allTests(Test::TestHelper* helper)
         session2->releaseObject(allocatablebis);
 
         session1->setAllocationTimeout(allocationTimeout);
-        CallbackPtr asyncCB3 = new Callback();
-        IceGrid::Callback_Session_allocateObjectByTypePtr cb3 =
-            IceGrid::newCallback_Session_allocateObjectByType(asyncCB3, &Callback::response, &Callback::exception);
-
-        session1->begin_allocateObjectByType("::Test", cb3);
+        auto cb3 = make_shared<Callback>();
+        session1->allocateObjectByTypeAsync(
+            "::Test",
+            [cb3](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb3->response(obj);
+            },
+            [cb3](exception_ptr)
+            {
+                cb3->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB3->hasResponse(dummy));
+        test(!cb3->hasResponse(dummy));
         session2->releaseObject(obj->ice_getIdentity());
-        asyncCB3->waitResponse(__FILE__, __LINE__);
-        test(asyncCB3->hasResponse(obj));
+        cb3->waitResponse(__FILE__, __LINE__);
+        test(cb3->hasResponse(obj));
 
         session1->releaseObject(obj->ice_getIdentity());
 
@@ -755,28 +780,44 @@ allTests(Test::TestHelper* helper)
         session1->allocateObjectById(allocatable4);
 
         session2->setAllocationTimeout(allocationTimeout);
-        asyncCB1 = new Callback();
-        cb1 = IceGrid::newCallback_Session_allocateObjectById(asyncCB1, &Callback::response, &Callback::exception);
-        session2->begin_allocateObjectById(allocatable3, cb1);
+        cb1 = make_shared<Callback>();
+        session2->allocateObjectByIdAsync(
+            allocatable3,
+            [cb1](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb1->response(obj);
+            },
+            [cb1](exception_ptr)
+            {
+                cb1->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB1->hasResponse(dummy));
+        test(!cb1->hasResponse(dummy));
         session1->releaseObject(allocatable3);
-        test(!asyncCB1->hasResponse(dummy));
+        test(!cb1->hasResponse(dummy));
         session1->releaseObject(allocatable4);
-        asyncCB1->waitResponse(__FILE__, __LINE__);
-        test(asyncCB1->hasResponse(dummy));
+        cb1->waitResponse(__FILE__, __LINE__);
+        test(cb1->hasResponse(dummy));
         session2->releaseObject(allocatable3);
 
         session1->setAllocationTimeout(allocationTimeout);
         test(session2->allocateObjectByType("::TestServer1"));
-        asyncCB3 = new Callback();
-        cb3 = IceGrid::newCallback_Session_allocateObjectByType(asyncCB3, &Callback::response, &Callback::exception);
-        session1->begin_allocateObjectByType("::TestServer2", cb3);
+        cb3 = make_shared<Callback>();
+        session1->allocateObjectByTypeAsync(
+            "::TestServer2",
+            [cb3](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb3->response(obj);
+            },
+            [cb3](exception_ptr)
+            {
+                cb3->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB3->hasResponse(dummy));
+        test(!cb3->hasResponse(dummy));
         session2->releaseObject(allocatable3);
-        asyncCB3->waitResponse(__FILE__, __LINE__);
-        test(asyncCB3->hasResponse(dummy));
+        cb3->waitResponse(__FILE__, __LINE__);
+        test(cb3->hasResponse(dummy));
         session1->releaseObject(allocatable4);
 
         session1->setAllocationTimeout(0);
@@ -806,9 +847,9 @@ allTests(Test::TestHelper* helper)
         session2->releaseObject(Ice::stringToIdentity("allocatable31"));
         session2->releaseObject(Ice::stringToIdentity("allocatable41"));
 
-        Ice::ObjectPrx obj1 = session1->allocateObjectByType("::TestMultipleServer");
+        shared_ptr<Ice::ObjectPrx> obj1 = session1->allocateObjectByType("::TestMultipleServer");
         test(obj1);
-        Ice::ObjectPrx obj2 = session2->allocateObjectByType("::TestMultipleServer");
+        shared_ptr<Ice::ObjectPrx> obj2 = session2->allocateObjectByType("::TestMultipleServer");
         test(obj2);
         try
         {
@@ -857,119 +898,195 @@ allTests(Test::TestHelper* helper)
         session2->setAllocationTimeout(allocationTimeout);
 
         session2->allocateObjectById(allocatable);
-        CallbackPtr asyncCB11 = new Callback();
-        IceGrid::Callback_Session_allocateObjectByIdPtr cb11 =
-            IceGrid::newCallback_Session_allocateObjectById(asyncCB11, &Callback::response, &Callback::exception);
-        CallbackPtr asyncCB12 = new Callback();
-        IceGrid::Callback_Session_allocateObjectByIdPtr cb12 =
-            IceGrid::newCallback_Session_allocateObjectById(asyncCB12, &Callback::response, &Callback::exception);
-        session1->begin_allocateObjectById(allocatable, cb11);
-        session1->begin_allocateObjectById(allocatable, cb12);
+        auto cb11 = make_shared<Callback>();
+        auto cb12 = make_shared<Callback>();
+        session1->allocateObjectByIdAsync(
+            allocatable,
+            [cb11](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb11->response(obj);
+            },
+            [cb11](exception_ptr)
+            {
+                cb11->exception();
+            });
+        session1->allocateObjectByIdAsync(
+            allocatable,
+            [cb12](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb12->response(obj);
+            },
+            [cb12](exception_ptr)
+            {
+                cb12->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB11->hasResponse(dummy));
-        test(!asyncCB12->hasResponse(dummy));
+        test(!cb11->hasResponse(dummy));
+        test(!cb12->hasResponse(dummy));
         session2->releaseObject(allocatable);
-        asyncCB11->waitResponse(__FILE__, __LINE__);
-        asyncCB12->waitResponse(__FILE__, __LINE__);
-        test(asyncCB11->hasResponse(dummy) ? asyncCB12->hasException() : asyncCB12->hasResponse(dummy));
-        test(asyncCB12->hasResponse(dummy) ? asyncCB11->hasException() : asyncCB11->hasResponse(dummy));
+        cb11->waitResponse(__FILE__, __LINE__);
+        cb12->waitResponse(__FILE__, __LINE__);
+        test(cb11->hasResponse(dummy) ? cb12->hasException() : cb12->hasResponse(dummy));
+        test(cb12->hasResponse(dummy) ? cb11->hasException() : cb11->hasResponse(dummy));
         session1->releaseObject(allocatable);
 
         session2->allocateObjectById(allocatable);
-        CallbackPtr asyncCB31 = new Callback();
-        IceGrid::Callback_Session_allocateObjectByTypePtr cb31 =
-            IceGrid::newCallback_Session_allocateObjectByType(asyncCB31, &Callback::response, &Callback::exception);
-        CallbackPtr asyncCB32 = new Callback();
-        IceGrid::Callback_Session_allocateObjectByTypePtr cb32 =
-            IceGrid::newCallback_Session_allocateObjectByType(asyncCB32, &Callback::response, &Callback::exception);
-        session1->begin_allocateObjectByType("::Test", cb31);
-        session1->begin_allocateObjectByType("::Test", cb32);
+        auto cb31 = make_shared<Callback>();
+        auto cb32 = make_shared<Callback>();
+        session1->allocateObjectByTypeAsync(
+            "::Test",
+            [cb31](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb31->response(obj);
+            },
+            [cb31](exception_ptr)
+            {
+                cb31->exception();
+            });
+        session1->allocateObjectByTypeAsync(
+            "::Test",
+            [cb32](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb32->response(obj);
+            },
+            [cb32](exception_ptr)
+            {
+                cb32->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB31->hasResponse(dummy));
-        test(!asyncCB32->hasResponse(dummy));
+        test(!cb31->hasResponse(dummy));
+        test(!cb32->hasResponse(dummy));
         session2->releaseObject(allocatable);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         do
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
         }
-        while(!asyncCB31->hasResponse(dummy) && !asyncCB32->hasResponse(dummy));
-        test((asyncCB31->hasResponse(dummy) && dummy && !asyncCB32->hasResponse(dummy)) ||
-             (asyncCB32->hasResponse(dummy) && dummy && !asyncCB31->hasResponse(dummy)));
+        while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
+        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
-        CallbackPtr asyncCB33 = asyncCB31->hasResponse(dummy) ? asyncCB32 : asyncCB31;
-        asyncCB33->waitResponse(__FILE__, __LINE__);
-        test(asyncCB33->hasResponse(dummy) && dummy);
+        shared_ptr<Callback> cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+        cb33->waitResponse(__FILE__, __LINE__);
+        test(cb33->hasResponse(dummy) && dummy);
         session1->releaseObject(allocatable);
 
         session2->allocateObjectById(allocatable3);
-        asyncCB11 = new Callback();
-        cb11 = IceGrid::newCallback_Session_allocateObjectById(asyncCB11, &Callback::response, &Callback::exception);
-        asyncCB12 = new Callback();
-        cb12 = IceGrid::newCallback_Session_allocateObjectById(asyncCB12, &Callback::response, &Callback::exception);
-        session1->begin_allocateObjectById(allocatable3, cb11);
-        session1->begin_allocateObjectById(allocatable3, cb12);
+        cb11 = make_shared<Callback>();
+        cb12 = make_shared<Callback>();
+        session1->allocateObjectByIdAsync(
+            allocatable3,
+            [cb11](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb11->response(obj);
+            },
+            [cb11](exception_ptr)
+            {
+                cb11->exception();
+            });
+        session1->allocateObjectByIdAsync(
+            allocatable3,
+            [cb12](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb12->response(obj);
+            },
+            [cb12](exception_ptr)
+            {
+                cb12->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB11->hasResponse(dummy));
-        test(!asyncCB12->hasResponse(dummy));
+        test(!cb11->hasResponse(dummy));
+        test(!cb12->hasResponse(dummy));
         session2->releaseObject(allocatable3);
-        asyncCB11->waitResponse(__FILE__, __LINE__);
-        asyncCB12->waitResponse(__FILE__, __LINE__);
-        test(asyncCB11->hasResponse(dummy) ? asyncCB12->hasException() : asyncCB12->hasResponse(dummy));
-        test(asyncCB12->hasResponse(dummy) ? asyncCB11->hasException() : asyncCB11->hasResponse(dummy));
+        cb11->waitResponse(__FILE__, __LINE__);
+        cb12->waitResponse(__FILE__, __LINE__);
+        test(cb11->hasResponse(dummy) ? cb12->hasException() : cb12->hasResponse(dummy));
+        test(cb12->hasResponse(dummy) ? cb11->hasException() : cb11->hasResponse(dummy));
         session1->releaseObject(allocatable3);
 
         session2->allocateObjectById(allocatable3);
-        asyncCB31 = new Callback();
-        cb31 = IceGrid::newCallback_Session_allocateObjectByType(asyncCB31, &Callback::response, &Callback::exception);
-        asyncCB32 = new Callback();
-        cb32 = IceGrid::newCallback_Session_allocateObjectByType(asyncCB32, &Callback::response, &Callback::exception);
-        session1->begin_allocateObjectByType("::TestServer1", cb31);
-        session1->begin_allocateObjectByType("::TestServer1", cb32);
+        cb31 = make_shared<Callback>();
+        cb32 = make_shared<Callback>();
+        session1->allocateObjectByTypeAsync(
+            "::TestServer1",
+            [cb31](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb31->response(obj);
+            },
+            [cb31](exception_ptr)
+            {
+                cb31->exception();
+            });
+        session1->allocateObjectByTypeAsync(
+            "::TestServer1",
+            [cb32](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb32->response(obj);
+            },
+            [cb32](exception_ptr)
+            {
+                cb32->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB31->hasResponse(dummy));
-        test(!asyncCB32->hasResponse(dummy));
+        test(!cb31->hasResponse(dummy));
+        test(!cb32->hasResponse(dummy));
         session2->releaseObject(allocatable3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         do
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
         }
-        while(!asyncCB31->hasResponse(dummy) && !asyncCB32->hasResponse(dummy));
-        test((asyncCB31->hasResponse(dummy) && dummy && !asyncCB32->hasResponse(dummy)) ||
-             (asyncCB32->hasResponse(dummy) && dummy && !asyncCB31->hasResponse(dummy)));
+        while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
+        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
-        asyncCB33 = asyncCB31->hasResponse(dummy) ? asyncCB32 : asyncCB31;
-        asyncCB33->waitResponse(__FILE__, __LINE__);
-        test(asyncCB33->hasResponse(dummy) && dummy);
+        cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+        cb33->waitResponse(__FILE__, __LINE__);
+        test(cb33->hasResponse(dummy) && dummy);
         session1->releaseObject(allocatable3);
 
         session1->allocateObjectById(allocatable3);
-        asyncCB31 = new Callback();
-        cb31 = IceGrid::newCallback_Session_allocateObjectByType(asyncCB31, &Callback::response, &Callback::exception);
-        asyncCB32 = new Callback();
-        cb32 = IceGrid::newCallback_Session_allocateObjectByType(asyncCB32, &Callback::response, &Callback::exception);
-        session1->begin_allocateObjectByType("::TestServer1", cb31);
-        session1->begin_allocateObjectByType("::TestServer1", cb32);
+        cb31 = make_shared<Callback>();
+        cb32 = make_shared<Callback>();
+        session1->allocateObjectByTypeAsync(
+            "::TestServer1",
+            [cb31](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb31->response(obj);
+            },
+            [cb31](exception_ptr)
+            {
+                cb31->exception();
+            });
+        session1->allocateObjectByTypeAsync(
+            "::TestServer1",
+            [cb32](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb32->response(obj);
+            },
+            [cb32](exception_ptr)
+            {
+                cb32->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB31->hasResponse(dummy));
-        test(!asyncCB32->hasResponse(dummy));
+        test(!cb31->hasResponse(dummy));
+        test(!cb32->hasResponse(dummy));
         session1->releaseObject(allocatable3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         do
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
         }
-        while(!asyncCB31->hasResponse(dummy) && !asyncCB32->hasResponse(dummy));
-        test((asyncCB31->hasResponse(dummy) && dummy && !asyncCB32->hasResponse(dummy)) ||
-             (asyncCB32->hasResponse(dummy) && dummy && !asyncCB31->hasResponse(dummy)));
+        while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
+        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
-        asyncCB33 = asyncCB31->hasResponse(dummy) ? asyncCB32 : asyncCB31;
-        asyncCB33->waitResponse(__FILE__, __LINE__);
-        test(asyncCB33->hasResponse(dummy) && dummy);
+        cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+        cb33->waitResponse(__FILE__, __LINE__);
+        test(cb33->hasResponse(dummy) && dummy);
         session1->releaseObject(allocatable3);
 
         cout << "ok" << endl;
@@ -980,17 +1097,25 @@ allTests(Test::TestHelper* helper)
         test(obj && obj->ice_getIdentity().name == "allocatable");
 
         session1->setAllocationTimeout(allocationTimeout);
-        asyncCB3 = new Callback();
-        cb3 = IceGrid::newCallback_Session_allocateObjectByType(asyncCB3, &Callback::response, &Callback::exception);
-        session1->begin_allocateObjectByType("::Test", cb3);
+        cb3 = make_shared<Callback>();
+        session1->allocateObjectByTypeAsync(
+            "::Test",
+            [cb3](shared_ptr<Ice::ObjectPrx> obj)
+            {
+                cb3->response(obj);
+            },
+            [cb3](exception_ptr)
+            {
+                cb3->exception();
+            });
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-        test(!asyncCB3->hasResponse(dummy));
+        test(!cb3->hasResponse(dummy));
         session2->destroy();
-        asyncCB3->waitResponse(__FILE__, __LINE__);
-        test(asyncCB3->hasResponse(obj));
+        cb3->waitResponse(__FILE__, __LINE__);
+        test(cb3->hasResponse(obj));
         session1->destroy();
 
-        session2 = SessionPrx::uncheckedCast(registry->createSession("Client2", ""));
+        session2 = Ice::uncheckedCast<SessionPrx>(registry->createSession("Client2", ""));
         session2->setAllocationTimeout(0);
         session2->allocateObjectById(allocatable);
         session2->destroy();
@@ -1002,10 +1127,10 @@ allTests(Test::TestHelper* helper)
             session2 = registry->createSession("Client2", "");
 
             ServerDescriptorPtr objectAllocOriginal = admin->getServerInfo("ObjectAllocation").descriptor;
-            ServerDescriptorPtr objectAllocUpdate = ServerDescriptorPtr::dynamicCast(objectAllocOriginal->ice_clone());
+            ServerDescriptorPtr objectAllocUpdate = objectAllocOriginal->ice_clone();
 
             ServerDescriptorPtr serverAllocOriginal = admin->getServerInfo("ServerAllocation").descriptor;
-            ServerDescriptorPtr serverAllocUpdate = ServerDescriptorPtr::dynamicCast(serverAllocOriginal->ice_clone());
+            ServerDescriptorPtr serverAllocUpdate = serverAllocOriginal->ice_clone();
 
             NodeUpdateDescriptor nodeUpdate;
             nodeUpdate.name = "localnode";
@@ -1018,19 +1143,19 @@ allTests(Test::TestHelper* helper)
 
             {
                 session1->allocateObjectById(allocatable3);
-                Ice::AsyncResultPtr r2 = session2->begin_allocateObjectById(allocatable4);
+                auto f2 =session2->allocateObjectByIdAsync(allocatable4);
 
                 session1->allocateObjectById(allocatable4);
                 session1->releaseObject(allocatable4);
-                test(!r2->isCompleted());
+                test(f2.wait_for(0s) != future_status::ready);
 
                 serverAllocUpdate->allocatable = false;
                 admin->updateApplication(appUpdate);
 
-                test(!r2->isCompleted());
+                test(f2.wait_for(0s) != future_status::ready);
 
                 session1->releaseObject(allocatable3);
-                session2->end_allocateObjectById(r2);
+                f2.wait();
                 session2->releaseObject(allocatable4);
 
                 serverAllocUpdate->allocatable = true;
@@ -1039,19 +1164,19 @@ allTests(Test::TestHelper* helper)
 
             {
                 session1->allocateObjectById(allocatable);
-                Ice::AsyncResultPtr r2 = session2->begin_allocateObjectById(allocatable);
+                auto f2 = session2->allocateObjectByIdAsync(allocatable);
 
                 objectAllocUpdate->deactivationTimeout = "23";
                 admin->updateApplication(appUpdate);
 
                 session1->releaseObject(allocatable);
-                session2->end_allocateObjectById(r2);
+                f2.wait();
                 session2->releaseObject(allocatable);
             }
 
             {
                 session1->allocateObjectById(allocatable);
-                Ice::AsyncResultPtr r2 = session2->begin_allocateObjectById(allocatable);
+                auto f2 = session2->allocateObjectByIdAsync(allocatable);
 
                 vector<ObjectDescriptor> allocatables = objectAllocUpdate->adapters[0].allocatables;
                 objectAllocUpdate->adapters[0].allocatables.clear(); // Remove the allocatable object
@@ -1059,12 +1184,13 @@ allTests(Test::TestHelper* helper)
 
                 try
                 {
-                    session2->end_allocateObjectById(r2);
+                    f2.get();
                     test(false);
                 }
                 catch(const ObjectNotRegisteredException&)
                 {
                 }
+
                 try
                 {
                     session1->releaseObject(allocatable);
@@ -1084,14 +1210,16 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
 
         cout << "testing allocation with Glacier2 session... " << flush;
-        Ice::ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
-        Glacier2::RouterPrx router1 = Glacier2::RouterPrx::checkedCast(routerBase->ice_connectionId("client1"));
+        shared_ptr<Ice::ObjectPrx> routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
+        shared_ptr<Glacier2::RouterPrx> router1 =
+            Ice::checkedCast<Glacier2::RouterPrx>(routerBase->ice_connectionId("client1"));
         test(router1);
 
-        Glacier2::SessionPrx sessionBase = router1->createSession("test1", "abc123");
+        shared_ptr<Glacier2::SessionPrx> sessionBase = router1->createSession("test1", "abc123");
         try
         {
-            session1 = IceGrid::SessionPrx::checkedCast(sessionBase->ice_connectionId("client1")->ice_router(router1));
+            session1 = Ice::checkedCast<IceGrid::SessionPrx>(
+                sessionBase->ice_connectionId("client1")->ice_router(router1));
             test(session1);
             session1->ice_ping();
 
@@ -1136,31 +1264,51 @@ allTests(Test::TestHelper* helper)
 
         cout << "stress test... " << flush;
 
-        SessionPrx stressSession = registry->createSession("StressSession", "");
+        shared_ptr<SessionPrx> stressSession = registry->createSession("StressSession", "");
 
         const int nClients = 10;
         int i;
-        vector<StressClientPtr> clients;
+        vector<pair<shared_ptr<StressClient>, thread>> clients;
         for(i = 0; i < nClients - 2; ++i)
         {
+            shared_ptr<StressClient> client;
             if(IceUtilInternal::random(2) == 1)
             {
-                clients.push_back(new StressClient(i, registry, false));
+                client = make_shared<StressClient>(i, registry, false);
             }
             else
             {
-                clients.push_back(new StressClient(i, stressSession));
+                client = make_shared<StressClient>(i, stressSession);
             }
-            clients.back()->start();
-        }
-        clients.push_back(new StressClient(i++, registry, true));
-        clients.back()->start();
-        clients.push_back(new StressClient(i++, registry, true));
-        clients.back()->start();
 
-        for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+            std::thread t(
+                [client]()
+                {
+                    client->run();
+                });
+            clients.push_back(make_pair(client, move(t)));
+        }
+
         {
-            (*p)->notifyThread();
+            shared_ptr<StressClient> client = make_shared<StressClient>(i++, registry, true);
+            std::thread t = std::thread(
+                [client]()
+                {
+                    client->run();
+                });
+            clients.push_back(make_pair(client, move(t)));
+            client = make_shared<StressClient>(i++, registry, true);
+            t = std::thread(
+                [client]()
+                {
+                    client->run();
+                });
+            clients.push_back(make_pair(client, move(t)));
+        }
+
+        for (const auto& p : clients)
+        {
+            p.first->notifyThread();
         }
 
         //
@@ -1171,10 +1319,10 @@ allTests(Test::TestHelper* helper)
         //
         // Terminate the stress clients.
         //
-        for(vector<StressClientPtr>::const_iterator q = clients.begin(); q != clients.end(); ++q)
+        for (auto& p : clients)
         {
-            (*q)->terminate();
-            (*q)->getThreadControl().join();
+            p.first->terminate();
+            p.second.join();
         }
 
         stressSession->destroy();

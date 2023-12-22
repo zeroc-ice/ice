@@ -1130,7 +1130,7 @@ NodeI::canRemoveServerDirectory(const string& name)
 void
 NodeI::patch(const shared_ptr<FileServerPrx>& icepatch, const string& dest, const vector<string>& directories)
 {
-    IcePatch2::PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, dest);
+    IcePatch2::PatcherFeedbackPtr feedback = make_shared<LogPatcherFeedback>(_traceLevels, dest);
     IcePatch2Internal::createDirectory(_dataDir + "/" + dest);
     PatcherPtr patcher = PatcherFactory::create(icepatch, feedback, _dataDir + "/" + dest, false, 100, 1);
     bool aborted = !patcher->prepare();

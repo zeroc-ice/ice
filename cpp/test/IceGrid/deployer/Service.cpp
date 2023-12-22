@@ -52,8 +52,9 @@ ServiceI::start(const string& name,
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
-    Ice::ObjectPtr object = new TestI(properties);
-    adapter->add(object, stringToIdentity(properties->getProperty(name + ".Identity")));
+    adapter->add(
+        make_shared<TestI>(properties),
+        stringToIdentity(properties->getProperty(name + ".Identity")));
     adapter->activate();
 }
 

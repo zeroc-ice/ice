@@ -2989,6 +2989,7 @@ ServerI::toServerState(InternalServerState st) const
     {
     case InternalServerState::Inactive:
     case InternalServerState::Activating:
+    case InternalServerState::Patching:
     case InternalServerState::Loading:
         return ServerState::Inactive;
     case InternalServerState::WaitForActivation:

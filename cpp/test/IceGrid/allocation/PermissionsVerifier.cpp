@@ -11,8 +11,7 @@ class PermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
 public:
 
-    virtual bool
-    checkPermissions(const string&, const string&, string&, const Ice::Current&) const
+    virtual bool checkPermissions(string, string, string&, const Ice::Current&) const
     {
         return true;
     }
@@ -25,7 +24,7 @@ public:
     virtual int run(int, char*[])
     {
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
-        adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("PermissionsVerifier"));
+        adapter->add(make_shared<PermissionsVerifierI>(), Ice::stringToIdentity("PermissionsVerifier"));
         adapter->activate();
         communicator()->waitForShutdown();
         return EXIT_SUCCESS;
