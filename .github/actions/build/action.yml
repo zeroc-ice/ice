@@ -18,17 +18,19 @@ runs:
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
     - name: Build C++
-      env:
-        CONFIGS: "shared cpp11-shared"
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        export CONFIGS="shared cpp11-shared ${{ matrix.additional_make_configs }}"
         make -C cpp -j3 V=1
       shell: bash
-      if: inputs.cpp && (startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos'))
+      if: inputs.cpp == true && (startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos'))
 
     - name: Build join(matrix.languages, ', ')
+      env:
+
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        export CONFIGS="shared cpp11-shared ${{ matrix.additional_make_configs }}"
         make -j3 V=1 LANGUAGES="${{ join(matrix.languages, ' ') }}"
       shell: bash
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')

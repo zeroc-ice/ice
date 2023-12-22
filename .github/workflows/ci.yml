@@ -22,9 +22,9 @@ jobs:
         include:
           - os: macos-latest
             languages: [swift, objective-c]
-          # - os: macos-latest
-          #   languages: [cpp, swift, objective-c]
-          #   configs: "xcodesdk cpp11-xcodesdk arc-xcodesdk"
+          - os: macos-latest
+            languages: [cpp, swift, objective-c]
+            additional_make_configs: "xcodesdk cpp11-xcodesdk arc-xcodesdk"
           - os: macos-latest
             languages: [php, ruby, python, js]
             cpp: true
