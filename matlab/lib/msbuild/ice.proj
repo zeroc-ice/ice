@@ -27,6 +27,7 @@
         <SliceCompile Include="..\..\..\slice\Ice\OperationMode.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Process.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\PropertiesAdmin.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\PropertyDict.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\RemoteLogger.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\Router.ice" />
         <SliceCompile Include="..\..\..\slice\Ice\ValueFactory.ice" />
