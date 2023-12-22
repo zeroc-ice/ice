@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   ci:
-    name: ${{ matrix.language }} / ${{ matrix.os }}
+    name: ${{ join(matrix.languages, ',') }} / ${{ matrix.os }}
     strategy:
       matrix:
         languages: [[cpp], [csharp], [java], [python], [js]] # languages available on all os
@@ -56,10 +56,10 @@ jobs:
 
       - name: Build ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
         uses: ./.github/actions/build
-        with:
-          languages: ${{ matrix.languages }}
+        # with:
+        #   languages: ${{ matrix.languages }}
 
       - name: Test ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
         uses: ./.github/actions/test
-        with:
-          languages: ${{ matrix.languages }}
+        # with:
+        #   languages: ${{ matrix.languages }}

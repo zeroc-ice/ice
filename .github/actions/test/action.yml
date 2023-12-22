@@ -1,11 +1,6 @@
 name: Test Ice
 
 inputs:
-  languages:
-    description: "Language to test"
-    required: true
-    type: array
-
   flags:
     description: "Flags to pass to the test"
     required: false
@@ -15,12 +10,12 @@ runs:
   using: "composite"
   steps:
     - name: Test
-      run: python3 allTests.py --all --workers=4 --export-xml=test-report.xml --languages=${{ join(inputs.languages, ', ') }} ${{ inputs.flags }}
+      run: python3 allTests.py --all --workers=4 --export-xml=test-report.xml --languages=${{ join(matrix.languages, ', ') }} ${{ inputs.flags }}
       shell: bash
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
     - name: Test
-      run: python allTests.py --all --export-xml=test-report.xml --platform=x64 --workers=4 --languages=${{ join(inputs.languages, ', ') }} ${{ inputs.flags }}
+      run: python allTests.py --all --export-xml=test-report.xml --platform=x64 --workers=4 --languages=${{ join(matrix.languages, ', ') }} ${{ inputs.flags }}
       shell: powershell
       if: startsWith(matrix.os, 'windows')
 
