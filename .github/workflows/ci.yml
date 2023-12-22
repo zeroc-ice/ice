@@ -41,7 +41,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          create-symlink: true
+          # create-symlink: true
           key: ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
@@ -54,9 +54,9 @@ jobs:
         with:
           path: |
             **/msbuild/**/x64
-          key: ${{ runner.os }}-build-${{ github.sha }}
+          key: ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ github.sha }}
+            ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
             ${{ runner.os }}-build-
 
       - name: Build ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
