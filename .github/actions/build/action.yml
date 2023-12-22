@@ -12,7 +12,7 @@ runs:
   steps:
     - name: Build Slice compilers
       env:
-        CONFIGS: ${{ join(matrix.configs, ', ') }}
+        CONFIGS: ${{ matrix.configs }}
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         make -C cpp -j3 V=1 slice2cpp slice2js slice2py slice2rb slice2php slice2java slice2cs slice2swift slice2objc
@@ -21,7 +21,7 @@ runs:
 
     - name: Build C++
       env:
-        CONFIGS: ${{ join(matrix.configs, ', ') }}
+        CONFIGS: ${{ matrix.configs }}
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         make -C cpp -j3 V=1
@@ -30,7 +30,7 @@ runs:
 
     - name: Build join(matrix.languages, ', ')
       env:
-        CONFIGS: ${{ join(matrix.configs, ', ') }}
+        CONFIGS: ${{ matrix.configs }}
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         make -j3 V=1 LANGUAGES="${{ join(matrix.languages, ' ') }}"
