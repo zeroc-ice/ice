@@ -23,9 +23,14 @@ jobs:
           - language: swift
             os: macos-latest
           - language: php
-            os: [ubuntu-latest, macos-latest]
+            os: macos-latest
+          - language: php
+            os: ubuntu-latest
           - language: ruby
-            os: [ubuntu-latest, macos-latest]
+            os: macos-latest
+          - language: ruby
+            os: ubuntu-latest
+      fail-fast: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -56,7 +61,7 @@ jobs:
       - name: Build ${{ matrix.os }}
         uses: ./.github/actions/build
 
-      - name: Build ${{ matrix.os }}
+      - name: Test ${{ matrix.os }}
         uses: ./.github/actions/test
         with:
           language: ${{ matrix.language }}
