@@ -19,7 +19,7 @@ jobs:
       matrix:
         languages: [[cpp], [csharp], [java]]
         os: [macos-latest, ubuntu-latest, windows-latest]
-        configs: cpp98-shared cpp11-shared
+        configs: "cpp98-shared cpp11-shared"
         include:
           - os: macos-latest
             languages: [swift, objective-c]
