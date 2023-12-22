@@ -27,10 +27,8 @@ jobs:
             additional_make_configs: "xcodesdk cpp11-xcodesdk arc-xcodesdk"
           - os: macos-latest
             languages: [php, ruby, python, js]
-            cpp: true
           - os: ubuntu-latest
             languages: [php, ruby, python, js]
-            cpp: true
           - os: windows-latest
             languages: [python, js]
       fail-fast: false

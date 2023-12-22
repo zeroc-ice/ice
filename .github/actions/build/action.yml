@@ -1,12 +1,5 @@
 name: Build Ice
 
-inputs:
-  cpp:
-    description: "Build C++ (Makefile build systems only)"
-    required: false
-    default: false
-    type: boolean
-
 runs:
   using: "composite"
   steps:
@@ -23,7 +16,7 @@ runs:
         export CONFIGS="shared cpp11-shared ${{ matrix.additional_make_configs }}"
         make -C cpp -j3 V=1
       shell: bash
-      if: inputs.cpp == true && (startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos'))
+      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
     - name: Build join(matrix.languages, ', ')
       run: |
