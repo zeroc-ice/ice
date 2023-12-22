@@ -19,6 +19,7 @@ runs:
 
     - name: Build C++
       if: inputs.cpp
+      shell: bash
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         make -C cpp -j3 V=1

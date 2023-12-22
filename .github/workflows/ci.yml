@@ -17,17 +17,19 @@ jobs:
     name: ${{ join(matrix.languages, ',') }} / ${{ matrix.os }}
     strategy:
       matrix:
-        languages: [[cpp], [csharp], [java], [js]] # languages available on all os
+        languages: [[cpp], [csharp], [java]]
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
             languages: swift
           - os: macos-latest
-            languages: [php, ruby, python]
+            languages: [php, ruby, python, js]
             cpp: true
           - os: ubuntu-latest
-            languages: [php, ruby, python]
+            languages: [php, ruby, python, js]
             cpp: true
+          - os: windows-latest
+            languages: [python, js]
       fail-fast: false
 
     runs-on: ${{ matrix.os }}
