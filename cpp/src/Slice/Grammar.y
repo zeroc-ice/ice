@@ -84,6 +84,9 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #ifdef __GNUC__
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #  pragma GCC diagnostic ignored "-Wunused-label"
+
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98753
+#  pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
 
 // Avoid clang warnings in generate grammar
