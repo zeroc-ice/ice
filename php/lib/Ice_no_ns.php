@@ -189,6 +189,7 @@ class Ice_FormatType
 //
 require_once 'Ice/BuiltinSequences.php';
 require_once 'Ice/Connection.php';
+require_once 'Ice/EndpointSelectionType.php';
 require_once 'Ice/EndpointTypes.php';
 require_once 'Ice/LocalException.php';
 require_once 'Ice/Locator.php';
