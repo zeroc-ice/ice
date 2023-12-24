@@ -11,6 +11,8 @@ ConnectionF.d.ts
 ConnectionF.js
 ConnectionInfo.d.ts
 ConnectionInfo.js
+Context.d.ts
+Context.js
 Current.d.ts
 Current.js
 Endpoint.d.ts
@@ -19,6 +21,8 @@ EndpointF.d.ts
 EndpointF.js
 EndpointInfo.d.ts
 EndpointInfo.js
+EndpointSelectionType.d.ts
+EndpointSelectionType.js
 EndpointTypes.d.ts
 EndpointTypes.js
 FacetMap.d.ts
@@ -49,6 +53,8 @@ ObjectAdapterF.d.ts
 ObjectAdapterF.js
 ObjectFactory.d.ts
 ObjectFactory.js
+OperationMode.d.ts
+OperationMode.js
 PluginF.d.ts
 PluginF.js
 Process.d.ts
