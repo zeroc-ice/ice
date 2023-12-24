@@ -67,6 +67,8 @@ PropertiesAdmin.d.ts
 PropertiesAdmin.js
 PropertiesF.d.ts
 PropertiesF.js
+PropertyDict.d.ts
+PropertyDict.js
 RemoteLogger.d.ts
 RemoteLogger.js
 Router.d.ts
