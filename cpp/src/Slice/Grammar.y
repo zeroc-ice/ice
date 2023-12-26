@@ -140,8 +140,8 @@ slice_error(const char* s)
 %token ICE_IMPLEMENTS
 %token ICE_THROWS
 %token ICE_VOID
-%token ICE_BYTE
 %token ICE_BOOL
+%token ICE_BYTE
 %token ICE_SHORT
 %token ICE_INT
 %token ICE_LONG
@@ -570,26 +570,14 @@ tag
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b)
+        if(b && b->isIntegralType())
         {
-            switch(b->kind())
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            if(l < 0 || l > Int32Max)
             {
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-                if(l < 0 || l > Int32Max)
-                {
-                    unit->error("tag is out of range");
-                }
-                tag = static_cast<int>(l);
-                break;
+                unit->error("tag is out of range");
             }
-            default:
-                break;
-            }
+            tag = static_cast<int>(l);
         }
     }
     else if(enumerator)
@@ -695,26 +683,14 @@ optional
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b)
+        if(b && b->isIntegralType())
         {
-            switch(b->kind())
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            if(l < 0 || l > Int32Max)
             {
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-                if(l < 0 || l > Int32Max)
-                {
-                    unit->error("tag is out of range");
-                }
-                tag = static_cast<int>(l);
-                break;
+                unit->error("tag is out of range");
             }
-            default:
-                break;
-            }
+            tag = static_cast<int>(l);
         }
     }
     else if(enumerator)
@@ -977,26 +953,14 @@ class_id
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b)
+        if(b && b->isIntegralType())
         {
-            switch(b->kind())
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            if(l < 0 || l > Int32Max)
             {
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-                if(l < 0 || l > Int32Max)
-                {
-                    unit->error("compact id for class is out of range");
-                }
-                id = static_cast<int>(l);
-                break;
+                unit->error("compact id for class is out of range");
             }
-            default:
-                break;
-            }
+            id = static_cast<int>(l);
         }
     }
     else if(enumerator)
@@ -1970,8 +1934,7 @@ enumerator_initializer
         {
             unit->currentContainer()->checkIntroduced(scoped->v, constant);
             BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-            if(b && (b->kind() == Builtin::KindByte || b->kind() == Builtin::KindShort ||
-                     b->kind() == Builtin::KindInt || b->kind() == Builtin::KindLong))
+            if(b && b->isIntegralType())
             {
                 IceUtil::Int64 v;
                 if(IceUtilInternal::stringToInt64(constant->value(), v))
@@ -2122,55 +2085,31 @@ scoped_name
 ;
 
 // ----------------------------------------------------------------------
+builtin
+// ----------------------------------------------------------------------
+: ICE_BOOL {}
+| ICE_BYTE {}
+| ICE_SHORT {}
+| ICE_INT {}
+| ICE_LONG {}
+| ICE_FLOAT {}
+| ICE_DOUBLE {}
+| ICE_STRING {}
+| ICE_OBJECT {}
+| ICE_VALUE {}
+| ICE_LOCAL_OBJECT {}
+
+// ----------------------------------------------------------------------
 type
 // ----------------------------------------------------------------------
-: ICE_BYTE
-{
-    $$ = unit->builtin(Builtin::KindByte);
-}
-| ICE_BOOL
-{
-    $$ = unit->builtin(Builtin::KindBool);
-}
-| ICE_SHORT
-{
-    $$ = unit->builtin(Builtin::KindShort);
-}
-| ICE_INT
-{
-    $$ = unit->builtin(Builtin::KindInt);
-}
-| ICE_LONG
-{
-    $$ = unit->builtin(Builtin::KindLong);
-}
-| ICE_FLOAT
-{
-    $$ = unit->builtin(Builtin::KindFloat);
-}
-| ICE_DOUBLE
-{
-    $$ = unit->builtin(Builtin::KindDouble);
-}
-| ICE_STRING
-{
-    $$ = unit->builtin(Builtin::KindString);
-}
-| ICE_OBJECT
-{
-    $$ = unit->builtin(Builtin::KindObject);
-}
-| ICE_OBJECT '*'
+: ICE_OBJECT '*'
 {
     $$ = unit->builtin(Builtin::KindObjectProxy);
 }
-| ICE_LOCAL_OBJECT
+| builtin
 {
-    $$ = unit->builtin(Builtin::KindLocalObject);
-}
-| ICE_VALUE
-{
-    $$ = unit->builtin(Builtin::KindValue);
+    StringTokPtr typeName = StringTokPtr::dynamicCast($1);
+    $$ = unit->builtin(Builtin::kindFromString(typeName->v).value());
 }
 | scoped_name
 {
@@ -2389,99 +2328,37 @@ const_def
 // ----------------------------------------------------------------------
 keyword
 // ----------------------------------------------------------------------
-: ICE_MODULE
-{
-}
-| ICE_CLASS
-{
-}
-| ICE_INTERFACE
-{
-}
-| ICE_EXCEPTION
-{
-}
-| ICE_STRUCT
-{
-}
-| ICE_SEQUENCE
-{
-}
-| ICE_DICTIONARY
-{
-}
-| ICE_ENUM
-{
-}
-| ICE_OUT
-{
-}
-| ICE_EXTENDS
-{
-}
-| ICE_IMPLEMENTS
-{
-}
-| ICE_THROWS
-{
-}
-| ICE_VOID
-{
-}
-| ICE_BYTE
-{
-}
-| ICE_BOOL
-{
-}
-| ICE_SHORT
-{
-}
-| ICE_INT
-{
-}
-| ICE_LONG
-{
-}
-| ICE_FLOAT
-{
-}
-| ICE_DOUBLE
-{
-}
-| ICE_STRING
-{
-}
-| ICE_OBJECT
-{
-}
-| ICE_LOCAL_OBJECT
-{
-}
-| ICE_LOCAL
-{
-}
-| ICE_CONST
-{
-}
-| ICE_FALSE
-{
-}
-| ICE_TRUE
-{
-}
-| ICE_IDEMPOTENT
-{
-}
-| ICE_TAG
-{
-}
-| ICE_OPTIONAL
-{
-}
-| ICE_VALUE
-{
-}
+: ICE_MODULE {}
+| ICE_CLASS {}
+| ICE_INTERFACE {}
+| ICE_EXCEPTION {}
+| ICE_STRUCT {}
+| ICE_SEQUENCE {}
+| ICE_DICTIONARY {}
+| ICE_ENUM {}
+| ICE_OUT {}
+| ICE_EXTENDS {}
+| ICE_IMPLEMENTS {}
+| ICE_THROWS {}
+| ICE_VOID {}
+| ICE_BOOL {}
+| ICE_BYTE {}
+| ICE_SHORT {}
+| ICE_INT {}
+| ICE_LONG {}
+| ICE_FLOAT {}
+| ICE_DOUBLE {}
+| ICE_STRING {}
+| ICE_OBJECT {}
+| ICE_LOCAL_OBJECT {}
+| ICE_LOCAL {}
+| ICE_CONST {}
+| ICE_FALSE {}
+| ICE_TRUE {}
+| ICE_IDEMPOTENT {}
+| ICE_TAG {}
+| ICE_OPTIONAL {}
+| ICE_VALUE {}
 ;
 
 %%
