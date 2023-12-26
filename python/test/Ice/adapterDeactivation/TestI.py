@@ -36,7 +36,7 @@ class RouterI(Ice.Router):
     def addProxies(self, proxies, c):
         return []
 
-class CookieI(Test.Cookie):
+class Cookie:
     def message(self):
         return 'blahblah'
 
@@ -58,7 +58,7 @@ class ServantLocatorI(Ice.ServantLocator):
         test(current.id.category == '')
         test(current.id.name == 'test')
 
-        return (TestI(), CookieI())
+        return (TestI(), Cookie())
 
     def finished(self, current, servant, cookie):
         test(not self._deactivated)
@@ -66,7 +66,7 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.id.name == 'router':
             return
 
-        test(isinstance(cookie, Test.Cookie))
+        test(isinstance(cookie, Cookie))
         test(cookie.message() == 'blahblah')
 
     def deactivate(self, category):

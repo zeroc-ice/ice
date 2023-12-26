@@ -68,6 +68,16 @@
 }
 @end
 
+// TODO: simplify this cookie code
+
+@implementation TestServantLocatorCookie
+
++(id) cookie
+{
+    return ICE_AUTORELEASE([(TestServantLocatorCookie *)[self alloc] init]);
+}
+@end
+
 @implementation TestServantLocatorCookieI
 -(NSString*) message
 {

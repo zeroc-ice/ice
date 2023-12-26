@@ -744,31 +744,31 @@ IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 IcePy._t_LocalObject = IcePy.declareValue('::Ice::LocalObject')
 
 #
-# Import generated Ice modules.
+# Import "local slice" and generated Ice modules.
 #
 import Ice.BuiltinSequences_ice
-import Ice.Current_ice
-import Ice.Communicator_ice
-import Ice.ImplicitContext_ice
-import Ice.Endpoint_ice
-import Ice.EndpointSelectionType_ice
+import Ice.Current_local
+import Ice.Communicator_local
+import Ice.ImplicitContext_local
+import Ice.Endpoint_local
+import Ice.EndpointSelectionType_local
 import Ice.EndpointTypes_ice
 import Ice.Identity_ice
-import Ice.LocalException_ice
+import Ice.LocalException_local
 import Ice.Locator_ice
-import Ice.Logger_ice
-import Ice.ObjectAdapter_ice
-import Ice.ObjectFactory_ice
-import Ice.ValueFactory_ice
+import Ice.Logger_local
+import Ice.ObjectAdapter_local
+import Ice.ObjectFactory_local
+import Ice.ValueFactory_local
 import Ice.Process_ice
-import Ice.Properties_ice
+import Ice.Properties_local
 import Ice.PropertiesAdmin_ice
 import Ice.RemoteLogger_ice
 import Ice.Router_ice
-import Ice.ServantLocator_ice
-import Ice.Connection_ice
+import Ice.ServantLocator_local
+import Ice.Connection_local
 import Ice.Version_ice
-import Ice.Instrumentation_ice
+import Ice.Instrumentation_local
 import Ice.Metrics_ice
 
 #
