@@ -35,6 +35,7 @@
         "Ice/Properties.ice",
         "Ice/PropertiesAdmin.ice",
         "Ice/PropertiesF.ice",
+        "Ice/PropertyDict.ice",
         "Ice/RemoteLogger.ice",
         "Ice/Router.ice",
         "Ice/RouterF.ice",

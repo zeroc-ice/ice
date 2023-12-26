@@ -8,6 +8,8 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
+[["cpp:source-include:Ice/Process.h"]]
+
 [["ice-prefix"]]
 
 [["js:module:ice"]]
@@ -19,13 +21,14 @@
 [["python:pkgdir:Ice"]]
 
 #include <Ice/Identity.ice>
-#include <Ice/Process.ice>
 
 [["java:package:com.zeroc"]]
 
 ["objc:prefix:ICE"]
 module Ice
 {
+
+interface Process;
 
 ///  This exception is raised if an adapter cannot be found.
 exception AdapterNotFoundException
