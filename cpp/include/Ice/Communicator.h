@@ -39,8 +39,6 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ObjectFactory.h>
 #include <Ice/ValueFactory.h>
-#include <Ice/Router.h>
-#include <Ice/Locator.h>
 #include <Ice/PluginF.h>
 #include <Ice/ImplicitContextF.h>
 #include <Ice/Current.h>

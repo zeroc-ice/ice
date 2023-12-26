@@ -26,10 +26,8 @@
 ["objc:prefix:ICE"]
 module Ice
 {
-
-/// A request context. <code>Context</code> is used to transmit metadata about a request from the server to the client,
-/// such as Quality-of-Service (QoS) parameters. Each operation on the client has a <code>Context</code> as its
-/// implicit final parameter.
-dictionary<string, string> Context;
-
+    /// A simple collection of properties, represented as a dictionary of key/value pairs. Both key and value are
+    /// strings.
+    /// @see Properties#getPropertiesForPrefix
+    dictionary<string, string> PropertyDict;
 }
