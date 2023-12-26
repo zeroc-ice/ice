@@ -12,7 +12,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/RequestHandlerF.h>
 #include <Ice/EndpointF.h>
-#include <Ice/EndpointTypes.h>
+#include <Ice/EndpointSelectionType.h>
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>

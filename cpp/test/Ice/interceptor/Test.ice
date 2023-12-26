@@ -14,11 +14,6 @@ exception InvalidInputException
     string message;
 }
 
-["cpp:ice_print"]
-local exception RetryException
-{
-}
-
 interface MyObject
 {
     //
@@ -27,7 +22,7 @@ interface MyObject
     int add(int x, int y);
 
     //
-    // Will throw RetryException until current.ctx["retry"] is "no"
+    // Will throw MyRetryException until current.ctx["retry"] is "no"
     //
     int addWithRetry(int x, int y);
 
@@ -56,7 +51,7 @@ interface MyObject
     ["amd"] int amdAdd(int x, int y);
 
     //
-    // Will throw RetryException until current.ctx["retry"] is "no"
+    // Will throw MyRetryException until current.ctx["retry"] is "no"
     //
     ["amd"] int amdAddWithRetry(int x, int y);
 

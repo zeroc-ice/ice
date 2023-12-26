@@ -9,7 +9,7 @@ require("../Ice/BatchRequestQueue");
 require("../Ice/BuiltinSequences");
 require("../Ice/ConnectionRequestHandler");
 require("../Ice/Debug");
-require("../Ice/EndpointTypes");
+require("../Ice/EndpointSelectionType");
 require("../Ice/HashUtil");
 require("../Ice/Identity");
 require("../Ice/LocalException");

@@ -90,7 +90,7 @@ private:
 
     private:
 
-        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&, bool = false);
+        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -155,6 +155,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -383,7 +384,7 @@ private:
 
     private:
 
-        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&, bool = false);
+        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -444,21 +445,6 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class Cpp11LocalObjectVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
-    {
-    public:
-
-        Cpp11LocalObjectVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitOperation(const OperationPtr&);
-    };
-
     class Cpp11InterfaceVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
     {
     public:
@@ -501,6 +487,7 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual void visitEnum(const EnumPtr&);
 

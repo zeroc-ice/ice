@@ -142,6 +142,7 @@
     <ClCompile Include="..\..\SessionI.cpp" />
     <ClCompile Include="..\..\SessionManager.cpp" />
     <ClCompile Include="..\..\SessionServantManager.cpp" />
+    <ClCompile Include="..\..\SynchronizationException.cpp" />
     <ClCompile Include="..\..\Topics.cpp" />
     <ClCompile Include="..\..\TraceLevels.cpp" />
     <ClCompile Include="..\..\Util.cpp" />

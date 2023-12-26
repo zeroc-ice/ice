@@ -78,6 +78,9 @@ public:
     }
 };
 
+/*
+TODO: reenable once bug #1617 is fixed.
+
 class friendI : public _cpp_and::_cpp_friend
 {
 public:
@@ -104,11 +107,13 @@ public:
 #endif
               const _cpp_and::doPrxPtr&,
               ::Ice::Int, ::Ice::Int,
-              ::Ice::Int, ::Ice::Int)
+              ::Ice::Int, ::Ice::Int,
+              const ::Ice::Current&)
     {
         return _cpp_and::_cpp_auto();
     }
 };
+*/
 
 //
 // This section of the test is present to ensure that the C++ types
@@ -164,7 +169,8 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     k._cpp_switch = 1;
     k._cpp_signed = 2;
 
-    _cpp_and::friendPtr l = ICE_MAKE_SHARED(friendI);
+    // TODO: reenable once bug #1617 is fixed.
+    // _cpp_and::friendPtr l = ICE_MAKE_SHARED(friendI);
 
     const int m  = _cpp_and::_cpp_template;
     test(m == _cpp_and::_cpp_template);

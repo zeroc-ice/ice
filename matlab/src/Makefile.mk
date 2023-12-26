@@ -19,7 +19,7 @@ IceMatlab_system_libs   := $(matlab_ldflags) \
 
 IceMatlab_dependencies  := IceDiscovery++11 IceLocatorDiscovery++11 IceSSL++11 Ice++11
 
-# ConvertUTF is required in platforms that doesn't suport UTF8 codecvt
+# ConvertUTF is required on platforms that don't support UTF8 codecvt
 IceMatlab_extra_sources := $(top_srcdir)/cpp/src/IceUtil/ConvertUTF.cpp
 
 projects += $(project)

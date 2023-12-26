@@ -751,6 +751,7 @@ import Ice.Current_ice
 import Ice.Communicator_ice
 import Ice.ImplicitContext_ice
 import Ice.Endpoint_ice
+import Ice.EndpointSelectionType_ice
 import Ice.EndpointTypes_ice
 import Ice.Identity_ice
 import Ice.LocalException_ice
@@ -761,6 +762,7 @@ import Ice.ObjectFactory_ice
 import Ice.ValueFactory_ice
 import Ice.Process_ice
 import Ice.Properties_ice
+import Ice.PropertiesAdmin_ice
 import Ice.RemoteLogger_ice
 import Ice.Router_ice
 import Ice.ServantLocator_ice

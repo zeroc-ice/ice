@@ -47,7 +47,7 @@ InterceptorI::dispatch(Ice::Request& request)
                 _servant->ice_dispatch(request);
                 test(false);
             }
-            catch(const Test::RetryException&)
+            catch(const MyRetryException&)
             {
                 //
                 // Expected, retry

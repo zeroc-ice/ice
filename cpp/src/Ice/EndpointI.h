@@ -7,7 +7,7 @@
 
 #include <Ice/EndpointIF.h>
 #include <Ice/Endpoint.h>
-#include <Ice/EndpointTypes.h>
+#include <Ice/EndpointSelectionType.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>

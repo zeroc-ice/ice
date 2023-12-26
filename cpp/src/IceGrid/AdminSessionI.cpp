@@ -11,6 +11,8 @@
 
 #include <IceSSL/Plugin.h>
 
+#include "SynchronizationException.h"
+
 using namespace std;
 using namespace IceGrid;
 
