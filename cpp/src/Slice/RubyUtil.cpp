@@ -241,7 +241,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << " < " << getAbsolute(base, IdentToUpper);
         }
-        _out << " < ::Ice::Value";
+        else
+        {
+            _out << " < ::Ice::Value";
+        }
         _out.inc();
 
         //
