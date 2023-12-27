@@ -498,6 +498,22 @@ public:
      * @see #findAdminFacet
      */
     virtual ::Ice::FacetMap findAllAdminFacets() = 0;
+
+#ifdef ICE_SWIFT
+    /**
+     * Returns the client dispatch queue.
+     * @return The dispatch queue associated wih this Communicator's
+     * client thread pool.
+     */
+    virtual dispatch_queue_t getClientDispatchQueue() const = 0;
+
+    /**
+     * Returns the server dispatch queue.
+     * @return The dispatch queue associated wih the Communicator's
+     * server thread pool.
+     */
+    virtual dispatch_queue_t getServerDispatchQueue() const = 0;
+#endif
 };
 
 }
