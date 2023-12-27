@@ -38,11 +38,12 @@ public class Client : Test.TestHelper
         }
     }
 
-    public sealed class implicitI : @abstract.@implicit
+    public sealed class implicitI : @abstract.@implicitDisp_
     {
-        public @abstract.@as @in(@abstract.@break @internal, @abstract.@delegate @is, @abstract.@explicit @lock,
+        public override @abstract.@as @in(@abstract.@break @internal, @abstract.@delegate @is, Ice.Value @lock,
                                  @abstract.casePrx @namespace, @abstract.decimalPrx @new, @abstract.@delegate @null,
-                                 @abstract.explicitPrx @operator, int @override, int @params, int @private)
+                                 @abstract.explicitPrx @operator, int @override, int @params, int @private,
+                                 Ice.Current current)
         {
             return @abstract.@as.@base;
         }

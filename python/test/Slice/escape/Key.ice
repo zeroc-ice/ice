@@ -51,7 +51,7 @@ module and
         int pass;
     }
 
-    local interface print
+    interface print
     {
         assert raise(continue else, for return, if try, del* while, exec* yield,
                      for* lambda, if* or, int global)

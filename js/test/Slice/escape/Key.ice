@@ -111,7 +111,7 @@ exception BaseMethods
     int ToString;
 }
 
-local interface implicit
+interface implicit
 {
     var in(break internal, delete is, explicit lock, case* namespace, typeof* new, delete null,
           explicit* operator, int override, int params, int private)

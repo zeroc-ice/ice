@@ -25,6 +25,5 @@ module Ice
 {
 
 local interface Properties;
-interface PropertiesAdmin;
 
 }

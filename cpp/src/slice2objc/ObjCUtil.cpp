@@ -220,10 +220,6 @@ string
 Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
 {
     ClassDefPtr def = ClassDefPtr::dynamicCast(p);
-    if(def && def->declaration()->isLocal())
-    {
-        deprecated = false; // Local classes don't have this issue since they were added after this fix.
-    }
 
     //
     // If deprecated is true, we return uDPConnectionInfo for a class
@@ -310,19 +306,10 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
             {
                 return fixName(cl);
             }
-            else if(cl->isLocal())
-            {
-                return "id<" + fixName(cl) + ">";
-            }
             else
             {
                 return "ICEObject";
             }
-        }
-        else if(cl->isLocal())
-        {
-            string name = fixName(cl);
-            return name + "<" + name + ">";
         }
     }
 
@@ -538,7 +525,7 @@ Slice::ObjCGenerator::mapsToPointerType(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl && cl->isInterface())
     {
-        if(cl->isLocal() || (cl->definition() && cl->definition()->isDelegate()))
+        if((cl->definition() && cl->definition()->isDelegate()))
         {
             return false;
         }

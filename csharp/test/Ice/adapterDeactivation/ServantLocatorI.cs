@@ -72,7 +72,7 @@ namespace Ice
                 test(current.id.category.Length == 0);
                 test(current.id.name.Equals("test"));
 
-                cookie = new CookieI();
+                cookie = new Cookie();
 
                 return new TestI();
             }
@@ -89,7 +89,7 @@ namespace Ice
                     return;
                 }
 
-                Test.Cookie co = (Test.Cookie) cookie;
+                Cookie co = (Cookie)cookie;
                 test(co.message().Equals("blahblah"));
             }
 

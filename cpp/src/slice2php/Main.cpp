@@ -155,6 +155,11 @@ CodeVisitor::CodeVisitor(Output& out, bool ns) :
 void
 CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     //
     // Handle forward declarations.
     //
@@ -168,14 +173,14 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 
         bool isInterface = p->isInterface();
         ClassDefPtr def = p->definition();
-        if(!p->isLocal() && (isInterface || (def && def->allOperations().size() > 0)))
+        if(isInterface || (def && def->allOperations().size() > 0))
         {
             _out << nl << "global " << type << "Prx;";
         }
         _out << nl << "if(!isset(" << type << "))";
         _out << sb;
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(!p->isLocal() && (isInterface || (def && def->allOperations().size() > 0)))
+        if(isInterface || (def && def->allOperations().size() > 0))
         {
             _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
         }
@@ -190,6 +195,11 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -207,7 +217,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << nl << "global " << prxType << ';';
     }
@@ -215,50 +225,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define the class.
     //
-    if(isInterface)
-    {
-        if(p->isLocal())
-        {
-            _out << nl << "interface " << name;
-            if(bases.empty())
-            {
-                if(!p->isLocal())
-                {
-                    _out << " extends " << scopedToName("::Ice::Object", _ns);
-                }
-            }
-            else
-            {
-                _out << " extends ";
-                for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-                {
-                    if(q != bases.begin())
-                    {
-                        _out << ", ";
-                    }
-                    _out << getAbsolute(*q, _ns);
-                }
-            }
-            _out << sb;
-            for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
-            {
-                _out << nl << "public function " << fixIdent((*oli)->name()) << '(';
-                ParamDeclList params = (*oli)->parameters();
-                for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
-                {
-                    if(q != params.begin())
-                    {
-                        _out << ", ";
-                    }
-                    _out << '$' << fixIdent((*q)->name());
-                }
-                _out << ");";
-            }
-
-            _out << eb;
-        }
-    }
-    else
+    if(!isInterface)
     {
         _out << nl;
         _out << "class " << name;
@@ -273,26 +240,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            if(!p->isLocal())
-            {
-                _out << " extends " << scopedToName("::Ice::Value", _ns);
-            }
-        }
-
-        //
-        // Value objects don't implement any interfaces.
-        //
-        if(p->isLocal() && !bases.empty())
-        {
-            _out << " implements ";
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-            {
-                if(q != bases.begin())
-                {
-                    _out << ", ";
-                }
-                _out << getAbsolute(*q, _ns);
-            }
+            _out << " extends " << scopedToName("::Ice::Value", _ns);
         }
 
         _out << sb;
@@ -335,24 +283,21 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << eb;
 
-        if(!p->isLocal())
-        {
-            //
-            // ice_ice
-            //
-            _out << sp << nl << "public function ice_id()";
-            _out << sb;
-            _out << nl << "return '" << scoped << "';";
-            _out << eb;
+        //
+        // ice_ice
+        //
+        _out << sp << nl << "public function ice_id()";
+        _out << sb;
+        _out << nl << "return '" << scoped << "';";
+        _out << eb;
 
-            //
-            // ice_staticId
-            //
-            _out << sp << nl << "public static function ice_staticId()";
-            _out << sb;
-            _out << nl << "return '" << scoped << "';";
-            _out << eb;
-        }
+        //
+        // ice_staticId
+        //
+        _out << sp << nl << "public static function ice_staticId()";
+        _out << sb;
+        _out << nl << "return '" << scoped << "';";
+        _out << eb;
 
         //
         // __toString
@@ -389,7 +334,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define the proxy class.
     //
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << sp << nl << "class " << prxName << "Helper";
         _out << sb;
@@ -418,7 +363,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Emit a forward declaration for the class in case a data member refers to this type.
         //
         _out << sp << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(!p->isLocal() && isAbstract)
+        if(isAbstract)
         {
             _out << nl << prxType << " = IcePHP_declareProxy('" << scoped << "');";
         }
@@ -427,7 +372,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         string type;
         vector<string> seenType;
-        if(base || (!p->isLocal() && !isInterface))
+        if(base || !isInterface)
         {
             _out << sp << nl << "global ";
             if(!base)
@@ -462,7 +407,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
          << (isInterface ? "true" : "false") << ", ";
     if(!base)
     {
-        if(p->isLocal() || isInterface)
+        if(isInterface)
         {
             _out << "null";
         }
@@ -509,7 +454,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << ");";
 
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << sp << nl << "global ";
         if(!base || base->allOperations().empty())
@@ -717,6 +662,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -732,10 +682,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         baseName = getAbsolute(base, _ns);
         _out << baseName;
-    }
-    else if(p->isLocal())
-    {
-        _out << scopedToName("::Ice::LocalException", _ns);
     }
     else
     {
@@ -875,6 +821,11 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -973,6 +924,11 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 void
 CodeVisitor::visitSequence(const SequencePtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     string type = getTypeVar(p);
     TypePtr content = p->type();
 
@@ -997,6 +953,11 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     TypePtr keyType = p->keyType();
     BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
 
@@ -1063,6 +1024,11 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);

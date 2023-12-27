@@ -59,7 +59,7 @@ exception sizeof extends return
     int switch;
 }
 
-local interface friend
+interface friend
 {
     auto goto(continue if, auto d, delete inline, switch private, do mutable, break* namespace,
               char* new, switch* not, do* operator, int or, int protected, int public, int register)

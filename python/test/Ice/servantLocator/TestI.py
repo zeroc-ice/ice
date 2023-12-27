@@ -68,7 +68,7 @@ class TestI(Test.TestIntf):
     def shutdown(self, current=None):
         current.adapter.deactivate()
 
-class CookieI(Test.Cookie):
+class Cookie:
     def message(self):
         return 'blahblah'
 
@@ -105,7 +105,7 @@ class ServantLocatorI(Ice.ServantLocator):
         test(self._requestId == -1)
         self._requestId = current.requestId
 
-        return (TestI(), CookieI())
+        return (TestI(), Cookie())
 
     def finished(self, current, servant, cookie):
         test(not self._deactivated)
@@ -122,7 +122,7 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.id.name == "finished":
             self.exception(current)
 
-        test(isinstance(cookie, Test.Cookie))
+        test(isinstance(cookie, Cookie))
         test(cookie.message() == 'blahblah')
 
     def deactivate(self, category):

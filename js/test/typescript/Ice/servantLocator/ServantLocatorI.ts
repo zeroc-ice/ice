@@ -13,7 +13,7 @@ class MyError
 {
 }
 
-class CookieI
+class Cookie
 {
     message()
     {
@@ -52,7 +52,7 @@ export class ServantLocatorI implements Ice.ServantLocator
         //
         test(this._requestId == -1);
         this._requestId = current.requestId;
-        cookie.value = new CookieI();
+        cookie.value = new Cookie();
         return new TestI();
     }
 
@@ -74,7 +74,7 @@ export class ServantLocatorI implements Ice.ServantLocator
             this.exception(current);
         }
 
-        test((cookie as CookieI).message() == "blahblah");
+        test((cookie as Cookie).message() == "blahblah");
     }
 
     deactivate(category:string):void

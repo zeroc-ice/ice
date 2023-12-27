@@ -110,7 +110,7 @@ exception BaseMethods
     int ToString;
 }
 
-local interface implicit
+interface implicit
 {
     as in(break internal, delegate is, explicit lock, case* namespace, decimal* new, delegate null,
           explicit* operator, int override, int params, int private)

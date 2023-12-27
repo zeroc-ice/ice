@@ -64,7 +64,7 @@ module and
         int exit;
     }
 
-    local interface for
+    interface for
     {
         array foreach(break if, echo global, enddeclare require, function* include,
                       die* return, echo* isset, enddeclare* list, int new, int static) throws endif, endwhile;
