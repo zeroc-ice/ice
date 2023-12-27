@@ -888,7 +888,7 @@ static const yytype_uint8 yydefact[] =
        0,     4,     0,     4,     0,     4,     0,     4,     0,     4,
        0,     0,     4,     0,     0,     0,     0,     0,     0,   154,
       50,    74,    87,    91,   128,   152,     0,   194,     0,   177,
-     178,   179,   180,   181,   182,   183,   184,   185,   187,   186,
+     178,   179,   180,   181,   182,   183,   184,   185,   186,   187,
      175,   176,   190,   189,     0,     3,    13,    25,    28,    30,
       33,    15,    18,    20,    23,    35,    38,    41,   206,   207,
      208,   209,   210,   211,   212,   213,   214,   215,   216,   217,
@@ -4109,15 +4109,15 @@ yyreduce:
 #line 4110 "src/Slice/Grammar.cpp"
     break;
 
-  case 186: /* builtin: ICE_VALUE  */
+  case 186: /* builtin: ICE_LOCAL_OBJECT  */
 #line 2099 "src/Slice/Grammar.y"
-            {}
+                   {}
 #line 4116 "src/Slice/Grammar.cpp"
     break;
 
-  case 187: /* builtin: ICE_LOCAL_OBJECT  */
+  case 187: /* builtin: ICE_VALUE  */
 #line 2100 "src/Slice/Grammar.y"
-                   {}
+            {}
 #line 4122 "src/Slice/Grammar.cpp"
     break;
 

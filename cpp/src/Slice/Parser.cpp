@@ -578,7 +578,7 @@ Slice::Builtin::kind() const
 }
 
 string
-Builtin::kindAsString() const
+Slice::Builtin::kindAsString() const
 {
     return builtinTable[_kind];
 }
@@ -4879,9 +4879,7 @@ Slice::Struct::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) ||
-               (builtin && builtin->kind() == Builtin::KindValue) ||
-               ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }

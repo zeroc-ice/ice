@@ -2096,8 +2096,8 @@ builtin
 | ICE_DOUBLE {}
 | ICE_STRING {}
 | ICE_OBJECT {}
-| ICE_VALUE {}
 | ICE_LOCAL_OBJECT {}
+| ICE_VALUE {}
 
 // ----------------------------------------------------------------------
 type
