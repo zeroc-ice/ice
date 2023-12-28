@@ -24,7 +24,7 @@ class TestI: TestIntf {
     }
 }
 
-class CookieI: Cookie {
+class Cookie {
     func message() -> String {
         return "blahblah"
     }
@@ -70,13 +70,13 @@ class ServantLocatorI: Ice.ServantLocator {
         }
 
         if current.id.name == "router" {
-            return (RouterDisp(_router), CookieI())
+            return (RouterDisp(_router), Cookie())
         }
 
         try _helper.test(current.id.category == "")
         try _helper.test(current.id.name == "test")
 
-        return (TestIntfDisp(TestI()), CookieI())
+        return (TestIntfDisp(TestI()), Cookie())
     }
 
     func finished(curr current: Ice.Current, servant _: Ice.Disp, cookie: Swift.AnyObject?) throws {
