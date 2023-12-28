@@ -162,7 +162,7 @@ void
 checkDeprecatedType(const UnitPtr& unt, const TypePtr& type)
 {
     ClassDeclPtr decl = ClassDeclPtr::dynamicCast(type);
-    if(decl && !decl->isLocal() && decl->isInterface())
+    if(decl && decl->isInterface())
     {
         unt->warning(Deprecated, "interface by value is deprecated");
     }
@@ -449,12 +449,6 @@ Slice::Type::Type(const UnitPtr& unt) :
 // ----------------------------------------------------------------------
 // Builtin
 // ----------------------------------------------------------------------
-
-bool
-Slice::Builtin::isLocal() const
-{
-    return _kind == KindLocalObject;
-}
 
 string
 Slice::Builtin::typeId() const
@@ -1185,7 +1179,7 @@ Slice::Container::createModule(const string& name)
 }
 
 ClassDefPtr
-Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases, bool local)
+Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
@@ -1193,7 +1187,7 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
         ClassDeclPtr decl = ClassDeclPtr::dynamicCast(*p);
         if(decl)
         {
-            if(checkInterfaceAndLocal(name, false, intf, decl->isInterface(), local, decl->isLocal()))
+            if(checkInterfaceAndLocal(name, false, intf, decl->isInterface()))
             {
                 continue;
             }
@@ -1251,9 +1245,9 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
         return 0;
     }
 
-    ClassDecl::checkBasesAreLegal(name, intf, local, bases, _unit);
+    ClassDecl::checkBasesAreLegal(name, bases, _unit);
 
-    ClassDefPtr def = new ClassDef(this, name, id, intf, bases, local);
+    ClassDefPtr def = new ClassDef(this, name, id, intf, bases);
     _contents.push_back(def);
 
     for(ContainedList::const_iterator q = matches.begin(); q != matches.end(); ++q)
@@ -1267,14 +1261,14 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    ClassDeclPtr decl = createClassDecl(name, intf, local);
+    ClassDeclPtr decl = createClassDecl(name, intf);
     def->_declaration = decl;
 
     return def;
 }
 
 ClassDeclPtr
-Slice::Container::createClassDecl(const string& name, bool intf, bool local)
+Slice::Container::createClassDecl(const string& name, bool intf)
 {
     ClassDefPtr def;
 
@@ -1284,7 +1278,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
         ClassDefPtr clDef = ClassDefPtr::dynamicCast(*p);
         if(clDef)
         {
-            if(checkInterfaceAndLocal(name, true, intf, clDef->isInterface(), local, clDef->isLocal()))
+            if(checkInterfaceAndLocal(name, true, intf, clDef->isInterface()))
             {
                 assert(!def);
                 def = clDef;
@@ -1296,7 +1290,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
         ClassDeclPtr clDecl = ClassDeclPtr::dynamicCast(*p);
         if(clDecl)
         {
-            if(checkInterfaceAndLocal(name, false, intf, clDecl->isInterface(), local, clDecl->isLocal()))
+            if(checkInterfaceAndLocal(name, false, intf, clDecl->isInterface()))
             {
                 continue;
             }
@@ -1351,7 +1345,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
     }
 
     _unit->currentContainer();
-    ClassDeclPtr decl = new ClassDecl(this, name, intf, local);
+    ClassDeclPtr decl = new ClassDecl(this, name, intf);
     _contents.push_back(decl);
 
     if(def)
@@ -1363,7 +1357,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 }
 
 ExceptionPtr
-Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local, NodeType nt)
+Slice::Container::createException(const string& name, const ExceptionPtr& base, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1399,21 +1393,13 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway
     }
 
-    //
-    // If this definition is non-local, base cannot be local.
-    //
-    if(!local && base && base->isLocal())
-    {
-        _unit->error("non-local exception `" + name + "' cannot have local base exception `" + base->name() + "'");
-    }
-
-    ExceptionPtr p = new Exception(this, name, base, local);
+    ExceptionPtr p = new Exception(this, name, base);
     _contents.push_back(p);
     return p;
 }
 
 StructPtr
-Slice::Container::createStruct(const string& name, bool local, NodeType nt)
+Slice::Container::createStruct(const string& name, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1449,14 +1435,13 @@ Slice::Container::createStruct(const string& name, bool local, NodeType nt)
         checkForGlobalDef(name, "structure"); // Don't return here -- we create the struct anyway.
     }
 
-    StructPtr p = new Struct(this, name, local);
+    StructPtr p = new Struct(this, name);
     _contents.push_back(p);
     return p;
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local,
-                                 NodeType nt)
+Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1492,26 +1477,16 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
     }
 
-    //
-    // If sequence is non-local, element type cannot be local.
-    //
-    if(!local && type->isLocal())
-    {
-        string msg = "non-local sequence `" + name + "' cannot have local element type";
-        _unit->error(msg);
-    }
-
     checkDeprecatedType(_unit, type);
 
-    SequencePtr p = new Sequence(this, name, type, metaData, local);
+    SequencePtr p = new Sequence(this, name, type, metaData);
     _contents.push_back(p);
     return p;
 }
 
 DictionaryPtr
 Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
-                                   const TypePtr& valueType, const StringList& valueMetaData, bool local,
-                                   NodeType nt)
+                                   const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1561,29 +1536,15 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         }
     }
 
-    if(!local)
-    {
-        if(keyType->isLocal())
-        {
-            string msg = "non-local dictionary `" + name + "' cannot have local key type";
-            _unit->error(msg);
-        }
-        if(valueType->isLocal())
-        {
-            string msg = "non-local dictionary `" + name + "' cannot have local value type";
-            _unit->error(msg);
-        }
-    }
-
     checkDeprecatedType(_unit, valueType);
 
-    DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData, local);
+    DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData);
     _contents.push_back(p);
     return p;
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name, bool local, NodeType nt)
+Slice::Container::createEnum(const string& name, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1619,7 +1580,7 @@ Slice::Container::createEnum(const string& name, bool local, NodeType nt)
         checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
     }
 
-    EnumPtr p = new Enum(this, name, local);
+    EnumPtr p = new Enum(this, name);
     _contents.push_back(p);
     return p;
 }
@@ -2184,7 +2145,7 @@ Slice::Container::hasNonLocalClassDecls() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal())
+        if(cl)
         {
             return true;
         }
@@ -2205,7 +2166,7 @@ Slice::Container::hasNonLocalClassDefs() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal())
+        if(cl)
         {
             return true;
         }
@@ -2226,7 +2187,7 @@ Slice::Container::hasLocalClassDefsWithAsync() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isLocal())
+        if(cl)
         {
             if(cl->hasMetaData("async-oneway"))
             {
@@ -2259,7 +2220,7 @@ Slice::Container::hasNonLocalSequences() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         SequencePtr s = SequencePtr::dynamicCast(*p);
-        if(s && !s->isLocal())
+        if(s)
         {
             return true;
         }
@@ -2280,7 +2241,7 @@ Slice::Container::hasNonLocalExceptions() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-        if(q && !q->isLocal())
+        if(q)
         {
             return true;
         }
@@ -2438,10 +2399,6 @@ Slice::Container::hasLocalClassDefs() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isLocal())
-        {
-            return true;
-        }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
         if(container && container->hasLocalClassDefs())
@@ -2458,7 +2415,7 @@ Slice::Container::hasNonLocalInterfaceDefs() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal() && (cl->isInterface() || !cl->allOperations().empty()))
+        if(cl && (cl->isInterface() || !cl->allOperations().empty()))
         {
             return true;
         }
@@ -2478,7 +2435,7 @@ Slice::Container::hasValueDefs() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal() && !cl->isInterface())
+        if(cl && !cl->isInterface())
         {
             return true;
         }
@@ -2541,7 +2498,7 @@ Slice::Container::hasNonLocalAbstractClassDefs() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isAbstract() && !cl->isLocal())
+        if(cl && cl->isAbstract())
         {
             return true;
         }
@@ -2564,7 +2521,7 @@ Slice::Container::hasNonLocalDataOnlyClasses() const
         ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
         if(q)
         {
-            if(!q->isLocal() && !q->isAbstract())
+            if(!q->isAbstract())
             {
                 return true;
             }
@@ -2636,7 +2593,7 @@ Slice::Container::hasAsyncOps() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal())
+        if(cl)
         {
             OperationList ops = cl->operations();
             if(!ops.empty() && cl->hasMetaData("amd"))
@@ -3015,9 +2972,8 @@ Slice::Container::Container(const UnitPtr& unit) :
 }
 
 bool
-Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
-                                         bool intf, bool intfOther,
-                                         bool local, bool localOther)
+Slice::Container::checkInterfaceAndLocal(const string& name, bool defined, bool intf, bool intfOther)
+
 {
     string definedOrDeclared;
     if(defined)
@@ -3047,28 +3003,6 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
         msg += "' was ";
         msg += definedOrDeclared;
         msg += " as class";
-        _unit->error(msg);
-        return false;
-    }
-
-    if(!local && localOther)
-    {
-        string msg = "non-local `";
-        msg += name;
-        msg += "' was ";
-        msg += definedOrDeclared;
-        msg += " local";
-        _unit->error(msg);
-        return false;
-    }
-
-    if(local && !localOther)
-    {
-        string msg = "local `";
-        msg += name;
-        msg += "' was ";
-        msg += definedOrDeclared;
-        msg += " non-local";
         _unit->error(msg);
         return false;
     }
@@ -3409,12 +3343,6 @@ Slice::Module::Module(const ContainerPtr& container, const string& name) :
 // Constructed
 // ----------------------------------------------------------------------
 
-bool
-Slice::Constructed::isLocal() const
-{
-    return _local;
-}
-
 string
 Slice::Constructed::typeId() const
 {
@@ -3441,11 +3369,10 @@ Slice::Constructed::dependencies()
 #endif
 }
 
-Slice::Constructed::Constructed(const ContainerPtr& container, const string& name, bool local) :
+Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
-    Contained(container, name),
-    _local(local)
+    Contained(container, name)
 {
 }
 
@@ -3511,13 +3438,7 @@ Slice::ClassDecl::isVariableLength() const
 string
 Slice::ClassDecl::kindOf() const
 {
-    string s;
-    if(isLocal())
-    {
-        s += "local ";
-    }
-    s += _interface ? "interface" : "class";
-    return s;
+    return _interface ? "interface" : "class";
 }
 
 void
@@ -3541,24 +3462,8 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 void
-Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, const ClassList& bases,
-                                     const UnitPtr& ut)
+Slice::ClassDecl::checkBasesAreLegal(const string& name, const ClassList& bases, const UnitPtr& ut)
 {
-    //
-    // Local definitions cannot have non-local bases, and vice versa.
-    //
-    for(ClassList::const_iterator p = bases.begin(); p != bases.end(); ++p)
-    {
-        if(local != (*p)->isLocal())
-        {
-            ostringstream msg;
-            msg << (local ? "local" : "non-local") << " " << (intf ? "interface" : "class") << " `"
-                << name << "' cannot have " << ((*p)->isLocal() ? "local" : "non-local") << " base "
-                << ((*p)->isInterface() ? "interface" : "class") << " `" << (*p)->name() << "'";
-            ut->error(msg.str());
-        }
-    }
-
     //
     // Check whether, for multiple inheritance, any of the bases define
     // the same operations.
@@ -3596,11 +3501,11 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, 
     }
 }
 
-Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf, bool local) :
+Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _interface(intf)
 {
     _unit->currentContainer();
@@ -3832,17 +3737,7 @@ Slice::ClassDef::createOperation(const string& name,
         }
     }
 
-    //
-    // Non-local class/interface cannot have operation with local return type.
-    //
-    if(!isLocal() && returnType && returnType->isLocal())
-    {
-        string msg = "non-local " + this->kindOf() + " `" + this->name() + "' cannot have operation `";
-        msg += name + "' with local return type";
-        _unit->error(msg);
-    }
-
-    if(!isInterface() && !isLocal() && !_hasOperations)
+    if(!isInterface() && !_hasOperations)
     {
         // Only warn for the first operation
         _unit->warning(Deprecated, "classes with operations are deprecated");
@@ -3926,15 +3821,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                 _unit->error(msg);
             }
         }
-    }
-
-    //
-    // If data member is local, enclosing class/interface must be local.
-    //
-    if(!isLocal() && type->isLocal())
-    {
-        string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
-        _unit->error(msg);
     }
 
     SyntaxTreeBasePtr dlt = defaultValueType;
@@ -4209,12 +4095,6 @@ Slice::ClassDef::isA(const string& id) const
 }
 
 bool
-Slice::ClassDef::isLocal() const
-{
-    return _local;
-}
-
-bool
 Slice::ClassDef::hasDataMembers() const
 {
     return _hasDataMembers;
@@ -4283,13 +4163,7 @@ Slice::ClassDef::uses(const ContainedPtr&) const
 string
 Slice::ClassDef::kindOf() const
 {
-    string s;
-    if(isLocal())
-    {
-        s += "local ";
-    }
-    s += isInterface() ? "interface" : "class";
-    return s;
+    return isInterface() ? "interface" : "class";
 }
 
 void
@@ -4308,14 +4182,7 @@ Slice::ClassDef::compactId() const
     return _compactId;
 }
 
-bool
-Slice::ClassDef::isDelegate() const
-{
-    return isLocal() && isInterface() && hasMetaData("delegate") && allOperations().size() == 1;
-}
-
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases,
-                          bool local) :
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
@@ -4323,10 +4190,9 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     _hasDataMembers(false),
     _hasOperations(false),
     _bases(bases),
-    _local(local),
     _compactId(id)
 {
-    if(!local && !intf)
+    if(!intf)
     {
         for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
         {
@@ -4357,12 +4223,6 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
 // ----------------------------------------------------------------------
 // Proxy
 // ----------------------------------------------------------------------
-
-bool
-Slice::Proxy::isLocal() const
-{
-    return _classDecl->isLocal();
-}
 
 string
 Slice::Proxy::typeId() const
@@ -4477,15 +4337,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                 _unit->error(msg);
             }
         }
-    }
-
-    //
-    // If data member is local, enclosing class/interface must be local.
-    //
-    if(!isLocal() && type->isLocal())
-    {
-        string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
-        _unit->error(msg);
     }
 
     SyntaxTreeBasePtr dlt = defaultValueType;
@@ -4660,12 +4511,6 @@ Slice::Exception::isBaseOf(const ExceptionPtr& other) const
     return false;
 }
 
-bool
-Slice::Exception::isLocal() const
-{
-    return _local;
-}
-
 Contained::ContainedType
 Slice::Exception::containedType() const
 {
@@ -4745,12 +4590,11 @@ Slice::Exception::visit(ParserVisitor* visitor, bool all)
     }
 }
 
-Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base, bool local) :
+Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
-    _base(base),
-    _local(local)
+    _base(base)
 {
 }
 
@@ -4799,15 +4643,6 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
         msg += "' cannot contain itself";
         _unit->error(msg);
         return 0;
-    }
-
-    //
-    // If data member is local, enclosing class/interface must be local.
-    //
-    if(!isLocal() && type->isLocal())
-    {
-        string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
-        _unit->error(msg);
     }
 
     SyntaxTreeBasePtr dlt = defaultValueType;
@@ -4989,12 +4824,12 @@ Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
     containerRecDependencies(dependencies);
 }
 
-Slice::Struct::Struct(const ContainerPtr& container, const string& name, bool local) :
+Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local)
+    Constructed(container, name)
 {
 }
 
@@ -5080,11 +4915,11 @@ Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type,
-                          const StringList& typeMetaData, bool local) :
+                          const StringList& typeMetaData) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _type(type),
     _typeMetaData(typeMetaData)
 {
@@ -5235,7 +5070,6 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
             case Builtin::KindDouble:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return false;
@@ -5279,11 +5113,11 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
 
 Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
                               const StringList& keyMetaData, const TypePtr& valueType,
-                              const StringList& valueMetaData, bool local) :
+                              const StringList& valueMetaData) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _keyType(keyType),
     _valueType(valueType),
     _keyMetaData(keyMetaData),
@@ -5373,12 +5207,12 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
     // An Enum does not have any dependencies.
 }
 
-Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local) :
+Slice::Enum::Enum(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _explicitValue(false),
     _minValue(Int32Max),
     _maxValue(0),
@@ -5691,18 +5525,6 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     }
 
     //
-    // Non-local class/interface cannot have operation with local parameters.
-    //
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
-    assert(cl);
-    if(type->isLocal() && !cl->isLocal())
-    {
-        string msg = "non-local " + cl->kindOf() + " `" + cl->name() + "' cannot have local parameter `";
-        msg += name + "' in operation `" + this->name() + "'";
-        _unit->error(msg);
-    }
-
-    //
     // Issue a warning for a deprecated parameter type.
     //
     checkDeprecatedType(_unit, type);
@@ -5864,24 +5686,6 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
             msg += ", `" + (*i)->name() + "'";
         }
         _unit->error(msg);
-    }
-
-    //
-    // If the interface is non-local, no local exception can be thrown.
-    //
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container());
-    assert(cl);
-    if(!cl->isLocal())
-    {
-        for(ExceptionList::const_iterator ep = el.begin(); ep != el.end(); ++ep)
-        {
-            if((*ep)->isLocal())
-            {
-                string msg = "non-local " + cl->kindOf() + " `" + cl->name() + "' cannot have operation `";
-                msg += name() + "' throwing local exception `" + (*ep)->name() + "'";
-                _unit->error(msg);
-            }
-        }
     }
 }
 
@@ -6722,13 +6526,13 @@ Slice::Unit::usesNonLocals() const
         for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
         {
             ConstructedPtr constr = ConstructedPtr::dynamicCast(*q);
-            if(constr && !constr->isLocal())
+            if(constr)
             {
                 return true;
             }
 
             ExceptionPtr exc = ExceptionPtr::dynamicCast(*q);
-            if(exc && !exc->isLocal())
+            if(exc)
             {
                 return true;
             }

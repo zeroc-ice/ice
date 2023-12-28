@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Current.ice>
+#include <Ice/Context.ice>
 
 [["java:package:test.Ice.impl.AMD"]]
 module Test

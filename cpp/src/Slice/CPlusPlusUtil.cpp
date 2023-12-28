@@ -585,7 +585,6 @@ Slice::isMovable(const TypePtr& type)
             case Builtin::KindString:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return true;
@@ -644,7 +643,6 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::std::string",
         "::Ice::ObjectPtr",
         "::Ice::ObjectPrx",
-        "::Ice::LocalObjectPtr",
         "::Ice::ValuePtr"
     };
 
@@ -660,23 +658,8 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::std::string",
         "::std::shared_ptr<::Ice::Object>",
         "::std::shared_ptr<::Ice::ObjectPrx>",
-        "::std::shared_ptr<void>",
         "::std::shared_ptr<::Ice::Value>"
     };
-
-    if((typeCtx & TypeContextLocal) != 0)
-    {
-        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
-        {
-            const string cppType = "cpp:type:";
-            const string meta = *i;
-
-            if(meta.find(cppType) == 0)
-            {
-                return meta.substr(cppType.size());
-            }
-        }
-    }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -687,7 +670,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         }
         else if(cpp11)
         {
-            if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
+            if(builtin->kind() == Builtin::KindObject)
             {
                 return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
             }
@@ -707,11 +690,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     {
         if(cpp11)
         {
-            if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return getUnqualified(fixKwd(cl->scoped()), scope);
-            }
-            else if(cl->isInterface() && !cl->isLocal())
+            if(cl->isInterface())
             {
                 return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
             }
@@ -749,7 +728,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         {
             ClassDefPtr def = proxy->_class()->definition();
             //
-            // Non local classes without operations map to the base
+            // Classes without operations map to the base
             // proxy class shared_ptr<Ice::ObjectPrx>
             //
             if(!def || def->isAbstract())
@@ -836,7 +815,6 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "const ::std::string&",
         "const ::Ice::ObjectPtr&",
         "const ::Ice::ObjectPrx&",
-        "const ::Ice::LocalObjectPtr&",
         "const ::Ice::ValuePtr&"
     };
 
@@ -852,7 +830,6 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "const ::std::string&",
         "const ::std::shared_ptr<::Ice::Object>&",
         "const ::std::shared_ptr<::Ice::ObjectPrx>&",
-        "const ::std::shared_ptr<void>&",
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 
@@ -872,7 +849,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         }
         else if(cpp11)
         {
-            if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
+            if(builtin->kind() == Builtin::KindObject)
             {
                 return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -892,11 +869,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(cpp11)
         {
-            if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return getUnqualified(fixKwd(cl->scoped()), scope);
-            }
-            else if(cl->isInterface() && !cl->isLocal())
+            if(cl->isInterface())
             {
                 return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -991,7 +964,6 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::std::string&",
         "::Ice::ObjectPtr&",
         "::Ice::ObjectPrxPtr&",
-        "::Ice::LocalObjectPtr&",
         "::Ice::ValuePtr&"
     };
 
@@ -1007,7 +979,6 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::std::string&",
         "::std::shared_ptr<::Ice::Object>&",
         "::std::shared_ptr<::Ice::ObjectPrx>&",
-        "::std::shared_ptr<void>&",
         "::std::shared_ptr<::Ice::Value>&"
     };
 
@@ -1025,7 +996,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         }
         else if(cpp11)
         {
-            if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
+            if(builtin->kind() == Builtin::KindObject)
             {
                 return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -1045,11 +1016,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     {
         if(cpp11)
         {
-            if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return getUnqualified(fixKwd(cl->scoped()), scope) + "&";
-            }
-            else if(cl->isInterface() && !cl->isLocal())
+            if(cl->isInterface())
             {
                 return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -1084,7 +1051,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         {
             ClassDefPtr def = proxy->_class()->definition();
             //
-            // Non local classes without operations map to the base
+            // Classes without operations map to the base
             // proxy class shared_ptr<Ice::ObjectPrx>
             //
             if(def && !def->isInterface() && def->allOperations().empty())

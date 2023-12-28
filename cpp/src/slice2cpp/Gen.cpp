@@ -1151,11 +1151,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr&)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     string name = fixKwd(p->name());
@@ -1433,8 +1428,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    assert(!p->isLocal());
-
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
@@ -1558,11 +1551,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     DataMemberList dataMembers = p->dataMembers();
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     string scope = fixKwd(p->scope());
@@ -1775,11 +1763,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     TypePtr type = p->type();
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
@@ -1805,11 +1788,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     string scope = fixKwd(p->scope());
@@ -1847,11 +1825,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     EnumeratorList enumerators = p->enumerators();
 
@@ -1964,11 +1937,6 @@ Slice::Gen::ProxyDeclVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
 
     H << sp << nl << "class " << name << ';';
@@ -2036,11 +2004,6 @@ Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     string name = fixKwd(p->name());
@@ -2671,11 +2634,6 @@ Slice::Gen::ObjectDeclVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
@@ -2704,9 +2662,9 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 bool
-Slice::Gen::ObjectDeclVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ObjectDeclVisitor::visitClassDefStart(const ClassDefPtr&)
 {
-    return !p->isLocal();
+    return true;
 }
 
 void
@@ -2754,11 +2712,6 @@ Slice::Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     string name = fixKwd(p->name());
@@ -3043,8 +2996,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    assert(!p->isLocal());
-
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
@@ -3998,11 +3949,6 @@ Slice::Gen::AsyncCallbackVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::AsyncCallbackVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     return true;
 }
@@ -4072,11 +4018,6 @@ Slice::Gen::AsyncCallbackTemplateVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::AsyncCallbackTemplateVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     return true;
 }
@@ -4420,7 +4361,6 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 return "0";
             }
@@ -4489,11 +4429,6 @@ Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isAbstract())
     {
         return false;
@@ -4700,11 +4635,6 @@ Slice::Gen::AsyncVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::AsyncVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     return true;
 }
@@ -4864,11 +4794,6 @@ Slice::Gen::AsyncImplVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::AsyncImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     return true;
 }
@@ -5051,11 +4976,6 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 bool
 Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    if(c->isLocal())
-    {
-        return false;
-    }
-
     writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers(), true, false);
     return false;
 }
@@ -5063,11 +4983,6 @@ Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 bool
 Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     H << nl << "template<>";
     H << nl << "struct StreamableTraits< " << fixKwd(scoped) << ">";
@@ -5083,11 +4998,6 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     bool classMetaData = findMetaData(p->getMetaData(), false) == "%class";
     string scoped = p->scoped();
 
@@ -5124,11 +5034,6 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string scoped = fixKwd(p->scoped());
     H << nl << "template<>";
     H << nl << "struct StreamableTraits< " << scoped << ">";
@@ -5274,11 +5179,6 @@ Slice::Gen::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Gen::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     StringList metaData = validate(p, p->getMetaData(), p->file(), p->line());
     p->setMetaData(metaData);
     return true;
@@ -5502,13 +5402,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 }
             }
 
-            if(BuiltinPtr::dynamicCast(cont) &&
-               BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindLocalObject &&
-               ss.find("type:") == 0)
-            {
-                continue;
-            }
-
             dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
             newMetaData.remove(s);
             continue;
@@ -5517,10 +5410,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
         if(s.find("delegate") == 0)
         {
             ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-            if(cl && cl->isDelegate())
-            {
-                continue;
-            }
 
             dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
             newMetaData.remove(s);
@@ -5871,16 +5760,7 @@ Slice::Gen::Cpp11DeclVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::Cpp11DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     ClassDefPtr def = p->definition();
-    if(def && def->isDelegate())
-    {
-        return;
-    }
 
     H << nl << "class " << fixKwd(p->name()) << ';';
     if(p->isInterface() || (def && !def->allOperations().empty()))
@@ -5892,11 +5772,6 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isInterface())
     {
         C << sp;
@@ -5975,11 +5850,6 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::Cpp11DeclVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     C << sp;
     C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
     C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
@@ -6042,11 +5912,6 @@ Slice::Gen::Cpp11TypesVisitor::visitClassDefStart(const ClassDefPtr&)
 bool
 Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     string name = fixKwd(p->name());
@@ -6254,8 +6119,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    assert(!p->isLocal());
-
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
@@ -6333,11 +6196,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::Cpp11TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     H << sp;
@@ -6401,11 +6259,6 @@ Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     TypePtr type = p->type();
@@ -6430,11 +6283,6 @@ Slice::Gen::Cpp11TypesVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string dictType = findMetaData(p->getMetaData());
@@ -6507,11 +6355,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
@@ -7063,11 +6906,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     bool unscoped = findMetaData(p->getMetaData(), TypeContextCpp11) == "%unscoped";
     H << sp;
     writeDocSummary(H, p);
@@ -7251,11 +7089,6 @@ Slice::Gen::Cpp11InterfaceVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
@@ -7832,11 +7665,6 @@ Slice::Gen::Cpp11ValueVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if (p->isInterface())
     {
         return false;
@@ -8265,11 +8093,6 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleEnd(const ModulePtr& m)
 bool
 Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = fixKwd(p->scoped());
 
     H << nl << "template<>";
@@ -8288,11 +8111,6 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::Cpp11StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    if(c->isLocal())
-    {
-        return false;
-    }
-
     if(!c->isInterface())
     {
         writeStreamHelpers(H,c, c->dataMembers(), c->hasBaseDataMembers(), true, true);
@@ -8301,9 +8119,9 @@ Slice::Gen::Cpp11StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 }
 
 bool
-Slice::Gen::Cpp11StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::Gen::Cpp11StreamVisitor::visitExceptionStart(const ExceptionPtr&)
 {
-    return !p->isLocal();
+    return true;
 }
 
 void
@@ -8315,11 +8133,6 @@ Slice::Gen::Cpp11StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 void
 Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string scoped = fixKwd(p->scoped());
     H << nl << "template<>";
     H << nl << "struct StreamableTraits< " << scoped << ">";
@@ -8365,16 +8178,6 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
-    if(p->definition() && p->definition()->isDelegate())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
 
@@ -8423,7 +8226,6 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 return "nullptr";
             }
@@ -8497,11 +8299,6 @@ Slice::Gen::Cpp11ImplVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isAbstract())
     {
         return false;

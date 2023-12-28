@@ -938,16 +938,6 @@ Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M, const str
 void
 Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
-    if(p->definition() && p->definition()->isDelegate())
-    {
-        return;
-    }
-
     _H << sp;
     if(!p->isInterface())
     {
@@ -964,11 +954,6 @@ Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& H, Output& M, const strin
 void
 Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     _H << sp << nl << "@class " << fixName(p) << "Prx;";
     _H << nl << "@protocol " << fixName(p) << "Prx;";
 }
@@ -1004,21 +989,8 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixName(p);
     ClassList bases = p->bases();
-
-    if(p->isDelegate())
-    {
-        OperationPtr o = p->allOperations().front();
-        _H << sp << nl << "typedef " << typeToString(o->returnType());
-        _H << " (^" << name << ")" << getBlockParams(o) << ";";
-        return false;
-    }
 
     _H << sp << nl << _dllExport << "@protocol " << name;
 
@@ -1193,12 +1165,6 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-
-    if(cl->isLocal())
-    {
-        return;
-    }
-
     string name = getName(p);
     TypePtr returnType = p->returnType();
     string retString;
@@ -1238,11 +1204,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixName(p);
     ExceptionPtr base = p->base();
     DataMemberList dataMembers = p->dataMembers();
@@ -1404,11 +1365,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixName(p);
 
     _H << sp;
@@ -2195,11 +2151,6 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& H, Output& M, const string& dllEx
 bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixName(p);
     ClassList bases = p->bases();
 
@@ -2314,11 +2265,6 @@ Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M, const string& dll
 bool
 Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     //
     // Proxy helper
     //
@@ -2363,11 +2309,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
     _H << sp << nl << _dllExport << "@interface " << name << " : ICEEnumHelper";
@@ -2388,11 +2329,6 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
@@ -2479,11 +2415,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
     TypePtr keyType = p->keyType();
@@ -2572,11 +2503,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 bool
 Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixName(p);
 
     _H << sp << nl << _dllExport << "@interface " << name  << "Helper : ICEStructHelper";
@@ -2628,11 +2554,6 @@ Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixName(p);
     ClassList bases = p->bases();
     OperationList ops = p->allOperations();

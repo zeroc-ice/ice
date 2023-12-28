@@ -3435,7 +3435,6 @@ IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicator
 }
 
 IcePHP::ExceptionReader::~ExceptionReader()
-    throw()
 {
 #ifdef NDEBUG
     // BUGFIX: releasing this object trigers an assert in PHP objects_store

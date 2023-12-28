@@ -268,7 +268,6 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
         "NSString",
         "ICEObject",
         "id<ICEObjectPrx>",
-        "id",            // Dummy--we don't support Slice local Object
         "ICEObject"
     };
 
@@ -302,14 +301,7 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
     {
         if(cl->isInterface())
         {
-            if(cl->definition() && cl->definition()->isDelegate())
-            {
-                return fixName(cl);
-            }
-            else
-            {
-                return "ICEObject";
-            }
+            return "ICEObject";
         }
     }
 
@@ -470,7 +462,6 @@ Slice::ObjCGenerator::isValueType(const TypePtr& type)
             case Builtin::KindObject:
             case Builtin::KindValue:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 return false;
                 break;
@@ -520,19 +511,12 @@ Slice::ObjCGenerator::mapsToPointerType(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-       return builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindLocalObject;
+       return builtin->kind() != Builtin::KindObjectProxy;
     }
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl && cl->isInterface())
     {
-        if((cl->definition() && cl->definition()->isDelegate()))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return true;
     }
     return !ProxyPtr::dynamicCast(type);
 }
@@ -648,11 +632,6 @@ Slice::ObjCGenerator::getOptionalFormat(const TypePtr& type)
         case Builtin::KindObjectProxy:
         {
             return "ICEOptionalFormatFSize";
-        }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
         }
         }
     }

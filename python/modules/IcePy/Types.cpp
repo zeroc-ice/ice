@@ -4280,7 +4280,7 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
     }
 }
 
-IcePy::ExceptionWriter::~ExceptionWriter() throw()
+IcePy::ExceptionWriter::~ExceptionWriter()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -4334,7 +4334,7 @@ IcePy::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 {
 }
 
-IcePy::ExceptionReader::~ExceptionReader() throw()
+IcePy::ExceptionReader::~ExceptionReader()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 

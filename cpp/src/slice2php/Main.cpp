@@ -155,11 +155,6 @@ CodeVisitor::CodeVisitor(Output& out, bool ns) :
 void
 CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     //
     // Handle forward declarations.
     //
@@ -195,11 +190,6 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -662,11 +652,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -821,11 +806,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -924,11 +904,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 void
 CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string type = getTypeVar(p);
     TypePtr content = p->type();
 
@@ -953,11 +928,6 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     TypePtr keyType = p->keyType();
     BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
 
@@ -988,7 +958,6 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindLocalObject:
             case Slice::Builtin::KindValue:
                 assert(false);
         }
@@ -1024,11 +993,6 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -1192,10 +1156,6 @@ CodeVisitor::getType(const TypePtr& p)
             {
                 return "$Ice__t_ObjectPrx";
             }
-            case Builtin::KindLocalObject:
-            {
-                return "$Ice__t_LocalObject";
-            }
         }
     }
 
@@ -1253,7 +1213,6 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
             }
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 _out << "null";
@@ -1357,7 +1316,6 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                 }
                 case Slice::Builtin::KindObject:
                 case Slice::Builtin::KindObjectProxy:
-                case Slice::Builtin::KindLocalObject:
                 case Slice::Builtin::KindValue:
                     assert(false);
             }

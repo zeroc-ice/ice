@@ -587,7 +587,9 @@ class ExceptionReader : public Ice::UserException
 public:
 
     ExceptionReader(const CommunicatorInfoPtr&, const ExceptionInfoPtr&);
-    ~ExceptionReader() throw();
+    ~ExceptionReader();
+
+    ExceptionReader(const ExceptionReader&) = default;
 
     virtual std::string ice_id() const;
     virtual ExceptionReader* ice_clone() const;
