@@ -148,16 +148,4 @@ class ThrowerI: Thrower {
             seal.reject(F(data: "F"))
         }
     }
-
-    func throwGAsync(current _: Current) -> Promise<Void> {
-        return Promise<Void> { seal in
-            seal.reject(G(data: "G"))
-        }
-    }
-
-    func throwHAsync(current _: Current) -> Promise<Void> {
-        return Promise<Void> { seal in
-            seal.reject(H(data: "H"))
-        }
-    }
 }

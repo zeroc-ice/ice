@@ -608,8 +608,7 @@ void
 SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
                                   const OperationPtr& p,
                                   bool async,
-                                  bool dispatch,
-                                  bool local)
+                                  bool dispatch)
 {
     DocElements doc = parseComment(p);
     if(!doc.overview.empty())
@@ -628,10 +627,6 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
     }
 
     int typeCtx = TypeContextInParam;
-    if(local)
-    {
-        typeCtx |= TypeContextLocal;
-    }
 
     const ParamInfoList allInParams = getAllInParams(p, typeCtx);
     for(ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
@@ -647,20 +642,17 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
         }
     }
 
-    if(!local)
+    out << nl << "///";
+    if(dispatch)
     {
-        out << nl << "///";
-        if(dispatch)
-        {
-            out << nl << "/// - parameter current: `Ice.Current` - The Current object for the dispatch.";
-        }
-        else
-        {
-            out << nl << "/// - parameter context: `Ice.Context` - Optional request context.";
-        }
+        out << nl << "/// - parameter current: `Ice.Current` - The Current object for the dispatch.";
+    }
+    else
+    {
+        out << nl << "/// - parameter context: `Ice.Context` - Optional request context.";
     }
 
-    typeCtx = local ? TypeContextLocal : 0;
+    typeCtx = 0;
 
     if(async)
     {
@@ -1065,20 +1057,6 @@ SwiftGenerator::typeToString(const TypePtr& type,
         return "";
     }
 
-    bool local = (typeCtx & TypeContextLocal) != 0;
-    if(local)
-    {
-        for(StringList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
-        {
-            const string swiftType = "swift:type:";
-            const string meta = *i;
-            if(meta.find(swiftType) == 0)
-            {
-                return meta.substr(swiftType.size());
-            }
-        }
-    }
-
     string t = "";
     //
     // The current module where the type is being used
@@ -1086,7 +1064,6 @@ SwiftGenerator::typeToString(const TypePtr& type,
     string currentModule = getSwiftModule(getTopLevelModule(toplevel));
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
-    bool inparam = typeCtx & TypeContextInParam;
 
     if(builtin)
     {
@@ -1106,20 +1083,12 @@ SwiftGenerator::typeToString(const TypePtr& type,
 
     if(cl)
     {
-        if(cl->isInterface() && !cl->isLocal())
+        if(cl->isInterface())
         {
             t = fixIdent(getUnqualified(builtinTable[Builtin::KindValue], currentModule));
         }
         else
         {
-            //
-            // Annotate nonnull closure as @escaping, Swift optional closure parameters are always
-            // @escaping see https://www.jessesquires.com/blog/why-optional-swift-closures-are-escaping/
-            //
-            if(cl->isLocal() && cl->definition() && cl->definition()->isDelegate() && inparam && nonnull)
-            {
-                t = "@escaping ";
-            }
             t += fixIdent(getUnqualified(getAbsoluteImpl(cl), currentModule));
         }
     }
@@ -2780,6 +2749,11 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
 bool
 SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
@@ -2826,6 +2800,11 @@ SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 bool
 SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
@@ -2838,6 +2817,11 @@ SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
+    if(p->isLocal())
+    {
+        return false;
+    }
+
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
@@ -2850,12 +2834,22 @@ SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 void
 SwiftGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     const string prefix = "swift:";
     const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
     assert(dc);
@@ -2910,6 +2904,11 @@ SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 void
 SwiftGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
+    if(p->isLocal())
+    {
+        return;
+    }
+
     p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
 }
 

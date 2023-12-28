@@ -67,7 +67,7 @@ protected:
     void writeDocSentence(IceUtilInternal::Output&, const StringList&);
     void writeSeeAlso(IceUtilInternal::Output&, const StringList&, const ContainerPtr&);
     void writeDocSummary(IceUtilInternal::Output&, const ContainedPtr&);
-    void writeOpDocSummary(IceUtilInternal::Output&, const OperationPtr&, bool, bool, bool = false);
+    void writeOpDocSummary(IceUtilInternal::Output&, const OperationPtr&, bool, bool);
 
     void writeProxyDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);
     void writeServantDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);

@@ -6,7 +6,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class CookieI: Cookie {
+class Cookie {
     func message() -> String {
         return "blahblah"
     }
@@ -59,7 +59,7 @@ class ServantLocatorI: Ice.ServantLocator {
         try _helper.test(_requestId == -1)
         _requestId = curr.requestId
 
-        return (TestIntfDisp(TestI()), CookieI())
+        return (TestIntfDisp(TestI()), Cookie())
     }
 
     func finished(curr: Ice.Current, servant _: Ice.Disp, cookie: AnyObject?) throws {
