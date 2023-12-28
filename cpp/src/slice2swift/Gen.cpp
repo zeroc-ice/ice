@@ -157,11 +157,6 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
 bool
 Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     //
     // Add imports required for base classes
     //
@@ -205,11 +200,6 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Gen::ImportVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     //
     // Add imports required for data members
     //
@@ -225,11 +215,6 @@ Gen::ImportVisitor::visitStructStart(const StructPtr& p)
 bool
 Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     //
     // Add imports required for base exceptions
     //
@@ -253,11 +238,6 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
 {
-    if(seq->isLocal())
-    {
-        return;
-    }
-
     //
     // Add import required for the sequence element type
     //
@@ -267,11 +247,6 @@ Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
 void
 Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 {
-    if(dict->isLocal())
-    {
-        return;
-    }
-
     //
     // Add imports required for the dictionary key and value types
     //
@@ -335,11 +310,6 @@ Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& o) : out(o)
 bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
@@ -393,11 +363,6 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
 
@@ -585,11 +550,6 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     bool containsSequence;
@@ -706,11 +666,6 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     int typeCtx = 0;
@@ -870,11 +825,6 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 void
 Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     int typeCtx = 0;
@@ -1027,11 +977,6 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const EnumeratorList enumerators = p->enumerators();
@@ -1162,11 +1107,6 @@ Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
@@ -1363,11 +1303,6 @@ Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& o) : out(o)
 bool
 Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(p->isInterface())
     {
         return false;
@@ -1597,11 +1532,6 @@ Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
@@ -1810,11 +1740,6 @@ Gen::ObjectExtVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isInterface() && p->allOperations().empty())
     {
         return false;
