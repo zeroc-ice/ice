@@ -2,7 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#define NOMINMAX // Prevents windows.h from defining min/max macros.
+#ifdef _WIN32
+     // Prevents windows.h from defining min/max macros.
+#    define NOMINMAX
+#endif
 
 #include <Types.h>
 #include <Current.h>
