@@ -146,7 +146,7 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Add PromiseKit import for interfaces and local interfaces which contain "async-oneway" metadata
     //
-    if(p->hasNonLocalInterfaceDefs() || p->hasLocalClassDefsWithAsync())
+    if(p->hasInterfaceDefs())
     {
         addImport("PromiseKit");
     }
@@ -1096,7 +1096,7 @@ Gen::ProxyVisitor::ProxyVisitor(::IceUtilInternal::Output& o) : out(o)
 bool
 Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    return p->hasNonLocalClassDefs();
+    return p->hasClassDefs();
 }
 
 void

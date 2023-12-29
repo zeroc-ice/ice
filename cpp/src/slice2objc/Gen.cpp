@@ -764,16 +764,13 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     _H << sp << nl << "#import <objc/Ice/Config.h>";
-    if(p->hasNonLocalClassDecls())
+    if(p->hasClassDecls())
     {
         _H << nl << "#import <objc/Ice/Proxy.h>";
         _H << nl << "#import <objc/Ice/Current.h>";
         _H << nl << "#import <objc/Ice/Object.h>";
     }
-    else if(p->hasLocalClassDefsWithAsync())
-    {
-        _H << nl << "#import <objc/Ice/Proxy.h>";
-    }
+
     _H << nl << "#import <objc/Ice/Stream.h>";
     _H << nl << "#import <objc/Ice/LocalObject.h>";
     _H << nl << "#import <objc/Ice/Exception.h>";

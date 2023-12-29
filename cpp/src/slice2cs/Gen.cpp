@@ -2216,7 +2216,7 @@ Slice::Gen::TypeIdVisitor::visitModuleStart(const ModulePtr& p)
 {
     string ns = getNamespacePrefix(p);
 
-    if(!ns.empty() && (p->hasValueDefs() || p->hasNonLocalExceptions()))
+    if(!ns.empty() && (p->hasValueDefs() || p->hasExceptions()))
     {
         string name = fixId(p->name());
         if(!ContainedPtr::dynamicCast(p->container()))
@@ -2281,16 +2281,9 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    DictionaryList dicts;
-    if(p->hasOnlyDictionaries(dicts))
+    if (p->hasOnlyClassDecls() || p->hasOnlyInterfaces())
     {
-        //
-        // If this module contains only dictionaries, we don't need to generate
-        // anything for the dictionary types. The early return prevents
-        // an empty namespace from being emitted, the namespace will
-        // be emitted later by the dictionary helper .
-        //
-        return false;
+        return false; // avoid empty namespace
     }
 
     moduleStart(p);
@@ -3576,7 +3569,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalAbstractClassDefs())
+    if(!p->hasInterfaceDefs())
     {
         return false;
     }
@@ -3828,7 +3821,7 @@ Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
 bool
 Slice::Gen::OpsVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalAbstractClassDefs())
+    if(!p->hasInterfaceDefs())
     {
         return false;
     }
@@ -3926,7 +3919,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalAbstractClassDefs() && !p->hasNonLocalSequences() && !p->hasDictionaries())
+    if(!p->hasInterfaceDefs() && !p->hasSequences() && !p->hasDictionaries())
     {
         return false;
     }
@@ -4839,7 +4832,7 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out,
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalAbstractClassDefs())
+    if(!p->hasInterfaceDefs())
     {
         return false;
     }

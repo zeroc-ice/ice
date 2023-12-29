@@ -2140,84 +2140,9 @@ Slice::Container::contents() const
 }
 
 bool
-Slice::Container::hasNonLocalClassDecls() const
+Slice::Container::hasSequences() const
 {
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-        if(cl)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalClassDecls())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalClassDefs() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasLocalClassDefsWithAsync() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl)
-        {
-            if(cl->hasMetaData("async-oneway"))
-            {
-                return true;
-            }
-
-            OperationList ol = cl->operations();
-            for(OperationList::const_iterator q = ol.begin(); q != ol.end(); ++q)
-            {
-                if((*q)->hasMetaData("async-oneway"))
-                {
-                    return true;
-                }
-            }
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasLocalClassDefsWithAsync())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalSequences() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         SequencePtr s = SequencePtr::dynamicCast(*p);
         if(s)
@@ -2226,28 +2151,7 @@ Slice::Container::hasNonLocalSequences() const
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalSequences())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalExceptions() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-        if(q)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalExceptions())
+        if(container && container->hasSequences())
         {
             return true;
         }
@@ -2340,40 +2244,6 @@ Slice::Container::hasDictionaries() const
 }
 
 bool
-Slice::Container::hasOnlyDictionaries(DictionaryList& dicts) const
-{
-    bool ret = true;
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr m = ModulePtr::dynamicCast(*p);
-        if(m)
-        {
-            bool subret = m->hasOnlyDictionaries(dicts);
-            if(!subret && ret)
-            {
-                ret = false;
-            }
-        }
-        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
-        if(d && ret)
-        {
-            dicts.push_back(d);
-        }
-        else
-        {
-            ret = false;
-        }
-    }
-
-    if(!ret)
-    {
-        dicts.clear();
-    }
-
-    return ret;
-}
-
-bool
 Slice::Container::hasClassDefs() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2394,34 +2264,18 @@ Slice::Container::hasClassDefs() const
 }
 
 bool
-Slice::Container::hasLocalClassDefs() const
+Slice::Container::hasInterfaceDefs() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasLocalClassDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalInterfaceDefs() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && (cl->isInterface() || !cl->allOperations().empty()))
+        if(cl && cl->isInterface())
         {
             return true;
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalInterfaceDefs())
+        if(container && container->hasInterfaceDefs())
         {
             return true;
         }
@@ -2472,6 +2326,42 @@ Slice::Container::hasOnlyClassDecls() const
 }
 
 bool
+Slice::Container::hasOnlyInterfaces() const
+{
+    for (const auto& p: _contents)
+    {
+        ModulePtr m = ModulePtr::dynamicCast(p);
+        if (m)
+        {
+            if (!m->hasOnlyInterfaces())
+            {
+                return false;
+            }
+        }
+        else
+        {
+            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(p);
+            if (classDecl)
+            {
+                if (!classDecl->isInterface())
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                ClassDefPtr classDef = ClassDefPtr::dynamicCast(p);
+                if (!classDef || !classDef->isInterface())
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool
 Slice::Container::hasOperations() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2484,51 +2374,6 @@ Slice::Container::hasOperations() const
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
         if(container && container->hasOperations())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalAbstractClassDefs() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isAbstract())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalAbstractClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalDataOnlyClasses() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
-        if(q)
-        {
-            if(!q->isAbstract())
-            {
-                return true;
-            }
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalDataOnlyClasses())
         {
             return true;
         }
@@ -2621,7 +2466,7 @@ Slice::Container::hasAsyncOps() const
 }
 
 bool
-Slice::Container::hasNonLocalContained(Contained::ContainedType type) const
+Slice::Container::hasContained(Contained::ContainedType type) const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -2631,7 +2476,7 @@ Slice::Container::hasNonLocalContained(Contained::ContainedType type) const
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalContained(type))
+        if(container && container->hasContained(type))
         {
             return true;
         }

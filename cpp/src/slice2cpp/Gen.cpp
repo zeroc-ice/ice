@@ -1897,7 +1897,7 @@ Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output&, const string&
 bool
 Slice::Gen::ProxyDeclVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p->hasNonLocalClassDecls())
+    if(!p->hasClassDecls())
     {
         return false;
     }
@@ -1916,7 +1916,7 @@ Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::ProxyDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls())
+    if(!p->hasClassDecls())
     {
         return false;
     }
@@ -1960,7 +1960,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllEx
 bool
 Slice::Gen::ProxyVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p->hasNonLocalClassDefs())
+    if(!p->hasClassDefs())
     {
         return false;
     }
@@ -1979,7 +1979,7 @@ Slice::Gen::ProxyVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDefs())
+    if(!p->hasClassDefs())
     {
         return false;
     }
@@ -3926,7 +3926,7 @@ Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output&, const
 bool
 Slice::Gen::AsyncCallbackVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDefs() && !p->hasContentsWithMetaData("async-oneway"))
+    if(!p->hasClassDefs() && !p->hasContentsWithMetaData("async-oneway"))
     {
         return false;
     }
@@ -3986,7 +3986,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::AsyncCallbackTemplateVisitor(Output& h
 bool
 Slice::Gen::AsyncCallbackTemplateVisitor::visitUnitStart(const UnitPtr& p)
 {
-    return p->hasNonLocalClassDefs();
+    return p->hasClassDefs();
 }
 
 void
@@ -3997,7 +3997,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::AsyncCallbackTemplateVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDefs())
+    if(!p->hasClassDefs())
     {
         return false;
     }
@@ -4610,7 +4610,7 @@ Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output& c, const string& dllEx
 bool
 Slice::Gen::AsyncVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls() || !p->hasContentsWithMetaData("amd"))
+    if(!p->hasClassDecls() || !p->hasContentsWithMetaData("amd"))
     {
         return false;
     }
@@ -4747,7 +4747,7 @@ Slice::Gen::AsyncImplVisitor::AsyncImplVisitor(Output& h, Output& c, const strin
 bool
 Slice::Gen::AsyncImplVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p->hasNonLocalClassDecls() || !p->hasContentsWithMetaData("amd"))
+    if(!p->hasClassDecls() || !p->hasContentsWithMetaData("amd"))
     {
         return false;
     }
@@ -4769,7 +4769,7 @@ Slice::Gen::AsyncImplVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::AsyncImplVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls() || !p->hasContentsWithMetaData("amd"))
+    if(!p->hasClassDecls() || !p->hasContentsWithMetaData("amd"))
     {
         return false;
     }
@@ -4935,10 +4935,10 @@ Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dll
 bool
 Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
-    if(!m->hasNonLocalContained(Contained::ContainedTypeStruct) &&
-       !m->hasNonLocalContained(Contained::ContainedTypeEnum) &&
-       !m->hasNonLocalContained(Contained::ContainedTypeClass) &&
-       !m->hasNonLocalContained(Contained::ContainedTypeException))
+    if(!m->hasContained(Contained::ContainedTypeStruct) &&
+       !m->hasContained(Contained::ContainedTypeEnum) &&
+       !m->hasContained(Contained::ContainedTypeClass) &&
+       !m->hasContained(Contained::ContainedTypeException))
     {
         return false;
     }
@@ -5724,7 +5724,7 @@ Slice::Gen::Cpp11DeclVisitor::Cpp11DeclVisitor(Output& h, Output& c, const strin
 bool
 Slice::Gen::Cpp11DeclVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p->hasClassDecls() && !p->hasNonLocalExceptions())
+    if(!p->hasClassDecls() && !p->hasExceptions())
     {
         return false;
     }
@@ -6333,7 +6333,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::Cpp11ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDefs())
+    if(!p->hasClassDefs())
     {
         return false;
     }
@@ -7066,7 +7066,7 @@ Slice::Gen::Cpp11InterfaceVisitor::Cpp11InterfaceVisitor(::IceUtilInternal::Outp
 bool
 Slice::Gen::Cpp11InterfaceVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalInterfaceDefs())
+    if(!p->hasInterfaceDefs())
     {
         return false;
     }
@@ -8047,10 +8047,10 @@ Slice::Gen::Cpp11StreamVisitor::Cpp11StreamVisitor(Output& h, Output& c, const s
 bool
 Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
-    if(!m->hasNonLocalContained(Contained::ContainedTypeStruct) &&
-       !m->hasNonLocalContained(Contained::ContainedTypeEnum) &&
-       !m->hasNonLocalContained(Contained::ContainedTypeException) &&
-       !m->hasNonLocalContained(Contained::ContainedTypeClass))
+    if(!m->hasContained(Contained::ContainedTypeStruct) &&
+       !m->hasContained(Contained::ContainedTypeEnum) &&
+       !m->hasContained(Contained::ContainedTypeException) &&
+       !m->hasContained(Contained::ContainedTypeClass))
     {
         return false;
     }
@@ -8064,7 +8064,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
         H << nl << "/// \\cond STREAM";
         H << nl << "namespace Ice" << nl << '{' << sp;
 
-        if(m->hasNonLocalContained(Contained::ContainedTypeStruct))
+        if(m->hasContained(Contained::ContainedTypeStruct))
         {
             C << sp;
             C << nl << "namespace Ice" << nl << '{';
@@ -8083,7 +8083,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleEnd(const ModulePtr& m)
         //
         H << nl << '}';
         H << nl << "/// \\endcond";
-        if(m->hasNonLocalContained(Contained::ContainedTypeStruct))
+        if(m->hasContained(Contained::ContainedTypeStruct))
         {
             C << nl << '}';
         }
