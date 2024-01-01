@@ -535,19 +535,12 @@ long
 Slice::computeSerialVersionUUID(const ClassDefPtr& p)
 {
     ostringstream os;
-
-    ClassList bases = p->bases();
     os << "Name: " << p->scoped();
 
-    os << " Bases: [";
-    for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+    os << " Base: [";
+    if (p->base())
     {
-        os << (*i)->scoped();
-        i++;
-        if(i != bases.end())
-        {
-            os << ", ";
-        }
+        os << p->base()->scoped();
     }
     os << "]";
 
@@ -1122,7 +1115,7 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
         return st->isVariableLength() ? prefix + "FSize" : prefix + "VSize";
     }
 
-    if(ProxyPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type))
     {
         return prefix + "FSize";
     }
@@ -1224,28 +1217,13 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            return getUnqualified("com.zeroc.Ice.Value", package);
-        }
-        else
-        {
-            return getUnqualified(cl, package);
-        }
+        return getUnqualified(cl, package);
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        ClassDefPtr def = proxy->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            return getUnqualified(proxy->_class(), package, "", "Prx");
-        }
-        else
-        {
-            return getUnqualified("com.zeroc.Ice.ObjectPrx", package);
-        }
+        return getUnqualified(proxy, package, "", "Prx");
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -1453,7 +1431,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     if(prx)
     {
         if(marshal)

@@ -7,7 +7,6 @@ Reserved.ice:27: illegal identifier `abcHelper': `Helper' suffix is reserved
 Reserved.ice:28: illegal identifier `Holder': `Holder' suffix is reserved
 Reserved.ice:29: illegal identifier `abcHolder': `Holder' suffix is reserved
 Reserved.ice:30: illegal identifier `Ice': `Ice' prefix is reserved
-Reserved.ice:31: illegal identifier `ice': `ice' prefix is reserved
 Reserved.ice:31: constant `ice' differs only in capitalization from constant `Ice'
 Reserved.ice:32: illegal identifier `icea': `ice' prefix is reserved
 Reserved.ice:33: illegal identifier `Iceblah': `Ice' prefix is reserved

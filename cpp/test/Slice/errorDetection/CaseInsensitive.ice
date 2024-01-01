@@ -17,18 +17,6 @@ interface i2
     void oP();
 }
 
-class c1
-{
-    long l;
-    void l();
-}
-
-class c2
-{
-    long l;
-    void L();
-}
-
 module m1
 {}
 module m1
@@ -76,22 +64,6 @@ class c3
     long l;
 }
 
-class c4 extends c3
-{
-    void l();
-}
-
-class c5 extends c3
-{
-    void L();
-}
-
-class c6
-{
-    long l;
-    void L();
-}
-
 class c7 extends c3
 {
     long l;
@@ -100,12 +72,6 @@ class c7 extends c3
 class c8 extends c3
 {
     long L;
-}
-
-class c9
-{
-     void L();
-     long l;
 }
 
 exception e1
@@ -276,9 +242,6 @@ module DI
     class base1
     {
         int base1;
-        void aa(int BASE1);
-
-        void bb(int base1, string BASE1);
     }
 
     struct Foo

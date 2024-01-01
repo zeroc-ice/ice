@@ -82,11 +82,11 @@ private:
         std::vector<Slice::ObjCGenerator::ModulePrefix> _prefixes;
     };
 
-    class ObjectDeclVisitor : public ObjCVisitor
+    class DeclVisitor : public ObjCVisitor
     {
     public:
 
-        ObjectDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        DeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual void visitClassDecl(const ClassDeclPtr&);
     };

@@ -53,28 +53,6 @@ public:
 };
 ICE_DEFINE_PTR(FIPtr, FI);
 
-#ifdef ICE_CPP11_MAPPING
-class II : public ::Ice::InterfaceByValue<Test::I>
-{
-};
-
-class JI : public ::Ice::InterfaceByValue<Test::J>
-{
-};
-#else
-class II : public Test::I
-{
-};
-
-class JI : public Test::J
-{
-};
-#endif
-
-class HI : public Test::H
-{
-};
-
 class InitialI : public Test::Initial
 {
 public:
@@ -108,16 +86,6 @@ public:
 
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
-    virtual ::std::shared_ptr<::Ice::Value> getI(const Ice::Current&);
-    virtual ::std::shared_ptr<::Ice::Value> getJ(const Ice::Current&);
-    virtual ::std::shared_ptr<::Ice::Value> getH(const Ice::Current&);
-#else
-    virtual Test::IPtr getI(const Ice::Current&);
-    virtual Test::IPtr getJ(const Ice::Current&);
-    virtual Test::IPtr getH(const Ice::Current&);
-#endif
-
     virtual Test::KPtr getK(const Ice::Current&);
 
     virtual Ice::ValuePtr opValue(ICE_IN(Ice::ValuePtr), Ice::ValuePtr&, const Ice::Current&);
@@ -129,11 +97,6 @@ public:
 
     virtual void setG(ICE_IN(Test::GPtr), const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
-    virtual void setI(::std::shared_ptr<::Ice::Value>, const Ice::Current&);
-#else
-    virtual void setI(const Test::IPtr&, const Ice::Current&);
-#endif
     virtual Test::BaseSeq opBaseSeq(ICE_IN(Test::BaseSeq), Test::BaseSeq&, const Ice::Current&);
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);
@@ -150,8 +113,6 @@ public:
     virtual Test::F2PrxPtr opF2(ICE_IN(Test::F2PrxPtr), Test::F2PrxPtr&, const Ice::Current&);
     virtual Test::F3Ptr opF3(ICE_IN(Test::F3Ptr), Test::F3Ptr&, const Ice::Current&);
     virtual bool hasF3(const Ice::Current&);
-
-    virtual Test::NPtr opN(ICE_IN(Test::NPtr), const ::Ice::Current&);
 
 private:
 

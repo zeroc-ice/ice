@@ -77,7 +77,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&) { return false;}
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -111,7 +111,7 @@ private:
         virtual void visitUnitEnd(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
 
     private:
 
@@ -130,8 +130,8 @@ private:
         virtual void visitUnitEnd(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -146,16 +146,16 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class ObjectDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class DeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        ObjectDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        DeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -164,6 +164,29 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
+    };
+
+    class InterfaceVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+        InterfaceVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+        void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
+
+    private:
+
+        ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C;
+
+        std::string _dllExport;
+        int _useWstring;
+        std::list<int> _useWstringHist;
     };
 
     class ObjectVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -176,9 +199,6 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitOperation(const OperationPtr&);
 
     private:
 
@@ -186,7 +206,7 @@ private:
         void emitGCFunctions(const ClassDefPtr&);
         void emitGCVisitCode(const TypePtr&, const std::string&, const std::string&, int);
         void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
-        bool emitVirtualBaseInitializers(const ClassDefPtr&, bool virtualInheritance, bool direct);
+        bool emitBaseInitializers(const ClassDefPtr&);
         void emitOneShotConstructor(const ClassDefPtr&);
         void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
 
@@ -207,8 +227,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -230,8 +250,8 @@ private:
         virtual void visitUnitEnd(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -253,7 +273,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
 
     private:
 
@@ -278,8 +298,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -302,8 +322,8 @@ private:
         virtual void visitUnitEnd(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -352,6 +372,8 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitOperation(const OperationPtr&);
 
@@ -371,7 +393,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&) { return false; }
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -403,12 +425,10 @@ private:
 
         Cpp11ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -430,7 +450,7 @@ private:
 
     protected:
 
-        bool emitVirtualBaseInitializers(const ClassDefPtr&, const ClassDefPtr&);
+        bool emitBaseInitializers(const ClassDefPtr&);
         void emitOneShotConstructor(const ClassDefPtr&);
         void emitDataMember(const DataMemberPtr&);
 
@@ -445,7 +465,7 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class Cpp11InterfaceVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
+    class Cpp11InterfaceVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -453,12 +473,21 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
         void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
+
+    private:
+
+        ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C;
+
+        std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
+        int _useWstring;
+        std::list<int> _useWstringHist;
     };
 
     class Cpp11ValueVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
@@ -471,9 +500,6 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitOperation(const OperationPtr&);
         void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
     };
 
@@ -507,6 +533,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
 
     private:
 
@@ -522,7 +549,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
 
     private:
 

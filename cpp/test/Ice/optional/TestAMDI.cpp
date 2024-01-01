@@ -187,14 +187,6 @@ InitialI::opOneOptionalAsync(Ice::optional<::std::shared_ptr<::Test::OneOptional
 }
 
 void
-InitialI::opOneOptionalProxyAsync(Ice::optional<::std::shared_ptr<::Ice::ObjectPrx>> p1,
-                                       ::std::function<void(const Ice::optional<::std::shared_ptr<::Ice::ObjectPrx>>&, const Ice::optional<::std::shared_ptr<::Ice::ObjectPrx>>&)> response,
-                                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
 InitialI::opByteSeqAsync(Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>> p1,
                               ::std::function<void(const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
@@ -730,14 +722,6 @@ void
 InitialI::opOneOptional_async(const ::Test::AMD_Initial_opOneOptionalPtr& cb,
                               const IceUtil::Optional< Test::OneOptionalPtr>& p1,
                               const ::Ice::Current&)
-{
-    cb->ice_response(p1, p1);
-}
-
-void
-InitialI::opOneOptionalProxy_async(const ::Test::AMD_Initial_opOneOptionalProxyPtr& cb,
-                                   const IceUtil::Optional< Test::OneOptionalPrx>& p1,
-                                   const ::Ice::Current&)
 {
     cb->ice_response(p1, p1);
 }

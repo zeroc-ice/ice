@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["suppress-warning:deprecated"]] // for classes with operations
+// [["suppress-warning:deprecated"]] // for classes with operations
 
 module Test
 {
@@ -22,7 +22,7 @@ struct class
 class interface;
 class struct
 {
-    void f();
+    // void f();
     int i;
 }
 

@@ -97,10 +97,6 @@ public:
                                                                   IceUtil::Optional< Test::OneOptionalPtr>&,
                                                                   const ::Ice::Current&);
 
-    virtual IceUtil::Optional<Test::OneOptionalPrxPtr> opOneOptionalProxy(ICE_IN(IceUtil::Optional< Test::OneOptionalPrxPtr>),
-                                                                          IceUtil::Optional< Test::OneOptionalPrxPtr>&,
-                                                                          const ::Ice::Current&);
-
     virtual IceUtil::Optional< ::Test::ByteSeq> opByteSeq(
         ICE_IN(IceUtil::Optional< ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> >),
         IceUtil::Optional< ::Test::ByteSeq>&,

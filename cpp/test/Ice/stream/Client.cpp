@@ -944,24 +944,6 @@ allTests(Test::TestHelper* helper)
 #endif
     }
 
-#ifndef ICE_CPP11_MAPPING
-    //
-    // No support for interfaces-as-values in C++11.
-    //
-    {
-        MyInterfacePtr i = new MyInterface();
-        Ice::OutputStream out(communicator);
-        out.write(i);
-        out.writePendingValues();
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        i = 0;
-        in.read(i);
-        in.readPendingValues();
-        test(i);
-    }
-#endif
-
     {
         Ice::OutputStream out(communicator);
         MyClassPtr obj = ICE_MAKE_SHARED(MyClass);

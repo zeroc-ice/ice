@@ -846,7 +846,7 @@ Slice::Gen::generate(const UnitPtr& p)
     UnitVisitor unitVisitor(_H, _M, _dllExport);
     p->visit(&unitVisitor, false);
 
-    ObjectDeclVisitor objectDeclVisitor(_H, _M, _dllExport);
+    DeclVisitor objectDeclVisitor(_H, _M, _dllExport);
     p->visit(&objectDeclVisitor, false);
 
     ProxyDeclVisitor proxyDeclVisitor(_H, _M, _dllExport);
@@ -927,13 +927,13 @@ Slice::Gen::UnitVisitor::visitUnitEnd(const UnitPtr&)
     }
 }
 
-Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& H, Output& M, const string& dllExport)
+Slice::Gen::DeclVisitor::DeclVisitor(Output& H, Output& M, const string& dllExport)
     : ObjCVisitor(H, M, dllExport)
 {
 }
 
 void
-Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
+Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     _H << sp;
     if(!p->isInterface())
