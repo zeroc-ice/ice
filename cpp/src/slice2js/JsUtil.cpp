@@ -259,21 +259,8 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
     }
     else if(ContainedPtr::dynamicCast(type))
     {
-        bool local = false;
-        if(toplevel)
-        {
-            if(ConstructedPtr::dynamicCast(toplevel))
-            {
-                local = ConstructedPtr::dynamicCast(toplevel)->isLocal();
-            }
-            else if(ClassDefPtr::dynamicCast(toplevel))
-            {
-                local = ClassDefPtr::dynamicCast(toplevel)->isLocal();
-            }
-        }
-
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-        if(cl && cl->isInterface() && !local)
+        if(cl && cl->isInterface())
         {
             return "iceNS0.";
         }
@@ -395,19 +382,6 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         return "void";
     }
 
-    bool local = false;
-    if(toplevel)
-    {
-        if(ConstructedPtr::dynamicCast(toplevel))
-        {
-            local = ConstructedPtr::dynamicCast(toplevel)->isLocal();
-        }
-        else if(ClassDefPtr::dynamicCast(toplevel))
-        {
-            local = ClassDefPtr::dynamicCast(toplevel)->isLocal();
-        }
-    }
-
     static const char* typeScriptBuiltinTable[] =
     {
         "number",           // byte
@@ -445,7 +419,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     {
         if(typescript)
         {
-            int kind = (!local && builtin->kind() == Builtin::KindObject) ? Builtin::KindValue : builtin->kind();
+            int kind = (builtin->kind() == Builtin::KindObject) ? Builtin::KindValue : builtin->kind();
             ostringstream os;
             if(getModuleMetadata(type) == "ice" && getModuleMetadata(toplevel) != "ice")
             {
@@ -467,7 +441,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         ostringstream os;
         if(typescript)
         {
-            if(cl->isInterface() && !local)
+            if(cl->isInterface())
             {
                 prefix = importPrefix("Ice.Value", toplevel);
             }
@@ -483,7 +457,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         os << prefix;
         if(!prefix.empty() && typescript)
         {
-            if(cl->isInterface() && !local)
+            if(cl->isInterface())
             {
                 os << getUnqualified("Ice.Value", toplevel->scope(), prefix);
             }

@@ -39,3 +39,16 @@
 }
 
 @end
+
+@implementation TestInterceptorRetryException
+
+-(NSString *) ice_id
+{
+    return @"::Test::RetryException";
+}
+
++(id) retryException:(const char*)file_ line:(int)line_
+{
+    return ICE_AUTORELEASE([(TestInterceptorRetryException *)[self alloc] init:file_ line:line_]);
+}
+@end

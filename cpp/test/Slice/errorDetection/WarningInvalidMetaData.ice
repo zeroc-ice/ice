@@ -28,8 +28,8 @@ module Test
 
 interface I
 {
-    ["cpp:noexcept"]
-    void op();
+    // ["cpp:noexcept"]
+    // void op();
 
     ["cpp:type:std::list< ::std::string>"]
     void op1();

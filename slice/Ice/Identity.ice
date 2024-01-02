@@ -8,6 +8,11 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
+[["cpp:no-default-include"]]
+[["cpp:include:Ice/Config.h"]]
+[["cpp:include:Ice/Comparable.h"]]
+[["cpp:include:Ice/StreamHelpers.h"]]
+
 [["ice-prefix"]]
 
 [["js:module:ice"]]
@@ -37,12 +42,6 @@ struct Identity
     /// The Ice object category.
     string category;
 }
-
-/// A mapping between identities and Ice objects.
-#ifndef __SLICE2PHP__
-// dictionary key type not supported in PHP
-local dictionary<Identity, Object> ObjectDict;
-#endif
 
 /// A sequence of identities.
 sequence<Identity> IdentitySeq;

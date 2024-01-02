@@ -60,9 +60,10 @@ public class Client extends test.TestHelper
         }
 
         @Override
-        public _assert _notify(_break _notifyAll, _else _null, _finalize _package,
+        public _assert _notify(_break _notifyAll, _else _null, com.zeroc.Ice.Value _package,
                                com.zeroc.Ice.ObjectPrx _private, finalizePrx _protected,
-                               catchPrx _public, defaultPrx _return, int _static, int _strictfp, int _super)
+                               catchPrx _public, defaultPrx _return, int _static, int _strictfp, int _super,
+                               com.zeroc.Ice.Current current)
             throws _hashCode, _import
         {
             return null;

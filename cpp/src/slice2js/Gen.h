@@ -94,7 +94,6 @@ private:
         bool _seenOperation;
         bool _seenStruct;
         bool _seenUserException;
-        bool _seenLocalException;
         bool _seenEnum;
         bool _seenObjectSeq;
         bool _seenObjectProxySeq;

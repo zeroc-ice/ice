@@ -11,6 +11,8 @@
 #include <IceUtil/StringUtil.h>
 #include <iterator>
 
+#include "SendQueueSizeMaxReached.h"
+
 using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;

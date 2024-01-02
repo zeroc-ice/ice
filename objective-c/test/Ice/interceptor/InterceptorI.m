@@ -3,6 +3,7 @@
 //
 
 #import <interceptor/InterceptorI.h>
+#import <interceptor/MyObjectI.h> // for the retry exception
 #import <InterceptorTest.h>
 #import <TestCommon.h>
 

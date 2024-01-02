@@ -18,18 +18,13 @@
 
 [["python:pkgdir:Ice"]]
 
-#include <Ice/BuiltinSequences.ice>
+#include <Ice/PropertyDict.ice>
 
 [["java:package:com.zeroc"]]
 
 ["objc:prefix:ICE"]
 module Ice
 {
-    /// A simple collection of properties, represented as a dictionary of key/value pairs. Both key and value are
-    /// strings.
-    /// @see Properties#getPropertiesForPrefix
-    dictionary<string, string> PropertyDict;
-
     /// The PropertiesAdmin interface provides remote access to the properties of a communicator.
     interface PropertiesAdmin
     {

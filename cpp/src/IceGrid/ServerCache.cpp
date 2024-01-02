@@ -15,6 +15,8 @@
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/Topics.h>
 
+#include "SynchronizationException.h"
+
 using namespace std;
 using namespace IceGrid;
 

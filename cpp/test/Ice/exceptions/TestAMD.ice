@@ -46,17 +46,6 @@ exception F
     string data;
 }
 
-local exception G
-{
-    string data;
-}
-
-["cpp:ice_print"]
-local exception H
-{
-    string data;
-}
-
 module Mod
 {
     exception A extends ::Test::A
@@ -90,14 +79,11 @@ module Mod
     Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
 
     idempotent void throwLocalExceptionIdempotent();
-
     void throwAfterResponse();
     void throwAfterException() throws A;
 
     void throwE() throws E;
     void throwF() throws F;
-    void throwG();
-    void throwH();
 }
 
 ["amd"] interface WrongOperation

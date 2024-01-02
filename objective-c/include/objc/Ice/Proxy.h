@@ -6,7 +6,7 @@
 
 #import <objc/Ice/Format.h>  // For ICEFormatType
 #import <objc/Ice/Current.h> // For ICEOperationMode
-#import <objc/Ice/EndpointTypes.h> // For ICEEndpointSelectionType
+#import <objc/Ice/EndpointSelectionType.h> // For ICEEndpointSelectionType
 #import <objc/Ice/EndpointF.h> // For ICEEndpointSeq
 
 #import <Foundation/NSProxy.h>

@@ -373,43 +373,6 @@ ThrowerI::throwFAsync(function<void()>,
     }
 }
 
-void
-ThrowerI::throwGAsync(function<void()>,
-                      function<void(exception_ptr)> exception,
-                      const Ice::Current&)
-{
-    try
-    {
-        throw G(__FILE__, __LINE__, "G");
-    }
-    catch(const G& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::G"));
-        test(ex.data == "G");
-        exception(current_exception());
-    }
-}
-
-void
-ThrowerI::throwHAsync(function<void()>,
-                      function<void(exception_ptr)> exception,
-                      const Ice::Current&)
-{
-    try
-    {
-        throw H(__FILE__, __LINE__, "H");
-    }
-    catch(const H& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::H data:'H'"));
-        test(ex.data == "H");
-        exception(current_exception());
-    }
-}
 #else
 
 void
@@ -620,37 +583,4 @@ ThrowerI::throwF_async(const Test::AMD_Thrower_throwFPtr& cb, const Ice::Current
     cb->ice_exception(F("F"));
 }
 
-void
-ThrowerI::throwG_async(const Test::AMD_Thrower_throwGPtr& cb, const Ice::Current&)
-{
-    try
-    {
-        throw G(__FILE__, __LINE__, "G");
-    }
-    catch(const G& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::G"));
-        test(ex.data == "G");
-        cb->ice_exception(ex);
-    }
-}
-
-void
-ThrowerI::throwH_async(const Test::AMD_Thrower_throwHPtr& cb, const Ice::Current&)
-{
-    try
-    {
-        throw H(__FILE__, __LINE__, "H");
-    }
-    catch(const H& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::H data:'H'"));
-        test(ex.data == "H");
-        cb->ice_exception(ex);
-    }
-}
 #endif

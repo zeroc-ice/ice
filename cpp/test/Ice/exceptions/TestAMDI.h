@@ -120,14 +120,6 @@ public:
     virtual void throwFAsync(std::function<void()>,
                              std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
-
-    virtual void throwGAsync(std::function<void()>,
-                             std::function<void(std::exception_ptr)>,
-                             const Ice::Current&);
-
-    virtual void throwHAsync(std::function<void()>,
-                             std::function<void(std::exception_ptr)>,
-                             const Ice::Current&);
 #else
     virtual void shutdown_async(const Test::AMD_Thrower_shutdownPtr&,
                                 const Ice::Current&);
@@ -177,8 +169,6 @@ public:
 
     virtual void throwE_async(const Test::AMD_Thrower_throwEPtr&, const Ice::Current&);
     virtual void throwF_async(const Test::AMD_Thrower_throwFPtr&, const Ice::Current&);
-    virtual void throwG_async(const Test::AMD_Thrower_throwGPtr&, const Ice::Current&);
-    virtual void throwH_async(const Test::AMD_Thrower_throwHPtr&, const Ice::Current&);
 #endif
 };
 

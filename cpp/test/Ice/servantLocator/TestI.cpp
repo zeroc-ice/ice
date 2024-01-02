@@ -106,7 +106,7 @@ TestI::shutdown(const Current& current)
 }
 
 string
-CookieI::message() const
+Cookie::message() const
 {
     return "blahblah";
 }

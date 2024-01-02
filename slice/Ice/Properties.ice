@@ -18,7 +18,8 @@
 
 [["python:pkgdir:Ice"]]
 
-#include <Ice/PropertiesAdmin.ice>
+#include <Ice/BuiltinSequences.ice>
+#include <Ice/PropertyDict.ice>
 
 [["java:package:com.zeroc"]]
 

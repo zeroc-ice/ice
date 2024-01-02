@@ -14,6 +14,8 @@
 
 #include <functional>
 
+#include "SynchronizationException.h"
+
 using namespace std;
 using namespace IceGrid;
 

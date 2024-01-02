@@ -5,6 +5,8 @@
 #include <IceGrid/RegistryAdminRouter.h>
 #include <Ice/Ice.h>
 
+#include "SynchronizationException.h"
+
 using namespace IceGrid;
 using namespace Ice;
 using namespace std;

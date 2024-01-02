@@ -17,6 +17,8 @@
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/NodeSessionI.h>
 
+#include "SynchronizationException.h"
+
 using namespace std;
 using namespace std::chrono;
 using namespace Ice;

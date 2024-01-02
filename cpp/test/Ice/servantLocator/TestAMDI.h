@@ -106,11 +106,19 @@ public:
 #endif
 };
 
-class CookieI : public Test::Cookie
+#ifdef ICE_CPP11_MAPPING
+class Cookie
+#else
+class Cookie : public Ice::LocalObject
+#endif
 {
 public:
 
-    virtual std::string message() const;
+    std::string message() const;
 };
+
+#ifndef ICE_CPP11_MAPPING
+typedef IceUtil::Handle<Cookie> CookiePtr;
+#endif
 
 #endif

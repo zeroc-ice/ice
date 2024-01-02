@@ -6,6 +6,8 @@
 #define ICE_STREAM_HELPERS_H
 
 #include <Ice/ObjectF.h>
+#include <Ice/ProxyF.h>
+#include <Ice/Exception.h>
 
 #ifndef ICE_CPP11_MAPPING
 #   include <IceUtil/ScopedArray.h>

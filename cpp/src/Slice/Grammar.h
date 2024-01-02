@@ -84,8 +84,8 @@ extern int slice_debug;
     ICE_IMPLEMENTS = 268,          /* ICE_IMPLEMENTS  */
     ICE_THROWS = 269,              /* ICE_THROWS  */
     ICE_VOID = 270,                /* ICE_VOID  */
-    ICE_BYTE = 271,                /* ICE_BYTE  */
-    ICE_BOOL = 272,                /* ICE_BOOL  */
+    ICE_BOOL = 271,                /* ICE_BOOL  */
+    ICE_BYTE = 272,                /* ICE_BYTE  */
     ICE_SHORT = 273,               /* ICE_SHORT  */
     ICE_INT = 274,                 /* ICE_INT  */
     ICE_LONG = 275,                /* ICE_LONG  */

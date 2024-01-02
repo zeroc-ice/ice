@@ -58,7 +58,7 @@ MyObjectI::addWithRetry(int x, int y, const Ice::Current& current)
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        throw Test::RetryException(__FILE__, __LINE__);
+        throw MyRetryException();
     }
     return x + y;
 }
@@ -134,7 +134,7 @@ MyObjectI::amdAddWithRetryAsync(int x,
     {
         try
         {
-            throw Test::RetryException(__FILE__, __LINE__);
+            throw MyRetryException();
         }
         catch(...)
         {
@@ -284,7 +284,7 @@ MyObjectI::amdAddWithRetry_async(const Test::AMD_MyObject_amdAddWithRetryPtr& cb
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        cb->ice_exception(Test::RetryException(__FILE__, __LINE__));
+        cb->ice_exception(MyRetryException());
     }
 }
 

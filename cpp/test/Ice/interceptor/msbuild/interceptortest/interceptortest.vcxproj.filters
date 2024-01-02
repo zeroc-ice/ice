@@ -97,9 +97,6 @@
     <ClCompile Include="Win32\Cpp11-Release\Test.cpp">
       <Filter>Source Files\Win32\Cpp11-Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\TestI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="x64\Cpp11-Debug\Test.h">
