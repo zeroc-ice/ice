@@ -24,8 +24,8 @@ protected:
     void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
     void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
-    virtual void writeInheritedOperations(const ClassDefPtr&);
-    virtual void writeDispatch(const ClassDefPtr&);
+    virtual void writeInheritedOperations(const InterfaceDefPtr&);
+    virtual void writeDispatch(const InterfaceDefPtr&);
     virtual void writeMarshaling(const ClassDefPtr&);
 
     static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
@@ -143,8 +143,8 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -195,11 +195,10 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
     };
-
     class OpsVisitor : public CsVisitor
     {
     public:
@@ -208,7 +207,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
     };
 
     class HelperVisitor : public CsVisitor
@@ -219,8 +218,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
     };
@@ -233,13 +232,13 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
 
     private:
 
         typedef std::set<std::string> NameSet;
-        void writeTieOperations(const ClassDefPtr&, NameSet* = 0);
+        void writeTieOperations(const InterfaceDefPtr&, NameSet* = 0);
 
         bool _tie;
     };
@@ -263,8 +262,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
     };
 
     class ImplTieVisitor : public BaseImplVisitor
@@ -275,7 +274,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
     };
 };
 

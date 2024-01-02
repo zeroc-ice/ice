@@ -2042,6 +2042,21 @@ Slice::Container::classes() const
     return result;
 }
 
+InterfaceList
+Slice::Container::interfaces() const
+{
+    InterfaceList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        InterfaceDefPtr q = InterfaceDefPtr::dynamicCast(*p);
+        if(q)
+        {
+            result.push_back(q);
+        }
+    }
+    return result;
+}
+
 ExceptionList
 Slice::Container::exceptions() const
 {

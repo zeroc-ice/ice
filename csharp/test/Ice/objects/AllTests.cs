@@ -90,10 +90,6 @@ namespace Ice
                     {
                         return new JI();
                     }
-                    else if(type.Equals("::Test::H"))
-                    {
-                        return new HI();
-                    }
                     Debug.Assert(false); // Should never be reached
                     return null;
                 }
@@ -262,16 +258,6 @@ namespace Ice
                     test(typeof(F).GetField("e2", flags).IsPublic && !typeof(F).GetField("e2", flags).IsPrivate);
                     output.WriteLine("ok");
 
-                    output.Write("getting I, J and H... ");
-                    output.Flush();
-                    var i = initial.getI();
-                    test(i != null);
-                    var j = initial.getJ();
-                    test(j != null);
-                    var h = initial.getH();
-                    test(h != null);
-                    output.WriteLine("ok");
-
                     output.Write("getting K... ");
                     {
                         output.Flush();
@@ -344,13 +330,6 @@ namespace Ice
                     catch(Ice.OperationNotExistException)
                     {
                     }
-                    output.WriteLine("ok");
-
-                    output.Write("setting I... ");
-                    output.Flush();
-                    initial.setI(i);
-                    initial.setI(j);
-                    initial.setI(h);
                     output.WriteLine("ok");
 
                     output.Write("testing sequences...");
@@ -554,14 +533,6 @@ namespace Ice
                             test(!acceptsCycles);
                         }
 
-                    }
-                    output.WriteLine("ok");
-
-                    output.Write("testing class with interface by value member... ");
-                    output.Flush();
-                    {
-                        var n = new Test.N(i);
-                        n = initial.opN(n);
                     }
                     output.WriteLine("ok");
 

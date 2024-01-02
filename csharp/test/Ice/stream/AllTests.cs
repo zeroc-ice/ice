@@ -1,5 +1,5 @@
 //
-// Copyright(c) ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
 using System.Collections;
@@ -610,29 +610,6 @@ namespace Ice
 
                 {
                     outS = new Ice.OutputStream(communicator);
-                    Test.MyInterfaceSHelper.write(outS, myInterfaceArray);
-                    outS.writePendingValues();
-                    var data = outS.finished();
-                    inS = new Ice.InputStream(communicator, data);
-                    var arr2 = Test.MyInterfaceSHelper.read(inS);
-                    inS.readPendingValues();
-                    test(arr2.Length == myInterfaceArray.Length);
-                    Ice.Value[][] arrS = { myInterfaceArray, new Ice.Value[0], myInterfaceArray };
-                    outS = new Ice.OutputStream(communicator);
-                    Test.MyInterfaceSSHelper.write(outS, arrS);
-                    outS.writePendingValues();
-                    data = outS.finished();
-                    inS = new Ice.InputStream(communicator, data);
-                    var arr2S = Test.MyInterfaceSSHelper.read(inS);
-                    inS.readPendingValues();
-                    test(arr2S.Length == arrS.Length);
-                    test(arr2S[0].Length == arrS[0].Length);
-                    test(arr2S[1].Length == arrS[1].Length);
-                    test(arr2S[2].Length == arrS[2].Length);
-                }
-
-                {
-                    outS = new Ice.OutputStream(communicator);
                     var obj = new Test.MyClass();
                     obj.s = new Test.SmallStruct();
                     obj.s.e = Test.MyEnum.enum2;
@@ -854,19 +831,6 @@ namespace Ice
                 }
 
                 {
-                    var arr = new Ice.ObjectPrx[2];
-                    arr[0] = communicator.stringToProxy("zero");
-                    arr[1] = communicator.stringToProxy("one");
-                    outS = new Ice.OutputStream(communicator);
-                    var l = new List<Ice.ObjectPrx>(arr);
-                    Test.MyClassProxyListHelper.write(outS, l);
-                    byte[] data = outS.finished();
-                    inS = new Ice.InputStream(communicator, data);
-                    var l2 = Test.MyClassProxyListHelper.read(inS);
-                    test(Compare(l2, l));
-                }
-
-                {
                     var arr = new Test.MyInterfacePrx[2];
                     arr[0] = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
                     arr[1] = Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("one"));
@@ -964,19 +928,6 @@ namespace Ice
                     {
                         test(e.Current.Equals(e2.Current));
                     }
-                }
-
-                {
-                    var arr = new Ice.ObjectPrx[2];
-                    arr[0] = communicator.stringToProxy("zero");
-                    arr[1] = communicator.stringToProxy("one");
-                    outS = new Ice.OutputStream(communicator);
-                    var l = new Stack<Ice.ObjectPrx>(arr);
-                    Test.MyClassProxyStackHelper.write(outS, l);
-                    var data = outS.finished();
-                    inS = new Ice.InputStream(communicator, data);
-                    var l2 = Test.MyClassProxyStackHelper.read(inS);
-                    test(Compare(l2, l));
                 }
 
                 {

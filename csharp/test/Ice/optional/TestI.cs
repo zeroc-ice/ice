@@ -161,15 +161,6 @@ namespace Ice
                 return p1;
             }
 
-            public override Ice.Optional<Ice.ObjectPrx>
-            opOneOptionalProxy(Ice.Optional<Ice.ObjectPrx> p1,
-                               out Ice.Optional<Ice.ObjectPrx> p3,
-                               Ice.Current current)
-            {
-                p3 = p1;
-                return p1;
-            }
-
             public override Ice.Optional<byte[]> opByteSeq(Ice.Optional<byte[]> p1,
                                                                    out Ice.Optional<byte[]> p3,
                                                                    Ice.Current current)

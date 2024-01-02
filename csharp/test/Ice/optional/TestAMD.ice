@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["cs:typeid-namespace:Ice.optional.AMD.TypeId", "suppress-warning:deprecated"]]
+[["cs:typeid-namespace:Ice.optional.AMD.TypeId"]]
 ["cs:namespace:Ice.optional.AMD"]
 module Test
 {
@@ -55,7 +55,6 @@ sequence<FixedStruct> FixedStructSeq;
 ["cs:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
-sequence<OneOptional*> OneOptionalPrxSeq;
 
 dictionary<int, int> IntIntDict;
 dictionary<string, int> StringIntDict;
@@ -63,7 +62,6 @@ dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
-dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 
 class MultiOptional
 {
@@ -76,7 +74,7 @@ class MultiOptional
     optional(7) double g;
     optional(8) string h;
     optional(9) MyEnum i;
-    optional(10) MultiOptional* j;
+
     optional(11) MultiOptional k;
     optional(12) ByteSeq bs;
     optional(13) StringSeq ss;
@@ -90,13 +88,11 @@ class MultiOptional
     optional(20) FixedStructSeq fss;
     optional(21) VarStructSeq vss;
     optional(22) OneOptionalSeq oos;
-    optional(23) OneOptionalPrxSeq oops;
 
     optional(24) IntEnumDict ied;
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
     optional(27) IntOneOptionalDict iood;
-    optional(28) IntOneOptionalPrxDict ioopd;
 
     optional(29) BoolSeq bos;
 }
@@ -234,8 +230,6 @@ interface Initial
     optional(1) VarStruct opVarStruct(optional(2) VarStruct p1, out optional(3) VarStruct p3);
 
     optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
-
-    optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
 
     optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
 

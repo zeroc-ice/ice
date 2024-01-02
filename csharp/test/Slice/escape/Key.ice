@@ -45,39 +45,34 @@ class optionalMembers
 {
     optional(1) break for;
     optional(2) as goto;
-    optional(3) explicit if;
+    optional(3) explicit* if;
     optional(5) while internal;
     optional(7) string namespace;
-    optional(8) explicit* null;
 }
 
 interface optionalParams
 {
     optional(1) break for(optional(2) as goto,
-                          optional(3) explicit if,
+                          optional(3) explicit* if,
                           optional(5) while internal,
-                          optional(7) string namespace,
-                          optional(8) explicit* null);
+                          optional(7) string namespace);
 
     ["amd"]
     optional(1) break continue(optional(2) as goto,
-                               optional(3) explicit if,
+                               optional(3) explicit* if,
                                optional(5) while internal,
-                               optional(7) string namespace,
-                               optional(8) explicit* null);
+                               optional(7) string namespace);
 
     optional(1) break in(out optional(2) as goto,
-                         out optional(3) explicit if,
+                         out optional(3) explicit* if,
                          out optional(5) while internal,
-                         out optional(7) string namespace,
-                         out optional(8) explicit* null);
+                         out optional(7) string namespace);
 
     ["amd"]
     optional(1) break foreach(out optional(2) as goto,
-                              out optional(3) explicit if,
+                              out optional(3) explicit* if,
                               out optional(5) while internal,
-                              out optional(7) string namespace,
-                              out optional(8) explicit* null);
+                              out optional(7) string namespace);
 }
 
 exception fixed
@@ -112,8 +107,8 @@ exception BaseMethods
 
 interface implicit
 {
-    as in(break internal, delegate is, explicit lock, case* namespace, decimal* new, delegate null,
-          explicit* operator, int override, int params, int private)
+    as in(break internal, delegate is, explicit* lock, case* namespace, decimal* new, delegate null,
+          int override, int params, int private)
         throws fixed, foreach;
 }
 
