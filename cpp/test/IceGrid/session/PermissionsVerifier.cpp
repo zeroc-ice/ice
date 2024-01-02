@@ -15,7 +15,7 @@ class AdminPermissionsVerifierI : public Glacier2::PermissionsVerifier
 public:
 
     virtual bool
-    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& c) const
+    checkPermissions(string userId, string passwd, string&, const Ice::Current& c) const
     {
         if(c.ctx.find("throw") != c.ctx.end())
         {
@@ -42,7 +42,7 @@ PermissionsVerifierServer::run(int argc, char** argv)
     properties->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PermissionsVerifier");
-    adapter->add(new AdminPermissionsVerifierI, Ice::stringToIdentity("AdminPermissionsVerifier"));
+    adapter->add(make_shared<AdminPermissionsVerifierI>(), Ice::stringToIdentity("AdminPermissionsVerifier"));
     adapter->activate();
     communicator->waitForShutdown();
 }

@@ -15,7 +15,7 @@ class ClientPermissionsVerifierI : public Glacier2::PermissionsVerifier
 public:
 
     virtual bool
-    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& current) const
+    checkPermissions(string userId, string passwd, string&, const Ice::Current& current) const
     {
         if(current.ctx.find("throw") != current.ctx.end())
         {
@@ -30,7 +30,7 @@ class SSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
 public:
 
     virtual bool
-    authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
+    authorize(Glacier2::SSLInfo info, string&, const Ice::Current& current) const
     {
         if(current.ctx.find("throw") != current.ctx.end())
         {
@@ -62,8 +62,8 @@ Server::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
     if(communicator->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
     {
-        adapter->add(new ClientPermissionsVerifierI(), Ice::stringToIdentity("ClientPermissionsVerifier"));
-        adapter->add(new SSLPermissionsVerifierI(), Ice::stringToIdentity("SSLPermissionsVerifier"));
+        adapter->add(make_shared<ClientPermissionsVerifierI>(), Ice::stringToIdentity("ClientPermissionsVerifier"));
+        adapter->add(make_shared<SSLPermissionsVerifierI>(), Ice::stringToIdentity("SSLPermissionsVerifier"));
     }
     adapter->activate();
 

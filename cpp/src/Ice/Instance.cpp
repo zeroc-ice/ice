@@ -1731,6 +1731,7 @@ IceInternal::Instance::destroy()
 
     {
         Lock sync(*this);
+        _state = StateDestroyed;
 
         _objectAdapterFactory = 0;
         _outgoingConnectionFactory = 0;
@@ -1753,7 +1754,6 @@ IceInternal::Instance::destroy()
         _adminAdapter = 0;
         _adminFacets.clear();
 
-        _state = StateDestroyed;
         notifyAll();
     }
 }

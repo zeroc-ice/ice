@@ -30,12 +30,12 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
 }
 
 void
-waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bool up)
+waitForServerState(const shared_ptr<IceGrid::AdminPrx>& admin, const std::string& server, bool up)
 {
     int nRetry = 0;
     while(nRetry < maxRetry) // One minute
     {
-        if(admin->getServerState(server) == (up ? Active : Inactive))
+        if(admin->getServerState(server) == (up ? ServerState::Active : ServerState::Inactive))
         {
             return;
         }
@@ -47,7 +47,7 @@ waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bo
 }
 
 void
-waitForReplicaState(const IceGrid::AdminPrx& admin, const std::string& replica, bool up)
+waitForReplicaState(const shared_ptr<IceGrid::AdminPrx>& admin, const std::string& replica, bool up)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -93,7 +93,7 @@ waitForReplicaState(const IceGrid::AdminPrx& admin, const std::string& replica, 
 }
 
 void
-waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool up)
+waitForNodeState(const shared_ptr<IceGrid::AdminPrx>& admin, const std::string& node, bool up)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -137,7 +137,7 @@ waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool u
 }
 
 void
-instantiateServer(const AdminPrx& admin, const string& templ, const map<string, string>& params)
+instantiateServer(const shared_ptr<AdminPrx>& admin, const string& templ, const map<string, string>& params)
 {
     ServerInstanceDescriptor desc;
     desc._cpp_template = templ;
@@ -165,7 +165,7 @@ instantiateServer(const AdminPrx& admin, const string& templ, const map<string, 
 }
 
 void
-removeServer(const AdminPrx& admin, const string& id)
+removeServer(const shared_ptr<AdminPrx>& admin, const string& id)
 {
     try
     {
@@ -201,7 +201,7 @@ removeServer(const AdminPrx& admin, const string& id)
 }
 
 bool
-waitAndPing(const Ice::ObjectPrx& obj)
+waitAndPing(const shared_ptr<Ice::ObjectPrx>& obj)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -220,8 +220,8 @@ waitAndPing(const Ice::ObjectPrx& obj)
     return false;
 }
 
-AdminPrx
-createAdminSession(const Ice::LocatorPrx& locator, const string& replica)
+shared_ptr<AdminPrx>
+createAdminSession(const shared_ptr<Ice::LocatorPrx>& locator, const string& replica)
 {
     test(waitAndPing(locator));
 
@@ -230,11 +230,12 @@ createAdminSession(const Ice::LocatorPrx& locator, const string& replica)
     {
         registryStr += "-" + replica;
     }
-    Ice::ObjectPrx obj = locator->ice_getCommunicator()->stringToProxy(registryStr)->ice_locator(locator);
-    RegistryPrx registry = RegistryPrx::checkedCast(obj);
+    
+    shared_ptr<Ice::ObjectPrx> obj = locator->ice_getCommunicator()->stringToProxy(registryStr)->ice_locator(locator);
+    shared_ptr<RegistryPrx> registry = Ice::checkedCast<RegistryPrx>(obj);
     test(registry);
 
-    AdminSessionPrx session = AdminSessionPrx::checkedCast(registry->createAdminSession("foo", "bar"));
+    shared_ptr<AdminSessionPrx> session = Ice::checkedCast<AdminSessionPrx>(registry->createAdminSession("foo", "bar"));
     test(session);
     return session->getAdmin();
 }
@@ -245,16 +246,16 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr comm = helper->communicator();
-    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+    shared_ptr<IceGrid::RegistryPrx> registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
-    AdminSessionPrx adminSession = registry->createAdminSession("foo", "bar");
+    shared_ptr<AdminSessionPrx> adminSession = registry->createAdminSession("foo", "bar");
 
     adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          IceUtil::None,
                                          Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
-    AdminPrx admin = adminSession->getAdmin();
+    shared_ptr<AdminPrx> admin = adminSession->getAdmin();
     test(admin);
 
     map<string, string> params;
@@ -277,17 +278,17 @@ allTests(Test::TestHelper* helper)
     params["port"] = "12052";
     instantiateServer(admin, "IceGridRegistry", params);
 
-    Ice::LocatorPrx masterLocator =
-        Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Master:default -p 12050"));
-    Ice::LocatorPrx slave1Locator =
-        Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Slave1:default -p 12051"));
-    Ice::LocatorPrx slave2Locator =
-        Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Slave2:default -p 12052"));
+    shared_ptr<Ice::LocatorPrx> masterLocator =
+        Ice::uncheckedCast<Ice::LocatorPrx>(comm->stringToProxy("RepTestIceGrid/Locator-Master:default -p 12050"));
+    shared_ptr<Ice::LocatorPrx> slave1Locator =
+        Ice::uncheckedCast<Ice::LocatorPrx>(comm->stringToProxy("RepTestIceGrid/Locator-Slave1:default -p 12051"));
+    shared_ptr<Ice::LocatorPrx> slave2Locator =
+        Ice::uncheckedCast<Ice::LocatorPrx>(comm->stringToProxy("RepTestIceGrid/Locator-Slave2:default -p 12052"));
 
-    Ice::LocatorPrx replicatedLocator =
-        Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator:default -p 12050:default -p 12051"));
+    shared_ptr<Ice::LocatorPrx> replicatedLocator =
+        Ice::uncheckedCast<Ice::LocatorPrx>(comm->stringToProxy("RepTestIceGrid/Locator:default -p 12050:default -p 12051"));
 
-    AdminPrx masterAdmin, slave1Admin, slave2Admin;
+    shared_ptr<AdminPrx> masterAdmin, slave1Admin, slave2Admin;
 
     admin->startServer("Master");
     masterAdmin = createAdminSession(masterLocator, "");
@@ -395,11 +396,11 @@ allTests(Test::TestHelper* helper)
         test(endpoints[0]->toString().find("-p 12050") != string::npos);
         test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
-        QueryPrx query;
-        query = QueryPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Query:" + endpoints[0]->toString()));
+        shared_ptr<QueryPrx> query;
+        query = Ice::uncheckedCast<QueryPrx>(comm->stringToProxy("RepTestIceGrid/Query:" + endpoints[0]->toString()));
         Ice::ObjectProxySeq objs = query->findAllObjectsByType("::IceGrid::Registry");
         test(objs.size() == 2);
-        query = QueryPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Query:" + endpoints[1]->toString()));
+        query = Ice::uncheckedCast<QueryPrx>(comm->stringToProxy("RepTestIceGrid/Query:" + endpoints[1]->toString()));
         test(objs == query->findAllObjectsByType("::IceGrid::Registry"));
     }
     cout << "ok" << endl;
@@ -411,12 +412,12 @@ allTests(Test::TestHelper* helper)
         // admin session creation for the creation of the admin
         // session above!)
         //
-        RegistryPrx masterRegistry = RegistryPrx::checkedCast(
+        shared_ptr<RegistryPrx> masterRegistry = Ice::checkedCast<RegistryPrx>(
             comm->stringToProxy("RepTestIceGrid/Registry")->ice_locator(replicatedLocator));
-        RegistryPrx slave1Registry = RegistryPrx::checkedCast(
+        shared_ptr<RegistryPrx> slave1Registry = Ice::checkedCast<RegistryPrx>(
             comm->stringToProxy("RepTestIceGrid/Registry-Slave1")->ice_locator(replicatedLocator));
 
-        SessionPrx session = masterRegistry->createSession("dummy", "dummy");
+        shared_ptr<SessionPrx> session = masterRegistry->createSession("dummy", "dummy");
         session->destroy();
         if(comm->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
         {
@@ -452,9 +453,9 @@ allTests(Test::TestHelper* helper)
         //
         // Test registry user-account mapper.
         //
-        UserAccountMapperPrx masterMapper = UserAccountMapperPrx::checkedCast(
+        shared_ptr<UserAccountMapperPrx> masterMapper = Ice::checkedCast<UserAccountMapperPrx>(
             comm->stringToProxy("RepTestIceGrid/RegistryUserAccountMapper")->ice_locator(replicatedLocator));
-        UserAccountMapperPrx slave1Mapper = UserAccountMapperPrx::checkedCast(
+        shared_ptr< UserAccountMapperPrx> slave1Mapper = Ice::checkedCast<UserAccountMapperPrx>(
             comm->stringToProxy("RepTestIceGrid/RegistryUserAccountMapper-Slave1")->ice_locator(replicatedLocator));
 
         test(masterMapper->getUserAccount("Dummy User Account1") == "dummy1");
@@ -536,7 +537,7 @@ allTests(Test::TestHelper* helper)
         // forwarding to the master work (the slave locator registry
         // forwards everything to the master).
         //
-        Ice::LocatorRegistryPrx locatorRegistry = slave1Locator->getRegistry();
+        shared_ptr<Ice::LocatorRegistryPrx> locatorRegistry = slave1Locator->getRegistry();
 
         //
         // Test addition of application, adapter, object.
@@ -614,7 +615,7 @@ allTests(Test::TestHelper* helper)
 
         ApplicationUpdateDescriptor appUpdate;
         appUpdate.name = "TestApp";
-        appUpdate.description = new BoxedString("updated2 application");
+        appUpdate.description = make_shared<BoxedString>("updated2 application");
         try
         {
             slave1Admin->updateApplication(appUpdate);
@@ -953,7 +954,7 @@ allTests(Test::TestHelper* helper)
         app.name = "TestApp";
         app.description = "added application";
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        ServerDescriptorPtr server = make_shared<ServerDescriptor>();
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
@@ -1189,7 +1190,7 @@ allTests(Test::TestHelper* helper)
         app.name = "TestApp";
         app.description = "added application";
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        ServerDescriptorPtr server = make_shared<ServerDescriptor>();
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
@@ -1239,7 +1240,7 @@ allTests(Test::TestHelper* helper)
 
         admin->startServer("Slave1");
         slave1Locator =
-            Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Master:default -p 12051"));
+            Ice::uncheckedCast<Ice::LocatorPrx>(comm->stringToProxy("RepTestIceGrid/Locator-Master:default -p 12051"));
         slave1Admin = createAdminSession(slave1Locator, "");
 
         waitForReplicaState(slave1Admin, "Slave2", true);
@@ -1279,7 +1280,7 @@ allTests(Test::TestHelper* helper)
 
         admin->startServer("Slave1");
         slave1Locator =
-            Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("RepTestIceGrid/Locator-Slave1:default -p 12051"));
+            Ice::uncheckedCast<Ice::LocatorPrx>(comm->stringToProxy("RepTestIceGrid/Locator-Slave1:default -p 12051"));
         slave1Admin = createAdminSession(slave1Locator, "Slave1");
 
         comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
@@ -1319,17 +1320,17 @@ allTests(Test::TestHelper* helper)
         admin->startServer("Node2");
         waitForNodeState(masterAdmin, "Node2", true);
 
-        Ice::LocatorPrx slave3Locator =
-            Ice::LocatorPrx::uncheckedCast(
+        shared_ptr<Ice::LocatorPrx> slave3Locator =
+            Ice::uncheckedCast<Ice::LocatorPrx>(
                 comm->stringToProxy("RepTestIceGrid/Locator-Slave3 -e 1.0:default -p 12053"));
-        IceGrid::AdminPrx slave3Admin = createAdminSession(slave3Locator, "Slave3");
+        shared_ptr<IceGrid::AdminPrx> slave3Admin = createAdminSession(slave3Locator, "Slave3");
         waitForNodeState(slave3Admin, "Node2", true);
 
         ApplicationDescriptor app;
         app.name = "TestApp";
         app.description = "added application";
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        auto server = make_shared<ServerDescriptor>();
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
@@ -1378,14 +1379,14 @@ allTests(Test::TestHelper* helper)
 
         app.replicaGroups.resize(1);
         app.replicaGroups[0].id = "TestReplicaGroup";
-        app.replicaGroups[0].loadBalancing = new IceGrid::RandomLoadBalancingPolicy("2");
+        app.replicaGroups[0].loadBalancing = make_shared<IceGrid::RandomLoadBalancingPolicy>("2");
 
         ObjectDescriptor object;
         object.id = Ice::stringToIdentity("test");
         object.type = "::Test::TestIntf";
         app.replicaGroups[0].objects.push_back(object);
 
-        ServerDescriptorPtr server = new ServerDescriptor();
+        auto server = make_shared<ServerDescriptor>();
         server->id = "Server1";
         server->exe = comm->getProperties()->getProperty("ServerDir") + "/server";
         server->pwd = ".";
@@ -1410,7 +1411,7 @@ allTests(Test::TestHelper* helper)
         server->adapters.push_back(adapter);
         app.nodes["Node1"].servers.push_back(server);
 
-        ServerDescriptorPtr server2 = ServerDescriptorPtr::dynamicCast(server->ice_clone());
+        auto server2 = dynamic_pointer_cast<ServerDescriptor>(server->ice_clone());
         server2->id = "Server2";
         app.nodes["Node2"].servers.push_back(server2);
 
@@ -1430,7 +1431,7 @@ allTests(Test::TestHelper* helper)
         comm->stringToProxy("test -e 1.0@TestAdapter.Server2")->ice_locator(
              masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
 
-        QueryPrx query = QueryPrx::uncheckedCast(
+        shared_ptr<QueryPrx> query = Ice::uncheckedCast<QueryPrx>(
              comm->stringToProxy("RepTestIceGrid/Query")->ice_locator(masterLocator));
         test(query->findAllReplicas(comm->stringToProxy("test")).size() == 2);
         test(masterAdmin->getAdapterInfo("TestReplicaGroup").size() == 2);

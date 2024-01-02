@@ -20,7 +20,7 @@ Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(new TestI(), Ice::stringToIdentity(communicator->getProperties()->getProperty("Identity")));
+    adapter->add(make_shared<TestI>(), Ice::stringToIdentity(communicator->getProperties()->getProperty("Identity")));
     try
     {
         adapter->activate();

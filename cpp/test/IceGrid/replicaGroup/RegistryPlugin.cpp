@@ -25,10 +25,10 @@ public:
 private:
 
     const Ice::CommunicatorPtr _communicator;
-    ReplicaGroupFilterPtr _filterByServer;
-    ReplicaGroupFilterPtr _excludeServer2;
-    ReplicaGroupFilterPtr _excludeServer3;
-    TypeFilterPtr _type;
+    std::shared_ptr<ReplicaGroupFilter> _filterByServer;
+    std::shared_ptr<ReplicaGroupFilter> _excludeServer2;
+    std::shared_ptr<ReplicaGroupFilter> _excludeServer3;
+    std::shared_ptr<TypeFilter> _type;
 };
 
 class ReplicaGroupFilterI : public IceGrid::ReplicaGroupFilter
@@ -175,10 +175,10 @@ RegistryPluginI::initialize()
     IceGrid::RegistryPluginFacadePtr facade = IceGrid::getRegistryPluginFacade();
     assert(facade);
 
-    _filterByServer = new ReplicaGroupFilterI(facade);
-    _excludeServer2 = new ExcludeReplicaGroupFilterI(facade, "Server2");
-    _excludeServer3 = new ExcludeReplicaGroupFilterI(facade, "Server3");
-    _type = new TypeFilterI(facade);
+    _filterByServer = make_shared<ReplicaGroupFilterI>(facade);
+    _excludeServer2 = make_shared<ExcludeReplicaGroupFilterI>(facade, "Server2");
+    _excludeServer3 = make_shared<ExcludeReplicaGroupFilterI>(facade, "Server3");
+    _type = make_shared<TypeFilterI>(facade);
 
     facade->addReplicaGroupFilter("filterByServer", _filterByServer);
     test(facade->removeReplicaGroupFilter("filterByServer", _filterByServer));
