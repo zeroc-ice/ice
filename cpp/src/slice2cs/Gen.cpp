@@ -2281,11 +2281,6 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (p->hasOnlyClassDecls() || p->hasOnlyInterfaces())
-    {
-        return false; // avoid empty namespace
-    }
-
     moduleStart(p);
     string name = fixId(p->name());
     _out << sp;
