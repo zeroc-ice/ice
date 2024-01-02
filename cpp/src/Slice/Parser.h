@@ -670,7 +670,7 @@ public:
     ClassDefPtr base() const;
     ClassList allBases() const;
     DataMemberList dataMembers() const;
-    DataMemberList sortedTaggedDataMembers() const;
+    DataMemberList orderedOptionalDataMembers() const;
     DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
     DataMemberList allClassDataMembers() const;

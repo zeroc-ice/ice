@@ -41,10 +41,6 @@ public class Collocated extends test.TestHelper
             {
                 return new JI();
             }
-            else if(type.equals("::Test::H"))
-            {
-                return new HI();
-            }
 
             assert (false); // Should never be reached
             return null;
@@ -84,7 +80,6 @@ public class Collocated extends test.TestHelper
             communicator.getValueFactoryManager().add(factory, "::Test::F");
             communicator.getValueFactoryManager().add(factory, "::Test::I");
             communicator.getValueFactoryManager().add(factory, "::Test::J");
-            communicator.getValueFactoryManager().add(factory, "::Test::H");
 
             communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 

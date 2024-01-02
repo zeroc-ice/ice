@@ -3452,6 +3452,12 @@ Slice::ClassDef::dataMembers() const
     return result;
 }
 
+DataMemberList
+Slice::ClassDef::orderedOptionalDataMembers() const
+{
+    return filterOrderedOptionalDataMembers(dataMembers());
+}
+
 //
 // Return the data members of this class and its parent classes, in base-to-derived order.
 //

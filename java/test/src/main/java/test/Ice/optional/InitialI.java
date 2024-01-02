@@ -288,19 +288,6 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public Initial.OpOneOptionalProxyResult opOneOptionalProxy(Optional<com.zeroc.Ice.ObjectPrx> p1, Current current)
-    {
-        return new Initial.OpOneOptionalProxyResult(p1, p1);
-    }
-
-    @Override
-    public Initial.OpOneOptionalProxyReqResult opOneOptionalProxyReq(Optional<com.zeroc.Ice.ObjectPrx> p1,
-                                                                     Current current)
-    {
-        return new Initial.OpOneOptionalProxyReqResult(p1, p1);
-    }
-
-    @Override
     public Initial.OpByteSeqResult opByteSeq(Optional<byte[]> p1, Current current)
     {
         return new Initial.OpByteSeqResult(p1, p1);

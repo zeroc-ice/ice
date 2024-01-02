@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Gen.h>
+#include "Gen.h"
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
@@ -151,17 +151,9 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
 {
     if(dispatch && op->hasMarshaledResult())
     {
-        const ClassDefPtr c = ClassDefPtr::dynamicCast(op->container());
-        assert(c);
-        string abs;
-        if(c->isInterface())
-        {
-            abs = getUnqualified(c, package);
-        }
-        else
-        {
-            abs = getUnqualified(c, package, "", "Disp");
-        }
+        const InterfaceDefPtr interface = op->interface();
+        assert(interface);
+        string abs = getUnqualified(interface, package);
         string name = op->name();
         name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
         return abs + "." + name + "MarshaledResult";
@@ -191,8 +183,6 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
         }
         if(type)
         {
-            ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-            assert(cl);
             if(optional)
             {
                 return typeToString(type, TypeModeReturn, package, op->getMetaData(), true, true);
@@ -239,8 +229,6 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     }
 
     const TypePtr ret = op->returnType();
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-    assert(cl);
 
     //
     // Default constructor.
@@ -500,8 +488,6 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
 {
     string opName = op->name();
     const TypePtr ret = op->returnType();
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-    assert(cl);
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
 
     out << sp;
@@ -711,7 +697,7 @@ Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const stri
     assert((b && b->usesClasses()) || cl);
 
     string clsName;
-    if(b || cl->isInterface())
+    if(b)
     {
         clsName = getUnqualified("com.zeroc.Ice.Value", package);
     }
@@ -736,7 +722,7 @@ Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const
     if((b && b->usesClasses()) || cl)
     {
         string clsName;
-        if(b || cl->isInterface())
+        if(b)
         {
             clsName = getUnqualified("com.zeroc.Ice.Value", package);
         }
@@ -779,9 +765,6 @@ vector<string>
 Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 {
     vector<string> params;
-
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-    assert(cl);
 
     const ParamDeclList paramList = op->inParameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -1056,8 +1039,6 @@ void
 Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter,
                                              bool forStruct)
 {
-    // TBD: Handle passing interface-by-value
-
     const string patchParams = getPatcher(member->type(), package, fixKwd(member->name()));
 
     if(member->optional())
@@ -1085,33 +1066,17 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
 }
 
 void
-Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
+Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 {
     const string name = fixKwd(p->name());
     const string package = getPackage(p);
     const string scoped = p->scoped();
-    const ClassList bases = p->bases();
-    ClassDefPtr base;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        base = bases.front();
-    }
+    const InterfaceList bases = p->bases();
     const OperationList ops = p->operations();
 
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for (const auto& op : ops)
     {
-        OperationPtr op = *r;
-
         CommentPtr dc = op->parseComment(false);
-
-        //
-        // The "MarshaledResult" type is generated in the servant interface.
-        //
-        if(!p->isInterface() && op->hasMarshaledResult())
-        {
-            writeMarshaledResultType(out, op, package, dc);
-        }
-
         vector<string> params = getParams(op, package);
         const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " +
             getEscapedParamName(op, "current");
@@ -1145,21 +1110,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
     }
 
-    ClassList allBases = p->allBases();
-    StringList ids;
+    StringList ids = p->ids();
 
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-
-    StringList other;
-    other.push_back(scoped);
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
 #ifndef NDEBUG
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
@@ -1195,19 +1147,13 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     out << sp << nl;
     out << "static String ice_staticId()";
     out << sb;
-    if(p->isInterface())
-    {
-        out << nl << "return \"" << p->scoped() << "\";";
-    }
-    else
-    {
-        out << nl << "return " << fixKwd(p->name()) << ".ice_staticId();";
-    }
+
+    out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
 
     //
     // Dispatch methods. We only generate methods for operations
-    // defined in this ClassDef, because we reuse existing methods
+    // defined in this InterfaceDef, because we reuse existing methods
     // for inherited operations.
     //
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
@@ -1238,14 +1184,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << nl << "static java.util.concurrent.CompletionStage<"
             << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << "> _iceD_" << opName << '(';
-        if(p->isInterface())
-        {
-            out << name;
-        }
-        else
-        {
-            out << p->name() << "Disp";
-        }
+        out << name;
         out << " obj, final " << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " inS, "
             << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
         if(!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
@@ -1430,10 +1369,9 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             // Suppress deprecation warnings if this method dispatches to a deprecated operation.
             //
             OperationPtr op = *r;
-            ContainerPtr container = op->container();
-            ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-            assert(cl);
-            if(isDeprecated(op, cl))
+            InterfaceDefPtr interface = op->interface();
+            assert(interface);
+            if(isDeprecated(op, interface))
             {
                 out << nl << "@SuppressWarnings(\"deprecation\")";
                 break;
@@ -1492,24 +1430,15 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                 {
                     if((*t)->name() == (*q))
                     {
-                        ContainerPtr container = (*t)->container();
-                        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-                        assert(cl);
-                        if(cl->scoped() == p->scoped())
+                        InterfaceDefPtr interface = (*t)->interface();
+                        assert(interface);
+                        if(interface->scoped() == p->scoped())
                         {
                             out << nl << "return _iceD_" << opName << "(this, in, current);";
                         }
                         else
                         {
-                            string baseName;
-                            if(cl->isInterface())
-                            {
-                                baseName = getUnqualified(cl, package);
-                            }
-                            else
-                            {
-                                baseName = getUnqualified(cl, package, "", "Disp");
-                            }
+                            string baseName = getUnqualified(interface, package);
                             out << nl << "return " << baseName << "._iceD_" << opName << "(this, in, current);";
                         }
                         break;
@@ -1532,12 +1461,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     string name = fixKwd(p->name());
     string package = getPackage(p);
     string scoped = p->scoped();
-    ClassList bases = p->bases();
-    ClassDefPtr base;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        base = bases.front();
-    }
+    ClassDefPtr base = p->base();
 
     int iter;
     DataMemberList members = p->dataMembers();
@@ -2276,9 +2200,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
     ProxyVisitor proxyVisitor(_dir);
     p->visit(&proxyVisitor, false);
-
-    DispatcherVisitor dispatcherVisitor(_dir);
-    p->visit(&dispatcherVisitor, false);
 }
 
 void
@@ -2322,13 +2243,7 @@ bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = p->name();
-    ClassList bases = p->bases();
-    ClassDefPtr baseClass;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        baseClass = bases.front();
-    }
-
+    ClassDefPtr baseClass = p->base();
     string package = getPackage(p);
     string absolute = getUnqualified(p);
     DataMemberList members = p->dataMembers();
@@ -2363,79 +2278,44 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << nl << "@Deprecated";
     }
-    if(p->isInterface())
+
+    out << nl << "public class " << fixKwd(name);
+    out.useCurrentPosAsIndent();
+
+    if (baseClass)
     {
-        out << nl << "public interface " << fixKwd(name);
-        ClassList::const_iterator q = bases.begin();
-        StringList::const_iterator r = implements.begin();
-
-        out << " extends ";
-        out.useCurrentPosAsIndent();
-        if(bases.empty())
-        {
-            out << getUnqualified("com.zeroc.Ice.Object", package);
-        }
-        else if(q != bases.end())
-        {
-            out << getUnqualified(*q++, package);
-        }
-        else if(r != implements.end())
-        {
-            out << *r++;
-        }
-
-        for(;q != bases.end(); ++q)
-        {
-            out << ',' << nl << getUnqualified(*q, package);
-        }
-        for(; r != implements.end(); ++r)
-        {
-            out << ',' << nl << *r;
-        }
-        out.restoreIndent();
+        out << " extends " << getUnqualified(baseClass, package);
     }
     else
     {
-        out << nl << "public ";
-        if(!p->allOperations().empty() || !implements.empty())
-        {
-            out << "abstract ";
-        }
-        out << "class " << fixKwd(name);
-        out.useCurrentPosAsIndent();
+        out << " extends " << getUnqualified("com.zeroc.Ice.Value", package);
+    }
 
-        if(baseClass)
-        {
-            out << " extends " << getUnqualified(baseClass, package);
-            bases.pop_front();
-        }
-        else
-        {
-            out << " extends " << getUnqualified("com.zeroc.Ice.Value", package);
-        }
-
-        if(!implements.empty())
+    if (!implements.empty())
+    {
+        if (baseClass)
         {
             out << nl;
-            out << " implements ";
-            out.useCurrentPosAsIndent();
-            for(StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
-            {
-                if(q != implements.begin())
-                {
-                    out << ',' << nl;
-                }
-                out << *q;
-            }
-            out.restoreIndent();
         }
 
+        out << " implements ";
+        out.useCurrentPosAsIndent();
+        for (StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
+        {
+            if (q != implements.begin())
+            {
+                out << ',' << nl;
+            }
+            out << *q;
+        }
         out.restoreIndent();
     }
 
+    out.restoreIndent();
+
     out << sb;
 
-    if(!p->isInterface() && !allDataMembers.empty())
+    if (!allDataMembers.empty())
     {
         bool hasOptionalMembers = false;
         bool hasRequiredMembers = false;
@@ -2580,93 +2460,144 @@ void
 Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
-
-    ClassList bases = p->bases();
-    ClassDefPtr baseClass;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        baseClass = bases.front();
-    }
+    ClassDefPtr baseClass = p->base();
 
     string name = fixKwd(p->name());
 
-    if(!p->isInterface())
+    out << sp << nl << "public " << name << " clone()";
+    out << sb;
+
+    out << nl << "return (" << name << ")super.clone();";
+    out << eb;
+
+    out << sp << nl << "public static String ice_staticId()";
+    out << sb;
+    out << nl << "return \"" << p->scoped() << "\";";
+    out << eb;
+
+    out << sp << nl << "@Override";
+    out << nl << "public String ice_id()";
+    out << sb;
+    out << nl << "return ice_staticId();";
+    out << eb;
+
+    out << sp;
+    writeHiddenDocComment(out);
+    out << nl << "public static final long serialVersionUID = ";
+    string serialVersionUID;
+    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
-        out << sp << nl << "public " << name << " clone()";
-        out << sb;
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
+        assert(dc);
 
-        out << nl << "return (" << name << ")super.clone();";
-        out << eb;
-    }
-
-    if(!p->isInterface())
-    {
-        out << sp << nl << "public static String ice_staticId()";
-        out << sb;
-        out << nl << "return \"" << p->scoped() << "\";";
-        out << eb;
-
-        out << sp << nl << "@Override";
-        out << nl << "public String ice_id()";
-        out << sb;
-        out << nl << "return ice_staticId();";
-        out << eb;
-    }
-
-    if(!p->isInterface())
-    {
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "public static final long serialVersionUID = ";
-        string serialVersionUID;
-        if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+        string::size_type pos = serialVersionUID.rfind(":") + 1;
+        if(pos == string::npos)
         {
-            const UnitPtr unt = p->unit();
-            const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
-            assert(dc);
-
-            string::size_type pos = serialVersionUID.rfind(":") + 1;
-            if(pos == string::npos)
-            {
-                ostringstream os;
-                os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-                dc->warning(InvalidMetaData, "", "", os.str());
-                out << computeSerialVersionUUID(p);
-            }
-            else
-            {
-                Int64 v = 0;
-                serialVersionUID = serialVersionUID.substr(pos);
-                if(serialVersionUID != "0")
-                {
-                    if(!stringToInt64(serialVersionUID, v)) // conversion error
-                    {
-                        ostringstream os;
-                        os << "ignoring invalid serialVersionUID for class `" << p->scoped()
-                           << "'; generating default value";
-                        dc->warning(InvalidMetaData, "", "", os.str());
-                        out << computeSerialVersionUUID(p);
-                    }
-                }
-                out << v;
-            }
+            ostringstream os;
+            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
+            dc->warning(InvalidMetaData, "", "", os.str());
+            out << computeSerialVersionUUID(p);
         }
         else
         {
-            out << computeSerialVersionUUID(p);
+            Int64 v = 0;
+            serialVersionUID = serialVersionUID.substr(pos);
+            if(serialVersionUID != "0")
+            {
+                if(!stringToInt64(serialVersionUID, v)) // conversion error
+                {
+                    ostringstream os;
+                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
+                       << "'; generating default value";
+                    dc->warning(InvalidMetaData, "", "", os.str());
+                    out << computeSerialVersionUUID(p);
+                }
+            }
+            out << v;
         }
-        out << "L;";
-    }
-
-    if(p->isInterface())
-    {
-        writeDispatch(out, p);
     }
     else
     {
-        writeMarshaling(out, p);
+        out << computeSerialVersionUUID(p);
+    }
+    out << "L;";
+
+    writeMarshaling(out, p);
+
+    out << eb;
+    close();
+}
+
+bool
+Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    string name = p->name();
+    InterfaceList bases = p->bases();
+
+    string package = getPackage(p);
+    string absolute = getUnqualified(p);
+    open(absolute, p->file());
+
+    Output& out = output();
+    CommentPtr dc = p->parseComment(false);
+
+    bool hasOptionals = false; // currently with the meaning "tagged"
+    for(const auto& op : p->allOperations())
+    {
+        if(op->returnIsOptional())
+        {
+            hasOptionals = true;
+            break;
+        }
+
+        for(const auto& q : op->parameters())
+        {
+            if(q->optional())
+            {
+                hasOptionals = true;
+                break;
+            }
+        }
+        if (hasOptionals)
+        {
+            break;
+        }
     }
 
+    out << sp;
+    writeDocComment(out, p->unit(), dc);
+    if(dc && dc->isDeprecated())
+    {
+        out << nl << "@Deprecated";
+    }
+
+    out << nl << "public interface " << fixKwd(name) << " extends ";
+    InterfaceList::const_iterator q = bases.begin();
+    out.useCurrentPosAsIndent();
+    if (bases.empty())
+    {
+        out << getUnqualified("com.zeroc.Ice.Object", package);
+    }
+    else if (q != bases.end())
+    {
+        out << getUnqualified(*q++, package);
+    }
+
+    for (; q != bases.end(); ++q)
+    {
+        out << ',' << nl << getUnqualified(*q, package);
+    }
+    out.restoreIndent();
+    out << sb;
+    return true;
+}
+
+void
+Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    Output& out = output();
+    writeDispatch(out, p);
     out << eb;
     close();
 }
@@ -2678,10 +2609,10 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     // Generate the operation signature for a servant.
     //
 
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    assert(cl);
+    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(p->container());
+    assert(interface);
 
-    const string package = getPackage(cl);
+    const string package = getPackage(interface);
 
     Output& out = output();
 
@@ -2698,7 +2629,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     //
     // The "MarshaledResult" type is generated in the servant interface.
     //
-    if(cl->isInterface() && p->hasMarshaledResult())
+    if(p->hasMarshaledResult())
     {
         writeMarshaledResultType(out, p, package, dc);
     }
@@ -3576,30 +3507,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
         //
-        // If container is a class, get all of its operations so that we can check for conflicts.
-        //
-        OperationList ops;
-        string file, line;
-        if(cls)
-        {
-            ops = cls->allOperations();
-            file = p->file();
-            line = p->line();
-            if(!validateMethod(ops, "get" + capName, 0, file, line) ||
-               !validateMethod(ops, "set" + capName, 1, file, line))
-            {
-                return;
-            }
-            if(optional &&
-               (!validateMethod(ops, "has" + capName, 0, file, line) ||
-                !validateMethod(ops, "clear" + capName, 0, file, line) ||
-                !validateMethod(ops, "optional" + capName, 0, file, line)))
-            {
-                return;
-            }
-        }
-
-        //
         // Getter.
         //
         out << sp;
@@ -3760,10 +3667,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         if(b && b->kind() == Builtin::KindBool)
         {
-            if(cls && !validateMethod(ops, "is" + capName, 0, file, line))
-            {
-                return;
-            }
             out << sp;
             if(dc && dc->isDeprecated())
             {
@@ -3790,13 +3693,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             if(!hasTypeMetaData(seq, metaData))
             {
-                if(cls &&
-                   (!validateMethod(ops, "get" + capName, 1, file, line) ||
-                    !validateMethod(ops, "set" + capName, 2, file, line)))
-                {
-                    return;
-                }
-
                 string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained), StringList(), true,false);
 
                 //
@@ -4017,28 +3913,6 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     writeConstantValue(out, type, p->valueType(), p->value(), package);
     out << ';' << eb;
     close();
-}
-
-bool
-Slice::Gen::TypesVisitor::validateMethod(const OperationList& ops, const std::string& name, int numArgs,
-                                         const string& file, const string& line)
-{
-    for(OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
-    {
-        if((*i)->name() == name)
-        {
-            int numParams = static_cast<int>((*i)->parameters().size());
-            if(numArgs >= numParams && numArgs - numParams <= 1)
-            {
-                ostringstream ostr;
-                ostr << "operation `" << name << "' conflicts with method for data member";
-                emitError(file, line, ostr.str());
-                return false;
-            }
-            break;
-        }
-    }
-    return true;
 }
 
 Slice::Gen::CompactIdVisitor::CompactIdVisitor(const string& dir) :
@@ -4389,34 +4263,18 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) :
 }
 
 bool
-Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    //
-    // Don't generate a proxy interface for a class with no operations.
-    //
     const OperationList ops = p->allOperations();
-    if(!p->isInterface() && ops.empty())
-    {
-        return false;
-    }
 
     string name = p->name();
-    ClassList bases = p->bases();
+    InterfaceList bases = p->bases();
     string package = getPackage(p);
     string absolute = getUnqualified(p, "", "", "Prx");
 
     open(absolute, p->file());
 
     Output& out = output();
-
-    //
-    // For proxy purposes, we can ignore a base class if it has no operations.
-    //
-    if(!bases.empty() && !bases.front()->isInterface() && bases.front()->allOperations().empty())
-    {
-        bases.pop_front();
-    }
-
     CommentPtr dc = p->parseComment(false);
 
     //
@@ -4436,7 +4294,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
             if(q != bases.begin())
             {
@@ -4453,7 +4311,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
 
@@ -4826,9 +4684,8 @@ void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     const string name = fixKwd(p->name());
-    const ContainerPtr container = p->container();
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    const string package = getPackage(cl);
+    const InterfaceDefPtr interface = p->interface();
+    const string package = getPackage(interface);
 
     Output& out = output();
 
@@ -5165,95 +5022,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isInterface() || p->allOperations().empty())
-    {
-        return false;
-    }
-
-    const string name = p->name();
-    const string absolute = getUnqualified(p, "", "", "Disp");
-    const string package = getPackage(p);
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    out << sp;
-    CommentPtr dc = p->parseComment(false);
-    writeDocComment(out, p->unit(), dc);
-    if(dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
-    out << nl << "public interface " << name << "Disp";
-
-    //
-    // For dispatch purposes, we can ignore a base class if it has no operations.
-    //
-    ClassList bases = p->bases();
-    if(!bases.empty() && !bases.front()->isInterface() && bases.front()->allOperations().empty())
-    {
-        bases.pop_front();
-    }
-
-    if(bases.empty())
-    {
-        out << " extends " << getUnqualified("com.zeroc.Ice.Object", package);
-    }
-    else
-    {
-        out << " extends ";
-        out.useCurrentPosAsIndent();
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            if(q != bases.begin())
-            {
-                out << ',' << nl;
-            }
-            if(!(*q)->isInterface())
-            {
-                out << getUnqualified(*q, package, "", "Disp");
-            }
-            else
-            {
-                out << getUnqualified(*q, package);
-            }
-        }
-        out.restoreIndent();
-    }
-    out << sb;
-
-    writeDispatch(out, p);
-
-    out << eb;
-    close();
-
-    return false;
-}
-
 Slice::Gen::ImplVisitor::ImplVisitor(const string& dir) :
     JavaVisitor(dir)
 {
 }
 
 bool
-Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    if(!p->isAbstract())
-    {
-        return false;
-    }
-
     string name = p->name();
-    ClassList bases = p->bases();
+    InterfaceList bases = p->bases();
     string package = getPackage(p);
     string absolute = getUnqualified(p, "", "", "I");
 
@@ -5262,14 +5040,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = output();
 
     out << sp << nl << "public final class " << name << 'I';
-    if(p->isInterface())
-    {
-        out << " implements " << fixKwd(name);
-    }
-    else
-    {
-        out << " implements " << name << "Disp";
-    }
+    out << " implements " << fixKwd(name);
     out << sb;
 
     out << nl << "public " << name << "I()";
@@ -5451,13 +5222,12 @@ Slice::Gen::ImplVisitor::writeOperation(Output& out, const string& package, cons
     throws.sort();
     throws.unique();
 
-    const ContainerPtr container = op->container();
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    const InterfaceDefPtr interface = op->interface();
 
     const vector<string> params = getParams(op, package);
     const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " + getEscapedParamName(op, "current");
 
-    const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
+    const bool amd = interface->hasMetaData("amd") || op->hasMetaData("amd");
 
     if(amd)
     {
