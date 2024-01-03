@@ -219,7 +219,7 @@ public:
         auto asyncCB = make_shared<Callback>();
         session->allocateObjectByIdAsync(Ice::stringToIdentity(os.str()),
                                          [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },
-                                         [asyncCB](exception_ptr e) { asyncCB->exception(e); });
+                                         [asyncCB](exception_ptr) { asyncCB->exception(); });
         session->destroy();
     }
 
@@ -228,7 +228,7 @@ public:
         auto asyncCB = make_shared<Callback>();
         session->allocateObjectByTypeAsync("::StressTest",
                                           [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },
-                                          [asyncCB](exception_ptr e) { asyncCB->exception(e); });
+                                          [asyncCB](exception_ptr) { asyncCB->exception(); });
         session->destroy();
     }
 
@@ -1297,7 +1297,7 @@ allTests(Test::TestHelper* helper)
 
         for(const auto& c : clients)
         {
-            p.first->notifyThread();
+            c.first->notifyThread();
         }
 
         //
