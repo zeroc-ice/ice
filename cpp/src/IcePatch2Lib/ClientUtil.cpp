@@ -420,27 +420,15 @@ PatcherI::prepare()
                             {
                                 _serverCompress->getFileInfoSeqAsync(
                                     static_cast<Int>(node0),
-                                    [curCB](FileInfoSeq fileInfoSeq)
-                                    {
-                                        curCB->complete(fileInfoSeq);
-                                    },
-                                    [curCB](exception_ptr exception)
-                                    {
-                                        curCB->exception(exception);
-                                    });
+                                    [curCB](FileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
+                                    [curCB](exception_ptr exception) { curCB->exception(exception); });
                             }
                             else
                             {
                                 _serverCompress->getLargeFileInfoSeqAsync(
                                     static_cast<Int>(node0),
-                                    [curCB](LargeFileInfoSeq fileInfoSeq)
-                                    {
-                                        curCB->complete(fileInfoSeq);
-                                    },
-                                    [curCB](exception_ptr exception)
-                                    {
-                                        curCB->exception(exception);
-                                    });
+                                    [curCB](LargeFileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
+                                    [curCB](exception_ptr exception) { curCB->exception(exception); });
                             }
 #else
                             assert(!nxtCB);
@@ -470,27 +458,15 @@ PatcherI::prepare()
                             {
                                 _serverCompress->getFileInfoSeqAsync(
                                     static_cast<Int>(node0),
-                                    [nxtCB](FileInfoSeq fileInfoSeq)
-                                    {
-                                        nxtCB->complete(fileInfoSeq);
-                                    },
-                                    [nxtCB](exception_ptr exception)
-                                    {
-                                        nxtCB->exception(exception);
-                                    });
+                                    [nxtCB](FileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
+                                    [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
                             }
                             else
                             {
                                 _serverCompress->getLargeFileInfoSeqAsync(
                                     static_cast<Int>(node0),
-                                    [nxtCB](LargeFileInfoSeq fileInfoSeq)
-                                    {
-                                        nxtCB->complete(fileInfoSeq);
-                                    },
-                                    [nxtCB](exception_ptr exception)
-                                    {
-                                        nxtCB->exception(exception);
-                                    });
+                                    [nxtCB](LargeFileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
+                                    [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
                             }
 #else
                             nxtCB = _useSmallFileAPI ?
@@ -911,15 +887,8 @@ void getFileCompressed(
             path,
             static_cast<Ice::Int>(pos),
             chunkSize,
-            [cb](std::pair<const Byte*, const Byte*> result)
-            {
-                ByteSeq bytes(result.first, result.second);
-                cb->complete(bytes);
-            },
-            [cb](exception_ptr exception)
-            {
-                cb->exception(exception);
-            });
+            [cb](std::pair<const Byte*, const Byte*> result) { cb->complete(ByteSeq(result.first, result.second)); },
+            [cb](exception_ptr exception) { cb->exception(exception); });
     }
     else
     {
@@ -927,15 +896,8 @@ void getFileCompressed(
             path,
             pos,
             chunkSize,
-            [cb](std::pair<const Byte*, const Byte*> result)
-            {
-                ByteSeq bytes(result.first, result.second);
-                cb->complete(bytes);
-            },
-            [cb](exception_ptr exception)
-            {
-                cb->exception(exception);
-            });
+            [cb](std::pair<const Byte*, const Byte*> result) { cb->complete(ByteSeq(result.first, result.second)); },
+            [cb](exception_ptr exception) { cb->exception(exception); });
     }
 }
 #endif
