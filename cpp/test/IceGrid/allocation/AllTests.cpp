@@ -30,7 +30,7 @@ public:
         {
             lock_guard<mutex> lg(_mutex);
             _response = true;
-            _obj = move(obj);
+            _obj = std::move(obj);
         }
 
         _condVar.notify_one();
@@ -81,7 +81,7 @@ public:
 
     StressClient(int id, shared_ptr<RegistryPrx> registry, bool destroySession) :
         _id(id),
-        _registry(move(registry)),
+        _registry(std::move(registry)),
         _notified(false),
         _terminated(false),
         _destroySession(destroySession)
@@ -90,7 +90,7 @@ public:
 
     StressClient(int id, shared_ptr<SessionPrx> session) :
         _id(id),
-        _session(move(session)),
+        _session(std::move(session)),
         _notified(false),
         _terminated(false),
         _destroySession(false)
@@ -218,7 +218,7 @@ public:
 
         auto cb = make_shared<Callback>();
         session->allocateObjectByIdAsync(Ice::stringToIdentity(os.str()),
-                                         [cb](shared_ptr<Ice::ObjectPrx> o) { cb->response(move(o)); },
+                                         [cb](shared_ptr<Ice::ObjectPrx> o) { cb->response(std::move(o)); },
                                          [cb](exception_ptr) { cb->exception(); });
         session->destroy();
     }
@@ -228,8 +228,8 @@ public:
     {
         auto cb = make_shared<Callback>();
         session->allocateObjectByTypeAsync("::StressTest",
-                                          [cb](shared_ptr<Ice::ObjectPrx> o) { cb->response(move(o)); },
-                                          [cb](exception_ptr) { cb->exception(); });
+                                           [cb](shared_ptr<Ice::ObjectPrx> o) { cb->response(std::move(o)); },
+                                           [cb](exception_ptr) { cb->exception(); });
         session->destroy();
     }
 

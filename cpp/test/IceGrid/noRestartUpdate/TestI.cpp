@@ -6,8 +6,8 @@
 #include <TestI.h>
 
 TestI::TestI(std::shared_ptr<Ice::ObjectAdapter> adapter, std::shared_ptr<Ice::Properties> properties) :
-    _adapter(move(adapter)),
-    _properties(move(properties))
+    _adapter(std::move(adapter)),
+    _properties(std::move(properties))
 {
 }
 

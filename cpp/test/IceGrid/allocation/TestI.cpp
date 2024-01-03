@@ -6,7 +6,7 @@
 #include <TestI.h>
 
 TestI::TestI(std::shared_ptr<Ice::Properties> properties) :
-    _properties(move(properties))
+    _properties(std::move(properties))
 {
 }
 
