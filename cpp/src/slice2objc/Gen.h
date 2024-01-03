@@ -19,7 +19,7 @@ public:
 
 protected:
 
-    virtual void writeDispatchAndMarshalling(const ClassDefPtr&);
+    virtual void writeDispatchAndMarshalling(const InterfaceDefPtr&);
     virtual void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false);
     virtual std::string getName(const OperationPtr&) const;
     virtual std::string getSelector(const OperationPtr&) const;
@@ -89,6 +89,7 @@ private:
         DeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
     };
 
     class ProxyDeclVisitor : public ObjCVisitor
@@ -97,7 +98,7 @@ private:
 
         ProxyDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
-        virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
     };
 
     class TypesVisitor : public ObjCVisitor
@@ -109,8 +110,10 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -152,8 +155,8 @@ private:
 
         ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
     };
 
@@ -164,6 +167,7 @@ private:
         HelperVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual void visitEnum(const EnumPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
@@ -178,8 +182,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
     };
 };

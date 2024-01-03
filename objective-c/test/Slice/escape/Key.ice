@@ -39,7 +39,7 @@ interface switch
     void foo3(char* export, out int nil);
 }
 
-class do implements char, break, switch
+class do
 {
     int if;
 }
@@ -61,8 +61,8 @@ exception sizeof extends return
 
 interface friend
 {
-    auto goto(continue if, auto d, delete inline, switch private, do mutable, break* namespace,
-              char* new, switch* not, do* operator, int or, int protected, int public, int register)
+    auto goto(continue if, auto d, delete inline, do mutable, break* namespace,
+              char* new, switch* not, int or, int protected, int public, int register)
               throws return, sizeof;
 
     void objc(int bycopy, int byref, int id, int IMP, int in, int inout, int nil, int NO, int oneway,

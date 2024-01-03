@@ -64,9 +64,6 @@
 }
 @end
 
-@implementation TestObjectsHI
-@end
-
 /*@implementation TestObjectsII
 -(void) dealloc
 {
@@ -231,21 +228,6 @@
     *theD = _d;
 }
 
--(TestObjectsI*) getI:(ICECurrent*)__unused current
-{
-    return [TestObjectsI i];
-}
-
--(TestObjectsI*) getJ:(ICECurrent*)__unused current
-{
-    return (TestObjectsI*)[TestObjectsJ j];
-}
-
--(TestObjectsI*) getH:(ICECurrent*)__unused current
-{
-    return (TestObjectsI*)[TestObjectsH h];
-}
-
 -(ICEObject*) getK:(ICECurrent*)__unused current
 {
     return [[TestObjectsK alloc] init:[[TestObjectsL alloc] init:@"l"]];
@@ -318,10 +300,6 @@
 {
 }
 
--(void) setI:(TestObjectsI*)__unused i current:(ICECurrent*)__unused current
-{
-}
-
 -(TestObjectsObjectSeq *) getObjectSeq:(TestObjectsMutableObjectSeq *)s current:(ICECurrent*)__unused current
 {
     return s;
@@ -337,11 +315,6 @@
     return s;
 }
 
--(TestObjectsBasePrxSeq *) getBasePrxSeq:(TestObjectsMutableBasePrxSeq *)s current:(ICECurrent*)__unused current
-{
-    return s;
-}
-
 -(TestObjectsObjectDict *) getObjectDict:(TestObjectsMutableObjectDict *)d current:(ICECurrent*)__unused current
 {
     return d;
@@ -353,11 +326,6 @@
 }
 
 -(TestObjectsBaseDict *) getBaseDict:(TestObjectsMutableBaseDict *)d current:(ICECurrent*)__unused current
-{
-    return d;
-}
-
--(TestObjectsBasePrxDict *) getBasePrxDict:(TestObjectsMutableBasePrxDict *)d current:(ICECurrent*)__unused current
 {
     return d;
 }
@@ -383,11 +351,6 @@
 -(BOOL) hasF3:(ICECurrent *)__unused current
 {
     return NO;
-}
-
--(TestObjectsN*) opN:(TestObjectsN*)p1 current:(ICECurrent *)__unused current
-{
-    return p1;
 }
 @end
 

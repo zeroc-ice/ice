@@ -204,11 +204,11 @@ Slice::ObjCVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params, con
 }
 
 void
-Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
+Slice::ObjCVisitor::writeDispatchAndMarshalling(const InterfaceDefPtr& p)
 {
     string name = fixName(p);
     string scoped = p->scoped();
-    ClassList allBases = p->allBases();
+    InterfaceList allBases = p->allBases();
     StringList ids;
 
     transform(allBases.begin(), allBases.end(), back_inserter(ids),
@@ -249,9 +249,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
-        ContainerPtr container = op->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        assert(cl);
+        InterfaceDefPtr interface = op->interface();
 
         string opName = getName(op);
         _M << sp << nl << "+(void) iceD_" << op->name() << ":(id<" << name << ">)target current:(ICECurrent *)current "
@@ -344,7 +342,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
         map<string, string> allOpNames;
         for(OperationList::const_iterator p = allOps.begin(); p != allOps.end(); ++p)
         {
-            allOpNames.insert(make_pair((*p)->name(), fixName(ClassDefPtr::dynamicCast((*p)->container()))));
+            allOpNames.insert(make_pair((*p)->name(), fixName((*p)->interface())));
         }
 
         allOpNames["ice_id"] = "ICEObject";
@@ -764,7 +762,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     _H << sp << nl << "#import <objc/Ice/Config.h>";
-    if(p->hasClassDecls())
+    if(p->hasClassDecls() || p->hasInterfaceDecls())
     {
         _H << nl << "#import <objc/Ice/Proxy.h>";
         _H << nl << "#import <objc/Ice/Current.h>";
@@ -936,10 +934,14 @@ void
 Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     _H << sp;
-    if(!p->isInterface())
-    {
-        _H << nl << "@class " << fixName(p) << ";";
-    }
+    _H << nl << "@class " << fixName(p) << ";";
+    _H << nl << "@protocol " << fixName(p) << ";";
+}
+
+void
+Slice::Gen::DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
+{
+    _H << sp;
     _H << nl << "@protocol " << fixName(p) << ";";
 }
 
@@ -949,7 +951,7 @@ Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& H, Output& M, const strin
 }
 
 void
-Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
+Slice::Gen::ProxyDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     _H << sp << nl << "@class " << fixName(p) << "Prx;";
     _H << nl << "@protocol " << fixName(p) << "Prx;";
@@ -987,23 +989,13 @@ bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = fixName(p);
-    ClassList bases = p->bases();
+    ClassDefPtr base = p->base();
 
     _H << sp << nl << _dllExport << "@protocol " << name;
 
-    if(!bases.empty())
+    if (base)
     {
-        _H << " <";
-        for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
-        {
-            string baseName = fixName(*i);
-            if(i != bases.begin())
-            {
-                _H << ", ";
-            }
-            _H << baseName;
-        }
-        _H << ">";
+        _H << " <" << fixName(base) << ">";
     }
     else
     {
@@ -1018,15 +1010,16 @@ void
 Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string name = fixName(p);
-    ClassList bases = p->bases();
+    ClassDefPtr base = p->base();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
-    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
-    string baseName = hasBaseClass ? fixName(bases.front()) : "ICEServant";
+
+    // TODO: fix the base to not include ice_id etc.
+    string baseName = base ? fixName(base) : "ICEServant";
     DataMemberList baseDataMembers;
-    if(hasBaseClass)
+    if(base)
     {
-        baseDataMembers = bases.front()->allDataMembers();
+        baseDataMembers = base->allDataMembers();
     }
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
@@ -1091,28 +1084,16 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     //
-    // Operations
-    //
-    OperationList ops = p->operations();
-    OperationList::const_iterator r;
-    for(r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        _H << nl << "+(void) iceD_" << op->name() << ":(id<" << name << ">)target current:(ICECurrent *)current "
-           << "is:(id<ICEInputStream>)istr os:(id<ICEOutputStream>)ostr;";
-    }
-
-    //
     // Marshaling/unmarshaling
     //
 
     _M << sp << nl << "-(void) iceWriteImpl:(id<ICEOutputStream>)ostr";
     _M << sb;
     _M << nl << "[ostr startSlice:@\"" << p->scoped() << "\" compactId:" << p->compactId()
-       << " lastSlice:" << (!hasBaseClass ? "YES" : "NO") << "];";
+       << " lastSlice:" << (base ? "NO" : "YES") << "];";
     writeMemberMarshal(dataMembers, optionalMembers, BaseTypeObject);
     _M << nl << "[ostr endSlice];";
-    if(hasBaseClass)
+    if(base)
     {
         _M << nl << "[super iceWriteImpl:ostr];";
     }
@@ -1123,13 +1104,58 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _M << nl << "[istr startSlice];";
     writeMemberUnmarshal(dataMembers, optionalMembers, BaseTypeObject);
     _M << nl << "[istr endSlice];";
-    if(hasBaseClass)
+    if(base)
     {
         _M << nl << "[super iceReadImpl:istr];";
     }
     _M << eb;
 
-    writeDispatchAndMarshalling(p);
+    // TODO: the code below is a very complicated way to implement ice_staticId through ICEObject.
+
+    ClassList allBases = p->allBases();
+    StringList ids;
+
+    transform(allBases.begin(), allBases.end(), back_inserter(ids),
+              [](const ContainedPtr& it)
+              {
+                  return it->scoped();
+              });
+
+    StringList other;
+    other.push_back(p->scoped());
+    other.push_back("::Ice::Object");
+    other.sort();
+    ids.merge(other);
+    ids.unique();
+
+    StringList::const_iterator firstIter = ids.begin();
+    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
+    assert(scopedIter != ids.end());
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+
+    _M << sp << nl << "static NSString * iceS_" << name << "_ids[] =";
+    _M << sb;
+    {
+        StringList::const_iterator q = ids.begin();
+        while(q != ids.end())
+        {
+            _M << nl << "@\"" << *q << '"';
+            if(++q != ids.end())
+            {
+                _M << ',';
+            }
+        }
+    }
+    _M << eb << ";";
+
+    _M << sp << nl << "+(NSString * const*) iceStaticIds:(int*)count idIndex:(int*)idx";
+    _M << sb;
+    _M << nl << "*count = sizeof(iceS_" << name << "_ids) / sizeof(NSString *);";
+    _M << nl << "*idx = " << scopedPos << ";";
+    _M << nl << "return iceS_" << name << "_ids;";
+    _M << eb;
+
+    // end TODO
 
     if(preserved && !basePreserved)
     {
@@ -1157,11 +1183,67 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _M << nl << "@end";
 }
 
+bool
+Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    string name = fixName(p);
+    InterfaceList bases = p->bases();
+
+    _H << sp << nl << _dllExport << "@protocol " << name;
+
+    if(!bases.empty())
+    {
+        _H << " <";
+        for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+        {
+            string baseName = fixName(*i);
+            if(i != bases.begin())
+            {
+                _H << ", ";
+            }
+            _H << baseName;
+        }
+        _H << ">";
+    }
+    else
+    {
+        _H << " <NSObject>";
+    }
+
+    _M << sp << nl << "@implementation " << name;
+    return true;
+}
+
+void
+Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    string name = fixName(p);
+    InterfaceList bases = p->bases();
+
+    _H << nl << "@end";
+    _H << sp << nl << _dllExport << "@interface " << name << " : ICEServant";
+
+    writeFactory(p, DataMemberList(), BaseTypeObject, Other);
+
+    OperationList ops = p->operations();
+    OperationList::const_iterator r;
+    for(r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = *r;
+        _H << nl << "+(void) iceD_" << op->name() << ":(id<" << name << ">)target current:(ICECurrent *)current "
+           << "is:(id<ICEInputStream>)istr os:(id<ICEOutputStream>)ostr;";
+    }
+
+    writeDispatchAndMarshalling(p);
+
+    _H << nl << "@end";
+    _M << nl << "@end";
+}
+
 void
 Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    InterfaceDefPtr interface = p->interface();
     string name = getName(p);
     TypePtr returnType = p->returnType();
     string retString;
@@ -1170,7 +1252,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     retString = inTypeToString(returnType, p->returnIsOptional());
     params = getServerParams(p);
 
-    const string deprecateSymbol = getDeprecateSymbol(p, cl);
+    const string deprecateSymbol = getDeprecateSymbol(p, interface);
 
     _H << nl << "-(" << retString << ") " << name << params;
     if(!params.empty())
@@ -2146,10 +2228,10 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& H, Output& M, const string& dllEx
 }
 
 bool
-Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string name = fixName(p);
-    ClassList bases = p->bases();
+    InterfaceList bases = p->bases();
 
     _H << sp << nl << _dllExport << "@protocol " << name << "Prx <";
     if(bases.empty())
@@ -2158,7 +2240,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        ClassList::const_iterator q = bases.begin();
+        InterfaceList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
             _H << fixName(*q) + "Prx";
@@ -2174,7 +2256,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
+Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     _H << nl << "@end";
 }
@@ -2189,7 +2271,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string marshalParams = getMarshalParams(p);
     string unmarshalParams = getUnmarshalParams(p);
 
-    const string deprecateSymbol = getDeprecateSymbol(p, ClassDefPtr::dynamicCast(p->container()));
+    const string deprecateSymbol = getDeprecateSymbol(p, p->interface());
 
     //
     // Write two versions of the operation--with and without a
@@ -2262,44 +2344,34 @@ Slice::Gen::HelperVisitor::HelperVisitor(Output& H, Output& M, const string& dll
 bool
 Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    //
-    // Proxy helper
-    //
-    {
-        string name = moduleName(findModule(p)) + p->name() + "PrxHelper";
-        _H << sp << nl << _dllExport << "@interface " << name << " : ICEProxyHelper";
-        _H << nl << "@end";
+    string name = moduleName(findModule(p)) + p->name() + "Helper";
+    _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectHelper";
+    _H << nl << "@end";
 
-        _M << sp << nl << "@implementation " << name;
-        _M << nl << "+(id) readRetained:(id<ICEInputStream>)stream";
-        _M << sb;
-        _M << nl << "return [stream newProxy:[" << fixName(p) << "Prx class]];";
-        _M << eb;
-        _M << nl << "@end";
-    }
+    _M << sp << nl << "@implementation " << name;
+    _M << nl << "+(void) readRetained:(ICEObject*ICE_STRONG_QUALIFIER*)obj stream:(id<ICEInputStream>)stream";
+    _M << sb;
+    _M << nl << "[stream newValue:obj expectedType:[" << fixName(p) << " class]];";
+    _M << eb;
+    _M << nl << "@end";
 
-    //
-    // Class helper
-    //
-    {
-        string name = moduleName(findModule(p)) + p->name() + "Helper";
-        if(p->isInterface())
-        {
-            _H << sp << nl << "typedef ICEObjectHelper " << name << ";";
-        }
-        else
-        {
-            _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectHelper";
-            _H << nl << "@end";
+    return false;
+}
 
-            _M << sp << nl << "@implementation " << name;
-            _M << nl << "+(void) readRetained:(ICEObject*ICE_STRONG_QUALIFIER*)obj stream:(id<ICEInputStream>)stream";
-            _M << sb;
-            _M << nl << "[stream newValue:obj expectedType:[" << fixName(p) << " class]];";
-            _M << eb;
-            _M << nl << "@end";
-        }
-    }
+bool
+Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    string name = moduleName(findModule(p)) + p->name() + "PrxHelper";
+    _H << sp << nl << _dllExport << "@interface " << name << " : ICEProxyHelper";
+    _H << nl << "@end";
+
+    _M << sp << nl << "@implementation " << name;
+    _M << nl << "+(id) readRetained:(id<ICEInputStream>)stream";
+    _M << sb;
+    _M << nl << "return [stream newProxy:[" << fixName(p) << "Prx class]];";
+    _M << eb;
+    _M << nl << "@end";
+
     return false;
 }
 
@@ -2372,7 +2444,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         return;
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(p->type());
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(p->type());
     ContainedPtr contained = ContainedPtr::dynamicCast(p->type());
     _H << sp << nl << _dllExport << "@interface " << name << " : ICEArraySequenceHelper";
     _H << nl << "@end";
@@ -2382,7 +2454,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _M << sb;
     if(proxy)
     {
-        string name = moduleName(findModule(proxy->_class())) + proxy->_class()->name();
+        string name = moduleName(findModule(proxy)) + proxy->name();
         _M << nl << "return [" << name << "PrxHelper class];";
     }
     else
@@ -2440,7 +2512,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         _M << sp << nl << "@implementation " << name;
         _M << nl << "+(id) readRetained:(id<ICEInputStream>)stream";
         _M << sb;
-        if(valueClass && !valueClass->isInterface())
+        if(valueClass)
         {
             valueS = fixName(valueClass);
             _M << nl << "return [stream newValueDict:[" << keyS << " class] expectedType:[" << valueS << " class]];";
@@ -2458,14 +2530,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         return;
     }
 
-    ProxyPtr valueProxy = ProxyPtr::dynamicCast(valueType);
+    InterfaceDeclPtr valueProxy = InterfaceDeclPtr::dynamicCast(valueType);
     if(valueBuiltin)
     {
         valueS = "ICE" + getBuiltinName(BuiltinPtr::dynamicCast(valueType)) + "Helper";
     }
     else if(valueProxy)
     {
-        valueS = moduleName(findModule(valueProxy->_class())) + valueProxy->_class()->name() + "PrxHelper";
+        valueS = moduleName(findModule(valueProxy)) + valueProxy->name() + "PrxHelper";
     }
     else
     {
@@ -2549,10 +2621,10 @@ Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::DelegateMVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string name = fixName(p);
-    ClassList bases = p->bases();
+    InterfaceList bases = p->bases();
     OperationList ops = p->allOperations();
     OperationList::const_iterator r;
 
@@ -2583,9 +2655,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
 
-        ContainerPtr container = (*r)->container();
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        string className = fixName(cl);
+        InterfaceDefPtr interface = (*r)->interface();
+        string className = fixName(interface);
 
         //
         // Write context-less operation that forwards to the version with a context.
@@ -2881,7 +2952,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr&)
+Slice::Gen::DelegateMVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     _H << nl << "@end";
     _M << nl << "@end";
@@ -2913,9 +2984,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     //
     // Write class method to invoke each operation.
     //
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string className = fixName(cl);
+    InterfaceDefPtr interface = p->interface();
+    string className = fixName(interface);
     if(!inParams.empty())
     {
         _H << nl << "+(void) iceI_" << p->name() << "_marshal" << marshalParams;

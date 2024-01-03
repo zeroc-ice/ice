@@ -13,7 +13,6 @@ run(id<ICECommunicator> communicator)
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestOperationsAdapter"];
     [adapter add:[TestOperationsMyDerivedClassI myDerivedClass]
         identity:[ICEUtil stringToIdentity:@"test"]];
-    [adapter add:[TestOperationsBI b] identity:[ICEUtil stringToIdentity:@"b"]];
     [adapter activate];
 
     serverReady(communicator);

@@ -21,19 +21,6 @@ inheritanceAllTests(id<ICECommunicator> communicator)
     test([initial isEqual:base]);
     tprintf("ok\n");
 
-    tprintf("getting proxies for class hierarchy... ");
-    id<TestInheritanceMACAPrx> ca = [initial caop];
-    id<TestInheritanceMBCBPrx> cb = [initial cbop];
-    id<TestInheritanceMACCPrx> cc = [initial ccop];
-    id<TestInheritanceMACDPrx> cd = [initial cdop];
-    test(ca != cb);
-    test(ca != cc);
-    test(ca != cd);
-    test(cb != cc);
-    test(cb != cd);
-    test(cc != cd);
-    tprintf("ok\n");
-
     tprintf("getting proxies for interface hierarchy... ");
     id<TestInheritanceMAIAPrx> ia = [initial iaop];
     id<TestInheritanceMBIB1Prx> ib1 = [initial ib1op];
@@ -46,56 +33,7 @@ inheritanceAllTests(id<ICECommunicator> communicator)
     test(ib2 != ic);
     tprintf("ok\n");
 
-    tprintf("invoking proxy operations on class hierarchy... ");
-    id<TestInheritanceMACAPrx> cao;
-    id<TestInheritanceMBCBPrx> cbo;
-    id<TestInheritanceMACCPrx> cco;
-
-    cao = [ca caop:ca];
-    test([cao isEqual:ca]);
-    cao = [ca caop:cb];
-    test([cao isEqual:cb]);
-    cao = [ca caop:cc];
-    test([cao isEqual:cc]);
-    cao = [cb caop:ca];
-    test([cao isEqual:ca]);
-    cao = [cb caop:cb];
-    test([cao isEqual:cb]);
-    cao = [cb caop:cc];
-    test([cao isEqual:cc]);
-    cao = [cc caop:ca];
-    test([cao isEqual:ca]);
-    cao = [cc caop:cb];
-    test([cao isEqual:cb]);
-    cao = [cc caop:cc];
-    test([cao isEqual:cc]);
-
-    cao = [cb cbop:cb];
-    test([cao isEqual:cb]);
-    cbo = [cb cbop:cb];
-    test([cbo isEqual:cb]);
-    cao = [cb cbop:cc];
-    test([cao isEqual:cc]);
-    cbo = [cb cbop:cc];
-    test([cbo isEqual:cc]);
-    cao = [cc cbop:cb];
-    test([cao isEqual:cb]);
-    cbo = [cc cbop:cb];
-    test([cbo isEqual:cb]);
-    cao = [cc cbop:cc];
-    test([cao isEqual:cc]);
-    cbo = [cc cbop:cc];
-    test([cbo isEqual:cc]);
-
-    cao = [cc ccop:cc];
-    test([cao isEqual:cc]);
-    cbo = [cc ccop:cc];
-    test([cbo isEqual:cc]);
-    cco = [cc ccop:cc];
-    test([cco isEqual:cc]);
-    tprintf("ok\n");
-
-    tprintf("ditto, but for interface hierarchy... ");
+    tprintf("invoking proxy operations on interface hierarchy... ");
     id<TestInheritanceMAIAPrx> iao;
     id<TestInheritanceMBIB1Prx> ib1o;
     id<TestInheritanceMBIB2Prx> ib2o;
@@ -176,39 +114,6 @@ inheritanceAllTests(id<ICECommunicator> communicator)
     test([ib2o isEqual:ic]);
     ico = [ic icop:ic];
     test([ico isEqual:ic]);
-
-    tprintf("ok\n");
-
-    tprintf("ditto, but for class implementing interfaces... ");
-//    id<TestInheritanceMACDPrx> cdo;
-
-    cao = [cd caop:cd];
-    test([cao isEqual:cd]);
-    cbo = [cd cbop:cd];
-    test([cbo isEqual:cd]);
-    cco = [cd ccop:cd];
-    test([cco isEqual:cd]);
-
-    iao = [cd iaop:cd];
-    test([iao isEqual:cd]);
-    ib1o = [cd ib1op:cd];
-    test([ib1o isEqual:cd]);
-    ib2o = [cd ib2op:cd];
-    test([ib2o isEqual:cd]);
-
-    cao = [cd cdop:cd];
-    test([cao isEqual:cd]);
-    cbo = [cd cdop:cd];
-    test([cbo isEqual:cd]);
-    cco = [cd cdop:cd];
-    test([cco isEqual:cd]);
-
-    iao = [cd cdop:cd];
-    test([iao isEqual:cd]);
-    ib1o = [cd cdop:cd];
-    test([ib1o isEqual:cd]);
-    ib2o = [cd cdop:cd];
-    test([ib2o isEqual:cd]);
 
     tprintf("ok\n");
 

@@ -47,16 +47,6 @@ void breakRetainCycleD(TestObjectsD* d1)
     breakRetainCycleB(d1.theB);
 }
 
-@interface TestObjectsAbstractBaseI : TestObjectsAbstractBase<TestObjectsAbstractBase>
--(void) op:(ICECurrent *)__unused current;
-@end
-
-@implementation TestObjectsAbstractBaseI
--(void) op:(ICECurrent *)__unused current
-{
-}
-@end
-
 id<TestObjectsInitialPrx>
 objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
 {
@@ -92,15 +82,6 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
     test(ba3.theS == ba2.theS);
     test(ba3.str == ba2.str);
     ba3.theS = nil;
-
-    TestObjectsAbstractBase *abp1 = ICE_AUTORELEASE([[TestObjectsAbstractBaseI alloc] init]);
-    abp1.theS = s;
-    abp1.str = @"foo";
-    TestObjectsAbstractBase *abp2 = ICE_AUTORELEASE([abp1 copy]);
-    test(abp1 != abp2);
-    test(abp1.str == abp2.str);
-    test(abp1.theS == abp2.theS);
-    abp2.theS = nil;
 
 #if 0
     // Can't override assignment operator in Objective-C.
@@ -221,15 +202,6 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
     test(f.e1.i == 1 && [e.s isEqualToString:@"hello"]);
     tprintf("ok\n");
 
-    tprintf("getting I, J and H... ");
-    TestObjectsI* i = (TestObjectsI*)[initial getI];
-    test(i);
-    TestObjectsI* j = (TestObjectsI*)[initial getJ];
-    test(j && [j isKindOfClass:[TestObjectsJ class]]);
-    TestObjectsI* h = (TestObjectsI*)[initial getH];
-    test(h && [h isKindOfClass:[TestObjectsH class]]);
-    tprintf("ok\n");
-
     tprintf("setting G... ");
     TestObjectsG *g = ICE_AUTORELEASE([[TestObjectsG alloc] init]);
     g.theS = s;
@@ -277,12 +249,6 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         test([((TestObjectsL*)v3[@"l"]).data isEqualToString:@"l"]);
         test([((TestObjectsL*)v2[@"l"]).data isEqualToString:@"l"]);
     }
-    tprintf("ok\n");
-
-    tprintf("setting I... ");
-    [initial setI:i];
-    [initial setI:j];
-    [initial setI:h];
     tprintf("ok\n");
 
     tprintf("testing recursive type... ");
@@ -471,33 +437,6 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
     }
 
     {
-        tprintf("setting Base proxy sequence... ");
-        TestObjectsMutableBasePrxSeq* seq = [TestObjectsMutableBasePrxSeq array];
-
-        [seq addObject:[NSNull null]];
-        ref = [NSString stringWithFormat:@"base:%@", getTestEndpoint(communicator, 0)];
-        base = [communicator stringToProxy:ref];
-        id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
-        [seq addObject:b];
-
-        @try
-        {
-            TestObjectsBasePrxSeq* r = [initial getBasePrxSeq:seq];
-            test([r objectAtIndex:0 == [NSNull null]]);
-            test([[r objectAtIndex:1] isEqual:b]);
-        }
-        @catch(ICEOperationNotExistException*)
-        {
-            // Expected if we are testing against a non-Objective-C server.
-        }
-        @catch(...)
-        {
-            test(NO);
-        }
-        tprintf("ok\n");
-    }
-
-    {
         tprintf("setting Object dictionary... ");
         TestObjectsMutableObjectDict* dict = [TestObjectsMutableObjectDict dictionary];
 
@@ -593,33 +532,6 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
             TestObjectsBase* br = [dict objectForKey:@"one"];
             br.theS = nil;
             b.theS = nil;
-        }
-        tprintf("ok\n");
-    }
-
-    {
-        tprintf("setting Base proxy dictionary... ");
-        TestObjectsMutableBasePrxDict* dict = [TestObjectsMutableBasePrxDict dictionary];
-
-        [dict setObject:[NSNull null] forKey:@"zero"];
-        ref = [NSString stringWithFormat:@"base:%@", getTestEndpoint(communicator, 0)];
-        base = [communicator stringToProxy:ref];
-        id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
-        [dict setObject:b forKey:@"one"];
-
-        @try
-        {
-            TestObjectsObjectPrxDict* r = [initial getObjectPrxDict:dict];
-            test([r objectForKey:@"zero"] == [NSNull null]);
-            test([[r objectForKey:@"one"] isEqual:b]);
-        }
-        @catch(ICEOperationNotExistException*)
-        {
-            // Expected if we are testing against a non-Objective-C server.
-        }
-        @catch(...)
-        {
-            test(NO);
         }
         tprintf("ok\n");
     }
@@ -721,14 +633,6 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
              test(!acceptsCycles);
         }
         rec.v = nil;
-        tprintf("ok\n");
-    }
-
-    {
-        tprintf("testing class with interface by value member... ");
-        i = (TestObjectsI*)[initial getI];
-        TestObjectsN* n = [[TestObjectsN alloc] init:i];
-        n = [initial opN:n];
         tprintf("ok\n");
     }
 

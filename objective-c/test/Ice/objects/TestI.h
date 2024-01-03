@@ -32,9 +32,6 @@
 @interface TestObjectsJI : TestObjectsJ<TestObjectsJ>
 @end
 
-@interface TestObjectsHI : TestObjectsH<TestObjectsH>
-@end
-
 @interface TestObjectsF2I : TestObjectsF2<TestObjectsF2>
 {
 }
@@ -59,25 +56,18 @@
 -(TestObjectsE *) getE:(ICECurrent *)current;
 -(TestObjectsF *) getF:(ICECurrent *)current;
 -(void) getAll:(TestObjectsB **)b1 b2:(TestObjectsB **)b2 theC:(TestObjectsC **)theC theD:(TestObjectsD **)theD current:(ICECurrent *)current;
--(TestObjectsI *) getI:(ICECurrent *)current;
--(TestObjectsI *) getJ:(ICECurrent *)current;
--(TestObjectsI *) getH:(ICECurrent *)current;
 -(TestObjectsCompact*) getCompact:(ICECurrent*)current;
 -(void) setG:(TestObjectsG *)theG current:(ICECurrent *)current;
--(void) setI:(TestObjectsI *)theI current:(ICECurrent *)current;
 -(TestObjectsObjectSeq *) getObjectSeq:(TestObjectsMutableObjectSeq *)s current:(ICECurrent *)current;
 -(TestObjectsObjectPrxSeq *) getObjectPrxSeq:(TestObjectsMutableObjectPrxSeq *)s current:(ICECurrent *)current;
 -(TestObjectsBaseSeq *) getBaseSeq:(TestObjectsMutableBaseSeq *)s current:(ICECurrent *)current;
--(TestObjectsBasePrxSeq *) getBasePrxSeq:(TestObjectsMutableBasePrxSeq *)s current:(ICECurrent *)current;
 -(TestObjectsObjectDict *) getObjectDict:(TestObjectsMutableObjectDict *)d current:(ICECurrent *)current;
 -(TestObjectsObjectPrxDict *) getObjectPrxDict:(TestObjectsMutableObjectPrxDict *)d current:(ICECurrent *)current;
 -(TestObjectsBaseDict *) getBaseDict:(TestObjectsMutableBaseDict *)d current:(ICECurrent *)current;
--(TestObjectsBasePrxDict *) getBasePrxDict:(TestObjectsMutableBasePrxDict *)d current:(ICECurrent *)current;
 -(TestObjectsM *) opM:(TestObjectsM *)v1 v2:(TestObjectsM **)v2 current:(ICECurrent *)current;
 -(TestObjectsF1 *) opF1:(TestObjectsF1 *)f11 f12:(TestObjectsF1 **)f12 current:(ICECurrent *)current;
 -(TestObjectsF2Prx *) opF2:(TestObjectsF2Prx *)f21 f22:(TestObjectsF2Prx **)f22 current:(ICECurrent *)current;
 -(BOOL) hasF3:(ICECurrent *)current;
--(TestObjectsN*) opN:(TestObjectsN*)p1 current:(ICECurrent *)current;
 @end
 
 @interface UnexpectedObjectExceptionTestI : ICEBlobject<ICEBlobject>

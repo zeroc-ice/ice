@@ -49,10 +49,6 @@ static ICEValueFactory factory = ^ICEObject* (NSString* type)
     {
         return [[TestObjectsJI alloc] init];
     }
-    else if([type isEqualToString:@"::Test::H"])
-    {
-        return [[TestObjectsHI alloc] init];
-    }
     else
     {
         test(NO);
@@ -87,7 +83,6 @@ run(id<ICECommunicator> communicator)
     [manager add:factory sliceId:@"::Test::F"];
     [manager add:factory sliceId:@"::Test::I"];
     [manager add:factory sliceId:@"::Test::J"];
-    [manager add:factory sliceId:@"::Test::H"];
 
     id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
     [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];

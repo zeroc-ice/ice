@@ -73,7 +73,7 @@
 @end
 
 void
-twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p, id<TestOperationsMBPrx> bprx)
+twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 {
     {
         TestOperationsStringS *literals = [p opStringLiterals];
@@ -1907,10 +1907,5 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p, id<Tes
     @catch(ICEOperationNotExistException *)
     {
        // Client is talking to non-Objective-C server.
-    }
-
-    {
-        [bprx opB];
-        [bprx opIntf];
     }
 }

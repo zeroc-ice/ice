@@ -312,7 +312,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     mo1.g = 1.0;
     mo1.h = @"test";
     mo1.i = TestOptionalMyEnumMember;
-    mo1.j = [TestOptionalMultiOptionalPrx uncheckedCast:[communicator stringToProxy:@"test"]];
     //mo1.k = mo1;
     ICEByte bsa[] = { 0x05 };
     mo1.bs = [TestOptionalByteSeq dataWithBytes:bsa length:1];
@@ -334,15 +333,11 @@ optionalAllTests(id<ICECommunicator> communicator)
     mo1.fss = [TestOptionalFixedStructSeq arrayWithObject:fs];
     mo1.vss = [TestOptionalVarStructSeq arrayWithObject:vs];
     mo1.oos = [TestOptionalOneOptionalSeq arrayWithObject:oo1];
-    id<TestOptionalOneOptionalPrx> oneOptionalProxy =
-        [TestOptionalOneOptionalPrx uncheckedCast:[communicator stringToProxy:@"test"]];
-    mo1.oops = [TestOptionalOneOptionalPrxSeq arrayWithObject:oneOptionalProxy];
     mo1.ied = [TestOptionalIntEnumDict dictionaryWithObjectsAndKeys:@(TestOptionalMyEnumMember), @4, nil];
     mo1.ifsd = [TestOptionalIntFixedStructDict dictionaryWithObjectsAndKeys:fs, @4, nil];
     mo1.ivsd = [TestOptionalIntVarStructDict dictionaryWithObjectsAndKeys:vs, @4, nil];
     mo1.iood = [TestOptionalIntOneOptionalDict dictionaryWithObjectsAndKeys:[TestOptionalOneOptional oneOptional:@15],
                                                @5, nil];
-    mo1.ioopd = [TestOptionalIntOneOptionalPrxDict dictionaryWithObjectsAndKeys:oneOptionalProxy, @5, nil];
     BOOL bos[] = { NO, YES, NO };
     mo1.bos = [TestOptionalBoolSeq dataWithBytes:bos length:sizeof(bos)];
 
@@ -356,7 +351,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(mo3.g == 1.0);
     test([mo3.h isEqualToString:@"test"]);
     test(mo3.i == TestOptionalMyEnumMember);
-    test([mo3.j isEqual:[TestOptionalMultiOptionalPrx uncheckedCast:[communicator stringToProxy:@"test"]]]);
     //test(mo3.k == mo1);
     test(mo3.bs == mo1.bs);
     test(mo3.ss == mo1.ss);
@@ -370,13 +364,11 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(mo3.fss == mo1.fss);
     test(mo3.vss == mo1.vss);
     test(mo3.oos == mo1.oos);
-    test(mo3.oops == mo1.oops);
 
     test(mo3.ied == mo1.ied);
     test(mo3.ifsd == mo1.ifsd);
     test(mo3.ivsd == mo1.ivsd);
     test(mo3.iood == mo1.iood);
-    test(mo3.ioopd == mo1.ioopd);
 
     test(mo3.bos == mo1.bos);
 
@@ -415,7 +407,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(![mo4 hasG]);
     test(![mo4 hasH]);
     test(![mo4 hasI]);
-    test(![mo4 hasJ]);
     test(![mo4 hasK]);
     test(![mo4 hasBs]);
     test(![mo4 hasSs]);
@@ -429,13 +420,11 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(![mo4 hasFss]);
     test(![mo4 hasVss]);
     test(![mo4 hasOos]);
-    test(![mo4 hasOops]);
 
     test(![mo4 hasIed]);
     test(![mo4 hasIfsd]);
     test(![mo4 hasIvsd]);
     test(![mo4 hasIood]);
-    test(![mo4 hasIoopd]);
 
     test(![mo4 hasBos]);
 
@@ -450,7 +439,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(mo5.g == mo1.g);
     test([mo5.h isEqualToString:mo1.h]);
     test(mo5.i == mo1.i);
-    test([mo5.j isEqual:mo1.j]);
     //test(mo5.k == mo5);
     test([mo5.bs isEqual:mo1.bs]);
     test([mo5.ss isEqual:mo1.ss]);
@@ -464,13 +452,11 @@ optionalAllTests(id<ICECommunicator> communicator)
     test([mo5.fss isEqual:mo1.fss]);
     test([mo5.vss isEqual:mo1.vss]);
     test([mo5.oos count] > 0 && ((TestOptionalOneOptional*)[mo5.oos objectAtIndex:0]).a == oo1.a);
-    test([mo5.oops isEqual:mo1.oops]);
 
     test([mo5.ied isEqual:mo1.ied]);
     test([mo5.ifsd isEqual:mo1.ifsd]);
     test([mo5.ivsd isEqual:mo1.ivsd]);
     test([mo5.iood count] > 0 && ((TestOptionalOneOptional*)[mo5.iood objectForKey:@5]).a == 15);
-    test([mo5.ioopd isEqual:mo1.ioopd]);
 
     test([mo5.bos isEqual:mo1.bos]);
 
@@ -488,11 +474,9 @@ optionalAllTests(id<ICECommunicator> communicator)
 
     [mo6 clearEs];
     [mo6 clearVss];
-    [mo6 clearOops];
 
     [mo6 clearIed];
     [mo6 clearIvsd];
-    [mo6 clearIoopd];
 
     TestOptionalMultiOptional* mo7 = (TestOptionalMultiOptional*)[initial pingPong:mo6];
     test(![mo7 hasA]);
@@ -504,7 +488,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(![mo7 hasG]);
     test([mo7.h isEqual:mo1.h]);
     test(![mo7 hasI]);
-    test([mo7.j isEqual:mo1.j]);
     test(![mo7 hasK]);
     test([mo7.bs isEqual:mo1.bs]);
     test(![mo7 hasSs]);
@@ -518,13 +501,11 @@ optionalAllTests(id<ICECommunicator> communicator)
     test([mo7.fss isEqual:mo1.fss]);
     test(![mo7 hasVss]);
     test([mo7.oos count] > 0 && ((TestOptionalOneOptional*)[mo7.oos objectAtIndex:0]).a == oo1.a);
-    test(![mo7 hasOops]);
 
     test(![mo7 hasIed]);
     test([mo7.ifsd isEqual:mo1.ifsd]);
     test(![mo7 hasIvsd]);
     test([mo7.iood count] > 0 && ((TestOptionalOneOptional*)[mo7.iood objectForKey:@5]).a == 15);
-    test(![mo7 hasIoopd]);
 
     // Clear the second half of the optional parameters
     TestOptionalMultiOptional* mo8 = ICE_AUTORELEASE([mo5 copy]);
@@ -532,7 +513,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     [mo8 clearD];
     [mo8 clearF];
     [mo8 clearH];
-    [mo8 clearJ];
     [mo8 clearBs];
     [mo8 clearIid];
     [mo8 clearFs];
@@ -554,7 +534,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(mo9.g == mo1.g);
     test(![mo9 hasH]);
     test(mo9.i == mo1.i);
-    test(![mo9 hasJ]);
     //test(mo9.k == mo9.k);
     test(![mo9 hasBs]);
     test([mo9.ss isEqual:mo1.ss]);
@@ -568,7 +547,6 @@ optionalAllTests(id<ICECommunicator> communicator)
     test(![mo8 hasFss]);
     test([mo8.vss isEqual:mo1.vss]);
     test(![mo8 hasOos]);
-    test([mo8.oops isEqual:mo1.oops]);
 
     test([mo8.ied isEqual:mo1.ied]);
     test(![mo8 hasIfsd]);
@@ -1181,38 +1159,6 @@ optionalAllTests(id<ICECommunicator> communicator)
         [is endEncapsulation];
         test([p2 isKindOfClass:[TestOptionalOneOptional class]] && [p3 isKindOfClass:[TestOptionalOneOptional class]]);
         test(((TestOptionalOneOptional*)p2).a == 58 && ((TestOptionalOneOptional*)p3).a == 58);
-
-        is = [ICEUtil createInputStream:communicator data:outEncaps];
-        [is startEncapsulation];
-        [is endEncapsulation];
-    }
-
-    {
-        id p1 = ICENone;
-        id p3 = ICENone;
-        id p2 = [initial opOneOptionalProxy:p1 p3:&p3];
-        test(p2 == ICENone && p3 == ICENone);
-
-        p1 = [TestOptionalOneOptionalPrx uncheckedCast:[communicator stringToProxy:@"test"]];
-        p2 = [initial opOneOptionalProxy:p1 p3:&p3];
-        test([p2 isKindOfClass:[TestOptionalOneOptionalPrx class]] &&
-             [p3 isKindOfClass:[TestOptionalOneOptionalPrx class]]);
-        test([p2 isEqual:p1] && [p3 isEqual:p1]);
-
-        os = [ICEUtil createOutputStream:communicator];
-        [os startEncapsulation];
-        [ICEProxyHelper writeOptional:p1 stream:os tag:2];
-        [os endEncapsulation];
-        inEncaps = [os finished];
-        [initial ice_invoke:@"opOneOptionalProxy" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
-        is = [ICEUtil createInputStream:communicator data:outEncaps];
-        [is startEncapsulation];
-        p2 = [TestOptionalOneOptionalPrxHelper readOptional:is tag:1];
-        p3 = [TestOptionalOneOptionalPrxHelper readOptional:is tag:3];
-        [is endEncapsulation];
-        test([p2 isKindOfClass:[TestOptionalOneOptionalPrx class]] &&
-             [p3 isKindOfClass:[TestOptionalOneOptionalPrx class]]);
-        test([p2 isEqual:p1] && [p3 isEqual:p1]);
 
         is = [ICEUtil createInputStream:communicator data:outEncaps];
         [is startEncapsulation];
