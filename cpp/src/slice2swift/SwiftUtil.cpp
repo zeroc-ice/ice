@@ -174,10 +174,10 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
 ModulePtr
 Slice::getTopLevelModule(const TypePtr& type)
 {
-    assert(ProxyPtr::dynamicCast(type) || ContainedPtr::dynamicCast(type));
+    assert(InterfaceDeclPtr::dynamicCast(type) || ContainedPtr::dynamicCast(type));
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    return getTopLevelModule(proxy ? ContainedPtr::dynamicCast(proxy->_class()) :
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    return getTopLevelModule(proxy ? ContainedPtr::dynamicCast(proxy) :
                                      ContainedPtr::dynamicCast(type));
 }
 
@@ -755,7 +755,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
 }
 
 void
-SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p, const string& swiftModule)
+SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 
@@ -803,7 +803,7 @@ SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const ClassDe
 }
 
 void
-SwiftGenerator::writeServantDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p, const string& swiftModule)
+SwiftGenerator::writeServantDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 
@@ -1077,31 +1077,16 @@ SwiftGenerator::typeToString(const TypePtr& type,
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     ContainedPtr cont = ContainedPtr::dynamicCast(type);
 
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            t = fixIdent(getUnqualified(builtinTable[Builtin::KindValue], currentModule));
-        }
-        else
-        {
-            t += fixIdent(getUnqualified(getAbsoluteImpl(cl), currentModule));
-        }
+        t += fixIdent(getUnqualified(getAbsoluteImpl(cl), currentModule));
     }
     else if(prx)
     {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            t = getUnqualified(getAbsoluteImpl(prx->_class(), "", "Prx"), currentModule);
-        }
-        else
-        {
-            t = getUnqualified("Ice.ObjectPrx", currentModule);
-        }
+        t = getUnqualified(getAbsoluteImpl(prx, "", "Prx"), currentModule);
     }
     else if(cont)
     {
@@ -1139,10 +1124,10 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
         return builtinTable[builtin->kind()];
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        return getAbsoluteImpl(proxy->_class(), "", "Prx");
+        return getAbsoluteImpl(proxy, "", "Prx");
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(type);
@@ -1168,9 +1153,15 @@ SwiftGenerator::getAbsolute(const ClassDefPtr& cl)
 }
 
 string
-SwiftGenerator::getAbsolute(const ProxyPtr& prx)
+SwiftGenerator::getAbsolute(const InterfaceDeclPtr& prx)
 {
-    return getAbsoluteImpl(prx->_class(), "", "Prx");
+    return getAbsoluteImpl(prx, "", "Prx");
+}
+
+string
+SwiftGenerator::getAbsolute(const InterfaceDefPtr& interface)
+{
+    return getAbsoluteImpl(interface);
 }
 
 string
@@ -1316,7 +1307,7 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
         return st->isVariableLength() ? ".FSize" : ".VSize";
     }
 
-    if(ProxyPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type))
     {
         return ".FSize";
     }
@@ -1347,14 +1338,14 @@ SwiftGenerator::isNullableType(const TypePtr& type)
         }
     }
 
-    return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
+    return ClassDeclPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type);
 }
 
 bool
 SwiftGenerator::isProxyType(const TypePtr& p)
 {
     const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    return (builtin && builtin->kind() == Builtin::KindObjectProxy) || ProxyPtr::dynamicCast(p);
+    return (builtin && builtin->kind() == Builtin::KindObjectProxy) || InterfaceDeclPtr::dynamicCast(p);
 }
 
 bool
@@ -1661,38 +1652,32 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            if(cl->isInterface())
+            if(tag >= 0)
             {
-                out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 }";
+                args += ", value: ";
             }
-            else
+            string memberType = getUnqualified(getAbsolute(type), swiftModule);
+            string memberName;
+            const string memberPrefix = "self.";
+            if(param.find(memberPrefix) == 0)
             {
-                if(tag >= 0)
-                {
-                    args += ", value: ";
-                }
-                string memberType = getUnqualified(getAbsolute(type), swiftModule);
-                string memberName;
-                const string memberPrefix = "self.";
-                if(param.find(memberPrefix) == 0)
-                {
-                    memberName = param.substr(memberPrefix.size());
-                }
+                memberName = param.substr(memberPrefix.size());
+            }
 
-                string alias;
-                //
-                // If the member type is equal to the member name, create a local type alias
-                // to avoid ambiguity.
-                //
-                if(memberType == memberName)
-                {
-                    ModulePtr m = getTopLevelModule(type);
-                    alias =  m->name() + "_" + memberType;
-                    out << nl << "typealias " << alias << " = " << memberType;
-                }
-                args += (alias.empty() ? memberType : alias) + ".self";
-                out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 " << "}";
+            string alias;
+            //
+            // If the member type is equal to the member name, create a local type alias
+            // to avoid ambiguity.
+            //
+            if(memberType == memberName)
+            {
+                ModulePtr m = getTopLevelModule(type);
+                alias = m->name() + "_" + memberType;
+                out << nl << "typealias " << alias << " = " << memberType;
             }
+            args += (alias.empty() ? memberType : alias) + ".self";
+            out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 "
+                << "}";
         }
         return;
     }
@@ -1711,7 +1696,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     if(prx)
     {
         if(marshal)
@@ -1725,15 +1710,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 args += ", type: ";
             }
 
-            ClassDefPtr def = prx->_class()->definition();
-            if(!def || def->isAbstract())
-            {
-                args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
-            }
-            else
-            {
-                args += getUnqualified("Ice.ObjectPrx", swiftModule) + ".self";
-            }
+            args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
             out << nl << param << " = try " << stream << ".read(" << args << ")";
         }
         return;
@@ -2044,8 +2021,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 bool
 SwiftGenerator::operationIsAmd(const OperationPtr& op)
 {
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-    return cl->hasMetaData("amd") || op->hasMetaData("amd");
+    return op->hasMetaData("amd") || op->interface()->hasMetaData("amd");
 }
 
 ParamInfoList
@@ -2745,10 +2721,16 @@ SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
+bool
+SwiftGenerator::MetaDataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
+    return true;
+}
+
 void
 SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
     StringList metaData = p->getMetaData();
 
     const UnitPtr ut = p->unit();
@@ -2932,12 +2914,13 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
             }
         }
 
-        if(ClassDefPtr::dynamicCast(cont) && s.find("swift:inherits:") == 0)
+        if(InterfaceDefPtr::dynamicCast(cont) && s.find("swift:inherits:") == 0)
         {
             continue;
         }
 
         if((ClassDefPtr::dynamicCast(cont) ||
+            InterfaceDefPtr::dynamicCast(cont) ||
             EnumPtr::dynamicCast(cont) ||
             ExceptionPtr::dynamicCast(cont) ||
             OperationPtr::dynamicCast(cont)) && s.find("swift:attribute:") == 0)

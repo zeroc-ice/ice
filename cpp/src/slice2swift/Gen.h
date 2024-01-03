@@ -41,6 +41,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -66,6 +67,7 @@ private:
         TypesVisitor(IceUtilInternal::Output&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -86,8 +88,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -118,8 +120,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -135,8 +137,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:

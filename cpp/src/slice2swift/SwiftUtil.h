@@ -69,8 +69,8 @@ protected:
     void writeDocSummary(IceUtilInternal::Output&, const ContainedPtr&);
     void writeOpDocSummary(IceUtilInternal::Output&, const OperationPtr&, bool, bool);
 
-    void writeProxyDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);
-    void writeServantDocSummary(IceUtilInternal::Output&, const ClassDefPtr&, const std::string&);
+    void writeProxyDocSummary(IceUtilInternal::Output&, const InterfaceDefPtr&, const std::string&);
+    void writeServantDocSummary(IceUtilInternal::Output&, const InterfaceDefPtr&, const std::string&);
     void writeMemberDoc(IceUtilInternal::Output&, const DataMemberPtr&);
 
     std::string paramLabel(const std::string&, const ParamDeclList&);
@@ -91,9 +91,10 @@ protected:
                              int = 0);
 
     std::string getAbsolute(const TypePtr&);
-    std::string getAbsolute(const ProxyPtr&);
     std::string getAbsolute(const ClassDeclPtr&);
     std::string getAbsolute(const ClassDefPtr&);
+    std::string getAbsolute(const InterfaceDeclPtr&);
+    std::string getAbsolute(const InterfaceDefPtr&);
     std::string getAbsolute(const StructPtr&);
     std::string getAbsolute(const ExceptionPtr&);
     std::string getAbsolute(const EnumPtr&);
@@ -150,6 +151,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);

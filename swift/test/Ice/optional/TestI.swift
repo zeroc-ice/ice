@@ -104,11 +104,6 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opOneOptionalProxy(p1: Ice.ObjectPrx?, current _: Ice.Current) throws -> (returnValue: Ice.ObjectPrx?,
-                                                                                   p3: Ice.ObjectPrx?) {
-        return (p1, p1)
-    }
-
     func opByteSeq(p1: ByteSeq?, current _: Ice.Current) throws -> (returnValue: ByteSeq?, p3: ByteSeq?) {
         return (p1, p1)
     }

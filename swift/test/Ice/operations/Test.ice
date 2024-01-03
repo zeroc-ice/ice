@@ -438,27 +438,3 @@ interface MyDerivedClass extends Test::MyClass
 }
 
 }
-
-//
-// Test proxy inheritance for class with operations
-// see: https://github.com/zeroc-ice/ice/issues/406
-//
-["swift:module:Test:M"]
-module M
-{
-    class A
-    {
-        int x;
-        // void opA();
-    }
-
-    interface Intf
-    {
-        void opIntf();
-    }
-
-    class B extends A implements Intf
-    {
-        void opB();
-    }
-}
