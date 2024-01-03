@@ -20,8 +20,16 @@ const auto sleepTime = 100ms;
 const int maxRetry = static_cast<int>(120000 / sleepTime.count()); // 2 minutes
 
 void
+addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
+{
+    PropertyDescriptor prop;
+    prop.name = name;
+    prop.value = value;
+    communicator->propertySet.properties.push_back(prop);
+}
+
+void
 waitForServerState(const shared_ptr<AdminPrx>& admin, const string& server, bool up)
->>>>>>> 9f1b8317b5 (Ported IceGrid/replication to cpp11.)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -131,7 +139,7 @@ void
 instantiateServer(const shared_ptr<AdminPrx>& admin, string templ, const map<string, string>& params)
 {
     ServerInstanceDescriptor desc;
-    desc._cpp_template = move(templ);
+    desc._cpp_template = std::move(templ);
     desc.parameterValues = params;
     NodeUpdateDescriptor nodeUpdate;
     nodeUpdate.name = "localnode";
@@ -402,7 +410,7 @@ allTests(Test::TestHelper* helper)
         query = Ice::uncheckedCast<QueryPrx>(
             communicator->stringToProxy("RepTestIceGrid/Query:" + endpoints[1]->toString()));
         auto objs2 = query->findAllObjectsByType("::IceGrid::Registry");
-        for(int i = 0; i < objs1.size(); i++)
+        for(vector<Ice::ObjectPrxPtr>::size_type i = 0; i < objs1.size(); i++)
         {
             test(Ice::targetEqualTo(objs1[i], objs2[i]));
         }
