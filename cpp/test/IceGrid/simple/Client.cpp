@@ -45,6 +45,7 @@ Client::run(int argc, char** argv)
         void allTestsWithDeploy(Test::TestHelper*);
         allTestsWithDeploy(this);
     }
+    cerr << "-- OK" << endl;
 }
 
 DEFINE_TEST(Client)

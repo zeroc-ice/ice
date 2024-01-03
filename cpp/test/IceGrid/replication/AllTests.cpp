@@ -20,15 +20,6 @@ const auto sleepTime = 100ms;
 const int maxRetry = static_cast<int>(120000 / sleepTime.count()); // 2 minutes
 
 void
-addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
-{
-    PropertyDescriptor prop;
-    prop.name = name;
-    prop.value = value;
-    communicator->propertySet.properties.push_back(prop);
-}
-
-void
 waitForServerState(const shared_ptr<AdminPrx>& admin, const string& server, bool up)
 {
     int nRetry = 0;

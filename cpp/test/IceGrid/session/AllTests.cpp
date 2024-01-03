@@ -245,7 +245,7 @@ public:
     }
 
     void
-    objectRemoved(Ice::Identity id, const Ice::Current& current)
+    objectRemoved(Ice::Identity id, const Ice::Current& current) override
     {
         lock_guard<mutex> lg(_mutex);
         objects.erase(id);
@@ -1240,7 +1240,7 @@ allTests(TestHelper* helper)
         {
             ApplicationDescriptor app;
             app.name = "Application";
-            admin2->addApplication(move(app));
+            admin2->addApplication(std::move(app));
         }
         catch(const Ice::UserException&)
         {
@@ -1279,7 +1279,7 @@ allTests(TestHelper* helper)
             ApplicationUpdateDescriptor update;
             update.name = "Application";
             update.variables.insert(make_pair(string("test"), string("test")));
-            admin1->updateApplication(move(update));
+            admin1->updateApplication(std::move(update));
             session1->finishUpdate();
         }
         catch(const Ice::UserException& ex)
@@ -1354,7 +1354,7 @@ allTests(TestHelper* helper)
         {
             ApplicationDescriptor app;
             app.name = string(512, 'A');
-            admin1->addApplication(move(app));
+            admin1->addApplication(std::move(app));
             test(false);
         }
         catch(const DeploymentException&)
@@ -1421,7 +1421,7 @@ allTests(TestHelper* helper)
             app.name = "Application";
             int s = session1->startUpdate();
             test(s == serial);
-            admin1->addApplication(move(app));
+            admin1->addApplication(std::move(app));
             appObs1->waitForUpdate(__LINE__);
             test(appObs1->applications.find("Application") != appObs1->applications.end());
             test(++serial == appObs1->serial);
@@ -1437,7 +1437,7 @@ allTests(TestHelper* helper)
             ApplicationUpdateDescriptor update;
             update.name = "Application";
             update.variables.insert(make_pair(string("test"), string("test")));
-            admin1->updateApplication(move(update));
+            admin1->updateApplication(std::move(update));
             appObs1->waitForUpdate(__LINE__);
             test(appObs1->applications.find("Application") != appObs1->applications.end());
             test(appObs1->applications["Application"].descriptor.variables["test"] == "test");
@@ -1455,7 +1455,7 @@ allTests(TestHelper* helper)
             app = appObs1->applications["Application"].descriptor;
             app.variables.clear();
             app.variables["test1"] = "test";
-            admin1->syncApplication(move(app));
+            admin1->syncApplication(std::move(app));
             appObs1->waitForUpdate(__LINE__);
             test(appObs1->applications.find("Application") != appObs1->applications.end());
             test(appObs1->applications["Application"].descriptor.variables.size() == 1);
@@ -1659,13 +1659,14 @@ allTests(TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "IceGrid.Node.Name", "node-1" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "IceGrid.Node.Endpoints", "default" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" }));
+        server->propertySet.properties.push_back(PropertyDescriptor{ "IceGrid.Node.Name", "node-1" });
+        server->propertySet.properties.push_back(
+            PropertyDescriptor{ "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "IceGrid.Node.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
 
         NodeDescriptor node;
-        node.servers.push_back(move(server));
+        node.servers.push_back(std::move(server));
         nodeApp.nodes["localnode"] = node;
 
         session->startUpdate();
@@ -1716,15 +1717,15 @@ allTests(TestHelper* helper)
         adapter.id = "ServerAdapter";
         adapter.registerProcess = false;
         adapter.serverLifetime = true;
-        server->adapters.push_back(move(adapter));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "Server.Endpoints", "default" }));
-        server->propertySet.properties.push_back(move(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" }));
+        server->adapters.push_back(std::move(adapter));
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Server.Endpoints", "default" });
+        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
         node = NodeDescriptor();
         node.servers.push_back(server);
         testApp.nodes["localnode"] = node;
 
         session->startUpdate();
-        admin->addApplication(move(testApp));
+        admin->addApplication(std::move(testApp));
         session->finishUpdate();
         appObs1->waitForUpdate(__LINE__);
 
