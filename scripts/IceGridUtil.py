@@ -96,6 +96,7 @@ class IceGridNode(ProcessFromBinDir, Server):
             'IceGrid.Node.Trace.Activator' : 0,
             'IceGrid.Node.Trace.Adapter' : 0,
             'IceGrid.Node.Trace.Server' : 0,
+            'IceGrid.Node.Trace.Patch' : 0,
             'IceGrid.Node.ThreadPool.SizeWarn' : 0,
             'IceGrid.Node.PrintServersReady' : 'node',
             'IceGrid.Node.Name' : self.name,

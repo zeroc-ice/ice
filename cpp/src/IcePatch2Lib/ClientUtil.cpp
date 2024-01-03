@@ -314,14 +314,12 @@ public:
     {
     }
 
-    virtual bool
-        remove(const string&)
+    virtual bool remove(const string&)
     {
         return true;
     }
 
-    virtual bool
-        checksum(const string& path)
+    virtual bool checksum(const string& path)
     {
         return _feedback->checksumProgress(path);
     }
@@ -457,14 +455,14 @@ PatcherI::prepare()
                             if (_useSmallFileAPI)
                             {
                                 _serverCompress->getFileInfoSeqAsync(
-                                    static_cast<Int>(node0),
+                                    static_cast<Int>(node0Nxt),
                                     [nxtCB](FileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
                                     [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
                             }
                             else
                             {
                                 _serverCompress->getLargeFileInfoSeqAsync(
-                                    static_cast<Int>(node0),
+                                    static_cast<Int>(node0Nxt),
                                     [nxtCB](LargeFileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
                                     [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
                             }

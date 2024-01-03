@@ -67,6 +67,7 @@ cpp98_excludes          = glacier2router \
                           icegridnode icegridregistry icegridadmin  icegriddb \
                           IceStormService icestormadmin icestormdb \
                           IceXML \
+                          IceDB \
                           test/Glacier2/% \
                           test/IceBridge/% \
                           test/IceGrid/% \
