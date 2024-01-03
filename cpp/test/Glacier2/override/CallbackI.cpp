@@ -105,7 +105,7 @@ CallbackI::initiateCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy, int toke
 
     if(proxy->ice_isTwoway())
     {
-        proxy->callbackAsync(token, move(response), move(error), nullptr, ctx);
+        proxy->callbackAsync(token, std::move(response), std::move(error), nullptr, ctx);
     }
     else
     {
@@ -129,7 +129,7 @@ CallbackI::initiateCallbackWithPayloadAsync(shared_ptr<CallbackReceiverPrx> prox
     Ice::ByteSeq seq(1000 * 1024, 0);
     if(proxy->ice_isTwoway())
     {
-        proxy->callbackWithPayloadAsync(seq, move(response), move(error), nullptr, ctx);
+        proxy->callbackWithPayloadAsync(seq, std::move(response), std::move(error), nullptr, ctx);
     }
     else
     {

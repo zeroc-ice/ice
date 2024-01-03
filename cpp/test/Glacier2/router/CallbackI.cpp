@@ -39,7 +39,7 @@ CallbackReceiverI::concurrentCallbackAsync(int number, function<void(int)> respo
 {
     {
         lock_guard<mutex> lg(_mutex);
-        _callbacks.emplace_back(move(response), move(error), number);
+        _callbacks.emplace_back(std::move(response), std::move(error), number);
     }
     _condVar.notify_all();
 }
@@ -146,7 +146,7 @@ CallbackI::initiateCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy,
 {
     if(proxy->ice_isTwoway())
     {
-        proxy->callbackAsync(move(response), move(error), nullptr, current.ctx);
+        proxy->callbackAsync(std::move(response), std::move(error), nullptr, current.ctx);
     }
     else
     {
@@ -163,7 +163,7 @@ CallbackI::initiateCallbackExAsync(shared_ptr<CallbackReceiverPrx> proxy,
 {
     if(proxy->ice_isTwoway())
     {
-        proxy->callbackExAsync(move(response), move(error), nullptr, current.ctx);
+        proxy->callbackExAsync(std::move(response), std::move(error), nullptr, current.ctx);
     }
     else
     {
@@ -178,7 +178,7 @@ CallbackI::initiateConcurrentCallbackAsync(int number, shared_ptr<CallbackReceiv
                                            function<void(exception_ptr)> error,
                                            const Current& current)
 {
-    proxy->concurrentCallbackAsync(number, move(response), move(error), nullptr, current.ctx);
+    proxy->concurrentCallbackAsync(number, std::move(response), std::move(error), nullptr, current.ctx);
 }
 
 void
@@ -187,7 +187,7 @@ CallbackI::initiateWaitCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy,
                                    function<void(exception_ptr)> error,
                                    const Current& current)
 {
-    proxy->waitCallbackAsync(move(response), move(error), nullptr, current.ctx);
+    proxy->waitCallbackAsync(std::move(response), std::move(error), nullptr, current.ctx);
 }
 
 void
@@ -197,7 +197,7 @@ CallbackI::initiateCallbackWithPayloadAsync(shared_ptr<CallbackReceiverPrx> prox
                                             const Current& current)
 {
     Ice::ByteSeq seq(1000 * 1024, 0);
-    proxy->callbackWithPayloadAsync(seq, move(response), move(error), nullptr, current.ctx);
+    proxy->callbackWithPayloadAsync(seq, std::move(response), std::move(error), nullptr, current.ctx);
 }
 
 void

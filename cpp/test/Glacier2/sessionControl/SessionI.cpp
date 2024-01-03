@@ -25,7 +25,7 @@ SessionManagerI::create(string userId, shared_ptr<Glacier2::SessionControlPrx> s
 }
 
 SessionI::SessionI(shared_ptr<Glacier2::SessionControlPrx> sessionControl) :
-    _sessionControl(move(sessionControl))
+    _sessionControl(std::move(sessionControl))
 {
     assert(_sessionControl);
 }
@@ -33,7 +33,7 @@ SessionI::SessionI(shared_ptr<Glacier2::SessionControlPrx> sessionControl) :
 void
 SessionI::destroyFromClientAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
-    _sessionControl->destroyAsync(move(response), [](exception_ptr){ test(false); });
+    _sessionControl->destroyAsync(std::move(response), [](exception_ptr){ test(false); });
 }
 
 void

@@ -48,7 +48,7 @@ class ServerLocatorI final : public Locator
 public:
 
     ServerLocatorI(shared_ptr<Backend> backend, const shared_ptr<ObjectAdapter>& adapter) :
-        _backend(move(backend)),
+        _backend(std::move(backend)),
         _adapter(adapter),
         _registryPrx(uncheckedCast<LocatorRegistryPrx>(
                          adapter->add(make_shared<ServerLocatorRegistry>(), Ice::stringToIdentity("registry"))))

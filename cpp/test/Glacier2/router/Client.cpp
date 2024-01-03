@@ -216,7 +216,7 @@ public:
         //
         // Stress the router until the connection is closed.
         //
-        stress(move(callback), move(receiver));
+        stress(std::move(callback), std::move(receiver));
         communicator->destroy();
     }
 
@@ -811,7 +811,7 @@ CallbackClient::run(int argc, char** argv)
                 break;
             }
             auto client = clients.back();
-            futures.push_back(std::async(launch::async, [client = move(client)]{ client->run(); }));
+            futures.push_back(std::async(launch::async, [client = std::move(client)]{ client->run(); }));
         }
         for(const auto& p: clients)
         {

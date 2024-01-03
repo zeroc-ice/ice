@@ -36,7 +36,7 @@ public:
         {
             lock_guard<mutex> lg(_mutex);
             wasEmpty = _queue.empty();
-            _queue.push_back(move(call));
+            _queue.push_back(std::move(call));
         }
         if(wasEmpty)
         {
