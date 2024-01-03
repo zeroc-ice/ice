@@ -2359,8 +2359,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         }
         else if(s == "delegate")
         {
-            ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-
             dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + s + "'");
             continue;
         }
