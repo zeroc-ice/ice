@@ -117,8 +117,12 @@ class Ice(Component):
                 if testId == "IceStorm/repgrid":
                     return False
 
-        # No C++98 tests for IceGrid, IceStorm, IceBridge
-        if isinstance(mapping, CppMapping) and not current.config.cpp11 and parent in ["IceBridge", "IceGrid", "IceStorm"]:
+        # No C++98 tests for Glacier2, IceGrid, IceStorm, IceBridge
+        if isinstance(mapping, CppMapping) and not current.config.cpp11 and parent in [
+                "Glacier2",
+                "IceBridge",
+                "IceGrid",
+                "IceStorm"]:
             return False
 
         return True
