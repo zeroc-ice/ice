@@ -60,13 +60,6 @@ proxyIdentityEqual(const string& strId)
     };
 }
 
-binder2nd<ProxyEqualIdentity>
-proxyIdentityEqual(const string& strId)
-{
-    return bind2nd(ProxyEqualIdentity(), strId);
-}
-#endif
-
 void logTests(const Ice::CommunicatorPtr& comm, shared_ptr<AdminSessionPrx> session)
 {
     cout << "testing stderr/stdout/log files... " << flush;

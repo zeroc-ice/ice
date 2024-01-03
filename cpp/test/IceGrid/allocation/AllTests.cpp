@@ -216,20 +216,20 @@ public:
         ostringstream os;
         os << "stress-" << (_rd() % 3);
 
-        auto asyncCB = make_shared<Callback>();
+        auto cb = make_shared<Callback>();
         session->allocateObjectByIdAsync(Ice::stringToIdentity(os.str()),
-                                         [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },
-                                         [asyncCB](exception_ptr) { asyncCB->exception(); });
+                                         [cb](shared_ptr<Ice::ObjectPrx> o) { cb->response(move(o)); },
+                                         [cb](exception_ptr) { cb->exception(); });
         session->destroy();
     }
 
     void
     allocateByTypeAndDestroy(const shared_ptr<SessionPrx>& session)
     {
-        auto asyncCB = make_shared<Callback>();
+        auto cb = make_shared<Callback>();
         session->allocateObjectByTypeAsync("::StressTest",
-                                          [asyncCB](shared_ptr<Ice::ObjectPrx> o) { asyncCB->response(move(o)); },=
-                                          [asyncCB](exception_ptr) { asyncCB->exception(); });
+                                          [cb](shared_ptr<Ice::ObjectPrx> o) { cb->response(move(o)); },
+                                          [cb](exception_ptr) { cb->exception(); });
         session->destroy();
     }
 
@@ -428,12 +428,12 @@ allTests(Test::TestHelper* helper)
 
         session2->setAllocationTimeout(allocationTimeout);
 
-        auto asyncCB1 = make_shared<Callback>();
+        auto cb1 = make_shared<Callback>();
         session2->allocateObjectByIdAsync(allocatable,
-                                          [&asyncCB1](shared_ptr<Ice::ObjectPrx> o) { asyncCB1->response(o); },
-                                          [&asyncCB1](exception_ptr e) { asyncCB1->exception(e); });
+                                          [&cb1](shared_ptr<Ice::ObjectPrx> o) { cb1->response(o); },
+                                          [&cb1](exception_ptr) { cb1->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB1->hasResponse(dummy));
+        test(!cb1->hasResponse(dummy));
         session1->releaseObject(allocatable);
         cb1->waitResponse(__FILE__, __LINE__);
         test(cb1->hasResponse(dummy));
@@ -456,12 +456,12 @@ allTests(Test::TestHelper* helper)
         {
         }
         session1->setAllocationTimeout(allocationTimeout);
-        asyncCB1 = make_shared<Callback>();
+        cb1 = make_shared<Callback>();
         session1->allocateObjectByIdAsync(allocatable,
-                                          [&asyncCB1](shared_ptr<Ice::ObjectPrx> o) { asyncCB1->response(o); },
-                                          [&asyncCB1](exception_ptr e) { asyncCB1->exception(e); });
+                                          [&cb1](shared_ptr<Ice::ObjectPrx> o) { cb1->response(o); },
+                                          [&cb1](exception_ptr) { cb1->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB1->hasResponse(dummy));
+        test(!cb1->hasResponse(dummy));
         session2->releaseObject(allocatable);
         cb1->waitResponse(__FILE__, __LINE__);
         test(cb1->hasResponse(dummy));
@@ -576,12 +576,12 @@ allTests(Test::TestHelper* helper)
         session2->releaseObject(allocatablebis);
 
         session1->setAllocationTimeout(allocationTimeout);
-        auto asyncCB3 = make_shared<Callback>();
+        auto cb3 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync("::Test",
-                                          [&asyncCB3](shared_ptr<Ice::ObjectPrx> o) { asyncCB3->response(o); },
-                                          [&asyncCB3](exception_ptr e) { asyncCB3->exception(e); });
+                                          [&cb3](shared_ptr<Ice::ObjectPrx> o) { cb3->response(o); },
+                                          [&cb3](exception_ptr) { cb3->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB3->hasResponse(dummy));
+        test(!cb3->hasResponse(dummy));
         session2->releaseObject(obj->ice_getIdentity());
         cb3->waitResponse(__FILE__, __LINE__);
         test(cb3->hasResponse(obj));
@@ -752,12 +752,12 @@ allTests(Test::TestHelper* helper)
         session1->allocateObjectById(allocatable4);
 
         session2->setAllocationTimeout(allocationTimeout);
-        asyncCB1 = make_shared<Callback>();
+        cb1 = make_shared<Callback>();
         session2->allocateObjectByIdAsync(allocatable3,
-                                          [&asyncCB1](shared_ptr<Ice::ObjectPrx> o) { asyncCB1->response(o); },
-                                          [&asyncCB1](exception_ptr e) { asyncCB1->exception(e); });
+                                          [&cb1](shared_ptr<Ice::ObjectPrx> o) { cb1->response(o); },
+                                          [&cb1](exception_ptr) { cb1->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB1->hasResponse(dummy));
+        test(!cb1->hasResponse(dummy));
         session1->releaseObject(allocatable3);
         test(!cb1->hasResponse(dummy));
         session1->releaseObject(allocatable4);
@@ -767,12 +767,12 @@ allTests(Test::TestHelper* helper)
 
         session1->setAllocationTimeout(allocationTimeout);
         test(session2->allocateObjectByType("::TestServer1"));
-        asyncCB3 = make_shared<Callback>();
+        cb3 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync("::TestServer2",
-                                          [&asyncCB3](shared_ptr<Ice::ObjectPrx> o) { asyncCB3->response(o); },
-                                          [&asyncCB3](exception_ptr e) { asyncCB3->exception(e); });
+                                          [&cb3](shared_ptr<Ice::ObjectPrx> o) { cb3->response(o); },
+                                          [&cb3](exception_ptr) { cb3->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB3->hasResponse(dummy));
+        test(!cb3->hasResponse(dummy));
         session2->releaseObject(allocatable3);
         cb3->waitResponse(__FILE__, __LINE__);
         test(cb3->hasResponse(dummy));
@@ -856,17 +856,17 @@ allTests(Test::TestHelper* helper)
         session2->setAllocationTimeout(allocationTimeout);
 
         session2->allocateObjectById(allocatable);
-        auto asyncCB11 = make_shared<Callback>();
-        auto asyncCB12 = make_shared<Callback>();
+        auto cb11 = make_shared<Callback>();
+        auto cb12 = make_shared<Callback>();
         session1->allocateObjectByIdAsync(allocatable,
-                                          [&asyncCB11](shared_ptr<Ice::ObjectPrx> o) { asyncCB11->response(o); },
-                                          [&asyncCB11](exception_ptr e) { asyncCB11->exception(e); });
+                                          [&cb11](shared_ptr<Ice::ObjectPrx> o) { cb11->response(o); },
+                                          [&cb11](exception_ptr) { cb11->exception(); });
         session1->allocateObjectByIdAsync(allocatable,
-                                          [&asyncCB12](shared_ptr<Ice::ObjectPrx> o) { asyncCB12->response(o); },
-                                          [&asyncCB12](exception_ptr e) { asyncCB12->exception(e); });
+                                          [&cb12](shared_ptr<Ice::ObjectPrx> o) { cb12->response(o); },
+                                          [&cb12](exception_ptr) { cb12->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB11->hasResponse(dummy));
-        test(!asyncCB12->hasResponse(dummy));
+        test(!cb11->hasResponse(dummy));
+        test(!cb12->hasResponse(dummy));
         session2->releaseObject(allocatable);
         cb11->waitResponse(__FILE__, __LINE__);
         cb12->waitResponse(__FILE__, __LINE__);
@@ -875,17 +875,17 @@ allTests(Test::TestHelper* helper)
         session1->releaseObject(allocatable);
 
         session2->allocateObjectById(allocatable);
-        auto asyncCB31 = make_shared<Callback>();
-        auto asyncCB32 = make_shared<Callback>();
+        auto cb31 = make_shared<Callback>();
+        auto cb32 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync("::Test",
-                                            [&asyncCB31](shared_ptr<Ice::ObjectPrx> o) { asyncCB31->response(o); },
-                                            [&asyncCB31](exception_ptr e) { asyncCB31->exception(e); });
+                                            [&cb31](shared_ptr<Ice::ObjectPrx> o) { cb31->response(o); },
+                                            [&cb31](exception_ptr) { cb31->exception(); });
         session1->allocateObjectByTypeAsync("::Test",
-                                            [&asyncCB32](shared_ptr<Ice::ObjectPrx> o) { asyncCB32->response(o); },
-                                            [&asyncCB32](exception_ptr e) { asyncCB32->exception(e); });
+                                            [&cb32](shared_ptr<Ice::ObjectPrx> o) { cb32->response(o); },
+                                            [&cb32](exception_ptr) { cb32->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB31->hasResponse(dummy));
-        test(!asyncCB32->hasResponse(dummy));
+        test(!cb31->hasResponse(dummy));
+        test(!cb32->hasResponse(dummy));
         session2->releaseObject(allocatable);
         this_thread::sleep_for(300ms);
         do
@@ -897,23 +897,23 @@ allTests(Test::TestHelper* helper)
              (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable);
         this_thread::sleep_for(300ms);
-        auto asyncCB33 = asyncCB31->hasResponse(dummy) ? asyncCB32 : asyncCB31;
-        asyncCB33->waitResponse(__FILE__, __LINE__);
-        test(asyncCB33->hasResponse(dummy) && dummy);
+        auto cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+        cb33->waitResponse(__FILE__, __LINE__);
+        test(cb33->hasResponse(dummy) && dummy);
         session1->releaseObject(allocatable);
 
         session2->allocateObjectById(allocatable3);
-        asyncCB11 = make_shared<Callback>();
-        asyncCB12 = make_shared<Callback>();
+        cb11 = make_shared<Callback>();
+        cb12 = make_shared<Callback>();
         session1->allocateObjectByIdAsync(allocatable3,
-                                          [&asyncCB11](shared_ptr<Ice::ObjectPrx> o) { asyncCB11->response(o); },
-                                          [&asyncCB11](exception_ptr e) { asyncCB11->exception(e); });
+                                          [&cb11](shared_ptr<Ice::ObjectPrx> o) { cb11->response(o); },
+                                          [&cb11](exception_ptr) { cb11->exception(); });
         session1->allocateObjectByIdAsync(allocatable3,
-                                          [&asyncCB12](shared_ptr<Ice::ObjectPrx> o) { asyncCB12->response(o); },
-                                          [&asyncCB12](exception_ptr e) { asyncCB12->exception(e); });
+                                          [&cb12](shared_ptr<Ice::ObjectPrx> o) { cb12->response(o); },
+                                          [&cb12](exception_ptr) { cb12->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB11->hasResponse(dummy));
-        test(!asyncCB12->hasResponse(dummy));
+        test(!cb11->hasResponse(dummy));
+        test(!cb12->hasResponse(dummy));
         session2->releaseObject(allocatable3);
         cb11->waitResponse(__FILE__, __LINE__);
         cb12->waitResponse(__FILE__, __LINE__);
@@ -922,17 +922,17 @@ allTests(Test::TestHelper* helper)
         session1->releaseObject(allocatable3);
 
         session2->allocateObjectById(allocatable3);
-        asyncCB31 = make_shared<Callback>();
-        asyncCB32 = make_shared<Callback>();
+        cb31 = make_shared<Callback>();
+        cb32 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync("::TestServer1",
-                                            [&asyncCB31](shared_ptr<Ice::ObjectPrx> o) { asyncCB31->response(o); },
-                                            [&asyncCB31](exception_ptr e) { asyncCB31->exception(e); });
+                                            [&cb31](shared_ptr<Ice::ObjectPrx> o) { cb31->response(o); },
+                                            [&cb31](exception_ptr) { cb31->exception(); });
         session1->allocateObjectByTypeAsync("::TestServer1",
-                                            [&asyncCB32](shared_ptr<Ice::ObjectPrx> o) { asyncCB32->response(o); },
-                                            [&asyncCB32](exception_ptr e) { asyncCB32->exception(e); });
+                                            [&cb32](shared_ptr<Ice::ObjectPrx> o) { cb32->response(o); },
+                                            [&cb32](exception_ptr) { cb32->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB31->hasResponse(dummy));
-        test(!asyncCB32->hasResponse(dummy));
+        test(!cb31->hasResponse(dummy));
+        test(!cb32->hasResponse(dummy));
         session2->releaseObject(allocatable3);
         this_thread::sleep_for(300ms);
         do
@@ -944,23 +944,23 @@ allTests(Test::TestHelper* helper)
              (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         this_thread::sleep_for(300ms);
-        asyncCB33 = asyncCB31->hasResponse(dummy) ? asyncCB32 : asyncCB31;
-        asyncCB33->waitResponse(__FILE__, __LINE__);
-        test(asyncCB33->hasResponse(dummy) && dummy);
+        cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+        cb33->waitResponse(__FILE__, __LINE__);
+        test(cb33->hasResponse(dummy) && dummy);
         session1->releaseObject(allocatable3);
 
         session1->allocateObjectById(allocatable3);
-        asyncCB31 = make_shared<Callback>();
-        asyncCB32 = make_shared<Callback>();
+        cb31 = make_shared<Callback>();
+        cb32 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync("::TestServer1",
-                                            [&asyncCB31](shared_ptr<Ice::ObjectPrx> o) { asyncCB31->response(o); },
-                                            [&asyncCB31](exception_ptr e) { asyncCB31->exception(e); });
+                                            [&cb31](shared_ptr<Ice::ObjectPrx> o) { cb31->response(o); },
+                                            [&cb31](exception_ptr) { cb31->exception(); });
         session1->allocateObjectByTypeAsync("::TestServer1",
-                                            [&asyncCB32](shared_ptr<Ice::ObjectPrx> o) { asyncCB32->response(o); },
-                                            [&asyncCB32](exception_ptr e) { asyncCB32->exception(e); });
+                                            [&cb32](shared_ptr<Ice::ObjectPrx> o) { cb32->response(o); },
+                                            [&cb32](exception_ptr) { cb32->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB31->hasResponse(dummy));
-        test(!asyncCB32->hasResponse(dummy));
+        test(!cb31->hasResponse(dummy));
+        test(!cb32->hasResponse(dummy));
         session1->releaseObject(allocatable3);
         this_thread::sleep_for(300ms);
         do
@@ -972,9 +972,9 @@ allTests(Test::TestHelper* helper)
              (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         this_thread::sleep_for(300ms);
-        asyncCB33 = asyncCB31->hasResponse(dummy) ? asyncCB32 : asyncCB31;
-        asyncCB33->waitResponse(__FILE__, __LINE__);
-        test(asyncCB33->hasResponse(dummy) && dummy);
+        cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+        cb33->waitResponse(__FILE__, __LINE__);
+        test(cb33->hasResponse(dummy) && dummy);
         session1->releaseObject(allocatable3);
 
         cout << "ok" << endl;
@@ -985,12 +985,12 @@ allTests(Test::TestHelper* helper)
         test(obj && obj->ice_getIdentity().name == "allocatable");
 
         session1->setAllocationTimeout(allocationTimeout);
-        asyncCB3 = make_shared<Callback>();
+        cb3 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync("::Test",
-                                            [&asyncCB3](shared_ptr<Ice::ObjectPrx> o) { asyncCB3->response(o); },
-                                            [&asyncCB3](exception_ptr e) { asyncCB3->exception(e); });
+                                            [&cb3](shared_ptr<Ice::ObjectPrx> o) { cb3->response(o); },
+                                            [&cb3](exception_ptr) { cb3->exception(); });
         this_thread::sleep_for(500ms);
-        test(!asyncCB3->hasResponse(dummy));
+        test(!cb3->hasResponse(dummy));
         session2->destroy();
         cb3->waitResponse(__FILE__, __LINE__);
         test(cb3->hasResponse(obj));

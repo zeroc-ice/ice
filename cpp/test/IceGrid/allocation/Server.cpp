@@ -23,11 +23,7 @@ Server::run(int argc, char** argv)
 
     string name = properties->getProperty("Ice.ProgramName");
 
-<<<<<<< HEAD
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
-=======
     auto adapter = communicator->createObjectAdapter("Server");
->>>>>>> 4e3bb25b13 (Port IceGrid/allocation to C++11)
     adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity("allocatable"));
     adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity("nonallocatable"));
     adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity("allocatable1"));
