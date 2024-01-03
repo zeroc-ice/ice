@@ -1774,25 +1774,25 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out.dec();
             out << nl << "end";
+        }
 
-            out << nl << "function id = ice_id(obj)";
+        out << nl << "function id = ice_id(obj)";
+        out.inc();
+        out << nl << "id = obj.ice_staticId();";
+        out.dec();
+        out << nl << "end";
+
+        if (preserved && !basePreserved)
+        {
+            out << nl << "function r = ice_getSlicedData(obj)";
             out.inc();
-            out << nl << "id = obj.ice_staticId();";
-            out.dec();
-            out << nl << "end";
-
-            if (preserved && !basePreserved)
-            {
-                out << nl << "function r = ice_getSlicedData(obj)";
-                out.inc();
-                out << nl << "r = obj.iceSlicedData_;";
-                out.dec();
-                out << nl << "end";
-            }
-
+            out << nl << "r = obj.iceSlicedData_;";
             out.dec();
             out << nl << "end";
         }
+
+        out.dec();
+        out << nl << "end";
 
         DataMemberList convertMembers;
         for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
