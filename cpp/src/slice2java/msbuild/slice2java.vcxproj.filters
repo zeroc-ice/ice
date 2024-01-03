@@ -21,9 +21,6 @@
     <ClCompile Include="..\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GenCompat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Slice2Java.rc">
@@ -32,9 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GenCompat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

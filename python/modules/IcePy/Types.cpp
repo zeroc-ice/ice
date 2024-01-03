@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#define NOMINMAX // Prevents windows.h from defining min/max macros.
+
 #include <Types.h>
 #include <Current.h>
 #include <Proxy.h>
