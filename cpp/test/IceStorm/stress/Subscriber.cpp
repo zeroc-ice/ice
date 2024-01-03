@@ -21,7 +21,7 @@ class EventI : public Event
 public:
 
     EventI(shared_ptr<Communicator> communicator, int total) :
-        _communicator(move(communicator)), _total(total), _count(0)
+        _communicator(std::move(communicator)), _total(total), _count(0)
     {
     }
 
@@ -58,7 +58,7 @@ class OrderEventI final : public EventI
 public:
 
     OrderEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(move(communicator), total)
+        EventI(std::move(communicator), total)
     {
     }
 
@@ -83,7 +83,7 @@ class CountEventI final : public EventI
 public:
 
     CountEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(move(communicator), total)
+        EventI(std::move(communicator), total)
     {
     }
 
@@ -103,7 +103,7 @@ class SlowEventI final : public EventI
 public:
 
     SlowEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(move(communicator), total)
+        EventI(std::move(communicator), total)
     {
     }
 
@@ -132,7 +132,7 @@ class ErraticEventI final : public EventI
 public:
 
     ErraticEventI(shared_ptr<Communicator> communicator, int total) :
-        EventI(move(communicator), total)
+        EventI(std::move(communicator), total)
     {
         ++_remaining;
     }
@@ -174,7 +174,7 @@ class MaxQueueEventI final : public EventI
 public:
 
     MaxQueueEventI(shared_ptr<Communicator> communicator, int expected, int total, bool removeSubscriber) :
-        EventI(move(communicator), total), _removeSubscriber(removeSubscriber), _expected(expected)
+        EventI(std::move(communicator), total), _removeSubscriber(removeSubscriber), _expected(expected)
     {
     }
 
@@ -241,7 +241,7 @@ class ControllerEventI final : public EventI
 public:
 
     ControllerEventI(shared_ptr<Communicator> communicator, int total, shared_ptr<ObjectAdapter> adapter) :
-        EventI(move(communicator), total), _adapter(move(adapter))
+        EventI(std::move(communicator), total), _adapter(std::move(adapter))
     {
     }
 

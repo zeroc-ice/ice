@@ -117,7 +117,7 @@ Publisher::run(int argc, char** argv)
     adapter->activate();
     cout << communicator->proxyToString(controller) << endl;
 
-    PublishThread pt(move(single));
+    PublishThread pt(std::move(single));
     auto fut = std::async(launch::async, [&pt]{ pt.run(); });
 
     communicator->waitForShutdown();
