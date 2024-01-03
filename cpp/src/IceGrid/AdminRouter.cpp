@@ -49,7 +49,7 @@ IceGrid::AdminRouter::invokeOnTarget(const shared_ptr<Ice::ObjectPrx>& target,
                                     }
                                 }
 
-                                response(move(ok), move(bytes));
+                                response(std::move(ok), std::move(bytes));
                             },
                             [exception, operation = current.operation, traceLevels = _traceLevels, target]
                             (exception_ptr exptr)

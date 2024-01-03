@@ -31,7 +31,7 @@ public:
     applicationInit(int, ApplicationInfoSeq applications, const Ice::Current& current) override
     {
         int serial = 0;
-        _database->syncApplications(move(applications), getSerials(current.ctx, serial));
+        _database->syncApplications(std::move(applications), getSerials(current.ctx, serial));
         receivedUpdate(TopicName::ApplicationObserver, serial);
     }
 
@@ -42,7 +42,7 @@ public:
         string failure;
         try
         {
-            _database->addApplication(move(application), nullptr, getSerials(current.ctx, serial));
+            _database->addApplication(std::move(application), nullptr, getSerials(current.ctx, serial));
         }
         catch(const DeploymentException& ex)
         {
@@ -78,7 +78,7 @@ public:
         string failure;
         try
         {
-            _database->updateApplication(move(update), false, nullptr, getSerials(current.ctx, serial));
+            _database->updateApplication(std::move(update), false, nullptr, getSerials(current.ctx, serial));
         }
         catch(const DeploymentException& ex)
         {
@@ -155,7 +155,7 @@ public:
     objectInit(ObjectInfoSeq objects, const Ice::Current& current) override
     {
         int serial = 0;
-        _database->syncObjects(move(objects), getSerials(current.ctx, serial));
+        _database->syncObjects(std::move(objects), getSerials(current.ctx, serial));
         receivedUpdate(TopicName::ObjectObserver, serial);
     }
 

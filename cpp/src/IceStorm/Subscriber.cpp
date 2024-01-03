@@ -36,14 +36,14 @@ class PerSubscriberPublisherI final : public Ice::BlobjectArray
 public:
 
     PerSubscriberPublisherI(shared_ptr<Instance> instance) :
-        _instance(move(instance))
+        _instance(std::move(instance))
     {
     }
 
     void
     setSubscriber(shared_ptr<Subscriber> subscriber)
     {
-        _subscriber = move(subscriber);
+        _subscriber = std::move(subscriber);
     }
 
     bool
@@ -60,8 +60,8 @@ public:
         event.data.swap(data);
 
         EventDataSeq e;
-        e.push_back(move(event));
-        _subscriber->queue(false, move(e));
+        e.push_back(std::move(event));
+        _subscriber->queue(false, std::move(e));
         return true;
     }
 
@@ -145,7 +145,7 @@ SubscriberOneway::SubscriberOneway(const shared_ptr<Instance>& instance,
                                    int retryCount,
                                    shared_ptr<Ice::ObjectPrx> obj) :
     Subscriber(instance, rec, proxy, retryCount, 5),
-    _obj(move(obj))
+    _obj(std::move(obj))
 {
 }
 
@@ -169,7 +169,7 @@ SubscriberOneway::flush()
         // Dequeue the head event, count one more outstanding AMI
         // request.
         //
-        EventData e = move(_events.front());
+        EventData e = std::move(_events.front());
         _events.pop_front();
         if(_observer)
         {
@@ -258,7 +258,7 @@ SubscriberTwoway::SubscriberTwoway(const shared_ptr<Instance>& instance,
                                    int maxOutstanding,
                                    shared_ptr<Ice::ObjectPrx> obj) :
     Subscriber(instance, rec, proxy, retryCount, maxOutstanding),
-    _obj(move(obj))
+    _obj(std::move(obj))
 {
 }
 
@@ -282,7 +282,7 @@ SubscriberTwoway::flush()
         // Dequeue the head event, count one more outstanding AMI
         // request.
         //
-        EventData e = move(_events.front());
+        EventData e = std::move(_events.front());
         _events.pop_front();
 
         ++_outstanding;
@@ -858,11 +858,11 @@ Subscriber::Subscriber(shared_ptr<Instance> instance,
                        shared_ptr<Ice::ObjectPrx> proxy,
                        int retryCount,
                        int maxOutstanding) :
-    _instance(move(instance)),
-    _rec(move(rec)),
+    _instance(std::move(instance)),
+    _rec(std::move(rec)),
     _retryCount(retryCount),
     _maxOutstanding(maxOutstanding),
-    _proxy(move(proxy)),
+    _proxy(std::move(proxy)),
     _proxyReplica(_proxy),
     _shutdown(false),
     _state(SubscriberStateOnline),

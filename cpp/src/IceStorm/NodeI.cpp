@@ -20,7 +20,7 @@ class CheckTask : public IceUtil::TimerTask
 
 public:
 
-    CheckTask(shared_ptr<NodeI> node) : _node(move(node)) { }
+    CheckTask(shared_ptr<NodeI> node) : _node(std::move(node)) { }
     virtual void runTimerTask()
     {
         _node->check();
@@ -34,7 +34,7 @@ class MergeTask : public IceUtil::TimerTask
 
 public:
 
-    MergeTask(shared_ptr<NodeI> node, const set<int>& s) : _node(move(node)), _s(s) { }
+    MergeTask(shared_ptr<NodeI> node, const set<int>& s) : _node(std::move(node)), _s(s) { }
     virtual void runTimerTask()
     {
         _node->merge(_s);
@@ -47,7 +47,7 @@ class MergeContinueTask : public IceUtil::TimerTask
 
 public:
 
-    MergeContinueTask(shared_ptr<NodeI> node) : _node(move(node)) { }
+    MergeContinueTask(shared_ptr<NodeI> node) : _node(std::move(node)) { }
     virtual void runTimerTask()
     {
         _node->mergeContinue();
@@ -60,7 +60,7 @@ class TimeoutTask: public IceUtil::TimerTask
 
 public:
 
-    TimeoutTask(shared_ptr<NodeI> node) : _node(move(node)) { }
+    TimeoutTask(shared_ptr<NodeI> node) : _node(std::move(node)) { }
     virtual void runTimerTask()
     {
         _node->timeout();
@@ -82,7 +82,7 @@ GroupNodeInfo::GroupNodeInfo(int i) :
 }
 
 GroupNodeInfo::GroupNodeInfo(int i, LogUpdate l, shared_ptr<Ice::ObjectPrx> o) :
-    id(i), llu(l), observer(move(o))
+    id(i), llu(l), observer(std::move(o))
 {
 }
 
@@ -142,8 +142,8 @@ NodeI::NodeI(const shared_ptr<Instance>& instance,
     _timer(instance->timer()),
     _traceLevels(instance->traceLevels()),
     _observers(instance->observers()),
-    _replica(move(replica)),
-    _replicaProxy(move(replicaProxy)),
+    _replica(std::move(replica)),
+    _replicaProxy(std::move(replicaProxy)),
     _id(id),
     _nodes(nodes),
     _masterTimeout(getTimeout(instance, instance->serviceName() + ".Election.MasterTimeout", 10)),
@@ -158,7 +158,7 @@ NodeI::NodeI(const shared_ptr<Instance>& instance,
     for(const auto& node : _nodes)
     {
         auto prx = Ice::uncheckedCast<NodePrx>(node.second->ice_oneway());
-        const_cast<map<int, shared_ptr<NodePrx>>& >(_nodesOneway)[node.first] = move(prx);
+        const_cast<map<int, shared_ptr<NodePrx>>& >(_nodesOneway)[node.first] = std::move(prx);
     }
 }
 
@@ -1217,7 +1217,7 @@ NodeI::setState(NodeState s)
             out << "node " << _id << ": transition from " << stateToString(_state) << " to "
                 << stateToString(s);
         }
-        _state = move(s);
+        _state = std::move(s);
         if(_state == NodeState::NodeStateNormal)
         {
             _condVar.notify_all();

@@ -452,7 +452,7 @@ ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters) const
     chrono::seconds activationTimeout, deactivationTimeout;
     auto proxy = _server->getAdapter(activationTimeout, deactivationTimeout, _id, true);
 
-    LocatorAdapterInfo info = { _id, move(proxy), activationTimeout, deactivationTimeout };
+    LocatorAdapterInfo info = { _id, std::move(proxy), activationTimeout, deactivationTimeout };
     adapters.push_back(info);
 }
 

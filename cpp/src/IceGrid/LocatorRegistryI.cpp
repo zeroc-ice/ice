@@ -22,7 +22,7 @@ newSetDirectProxyCB(function<void()> responseCb,
                     const shared_ptr<TraceLevels>& traceLevels, const string& id,
                     const shared_ptr<Ice::ObjectPrx>& proxy)
 {
-    auto response = [traceLevels, id, proxy, responseCb = move(responseCb)] ()
+    auto response = [traceLevels, id, proxy, responseCb = std::move(responseCb)] ()
     {
         if(traceLevels->locator > 1)
         {
@@ -33,7 +33,7 @@ newSetDirectProxyCB(function<void()> responseCb,
         responseCb();
     };
 
-    auto exception = [traceLevels, id, exceptionCb = move(exceptionCb)](auto exptr)
+    auto exception = [traceLevels, id, exceptionCb = std::move(exceptionCb)](auto exptr)
     {
         if(traceLevels->locator > 1)
         {
@@ -69,7 +69,7 @@ newSetDirectProxyCB(function<void()> responseCb,
         }
     };
 
-    return { move(response), move(exception) };
+    return { std::move(response), std::move(exception) };
 }
 
 class SetAdapterDirectProxyCallback final : public SynchronizationCallback
@@ -83,8 +83,8 @@ public:
                                   const string& replicaGroupId,
                                   const shared_ptr<Ice::ObjectPrx>& proxy) :
         _registry(registry),
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _adapterId(adapterId),
         _replicaGroupId(replicaGroupId),
         _proxy(proxy)
@@ -130,8 +130,8 @@ public:
                                   const string& id,
                                   const shared_ptr<Ice::ProcessPrx>& proxy) :
         _registry(registry),
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _id(id),
         _proxy(proxy)
     {
@@ -201,14 +201,14 @@ LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId, shared_ptr<Ice::O
                                              function<void(exception_ptr)> exception,
                                               const Ice::Current&)
 {
-    auto [responseCb, exceptionCb] = newSetDirectProxyCB(move(response), move(exception), _database->getTraceLevels(),
+    auto [responseCb, exceptionCb] = newSetDirectProxyCB(std::move(response), std::move(exception), _database->getTraceLevels(),
                                                      adapterId, proxy);
 
     setAdapterDirectProxy(adapterId,
                           "",
                           proxy,
-                          move(responseCb),
-                          move(exceptionCb));
+                          std::move(responseCb),
+                          std::move(exceptionCb));
 }
 
 void
@@ -218,13 +218,13 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId, string 
                                                        function<void(exception_ptr)> exception,
                                                        const Ice::Current&)
 {
-    auto [responseCb, exceptionCb] = newSetDirectProxyCB(move(response), move(exception), _database->getTraceLevels(),
+    auto [responseCb, exceptionCb] = newSetDirectProxyCB(std::move(response), std::move(exception), _database->getTraceLevels(),
                                                      adapterId, proxy);
     setAdapterDirectProxy(adapterId,
                           replicaGroupId,
                           proxy,
-                          move(responseCb),
-                          move(exceptionCb));
+                          std::move(responseCb),
+                          std::move(exceptionCb));
 }
 
 void
@@ -255,7 +255,7 @@ LocatorRegistryI::setServerProcessProxyAsync(string id, shared_ptr<Ice::ProcessP
             {
                 auto cb = make_shared<SetServerProcessProxyCallback>(shared_from_this(), response,
                                                                      exception, id, proxy);
-                if(_database->getServer(id)->addSyncCallback(move(cb)))
+                if(_database->getServer(id)->addSyncCallback(std::move(cb)))
                 {
                     return;
                 }

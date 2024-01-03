@@ -20,7 +20,7 @@ WellKnownObjectsManager::add(const std::shared_ptr<Ice::ObjectPrx>& proxy, const
 {
     assert(!_initialized);
     ObjectInfo info = { proxy, type };
-    _wellKnownObjects.push_back(move(info));
+    _wellKnownObjects.push_back(std::move(info));
 }
 
 void
@@ -131,14 +131,14 @@ shared_ptr<LocatorPrx>
 WellKnownObjectsManager::getLocator()
 {
     Ice::Identity id = { "Locator", _database->getInstanceName() };
-    return Ice::uncheckedCast<LocatorPrx>(getWellKnownObjectReplicatedProxy(move(id), "Client"));
+    return Ice::uncheckedCast<LocatorPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Client"));
 }
 
 shared_ptr<Ice::LocatorRegistryPrx>
 WellKnownObjectsManager::getLocatorRegistry()
 {
     Ice::Identity id = { "LocatorRegistry", _database->getInstanceName() };
-    return Ice::uncheckedCast<Ice::LocatorRegistryPrx>(getWellKnownObjectReplicatedProxy(move(id), "Server"));
+    return Ice::uncheckedCast<Ice::LocatorRegistryPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Server"));
 }
 
 std::shared_ptr<Ice::ObjectPrx>

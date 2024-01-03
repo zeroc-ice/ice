@@ -309,7 +309,7 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry, const ServerInfo& se
             if(timeout > 0s)
             {
                 auto timeoutInMilliseconds = secondsToInt(timeout) * 1000;
-                node = Ice::uncheckedCast<NodePrx>(node->ice_invocationTimeout(move(timeoutInMilliseconds)));
+                node = Ice::uncheckedCast<NodePrx>(node->ice_invocationTimeout(std::move(timeoutInMilliseconds)));
             }
 
             ServerInfo info = server;
@@ -353,7 +353,7 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry, const ServerInfo& se
                 // Add the node session timeout on the proxies to ensure the
                 // timeout is large enough.
                 //
-                entry->loadCallback(move(serverPrx), move(adapters),
+                entry->loadCallback(std::move(serverPrx), std::move(adapters),
                                     chrono::seconds(at) + sessionTimeout,
                                     chrono::seconds(dt) + sessionTimeout);
 
@@ -391,11 +391,11 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry, const ServerInfo& se
 
         if(noRestart)
         {
-            node->loadServerWithoutRestartAsync(desc, _cache.getReplicaName(), move(response), move(exception));
+            node->loadServerWithoutRestartAsync(desc, _cache.getReplicaName(), std::move(response), std::move(exception));
         }
         else
         {
-            node->loadServerAsync(desc, _cache.getReplicaName(), move(response), move(exception));
+            node->loadServerAsync(desc, _cache.getReplicaName(), std::move(response), std::move(exception));
         }
     }
     catch(const NodeUnreachableException&)
@@ -424,7 +424,7 @@ NodeEntry::destroyServer(const shared_ptr<ServerEntry>& entry, const ServerInfo&
             if(timeout > 0s)
             {
                 int timeoutInMilliseconds = secondsToInt(timeout) * 1000;
-                node = Ice::uncheckedCast<NodePrx>(node->ice_invocationTimeout(move(timeoutInMilliseconds)));
+                node = Ice::uncheckedCast<NodePrx>(node->ice_invocationTimeout(std::move(timeoutInMilliseconds)));
             }
         }
 
@@ -476,12 +476,12 @@ NodeEntry::destroyServer(const shared_ptr<ServerEntry>& entry, const ServerInfo&
         if(noRestart)
         {
             node->destroyServerWithoutRestartAsync(info.descriptor->id, info.uuid, info.revision,
-                                                   _cache.getReplicaName(), move(response), move(exception));
+                                                   _cache.getReplicaName(), std::move(response), std::move(exception));
         }
         else
         {
             node->destroyServerAsync(info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(),
-                                     move(response), move(exception));
+                                     std::move(response), std::move(exception));
         }
     }
     catch(const NodeUnreachableException&)

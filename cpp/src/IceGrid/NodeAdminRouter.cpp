@@ -66,5 +66,5 @@ NodeServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> 
         target = target->ice_facet(current.facet);
     }
 
-    invokeOnTarget(target, inParams, move(response), move(exception), current);
+    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
 }

@@ -16,7 +16,7 @@ using namespace IceStorm;
 using namespace std;
 
 TransientTopicManagerImpl::TransientTopicManagerImpl(shared_ptr<Instance> instance) :
-    _instance(move(instance))
+    _instance(std::move(instance))
 {
 }
 

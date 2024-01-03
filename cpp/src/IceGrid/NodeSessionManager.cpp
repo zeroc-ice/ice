@@ -611,7 +611,7 @@ NodeSessionManager::createdSession(const shared_ptr<NodeSessionPrx>& session)
                     id.name = "Locator";
                     prx = prx->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(prx->ice_identity(id)));
 
-                    proxies[id] = move(prx);
+                    proxies[id] = std::move(prx);
                 }
             }
             catch(const Ice::LocalException&)

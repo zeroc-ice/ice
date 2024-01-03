@@ -24,8 +24,8 @@ public:
                              function<void(exception_ptr)> exception,
                              const Current& current) :
         _adminRouter(adminRouter),
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _inParams(inParams.first, inParams.second),
         _current(current)
     {
@@ -37,7 +37,7 @@ public:
         // Retry to forward the call.
         //
         _adminRouter->ice_invokeAsync({ &_inParams[0], &_inParams[0] + _inParams.size() },
-                                      move(_response), move(_exception), _current);
+                                      std::move(_response), std::move(_exception), _current);
     }
 
     void synchronized(exception_ptr)
@@ -80,7 +80,7 @@ RegistryServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byt
         catch(const SynchronizationException&)
         {
             server->addSyncCallback(make_shared<SynchronizationCallbackI>(shared_from_this(), inParams,
-                                                                          move(response), move(exception), current));
+                                                                          std::move(response), std::move(exception), current));
             return; // Wait for the server synchronization to complete and retry.
         }
     }
@@ -101,7 +101,7 @@ RegistryServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byt
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, move(response), move(exception), current);
+    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database) :
@@ -151,7 +151,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, move(response), move(exception), current);
+    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
 }
 
 RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name,
@@ -200,5 +200,5 @@ RegistryReplicaAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::By
 
     target = target->ice_facet(current.facet);
 
-    invokeOnTarget(target, inParams, move(response), move(exception), current);
+    invokeOnTarget(target, inParams, std::move(response), std::move(exception), current);
 }

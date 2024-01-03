@@ -44,7 +44,7 @@ class ReuseConnectionRouter final : public Ice::Router
 {
 public:
 
-    ReuseConnectionRouter(shared_ptr<Ice::ObjectPrx> proxy) : _clientProxy(move(proxy))
+    ReuseConnectionRouter(shared_ptr<Ice::ObjectPrx> proxy) : _clientProxy(std::move(proxy))
     {
     }
 

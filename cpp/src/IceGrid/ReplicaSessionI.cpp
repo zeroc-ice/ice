@@ -188,7 +188,7 @@ ReplicaSessionI::setEndpoints(StringObjectProxyDict endpoints, const Ice::Curren
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
-        _replicaEndpoints = move(endpoints);
+        _replicaEndpoints = std::move(endpoints);
     }
     _wellKnownObjects->updateReplicatedWellKnownObjects();
 }

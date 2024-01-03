@@ -18,7 +18,7 @@ SessionManager::SessionManager(const shared_ptr<Ice::Communicator>& communicator
     {
         Ice::Identity id = { "InternalRegistry-Master", instanceName };
         _master =
-            Ice::uncheckedCast<InternalRegistryPrx>(prx->ice_identity(move(id))->ice_endpoints({}));
+            Ice::uncheckedCast<InternalRegistryPrx>(prx->ice_identity(std::move(id))->ice_endpoints({}));
     }
 }
 
@@ -124,7 +124,7 @@ SessionManager::findAllQueryObjects(bool cached)
                         // of the registry since it's based on the registry interface proxy.
                         //
                         Ice::Identity id = { "Query", prx->ice_getIdentity().category };
-                        proxies[prx->ice_getIdentity()] = Ice::uncheckedCast<QueryPrx>(prx->ice_identity(move(id)));
+                        proxies[prx->ice_getIdentity()] = Ice::uncheckedCast<QueryPrx>(prx->ice_identity(std::move(id)));
                     }
                 }
             }

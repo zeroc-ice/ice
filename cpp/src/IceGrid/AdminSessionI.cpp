@@ -34,8 +34,8 @@ public:
                     function<void(exception_ptr)> exception, const Ice::Current& current) override
     {
         _proxy->ice_invokeAsync(current.operation, current.mode, inParams,
-                                move(response),
-                                [exception = move(exception)] (exception_ptr)
+                                std::move(response),
+                                [exception = std::move(exception)] (exception_ptr)
                                 {
                                     // Throw ObjectNotExistException, the subscriber is unreachable
                                     exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
@@ -263,7 +263,7 @@ AdminSessionI::openServerLog(string id, string path, int nLines, const Ice::Curr
 {
     try
     {
-        return addFileIterator(_database->getServer(move(id))->getProxy(false, 5s), "#" + move(path), nLines, current);
+        return addFileIterator(_database->getServer(std::move(id))->getProxy(false, 5s), "#" + std::move(path), nLines, current);
     }
     catch(const SynchronizationException&)
     {
@@ -276,7 +276,7 @@ AdminSessionI::openServerStdOut(string id, int nLines, const Ice::Current& curre
 {
     try
     {
-        return addFileIterator(_database->getServer(move(id))->getProxy(false, 5s), "stdout", nLines, current);
+        return addFileIterator(_database->getServer(std::move(id))->getProxy(false, 5s), "stdout", nLines, current);
     }
     catch(const SynchronizationException&)
     {
@@ -289,7 +289,7 @@ AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& curre
 {
     try
     {
-        return addFileIterator(_database->getServer(move(id))->getProxy(false, 5s), "stderr", nLines, current);
+        return addFileIterator(_database->getServer(std::move(id))->getProxy(false, 5s), "stderr", nLines, current);
     }
     catch(const SynchronizationException&)
     {
@@ -300,13 +300,13 @@ AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& curre
 shared_ptr<FileIteratorPrx>
 AdminSessionI::openNodeStdOut(string name, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(move(name))->getProxy(), "stdout", nLines, current);
+    return addFileIterator(_database->getNode(std::move(name))->getProxy(), "stdout", nLines, current);
 }
 
 shared_ptr<FileIteratorPrx>
 AdminSessionI::openNodeStdErr(string name, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(move(name))->getProxy(), "stderr", nLines, current);
+    return addFileIterator(_database->getNode(std::move(name))->getProxy(), "stderr", nLines, current);
 }
 
 shared_ptr<FileIteratorPrx>
@@ -319,7 +319,7 @@ AdminSessionI::openRegistryStdOut(string name, int nLines, const Ice::Current& c
     }
     else
     {
-        reader = _database->getReplica(move(name))->getProxy();
+        reader = _database->getReplica(std::move(name))->getProxy();
     }
     return addFileIterator(reader, "stdout", nLines, current);
 }
@@ -334,7 +334,7 @@ AdminSessionI::openRegistryStdErr(string name, int nLines, const Ice::Current& c
     }
     else
     {
-        reader = _database->getReplica(move(name))->getProxy();
+        reader = _database->getReplica(std::move(name))->getProxy();
     }
     return addFileIterator(reader, "stderr", nLines, current);
 }
@@ -530,7 +530,7 @@ shared_ptr<Glacier2::SessionPrx>
 AdminSessionManagerI::create(string userId, shared_ptr<Glacier2::SessionControlPrx> ctl,
                              const Ice::Current&)
 {
-    return _factory->createGlacier2Session(move(userId), move(ctl));
+    return _factory->createGlacier2Session(std::move(userId), std::move(ctl));
 }
 
 AdminSSLSessionManagerI::AdminSSLSessionManagerI(const shared_ptr<AdminSessionFactory>& factory) : _factory(factory)
@@ -559,5 +559,5 @@ AdminSSLSessionManagerI::create(Glacier2::SSLInfo info,
         }
     }
 
-    return _factory->createGlacier2Session(move(userDN), move(ctl));
+    return _factory->createGlacier2Session(std::move(userDN), std::move(ctl));
 }

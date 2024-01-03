@@ -50,7 +50,7 @@ namespace
         {
             try
             {
-                return std::invoke(forward<Func>(f), _proxy, forward<Args>(args)..., ::Ice::noExplicitContext);
+                return std::invoke(std::forward<Func>(f), _proxy, std::forward<Args>(args)..., ::Ice::noExplicitContext);
             }
             catch (const Ice::Exception&)
             {
@@ -62,7 +62,7 @@ namespace
         template<typename Func>
         auto invokeAsync(Func&& f, function<void()> response, function<void(exception_ptr)> exception)
         {
-            auto exceptionWrapper = [this, exception = move(exception)](exception_ptr ex)
+            auto exceptionWrapper = [this, exception = std::move(exception)](exception_ptr ex)
                 {
                     try
                     {
@@ -73,7 +73,7 @@ namespace
                         exception(current_exception());
                     }
                 };
-            return std::invoke(forward<Func>(f), _proxy, move(response), move(exceptionWrapper), nullptr, Ice::noExplicitContext);
+            return std::invoke(std::forward<Func>(f), _proxy, std::move(response), std::move(exceptionWrapper), nullptr, Ice::noExplicitContext);
         }
 
         void useActivationTimeout()
@@ -135,8 +135,8 @@ namespace
             const string& name,
             int nodeCount) :
             PatcherFeedbackAggregator(id, traceLevels, type, name, nodeCount),
-            _response(move(response)),
-            _exception(move(exception))
+            _response(std::move(response)),
+            _exception(std::move(exception))
         {
         }
 
@@ -246,14 +246,14 @@ void
 AdminI::removeApplication(string name, const Current&)
 {
     checkIsReadOnly();
-    _database->removeApplication(move(name), _session.get());
+    _database->removeApplication(std::move(name), _session.get());
 }
 
 void
 AdminI::instantiateServer(string app, string node, ServerInstanceDescriptor desc, const Current&)
 {
     checkIsReadOnly();
-    _database->instantiateServer(move(app), move(node), move(desc), _session.get());
+    _database->instantiateServer(std::move(app), std::move(node), std::move(desc), _session.get());
 }
 
 void
@@ -325,7 +325,7 @@ AdminI::patchApplicationAsync(
 ApplicationInfo
 AdminI::getApplicationInfo(string name, const Current&) const
 {
-    return _database->getApplicationInfo(move(name));
+    return _database->getApplicationInfo(std::move(name));
 }
 
 ApplicationDescriptor
@@ -391,20 +391,20 @@ AdminI::getAllApplicationNames(const Current&) const
 ServerInfo
 AdminI::getServerInfo(string id, const Current&) const
 {
-    return _database->getServer(move(id))->getInfo(true);
+    return _database->getServer(std::move(id))->getInfo(true);
 }
 
 ServerState
 AdminI::getServerState(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, move(id));
+    ServerProxyWrapper proxy(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getState);
 }
 
 int
 AdminI::getServerPid(string id, const Current&) const
 {
-    ServerProxyWrapper proxy(_database, move(id));
+    ServerProxyWrapper proxy(_database, std::move(id));
     return proxy.invoke(&ServerPrx::getPid);
 }
 
@@ -425,10 +425,10 @@ AdminI::getServerAdmin(string id, const Current& current) const
 void
 AdminI::startServerAsync(string id, function<void()> response, function<void(exception_ptr)> exception, const Current&)
 {
-    ServerProxyWrapper proxy(_database, move(id));
+    ServerProxyWrapper proxy(_database, std::move(id));
     proxy.useActivationTimeout();
 
-    proxy.invokeAsync([](const auto& prx, auto... args) { prx->startAsync(args...); }, move(response), move(exception));
+    proxy.invokeAsync([](const auto& prx, auto... args) { prx->startAsync(args...); }, std::move(response), std::move(exception));
 }
 
 void
@@ -442,7 +442,7 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
     //
     proxy.invokeAsync([](const auto& prx, auto... args) { prx->stopAsync(args...); },
         response,
-        [response, exception = move(exception)](exception_ptr ex) {
+                      [response, exception = std::move(exception)](exception_ptr ex) {
             try
             {
                 rethrow_exception(ex);
@@ -530,8 +530,8 @@ AdminI::patchServerAsync(
 void
 AdminI::sendSignal(string id, string signal, const Current&)
 {
-    ServerProxyWrapper proxy(_database, move(id));
-    proxy.invoke(&ServerPrx::sendSignal, move(signal));
+    ServerProxyWrapper proxy(_database, std::move(id));
+    proxy.invoke(&ServerPrx::sendSignal, std::move(signal));
 }
 
 StringSeq
@@ -543,14 +543,14 @@ AdminI::getAllServerIds(const Current&) const
 void
 AdminI::enableServer(string id, bool enable, const Ice::Current&)
 {
-    ServerProxyWrapper proxy(_database, move(id));
-    proxy.invoke(&ServerPrx::setEnabled, move(enable));
+    ServerProxyWrapper proxy(_database, std::move(id));
+    proxy.invoke(&ServerPrx::setEnabled, std::move(enable));
 }
 
 bool
 AdminI::isServerEnabled(string id, const Ice::Current&) const
 {
-    ServerProxyWrapper proxy(_database, move(id));
+    ServerProxyWrapper proxy(_database, std::move(id));
     return proxy.invoke(&ServerPrx::isEnabled);
 }
 
@@ -656,19 +656,19 @@ AdminI::removeObject(Ice::Identity id, const Ice::Current&)
 ObjectInfo
 AdminI::getObjectInfo(Ice::Identity id, const Ice::Current&) const
 {
-    return _database->getObjectInfo(move(id));
+    return _database->getObjectInfo(std::move(id));
 }
 
 ObjectInfoSeq
 AdminI::getObjectInfosByType(string type, const Ice::Current&) const
 {
-    return _database->getObjectInfosByType(move(type));
+    return _database->getObjectInfosByType(std::move(type));
 }
 
 ObjectInfoSeq
 AdminI::getAllObjectInfos(string expression, const Ice::Current&) const
 {
-    return _database->getAllObjectInfos(move(expression));
+    return _database->getAllObjectInfos(std::move(expression));
 }
 
 NodeInfo

@@ -32,19 +32,19 @@ QueryI::findObjectById(Ice::Identity id, const Ice::Current&) const
 shared_ptr<Ice::ObjectPrx>
 QueryI::findObjectByType(string type, const Ice::Current& current) const
 {
-    return _database->getObjectByType(move(type), current.con, current.ctx);
+    return _database->getObjectByType(std::move(type), current.con, current.ctx);
 }
 
 shared_ptr<Ice::ObjectPrx>
 QueryI::findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample, const Ice::Current& current) const
 {
-    return _database->getObjectByTypeOnLeastLoadedNode(move(type), move(sample), current.con, current.ctx);
+    return _database->getObjectByTypeOnLeastLoadedNode(std::move(type), std::move(sample), current.con, current.ctx);
 }
 
 Ice::ObjectProxySeq
 QueryI::findAllObjectsByType(string type, const Ice::Current& current) const
 {
-    return _database->getObjectsByType(move(type), current.con, current.ctx);
+    return _database->getObjectsByType(std::move(type), current.con, current.ctx);
 }
 
 Ice::ObjectProxySeq

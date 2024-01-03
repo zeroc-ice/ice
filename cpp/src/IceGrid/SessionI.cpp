@@ -26,7 +26,7 @@ public:
     AllocateObject(const shared_ptr<SessionI>& session,
                    function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)>&& response,
                    function<void(exception_ptr)>&& exception) :
-        ObjectAllocationRequest(session), _response(move(response)), _exception(move(exception))
+        ObjectAllocationRequest(session), _response(std::move(response)), _exception(std::move(exception))
     {
     }
 
@@ -161,8 +161,8 @@ SessionI::allocateObjectByIdAsync(Ice::Identity id,
                                  const Ice::Current&)
 {
     auto allocatedObject = make_shared<AllocateObject>(static_pointer_cast<SessionI>(shared_from_this()),
-                                                       move(response), move(exception));
-    _database->getAllocatableObject(id)->allocate(move(allocatedObject));
+                                                       std::move(response), std::move(exception));
+    _database->getAllocatableObject(id)->allocate(std::move(allocatedObject));
 }
 
 void
@@ -172,8 +172,8 @@ SessionI::allocateObjectByTypeAsync(string type,
                                     const Ice::Current&)
 {
     auto allocatedObject = make_shared<AllocateObject>(static_pointer_cast<SessionI>(shared_from_this()),
-                                                       move(response), move(exception));
-    _database->getAllocatableObjectCache().allocateByType(type, move(allocatedObject));
+                                                       std::move(response), std::move(exception));
+    _database->getAllocatableObjectCache().allocateByType(type, std::move(allocatedObject));
 }
 
 void
@@ -312,7 +312,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId,
             if(_filters)
             {
                 Ice::Identity queryId = { "Query", _database->getInstanceName() };
-                _servantManager->setSessionControl(session, ctl, { move(queryId) });
+                _servantManager->setSessionControl(session, ctl, { std::move(queryId) });
             }
             timeout = chrono::seconds(ctl->getSessionTimeout());
         }
@@ -350,7 +350,7 @@ ClientSessionManagerI::ClientSessionManagerI(const shared_ptr<ClientSessionFacto
 shared_ptr<Glacier2::SessionPrx>
 ClientSessionManagerI::create(string user, shared_ptr<Glacier2::SessionControlPrx> ctl, const Ice::Current&)
 {
-    return _factory->createGlacier2Session(move(user), move(ctl));
+    return _factory->createGlacier2Session(std::move(user), std::move(ctl));
 }
 
 ClientSSLSessionManagerI::ClientSSLSessionManagerI(const shared_ptr<ClientSessionFactory>& factory) : _factory(factory)

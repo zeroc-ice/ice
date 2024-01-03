@@ -403,9 +403,9 @@ Parser::Parser(shared_ptr<Communicator> communicator,
                shared_ptr<AdminSessionPrx> session,
                shared_ptr<AdminPrx> admin,
                bool interactive) :
-    _communicator(move(communicator)),
-    _session(move(session)),
-    _admin(move(admin)),
+    _communicator(std::move(communicator)),
+    _session(std::move(session)),
+    _admin(std::move(admin)),
     _interrupted(false),
     _interactive(interactive)
 {

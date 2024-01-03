@@ -178,7 +178,7 @@ InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
 void
 InternalRegistryI::registerWithReplica(shared_ptr<InternalRegistryPrx> replica, const Ice::Current&)
 {
-    _session.create(move(replica));
+    _session.create(std::move(replica));
 }
 
 NodePrxSeq

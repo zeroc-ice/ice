@@ -58,9 +58,9 @@ private:
 
 Parser::Parser(shared_ptr<Communicator> communicator, shared_ptr<TopicManagerPrx> admin,
                map<Ice::Identity, shared_ptr<TopicManagerPrx>> managers) :
-    _communicator(move(communicator)),
-    _defaultManager(move(admin)),
-    _managers(move(managers))
+    _communicator(std::move(communicator)),
+    _defaultManager(std::move(admin)),
+    _managers(std::move(managers))
 {
 #ifdef _WIN32
     if(!windowsConsoleConverter)

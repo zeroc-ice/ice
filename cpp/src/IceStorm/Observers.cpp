@@ -11,7 +11,7 @@ using namespace IceStorm;
 using namespace IceStormElection;
 
 Observers::Observers(shared_ptr<TraceLevels> traceLevels) :
-    _traceLevels(move(traceLevels)),
+    _traceLevels(std::move(traceLevels)),
     _majority(0)
 {
 }
@@ -93,7 +93,7 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
 
             auto future = observer->initAsync(llu, content);
 
-            observers.push_back({ slave.id, observer, move(future) });
+            observers.push_back({ slave.id, observer, std::move(future) });
         }
         catch(const Ice::Exception& ex)
         {
@@ -122,7 +122,7 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
             throw;
         }
     }
-    _observers = move(observers);
+    _observers = std::move(observers);
 }
 
 void

@@ -144,7 +144,7 @@ ServerAdapterI::setDirectProxy(shared_ptr<Ice::ObjectPrx> prx, const Ice::Curren
     }
 
     bool updated = _proxy != prx;
-    _proxy = move(prx);
+    _proxy = std::move(prx);
 
     //
     // If the server is being deactivated and the activation callback

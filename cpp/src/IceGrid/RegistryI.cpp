@@ -156,7 +156,7 @@ ProcessI::shutdown(const Current&)
 void
 ProcessI::writeMessage(string message, int fd, const Current& current)
 {
-    _origProcess->writeMessage(move(message), move(fd), current);
+    _origProcess->writeMessage(std::move(message), std::move(fd), current);
 }
 
 }
@@ -688,7 +688,7 @@ shared_ptr<QueryPrx>
 RegistryI::setupQuery()
 {
     Identity queryId = { "Query", _instanceName };
-    return uncheckedCast<QueryPrx>(_clientAdapter->add(make_shared<QueryI>(_communicator, _database), move(queryId)));
+    return uncheckedCast<QueryPrx>(_clientAdapter->add(make_shared<QueryI>(_communicator, _database), std::move(queryId)));
 }
 
 shared_ptr<RegistryPrx>
@@ -700,7 +700,7 @@ RegistryI::setupRegistry()
         registryId.name += "-" + _replicaName;
     }
 
-    auto proxy = uncheckedCast<RegistryPrx>(_clientAdapter->add(shared_from_this(), move(registryId)));
+    auto proxy = uncheckedCast<RegistryPrx>(_clientAdapter->add(shared_from_this(), std::move(registryId)));
     _wellKnownObjects->add(proxy, Registry::ice_staticId());
     return proxy;
 }
@@ -728,7 +728,7 @@ RegistryI::setupInternalRegistry()
         _communicator->addAdminFacet(make_shared<ProcessI>(shared_from_this(), origProcess), "Process");
 
         Identity adminId = { "RegistryAdmin-" + _replicaName, _instanceName };
-        _communicator->createAdmin(_registryAdapter, move(adminId));
+        _communicator->createAdmin(_registryAdapter, std::move(adminId));
     }
 
     auto registry = uncheckedCast<InternalRegistryPrx>(proxy);
@@ -802,7 +802,7 @@ RegistryI::setupClientSessionFactory(const shared_ptr<IceGrid::LocatorPrx>& loca
     if(adapter)
     {
         Ice::Identity dummy = { "dummy", "" };
-        _wellKnownObjects->addEndpoint("SessionManager", adapter->createDirectProxy(move(dummy)));
+        _wellKnownObjects->addEndpoint("SessionManager", adapter->createDirectProxy(std::move(dummy)));
     }
 
     _clientVerifier = getPermissionsVerifier(locator, "IceGrid.Registry.PermissionsVerifier");
@@ -854,7 +854,7 @@ RegistryI::setupAdminSessionFactory(const shared_ptr<Object>& serverAdminRouter,
     if(adapter)
     {
         Ice::Identity dummy = { "dummy", "" };
-        _wellKnownObjects->addEndpoint("AdminSessionManager", adapter->createDirectProxy(move(dummy)));
+        _wellKnownObjects->addEndpoint("AdminSessionManager", adapter->createDirectProxy(std::move(dummy)));
     }
 
     _adminVerifier = getPermissionsVerifier(locator, "IceGrid.Registry.AdminPermissionsVerifier");
@@ -1375,7 +1375,7 @@ RegistryI::registerReplicas(const shared_ptr<InternalRegistryPrx>& internalRegis
         if(registryPrx.first->ice_getIdentity() != internalRegistry->ice_getIdentity())
         {
             auto fut = registryPrx.first->registerWithReplicaAsync(internalRegistry);
-            results.insert({registryPrx.first, move(fut)});
+            results.insert({registryPrx.first, std::move(fut)});
         }
     }
 

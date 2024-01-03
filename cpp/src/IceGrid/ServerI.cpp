@@ -496,7 +496,7 @@ void
 LoadCommand::addCallback(function<void(const shared_ptr<ServerPrx>&, const AdapterPrxDict &, int, int)> response,
                          function<void(exception_ptr)> exception)
 {
-    _loadCB.push_back({move(response), move(exception)});
+    _loadCB.push_back({std::move(response), std::move(exception)});
 }
 
 void
@@ -586,7 +586,7 @@ DestroyCommand::execute()
 void
 DestroyCommand::addCallback(function<void()> response)
 {
-    _destroyCB.push_back(move(response));
+    _destroyCB.push_back(std::move(response));
 }
 
 void
@@ -689,7 +689,7 @@ StartCommand::timeout()
 void
 StartCommand::addCallback(function<void()> response, function<void(exception_ptr)> exception)
 {
-    _startCB.push_back({move(response), move(exception)});
+    _startCB.push_back({std::move(response), std::move(exception)});
 }
 
 void
@@ -759,7 +759,7 @@ StopCommand::timeout()
 void
 StopCommand::addCallback(function<void()> response, function<void(exception_ptr)> exception)
 {
-    _stopCB.push_back({move(response), move(exception)});
+    _stopCB.push_back({std::move(response), std::move(exception)});
 }
 
 void
@@ -809,7 +809,7 @@ ServerI::waitForApplicationUpdateCompleted()
 void
 ServerI::startAsync(function<void()> response, function<void(exception_ptr)> exception, const Ice::Current&)
 {
-    start(Manual, move(response), move(exception));
+    start(Manual, std::move(response), std::move(exception));
 }
 
 void
@@ -836,7 +836,7 @@ ServerI::stopAsync(function<void()> response, function<void(exception_ptr)> exce
         if(response)
         {
             assert(exception);
-            _stop->addCallback(move(response), move(exception));
+            _stop->addCallback(std::move(response), std::move(exception));
         }
         command = nextCommand();
     }
@@ -849,7 +849,7 @@ ServerI::stopAsync(function<void()> response, function<void(exception_ptr)> exce
 void
 ServerI::sendSignal(string signal, const Ice::Current&)
 {
-    _node->getActivator()->sendSignal(_id, move(signal));
+    _node->getActivator()->sendSignal(_id, std::move(signal));
 }
 
 void
@@ -861,7 +861,7 @@ ServerI::writeMessage(string message, int fd, const Ice::Current&)
     {
         try
         {
-            _process->writeMessage(move(message), fd);
+            _process->writeMessage(std::move(message), fd);
         }
         catch(const std::exception&)
         {
@@ -974,7 +974,7 @@ ServerI::setProcessAsync(shared_ptr<Ice::ProcessPrx> process, function<void()> r
     {
         lock_guard lock(_mutex);
         checkDestroyed();
-        _process = move(process);
+        _process = std::move(process);
         if(_state == DeactivatingWaitForProcess)
         {
             deact = true;
@@ -1016,14 +1016,14 @@ ServerI::setProcessAsync(shared_ptr<Ice::ProcessPrx> process, function<void()> r
 long long
 ServerI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
-    return _node->getFileCache()->getOffsetFromEnd(getFilePath(move(filename)), count);
+    return _node->getFileCache()->getOffsetFromEnd(getFilePath(std::move(filename)), count);
 }
 
 bool
 ServerI::read(string filename, long long pos, int size, long long& newPos, Ice::StringSeq& lines,
               const Ice::Current&) const
 {
-    return _node->getFileCache()->read(getFilePath(move(filename)), pos, size, newPos, lines);
+    return _node->getFileCache()->read(getFilePath(std::move(filename)), pos, size, newPos, lines);
 }
 
 bool
@@ -1161,7 +1161,7 @@ ServerI::start(ServerActivation activation, function<void()> response , function
         if(response)
         {
             assert(response && exception);
-            _start->addCallback(move(response), move(exception));
+            _start->addCallback(std::move(response), std::move(exception));
         }
         command = nextCommand();
     }
@@ -1370,7 +1370,7 @@ ServerI::destroy(const string& uuid, int revision, const string& replicaName, bo
     }
     if(response)
     {
-        _destroy->addCallback(move(response));
+        _destroy->addCallback(std::move(response));
     }
     return nextCommand();
 }
@@ -1461,7 +1461,7 @@ ServerI::adapterActivated(const string& id)
         }
         command = nextCommand();
     }
-    for(const auto adpt : adpts)
+    for(const auto& adpt : adpts)
     {
         if(adpt.first != id)
         {
@@ -1790,7 +1790,7 @@ ServerI::deactivate()
         //
         // Deactivate the server and for the termination of the server.
         //
-        _node->getActivator()->deactivate(_id, move(process));
+        _node->getActivator()->deactivate(_id, std::move(process));
         return;
     }
     catch(const Ice::Exception& ex)

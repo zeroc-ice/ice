@@ -57,8 +57,8 @@ AdminCallbackRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> in
     // Call with AMI
     //
     target->ice_invokeAsync(current.operation, current.mode, inParams,
-                            move(response),
-                            [exception = move(exception)] (exception_ptr)
+                            std::move(response),
+                            [exception = std::move(exception)] (exception_ptr)
                             {
                                 exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
                             },

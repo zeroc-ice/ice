@@ -15,8 +15,8 @@ FileParserI::parse(string file, shared_ptr<AdminPrx> admin, const Ice::Current& 
 {
     try
     {
-        return DescriptorParser::parseDescriptor(move(file), Ice::StringSeq(), map<string, string>(),
-                                                 current.adapter->getCommunicator(), move(admin));
+        return DescriptorParser::parseDescriptor(std::move(file), Ice::StringSeq(), map<string, string>(),
+                                                 current.adapter->getCommunicator(), std::move(admin));
     }
     catch(const IceXML::ParserException& e)
     {

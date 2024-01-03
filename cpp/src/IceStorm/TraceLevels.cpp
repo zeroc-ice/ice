@@ -22,7 +22,7 @@ TraceLevels::TraceLevels(const string name,
     electionCat("Election"),
     replication(0),
     replicationCat("Replication"),
-    logger(move(theLogger))
+    logger(std::move(theLogger))
 {
     const string keyBase = name + ".Trace.";
     const_cast<int&>(topicMgr) = properties->getPropertyAsInt(keyBase + topicMgrCat);

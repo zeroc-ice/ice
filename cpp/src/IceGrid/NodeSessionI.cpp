@@ -38,7 +38,7 @@ public:
 
     virtual void failed(string reason, const Ice::Current & = Ice::Current())
     {
-        _aggregator->failed(_node, move(reason));
+        _aggregator->failed(_node, std::move(reason));
         _session->removeFeedback(shared_from_this(), _id);
     }
 
@@ -200,7 +200,7 @@ NodeSessionI::keepAlive(LoadInfo load, const Ice::Current&)
     }
 
     _timestamp = chrono::steady_clock::now();
-    _load = move(load);
+    _load = std::move(load);
 
     if(_traceLevels->node > 2)
     {
@@ -281,7 +281,7 @@ NodeSessionI::waitForApplicationUpdateAsync(std::string application, int revisio
                                             function<void()> response, function<void(exception_ptr)> exception,
                                              const Ice::Current&) const
 {
-    _database->waitForApplicationUpdate(move(application), move(revision), move(response), move(exception));
+    _database->waitForApplicationUpdate(std::move(application), std::move(revision), std::move(response), std::move(exception));
 }
 
 void

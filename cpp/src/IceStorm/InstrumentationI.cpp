@@ -91,7 +91,7 @@ public:
 
     SubscriberHelper(const string& svc, const string& topic, const shared_ptr<Ice::ObjectPrx>& proxy,
                      const IceStorm::QoS& qos, shared_ptr<IceStorm::TopicPrx> link, SubscriberState state) :
-        _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(move(link)), _state(state)
+        _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(std::move(link)), _state(state)
     {
     }
 

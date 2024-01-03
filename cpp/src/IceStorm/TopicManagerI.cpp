@@ -33,7 +33,7 @@ class TopicManagerI final : public TopicManagerInternal
 public:
 
     TopicManagerI(shared_ptr<PersistentInstance> instance, shared_ptr<TopicManagerImpl> impl) :
-        _instance(move(instance)), _impl(move(impl))
+        _instance(std::move(instance)), _impl(std::move(impl))
     {
     }
 
@@ -47,7 +47,7 @@ public:
             {
                 try
                 {
-                    return master->create(move(id));
+                    return master->create(std::move(id));
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -63,7 +63,7 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                return _impl->create(move(id));
+                return _impl->create(std::move(id));
             }
         }
     }
@@ -72,7 +72,7 @@ public:
     {
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
-        return _impl->retrieve(move(id));
+        return _impl->retrieve(std::move(id));
     }
 
     TopicDict retrieveAll(const Ice::Current&) override
@@ -112,8 +112,8 @@ class ReplicaObserverI final : public ReplicaObserver
 public:
 
     ReplicaObserverI(shared_ptr<PersistentInstance> instance, shared_ptr<TopicManagerImpl> impl) :
-        _instance(move(instance)),
-        _impl(move(impl))
+        _instance(std::move(instance)),
+        _impl(std::move(impl))
     {
     }
 
@@ -124,7 +124,7 @@ public:
         {
             node->checkObserverInit(llu.generation);
         }
-        _impl->observerInit(move(llu), move(content));
+        _impl->observerInit(std::move(llu), std::move(content));
     }
 
     void createTopic(LogUpdate llu, string name, const Ice::Current&) override
@@ -132,7 +132,7 @@ public:
         try
         {
             ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerCreateTopic(llu, move(name));
+            _impl->observerCreateTopic(llu, std::move(name));
         }
         catch(const ObserverInconsistencyException& e)
         {
@@ -148,7 +148,7 @@ public:
         try
         {
             ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerDestroyTopic(llu, move(name));
+            _impl->observerDestroyTopic(llu, std::move(name));
         }
         catch(const ObserverInconsistencyException& e)
         {
@@ -164,7 +164,7 @@ public:
         try
         {
             ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerAddSubscriber(llu, move(name), move(rec));
+            _impl->observerAddSubscriber(llu, std::move(name), std::move(rec));
         }
         catch(const ObserverInconsistencyException& e)
         {
@@ -180,7 +180,7 @@ public:
         try
         {
             ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            _impl->observerRemoveSubscriber(llu, move(name), move(id));
+            _impl->observerRemoveSubscriber(llu, std::move(name), std::move(id));
         }
         catch(const ObserverInconsistencyException& e)
         {
@@ -202,7 +202,7 @@ class TopicManagerSyncI final : public TopicManagerSync
 public:
 
     TopicManagerSyncI(shared_ptr<TopicManagerImpl> impl) :
-        _impl(move(impl))
+        _impl(std::move(impl))
     {
     }
 
@@ -244,7 +244,7 @@ TopicManagerImpl::create(const std::shared_ptr<PersistentInstance>& instance)
 }
 
 TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance) :
-    _instance(move(instance)),
+    _instance(std::move(instance)),
     _lluMap(_instance->lluMap()),
     _subscriberMap(_instance->subscriberMap())
 {

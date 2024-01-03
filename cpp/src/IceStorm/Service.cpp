@@ -65,7 +65,7 @@ class FinderI final : public IceStorm::Finder
 {
 public:
 
-    FinderI(shared_ptr<TopicManagerPrx> topicManager) : _topicManager(move(topicManager))
+    FinderI(shared_ptr<TopicManagerPrx> topicManager) : _topicManager(std::move(topicManager))
     {
     }
 
@@ -162,7 +162,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
         {
             auto instance = make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
             _manager = TopicManagerImpl::create(instance);
-            _instance = move(instance);
+            _instance = std::move(instance);
             _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->add(_manager->getServant(), topicManagerId));
         }
         catch(const IceUtil::Exception& ex)

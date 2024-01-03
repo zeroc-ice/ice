@@ -28,7 +28,7 @@ class TransientPublisherI : public Ice::BlobjectArray
 public:
 
     TransientPublisherI(shared_ptr<TransientTopicImpl> impl) :
-        _impl(move(impl))
+        _impl(std::move(impl))
     {
     }
 
@@ -42,7 +42,7 @@ public:
         event.data.swap(data);
 
         EventDataSeq v;
-        v.push_back(move(event));
+        v.push_back(std::move(event));
         _impl->publish(false, v);
 
         return true;
@@ -62,14 +62,14 @@ class TransientTopicLinkI : public TopicLink
 public:
 
     TransientTopicLinkI(shared_ptr<TransientTopicImpl> impl) :
-        _impl(move(impl))
+        _impl(std::move(impl))
     {
     }
 
     void
     forward(EventDataSeq v, const Ice::Current&) override
     {
-        _impl->publish(true, move(v));
+        _impl->publish(true, std::move(v));
     }
 
 private:
@@ -122,7 +122,7 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
 TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance,
                                        const std::string& name,
                                        const Ice::Identity& id) :
-    _instance(move(instance)),
+    _instance(std::move(instance)),
     _name(name),
     _id(id),
     _destroyed(false)

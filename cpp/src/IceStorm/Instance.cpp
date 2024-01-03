@@ -49,11 +49,11 @@ Instance::Instance(const string& instanceName,
                    shared_ptr<NodePrx> nodeProxy) :
     _instanceName(instanceName),
     _serviceName(name),
-    _communicator(move(communicator)),
-    _publishAdapter(move(publishAdapter)),
-    _topicAdapter(move(topicAdapter)),
-    _nodeAdapter(move(nodeAdapter)),
-    _nodeProxy(move(nodeProxy)),
+    _communicator(std::move(communicator)),
+    _publishAdapter(std::move(publishAdapter)),
+    _topicAdapter(std::move(topicAdapter)),
+    _nodeAdapter(std::move(nodeAdapter)),
+    _nodeProxy(std::move(nodeProxy)),
     _traceLevels(make_shared<TraceLevels>(name, _communicator->getProperties(), _communicator->getLogger())),
     // default one minute.
     _discardInterval(_communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Discard.Interval", 60)),
@@ -127,7 +127,7 @@ Instance::~Instance()
 void
 Instance::setNode(shared_ptr<NodeI> node)
 {
-    _node = move(node);
+    _node = std::move(node);
 }
 
 string
@@ -297,15 +297,21 @@ PersistentInstance::PersistentInstance(const string& instanceName,
                                        shared_ptr<Ice::ObjectAdapter> topicAdapter,
                                        shared_ptr<Ice::ObjectAdapter> nodeAdapter,
                                        shared_ptr<NodePrx> nodeProxy) :
-    Instance(instanceName, name, communicator, move(publishAdapter), move(topicAdapter), move(nodeAdapter),
-             move(nodeProxy)),
+    Instance(
+        instanceName,
+        name,
+        communicator,
+        std::move(publishAdapter),
+        std::move(topicAdapter),
+        std::move(nodeAdapter),
+        std::move(nodeProxy)),
     _dbLock(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name) + "/icedb.lock"),
     _dbEnv(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name), 2,
         IceDB::getMapSize(communicator->getProperties()->getPropertyAsInt(name + ".LMDB.MapSize")))
 {
     try
     {
-        dbContext.communicator = move(communicator);
+        dbContext.communicator = std::move(communicator);
         dbContext.encoding.minor = 1;
         dbContext.encoding.major = 1;
 

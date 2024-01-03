@@ -25,7 +25,7 @@ CheckUpdateResult::CheckUpdateResult(const string& server,
                                      bool noRestart,
                                      bool remove,
                                      future<bool>&& result) :
-    _server(server), _node(node), _remove(remove), _noRestart(noRestart), _result(move(result))
+    _server(server), _node(node), _remove(remove), _noRestart(noRestart), _result(std::move(result))
 {
 }
 
@@ -336,7 +336,7 @@ ServerEntry::sync()
 void
 ServerEntry::waitForSync(chrono::seconds timeout)
 {
-    waitImpl(move(timeout));
+    waitImpl(std::move(timeout));
 }
 
 void

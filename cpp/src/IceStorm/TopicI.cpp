@@ -36,7 +36,7 @@ class PublisherI : public Ice::BlobjectArray
 public:
 
     PublisherI(shared_ptr<TopicImpl> topic, shared_ptr<PersistentInstance> instance) :
-        _topic(move(topic)), _instance(move(instance))
+        _topic(std::move(topic)), _instance(std::move(instance))
     {
     }
 
@@ -49,10 +49,10 @@ public:
         EventData event = { current.operation, current.mode, Ice::ByteSeq(), current.ctx };
 
         Ice::ByteSeq data(inParams.first, inParams.second);
-        event.data = move(data);
+        event.data = std::move(data);
 
         EventDataSeq v;
-        v.push_back(move(event));
+        v.push_back(std::move(event));
         _topic->publish(false, v);
 
         return true;
@@ -73,7 +73,7 @@ class TopicLinkI : public TopicLink
 public:
 
     TopicLinkI(shared_ptr<TopicImpl> impl, shared_ptr<PersistentInstance> instance) :
-        _impl(move(impl)), _instance(move(instance))
+        _impl(std::move(impl)), _instance(std::move(instance))
     {
     }
 
@@ -81,7 +81,7 @@ public:
     forward(EventDataSeq v, const Ice::Current&) override
     {
         // The publish call does a cached read.
-        _impl->publish(true, move(v));
+        _impl->publish(true, std::move(v));
     }
 
 private:
@@ -95,7 +95,7 @@ class TopicI : public TopicInternal
 public:
 
     TopicI(shared_ptr<TopicImpl> impl, shared_ptr<PersistentInstance> instance) :
-        _impl(move(impl)), _instance(move(instance))
+        _impl(std::move(impl)), _instance(std::move(instance))
     {
     }
 
@@ -131,7 +131,7 @@ public:
             {
                 try
                 {
-                    return master->subscribeAndGetPublisher(move(qos), move(obj));
+                    return master->subscribeAndGetPublisher(std::move(qos), std::move(obj));
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -147,7 +147,7 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                return _impl->subscribeAndGetPublisher(move(qos), move(obj));
+                return _impl->subscribeAndGetPublisher(std::move(qos), std::move(obj));
             }
         }
     }
@@ -162,7 +162,7 @@ public:
             {
                 try
                 {
-                    master->unsubscribe(move(subscriber));
+                    master->unsubscribe(std::move(subscriber));
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -178,7 +178,7 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                _impl->unsubscribe(move(subscriber));
+                _impl->unsubscribe(std::move(subscriber));
             }
             break;
         }
@@ -212,7 +212,7 @@ public:
             {
                 try
                 {
-                    master->link(move(topic), cost);
+                    master->link(std::move(topic), cost);
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -228,7 +228,7 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                _impl->link(move(topic), cost);
+                _impl->link(std::move(topic), cost);
             }
             break;
         }
@@ -244,7 +244,7 @@ public:
             {
                 try
                 {
-                    master->unlink(move(topic));
+                    master->unlink(std::move(topic));
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -260,7 +260,7 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                _impl->unlink(move(topic));
+                _impl->unlink(std::move(topic));
             }
             break;
         }
@@ -377,7 +377,7 @@ TopicImpl::TopicImpl(shared_ptr<PersistentInstance> instance,
                      const string& name,
                      const Ice::Identity& id,
                      const SubscriberRecordSeq& subscribers) :
-    _instance(move(instance)),
+    _instance(std::move(instance)),
     _name(name),
     _id(id),
     _destroyed(false),
@@ -596,7 +596,7 @@ TopicImpl::unsubscribe(const shared_ptr<Ice::ObjectPrx>& subscriber)
             trace(out, _instance, _subscribers);
         }
     }
-    
+
     Ice::IdentitySeq ids;
     ids.push_back(id);
     removeSubscribers(ids);

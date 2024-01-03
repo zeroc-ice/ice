@@ -294,5 +294,5 @@ ReplicaEntry::getAdminProxy() const
     auto prx = getProxy();
     assert(prx);
     Ice::Identity adminId = { "RegistryAdmin-" + _name, prx->ice_getIdentity().category };
-    return prx->ice_identity(move(adminId));
+    return prx->ice_identity(std::move(adminId));
 }

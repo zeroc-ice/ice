@@ -27,8 +27,8 @@ public:
                    const shared_ptr<LocatorI>& locator,
                    const Ice::EncodingVersion& encoding,
                    const LocatorAdapterInfo& adapter) :
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _locator(locator),
         _encoding(encoding),
         _adapter(adapter),
@@ -103,8 +103,8 @@ public:
                         const LocatorAdapterInfoSeq& adapters,
                         int count,
                         shared_ptr<Ice::ObjectPrx> firstProxy) :
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _locator(locator),
         _id(id),
         _encoding(encoding),
@@ -344,8 +344,8 @@ public:
                       const Ice::Current& current,
                       const LocatorAdapterInfoSeq& adapters,
                       int count) :
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _locator(locator),
         _database(database),
         _id(id),
@@ -555,11 +555,11 @@ private:
                     assert(self);
                     if(!_waitForActivation)
                     {
-                        callback = _database->addAdapterSyncCallback(_id, move(self), _activatingOrFailed);
+                        callback = _database->addAdapterSyncCallback(_id, std::move(self), _activatingOrFailed);
                     }
                     else
                     {
-                        callback = _database->addAdapterSyncCallback(_id, move(self), _failed);
+                        callback = _database->addAdapterSyncCallback(_id, std::move(self), _failed);
                     }
                     if(callback)
                     {
@@ -647,8 +647,8 @@ public:
                             const string& id,
                             const Ice::Current& current) :
         _locator(locator),
-        _response(move(response)),
-        _exception(move(exception)),
+        _response(std::move(response)),
+        _exception(std::move(exception)),
         _id(id),
         _current(current)
     {
@@ -873,7 +873,7 @@ LocatorI::getDirectProxy(const LocatorAdapterInfo& adapter, const shared_ptr<Req
     adapter.proxy->getDirectProxyAsync([self, adapter] (auto obj)
                                         {
                                             assert(obj);
-                                            self->getDirectProxyResponse(adapter, move(obj));
+                                            self->getDirectProxyResponse(adapter, std::move(obj));
                                         },
                                         [self, adapter] (exception_ptr ex)
                                         {
@@ -957,7 +957,7 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, exception_p
         Ice::uncheckedCast<AdapterPrx>(adapter.proxy->ice_invocationTimeout(timeout))->activateAsync(
             [self, adapter] (auto obj)
             {
-                self->getDirectProxyResponse(adapter, move(obj));
+                self->getDirectProxyResponse(adapter, std::move(obj));
             },
             [self, adapter] (auto e)
             {
