@@ -94,6 +94,8 @@ public:
     {
     }
 
+    virtual ~StressClient() {}
+
     virtual void run()
     {
         {
@@ -438,9 +440,9 @@ allTests(Test::TestHelper* helper)
         auto cb1 = make_shared<Callback>();
         session2->allocateObjectByIdAsync(
             allocatable,
-            [cb1](shared_ptr<Ice::ObjectPrx> obj)
+            [cb1](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb1->response(obj);
+                cb1->response(prx);
             },
             [cb1](exception_ptr)
             {
@@ -473,9 +475,9 @@ allTests(Test::TestHelper* helper)
         cb1 = make_shared<Callback>();
         session1->allocateObjectByIdAsync(
             allocatable,
-            [cb1](shared_ptr<Ice::ObjectPrx> obj)
+            [cb1](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb1->response(obj);
+                cb1->response(prx);
             },
             [cb1](exception_ptr)
             {
@@ -600,9 +602,9 @@ allTests(Test::TestHelper* helper)
         auto cb3 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync(
             "::Test",
-            [cb3](shared_ptr<Ice::ObjectPrx> obj)
+            [cb3](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb3->response(obj);
+                cb3->response(prx);
             },
             [cb3](exception_ptr)
             {
@@ -783,9 +785,9 @@ allTests(Test::TestHelper* helper)
         cb1 = make_shared<Callback>();
         session2->allocateObjectByIdAsync(
             allocatable3,
-            [cb1](shared_ptr<Ice::ObjectPrx> obj)
+            [cb1](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb1->response(obj);
+                cb1->response(prx);
             },
             [cb1](exception_ptr)
             {
@@ -805,9 +807,9 @@ allTests(Test::TestHelper* helper)
         cb3 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync(
             "::TestServer2",
-            [cb3](shared_ptr<Ice::ObjectPrx> obj)
+            [cb3](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb3->response(obj);
+                cb3->response(prx);
             },
             [cb3](exception_ptr)
             {
@@ -902,9 +904,9 @@ allTests(Test::TestHelper* helper)
         auto cb12 = make_shared<Callback>();
         session1->allocateObjectByIdAsync(
             allocatable,
-            [cb11](shared_ptr<Ice::ObjectPrx> obj)
+            [cb11](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb11->response(obj);
+                cb11->response(prx);
             },
             [cb11](exception_ptr)
             {
@@ -912,9 +914,9 @@ allTests(Test::TestHelper* helper)
             });
         session1->allocateObjectByIdAsync(
             allocatable,
-            [cb12](shared_ptr<Ice::ObjectPrx> obj)
+            [cb12](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb12->response(obj);
+                cb12->response(prx);
             },
             [cb12](exception_ptr)
             {
@@ -935,9 +937,9 @@ allTests(Test::TestHelper* helper)
         auto cb32 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync(
             "::Test",
-            [cb31](shared_ptr<Ice::ObjectPrx> obj)
+            [cb31](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb31->response(obj);
+                cb31->response(prx);
             },
             [cb31](exception_ptr)
             {
@@ -945,9 +947,9 @@ allTests(Test::TestHelper* helper)
             });
         session1->allocateObjectByTypeAsync(
             "::Test",
-            [cb32](shared_ptr<Ice::ObjectPrx> obj)
+            [cb32](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb32->response(obj);
+                cb32->response(prx);
             },
             [cb32](exception_ptr)
             {
@@ -977,9 +979,9 @@ allTests(Test::TestHelper* helper)
         cb12 = make_shared<Callback>();
         session1->allocateObjectByIdAsync(
             allocatable3,
-            [cb11](shared_ptr<Ice::ObjectPrx> obj)
+            [cb11](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb11->response(obj);
+                cb11->response(prx);
             },
             [cb11](exception_ptr)
             {
@@ -987,9 +989,9 @@ allTests(Test::TestHelper* helper)
             });
         session1->allocateObjectByIdAsync(
             allocatable3,
-            [cb12](shared_ptr<Ice::ObjectPrx> obj)
+            [cb12](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb12->response(obj);
+                cb12->response(prx);
             },
             [cb12](exception_ptr)
             {
@@ -1010,9 +1012,9 @@ allTests(Test::TestHelper* helper)
         cb32 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync(
             "::TestServer1",
-            [cb31](shared_ptr<Ice::ObjectPrx> obj)
+            [cb31](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb31->response(obj);
+                cb31->response(prx);
             },
             [cb31](exception_ptr)
             {
@@ -1020,9 +1022,9 @@ allTests(Test::TestHelper* helper)
             });
         session1->allocateObjectByTypeAsync(
             "::TestServer1",
-            [cb32](shared_ptr<Ice::ObjectPrx> obj)
+            [cb32](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb32->response(obj);
+                cb32->response(prx);
             },
             [cb32](exception_ptr)
             {
@@ -1052,9 +1054,9 @@ allTests(Test::TestHelper* helper)
         cb32 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync(
             "::TestServer1",
-            [cb31](shared_ptr<Ice::ObjectPrx> obj)
+            [cb31](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb31->response(obj);
+                cb31->response(prx);
             },
             [cb31](exception_ptr)
             {
@@ -1062,9 +1064,9 @@ allTests(Test::TestHelper* helper)
             });
         session1->allocateObjectByTypeAsync(
             "::TestServer1",
-            [cb32](shared_ptr<Ice::ObjectPrx> obj)
+            [cb32](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb32->response(obj);
+                cb32->response(prx);
             },
             [cb32](exception_ptr)
             {
@@ -1100,9 +1102,9 @@ allTests(Test::TestHelper* helper)
         cb3 = make_shared<Callback>();
         session1->allocateObjectByTypeAsync(
             "::Test",
-            [cb3](shared_ptr<Ice::ObjectPrx> obj)
+            [cb3](shared_ptr<Ice::ObjectPrx> prx)
             {
-                cb3->response(obj);
+                cb3->response(prx);
             },
             [cb3](exception_ptr)
             {
@@ -1286,7 +1288,7 @@ allTests(Test::TestHelper* helper)
                 {
                     client->run();
                 });
-            clients.push_back(make_pair(client, move(t)));
+            clients.push_back(make_pair(client, std::move(t)));
         }
 
         {
@@ -1296,14 +1298,14 @@ allTests(Test::TestHelper* helper)
                 {
                     client->run();
                 });
-            clients.push_back(make_pair(client, move(t)));
+            clients.push_back(make_pair(client, std::move(t)));
             client = make_shared<StressClient>(i++, registry, true);
             t = std::thread(
                 [client]()
                 {
                     client->run();
                 });
-            clients.push_back(make_pair(client, move(t)));
+            clients.push_back(make_pair(client, std::move(t)));
         }
 
         for (const auto& p : clients)

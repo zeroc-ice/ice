@@ -36,11 +36,13 @@ class Pinger
 public:
 
     Pinger(shared_ptr<Ice::ObjectPrx> proxy, int nRepetitions) :
-        _proxy(move(proxy)),
+        _proxy(std::move(proxy)),
         _finished(false),
         _nRepetitions(nRepetitions)
     {
     }
+
+    virtual ~Pinger() {}
 
     virtual void run()
     {

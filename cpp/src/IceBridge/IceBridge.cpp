@@ -27,7 +27,7 @@ struct QueuedDispatch final
                    function<void(bool, const pair<const Byte*, const Byte*>&)>&& r,
                    function<void(exception_ptr)>&& e,
                    const Current& c) :
-        inParams(p.first, p.second), response(move(r)), error(move(e)), current(c)
+        inParams(p.first, p.second), response(std::move(r)), error(std::move(e)), current(c)
     {
     }
 
@@ -75,7 +75,7 @@ class FinderI final : public RouterFinder
 public:
 
     FinderI(shared_ptr<RouterPrx> router) :
-        _router(move(router))
+        _router(std::move(router))
     {
     }
 
@@ -176,7 +176,7 @@ private:
 BridgeConnection::BridgeConnection(shared_ptr<ObjectAdapter> adapter,
                                    shared_ptr<ObjectPrx> target,
                                    shared_ptr<Connection> inc) :
-    _adapter(move(adapter)), _target(move(target)), _incoming(move(inc))
+    _adapter(std::move(adapter)), _target(std::move(target)), _incoming(std::move(inc))
 {
 }
 
@@ -195,7 +195,7 @@ BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
         return;
     }
 
-    _outgoing = move(outgoing);
+    _outgoing = std::move(outgoing);
 
     //
     // Register hearbeat callbacks on both connections.
@@ -233,7 +233,7 @@ BridgeConnection::outgoingSuccess(shared_ptr<Connection> outgoing)
     for(auto& p : _queue)
     {
         auto inParams = make_pair(p.inParams.data(), p.inParams.data() + p.inParams.size());
-        send(_outgoing, inParams, move(p.response), move(p.error), p.current);
+        send(_outgoing, inParams, std::move(p.response), std::move(p.error), p.current);
     }
     _queue.clear();
 }
@@ -332,11 +332,11 @@ BridgeConnection::dispatch(pair<const Byte*, const Byte*> inParams,
         // Queue the invocation until the outgoing connection is established.
         //
         assert(current.con == _incoming);
-        _queue.emplace_back(inParams, move(response), move(error), current);
+        _queue.emplace_back(inParams, std::move(response), std::move(error), current);
     }
     else
     {
-        send(current.con == _incoming ? _outgoing : _incoming, inParams, move(response), move(error), current);
+        send(current.con == _incoming ? _outgoing : _incoming, inParams, std::move(response), std::move(error), current);
     }
 }
 
@@ -362,13 +362,13 @@ BridgeConnection::send(const shared_ptr<Connection>& dest,
                 prx = prx->ice_oneway();
             }
             prx->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, error,
-                                 [response = move(response)](bool){ response(true, {nullptr, nullptr}); },
+                                 [response = std::move(response)](bool){ response(true, {nullptr, nullptr}); },
                                  current.ctx);
         }
         else
         {
             // Twoway request
-            prx->ice_invokeAsync(current.operation, current.mode, inParams, move(response), error,
+            prx->ice_invokeAsync(current.operation, current.mode, inParams, std::move(response), error,
                                  nullptr, current.ctx);
         }
     }
@@ -380,7 +380,7 @@ BridgeConnection::send(const shared_ptr<Connection>& dest,
 }
 
 BridgeI::BridgeI(shared_ptr<ObjectAdapter> adapter, shared_ptr<ObjectPrx> target) :
-    _adapter(move(adapter)), _target(move(target))
+    _adapter(std::move(adapter)), _target(std::move(target))
 {
 }
 
@@ -440,7 +440,7 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
                 // especially when using Bluetooth.
                 //
                 target->ice_getConnectionAsync(
-                    [self, bc](auto outgoing) { self->outgoingSuccess(bc, move(outgoing)); },
+                                               [self, bc](auto outgoing) { self->outgoingSuccess(bc, std::move(outgoing)); },
                     [self, bc](auto ex) { self->outgoingException(bc, ex); });
             }
             catch(const std::exception&)
@@ -458,7 +458,7 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
     //
     // Delegate the invocation to the BridgeConnection object.
     //
-    bc->dispatch(inParams, move(response), move(error), current);
+    bc->dispatch(inParams, std::move(response), std::move(error), current);
 }
 
 void
@@ -490,7 +490,7 @@ BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bc, shared_ptr<Conn
         _connections.emplace(outgoing, bc);
         outgoing->setCloseCallback([self = shared_from_this()](const auto& con) { self->closed(con); });
     }
-    bc->outgoingSuccess(move(outgoing));
+    bc->outgoingSuccess(std::move(outgoing));
 }
 
 void
@@ -576,7 +576,7 @@ BridgeService::start(int argc, char* argv[], int& status)
 
     auto adapter = communicator()->createObjectAdapter("IceBridge.Source");
 
-    adapter->addDefaultServant(make_shared<BridgeI>(adapter, move(target)), "");
+    adapter->addDefaultServant(make_shared<BridgeI>(adapter, std::move(target)), "");
 
     string instanceName = properties->getPropertyWithDefault("IceBridge.InstanceName", "IceBridge");
     auto router = uncheckedCast<RouterPrx>(adapter->add(make_shared<RouterI>(),

@@ -24,8 +24,8 @@ MyClassI::callCallbackAsync(function<void()> response,
     checkConnection(current.con);
     auto prx = Ice::uncheckedCast<CallbackPrx>(current.con->createProxy(callbackId));
 
-    prx->pingAsync([response = move(response)](){ response(); },
-                   [error = move(error)](exception_ptr e){ error(e); });
+    prx->pingAsync([response = std::move(response)](){ response(); },
+                   [error = std::move(error)](exception_ptr e){ error(e); });
 }
 
 void
@@ -36,8 +36,8 @@ MyClassI::getCallbackCountAsync(function<void(int)> response,
     checkConnection(current.con);
     auto prx = Ice::uncheckedCast<CallbackPrx>(current.con->createProxy(callbackId));
 
-    prx->getCountAsync([response = move(response)](int count){ response(count); },
-                       [error = move(error)](exception_ptr e){ error(e); });
+    prx->getCountAsync([response = std::move(response)](int count){ response(count); },
+                       [error = std::move(error)](exception_ptr e){ error(e); });
 }
 
 void
@@ -125,8 +125,8 @@ MyClassI::getCallbackDatagramCountAsync(function<void(int)> response,
     checkConnection(current.con);
     auto prx = Ice::uncheckedCast<CallbackPrx>(current.con->createProxy(callbackId));
 
-    prx->getDatagramCountAsync([response = move(response)](int count){ response(count); },
-                               [error = move(error)](auto e){ error(e); });
+    prx->getDatagramCountAsync([response = std::move(response)](int count){ response(count); },
+                               [error = std::move(error)](auto e){ error(e); });
 }
 
 int
