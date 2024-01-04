@@ -19,7 +19,7 @@ load_first = Ice IceSSL IceBox IcePatch2Lib Glacier2Lib IceGridLib IceStormLib
 # Create projects for all the Slice translators from src/slice2* and load source projects.
 #
 projects :=
-$(foreach t,$(wildcard $(lang_srcdir)/src/slice2cpp),$(eval $(call create-translator-project,$(call project,$t))))
+$(foreach t,$(wildcard $(lang_srcdir)/src/slice2*),$(eval $(call create-translator-project,$(call project,$t))))
 include $(foreach p,$(load_first),src/$p/Makefile.mk)
 include $(filter-out $(foreach p,$(load_first),%/src/$p/Makefile.mk),$(shell find $(lang_srcdir)/src -name Makefile.mk))
 $(call make-projects,$(projects),make-cpp-src-project,,$(filter all cpp,$(ICE_BIN_DIST)))
