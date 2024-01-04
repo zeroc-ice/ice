@@ -446,7 +446,7 @@ allTests(Test::TestHelper* helper)
                 });
             pingers.push_back(make_pair(pinger, std::move(t)));
         }
-        
+
         for(const auto& p : pingers)
         {
             exception_ptr ex = p.first->waitUntilFinished();
@@ -454,7 +454,7 @@ allTests(Test::TestHelper* helper)
             {
                 rethrow_exception(ex);
             }
-            catch (Ice::NoEndpointException)
+            catch (const Ice::NoEndpointException&)
             {
             }
             catch (...)
@@ -462,7 +462,7 @@ allTests(Test::TestHelper* helper)
                 test(false);
             }
         }
-        
+
         for (auto& p : pingers)
         {
             p.second.join();
@@ -488,7 +488,7 @@ allTests(Test::TestHelper* helper)
             {
                 rethrow_exception(ex);
             }
-            catch (Ice::NoEndpointException)
+            catch (const Ice::NoEndpointException&)
             {
             }
             catch (...)
@@ -522,7 +522,7 @@ allTests(Test::TestHelper* helper)
             {
                 rethrow_exception(ex);
             }
-            catch (Ice::NoEndpointException)
+            catch (const Ice::NoEndpointException&)
             {
             }
             catch (...)
@@ -589,7 +589,7 @@ allTests(Test::TestHelper* helper)
             {
                 rethrow_exception(ex);
             }
-            catch (Ice::NoEndpointException)
+            catch (const Ice::NoEndpointException&)
             {
             }
             catch (...)
