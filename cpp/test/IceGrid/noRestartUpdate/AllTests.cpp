@@ -6,6 +6,7 @@
 #include <IceGrid/IceGrid.h>
 #include <TestHelper.h>
 #include <Test.h>
+#include <thread>
 
 using namespace std;
 using namespace Test;

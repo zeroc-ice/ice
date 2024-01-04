@@ -7,6 +7,7 @@
 #include <Glacier2/Router.h>
 #include <TestHelper.h>
 #include <Test.h>
+#include <thread>
 
 using namespace std;
 using namespace IceGrid;

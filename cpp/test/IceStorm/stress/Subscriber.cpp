@@ -8,6 +8,7 @@
 #include <Event.h>
 #include <TestHelper.h>
 #include <random>
+#include <thread>
 
 using namespace std;
 using namespace Ice;

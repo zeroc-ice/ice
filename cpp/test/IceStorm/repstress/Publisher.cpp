@@ -7,6 +7,7 @@
 #include <Single.h>
 #include <Controller.h>
 #include <TestHelper.h>
+#include <thread>
 
 using namespace std;
 using namespace Ice;

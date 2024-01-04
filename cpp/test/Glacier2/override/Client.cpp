@@ -6,6 +6,7 @@
 #include <Glacier2/Router.h>
 #include <TestHelper.h>
 #include <CallbackI.h>
+#include <thread>
 #include <chrono>
 
 using namespace std;
