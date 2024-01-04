@@ -13,8 +13,8 @@ public:
 
     TestI(const Ice::PropertiesPtr&);
 
-    virtual std::string getServerFile(const std::string&, const Ice::Current&);
-    virtual std::string getApplicationFile(const std::string&, const Ice::Current&);
+    virtual std::string getServerFile(std::string, const Ice::Current&) override;
+    virtual std::string getApplicationFile(std::string, const Ice::Current&) override;
 
 private:
 

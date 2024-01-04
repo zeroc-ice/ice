@@ -8,8 +8,7 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/ProcessF.ice>
-
+#include <Ice/Process.ice>
 #include <Glacier2/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <IceGrid/Registry.ice>
@@ -266,11 +265,12 @@ interface Node extends FileReader, ReplicaObserver
     /// Patch application and server distributions. If some servers using a distribution directory to patch are active,
     /// this method will raise a PatchException unless shutdown is set to true. In which case the servers will be
     /// shutdown.
-    ["amd"] idempotent void patch(PatcherFeedback* feedback,
-                                  string application,
-                                  string server,
-                                  InternalDistributionDescriptor appDistrib,
-                                  bool shutdown);
+    ["amd"] idempotent void patch(
+        PatcherFeedback* feedback,
+        string application,
+        string server,
+        InternalDistributionDescriptor appDistrib,
+        bool shutdown);
 
     /// Establish a session to the given replica, this method only returns once the registration was attempted (unlike
     /// replicaAdded below).
@@ -336,11 +336,11 @@ exception ReplicaActiveException
 
 enum TopicName
 {
-    RegistryObserverTopicName,
-    NodeObserverTopicName,
-    ApplicationObserverTopicName,
-    AdapterObserverTopicName,
-    ObjectObserverTopicName
+    RegistryObserver,
+    NodeObserver,
+    ApplicationObserver,
+    AdapterObserver,
+    ObjectObserver
 }
 
 interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver

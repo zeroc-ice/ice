@@ -18,14 +18,15 @@ class AdminRouter : public Ice::BlobjectArrayAsync
 {
 protected:
 
-    AdminRouter(const TraceLevelsPtr&);
+    AdminRouter(const std::shared_ptr<TraceLevels>&);
 
-    void invokeOnTarget(const Ice::ObjectPrx&,
-                        const Ice::AMD_Object_ice_invokePtr&,
+    void invokeOnTarget(const std::shared_ptr<Ice::ObjectPrx>&,
                         const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+                        std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>&&,
+                        std::function<void(std::exception_ptr)>&&,
                         const Ice::Current&);
 
-    const TraceLevelsPtr _traceLevels;
+    const std::shared_ptr<TraceLevels> _traceLevels;
 };
 
 }

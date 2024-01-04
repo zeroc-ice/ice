@@ -14,7 +14,7 @@ public:
     TestI(const Ice::PropertiesPtr&);
 
     virtual void shutdown(const Ice::Current&);
-    virtual std::string getProperty(const std::string&, const Ice::Current&);
+    virtual std::string getProperty(std::string, const Ice::Current&);
 
 private:
 

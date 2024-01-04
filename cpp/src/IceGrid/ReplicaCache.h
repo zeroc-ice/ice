@@ -5,8 +5,6 @@
 #ifndef ICE_GRID_REPLICACACHE_H
 #define ICE_GRID_REPLICACACHE_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Shared.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/Internal.h>
 #include <IceStorm/IceStorm.h>
@@ -15,59 +13,51 @@ namespace IceGrid
 {
 
 class ReplicaCache;
-
 class ReplicaSessionI;
-typedef IceUtil::Handle<ReplicaSessionI> ReplicaSessionIPtr;
 
-class ReplicaEntry : public IceUtil::Shared
+class ReplicaEntry final
 {
 public:
 
-    ReplicaEntry(const std::string&, const ReplicaSessionIPtr&);
-    virtual ~ReplicaEntry();
+    ReplicaEntry(const std::string&, const std::shared_ptr<ReplicaSessionI>&);
 
     bool canRemove() const { return true; }
-    const ReplicaSessionIPtr& getSession() const;
-    InternalReplicaInfoPtr getInfo() const;
-    InternalRegistryPrx getProxy() const;
+    const std::shared_ptr<ReplicaSessionI>& getSession() const;
+    std::shared_ptr<InternalReplicaInfo> getInfo() const;
+    std::shared_ptr<InternalRegistryPrx> getProxy() const;
 
-    Ice::ObjectPrx getAdminProxy() const;
+    std::shared_ptr<Ice::ObjectPrx> getAdminProxy() const;
 
 private:
 
     const std::string _name;
-    const ReplicaSessionIPtr _session;
+    const std::shared_ptr<ReplicaSessionI> _session;
 };
-typedef IceUtil::Handle<ReplicaEntry> ReplicaEntryPtr;
 
-class ReplicaCache : public CacheByString<ReplicaEntry>
+class ReplicaCache final : public CacheByString<ReplicaEntry>
 {
 public:
 
-#ifdef __SUNPRO_CC
-    using CacheByString<ReplicaEntry>::remove;
-#endif
+    ReplicaCache(const std::shared_ptr<Ice::Communicator>&, const std::shared_ptr<IceStorm::TopicManagerPrx>&);
 
-    ReplicaCache(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
+    std::shared_ptr<ReplicaEntry> add(const std::string&, const std::shared_ptr<ReplicaSessionI>&);
+    std::shared_ptr<ReplicaEntry> remove(const std::string&, bool);
+    std::shared_ptr<ReplicaEntry> get(const std::string&) const;
 
-    ReplicaEntryPtr add(const std::string&, const ReplicaSessionIPtr&);
-    ReplicaEntryPtr remove(const std::string&, bool);
-    ReplicaEntryPtr get(const std::string&) const;
+    void subscribe(const std::shared_ptr<ReplicaObserverPrx>&);
+    void unsubscribe(const std::shared_ptr<ReplicaObserverPrx>&);
 
-    void subscribe(const ReplicaObserverPrx&);
-    void unsubscribe(const ReplicaObserverPrx&);
+    std::shared_ptr<Ice::ObjectPrx> getEndpoints(const std::string&, const std::shared_ptr<Ice::ObjectPrx>&) const;
 
-    Ice::ObjectPrx getEndpoints(const std::string&, const Ice::ObjectPrx&) const;
-
-    void setInternalRegistry(const InternalRegistryPrx&);
-    InternalRegistryPrx getInternalRegistry() const;
+    void setInternalRegistry(const std::shared_ptr<InternalRegistryPrx>&);
+    std::shared_ptr<InternalRegistryPrx> getInternalRegistry() const;
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
-    const IceStorm::TopicPrx _topic;
-    const ReplicaObserverPrx _observers;
-    InternalRegistryPrx _self; // This replica internal registry proxy.
+    const std::shared_ptr<Ice::Communicator> _communicator;
+    const std::shared_ptr<IceStorm::TopicPrx> _topic;
+    const std::shared_ptr<ReplicaObserverPrx> _observers;
+    std::shared_ptr<InternalRegistryPrx> _self; // This replica internal registry proxy.
 };
 
 };

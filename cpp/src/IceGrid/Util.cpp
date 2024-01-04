@@ -29,12 +29,12 @@ IceGrid::toString(const vector<string>& v, const string& sep)
 }
 
 string
-IceGrid::toString(const Ice::Exception& exception)
+IceGrid::toString(exception_ptr exception)
 {
     std::ostringstream os;
     try
     {
-        exception.ice_throw();
+        rethrow_exception(exception);
     }
     catch(const NodeUnreachableException& ex)
     {
@@ -197,7 +197,8 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
 }
 
 ObjectInfo
-IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDescriptor& obj, const string& adapterId)
+IceGrid::toObjectInfo(const shared_ptr<Ice::Communicator>& communicator, const ObjectDescriptor& obj,
+                      const string& adapterId)
 {
     ObjectInfo info;
     info.type = obj.type;
@@ -222,7 +223,7 @@ IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDesc
 }
 
 void
-IceGrid::setupThreadPool(const PropertiesPtr& properties, const string& name, int size, int sizeMax, bool serialize)
+IceGrid::setupThreadPool(const shared_ptr<Properties>& properties, const string& name, int size, int sizeMax, bool serialize)
 {
     if(properties->getPropertyAsIntWithDefault(name + ".Size", 0) < size)
     {
@@ -324,3 +325,10 @@ IceGrid::getMMVersion(const string& o)
 
     return ver;
 }
+
+int
+IceGrid::secondsToInt(const std::chrono::seconds& sec)
+{
+    return chrono::duration_cast<chrono::duration<int>>(sec).count();
+}
+

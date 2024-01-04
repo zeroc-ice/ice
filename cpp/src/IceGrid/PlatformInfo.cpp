@@ -22,13 +22,6 @@
 #   include <sys/utsname.h>
 #   if defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #      include <sys/sysctl.h>
-#   elif defined(__sun)
-#      include <sys/loadavg.h>
-#   elif defined(__hpux)
-#      include <sys/pstat.h>
-#   elif defined(_AIX)
-#      include <nlist.h>
-#      include <fcntl.h>
 #   endif
 #endif
 
@@ -47,7 +40,7 @@ pdhErrorToString(PDH_STATUS err)
 }
 
 static string
-getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
+getLocalizedPerfName(int idx, const shared_ptr<Ice::Logger>& logger)
 {
     vector<char> localized;
     unsigned long size = 256;
@@ -95,7 +88,7 @@ private:
 typedef BOOL (WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 
 int
-getSocketCount(const Ice::LoggerPtr& logger)
+getSocketCount(const shared_ptr<Ice::Logger>& logger)
 {
     LPFN_GLPI glpi;
     glpi = (LPFN_GLPI) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
@@ -149,7 +142,7 @@ namespace IceGrid
 {
 
 RegistryInfo
-toRegistryInfo(const InternalReplicaInfoPtr& replica)
+toRegistryInfo(const shared_ptr<InternalReplicaInfo>& replica)
 {
     RegistryInfo info;
     info.name = replica->name;
@@ -158,7 +151,7 @@ toRegistryInfo(const InternalReplicaInfoPtr& replica)
 }
 
 NodeInfo
-toNodeInfo(const InternalNodeInfoPtr& node)
+toNodeInfo(const shared_ptr<InternalNodeInfo>& node)
 {
     NodeInfo info;
     info.name = node->name;
@@ -175,8 +168,8 @@ toNodeInfo(const InternalNodeInfoPtr& node)
 }
 
 PlatformInfo::PlatformInfo(const string& prefix,
-                           const Ice::CommunicatorPtr& communicator,
-                           const TraceLevelsPtr& traceLevels) :
+                           const shared_ptr<Ice::Communicator>& communicator,
+                           const shared_ptr<TraceLevels>& traceLevels) :
     _traceLevels(traceLevels)
 {
     //
@@ -190,25 +183,6 @@ PlatformInfo::PlatformInfo(const string& prefix,
     _last1Total = 0;
     _last5Total = 0;
     _last15Total = 0;
-#elif defined(_AIX)
-    struct nlist nl;
-    nl.n_name = const_cast<char*>("avenrun");
-    nl.n_value = 0;
-    if(knlist(&nl, 1, sizeof(nl)) == 0)
-    {
-        _kmem = open("/dev/kmem", O_RDONLY);
-
-        //
-        // Give up root permissions to minimize security risks, it's
-        // only needed to access /dev/kmem.
-        //
-        setuid(getuid());
-        setgid(getgid());
-    }
-    else
-    {
-        _kmem = -1;
-    }
 #endif
 
     //
@@ -323,7 +297,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     _machine = utsinfo.machine;
 #endif
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    auto properties = communicator->getProperties();
 
     //
     // Try to obtain the number of processor sockets.
@@ -400,22 +374,11 @@ PlatformInfo::PlatformInfo(const string& prefix,
     }
 }
 
-PlatformInfo::~PlatformInfo()
-{
-#if defined(_AIX)
-    if(_kmem > 0)
-    {
-        close(_kmem);
-    }
-#endif
-}
-
 void
 PlatformInfo::start()
 {
 #if defined(_WIN32)
-    _updateUtilizationThread = new UpdateUtilizationAverageThread(*this);
-    _updateUtilizationThread->start();
+    _updateUtilizationThread = std::thread([this] { runUpdateLoadInfo(); });
 #endif
 }
 
@@ -424,14 +387,11 @@ PlatformInfo::stop()
 {
 #if defined(_WIN32)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
+        lock_guard lock(_utilizationMutex);
         _terminated = true;
-        _utilizationMonitor.notify();
+        _utilizationCondVar.notify_one();
     }
-
-    assert(_updateUtilizationThread);
-    _updateUtilizationThread->getThreadControl().join();
-    _updateUtilizationThread = 0;
+    _updateUtilizationThread.join();
 #endif
 }
 
@@ -447,40 +407,26 @@ PlatformInfo::getRegistryInfo() const
     return toRegistryInfo(getInternalReplicaInfo());
 }
 
-InternalNodeInfoPtr
+shared_ptr<InternalNodeInfo>
 PlatformInfo::getInternalNodeInfo() const
 {
-    InternalNodeInfoPtr info = new InternalNodeInfo();
-    info->name = _name;
-    info->os = _os;
-    info->hostname = _hostname;
-    info->release = _release;
-    info->version = _version;
-    info->machine = _machine;
-    info->nProcessors = _nProcessorThreads;
-    info->dataDir = _dataDir;
-    return info;
+    return make_shared<InternalNodeInfo>(_name, _os, _hostname, _release, _version,
+                                         _machine, _nProcessorThreads, _dataDir);
 }
 
-InternalReplicaInfoPtr
+shared_ptr<InternalReplicaInfo>
 PlatformInfo::getInternalReplicaInfo() const
 {
-    InternalReplicaInfoPtr info = new InternalReplicaInfo();
-    info->name = _name;
-    info->hostname = _hostname;
-    return info;
+    return make_shared<InternalReplicaInfo>(_name, _hostname);
 }
 
 LoadInfo
-PlatformInfo::getLoadInfo()
+PlatformInfo::getLoadInfo() const
 {
-    LoadInfo info;
-    info.avg1 = -1.0f;
-    info.avg5 = -1.0f;
-    info.avg15 = -1.0f;
+    LoadInfo info = { -1.0f, -1.0f, -1.0f };
 
 #if defined(_WIN32)
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
+    lock_guard lock(_utilizationMutex);
     info.avg1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
     info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
     info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
@@ -491,36 +437,11 @@ PlatformInfo::getLoadInfo()
     // not. The result is capped at 1.0f.
     //
     double loadAvg[3];
-    if(getloadavg(loadAvg, 3) != -1)
+    if (getloadavg(loadAvg, 3) != -1)
     {
         info.avg1 = static_cast<float>(loadAvg[0]);
         info.avg5 = static_cast<float>(loadAvg[1]);
         info.avg15 = static_cast<float>(loadAvg[2]);
-    }
-#elif defined(__hpux)
-    struct pst_dynamic dynInfo;
-    if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 1, 0) >= 0)
-    {
-        info.avg1 = dynInfo.psd_avg_1_min;
-        info.avg5 = dynInfo.psd_avg_5_min;
-        info.avg15 = dynInfo.psd_avg_15_min;
-    }
-#elif defined(_AIX)
-    if(_kmem > 1)
-    {
-        long long avenrun[3];
-        struct nlist nl;
-        nl.n_name = const_cast<char*>("avenrun");
-        nl.n_value = 0;
-        if(knlist(&nl, 1, sizeof(nl)) == 0)
-        {
-            if(pread(_kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
-            {
-                info.avg1 = avenrun[0] / 65536.0f;
-                info.avg5 = avenrun[1] / 65536.0f;
-                info.avg15 = avenrun[2] / 65536.0f;
-            }
-        }
     }
 #endif
     return info;
@@ -614,8 +535,8 @@ PlatformInfo::runUpdateLoadInfo()
 
     while(true)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
-        _utilizationMonitor.timedWait(IceUtil::Time::seconds(5)); // 5 seconds.
+        unique_lock lock(_utilizationMutex);
+        _utilizationCondVar.wait_for(lock, 5s);
         if(_terminated)
         {
             break;

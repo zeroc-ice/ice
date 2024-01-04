@@ -11,17 +11,17 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class AttackClient : public Test::TestHelper
+class AttackClient final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 AttackClient::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    auto properties = createTestProperties(argc, argv);
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
@@ -30,29 +30,27 @@ AttackClient::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
+    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
+    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
     test(router);
     communicator->setDefaultRouter(router);
 
-    PropertyDict::const_iterator p;
-
-    PropertyDict badProxies = communicator->getProperties()->getPropertiesForPrefix("Reject.Proxy.");
-    for(p = badProxies.begin(); p != badProxies.end(); ++p)
+    auto badProxies = communicator->getProperties()->getPropertiesForPrefix("Reject.Proxy.");
+    for(const auto& p : badProxies)
     {
         try
         {
-            Glacier2::SessionPrx session = router->createSession("userid", "abc123");
+            auto session = router->createSession("userid", "abc123");
         }
         catch(const Glacier2::CannotCreateSessionException&)
         {
             test(false);
         }
-        BackendPrx backend = BackendPrx::uncheckedCast(communicator->stringToProxy(p->second));
+        auto backend = uncheckedCast<BackendPrx>(communicator->stringToProxy(p.second));
         try
         {
             backend->ice_ping();
-            cerr << "Test failed on : " << p->second << endl;
+            cerr << "Test failed on : " << p.second << endl;
             test(false);
         }
         catch(const ConnectionLostException&)
@@ -87,25 +85,25 @@ AttackClient::run(int argc, char** argv)
         }
     }
 
-    PropertyDict goodProxies = communicator->getProperties()->getPropertiesForPrefix("Accept.Proxy.");
-    for(p = goodProxies.begin(); p != goodProxies.end(); ++p)
+    auto goodProxies = communicator->getProperties()->getPropertiesForPrefix("Accept.Proxy.");
+    for(const auto& p : goodProxies)
     {
         try
         {
-            Glacier2::SessionPrx session = router->createSession("userid", "abc123");
+            auto session = router->createSession("userid", "abc123");
         }
         catch(const Glacier2::CannotCreateSessionException&)
         {
             test(false);
         }
-        BackendPrx backend = BackendPrx::uncheckedCast(communicator->stringToProxy(p->second));
+        auto backend = uncheckedCast<BackendPrx>(communicator->stringToProxy(p.second));
         try
         {
             backend->ice_ping();
         }
         catch(const LocalException& ex)
         {
-            cerr << p->second << endl;
+            cerr << p.second << endl;
             cerr << ex << endl;
             test(false);
         }
@@ -125,10 +123,10 @@ AttackClient::run(int argc, char** argv)
     // Stop using router and communicate with backend and router directly
     // to shut things down.
     //
-    communicator->setDefaultRouter(0);
+    communicator->setDefaultRouter(nullptr);
     try
     {
-        BackendPrx backend = BackendPrx::checkedCast(communicator->stringToProxy("dummy:tcp -p 12010"));
+        auto backend = checkedCast<BackendPrx>(communicator->stringToProxy("dummy:tcp -p 12010"));
         backend->shutdown();
     }
     catch(const Ice::LocalException&)
@@ -136,8 +134,8 @@ AttackClient::run(int argc, char** argv)
         test(false);
     }
 
-    ObjectPrx processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-    Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
+    auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
+    auto process = checkedCast<Ice::ProcessPrx>(processBase);
     test(process);
     process->shutdown();
     try

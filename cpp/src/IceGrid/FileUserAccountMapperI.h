@@ -16,7 +16,7 @@ public:
 
     FileUserAccountMapperI(const std::string&);
 
-    virtual std::string getUserAccount(const std::string&, const Ice::Current&);
+    std::string getUserAccount(std::string, const Ice::Current&) override;
 
 private:
 

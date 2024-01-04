@@ -5,7 +5,6 @@
 #ifndef ICE_GRID_ACTIVATOR_H
 #define ICE_GRID_ACTIVATOR_H
 
-#include <IceUtil/Thread.h>
 #include <IceGrid/Internal.h>
 
 #ifndef _WIN32
@@ -16,14 +15,11 @@ namespace IceGrid
 {
 
 class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
 class ServerI;
-typedef IceUtil::Handle<ServerI> ServerIPtr;
 
 std::string signalToString(int);
 
-class Activator : public IceUtil::Monitor< IceUtil::Mutex>, public IceUtil::Shared
+class Activator final : public std::enable_shared_from_this<Activator>
 {
 public:
 
@@ -39,27 +35,27 @@ public:
         int pipeFd;
         std::string msg;
 #endif
-        ServerIPtr server;
+        std::shared_ptr<ServerI> server;
     };
 
-    Activator(const TraceLevelsPtr&);
-    virtual ~Activator();
+    Activator(const std::shared_ptr<TraceLevels>&);
+    ~Activator();
 
-    virtual int activate(const std::string&, const std::string&, const std::string&,
+    int activate(const std::string&, const std::string&, const std::string&,
 #ifndef _WIN32
-                         uid_t, gid_t,
+                 uid_t, gid_t,
 #endif
-                         const Ice::StringSeq&, const Ice::StringSeq&, const ServerIPtr&);
-    virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
-    virtual void kill(const std::string&);
-    virtual void sendSignal(const std::string&, const std::string&);
+                 const Ice::StringSeq&, const Ice::StringSeq&, const std::shared_ptr<ServerI>&);
+    void deactivate(const std::string&, const std::shared_ptr<Ice::ProcessPrx>&);
+    void kill(const std::string&);
+    void sendSignal(const std::string&, const std::string&);
 
-    virtual Ice::Int getServerPid(const std::string&);
+    int getServerPid(const std::string&);
 
-    virtual void start();
-    virtual void waitForShutdown();
-    virtual void shutdown();
-    virtual void destroy();
+    void start();
+    void waitForShutdown();
+    void shutdown();
+    void destroy();
 
     bool isActive();
 
@@ -80,7 +76,7 @@ private:
     int waitPid(pid_t);
 #endif
 
-    TraceLevelsPtr _traceLevels;
+    std::shared_ptr<TraceLevels> _traceLevels;
     std::map<std::string, Process> _processes;
     bool _deactivating;
 
@@ -92,9 +88,10 @@ private:
     int _fdIntrWrite;
 #endif
 
-    IceUtil::ThreadPtr _thread;
+    std::mutex _mutex;
+    std::condition_variable _condVar;
+    std::thread _thread;
 };
-typedef IceUtil::Handle<Activator> ActivatorPtr;
 
 }
 

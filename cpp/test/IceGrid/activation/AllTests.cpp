@@ -7,12 +7,15 @@
 #include <IceUtil/Thread.h>
 #include <TestHelper.h>
 #include <Test.h>
+#include <chrono>
 
 using namespace std;
 using namespace Test;
 
-void
-waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, IceGrid::ServerState state)
+void waitForServerState(
+    shared_ptr<IceGrid::AdminPrx> admin,
+    std::string server,
+    IceGrid::ServerState state)
 {
     int nRetry = 0;
     while(admin->getServerState(server) != state && nRetry < 15)
@@ -24,18 +27,22 @@ waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, Ic
     {
         cerr << "server state change timed out:" << endl;
         cerr << "server: " << server << endl;
-        cerr << "state: " << state << endl;
+        cerr << "state: " << static_cast<int>(state) << endl;
     }
 }
 
-class PingThread : public IceUtil::Thread, IceUtil::Monitor<IceUtil::Mutex>
+class Pinger
 {
 public:
 
-    PingThread(const Ice::ObjectPrx& proxy, int nRepetitions) :
-        _proxy(proxy), _finished(false), _nRepetitions(nRepetitions)
+    Pinger(shared_ptr<Ice::ObjectPrx> proxy, int nRepetitions) :
+        _proxy(std::move(proxy)),
+        _finished(false),
+        _nRepetitions(nRepetitions)
     {
     }
+
+    virtual ~Pinger() {}
 
     virtual void run()
     {
@@ -45,9 +52,9 @@ public:
             {
                 _proxy->ice_ping();
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
-                _exception.reset(ex.ice_clone());
+                _exception = current_exception();
             }
             catch(...)
             {
@@ -55,49 +62,49 @@ public:
             }
         }
 
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         _finished = true;
-        notifyAll();
+        _condVar.notify_all();
     }
 
-    Ice::LocalException*
-    waitUntilFinished()
+    exception_ptr waitUntilFinished()
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         while(!_finished)
         {
-            wait();
+            _condVar.wait(lock);
         }
-        return _exception.release();
+        return _exception;
     }
 
 private:
 
-    Ice::ObjectPrx _proxy;
-    IceInternal::UniquePtr<Ice::LocalException> _exception;
+    shared_ptr<Ice::ObjectPrx> _proxy;
+    exception_ptr _exception;
     bool _finished;
     int _nRepetitions;
+    mutex _mutex;
+    condition_variable _condVar;
 };
-typedef IceUtil::Handle<PingThread> PingThreadPtr;
 
 void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+    shared_ptr<IceGrid::RegistryPrx> registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
 
-    IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(
+    shared_ptr<IceGrid::QueryPrx> query = Ice::checkedCast<IceGrid::QueryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Query"));
 
-    IceGrid::AdminSessionPrx adminSession = registry->createAdminSession("foo", "bar");
+    shared_ptr<IceGrid::AdminSessionPrx> adminSession = registry->createAdminSession("foo", "bar");
 
     adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          IceUtil::None,
                                          Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
-    IceGrid::AdminPrx admin = adminSession->getAdmin();
+    shared_ptr<IceGrid::AdminPrx> admin = adminSession->getAdmin();
     test(admin);
 
     admin->startServer("node-1");
@@ -120,17 +127,17 @@ allTests(Test::TestHelper* helper)
     cout << "testing on-demand activation... " << flush;
     try
     {
-        test(admin->getServerState("server") == IceGrid::Inactive);
-        TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server"));
-        waitForServerState(admin, "server", IceGrid::Active);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
+        shared_ptr<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server"));
+        waitForServerState(admin, "server", IceGrid::ServerState::Active);
         obj->shutdown();
-        waitForServerState(admin, "server", IceGrid::Inactive);
+        waitForServerState(admin, "server", IceGrid::ServerState::Inactive);
         nRetry = 4;
         while(--nRetry > 0)
         {
             obj->shutdown();
         }
-        waitForServerState(admin, "server", IceGrid::Inactive);
+        waitForServerState(admin, "server", IceGrid::ServerState::Inactive);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -142,23 +149,23 @@ allTests(Test::TestHelper* helper)
     cout << "testing manual activation... " << flush;
     try
     {
-        test(admin->getServerState("server-manual") == IceGrid::Inactive);
-        TestIntfPrx obj;
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
+        shared_ptr<TestIntfPrx> obj;
         try
         {
-            obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server-manual"));
+            obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server-manual"));
             test(false);
         }
         catch(const Ice::NoEndpointException&)
         {
         }
-        test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
         admin->startServer("server-manual");
-        test(admin->getServerState("server-manual") == IceGrid::Active);
-        obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server-manual"));
-        test(admin->getServerState("server-manual") == IceGrid::Active);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Active);
+        obj = Ice::checkedCast< TestIntfPrx>(communicator->stringToProxy("server-manual"));
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Active);
         obj->shutdown();
-        waitForServerState(admin, "server-manual", IceGrid::Inactive);
+        waitForServerState(admin, "server-manual", IceGrid::ServerState::Inactive);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -170,18 +177,18 @@ allTests(Test::TestHelper* helper)
     cout << "testing always activation... " << flush;
     try
     {
-        waitForServerState(admin, "server-always", IceGrid::Active);
-        TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server-always"));
+        waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
+        shared_ptr<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server-always"));
         admin->stopServer("server-always");
-        waitForServerState(admin, "server-always", IceGrid::Active);
+        waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
         obj->shutdown();
-        waitForServerState(admin, "server-always", IceGrid::Active);
+        waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
         nRetry = 4;
         while(--nRetry > 0)
         {
             obj->shutdown();
         }
-        waitForServerState(admin, "server-always", IceGrid::Active);
+        waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -193,10 +200,10 @@ allTests(Test::TestHelper* helper)
     cout << "testing session activation... " << flush;
     try
     {
-        IceGrid::SessionPrx session = registry->createSession("test", "");
+        shared_ptr<IceGrid::SessionPrx> session = registry->createSession("test", "");
 
-        test(admin->getServerState("server-session") == IceGrid::Inactive);
-        TestIntfPrx obj = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-session"));
+        test(admin->getServerState("server-session") == IceGrid::ServerState::Inactive);
+        shared_ptr<TestIntfPrx> obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-session"));
         try
         {
             obj->ice_ping();
@@ -207,18 +214,18 @@ allTests(Test::TestHelper* helper)
         }
         session->allocateObjectById(obj->ice_getIdentity());
         obj->ice_ping();
-        waitForServerState(admin, "server-session", IceGrid::Active);
+        waitForServerState(admin, "server-session", IceGrid::ServerState::Active);
         obj->shutdown();
-        waitForServerState(admin, "server-session", IceGrid::Inactive);
+        waitForServerState(admin, "server-session", IceGrid::ServerState::Inactive);
         obj->ice_ping();
-        waitForServerState(admin, "server-session", IceGrid::Active);
+        waitForServerState(admin, "server-session", IceGrid::ServerState::Active);
         nRetry = 4;
         while(--nRetry > 0)
         {
             obj->shutdown();
         }
         obj->ice_ping();
-        waitForServerState(admin, "server-session", IceGrid::Active);
+        waitForServerState(admin, "server-session", IceGrid::ServerState::Active);
         session->releaseObject(obj->ice_getIdentity());
         try
         {
@@ -228,11 +235,11 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::NoEndpointException&)
         {
         }
-        waitForServerState(admin, "server-session", IceGrid::Inactive);
+        waitForServerState(admin, "server-session", IceGrid::ServerState::Inactive);
 
         session->allocateObjectById(obj->ice_getIdentity());
         obj->ice_ping();
-        waitForServerState(admin, "server-session", IceGrid::Active);
+        waitForServerState(admin, "server-session", IceGrid::ServerState::Active);
         session->destroy();
         try
         {
@@ -242,7 +249,7 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::NoEndpointException&)
         {
         }
-        waitForServerState(admin, "server-session", IceGrid::Inactive);
+        waitForServerState(admin, "server-session", IceGrid::ServerState::Inactive);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -256,7 +263,7 @@ allTests(Test::TestHelper* helper)
     {
         size_t count = query->findAllObjectsByType("Test").size();
 
-        test(admin->getServerState("server") == IceGrid::Inactive);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
         admin->enableServer("server", false);
         try
         {
@@ -282,9 +289,9 @@ allTests(Test::TestHelper* helper)
         catch(const IceGrid::ServerStartException&)
         {
         }
-        test(admin->getServerState("server") == IceGrid::Inactive);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
 
-        test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
         admin->enableServer("server-manual", false);
         try
         {
@@ -302,7 +309,7 @@ allTests(Test::TestHelper* helper)
         catch(const IceGrid::ServerStartException&)
         {
         }
-        test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
         while(query->findAllObjectsByType("Test").size() != count - 2)
         {
             // The notification of the server being disabled is asynchronous and might
@@ -310,10 +317,10 @@ allTests(Test::TestHelper* helper)
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
         }
 
-        test(admin->getServerState("server-always") == IceGrid::Active);
+        test(admin->getServerState("server-always") == IceGrid::ServerState::Active);
         admin->enableServer("server-always", false);
         admin->stopServer("server-always");
-        test(admin->getServerState("server-always") == IceGrid::Inactive);
+        test(admin->getServerState("server-always") == IceGrid::ServerState::Inactive);
         try
         {
             communicator->stringToProxy("server-always")->ice_ping();
@@ -330,7 +337,7 @@ allTests(Test::TestHelper* helper)
         catch(const IceGrid::ServerStartException&)
         {
         }
-        test(admin->getServerState("server-always") == IceGrid::Inactive);
+        test(admin->getServerState("server-always") == IceGrid::ServerState::Inactive);
         while(query->findAllObjectsByType("Test").size() != count - 3)
         {
             // The notification of the server being disabled is asynchronous and might
@@ -338,12 +345,12 @@ allTests(Test::TestHelper* helper)
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
         }
 
-        test(admin->getServerState("server") == IceGrid::Inactive);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
         admin->enableServer("server", true);
         communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
         int pid = admin->getServerPid("server");
         admin->enableServer("server", false);
-        test(admin->getServerState("server") == IceGrid::Active);
+        test(admin->getServerState("server") == IceGrid::ServerState::Active);
         try
         {
             communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
@@ -356,7 +363,7 @@ allTests(Test::TestHelper* helper)
         communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
         test(admin->getServerPid("server") == pid);
         admin->stopServer("server");
-        test(admin->getServerState("server") == IceGrid::Inactive);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
 
         while(query->findAllObjectsByType("Test").size() != count - 2)
         {
@@ -375,17 +382,17 @@ allTests(Test::TestHelper* helper)
     cout << "testing server enable... " << flush;
     try
     {
-        test(admin->getServerState("server") == IceGrid::Inactive);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
         admin->enableServer("server", true);
         communicator->stringToProxy("server")->ice_ping();
         admin->stopServer("server");
-        test(admin->getServerState("server") == IceGrid::Inactive);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
         admin->startServer("server");
-        test(admin->getServerState("server") == IceGrid::Active);
+        test(admin->getServerState("server") == IceGrid::ServerState::Active);
         admin->stopServer("server");
-        test(admin->getServerState("server") == IceGrid::Inactive);
+        test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
 
-        test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
         admin->enableServer("server-manual", true);
         try
         {
@@ -395,15 +402,15 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::NoEndpointException&)
         {
         }
-        test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
         admin->startServer("server-manual");
-        test(admin->getServerState("server-manual") == IceGrid::Active);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Active);
         admin->stopServer("server-manual");
-        test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
 
-        test(admin->getServerState("server-always") == IceGrid::Inactive);
+        test(admin->getServerState("server-always") == IceGrid::ServerState::Inactive);
         admin->enableServer("server-always", true);
-        waitForServerState(admin, "server-always", IceGrid::Active);
+        waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
         admin->stopServer("server-always");
         try
         {
@@ -413,7 +420,7 @@ allTests(Test::TestHelper* helper)
         catch(const IceGrid::ServerStartException&)
         {
         }
-        test(admin->getServerState("server-always") == IceGrid::Active);
+        test(admin->getServerState("server-always") == IceGrid::ServerState::Active);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -427,69 +434,108 @@ allTests(Test::TestHelper* helper)
     {
         int i;
         const int nThreads = 3;
-        Ice::ObjectPrx invalid = communicator->stringToProxy("invalid-exe");
-
-        vector<PingThreadPtr> threads;
-        threads.reserve(nThreads);
-        vector<PingThreadPtr>::const_iterator p;
+        shared_ptr<Ice::ObjectPrx> invalid = communicator->stringToProxy("invalid-exe");
+        vector<pair<shared_ptr<Pinger>, thread>> pingers;
         for(i = 0; i < nThreads; i++)
         {
-            threads.push_back(new PingThread(invalid, 10));
+            auto pinger = make_shared<Pinger>(invalid, 10);
+            auto t = thread(
+                [pinger]()
+                {
+                    pinger->run();
+                });
+            pingers.push_back(make_pair(pinger, std::move(t)));
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for(const auto& p : pingers)
         {
-            (*p)->start();
+            exception_ptr ex = p.first->waitUntilFinished();
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Ice::NoEndpointException&)
+            {
+            }
+            catch (...)
+            {
+                test(false);
+            }
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for (auto& p : pingers)
         {
-            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
-            test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+            p.second.join();
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
-        {
-            (*p)->getThreadControl().join();
-        }
-        threads.resize(0);
+        pingers.clear();
 
         invalid = communicator->stringToProxy("invalid-pwd");
         for(i = 0; i < nThreads; i++)
         {
-            threads.push_back(new PingThread(invalid, 10));
+            auto pinger = make_shared<Pinger>(invalid, 10);
+            auto t = thread(
+                [pinger]()
+                {
+                    pinger->run();
+                });
+            pingers.push_back(make_pair(pinger, std::move(t)));
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for (const auto& p : pingers)
         {
-            (*p)->start();
+            exception_ptr ex = p.first->waitUntilFinished();
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Ice::NoEndpointException&)
+            {
+            }
+            catch (...)
+            {
+                test(false);
+            }
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for (auto& p : pingers)
         {
-            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
-            test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+            p.second.join();
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
-        {
-            (*p)->getThreadControl().join();
-        }
-        threads.resize(0);
+        pingers.clear();
 
         invalid = communicator->stringToProxy("fail-on-startup");
-        for(i = 0; i < nThreads; i++)
+        for (i = 0; i < nThreads; i++)
         {
-            threads.push_back(new PingThread(invalid, 5));
+            auto pinger = make_shared<Pinger>(invalid, 5);
+            auto t = thread(
+                [pinger]()
+                {
+                    pinger->run();
+                });
+            pingers.push_back(make_pair(pinger, std::move(t)));
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for (const auto& p : pingers)
         {
-            (*p)->start();
+            exception_ptr ex = p.first->waitUntilFinished();
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Ice::NoEndpointException&)
+            {
+            }
+            catch (...)
+            {
+                test(false);
+            }
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for (auto& p : pingers)
         {
-            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
-            test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+            p.second.join();
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
-        {
-            (*p)->getThreadControl().join();
-        }
-        threads.resize(0);
+        pingers.resize(0);
 
         try
         {
@@ -521,29 +567,40 @@ allTests(Test::TestHelper* helper)
     cout << "testing activation timeout... " << flush;
     try
     {
-        test(admin->getServerState("server-activation-timeout") == IceGrid::Inactive);
+        test(admin->getServerState("server-activation-timeout") == IceGrid::ServerState::Inactive);
         const int nThreads = 5;
-        Ice::ObjectPrx proxy = communicator->stringToProxy("server-activation-timeout");
-        vector<PingThreadPtr> threads;
-        threads.reserve(nThreads);
-        vector<PingThreadPtr>::const_iterator p;
-        int i;
-        for(i = 0; i < nThreads; i++)
+        shared_ptr<Ice::ObjectPrx> proxy = communicator->stringToProxy("server-activation-timeout");
+        vector<pair<shared_ptr<Pinger>, thread>> pingers;
+        for (int i = 0; i < nThreads; i++)
         {
-            threads.push_back(new PingThread(proxy, 1));
+            auto pinger = make_shared<Pinger>(proxy, 1);
+            auto t = thread(
+                [pinger]()
+                {
+                    pinger->run();
+                });
+            pingers.push_back(make_pair(pinger, std::move(t)));
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for (const auto& p : pingers)
         {
-            (*p)->start();
+            exception_ptr ex = p.first->waitUntilFinished();
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Ice::NoEndpointException&)
+            {
+            }
+            catch (...)
+            {
+                test(false);
+            }
         }
-        for(p = threads.begin(); p != threads.end(); ++p)
+
+        for (auto& p : pingers)
         {
-            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
-            test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
-        }
-        for(p = threads.begin(); p != threads.end(); ++p)
-        {
-            (*p)->getThreadControl().join();
+            p.second.join();
         }
         admin->stopServer("server-activation-timeout");
     }
@@ -562,7 +619,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing deactivation timeout... " << flush;
     try
     {
-        test(admin->getServerState("server-deactivation-timeout") == IceGrid::Inactive);
+        test(admin->getServerState("server-deactivation-timeout") == IceGrid::ServerState::Inactive);
         communicator->stringToProxy("server-deactivation-timeout")->ice_ping();
         admin->stopServer("server-deactivation-timeout");
     }
@@ -576,11 +633,11 @@ allTests(Test::TestHelper* helper)
     cout << "testing permanent disable on failure... " << flush;
     try
     {
-        test(admin->getServerState("server1") == IceGrid::Inactive);
-        TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server1"));
-        waitForServerState(admin, "server1", IceGrid::Active);
+        test(admin->getServerState("server1") == IceGrid::ServerState::Inactive);
+        shared_ptr<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1"));
+        waitForServerState(admin, "server1", IceGrid::ServerState::Active);
         obj->fail();
-        waitForServerState(admin, "server1", IceGrid::Inactive);
+        waitForServerState(admin, "server1", IceGrid::ServerState::Inactive);
         try
         {
             obj->ice_ping();
@@ -591,19 +648,19 @@ allTests(Test::TestHelper* helper)
         }
         test(!admin->isServerEnabled("server1"));
 
-        test(admin->getServerState("server1-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server1-manual") == IceGrid::ServerState::Inactive);
         admin->startServer("server1-manual");
-        test(admin->getServerState("server1-manual") == IceGrid::Active);
-        obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server1-manual"));
-        test(admin->getServerState("server1-manual") == IceGrid::Active);
+        test(admin->getServerState("server1-manual") == IceGrid::ServerState::Active);
+        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1-manual"));
+        test(admin->getServerState("server1-manual") == IceGrid::ServerState::Active);
         obj->fail();
-        waitForServerState(admin, "server1-manual", IceGrid::Inactive);
+        waitForServerState(admin, "server1-manual", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server1-manual"));
 
-        test(admin->getServerState("server1-always") == IceGrid::Active);
-        obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server1-always"));
+        test(admin->getServerState("server1-always") == IceGrid::ServerState::Active);
+        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1-always"));
         obj->fail();
-        waitForServerState(admin, "server1-always", IceGrid::Inactive);
+        waitForServerState(admin, "server1-always", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server1-always"));
     }
     catch(const Ice::LocalException& ex)
@@ -616,19 +673,20 @@ allTests(Test::TestHelper* helper)
     cout << "testing temporary disable on failure... " << flush;
     try
     {
-        test(admin->getServerState("server2") == IceGrid::Inactive);
-        TestIntfPrx obj = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server2"));
+        test(admin->getServerState("server2") == IceGrid::ServerState::Inactive);
+        auto obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server2"));
+        obj = obj->ice_locatorCacheTimeout(0);
         while(true)
         {
             obj->ice_ping();
-            waitForServerState(admin, "server2", IceGrid::Active);
-            IceUtil::Time now = IceUtil::Time::now();
+            waitForServerState(admin, "server2", IceGrid::ServerState::Active);
+            auto now = std::chrono::steady_clock::now();
             obj->fail();
-            waitForServerState(admin, "server2", IceGrid::Inactive);
+            waitForServerState(admin, "server2", IceGrid::ServerState::Inactive);
             try
             {
                 obj->ice_ping();
-                test(IceUtil::Time::now() - now >= IceUtil::Time::seconds(3));
+                test(chrono::steady_clock::now() - now >= 3s);
             }
             catch (const Ice::NoEndpointException&)
             {
@@ -653,36 +711,38 @@ allTests(Test::TestHelper* helper)
             }
         }
         test(admin->isServerEnabled("server2"));
-        waitForServerState(admin, "server2", IceGrid::Active);
+        waitForServerState(admin, "server2", IceGrid::ServerState::Active);
         obj->ice_ping();
         admin->stopServer("server2");
 
-        test(admin->getServerState("server2-manual") == IceGrid::Inactive);
+        test(admin->getServerState("server2-manual") == IceGrid::ServerState::Inactive);
         admin->startServer("server2-manual");
-        test(admin->getServerState("server2-manual") == IceGrid::Active);
-        obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server2-manual"));
+        test(admin->getServerState("server2-manual") == IceGrid::ServerState::Active);
+        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server2-manual"));
         obj->fail();
-        waitForServerState(admin, "server2-manual", IceGrid::Inactive);
+        waitForServerState(admin, "server2-manual", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server2-manual"));
         admin->startServer("server2-manual");
         test(admin->isServerEnabled("server2-manual"));
-        test(admin->getServerState("server2-manual") == IceGrid::Active);
+        test(admin->getServerState("server2-manual") == IceGrid::ServerState::Active);
         admin->stopServer("server2-manual");
 
-        test(admin->getServerState("server2-always") == IceGrid::Active);
-        obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server2-always"));
+        test(admin->getServerState("server2-always") == IceGrid::ServerState::Active);
+        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server2-always"));
         obj->fail();
-        waitForServerState(admin, "server2-always", IceGrid::Inactive);
+        waitForServerState(admin, "server2-always", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server2-always"));
         nRetry = 0;
         while((!admin->isServerEnabled("server2-always") ||
-               admin->getServerState("server2-always") != IceGrid::Active) &&
+               admin->getServerState("server2-always") != IceGrid::ServerState::Active) &&
               nRetry < 15)
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
             ++nRetry;
         }
-        test(admin->isServerEnabled("server2-always") && admin->getServerState("server2-always") == IceGrid::Active);
+        test(
+            admin->isServerEnabled("server2-always") && admin->getServerState("server2-always") ==
+            IceGrid::ServerState::Active);
         obj->ice_ping();
     }
     catch(const Ice::LocalException& ex)

@@ -36,11 +36,9 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing locator finder... " << flush;
-    Ice::Identity finderId;
-    finderId.category = "Ice";
-    finderId.name = "LocatorFinder";
-    Ice::LocatorFinderPrxPtr finder = ICE_CHECKED_CAST(Ice::LocatorFinderPrx,
-        communicator->getDefaultLocator()->ice_identity(finderId));
+
+    auto finder = Ice::checkedCast<Ice::LocatorFinderPrx>(
+        communicator->getDefaultLocator()->ice_identity(Ice::Identity{ "LocatorFinder", "Ice" }));
     test(finder->getLocator());
     cout << "ok" << endl;
 

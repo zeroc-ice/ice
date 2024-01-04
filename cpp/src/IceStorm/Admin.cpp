@@ -15,15 +15,7 @@
 using namespace std;
 using namespace IceInternal;
 
-int run(const Ice::StringSeq&);
-
-Ice::CommunicatorPtr communicator;
-
-void
-destroyCommunicator(int)
-{
-    communicator->destroy();
-}
+int run(const shared_ptr<Ice::Communicator>&, const Ice::StringSeq&);
 
 int
 #ifdef _WIN32
@@ -47,12 +39,13 @@ main(int argc, char* argv[])
         Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
         id.properties = Ice::createProperties(args);
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
+
         Ice::CommunicatorHolder ich(id);
-        communicator = ich.communicator();
+        auto communicator = ich.communicator();
 
-        ctrlCHandler.setCallback(&destroyCommunicator);
+        ctrlCHandler.setCallback([communicator](int) { communicator->destroy(); });
 
-        status = run(args);
+        status = run(communicator, args);
     }
     catch(const std::exception& ex)
     {
@@ -77,7 +70,7 @@ usage(const string& name)
 }
 
 int
-run(const Ice::StringSeq& args)
+run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& args)
 {
     string commands;
     bool debug;
@@ -125,29 +118,28 @@ run(const Ice::StringSeq& args)
     debug = opts.isSet("debug");
 
     // The complete set of Ice::Identity -> manager proxies.
-    map<Ice::Identity, IceStorm::TopicManagerPrx> managers;
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    IceStorm::TopicManagerPrx defaultManager;
+    map<Ice::Identity, shared_ptr<IceStorm::TopicManagerPrx>> managers;
+    auto properties = communicator->getProperties();
+    shared_ptr<IceStorm::TopicManagerPrx> defaultManager;
 
-    Ice::PropertyDict props = communicator->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
+    auto props = communicator->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
     {
-        for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+        for(const auto& p : props)
         {
             //
             // Ignore proxy property settings. eg IceStormAdmin.TopicManager.*.LocatorCacheTimeout
             //
-            if(p->first.find('.', strlen("IceStormAdmin.TopicManager.")) == string::npos)
+            if(p.first.find('.', strlen("IceStormAdmin.TopicManager.")) == string::npos)
             {
                 try
                 {
-                    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::uncheckedCast(
-                        communicator->propertyToProxy(p->first));
-                    managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
-                                        manager->ice_getIdentity(), manager));
+                    auto manager = Ice::uncheckedCast<IceStorm::TopicManagerPrx>(
+                        communicator->propertyToProxy(p.first));
+                    managers.insert({manager->ice_getIdentity(), manager});
                 }
                 catch(const Ice::ProxyParseException&)
                 {
-                    consoleErr << args[0] << ": malformed proxy: " << p->second << endl;
+                    consoleErr << args[0] << ": malformed proxy: " << p.second << endl;
                     return 1;
                 }
             }
@@ -156,8 +148,7 @@ run(const Ice::StringSeq& args)
         string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
         if(!managerProxy.empty())
         {
-            defaultManager = IceStorm::TopicManagerPrx::uncheckedCast(
-                communicator->stringToProxy(managerProxy));
+            defaultManager = Ice::uncheckedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy(managerProxy));
         }
         else if(!managers.empty())
         {
@@ -175,7 +166,7 @@ run(const Ice::StringSeq& args)
         os << "IceStorm/Finder";
         os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
         os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
-        IceStorm::FinderPrx finder = IceStorm::FinderPrx::uncheckedCast(communicator->stringToProxy(os.str()));
+        auto finder = Ice::uncheckedCast<IceStorm::FinderPrx>(communicator->stringToProxy(os.str()));
         try
         {
             defaultManager = finder->getTopicManager();
@@ -192,12 +183,12 @@ run(const Ice::StringSeq& args)
         return 1;
     }
 
-    IceStorm::ParserPtr p = IceStorm::Parser::createParser(communicator, defaultManager, managers);
+    IceStorm::Parser p(communicator, defaultManager, managers);
     int status = 0;
 
     if(!commands.empty()) // Commands were given
     {
-        int parseStatus = p->parse(commands, debug);
+        int parseStatus = p.parse(commands, debug);
         if(parseStatus == 1)
         {
             status = 1;
@@ -205,9 +196,9 @@ run(const Ice::StringSeq& args)
     }
     else // No commands, let's use standard input
     {
-        p->showBanner();
+        p.showBanner();
 
-        int parseStatus = p->parse(stdin, debug);
+        int parseStatus = p.parse(stdin, debug);
         if(parseStatus == 1)
         {
             status = 1;

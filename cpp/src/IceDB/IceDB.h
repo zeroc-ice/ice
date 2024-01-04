@@ -48,15 +48,10 @@ class ICE_DB_API LMDBException : public IceUtil::Exception
 public:
 
     LMDBException(const char*, int, int);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~LMDBException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
-    virtual LMDBException* ice_clone() const;
-#endif
+    virtual IceUtil::Exception* ice_cloneImpl() const;
     virtual void ice_throw() const;
 
     int error() const;
@@ -76,15 +71,10 @@ class ICE_DB_API KeyTooLongException : public IceUtil::Exception
 public:
 
     KeyTooLongException(const char*, int, size_t);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~KeyTooLongException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
-    virtual KeyTooLongException* ice_clone() const;
-#endif
+    virtual IceUtil::Exception* ice_cloneImpl() const;
     virtual void ice_throw() const;
 
 private:
@@ -102,15 +92,10 @@ class ICE_DB_API BadEnvException : public IceUtil::Exception
 public:
 
     BadEnvException(const char*, int, size_t);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~BadEnvException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
-    virtual BadEnvException* ice_clone() const;
-#endif
+    virtual IceUtil::Exception* ice_cloneImpl() const;
     virtual void ice_throw() const;
 
 private:
@@ -221,7 +206,6 @@ protected:
 
     DbiBase(const Txn&, const std::string&, unsigned int, MDB_cmp_func*);
     DbiBase();
-    ~DbiBase();
 
     // default copy ctor and assignment operator are OK
 
@@ -247,10 +231,6 @@ public:
     }
 
     Dbi()
-    {
-    }
-
-    ~Dbi()
     {
     }
 

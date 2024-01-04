@@ -13,42 +13,23 @@ using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace IceGrid;
 
-#ifdef __SUNPRO_CC
-//
-// Disable warning about unassigned function objects
-//
-#   pragma error_messages(off,unassigned)
-#endif
-
-namespace IceGrid
+namespace
 {
 
-struct GetReplicaGroupId
+const string& getReplicaGroupId(const ReplicaGroupDescriptor& desc)
 {
-    const string&
-    operator()(const ReplicaGroupDescriptor& desc)
-    {
-        return desc.id;
-    }
-};
+    return desc.id;
+}
 
-struct GetAdapterId
+const string& getAdapterId(const AdapterDescriptor& desc)
 {
-    const string&
-    operator()(const AdapterDescriptor& desc)
-    {
-        return desc.id;
-    }
-};
+    return desc.id;
+}
 
-struct GetObjectId
+const Ice::Identity& getObjectId(const ObjectDescriptor& desc)
 {
-    const Ice::Identity&
-    operator()(const ObjectDescriptor& desc)
-    {
-        return desc.id;
-    }
-};
+    return desc.id;
+}
 
 template <typename GetKeyFunc, typename Seq, typename EqFunc> bool
 isSeqEqual(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq = equal_to<typename Seq::value_type>())
@@ -76,162 +57,147 @@ isSeqEqual(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq = equal_
     return true;
 }
 
-struct TemplateDescriptorEqual
+bool templateDescriptorEqual(const TemplateDescriptor& lhs, const TemplateDescriptor& rhs)
 {
-    bool
-    operator()(const TemplateDescriptor& lhs, const TemplateDescriptor& rhs)
+    if(lhs.parameters != rhs.parameters)
     {
-        if(lhs.parameters != rhs.parameters)
-        {
-            return false;
-        }
-
-        if(lhs.parameterDefaults != rhs.parameterDefaults)
-        {
-            return false;
-        }
-
-        {
-            IceBoxDescriptorPtr slhs = IceBoxDescriptorPtr::dynamicCast(lhs.descriptor);
-            IceBoxDescriptorPtr srhs = IceBoxDescriptorPtr::dynamicCast(rhs.descriptor);
-            if(slhs && srhs)
-            {
-                return IceBoxHelper(slhs) == IceBoxHelper(srhs);
-            }
-        }
-        {
-            ServerDescriptorPtr slhs = ServerDescriptorPtr::dynamicCast(lhs.descriptor);
-            ServerDescriptorPtr srhs = ServerDescriptorPtr::dynamicCast(rhs.descriptor);
-            if(slhs && srhs)
-            {
-                return ServerHelper(slhs) == ServerHelper(srhs);
-            }
-        }
-        {
-            ServiceDescriptorPtr slhs = ServiceDescriptorPtr::dynamicCast(lhs.descriptor);
-            ServiceDescriptorPtr srhs = ServiceDescriptorPtr::dynamicCast(rhs.descriptor);
-            if(slhs && srhs)
-            {
-                return ServiceHelper(slhs) == ServiceHelper(srhs);
-            }
-        }
-
         return false;
     }
-};
 
-struct ObjectDescriptorEq
-{
-    bool
-    operator()(const ObjectDescriptor& lhs, const ObjectDescriptor& rhs)
+    if(lhs.parameterDefaults != rhs.parameterDefaults)
     {
-        if(lhs.id != rhs.id)
-        {
-            return false;
-        }
-        if(lhs.type != rhs.type)
-        {
-            return false;
-        }
-        if(lhs.proxyOptions != rhs.proxyOptions)
-        {
-            return false;
-        }
-        return true;
+        return false;
     }
-};
 
-struct AdapterEq
-{
-    bool
-    operator()(const AdapterDescriptor& lhs, const AdapterDescriptor& rhs)
     {
-        if(lhs.id != rhs.id)
+        auto slhs = dynamic_pointer_cast<IceBoxDescriptor>(lhs.descriptor);
+        auto srhs = dynamic_pointer_cast<IceBoxDescriptor>(rhs.descriptor);
+        if(slhs && srhs)
         {
-            return false;
+            return IceBoxHelper(slhs) == IceBoxHelper(srhs);
         }
-        if(lhs.name != rhs.name)
-        {
-            return false;
-        }
-        if(lhs.description != rhs.description)
-        {
-            return false;
-        }
-        if(lhs.replicaGroupId != rhs.replicaGroupId)
-        {
-            return false;
-        }
-        if(lhs.priority != rhs.priority)
-        {
-            return false;
-        }
-        if(lhs.registerProcess != rhs.registerProcess)
-        {
-            return false;
-        }
-        if(lhs.serverLifetime != rhs.serverLifetime)
-        {
-            return false;
-        }
-        if(!isSeqEqual(lhs.objects, rhs.objects, GetObjectId(), ObjectDescriptorEq()))
-        {
-            return false;
-        }
-        if(!isSeqEqual(lhs.allocatables, rhs.allocatables, GetObjectId(), ObjectDescriptorEq()))
-        {
-            return false;
-        }
-        return true;
     }
-};
 
-struct ReplicaGroupEq
-{
-    bool
-    operator()(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDescriptor& rhs)
     {
-        if(lhs.id != rhs.id)
+        auto slhs = dynamic_pointer_cast<ServerDescriptor>(lhs.descriptor);
+        auto srhs = dynamic_pointer_cast<ServerDescriptor>(rhs.descriptor);
+        if(slhs && srhs)
         {
-            return false;
+            return ServerHelper(slhs) == ServerHelper(srhs);
         }
-        if(lhs.proxyOptions != rhs.proxyOptions)
-        {
-            return false;
-        }
-        if(lhs.filter != rhs.filter)
-        {
-            return false;
-        }
-        if(!isSeqEqual(lhs.objects, rhs.objects, GetObjectId(), ObjectDescriptorEq()))
-        {
-            return false;
-        }
-        if(lhs.loadBalancing && rhs.loadBalancing)
-        {
-            if(lhs.loadBalancing->ice_id() != rhs.loadBalancing->ice_id())
-            {
-                return false;
-            }
-            if(lhs.loadBalancing->nReplicas != rhs.loadBalancing->nReplicas)
-            {
-                return false;
-            }
-            AdaptiveLoadBalancingPolicyPtr alhs = AdaptiveLoadBalancingPolicyPtr::dynamicCast(lhs.loadBalancing);
-            AdaptiveLoadBalancingPolicyPtr arhs = AdaptiveLoadBalancingPolicyPtr::dynamicCast(rhs.loadBalancing);
-            if(alhs && arhs && alhs->loadSample != arhs->loadSample)
-            {
-                return false;
-            }
-        }
-        else if(lhs.loadBalancing || rhs.loadBalancing)
-        {
-            return false;
-        }
-
-        return true;
     }
-};
+    {
+        auto slhs = dynamic_pointer_cast<ServiceDescriptor>(lhs.descriptor);
+        auto srhs = dynamic_pointer_cast<ServiceDescriptor>(rhs.descriptor);
+        if(slhs && srhs)
+        {
+            return ServiceHelper(slhs) == ServiceHelper(srhs);
+        }
+    }
+
+    return false;
+}
+
+bool objectDescriptorEqual(const ObjectDescriptor& lhs, const ObjectDescriptor& rhs)
+{
+    if(lhs.id != rhs.id)
+    {
+        return false;
+    }
+    if(lhs.type != rhs.type)
+    {
+        return false;
+    }
+    if(lhs.proxyOptions != rhs.proxyOptions)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool adapterEqual(const AdapterDescriptor& lhs, const AdapterDescriptor& rhs)
+{
+    if(lhs.id != rhs.id)
+    {
+        return false;
+    }
+    if(lhs.name != rhs.name)
+    {
+        return false;
+    }
+    if(lhs.description != rhs.description)
+    {
+        return false;
+    }
+    if(lhs.replicaGroupId != rhs.replicaGroupId)
+    {
+        return false;
+    }
+    if(lhs.priority != rhs.priority)
+    {
+        return false;
+    }
+    if(lhs.registerProcess != rhs.registerProcess)
+    {
+        return false;
+    }
+    if(lhs.serverLifetime != rhs.serverLifetime)
+    {
+        return false;
+    }
+    if(!isSeqEqual(lhs.objects, rhs.objects, getObjectId, objectDescriptorEqual))
+    {
+        return false;
+    }
+    if(!isSeqEqual(lhs.allocatables, rhs.allocatables, getObjectId, objectDescriptorEqual))
+    {
+        return false;
+    }
+    return true;
+}
+
+bool replicaGroupEqual(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDescriptor& rhs)
+{
+    if(lhs.id != rhs.id)
+    {
+        return false;
+    }
+    if(lhs.proxyOptions != rhs.proxyOptions)
+    {
+        return false;
+    }
+    if(lhs.filter != rhs.filter)
+    {
+        return false;
+    }
+    if(!isSeqEqual(lhs.objects, rhs.objects, getObjectId, objectDescriptorEqual))
+    {
+        return false;
+    }
+    if(lhs.loadBalancing && rhs.loadBalancing)
+    {
+        if(lhs.loadBalancing->ice_id() != rhs.loadBalancing->ice_id())
+        {
+            return false;
+        }
+        if(lhs.loadBalancing->nReplicas != rhs.loadBalancing->nReplicas)
+        {
+            return false;
+        }
+        auto alhs = dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(lhs.loadBalancing);
+        auto arhs = dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(rhs.loadBalancing);
+        if(alhs && arhs && alhs->loadSample != arhs->loadSample)
+        {
+            return false;
+        }
+    }
+    else if(lhs.loadBalancing || rhs.loadBalancing)
+    {
+        return false;
+    }
+
+    return true;
+}
 
 template <typename GetKeyFunc, typename Seq> Seq
 getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func)
@@ -383,7 +349,7 @@ validateProxyOptions(const Resolver& resolver, const string& proxyOptions)
 
 }
 
-Resolver::Resolver(const ApplicationDescriptor& app, const Ice::CommunicatorPtr& communicator, bool enableWarning) :
+Resolver::Resolver(const ApplicationDescriptor& app, const shared_ptr<Ice::Communicator>& communicator, bool enableWarning) :
     _application(&app),
     _communicator(communicator),
     _escape(false),
@@ -508,7 +474,7 @@ Resolver::Resolver(const Resolver& resolve,
     }
 }
 
-Resolver::Resolver(const InternalNodeInfoPtr& info, const Ice::CommunicatorPtr& com) :
+Resolver::Resolver(const shared_ptr<InternalNodeInfo>& info, const shared_ptr<Ice::Communicator>& com) :
     _application(0),
     _communicator(com),
     _escape(true),
@@ -1060,7 +1026,7 @@ Resolver::checkDeprecated(const string& name) const
     }
 }
 
-CommunicatorHelper::CommunicatorHelper(const CommunicatorDescriptorPtr& desc, bool ignoreProps) :
+CommunicatorHelper::CommunicatorHelper(const shared_ptr<CommunicatorDescriptor>& desc, bool ignoreProps) :
     _desc(desc), _ignoreProps(ignoreProps)
 {
 }
@@ -1078,7 +1044,7 @@ CommunicatorHelper::operator==(const CommunicatorHelper& helper) const
         return false;
     }
 
-    if(!isSeqEqual(_desc->adapters, helper._desc->adapters, GetAdapterId(), AdapterEq()))
+    if(!isSeqEqual(_desc->adapters, helper._desc->adapters, getAdapterId, adapterEqual))
     {
         return false;
     }
@@ -1148,7 +1114,7 @@ CommunicatorHelper::getReplicaGroups(set<string>& replicaGroups) const
 }
 
 void
-CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, const Resolver& resolve) const
+CommunicatorHelper::instantiateImpl(const shared_ptr<CommunicatorDescriptor>& instance, const Resolver& resolve) const
 {
     instance->description = resolve(_desc->description, "description");
     instance->propertySet = resolve(_desc->propertySet);
@@ -1212,7 +1178,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 }
 
 void
-CommunicatorHelper::print(const Ice::CommunicatorPtr& communicator, Output& out) const
+CommunicatorHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& out) const
 {
     if(!_desc->description.empty())
     {
@@ -1258,7 +1224,7 @@ CommunicatorHelper::print(const Ice::CommunicatorPtr& communicator, Output& out)
 }
 
 void
-CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
+CommunicatorHelper::printObjectAdapter(const shared_ptr<Ice::Communicator>& communicator,
                                        Output& out,
                                        const AdapterDescriptor& adapter) const
 {
@@ -1332,7 +1298,7 @@ CommunicatorHelper::getProperty(const string& name) const
     return IceGrid::getProperty(_desc->propertySet.properties, name);
 }
 
-ServiceHelper::ServiceHelper(const ServiceDescriptorPtr& descriptor, bool ignoreProps) :
+ServiceHelper::ServiceHelper(const shared_ptr<ServiceDescriptor>& descriptor, bool ignoreProps) :
     CommunicatorHelper(descriptor, ignoreProps),
     _desc(descriptor)
 {
@@ -1360,29 +1326,23 @@ ServiceHelper::operator==(const CommunicatorHelper& h) const
     return true;
 }
 
-bool
-ServiceHelper::operator!=(const CommunicatorHelper& helper) const
-{
-    return !operator==(helper);
-}
-
-ServiceDescriptorPtr
+shared_ptr<ServiceDescriptor>
 ServiceHelper::getDescriptor() const
 {
     return _desc;
 }
 
-ServiceDescriptorPtr
+shared_ptr<ServiceDescriptor>
 ServiceHelper::instantiate(const Resolver& resolver, const PropertyDescriptorSeq& props,
                            const PropertySetDescriptorDict& serviceProps) const
 {
-    ServiceDescriptorPtr service = new ServiceDescriptor();
+    auto service = make_shared<ServiceDescriptor>();
     instantiateImpl(service, resolver, props, serviceProps);
     return service;
 }
 
 void
-ServiceHelper::instantiateImpl(const ServiceDescriptorPtr& instance,
+ServiceHelper::instantiateImpl(const shared_ptr<ServiceDescriptor>& instance,
                                const Resolver& resolve,
                                const PropertyDescriptorSeq& props,
                                const PropertySetDescriptorDict& serviceProps) const
@@ -1401,7 +1361,7 @@ ServiceHelper::instantiateImpl(const ServiceDescriptorPtr& instance,
 }
 
 void
-ServiceHelper::print(const Ice::CommunicatorPtr& communicator, Output& out) const
+ServiceHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& out) const
 {
     out << "service `" + _desc->name + "'";
     out << sb;
@@ -1410,7 +1370,7 @@ ServiceHelper::print(const Ice::CommunicatorPtr& communicator, Output& out) cons
     out << eb;
 }
 
-ServerHelper::ServerHelper(const ServerDescriptorPtr& descriptor, bool ignoreProps) :
+ServerHelper::ServerHelper(const shared_ptr<ServerDescriptor>& descriptor, bool ignoreProps) :
     CommunicatorHelper(descriptor, ignoreProps),
     _desc(descriptor)
 {
@@ -1490,19 +1450,13 @@ ServerHelper::operator==(const CommunicatorHelper& h) const
     return true;
 }
 
-bool
-ServerHelper::operator!=(const CommunicatorHelper& helper) const
-{
-    return !operator==(helper);
-}
-
-ServerDescriptorPtr
+shared_ptr<ServerDescriptor>
 ServerHelper::getDescriptor() const
 {
     return _desc;
 }
 
-ServerDescriptorPtr
+shared_ptr<ServerDescriptor>
 ServerHelper::instantiate(const Resolver& resolver,
                           const PropertyDescriptorSeq& props,
                           const PropertySetDescriptorDict& serviceProps) const
@@ -1512,19 +1466,19 @@ ServerHelper::instantiate(const Resolver& resolver,
         resolver.exception("service property sets are only allowed in IceBox server instances");
     }
 
-    ServerDescriptorPtr server = new ServerDescriptor();
+    auto server = make_shared<ServerDescriptor>();
     instantiateImpl(server, resolver, props);
     return server;
 }
 
 void
-ServerHelper::print(const Ice::CommunicatorPtr& communicator, Output& out) const
+ServerHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& out) const
 {
     print(communicator, out, ServerInfo());
 }
 
 void
-ServerHelper::print(const Ice::CommunicatorPtr& communicator, Output& out, const ServerInfo& info) const
+ServerHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& out, const ServerInfo& info) const
 {
     out << "server `" + _desc->id + "'";
     out << sb;
@@ -1533,7 +1487,7 @@ ServerHelper::print(const Ice::CommunicatorPtr& communicator, Output& out, const
 }
 
 void
-ServerHelper::printImpl(const Ice::CommunicatorPtr& communicator, Output& out, const ServerInfo& info) const
+ServerHelper::printImpl(const shared_ptr<Ice::Communicator>& communicator, Output& out, const ServerInfo& info) const
 {
     if(!info.application.empty())
     {
@@ -1600,7 +1554,7 @@ ServerHelper::printImpl(const Ice::CommunicatorPtr& communicator, Output& out, c
 }
 
 void
-ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
+ServerHelper::instantiateImpl(const shared_ptr<ServerDescriptor>& instance,
                               const Resolver& resolve,
                               const PropertyDescriptorSeq& props) const
 {
@@ -1630,7 +1584,7 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
     instance->propertySet.properties.insert(instance->propertySet.properties.end(), props.begin(), props.end());
 }
 
-IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor, bool ignoreProps) :
+IceBoxHelper::IceBoxHelper(const shared_ptr<IceBoxDescriptor>& descriptor, bool ignoreProps) :
     ServerHelper(descriptor, ignoreProps),
     _desc(descriptor)
 {
@@ -1657,18 +1611,12 @@ IceBoxHelper::operator==(const CommunicatorHelper& h) const
     return true;
 }
 
-bool
-IceBoxHelper::operator!=(const CommunicatorHelper& helper) const
-{
-    return !operator==(helper);
-}
-
-ServerDescriptorPtr
+shared_ptr<ServerDescriptor>
 IceBoxHelper::instantiate(const Resolver& resolver,
                           const PropertyDescriptorSeq& props,
                           const PropertySetDescriptorDict& serviceProps) const
 {
-    IceBoxDescriptorPtr iceBox = new IceBoxDescriptor();
+    auto iceBox = make_shared<IceBoxDescriptor>();
     instantiateImpl(iceBox, resolver, props, serviceProps);
     return iceBox;
 }
@@ -1694,13 +1642,13 @@ IceBoxHelper::getReplicaGroups(set<string>& replicaGroups) const
 }
 
 void
-IceBoxHelper::print(const Ice::CommunicatorPtr& communicator, Output& out) const
+IceBoxHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& out) const
 {
     print(communicator, out, ServerInfo());
 }
 
 void
-IceBoxHelper::print(const Ice::CommunicatorPtr& communicator, Output& out, const ServerInfo& info) const
+IceBoxHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& out, const ServerInfo& info) const
 {
     out << "icebox `" + _desc->id + "'";
     out << sb;
@@ -1720,7 +1668,7 @@ IceBoxHelper::print(const Ice::CommunicatorPtr& communicator, Output& out, const
 }
 
 void
-IceBoxHelper::instantiateImpl(const IceBoxDescriptorPtr& instance,
+IceBoxHelper::instantiateImpl(const shared_ptr<IceBoxDescriptor>& instance,
                               const Resolver& resolver,
                               const PropertyDescriptorSeq& props,
                               const PropertySetDescriptorDict& serviceProps) const
@@ -1846,7 +1794,7 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve, const PropertySetDes
     {
         assert(!_def._cpp_template.empty());
         TemplateDescriptor tmpl = resolve.getServiceTemplate(_def._cpp_template);
-        def = ServiceHelper(ServiceDescriptorPtr::dynamicCast(tmpl.descriptor));
+        def = ServiceHelper(dynamic_pointer_cast<ServiceDescriptor>(tmpl.descriptor));
         parameterValues = instantiateParams(resolve,
                                             _def._cpp_template,
                                             _def.parameterValues,
@@ -1893,7 +1841,7 @@ ServiceInstanceHelper::getReplicaGroups(set<string>& replicaGroups) const
 }
 
 void
-ServiceInstanceHelper::print(const Ice::CommunicatorPtr& communicator, Output& out) const
+ServiceInstanceHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& out) const
 {
     if(_service.getDescriptor())
     {
@@ -1924,7 +1872,7 @@ ServerInstanceHelper::ServerInstanceHelper(const ServerInstanceDescriptor& desc,
     init(0, resolve, instantiate);
 }
 
-ServerInstanceHelper::ServerInstanceHelper(const ServerDescriptorPtr& definition,
+ServerInstanceHelper::ServerInstanceHelper(const shared_ptr<ServerDescriptor>& definition,
                                            const Resolver& resolve,
                                            bool instantiate) :
     _def(ServerInstanceDescriptor())
@@ -1933,12 +1881,12 @@ ServerInstanceHelper::ServerInstanceHelper(const ServerDescriptorPtr& definition
 }
 
 void
-ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver& resolve, bool instantiate)
+ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const Resolver& resolve, bool instantiate)
 {
     //
     // Get the server definition if it's not provided.
     //
-    ServerDescriptorPtr def = definition;
+    auto def = definition;
     std::map<std::string, std::string> parameterValues;
     if(!def)
     {
@@ -1951,7 +1899,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
         // Get the server definition and the template property sets.
         //
         TemplateDescriptor tmpl = resolve.getServerTemplate(_def._cpp_template);
-        def = ServerDescriptorPtr::dynamicCast(tmpl.descriptor);
+        def = dynamic_pointer_cast<ServerDescriptor>(tmpl.descriptor);
         parameterValues = instantiateParams(resolve,
                                             _def._cpp_template,
                                             _def.parameterValues,
@@ -2007,8 +1955,8 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     //
     // Instantiate the server definition.
     //
-    ServerDescriptorPtr inst = _serverDefinition->instantiate(svrResolve, _instance.propertySet.properties,
-                                                              _instance.servicePropertySets);
+    shared_ptr<ServerDescriptor> inst = _serverDefinition->instantiate(svrResolve, _instance.propertySet.properties,
+                                                                       _instance.servicePropertySets);
     _serverInstance = createHelper(inst);
 }
 
@@ -2054,14 +2002,14 @@ ServerInstanceHelper::getInstance() const
     return _instance;
 }
 
-ServerDescriptorPtr
+shared_ptr<ServerDescriptor>
 ServerInstanceHelper::getServerDefinition() const
 {
     assert(_def._cpp_template.empty());
     return _serverDefinition->getDescriptor();
 }
 
-ServerDescriptorPtr
+shared_ptr<ServerDescriptor>
 ServerInstanceHelper::getServerInstance() const
 {
     assert(_serverInstance);
@@ -2196,12 +2144,12 @@ NodeHelper::diff(const NodeHelper& helper) const
     update.name = _name;
     if(_def.loadFactor != helper._def.loadFactor)
     {
-        update.loadFactor = new BoxedString(_def.loadFactor);
+        update.loadFactor = make_shared<BoxedString>(_def.loadFactor);
     }
 
     if(_def.description != helper._def.description)
     {
-        update.description = new BoxedString(_def.description);
+        update.description = make_shared<BoxedString>(_def.description);
     }
 
     update.variables = getDictUpdatedElts(helper._def.variables, _def.variables);
@@ -2598,7 +2546,7 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
     out << eb;
 }
 
-ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
+ApplicationHelper::ApplicationHelper(const shared_ptr<Ice::Communicator>& communicator,
                                      const ApplicationDescriptor& appDesc,
                                      bool enableWarning,
                                      bool instantiate) :
@@ -2638,7 +2586,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
             {
                 resolve.exception("replica group load balancing is not set");
             }
-            desc.loadBalancing = LoadBalancingPolicyPtr::dynamicCast(r->loadBalancing->ice_clone());
+            desc.loadBalancing = dynamic_pointer_cast<LoadBalancingPolicy>(r->loadBalancing->ice_clone());
             desc.loadBalancing->nReplicas =
                 resolve.asInt(r->loadBalancing->nReplicas, "replica group number of replicas");
             if(desc.loadBalancing->nReplicas.empty())
@@ -2649,7 +2597,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
             {
                 resolve.exception("invalid replica group load balancing number of replicas value: inferior to 0");
             }
-            AdaptiveLoadBalancingPolicyPtr al = AdaptiveLoadBalancingPolicyPtr::dynamicCast(desc.loadBalancing);
+            auto al = dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(desc.loadBalancing);
             if(al)
             {
                 al->loadSample = resolve(al->loadSample, "replica group load sample");
@@ -2746,7 +2694,7 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
     updt.name = _def.name;
     if(_def.description != helper._def.description)
     {
-        updt.description = new BoxedString(_def.description);
+        updt.description = make_shared<BoxedString>(_def.description);
     }
 
     updt.variables = getDictUpdatedElts(helper._def.variables, _def.variables);
@@ -2757,18 +2705,15 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
 
     if(_def.distrib != helper._def.distrib)
     {
-        updt.distrib = new BoxedDistributionDescriptor(_def.distrib);
+        updt.distrib = make_shared<BoxedDistributionDescriptor>(_def.distrib);
     }
 
-    GetReplicaGroupId rk;
-    ReplicaGroupEq req;
-    updt.replicaGroups = getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, rk, req);
-    updt.removeReplicaGroups = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, rk);
+    updt.replicaGroups = getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId, replicaGroupEqual);
+    updt.removeReplicaGroups = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId);
 
-    TemplateDescriptorEqual eq;
-    updt.serverTemplates = getDictUpdatedEltsWithEq(helper._def.serverTemplates, _def.serverTemplates, eq);
+    updt.serverTemplates = getDictUpdatedEltsWithEq(helper._def.serverTemplates, _def.serverTemplates, templateDescriptorEqual);
     updt.removeServerTemplates = getDictRemovedElts(helper._def.serverTemplates, _def.serverTemplates);
-    updt.serviceTemplates = getDictUpdatedEltsWithEq(helper._def.serviceTemplates, _def.serviceTemplates, eq);
+    updt.serviceTemplates = getDictUpdatedEltsWithEq(helper._def.serviceTemplates, _def.serviceTemplates, templateDescriptorEqual);
     updt.removeServiceTemplates = getDictRemovedElts(helper._def.serviceTemplates, _def.serviceTemplates);
 
     NodeHelperDict updated = getDictUpdatedElts(helper._nodes, _nodes);
@@ -2783,8 +2728,8 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
             nodeUpdate.variables = node.variables;
             nodeUpdate.servers = node.servers;
             nodeUpdate.serverInstances = node.serverInstances;
-            nodeUpdate.loadFactor = new BoxedString(node.loadFactor);
-            nodeUpdate.description = new BoxedString(node.description);
+            nodeUpdate.loadFactor = make_shared<BoxedString>(node.loadFactor);
+            nodeUpdate.description = make_shared<BoxedString>(node.description);
             updt.nodes.push_back(nodeUpdate);
         }
         else
@@ -2801,12 +2746,11 @@ ApplicationDescriptor
 ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 {
     ApplicationDescriptor def;
-    GetReplicaGroupId rg;
 
     def.name = _def.name;
     def.description = updt.description ? updt.description->value : _def.description;
     def.distrib = updt.distrib ? updt.distrib->value : _def.distrib;
-    def.replicaGroups = updateSeqElts(_def.replicaGroups, updt.replicaGroups, updt.removeReplicaGroups, rg);
+    def.replicaGroups = updateSeqElts(_def.replicaGroups, updt.replicaGroups, updt.removeReplicaGroups, getReplicaGroupId);
     def.variables = updateDictElts(_def.variables, updt.variables, updt.removeVariables);
     def.propertySets = updateDictElts(_def.propertySets, updt.propertySets, updt.removePropertySets);
     def.serverTemplates = updateDictElts(_def.serverTemplates, updt.serverTemplates, updt.removeServerTemplates);
@@ -3052,19 +2996,15 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             {
                 out << "default (return all endpoints)";
             }
-            else if(RandomLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+            else if(dynamic_pointer_cast<RandomLoadBalancingPolicy>(p->loadBalancing))
             {
                 out << "random";
             }
-            else if(OrderedLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
-            {
-                out << "ordered";
-            }
-            else if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+            else if(dynamic_pointer_cast<RoundRobinLoadBalancingPolicy>(p->loadBalancing))
             {
                 out << "round-robin";
             }
-            else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+            else if(dynamic_pointer_cast<AdaptiveLoadBalancingPolicy>(p->loadBalancing))
             {
                 out << "adaptive" ;
             }
@@ -3147,11 +3087,9 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         }
     }
     {
-        GetReplicaGroupId rk;
-        ReplicaGroupEq req;
         ReplicaGroupDescriptorSeq updated =
-            getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, rk, req);
-        Ice::StringSeq removed = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, rk);
+            getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId, replicaGroupEqual);
+        Ice::StringSeq removed = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, getReplicaGroupId);
         if(!updated.empty() || !removed.empty())
         {
             out << nl << "replica groups";
@@ -3187,9 +3125,8 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
     }
 
     {
-        TemplateDescriptorEqual eq;
         TemplateDescriptorDict updated;
-        updated = getDictUpdatedEltsWithEq(helper._def.serverTemplates, _def.serverTemplates, eq);
+        updated = getDictUpdatedEltsWithEq(helper._def.serverTemplates, _def.serverTemplates, templateDescriptorEqual);
         Ice::StringSeq removed = getDictRemovedElts(helper._def.serverTemplates, _def.serverTemplates);
         if(!updated.empty() || !removed.empty())
         {
@@ -3217,9 +3154,8 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         }
     }
     {
-        TemplateDescriptorEqual eq;
         TemplateDescriptorDict updated;
-        updated = getDictUpdatedEltsWithEq(helper._def.serviceTemplates, _def.serviceTemplates, eq);
+        updated = getDictUpdatedEltsWithEq(helper._def.serviceTemplates, _def.serviceTemplates, templateDescriptorEqual);
         Ice::StringSeq removed = getDictRemovedElts(helper._def.serviceTemplates, _def.serviceTemplates);
         if(!updated.empty() || !removed.empty())
         {
@@ -3280,10 +3216,10 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 }
 
 bool
-IceGrid::descriptorEqual(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs, bool ignoreProps)
+IceGrid::descriptorEqual(const shared_ptr<ServerDescriptor>& lhs, const shared_ptr<ServerDescriptor>& rhs, bool ignoreProps)
 {
-    IceBoxDescriptorPtr lhsIceBox = IceBoxDescriptorPtr::dynamicCast(lhs);
-    IceBoxDescriptorPtr rhsIceBox = IceBoxDescriptorPtr::dynamicCast(rhs);
+    auto lhsIceBox = dynamic_pointer_cast<IceBoxDescriptor>(lhs);
+    auto rhsIceBox = dynamic_pointer_cast<IceBoxDescriptor>(rhs);
     if(lhsIceBox && rhsIceBox)
     {
         return IceBoxHelper(lhsIceBox, ignoreProps) == IceBoxHelper(rhsIceBox, ignoreProps);
@@ -3298,17 +3234,17 @@ IceGrid::descriptorEqual(const ServerDescriptorPtr& lhs, const ServerDescriptorP
     }
 }
 
-ServerHelperPtr
-IceGrid::createHelper(const ServerDescriptorPtr& desc)
+shared_ptr<ServerHelper>
+IceGrid::createHelper(const shared_ptr<ServerDescriptor>& desc)
 {
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(desc);
+    auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(desc);
     if(iceBox)
     {
-        return new IceBoxHelper(iceBox);
+        return make_shared<IceBoxHelper>(iceBox);
     }
     else
     {
-        return new ServerHelper(desc);
+        return make_shared<ServerHelper>(desc);
     }
 }
 

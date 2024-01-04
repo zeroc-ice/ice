@@ -80,8 +80,7 @@ Server::run(int argc, char** argv)
     }
 
     adapter = communicator->createObjectAdapter("Server");
-    Ice::ObjectPtr object = new TestI(properties);
-    adapter->add(object, Ice::stringToIdentity(name));
+    adapter->add(make_shared<TestI>(properties), Ice::stringToIdentity(name));
     try
     {
         adapter->activate();

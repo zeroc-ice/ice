@@ -17,11 +17,12 @@ namespace IceStorm
 // Forward declarations.
 //
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
 
-typedef IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
-        SubscriberMap;
-typedef IceDB::Dbi<std::string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream> LLUMap;
+using SubscriberMap = IceDB::Dbi<IceStorm::SubscriberRecordKey,
+                                 IceStorm::SubscriberRecord,
+                                 IceDB::IceContext,
+                                 Ice::OutputStream>;
+using LLUMap = IceDB::Dbi<std::string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream>;
 
 const std::string lluDbKey = "_manager";
 
@@ -34,10 +35,10 @@ std::string
 identityToTopicName(const Ice::Identity&);
 
 Ice::Identity
-nameToIdentity(const IceStorm::InstancePtr&, const std::string&);
+nameToIdentity(const std::shared_ptr<IceStorm::Instance>&, const std::string&);
 
 std::string
-describeEndpoints(const Ice::ObjectPrx&);
+describeEndpoints(const std::shared_ptr<Ice::ObjectPrx>&);
 
 int
 compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2);

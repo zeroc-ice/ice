@@ -32,24 +32,20 @@ IceStormInternal::identityToTopicName(const Ice::Identity& id)
 }
 
 Ice::Identity
-IceStormInternal::nameToIdentity(const InstancePtr& instance, const string& name)
+IceStormInternal::nameToIdentity(const shared_ptr<Instance>& instance, const string& name)
 {
-    // Identity is instanceName>/topic.<topicname>
-    Ice::Identity id;
-    id.category = instance->instanceName();
-    id.name = "topic." + name;
-
-    return id;
+    // Identity is <instanceName>/topic.<topicname>
+    return { "topic." + name, instance->instanceName() };
 }
 
 string
-IceStormInternal::describeEndpoints(const Ice::ObjectPrx& proxy)
+IceStormInternal::describeEndpoints(const shared_ptr<Ice::ObjectPrx>& proxy)
 {
     ostringstream os;
     if(proxy)
     {
         Ice::EndpointSeq endpoints = proxy->ice_getEndpoints();
-        for(Ice::EndpointSeq::const_iterator i = endpoints.begin(); i != endpoints.end(); ++i)
+        for(auto i = endpoints.cbegin(); i != endpoints.cend(); ++i)
         {
             if(i != endpoints.begin())
             {

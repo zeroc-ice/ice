@@ -19,7 +19,10 @@ namespace IcePatch2
 // allow the user to interact with the patching and report progress
 // on the patching.
 //
-class ICEPATCH2_API PatcherFeedback : public IceUtil::Shared
+class ICEPATCH2_API PatcherFeedback
+#ifndef ICE_CPP11_MAPPING
+    : public IceUtil::Shared
+#endif // !ICE_CPP11_MAPPING
 {
 public:
 
@@ -65,13 +68,19 @@ public:
     virtual bool patchProgress(Ice::Long, Ice::Long, Ice::Long, Ice::Long) = 0;
     virtual bool patchEnd() = 0;
 };
+#ifdef ICE_CPP11_MAPPING
+typedef std::shared_ptr<PatcherFeedback> PatcherFeedbackPtr;
+#else
 typedef IceUtil::Handle<PatcherFeedback> PatcherFeedbackPtr;
-
+#endif
 //
 // IcePatch2 clients instantiate the IcePatch2::Patcher class to patch
 // a given local data directory.
 //
-class ICEPATCH2_API Patcher : public IceUtil::Shared
+class ICEPATCH2_API Patcher
+#ifndef ICE_CPP11_MAPPING
+    : public IceUtil::Shared
+#endif
 {
 public:
 
@@ -106,13 +115,23 @@ public:
     //
     virtual void finish() = 0;
 };
+
+#ifdef ICE_CPP11_MAPPING
+typedef std::shared_ptr<Patcher> PatcherPtr;
+#else
 typedef IceUtil::Handle<Patcher> PatcherPtr;
+#endif // ICE_CPP11_MAPPING
+
+
 
 //
 // IcePatch2 clients instantiate the IcePatch2::Patcher class
 // using the patcher factory.
 //
-class ICEPATCH2_API PatcherFactory : public IceUtil::noncopyable
+class ICEPATCH2_API PatcherFactory 
+#ifndef ICE_CPP11_MAPPING
+    : public IceUtil::noncopyable
+#endif // !ICE_CPP11_MAPPING
 {
 public:
 
@@ -135,7 +154,7 @@ public:
     // Create a patcher with the given parameters. These parameters
     // are equivalent to the configuration properties described above.
     //
-    static PatcherPtr create(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
+    static PatcherPtr create(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
 };
 
 }

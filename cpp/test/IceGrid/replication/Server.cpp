@@ -8,19 +8,19 @@
 
 using namespace std;
 
-class Server : public Test::TestHelper
+class Server final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
 Server::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(new TestI(), Ice::stringToIdentity(communicator->getProperties()->getProperty("Identity")));
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
+    auto adapter = communicatorHolder->createObjectAdapter("TestAdapter");
+    adapter->add(make_shared<TestI>(), Ice::stringToIdentity(communicatorHolder->getProperties()->getProperty("Identity")));
     try
     {
         adapter->activate();
@@ -28,7 +28,7 @@ Server::run(int argc, char** argv)
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    communicator->waitForShutdown();
+    communicatorHolder->waitForShutdown();
 }
 
 DEFINE_TEST(Server)

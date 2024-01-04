@@ -8,26 +8,22 @@
 using namespace std;
 using namespace IceGrid;
 
-AllocationRequest::~AllocationRequest()
-{
-}
-
 bool
 AllocationRequest::pending()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(_state == Initial);
 
     if(_timeout == 0)
     {
         _state = Canceled;
-        canceled(AllocationTimeoutException());
+        canceled(make_exception_ptr(AllocationTimeoutException()));
         return false;
     }
-    else if(!_session->addAllocationRequest(this))
+    else if(!_session->addAllocationRequest(shared_from_this()))
     {
         _state = Canceled;
-        canceled(AllocationException("session destroyed"));
+        canceled(make_exception_ptr(AllocationException("session destroyed")));
         return false;
     }
 
@@ -35,7 +31,7 @@ AllocationRequest::pending()
     {
         try
         {
-            _session->getTimer()->schedule(this, IceUtil::Time::milliSeconds(_timeout));
+            _session->getTimer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(_timeout));
         }
         catch(const IceUtil::Exception&)
         {
@@ -47,9 +43,9 @@ AllocationRequest::pending()
 }
 
 bool
-AllocationRequest::allocate(const AllocatablePtr& /*allocatable*/, const SessionIPtr& session)
+AllocationRequest::allocate(const shared_ptr<Allocatable>&, const shared_ptr<SessionI>& session)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     switch(_state)
     {
     case Initial:
@@ -59,9 +55,9 @@ AllocationRequest::allocate(const AllocatablePtr& /*allocatable*/, const Session
     case Pending:
         if(_timeout > 0)
         {
-            _session->getTimer()->cancel(this);
+            _session->getTimer()->cancel(shared_from_this());
         }
-        _session->removeAllocationRequest(this);
+        _session->removeAllocationRequest(shared_from_this());
         break;
     case Allocated:
         assert(false);
@@ -74,7 +70,7 @@ AllocationRequest::allocate(const AllocatablePtr& /*allocatable*/, const Session
     if(_session == session)
     {
         _state = Canceled;
-        canceled(AllocationException("already allocated by the session"));
+        canceled(make_exception_ptr(AllocationException("already allocated by the session")));
         return false;
     }
     else
@@ -85,9 +81,9 @@ AllocationRequest::allocate(const AllocatablePtr& /*allocatable*/, const Session
 }
 
 void
-AllocationRequest::cancel(const Ice::UserException& ex)
+AllocationRequest::cancel(exception_ptr ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     switch(_state)
     {
     case Initial:
@@ -98,9 +94,9 @@ AllocationRequest::cancel(const Ice::UserException& ex)
     case Pending:
         if(_timeout > 0)
         {
-            _session->getTimer()->cancel(this);
+            _session->getTimer()->cancel(shared_from_this());
         }
-        _session->removeAllocationRequest(this);
+        _session->removeAllocationRequest(shared_from_this());
         break;
     }
 
@@ -111,7 +107,7 @@ AllocationRequest::cancel(const Ice::UserException& ex)
 void
 AllocationRequest::runTimerTask() // TimerTask::runTimerTask() method implementation
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     switch(_state)
     {
     case Initial:
@@ -120,18 +116,18 @@ AllocationRequest::runTimerTask() // TimerTask::runTimerTask() method implementa
     case Allocated:
         return;
     case Pending:
-        _session->removeAllocationRequest(this);
+        _session->removeAllocationRequest(shared_from_this());
         break;
     }
 
     _state = Canceled;
-    canceled(AllocationTimeoutException());
+    canceled(make_exception_ptr(AllocationTimeoutException()));
 }
 
 bool
 AllocationRequest::isCanceled() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _state == Canceled;
 }
 
@@ -141,35 +137,20 @@ AllocationRequest::operator<(const AllocationRequest& r) const
     return this < &r;
 }
 
-AllocationRequest::AllocationRequest(const SessionIPtr& session) :
+AllocationRequest::AllocationRequest(const shared_ptr<SessionI>& session) :
     _session(session),
     _timeout(_session->getAllocationTimeout()), // The session timeout can be updated so we need to cache it here.
     _state(Initial)
 {
 }
 
-Allocatable::Allocatable(bool allocatable, const AllocatablePtr& parent) :
+Allocatable::Allocatable(bool allocatable, const shared_ptr<Allocatable>& parent) :
     _allocatable(allocatable || (parent && parent->isAllocatable())),
+    _parent((parent && parent->isAllocatable()) ? parent : nullptr),
     _count(0),
     _releasing(false)
 {
-    //
-    // COMPILERFIX: the constructor initializaton:
-    //
-    //     _parent((parent && parent->isAllocatable()) ? parent : AllocatablePtr())
-    //
-    // doesn't work on HP-UX (aCC: HP ANSI C++ B3910B A.03.56). It
-    // results in a SEGFAULT at runtime.
-    //
-    if(parent && parent->isAllocatable())
-    {
-        const_cast<AllocatablePtr&>(_parent) = parent;
-    }
     assert(!_parent || _parent->isAllocatable()); // Parent is only set if it's allocatable.
-}
-
-Allocatable::~Allocatable()
-{
 }
 
 void
@@ -182,7 +163,7 @@ Allocatable::checkAllocatable()
 }
 
 bool
-Allocatable::allocate(const AllocationRequestPtr& request, bool fromRelease)
+Allocatable::allocate(const shared_ptr<AllocationRequest>& request, bool fromRelease)
 {
     try
     {
@@ -195,7 +176,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool fromRelease)
 }
 
 bool
-Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
+Allocatable::tryAllocate(const shared_ptr<AllocationRequest>& request, bool fromRelease)
 {
     try
     {
@@ -208,18 +189,15 @@ Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
 }
 
 void
-Allocatable::release(const SessionIPtr& session, bool fromRelease)
+Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
 {
     bool isReleased = false;
     bool hasRequests = false;
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         if(!fromRelease)
         {
-            while(_releasing)
-            {
-                wait();
-            }
+            _condVar.wait(lock, [this] { return !_releasing; });
             assert(!_releasing);
         }
 
@@ -260,17 +238,17 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
         {
             while(true)
             {
-                AllocationRequestPtr request;
-                AllocatablePtr allocatable;
+                shared_ptr<AllocationRequest> request;
+                shared_ptr<Allocatable> allocatable;
                 {
-                    Lock sync(*this);
+                    lock_guard lock(_mutex);
                     allocatable = dequeueAllocationAttempt(request);
                     if(!allocatable)
                     {
                         assert(_requests.empty());
                         assert(_count == 0);
                         _releasing = false;
-                        notifyAll();
+                        _condVar.notify_all();
                         return;
                     }
                 }
@@ -287,7 +265,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
                         while(true)
                         {
                             {
-                                Lock sync(*this);
+                                lock_guard lock(_mutex);
                                 assert(_count);
 
                                 allocatable = 0;
@@ -297,7 +275,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
                                 // Check if there's other requests from the session
                                 // waiting to allocate this allocatable.
                                 //
-                                list<pair<AllocatablePtr, AllocationRequestPtr> >::iterator p = _requests.begin();
+                                auto p = _requests.begin();
                                 while(p != _requests.end())
                                 {
                                     if(p->second && p->second->getSession() == _session)
@@ -312,7 +290,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
                                 if(!allocatable)
                                 {
                                     _releasing = false;
-                                    notifyAll();
+                                    _condVar.notify_all();
                                     return; // We're done, the allocatable was released (but is allocated again)!
                                 }
                             }
@@ -322,16 +300,16 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
                                 assert(allocatable && request);
                                 allocatable->allocate(request, true);
                             }
-                            catch(const Ice::UserException& ex)
+                            catch(const Ice::UserException&)
                             {
-                                request->cancel(ex);
+                                request->cancel(current_exception());
                             }
                         }
                     }
                 }
-                catch(const Ice::UserException& ex)
+                catch(const Ice::UserException&)
                 {
-                    request->cancel(ex);
+                    request->cancel(current_exception());
                 }
             }
         }
@@ -342,10 +320,10 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
     }
 }
 
-SessionIPtr
+shared_ptr<SessionI>
 Allocatable::getSession() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _session;
 }
 
@@ -356,8 +334,8 @@ Allocatable::operator<(const Allocatable& r) const
 }
 
 void
-Allocatable::queueAllocationAttempt(const AllocatablePtr& allocatable,
-                                    const AllocationRequestPtr& request,
+Allocatable::queueAllocationAttempt(const shared_ptr<Allocatable>& allocatable,
+                                    const shared_ptr<AllocationRequest>& request,
                                     bool tryAllocate)
 {
     assert(!_parent);
@@ -365,17 +343,17 @@ Allocatable::queueAllocationAttempt(const AllocatablePtr& allocatable,
     {
         if(request->pending())
         {
-            _requests.push_back(make_pair(allocatable, request));
+            _requests.push_back({ allocatable, request });
         }
     }
     else
     {
-        _requests.push_back(make_pair(allocatable, AllocationRequestPtr()));
+        _requests.push_back({ allocatable, nullptr });
     }
 }
 
 void
-Allocatable::queueAllocationAttemptFromChild(const AllocatablePtr& allocatable)
+Allocatable::queueAllocationAttemptFromChild(const shared_ptr<Allocatable>& allocatable)
 {
     if(_parent)
     {
@@ -383,19 +361,19 @@ Allocatable::queueAllocationAttemptFromChild(const AllocatablePtr& allocatable)
         return;
     }
 
-    Lock sync(*this);
-    _requests.push_back(make_pair(allocatable, AllocationRequestPtr()));
+    lock_guard lock(_mutex);
+    _requests.push_back({ allocatable, nullptr });
 }
 
-AllocatablePtr
-Allocatable::dequeueAllocationAttempt(AllocationRequestPtr& request)
+shared_ptr<Allocatable>
+Allocatable::dequeueAllocationAttempt(shared_ptr<AllocationRequest>& request)
 {
     if(_requests.empty())
     {
-        return 0;
+        return nullptr;
     }
 
-    pair<AllocatablePtr, AllocationRequestPtr> alloc = _requests.front();
+    auto alloc = _requests.front();
     _requests.pop_front();
     if(alloc.second)
     {
@@ -405,9 +383,9 @@ Allocatable::dequeueAllocationAttempt(AllocationRequestPtr& request)
 }
 
 bool
-Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, bool fromRelease)
+Allocatable::allocate(const shared_ptr<AllocationRequest>& request, bool tryAllocate, bool fromRelease)
 {
-    if(_parent && !_parent->allocateFromChild(request, this, tryAllocate, fromRelease))
+    if(_parent && !_parent->allocateFromChild(request, shared_from_this(), tryAllocate, fromRelease))
     {
         return false;
     }
@@ -416,12 +394,12 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
     int allocationCount = 0;
     try
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         checkAllocatable();
 
         if(!_session && (fromRelease || !_releasing))
         {
-            if(request->allocate(this, _session))
+            if(request->allocate(shared_from_this(), _session))
             {
                 try
                 {
@@ -429,12 +407,12 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
                 }
                 catch(const SessionDestroyedException&)
                 {
-                    request->canceled(AllocationException("session destroyed"));
+                    request->canceled(make_exception_ptr(AllocationException("session destroyed")));
                     throw;
                 }
                 assert(_count == 0);
                 _session = request->getSession();
-                request->allocated(this, request->getSession());
+                request->allocated(shared_from_this(), request->getSession());
                 ++_count;
                 allocationCount = _count;
             }
@@ -443,11 +421,11 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
         {
             if(!tryAllocate)
             {
-                if(request->allocate(this, _session))
+                if(request->allocate(shared_from_this(), _session))
                 {
                     assert(_count > 0);
                     ++_count;
-                    request->allocated(this, _session);
+                    request->allocated(shared_from_this(), _session);
                     allocationCount = _count;
                 }
             }
@@ -458,7 +436,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
         }
         else
         {
-            queueAllocationAttempt(this, request, tryAllocate);
+            queueAllocationAttempt(shared_from_this(), request, tryAllocate);
         }
     }
     catch(...)
@@ -478,7 +456,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
     {
         if(queueWithParent)
         {
-            _parent->queueAllocationAttemptFromChild(this);
+            _parent->queueAllocationAttemptFromChild(shared_from_this());
         }
         _parent->release(request->getSession(), fromRelease);
     }
@@ -486,8 +464,8 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 }
 
 bool
-Allocatable::allocateFromChild(const AllocationRequestPtr& request,
-                               const AllocatablePtr& child,
+Allocatable::allocateFromChild(const shared_ptr<AllocationRequest>& request,
+                               const shared_ptr<Allocatable>& child,
                                bool tryAllocate,
                                bool fromRelease)
 {
@@ -498,7 +476,7 @@ Allocatable::allocateFromChild(const AllocationRequestPtr& request,
 
     int allocationCount = 0;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if((!_session || _session == request->getSession()) && (fromRelease || !_releasing))
         {
             if(!_session)

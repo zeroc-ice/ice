@@ -4,37 +4,33 @@
 
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
+#include <TestHelper.h>
 
 using namespace std;
 
-class PermissionsVerifierI : public Glacier2::PermissionsVerifier
+class PermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
 
-    virtual bool
-    checkPermissions(const string&, const string&, string&, const Ice::Current&) const
+    bool
+        checkPermissions(string, string, string&, const Ice::Current&) const override
     {
         return true;
     }
 };
 
-class PermissionsVerifierServer : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[])
+    void run(int argc, char** argv) override
     {
-        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
-        adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("PermissionsVerifier"));
+        Ice::CommunicatorHolder communicator = initialize(argc, argv);
+        auto adapter = communicator->createObjectAdapter("PermissionsVerifier");
+        adapter->add(make_shared<PermissionsVerifierI>(), Ice::stringToIdentity("PermissionsVerifier"));
         adapter->activate();
-        communicator()->waitForShutdown();
-        return EXIT_SUCCESS;
+        communicator->waitForShutdown();
     }
 };
 
-int
-main(int argc, char* argv[])
-{
-    PermissionsVerifierServer app;
-    return app.main(argc, argv);
-}
+DEFINE_TEST(Server)
