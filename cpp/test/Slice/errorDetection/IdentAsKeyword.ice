@@ -78,16 +78,16 @@ interface i10 { void op(out double BYTE); }
 
 interface \true {}     // OK, escaped keyword
 
-interface _a;           // Illegal leading underscore
-interface _true;        // Illegal leading underscore
-interface \_true;       // Illegal leading underscore
+// interface _a;           // Illegal leading underscore
+// interface _true;        // Illegal leading underscore
+// interface \_true;       // Illegal leading underscore
 
-interface b_;           // Illegal trailing underscore
+// interface b_;           // Illegal trailing underscore
 
 interface b__c;         // Illegal underscores
 interface b___c;        // Illegal underscores
 
-interface a_b;          // Illegal underscore
-interface a_b_c;        // Illegal underscores
+// interface a_b;          // Illegal underscore
+// interface a_b_c;        // Illegal underscores
 
 }

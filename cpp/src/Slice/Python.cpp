@@ -472,8 +472,6 @@ Slice::Python::compile(const vector<string>& argv)
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("", "no-package");
     opts.addOpt("", "build-package");
@@ -533,10 +531,6 @@ Slice::Python::compile(const vector<string>& argv)
     string dependFile = opts.optArg("depend-file");
 
     bool debug = opts.isSet("debug");
-
-    bool ice = opts.isSet("ice");
-
-    bool underscore = opts.isSet("underscore");
 
     bool all = opts.isSet("all");
 
@@ -607,7 +601,7 @@ Slice::Python::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+            UnitPtr u = Unit::createUnit(false, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -654,7 +648,7 @@ Slice::Python::compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all, ice, underscore);
+                UnitPtr u = Unit::createUnit(false, all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())

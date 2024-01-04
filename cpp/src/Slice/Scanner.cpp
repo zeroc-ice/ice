@@ -3223,33 +3223,6 @@ int checkIdentifier(const string& id)
     {
         unit->error("illegal double underscore in identifier `" + name + "'");
     }
-    else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
-    {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
-        {
-            unit->error("illegal underscore in identifier `" + name + "'");
-        }
-    }
-
-    // Check the identifier for illegal ice prefixes
-    if(unit->currentIncludeLevel() == 0 && !unit->allowIcePrefix() && name.size() > 2)
-    {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no 'ice-prefix' metadata
-        {
-            string prefix3;
-            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-            if(prefix3 == "ice")
-            {
-                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-            }
-        }
-    }
 
     return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
 }

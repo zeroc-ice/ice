@@ -24,7 +24,6 @@ public:
         const std::string&,
         const std::string&,
         bool,
-        bool,
         bool);
     ~Gen();
 
@@ -67,7 +66,6 @@ private:
     std::string _dir;
     bool _implCpp98;
     bool _implCpp11;
-    bool _ice;
 
     class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {

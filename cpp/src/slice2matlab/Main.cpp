@@ -4732,7 +4732,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, false, false);
+            UnitPtr u = Unit::createUnit(false, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -4781,7 +4781,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all, false, false);
+                UnitPtr u = Unit::createUnit(false, all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())

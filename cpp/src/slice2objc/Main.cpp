@@ -71,10 +71,6 @@ usage(const string& n)
         "--include-dir DIR        Use DIR as the header include directory in source files.\n"
         "--dll-export SYMBOL      Use SYMBOL for DLL exports\n"
         "                         deprecated: use instead [[\"objc:dll-export:SYMBOL\"]] metadata.\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
-        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
-        "--underscore             Allow underscores in Slice identifiers\n"
-        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -97,8 +93,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
     opts.addOpt("", "case-sensitive");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
@@ -164,10 +158,6 @@ compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
-    bool ice = opts.isSet("ice");
-
-    bool underscore = opts.isSet("underscore");
-
     if(args.empty())
     {
         consoleErr << argv[0] << ": no input file" << endl;
@@ -216,7 +206,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+            UnitPtr u = Unit::createUnit(false, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -263,7 +253,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+                UnitPtr u = Unit::createUnit(false, false);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())
