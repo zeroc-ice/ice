@@ -19,7 +19,7 @@
       <parameter name="publish-replica-group"/>
       <parameter name="topic-manager-replica-group"/>
 
-      <icebox id="${instance-name}${node-id}" exe="icebox" activation="on-demand">
+      <icebox id="${instance-name}${node-id}" exe="${icebox.exe}" activation="on-demand">
         <service-instance template="IceStorm-HA"
                           instance-name="${instance-name}"
                           node-id="${node-id}"
