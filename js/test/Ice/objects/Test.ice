@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For classes with operations
-
 module Test
 {
 
@@ -18,11 +16,6 @@ class Base
 {
     S theS;
     string str;
-}
-
-class AbstractBase extends Base
-{
-    void op();
 }
 
 class B;
@@ -85,17 +78,6 @@ interface I
 interface J extends I
 {
     void doJ();
-}
-
-class H implements I
-{
-    void doH();
-    void doH2();
-}
-
-class N
-{
-    I i;
 }
 
 sequence<Base> BaseSeq;
@@ -233,10 +215,6 @@ interface Initial
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
-    I getH();
-    I getI();
-    I getJ();
-
     K getK();
 
     Value opValue(Value v1, out Value v2);
@@ -247,7 +225,6 @@ interface Initial
     void throwEDerived() throws EDerived;
 
     void setG(G theG);
-    void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
@@ -265,8 +242,6 @@ interface Initial
     F2* opF2(F2* f21, out F2* f22);
     F3 opF3(F3 f31, out F3 f32);
     bool hasF3();
-
-    N opN(N p1);
 }
 
 class Empty

@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]]
-
 module await
 {
 
@@ -46,7 +44,7 @@ class package
 {
     optional(1) break for;
     optional(2) var goto;
-    optional(3) explicit if;
+    optional(3) explicit* if;
     optional(5) while internal;
     optional(7) string debugger;
     optional(8) explicit* null;
@@ -55,27 +53,27 @@ class package
 interface optionalParams
 {
     optional(1) break for(optional(2) var goto,
-                          optional(3) explicit if,
+                          optional(3) explicit* if,
                           optional(5) while internal,
                           optional(7) string namespace,
                           optional(8) explicit* null);
 
     ["amd"]
     optional(1) break continue(optional(2) var goto,
-                               optional(3) explicit if,
+                               optional(3) explicit* if,
                                optional(5) while internal,
                                optional(7) string namespace,
                                optional(8) explicit* null);
 
     optional(1) break in(out optional(2) var goto,
-                         out optional(3) explicit if,
+                         out optional(3) explicit* if,
                          out optional(5) while internal,
                          out optional(7) string namespace,
                          out optional(8) explicit* null);
 
     ["amd"]
     optional(1) break foreach(out optional(2) var goto,
-                              out optional(3) explicit if,
+                              out optional(3) explicit* if,
                               out optional(5) while internal,
                               out optional(7) string namespace,
                               out optional(8) explicit* null);
@@ -113,7 +111,7 @@ exception BaseMethods
 
 interface implicit
 {
-    var in(break internal, delete is, explicit lock, case* namespace, typeof* new, delete null,
+    var in(break internal, delete is, explicit* lock, case* namespace, typeof* new, delete null,
           explicit* operator, int override, int params, int private)
         throws fixed, foreach;
 }
