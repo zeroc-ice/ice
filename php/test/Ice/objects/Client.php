@@ -18,7 +18,6 @@ if($NS)
         abstract class Test_E extends Test\E {}
         abstract class Test_F extends Test\F {}
         class Test_G extends Test\G {}
-        class Test_H extends Test\H {}
         class Test_Recursive extends Test\Recursive {}
         class Ice_Value extends Ice\Value {}
         class Ice_InterfaceByValue extends Ice\InterfaceByValue {}
@@ -27,7 +26,6 @@ if($NS)
         class Test_L extends Test\L {}
         class Test_F1 extends Test\F1 {}
         class Test_F3 extends Test\F3 {}
-        class Test_N extends Test\N {}
 EOT;
     eval($code);
 }
@@ -115,10 +113,6 @@ class JI extends Ice_InterfaceByValue
     }
 }
 
-class HI extends Test_H
-{
-}
-
 class MyValueFactory implements Ice_ValueFactory
 {
     function create($id)
@@ -150,10 +144,6 @@ class MyValueFactory implements Ice_ValueFactory
         else if($id == "::Test::J")
         {
             return new JI();
-        }
-        else if($id == "::Test::H")
-        {
-            return new HI();
         }
         return null;
     }
@@ -335,16 +325,6 @@ function allTests($helper)
     test($prop->isPublic());
     echo "ok\n";
 
-    echo "getting I, J and H... ";
-    flush();
-    $i = $initial->getI();
-    test($i != null);
-    $j = $initial->getJ();
-    test($j != null and $j instanceof JI);
-    $h = $initial->getH();
-    test($h != null and $h instanceof HI);
-    echo "ok\n";
-
     echo "getting K... ";
     flush();
     $k = $initial->getK();
@@ -421,13 +401,6 @@ function allTests($helper)
             throw $ex;
         }
     }
-    echo "ok\n";
-
-    echo "setting I... ";
-    flush();
-    $initial->setI($i);
-    $initial->setI($j);
-    $initial->setI($h);
     echo "ok\n";
 
     echo "testing sequences... ";
@@ -613,12 +586,6 @@ function allTests($helper)
     }
     echo "ok\n";
 
-    echo "testing class with interface by value member... ";
-    $i = $initial->getI();
-    $n = new Test_N($i);
-    $n = $initial->opN($n);
-    echo "ok";
-
     return $initial;
 }
 
@@ -637,7 +604,6 @@ class Client extends TestHelper
             $communicator->getValueFactoryManager()->add($factory, "::Test::F");
             $communicator->getValueFactoryManager()->add($factory, "::Test::I");
             $communicator->getValueFactoryManager()->add($factory, "::Test::J");
-            $communicator->getValueFactoryManager()->add($factory, "::Test::H");
             $communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
             $initial = allTests($this);
             $initial->shutdown();

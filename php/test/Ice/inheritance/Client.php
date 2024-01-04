@@ -22,20 +22,6 @@ function allTests($helper)
     test($initial == $base);
     echo "ok\n";
 
-    echo "getting proxies for class hierarchy... ";
-    flush();
-    $ca = $initial->caop();
-    $cb = $initial->cbop();
-    $cc = $initial->ccop();
-    $cd = $initial->cdop();
-    test($ca != $cb);
-    test($ca != $cc);
-    test($ca != $cd);
-    test($cb != $cc);
-    test($cb != $cd);
-    test($cc != $cd);
-    echo "ok\n";
-
     echo "getting proxies for interface hierarchy... ";
     flush();
     $ia = $initial->iaop();
@@ -49,54 +35,7 @@ function allTests($helper)
     test($ib2 != $ic);
     echo "ok\n";
 
-    echo "invoking proxy operations on class hierarchy... ";
-    flush();
-
-    $cao = $ca->caop($ca);
-    test($cao == $ca);
-    $cao = $ca->caop($cb);
-    test($cao == $cb);
-    $cao = $ca->caop($cc);
-    test($cao == $cc);
-    $cao = $cb->caop($ca);
-    test($cao == $ca);
-    $cao = $cb->caop($cb);
-    test($cao == $cb);
-    $cao = $cb->caop($cc);
-    test($cao == $cc);
-    $cao = $cc->caop($ca);
-    test($cao == $ca);
-    $cao = $cc->caop($cb);
-    test($cao == $cb);
-    $cao = $cc->caop($cc);
-    test($cao == $cc);
-
-    $cao = $cb->cbop($cb);
-    test($cao == $cb);
-    $cbo = $cb->cbop($cb);
-    test($cbo == $cb);
-    $cao = $cb->cbop($cc);
-    test($cao == $cc);
-    $cbo = $cb->cbop($cc);
-    test($cbo == $cc);
-    $cao = $cc->cbop($cb);
-    test($cao == $cb);
-    $cbo = $cc->cbop($cb);
-    test($cbo == $cb);
-    $cao = $cc->cbop($cc);
-    test($cao == $cc);
-    $cbo = $cc->cbop($cc);
-    test($cbo == $cc);
-
-    $cao = $cc->ccop($cc);
-    test($cao == $cc);
-    $cbo = $cc->ccop($cc);
-    test($cbo == $cc);
-    $cco = $cc->ccop($cc);
-    test($cco == $cc);
-    echo "ok\n";
-
-    echo "ditto, but for interface hierarchy... ";
+    echo "invoking proxy operations on interface hierarchy... ";
     flush();
 
     $iao = $ia->iaop($ia);
@@ -174,39 +113,6 @@ function allTests($helper)
     test($ib2o == $ic);
     $ico = $ic->icop($ic);
     test($ico == $ic);
-
-    echo "ok\n";
-
-    echo "ditto, but for class implementing interfaces... ";
-    flush();
-
-    $cao = $cd->caop($cd);
-    test($cao == $cd);
-    $cbo = $cd->cbop($cd);
-    test($cbo == $cd);
-    $cco = $cd->ccop($cd);
-    test($cco == $cd);
-
-    $iao = $cd->iaop($cd);
-    test($iao == $cd);
-    $ib1o = $cd->ib1op($cd);
-    test($ib1o == $cd);
-    $ib2o = $cd->ib2op($cd);
-    test($ib2o == $cd);
-
-    $cao = $cd->cdop($cd);
-    test($cao == $cd);
-    $cbo = $cd->cdop($cd);
-    test($cbo == $cd);
-    $cco = $cd->cdop($cd);
-    test($cco == $cd);
-
-    $iao = $cd->cdop($cd);
-    test($iao == $cd);
-    $ib1o = $cd->cdop($cd);
-    test($ib1o == $cd);
-    $ib2o = $cd->cdop($cd);
-    test($ib2o == $cd);
 
     echo "ok\n";
 

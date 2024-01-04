@@ -1058,11 +1058,6 @@ function twoways($communicator, $p, $bprx)
         $p3 = $p->opMDict2($p1, $p2);
         test($p3["test"] == "test" && $p2["test"] == "test");
     }
-
-    {
-        $bprx->opB();
-        $bprx->opIntf();
-    }
 }
 
 function allTests($helper)

@@ -66,8 +66,8 @@ module and
 
     interface for
     {
-        array foreach(break if, echo global, enddeclare require, function* include,
-                      die* return, echo* isset, enddeclare* list, int new, int static) throws endif, endwhile;
+        array foreach(break* if, echo global, function* include,
+                      die* return, enddeclare* list, int new, int static) throws endif, endwhile;
     }
 
     const int or = 0;

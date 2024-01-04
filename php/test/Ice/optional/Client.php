@@ -47,7 +47,6 @@ function allTests($helper)
     test($mo1->g == $none);
     test($mo1->h == $none);
     test($mo1->i == $none);
-    test($mo1->j == $none);
     test($mo1->k == $none);
     test($mo1->bs == $none);
     test($mo1->ss == $none);
@@ -61,13 +60,11 @@ function allTests($helper)
     test($mo1->fss == $none);
     test($mo1->vss == $none);
     test($mo1->oos == $none);
-    test($mo1->oops == $none);
 
     test($mo1->ied == $none);
     test($mo1->ifsd == $none);
     test($mo1->ivsd == $none);
     test($mo1->iood == $none);
-    test($mo1->ioopd == $none);
 
     test($mo1->bos == $none);
 
@@ -81,10 +78,10 @@ function allTests($helper)
     $oo15 = new $oocls(15);
     $mocls = $NS ? "Test\\MultiOptional" : "Test_MultiOptional";
     $mo1 = new $mocls(15, true, 19, 78, 99, 5.5, 1.0, 'test', $enum,
-                      $prx, null, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
+                      null, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
                       $fs, $vs, array(1), array($enum, $enum), array($fs), array($vs), array($oo1),
-                      array($prx), array(4=>$enum), array(4=>$fs), array(5=>$vs),
-                      array(5=>$oo15), array(5=>$prx), array(false, true, false));
+                      array(4=>$enum), array(4=>$fs), array(5=>$vs),
+                      array(5=>$oo15), array(false, true, false));
 
     test($mo1->a == 15);
     test($mo1->b == true);
@@ -95,7 +92,6 @@ function allTests($helper)
     test($mo1->g == 1.0);
     test($mo1->h == "test");
     test($mo1->i == $enum);
-    test($mo1->j == $prx);
     test($mo1->k == null);
     test($mo1->bs == array(5));
     test($mo1->ss == array("test", "test2"));
@@ -109,13 +105,11 @@ function allTests($helper)
     test($mo1->fss[0] == $fs);
     test($mo1->vss[0] == $vs);
     test($mo1->oos[0] == $oo1);
-    test($mo1->oops[0] == $prx);
 
     test($mo1->ied[4] == $enum);
     test($mo1->ifsd[4] == $fs);
     test($mo1->ivsd[5] == $vs);
     test($mo1->iood[5]->a == 15);
-    test($mo1->ioopd[5] == $prx);
 
     test($mo1->bos == array(false, true, false));
 
@@ -148,7 +142,6 @@ function allTests($helper)
     test($mo4->g == $none);
     test($mo4->h == $none);
     test($mo4->i == $none);
-    test($mo4->j == $none);
     test($mo4->k == $none);
     test($mo4->bs == $none);
     test($mo4->ss == $none);
@@ -162,13 +155,11 @@ function allTests($helper)
     test($mo4->fss == $none);
     test($mo4->vss == $none);
     test($mo4->oos == $none);
-    test($mo4->oops == $none);
 
     test($mo4->ied == $none);
     test($mo4->ifsd == $none);
     test($mo4->ivsd == $none);
     test($mo4->iood == $none);
-    test($mo4->ioopd == $none);
 
     test($mo4->bos == $none);
 
@@ -182,7 +173,6 @@ function allTests($helper)
     test($mo5->g == $mo1->g);
     test($mo5->h == $mo1->h);
     test($mo5->i == $mo1->i);
-    test($mo5->j == $mo1->j);
     //
     // With Swift mapping you cannot distinguish null from unset
     // so we test for both here to support cross testing.
@@ -199,13 +189,11 @@ function allTests($helper)
     test($mo5->fss[0] == $fs);
     test($mo5->vss[0] == $vs);
     test($mo5->oos[0]->a == 15);
-    test($mo5->oops[0] == $prx);
 
     test($mo5->ied[4] == $enum);
     test($mo5->ifsd[4] == $fs);
     test($mo5->ivsd[5] == $vs);
     test($mo5->iood[5]->a == 15);
-    test($mo5->ioopd[5] == $prx);
 
     test($mo5->bos == $mo1->bos);
 
@@ -215,7 +203,6 @@ function allTests($helper)
     $mo6->d = $mo5->d;
     $mo6->f = $mo5->f;
     $mo6->h = $mo5->h;
-    $mo6->j = $mo5->j;
     $mo6->bs = $mo5->bs;
     $mo6->iid = $mo5->iid;
     $mo6->fs = $mo5->fs;
@@ -236,7 +223,6 @@ function allTests($helper)
     test($mo7->g == $none);
     test($mo7->h == $mo1->h);
     test($mo7->i == $none);
-    test($mo7->j == $mo1->j);
     test($mo7->k == $none);
     test($mo7->bs[0] == 5);
     test($mo7->ss == $none);
@@ -250,13 +236,11 @@ function allTests($helper)
     test($mo7->fss[0] == $fs);
     test($mo7->vss == $none);
     test($mo7->oos[0]->a == 15);
-    test($mo7->oops == $none);
 
     test($mo7->ied == $none);
     test($mo7->ifsd[4] == $fs);
     test($mo7->ivsd == $none);
     test($mo7->iood[5]->a == 15);
-    test($mo7->ioopd == $none);
 
     test($mo7->bos == array(false, true, false));
 
@@ -274,11 +258,9 @@ function allTests($helper)
 
     $mo8->es = $mo5->es;
     $mo8->vss = $mo5->vss;
-    $mo8->oops = $mo5->oops;
 
     $mo8->ied = $mo5->ied;
     $mo8->ivsd = $mo5->ivsd;
-    $mo8->ioopd = $mo5->ioopd;
 
     $mo9 = $initial->pingPong($mo8);
     test($mo9->a == $mo1->a);
@@ -290,7 +272,6 @@ function allTests($helper)
     test($mo9->g == $mo1->g);
     test($mo9->h == $none);
     test($mo9->i == $mo1->i);
-    test($mo9->j == $none);
     test($mo9->k == $mo9);
     test($mo9->bs == $none);
     test($mo9->ss == $mo1->ss);
@@ -304,13 +285,11 @@ function allTests($helper)
     test($mo9->fss == $none);
     test($mo9->vss[0] == $vs);
     test($mo9->oos == $none);
-    test($mo9->oops[0] == $prx);
 
     test($mo9->ied[4] == $enum);
     test($mo9->ifsd == $none);
     test($mo9->ivsd[5] == $vs);
     test($mo9->iood == $none);
-    test($mo9->ioopd[5] == $prx);
 
     test($mo9->bos == $none);
 
@@ -549,11 +528,6 @@ function allTests($helper)
     $p1 = new $oocls(58);
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == $p1->a && $p3->a == $p1->a);
-
-    $p3 = $initial->opOneOptionalProxy($none, $p2);
-    test($p2 == $none && $p3 == $none);
-    $p3 = $initial->opOneOptionalProxy($prx, $p2);
-    test($p2 == $prx && $p3 == $prx);
 
     $p3 = $initial->opByteSeq($none, $p2);
     test($p2 == $none && $p3 == $none);
