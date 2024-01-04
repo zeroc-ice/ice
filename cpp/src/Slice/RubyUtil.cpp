@@ -51,6 +51,8 @@ public:
     virtual void visitModuleEnd(const ModulePtr&);
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
+    virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
+    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
     virtual bool visitExceptionStart(const ExceptionPtr&);
     virtual bool visitStructStart(const StructPtr&);
     virtual void visitSequence(const SequencePtr&);
@@ -188,6 +190,24 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
         _out.inc();
         _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
+        _out.dec();
+        _out << nl << "end";
+        _classHistory.insert(scoped); // Avoid redundant declarations.
+    }
+}
+
+void
+Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
+{
+    //
+    // Emit forward declarations.
+    //
+    string scoped = p->scoped();
+    if(_classHistory.count(scoped) == 0)
+    {
+        string name = "T_" + fixIdent(p->name(), IdentToUpper);
+        _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
+        _out.inc();
         _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
         _out.dec();
         _out << nl << "end";
@@ -198,9 +218,6 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    bool isInterface = p->isInterface();
-    bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
-
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "_Mixin)";
     _out.inc();
 
@@ -213,199 +230,117 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
-    ClassList bases = p->bases();
-    ClassDefPtr base;
-    OperationList ops = p->operations();
-
+    ClassDefPtr base = p->base();
     DataMemberList members = p->dataMembers();
 
-    if(!isInterface)
+    _out << nl << "class " << name;
+    if(base)
     {
-        if(!bases.empty() && !bases.front()->isInterface())
-        {
-            base = bases.front();
-        }
+        _out << " < " << getAbsolute(base, IdentToUpper);
+    }
+    else
+    {
+        _out << " < ::Ice::Value";
+    }
+    _out.inc();
 
-        _out << nl << "class " << name;
-        if(base)
-        {
-            _out << " < " << getAbsolute(base, IdentToUpper);
-        }
-        else
-        {
-            _out << " < ::Ice::Value";
-        }
+    //
+    // initialize
+    //
+    MemberInfoList allMembers;
+    collectClassMembers(p, allMembers, false);
+    if(!allMembers.empty())
+    {
+        _out << sp << nl << "def initialize(";
+        writeConstructorParams(allMembers);
+        _out << ')';
         _out.inc();
 
-        //
-        // initialize
-        //
-        MemberInfoList allMembers;
-        collectClassMembers(p, allMembers, false);
-        if(!allMembers.empty())
+        bool inheritsMembers = false;
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            _out << sp << nl << "def initialize(";
-            writeConstructorParams(allMembers);
-            _out << ')';
-            _out.inc();
+            if(q->inherited)
+            {
+                inheritsMembers = true;
+                break;
+            }
+        }
 
-            bool inheritsMembers = false;
+        if(inheritsMembers)
+        {
+            _out << nl << "super" << spar;
             for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 if(q->inherited)
                 {
-                    inheritsMembers = true;
-                    break;
+                    _out << q->lowerName;
                 }
             }
-
-            if(inheritsMembers)
-            {
-                _out << nl << "super" << spar;
-                for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-                {
-                    if(q->inherited)
-                    {
-                        _out << q->lowerName;
-                    }
-                }
-                _out << epar;
-            }
-
-            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-            {
-                if(!q->inherited)
-                {
-                    _out << nl << '@' << q->fixedName << " = " << q->lowerName;
-                }
-            }
-
-            _out.dec();
-            _out << nl << "end";
+            _out << epar;
         }
 
-        //
-        // read/write accessors for data members.
-        //
-        if(!members.empty())
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            bool prot = p->hasMetaData("protected");
-            DataMemberList protectedMembers;
-
-            _out << sp << nl << "attr_accessor ";
-            for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+            if(!q->inherited)
             {
-                if(q != members.begin())
+                _out << nl << '@' << q->fixedName << " = " << q->lowerName;
+            }
+        }
+
+        _out.dec();
+        _out << nl << "end";
+    }
+
+    //
+    // read/write accessors for data members.
+    //
+    if(!members.empty())
+    {
+        bool prot = p->hasMetaData("protected");
+        DataMemberList protectedMembers;
+
+        _out << sp << nl << "attr_accessor ";
+        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        {
+            if(q != members.begin())
+            {
+                _out << ", ";
+            }
+            _out << ":" << fixIdent((*q)->name(), IdentNormal);
+            if(prot || (*q)->hasMetaData("protected"))
+            {
+                protectedMembers.push_back(*q);
+            }
+        }
+
+        if(!protectedMembers.empty())
+        {
+            _out << nl << "protected ";
+            for(DataMemberList::iterator q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
+            {
+                if(q != protectedMembers.begin())
                 {
                     _out << ", ";
                 }
-                _out << ":" << fixIdent((*q)->name(), IdentNormal);
-                if(prot || (*q)->hasMetaData("protected"))
-                {
-                    protectedMembers.push_back(*q);
-                }
-            }
-
-            if(!protectedMembers.empty())
-            {
-                _out << nl << "protected ";
-                for(DataMemberList::iterator q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
-                {
-                    if(q != protectedMembers.begin())
-                    {
-                        _out << ", ";
-                    }
-                    //
-                    // We need to list the symbols of the reader and the writer (e.g., ":member" and ":member=").
-                    //
-                    _out << ":" << fixIdent((*q)->name(), IdentNormal) << ", :"
-                        << fixIdent((*q)->name(), IdentNormal) << '=';
-                }
+                //
+                // We need to list the symbols of the reader and the writer (e.g., ":member" and ":member=").
+                //
+                _out << ":" << fixIdent((*q)->name(), IdentNormal) << ", :" << fixIdent((*q)->name(), IdentNormal)
+                     << '=';
             }
         }
-
-        _out.dec();
-        _out << nl << "end"; // End of class.
     }
 
-    //
-    // Generate proxy support. This includes a mix-in module for the proxy's
-    // operations and a class for the proxy itself.
-    //
-    if(isAbstract)
-    {
-        _out << nl << "module " << name << "Prx_mixin";
-        _out.inc();
-        for(ClassList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
-        {
-            ClassDefPtr def = *cli;
-            if(def->isInterface() || def->allOperations().size() > 0)
-            {
-                _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
-            }
-        }
-        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
-        {
-            string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
-            if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
-            {
-                fixedOpName.insert(0, "_");
-            }
-            TypePtr ret = (*oli)->returnType();
-            ParamDeclList paramList = (*oli)->parameters();
-            string inParams;
-
-            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if(!(*q)->isOutParam())
-                {
-                    if(!inParams.empty())
-                    {
-                        inParams.append(", ");
-                    }
-                    inParams.append(fixIdent((*q)->name(), IdentToLower));
-                }
-            }
-
-            _out << sp << nl << "def " << fixedOpName << "(";
-            if(!inParams.empty())
-            {
-                _out << inParams << ", ";
-            }
-            const string contextParamName = getEscapedParamName(*oli, "context");
-            _out << contextParamName << "=nil)";
-            _out.inc();
-            _out << nl << name << "Prx_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
-            _out << "], " << contextParamName << ")";
-            _out.dec();
-            _out << nl << "end";
-        }
-        _out.dec();
-        _out << nl << "end"; // End of mix-in module for proxy.
-
-        _out << sp << nl << "class " << name << "Prx < ::Ice::ObjectPrx";
-        _out.inc();
-        _out << nl << "include ::Ice::Proxy_mixin";
-        _out << nl << "include " << name << "Prx_mixin";
-        _out.dec();
-        _out << nl << "end"; // End of proxy class.
-    }
+    _out.dec();
+    _out << nl << "end"; // End of class.
 
     //
     // Emit type descriptions.
     //
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
-    if(isInterface)
-    {
-        _out << "Prx";
-    }
     _out << ')';
     _out.inc();
     _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-    if(isAbstract)
-    {
-        _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
-    }
     _out.dec();
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
@@ -413,10 +348,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
 
     _out << sp << nl << "T_" << name << ".defineClass("
-         << (isInterface ? "::Ice::Value" : name) << ", "
+         << name << ", "
          << p->compactId() << ", "
-         << (preserved ? "true" : "false") << ", "
-         << (isInterface ? "true" : "false") << ", ";
+         << (preserved ? "true" : "false") << ", false, ";
     if(!base)
     {
         _out << "nil";
@@ -461,6 +395,101 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << "])";
 
+    _out.dec();
+    _out << nl << "end"; // if not defined?()
+
+    return false;
+}
+
+bool
+Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "_Mixin)";
+    _out.inc();
+
+    //
+    // Marker to avoid redefinitions, we don't use the actual class names at those might
+    // be defined by IceRuby for some internal classes
+    //
+    _out << sp << nl << "module " << getAbsolute(p, IdentToUpper) << "_Mixin";
+    _out << nl << "end";
+
+    string scoped = p->scoped();
+    string name = fixIdent(p->name(), IdentToUpper);
+    InterfaceList bases = p->bases();
+    OperationList ops = p->operations();
+
+    //
+    // Generate proxy support. This includes a mix-in module for the proxy's
+    // operations and a class for the proxy itself.
+    //
+
+    _out << nl << "module " << name << "Prx_mixin";
+    _out.inc();
+    for(InterfaceList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
+    {
+        InterfaceDefPtr def = *cli;
+        _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
+    }
+    for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+    {
+        string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
+        if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
+        {
+            fixedOpName.insert(0, "_");
+        }
+        TypePtr ret = (*oli)->returnType();
+        ParamDeclList paramList = (*oli)->parameters();
+        string inParams;
+
+        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        {
+            if(!(*q)->isOutParam())
+            {
+                if(!inParams.empty())
+                {
+                    inParams.append(", ");
+                }
+                inParams.append(fixIdent((*q)->name(), IdentToLower));
+            }
+        }
+
+        _out << sp << nl << "def " << fixedOpName << "(";
+        if(!inParams.empty())
+        {
+            _out << inParams << ", ";
+        }
+        const string contextParamName = getEscapedParamName(*oli, "context");
+        _out << contextParamName << "=nil)";
+        _out.inc();
+        _out << nl << name << "Prx_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
+        _out << "], " << contextParamName << ")";
+        _out.dec();
+        _out << nl << "end";
+    }
+    _out.dec();
+    _out << nl << "end"; // End of mix-in module for proxy.
+
+    _out << sp << nl << "class " << name << "Prx < ::Ice::ObjectPrx";
+    _out.inc();
+    _out << nl << "include ::Ice::Proxy_mixin";
+    _out << nl << "include " << name << "Prx_mixin";
+    _out.dec();
+    _out << nl << "end"; // End of proxy class.
+
+    //
+    // Emit type descriptions.
+    //
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
+    _out << "Prx";
+    _out << ')';
+    _out.inc();
+    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
+    _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
+    _out.dec();
+    _out << nl << "end";
+    _classHistory.insert(scoped); // Avoid redundant declarations.
+
     //
     // Define each operation. The arguments to __defineOperation are:
     //
@@ -469,52 +498,39 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
     //
-    if(isAbstract)
+    _out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, ";
+    _out << "nil";
+
+    //
+    // Interfaces
+    //
+    _out << ", [";
     {
-        _out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, ";
-
-        if(!base || (!base->isInterface() && base->allOperations().size() == 0))
+        int interfaceCount = 0;
+        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            _out << "nil";
-        }
-        else
-        {
-            _out << getAbsolute(base, IdentToUpper, "T_") << "Prx";
-        }
-
-        //
-        // Interfaces
-        //
-        _out << ", [";
-        {
-            int interfaceCount = 0;
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+            if(interfaceCount > 0)
             {
-                if((*q)->isInterface())
-                {
-                    if(interfaceCount > 0)
-                    {
-                        _out << ", ";
-                    }
-                    _out << getAbsolute(*q, IdentToUpper, "T_") << "Prx";
-                    ++interfaceCount;
-                }
+                _out << ", ";
             }
+            _out << getAbsolute(*q, IdentToUpper, "T_") << "Prx";
+            ++interfaceCount;
         }
-        _out << "])";
+    }
+    _out << "])";
 
-        if(!ops.empty())
+    if(!ops.empty())
+    {
+        _out << sp;
+    }
+    for(OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
+    {
+        ParamDeclList params = (*s)->parameters();
+        ParamDeclList::iterator t;
+        int count;
+        string format;
+        switch((*s)->format())
         {
-            _out << sp;
-        }
-        for(OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
-        {
-            ParamDeclList params = (*s)->parameters();
-            ParamDeclList::iterator t;
-            int count;
-            string format;
-            switch((*s)->format())
-            {
             case DefaultFormat:
                 format = "nil";
                 break;
@@ -524,12 +540,12 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             case SlicedFormat:
                 format = "::Ice::FormatType::SlicedFormat";
                 break;
-            }
+        }
 
-            _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('"
-                 << (*s)->name() << "', ";
-            switch((*s)->mode())
-            {
+        _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('" << (*s)->name()
+             << "', ";
+        switch((*s)->mode())
+        {
             case Operation::Normal:
                 _out << "::Ice::OperationMode::Normal";
                 break;
@@ -539,10 +555,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             case Operation::Idempotent:
                 _out << "::Ice::OperationMode::Idempotent";
                 break;
-            }
-            _out << ", ";
-            switch((*s)->sendMode())
-            {
+        }
+        _out << ", ";
+        switch((*s)->sendMode())
+        {
             case Operation::Normal:
                 _out << "::Ice::OperationMode::Normal";
                 break;
@@ -552,81 +568,80 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             case Operation::Idempotent:
                 _out << "::Ice::OperationMode::Idempotent";
                 break;
-            }
-            _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", " << format
-                 << ", [";
-            for(t = params.begin(), count = 0; t != params.end(); ++t)
+        }
+        _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", " << format
+             << ", [";
+        for(t = params.begin(), count = 0; t != params.end(); ++t)
+        {
+            if(!(*t)->isOutParam())
             {
-                if(!(*t)->isOutParam())
-                {
-                    if(count > 0)
-                    {
-                        _out << ", ";
-                    }
-                    _out << '[';
-                    writeType((*t)->type());
-                    _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
-                         << ((*t)->optional() ? (*t)->tag() : 0) << ']';
-                    ++count;
-                }
-            }
-            _out << "], [";
-            for(t = params.begin(), count = 0; t != params.end(); ++t)
-            {
-                if((*t)->isOutParam())
-                {
-                    if(count > 0)
-                    {
-                        _out << ", ";
-                    }
-                    _out << '[';
-                    writeType((*t)->type());
-                    _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
-                         << ((*t)->optional() ? (*t)->tag() : 0) << ']';
-                    ++count;
-                }
-            }
-            _out << "], ";
-            TypePtr returnType = (*s)->returnType();
-            if(returnType)
-            {
-                //
-                // The return type has the same format as an in/out parameter:
-                //
-                // Type, Optional?, OptionalTag
-                //
-                _out << '[';
-                writeType(returnType);
-                _out << ", " << ((*s)->returnIsOptional() ? "true" : "false") << ", "
-                     << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ']';
-            }
-            else
-            {
-                _out << "nil";
-            }
-            _out << ", [";
-            ExceptionList exceptions = (*s)->throws();
-            for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
-            {
-                if(u != exceptions.begin())
+                if(count > 0)
                 {
                     _out << ", ";
                 }
-                _out << getAbsolute(*u, IdentToUpper, "T_");
+                _out << '[';
+                writeType((*t)->type());
+                _out << ", " << ((*t)->optional() ? "true" : "false") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
+                     << ']';
+                ++count;
             }
-            _out << "])";
-
-            string deprecateMetadata;
-            if((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
+        }
+        _out << "], [";
+        for(t = params.begin(), count = 0; t != params.end(); ++t)
+        {
+            if((*t)->isOutParam())
             {
-                string msg;
-                string::size_type pos = deprecateMetadata.find(':');
-                if(pos != string::npos && pos < deprecateMetadata.size() - 1)
+                if(count > 0)
                 {
-                    msg = deprecateMetadata.substr(pos + 1);
+                    _out << ", ";
                 }
-                _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
+                _out << '[';
+                writeType((*t)->type());
+                _out << ", " << ((*t)->optional() ? "true" : "false") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
+                     << ']';
+                ++count;
             }
+        }
+        _out << "], ";
+        TypePtr returnType = (*s)->returnType();
+        if(returnType)
+        {
+            //
+            // The return type has the same format as an in/out parameter:
+            //
+            // Type, Optional?, OptionalTag
+            //
+            _out << '[';
+            writeType(returnType);
+            _out << ", " << ((*s)->returnIsOptional() ? "true" : "false") << ", "
+                 << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ']';
+        }
+        else
+        {
+            _out << "nil";
+        }
+        _out << ", [";
+        ExceptionList exceptions = (*s)->throws();
+        for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+        {
+            if(u != exceptions.begin())
+            {
+                _out << ", ";
+            }
+            _out << getAbsolute(*u, IdentToUpper, "T_");
+        }
+        _out << "])";
+
+        string deprecateMetadata;
+        if((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
+        {
+            string msg;
+            string::size_type pos = deprecateMetadata.find(':');
+            if(pos != string::npos && pos < deprecateMetadata.size() - 1)
+            {
+                msg = deprecateMetadata.substr(pos + 1);
+            }
+            _out << nl << name << "Prx_mixin::OP_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
         }
     }
 
@@ -1156,18 +1171,10 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(p);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(p);
     if(prx)
     {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            _out << getAbsolute(prx->_class(), IdentToUpper, "T_") << "Prx";
-        }
-        else
-        {
-            _out << "::Ice::T_ObjectPrx";
-        }
+        _out << getAbsolute(prx, IdentToUpper, "T_") << "Prx";
         return;
     }
 
@@ -1326,10 +1333,10 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 void
 Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
 {
-    ClassList bases = p->bases();
-    if(!bases.empty() && !bases.front()->isInterface())
+    ClassDefPtr base = p->base();
+    if (base)
     {
-        collectClassMembers(bases.front(), allMembers, true);
+        collectClassMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();

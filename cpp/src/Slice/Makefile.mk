@@ -7,8 +7,6 @@ $(project)_libraries    := Slice
 Slice_targetdir         := $(libdir)
 Slice_libs              := mcpp
 Slice_cppflags          := -std=c++17
-Slice_excludes          = $(srcdir)/Slice/Ruby.cpp \
-                          $(srcdir)/Slice/RubyUtil.cpp \
 
 # Always enable the static configuration for the Slice library and never
 # install it

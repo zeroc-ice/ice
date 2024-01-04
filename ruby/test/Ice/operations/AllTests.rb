@@ -11,12 +11,10 @@ def allTests(helper, communicator)
     cl = Test::MyClassPrx::checkedCast(base)
     derived = Test::MyDerivedClassPrx::checkedCast(cl)
 
-    bprx = M::BPrx::checkedCast(communicator.stringToProxy("b:#{helper.getTestEndpoint()}"))
-
     print "testing twoway operations... "
     STDOUT.flush
-    twoways(helper, communicator, cl, bprx)
-    twoways(helper, communicator, derived, bprx)
+    twoways(helper, communicator, cl)
+    twoways(helper, communicator, derived)
     derived.opDerived()
     puts "ok"
 
