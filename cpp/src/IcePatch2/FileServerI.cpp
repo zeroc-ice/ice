@@ -66,55 +66,69 @@ IcePatch2::FileServerI::getChecksum(const Current&) const
 }
 
 void
-IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileCompressedPtr& cb,
-                                                const string& pa, Int pos, Int num, const Current&) const
+IcePatch2::FileServerI::getFileCompressedAsync(
+    string pa,
+    Int pos,
+    Int num,
+    function<void(const pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)> response,
+    function<void(exception_ptr)> exception,
+    const Current&) const
 {
     try
     {
         vector<Byte> buffer;
-        getFileCompressedInternal(pa, pos, num, buffer, false);
+        getFileCompressedInternal(std::move(pa), pos, num, buffer, false);
         if(buffer.empty())
         {
-            cb->ice_response(make_pair<const Byte*, const Byte*>(0, 0));
+            response(make_pair<const Byte*, const Byte*>(0, 0));
         }
         else
         {
-            cb->ice_response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
+            response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
         }
     }
-    catch(const std::exception& ex)
+    catch(const std::exception&)
     {
-        cb->ice_exception(ex);
+        exception(current_exception());
     }
 }
 
 void
-IcePatch2::FileServerI::getLargeFileCompressed_async(const AMD_FileServer_getLargeFileCompressedPtr& cb,
-                                                     const string& pa, Long pos, Int num, const Current&) const
+IcePatch2::FileServerI::getLargeFileCompressedAsync(
+    string pa,
+    Long pos,
+    Int num,
+    function<void(const pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)> response,
+    function<void(exception_ptr)> exception,
+    const Current&) const
 {
     try
     {
         vector<Byte> buffer;
-        getFileCompressedInternal(pa, pos, num, buffer, true);
+        getFileCompressedInternal(std::move(pa), pos, num, buffer, true);
         if(buffer.empty())
         {
-            cb->ice_response(make_pair<const Byte*, const Byte*>(0, 0));
+            response(make_pair<const Byte*, const Byte*>(0, 0));
         }
         else
         {
-            cb->ice_response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
+            response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
         }
 
     }
-    catch(const std::exception& ex)
+    catch(const std::exception&)
     {
-        cb->ice_exception(ex);
+        exception(current_exception());
     }
 }
 
 void
-IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Long pos, Ice::Int num,
-                                                  vector<Byte>& buffer, bool largeFile) const
+IcePatch2::FileServerI::getFileCompressedInternal(
+    std::string pa,
+    Ice::Long pos,
+    Ice::Int num,
+    vector<Byte>& buffer,
+    bool largeFile) const
 {
     if(IceUtilInternal::isAbsolutePath(pa))
     {
