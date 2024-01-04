@@ -53,9 +53,7 @@ module and
 
     interface print
     {
-        assert raise(continue else, for return, if try, del* while, exec* yield,
-                     for* lambda, if* or, int global)
-                    throws is;
+        assert raise(continue else, for return, del* while, exec* yield, if* or, int global) throws is;
     }
 
     const int lambda = 0;

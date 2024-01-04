@@ -19,8 +19,6 @@ def MyValueFactory(type):
         return TestI.II()
     elif type == '::Test::J':
         return TestI.JI()
-    elif type == '::Test::H':
-        return TestI.HI()
     assert(False) # Should never be reached
 
 class MyObjectFactory(Ice.ObjectFactory):
@@ -42,7 +40,6 @@ def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::F')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::I')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::J')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::H')
 
     communicator.addObjectFactory(MyObjectFactory(), "TestOF")
 
@@ -96,16 +93,6 @@ def allTests(helper, communicator):
     test(f._e1.checkValues())
     print("ok")
 
-    sys.stdout.write("getting I, J, H... ")
-    sys.stdout.flush()
-    i = initial.getI()
-    test(i)
-    j = initial.getJ()
-    test(isinstance(j, TestI.JI))
-    h = initial.getH()
-    test(isinstance(h, Test.H))
-    print("ok")
-
     sys.stdout.write("getting K... ")
     sys.stdout.flush()
     k = initial.getK()
@@ -155,13 +142,6 @@ def allTests(helper, communicator):
         initial.setG(Test.G(Test.S("hello"), "g"))
     except Ice.OperationNotExistException:
         pass
-    print("ok")
-
-    sys.stdout.write("setting I... ")
-    sys.stdout.flush()
-    initial.setI(TestI.II())
-    initial.setI(TestI.JI())
-    initial.setI(TestI.HI())
     print("ok")
 
     sys.stdout.write("checking consistency... ")
@@ -367,12 +347,6 @@ def allTests(helper, communicator):
         test(acceptsCycles)
     except Ice.UnknownLocalException:
         test(not acceptsCycles)
-    print("ok")
-
-    sys.stdout.write("testing class with interface by value member... ")
-    i = initial.getI()
-    n = Test.N(i)
-    n = initial.opN(n)
     print("ok")
 
     return initial

@@ -32,7 +32,7 @@ class ifI(_and._if):
 
 
 class printI(_and._print):
-    def _raise(self, _else, _return, _try, _while, _yield, _lambda, _or, _global):
+    def _raise(self, _else, _return, _while, _yield, _or, _global):
         pass
 
 
