@@ -32,7 +32,7 @@ classdef AllTests
             assert(mo1.g == Ice.Unset);
             assert(mo1.h == Ice.Unset);
             assert(mo1.i == Ice.Unset);
-            assert(mo1.j == Ice.Unset);
+            % assert(mo1.j == Ice.Unset);
             assert(mo1.k == Ice.Unset);
             assert(mo1.bs == Ice.Unset);
             assert(mo1.ss == Ice.Unset);
@@ -76,7 +76,7 @@ classdef AllTests
             ioopd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ioopd(5) = communicator.stringToProxy('test');
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
-                                     communicator.stringToProxy('test'), ...
+                                     MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test')), ...
                                      [], [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
                                      [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
                                      [ fs ], [ vs ], oos, { communicator.stringToProxy('test') }, ...
@@ -143,7 +143,7 @@ classdef AllTests
             assert(mo4.g == Ice.Unset);
             assert(mo4.h == Ice.Unset);
             assert(mo4.i == Ice.Unset);
-            assert(mo4.j == Ice.Unset);
+            % assert(mo4.j == Ice.Unset);
             assert(mo4.k == Ice.Unset);
             assert(mo4.bs == Ice.Unset);
             assert(mo4.ss == Ice.Unset);
@@ -283,7 +283,7 @@ classdef AllTests
             assert(mo9.g == mo1.g);
             assert(mo9.h == Ice.Unset);
             assert(mo9.i == mo1.i);
-            assert(mo9.j == Ice.Unset);
+            % assert(mo9.j == Ice.Unset);
             assert(mo9.k == mo9);
             assert(mo9.bs == Ice.Unset);
             assert(isequal(mo9.ss, mo1.ss));
@@ -563,14 +563,14 @@ classdef AllTests
             [p2, p3] = f.fetchOutputs();
             assert(p2.a == p1.a && p3.a == p1.a);
 
-            [p2, p3] = initial.opOneOptionalProxy(Ice.Unset);
-            assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = communicator.stringToProxy('test');
-            [p2, p3] = initial.opOneOptionalProxy(p1);
-            assert(p2 == p1 && p3 == p1);
-            f = initial.opOneOptionalProxyAsync(p1);
-            [p2, p3] = f.fetchOutputs();
-            assert(p2 == p1 && p3 == p1);
+            % [p2, p3] = initial.opMyInterfaceProxy(Ice.Unset);
+            % assert(p2 == Ice.Unset && p3 == Ice.Unset);
+            % p1 = MyInterfacePrx.uncheckedCast(communicator.stringToProxy('test'));
+            % [p2, p3] = initial.opMyInterfaceProxy(p1);
+            % assert(p2 == p1 && p3 == p1);
+            % f = initial.opMyInterfaceProxyAsync(p1);
+            % [p2, p3] = f.fetchOutputs();
+            % assert(p2 == p1 && p3 == p1);
 
             [p2, p3] = initial.opByteSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);

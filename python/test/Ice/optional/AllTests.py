@@ -71,7 +71,7 @@ def allTests(helper, communicator):
     fs = Test.FixedStruct(78)
     vs = Test.VarStruct("hello")
     mo1 = Test.MultiOptional(15, True, 19, 78, 99, 5.5, 1.0, "test", Test.MyEnum.MyEnumMember, \
-                             communicator.stringToProxy("test"), \
+                             Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")), \
                              None, [5], ["test", "test2"], {4:3}, {"test":10}, fs, vs, [1], \
                              [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember], \
                              [ fs ], [ vs ], [ oo1 ], \
@@ -573,12 +573,12 @@ def allTests(helper, communicator):
     (p2, p3) = f.result()
     test(p2.a == p1.a and p3.a == p1.a)
 
-    (p2, p3) = initial.opOneOptionalProxy(Ice.Unset)
+    (p2, p3) = initial.opMyInterfaceProxy(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = communicator.stringToProxy("test")
-    (p2, p3) = initial.opOneOptionalProxy(p1)
+    p1 = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))
+    (p2, p3) = initial.opMyInterfaceProxy(p1)
     test(p2 == p1 and p3 == p1)
-    f = initial.opOneOptionalProxyAsync(p1)
+    f = initial.opMyInterfaceProxyAsync(p1)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
