@@ -23,20 +23,6 @@ classdef AllTests
             assert(initial == base);
             fprintf('ok\n');
 
-            fprintf('getting proxies for class hierarchy... ');
-
-            ca = initial.caop();
-            cb = initial.cbop();
-            cc = initial.ccop();
-            cd = initial.cdop();
-            assert(ca ~= cb);
-            assert(ca ~= cc);
-            assert(ca ~= cd);
-            assert(cb ~= cc);
-            assert(cb ~= cd);
-            assert(cc ~= cd);
-            fprintf('ok\n');
-
             fprintf('getting proxies for interface hierarchy... ');
 
             ia = initial.iaop();
@@ -50,57 +36,7 @@ classdef AllTests
             assert(ib2 ~= ic);
             fprintf('ok\n');
 
-            fprintf('invoking proxy operations on class hierarchy... ');
-
-            cao = [];
-            cbo = [];
-            cco = [];
-
-            cao = ca.caop(ca);
-            assert(cao == ca);
-            cao = ca.caop(cb);
-            assert(cao == cb);
-            cao = ca.caop(cc);
-            assert(cao == cc);
-            cao = cb.caop(ca);
-            assert(cao == ca);
-            cao = cb.caop(cb);
-            assert(cao == cb);
-            cao = cb.caop(cc);
-            assert(cao == cc);
-            cao = cc.caop(ca);
-            assert(cao == ca);
-            cao = cc.caop(cb);
-            assert(cao == cb);
-            cao = cc.caop(cc);
-            assert(cao == cc);
-
-            cao = cb.cbop(cb);
-            assert(cao == cb);
-            cbo = cb.cbop(cb);
-            assert(cbo == cb);
-            cao = cb.cbop(cc);
-            assert(cao == cc);
-            cbo = cb.cbop(cc);
-            assert(cbo == cc);
-            cao = cc.cbop(cb);
-            assert(cao == cb);
-            cbo = cc.cbop(cb);
-            assert(cbo == cb);
-            cao = cc.cbop(cc);
-            assert(cao == cc);
-            cbo = cc.cbop(cc);
-            assert(cbo == cc);
-
-            cao = cc.ccop(cc);
-            assert(cao == cc);
-            cbo = cc.ccop(cc);
-            assert(cbo == cc);
-            cco = cc.ccop(cc);
-            assert(cco == cc);
-            fprintf('ok\n');
-
-            fprintf('ditto, but for interface hierarchy... ');
+            fprintf('invoking proxy operations on interface hierarchy... ');
 
             iao = [];
             ib1o = [];
@@ -182,37 +118,6 @@ classdef AllTests
             assert(ib2o == ic);
             ico = ic.icop(ic);
             assert(ico == ic);
-            fprintf('ok\n');
-
-            fprintf('ditto, but for class implementing interfaces... ');
-
-            cao = cd.caop(cd);
-            assert(cao == cd);
-            cbo = cd.cbop(cd);
-            assert(cbo == cd);
-            cco = cd.ccop(cd);
-            assert(cco == cd);
-
-            iao = cd.iaop(cd);
-            assert(iao == cd);
-            ib1o = cd.ib1op(cd);
-            assert(ib1o == cd);
-            ib2o = cd.ib2op(cd);
-            assert(ib2o == cd);
-
-            cao = cd.cdop(cd);
-            assert(cao == cd);
-            cbo = cd.cdop(cd);
-            assert(cbo == cd);
-            cco = cd.cdop(cd);
-            assert(cco == cd);
-
-            iao = cd.cdop(cd);
-            assert(iao == cd);
-            ib1o = cd.cdop(cd);
-            assert(ib1o == cd);
-            ib2o = cd.cdop(cd);
-            assert(ib2o == cd);
             fprintf('ok\n');
 
             r = initial;

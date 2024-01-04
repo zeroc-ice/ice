@@ -43,6 +43,7 @@ def allTests(helper, communicator):
     test(mo1.g is Ice.Unset)
     test(mo1.h is Ice.Unset)
     test(mo1.i is Ice.Unset)
+    test(mo1.j is Ice.Unset)
     test(mo1.k is Ice.Unset)
     test(mo1.bs is Ice.Unset)
     test(mo1.ss is Ice.Unset)
@@ -56,11 +57,13 @@ def allTests(helper, communicator):
     test(mo1.fss is Ice.Unset)
     test(mo1.vss is Ice.Unset)
     test(mo1.oos is Ice.Unset)
+    test(mo1.mips is Ice.Unset)
 
     test(mo1.ied is Ice.Unset)
     test(mo1.ifsd is Ice.Unset)
     test(mo1.ivsd is Ice.Unset)
     test(mo1.iood is Ice.Unset)
+    test(mo1.imipd is Ice.Unset)
 
     test(mo1.bos is Ice.Unset)
 
@@ -68,10 +71,13 @@ def allTests(helper, communicator):
     fs = Test.FixedStruct(78)
     vs = Test.VarStruct("hello")
     mo1 = Test.MultiOptional(15, True, 19, 78, 99, 5.5, 1.0, "test", Test.MyEnum.MyEnumMember, \
+                             Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")), \
                              None, [5], ["test", "test2"], {4:3}, {"test":10}, fs, vs, [1], \
                              [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember], \
                              [ fs ], [ vs ], [ oo1 ], \
+                             [ Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")) ], \
                              {4:Test.MyEnum.MyEnumMember}, {4:fs}, {5:vs}, {5:Test.OneOptional(15)}, \
+                             {5:Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))}, \
                              [False, True, False])
 
     test(mo1.a == 15)
@@ -83,6 +89,7 @@ def allTests(helper, communicator):
     test(mo1.g == 1.0)
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
+    test(mo1.j == communicator.stringToProxy("test"))
     test(mo1.k == None)
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
@@ -96,11 +103,13 @@ def allTests(helper, communicator):
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
     test(mo1.oos[0] == oo1)
+    test(mo1.mips[0] == communicator.stringToProxy("test"))
 
     test(mo1.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo1.ifsd[4] == Test.FixedStruct(78))
     test(mo1.ivsd[5] == Test.VarStruct("hello"))
     test(mo1.iood[5].a == 15)
+    test(mo1.imipd[5] == communicator.stringToProxy("test"))
 
     test(mo1.bos == [False, True, False])
 
@@ -133,6 +142,7 @@ def allTests(helper, communicator):
     test(mo4.g is Ice.Unset)
     test(mo4.h is Ice.Unset)
     test(mo4.i is Ice.Unset)
+    test(mo4.j is Ice.Unset)
     test(mo4.k is Ice.Unset)
     test(mo4.bs is Ice.Unset)
     test(mo4.ss is Ice.Unset)
@@ -146,11 +156,13 @@ def allTests(helper, communicator):
     test(mo4.fss is Ice.Unset)
     test(mo4.vss is Ice.Unset)
     test(mo4.oos is Ice.Unset)
+    test(mo4.mips is Ice.Unset)
 
     test(mo4.ied is Ice.Unset)
     test(mo4.ifsd is Ice.Unset)
     test(mo4.ivsd is Ice.Unset)
     test(mo4.iood is Ice.Unset)
+    test(mo4.imipd is Ice.Unset)
 
     test(mo4.bos is Ice.Unset)
 
@@ -164,6 +176,7 @@ def allTests(helper, communicator):
     test(mo5.g == mo1.g)
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
+    test(mo5.j == mo1.j)
     #
     # With Swift mapping you cannot distinguish null from unset
     # so we test for both here to support cross testing.
@@ -183,11 +196,13 @@ def allTests(helper, communicator):
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
     test(mo5.oos[0].a == 15)
+    test(mo5.mips[0] == communicator.stringToProxy("test"))
 
     test(mo5.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo5.ifsd[4] == Test.FixedStruct(78))
     test(mo5.ivsd[5] == Test.VarStruct("hello"))
     test(mo5.iood[5].a == 15)
+    test(mo5.imipd[5] == communicator.stringToProxy("test"))
 
     test(mo5.bos == mo1.bos)
 
@@ -197,6 +212,7 @@ def allTests(helper, communicator):
     mo6.d = mo5.d
     mo6.f = mo5.f
     mo6.h = mo5.h
+    mo6.j = mo5.j
     mo6.bs = mo5.bs
     mo6.iid = mo5.iid
     mo6.fs = mo5.fs
@@ -217,6 +233,7 @@ def allTests(helper, communicator):
     test(mo7.g is Ice.Unset)
     test(mo7.h == mo1.h)
     test(mo7.i is Ice.Unset)
+    test(mo7.j == mo1.j)
     test(mo7.k is Ice.Unset)
     if sys.version_info[0] == 2:
         test(mo7.bs == "\x05")
@@ -233,11 +250,13 @@ def allTests(helper, communicator):
     test(mo7.fss[0] == Test.FixedStruct(78))
     test(mo7.vss is Ice.Unset)
     test(mo7.oos[0].a == 15)
+    test(mo7.mips is Ice.Unset)
 
     test(mo7.ied is Ice.Unset)
     test(mo7.ifsd[4] == Test.FixedStruct(78))
     test(mo7.ivsd is Ice.Unset)
     test(mo7.iood[5].a == 15)
+    test(mo7.imipd is Ice.Unset)
 
     test(mo7.bos == [False, True, False])
 
@@ -255,9 +274,11 @@ def allTests(helper, communicator):
 
     mo8.es = mo5.es
     mo8.vss = mo5.vss
+    mo8.mips = mo5.mips
 
     mo8.ied = mo5.ied
     mo8.ivsd = mo5.ivsd
+    mo8.imipd = mo5.imipd
 
     mo9 = initial.pingPong(mo8)
     test(mo9.a == mo1.a)
@@ -269,6 +290,7 @@ def allTests(helper, communicator):
     test(mo9.g == mo1.g)
     test(mo9.h is Ice.Unset)
     test(mo9.i == mo1.i)
+    test(mo9.j is Ice.Unset)
     test(mo9.k == mo9)
     test(mo9.bs is Ice.Unset)
     test(mo9.ss == mo1.ss)
@@ -282,11 +304,13 @@ def allTests(helper, communicator):
     test(mo9.fss is Ice.Unset)
     test(mo9.vss[0] == Test.VarStruct("hello"))
     test(mo9.oos is Ice.Unset)
+    test(mo9.mips[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo9.ifsd is Ice.Unset)
     test(mo9.ivsd[5] == Test.VarStruct("hello"))
     test(mo9.iood is Ice.Unset)
+    test(mo9.imipd[5] == communicator.stringToProxy("test"))
 
     test(mo9.bos is Ice.Unset)
 
@@ -548,6 +572,15 @@ def allTests(helper, communicator):
     f = initial.opOneOptionalAsync(p1)
     (p2, p3) = f.result()
     test(p2.a == p1.a and p3.a == p1.a)
+
+    (p2, p3) = initial.opMyInterfaceProxy(Ice.Unset)
+    test(p2 is Ice.Unset and p3 is Ice.Unset)
+    p1 = Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))
+    (p2, p3) = initial.opMyInterfaceProxy(p1)
+    test(p2 == p1 and p3 == p1)
+    f = initial.opMyInterfaceProxyAsync(p1)
+    (p2, p3) = f.result()
+    test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opByteSeq(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
