@@ -5,7 +5,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-#include <Ice/Properties.ice>
+#include <Ice/PropertyDict.ice>
 
 [["java:package:test.Ice.admin"]]
 module Test

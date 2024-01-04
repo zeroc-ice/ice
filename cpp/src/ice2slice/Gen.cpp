@@ -329,7 +329,7 @@ void writeComment(const ContainedPtr& contained, Output& out)
                         out << (*r);
                         r++;
                     }
-                } 
+                }
             }
         }
     }
@@ -371,30 +371,21 @@ void Gen::generate(const UnitPtr& p)
 bool
 Gen::OutputVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if (!p->isLocal())
-    {
-        _modules.insert(p->scope());
-    }
+    _modules.insert(p->scope());
     return false;
 }
 
 bool
 Gen::OutputVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if (!p->isLocal())
-    {
-        _modules.insert(p->scope());
-    }
+    _modules.insert(p->scope());
     return false;
 }
 
 bool
 Gen::OutputVisitor::visitStructStart(const StructPtr& p)
 {
-    if (!p->isLocal())
-    {
-        _modules.insert(p->scope());
-    }
+    _modules.insert(p->scope());
     return false;
 }
 
@@ -431,12 +422,6 @@ Gen::TypesVisitor::TypesVisitor(const std::string& fileBase, const std::set<std:
 bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if (p->isLocal())
-    {
-        // No local types in IceRPC Slice
-        return false;
-    }
-
     ClassList bases = p->bases();
     const string scope = p->scope();
     Output& out = getOutput(p);
@@ -546,11 +531,6 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if (p->isLocal())
-    {
-        // No local types in IceRPC Slice
-        return false;
-    }
     ExceptionPtr base = p->base();
     const string scope = p->scope();
     Output& out = getOutput(p);
@@ -574,11 +554,6 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if (p->isLocal())
-    {
-        // No local types in IceRPC Slice
-        return false;
-    }
     const string scope = p->scope();
     Output& out = getOutput(p);
     writeComment(p, out);
@@ -616,7 +591,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             }
 
             out << "[cs::type(\"";
-            
+
             if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
             {
                 out << "System.Collections.Generic." << type;
@@ -660,7 +635,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
             break;
         }
     }
-    out << " Dictionary<" 
+    out << " Dictionary<"
         << typeToString(p->keyType(), p->scope(), false)
         << ", "
         << typeToString(p->valueType(), p->scope(), false)

@@ -26,7 +26,7 @@ class struct
     int i;
 }
 
-interface local;
+// interface local;
 interface extends
 {
     void f();
@@ -51,7 +51,7 @@ class Bar
 
 sequence<int> Object;
 
-dictionary<int, int> LocalObject;
+// dictionary<int, int> LocalObject;
 
 enum string
 {

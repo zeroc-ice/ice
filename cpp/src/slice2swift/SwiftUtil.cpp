@@ -1048,7 +1048,6 @@ SwiftGenerator::typeToString(const TypePtr& type,
         "Swift.String",
         "Ice.Disp",         // Object
         "Ice.ObjectPrx",    // ObjectPrx
-        "Swift.AnyObject",  // LocalObject
         "Ice.Value"         // Value
     };
 
@@ -1131,7 +1130,6 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
         "Swift.String",
         "Ice.Disp",         // Object
         "Ice.ObjectPrx",    // ObjectPrx
-        "Swift.AnyObject",  // LocalObject
         "Ice.Value"         // Value
     };
 
@@ -1287,11 +1285,6 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
         {
             return ".FSize";
         }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
-        }
         case Builtin::KindValue:
         {
             return ".Class";
@@ -1343,7 +1336,6 @@ SwiftGenerator::isNullableType(const TypePtr& type)
         {
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return true;
@@ -1651,11 +1643,6 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
                     out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 }";
                 }
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
                 break;
             }
             default:
@@ -2749,16 +2736,11 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
 bool
 SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
     }
     return true;
 }
@@ -2773,43 +2755,32 @@ SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
     const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
     assert(dc);
 
-    if(!cl->isLocal())
+    for(StringList::iterator q = metaData.begin(); q != metaData.end();)
     {
-        for(StringList::iterator q = metaData.begin(); q != metaData.end();)
+        string s = *q++;
+        if(s.find("swift:attribute:") == 0 || s.find("swift:type:") == 0 || s == "swift:noexcept" ||
+           s == "swift:nonnull")
         {
-            string s = *q++;
-            if(s.find("swift:attribute:") == 0 ||
-               s.find("swift:type:") == 0 ||
-               s == "swift:noexcept" ||
-               s == "swift:nonnull")
-            {
-                dc->warning(InvalidMetaData, p->file(), p->line(),
-                            "ignoring metadata `" + s + "' for non local operation");
-                metaData.remove(s);
-            }
+            dc->warning(InvalidMetaData, p->file(), p->line(), "ignoring metadata `" + s + "' for non local operation");
+            metaData.remove(s);
         }
     }
-    p->setMetaData(validate(p, metaData, p->file(), p->line(), cl->isLocal()));
+    p->setMetaData(validate(p, metaData, p->file(), p->line()));
     ParamDeclList params = p->parameters();
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), cl->isLocal(), true));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), true));
     }
 }
 
 bool
 SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
     }
     return true;
 }
@@ -2817,16 +2788,11 @@ SwiftGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
     DataMemberList members = p->dataMembers();
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), p->isLocal()));
+        (*q)->setMetaData(validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line()));
     }
     return true;
 }
@@ -2834,22 +2800,12 @@ SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 void
 SwiftGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     const string prefix = "swift:";
     const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
     assert(dc);
@@ -2859,11 +2815,6 @@ SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
     {
         string s = *q++;
         if(s.find(prefix) != 0)
-        {
-            continue;
-        }
-
-        if(p->isLocal() && s.find("swift:type:") == 0)
         {
             continue;
         }
@@ -2881,35 +2832,16 @@ SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
             continue;
         }
 
-        if(p->isLocal() && s.find("swift:type:") == 0)
-        {
-            continue;
-        }
-
-        if(p->isLocal() && s == "swift:nonnull")
-        {
-            if(!isNullableType(t))
-            {
-                dc->error(p->file(), p->line(), "error invalid metadata `" + s + "' for non nullable value type");
-            }
-            continue;
-        }
-
         dc->error(p->file(), p->line(), "error invalid metadata `" + s + "' for dictionary value type");
     }
 
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
 }
 
 void
 SwiftGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
-    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line(), p->isLocal()));
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
 }
 
 void

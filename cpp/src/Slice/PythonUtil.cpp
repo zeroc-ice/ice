@@ -202,7 +202,7 @@ private:
 
     enum DocstringMode { DocSync, DocAsync, DocAsyncBegin, DocAsyncEnd, DocDispatch, DocAsyncDispatch };
 
-    void writeDocstring(const OperationPtr&, DocstringMode, bool);
+    void writeDocstring(const OperationPtr&, DocstringMode);
 
     Output& _out;
     set<string>& _moduleHistory;
@@ -413,11 +413,6 @@ Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     //
     // Emit forward declarations.
     //
@@ -446,11 +441,6 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 void
 Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     OperationList ops = p->operations();
     if(!ops.empty())
     {
@@ -498,7 +488,7 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
             _out << "):";
             _out.inc();
 
-            writeDocstring(*oli, DocAsyncDispatch, false);
+            writeDocstring(*oli, DocAsyncDispatch);
 
             _out << nl << "raise NotImplementedError(\"servant method '" << fixedOpName << "' not implemented\")";
             _out.dec();
@@ -509,11 +499,6 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     bool isInterface = p->isInterface();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
@@ -536,7 +521,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     //
-    // Define a class type for Value types or local classes.
+    // Define a class type for Value types.
     //
     if(!isInterface)
     {
@@ -792,7 +777,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
 
             _out << sp;
-            writeDocstring(*oli, DocSync, false);
+            writeDocstring(*oli, DocSync);
             _out << nl << "def " << fixedOpName << "(self";
             if(!inParamsDecl.empty())
             {
@@ -813,7 +798,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             // Async operations.
             //
             _out << sp;
-            writeDocstring(*oli, DocAsync, false);
+            writeDocstring(*oli, DocAsync);
             _out << nl << "def " << (*oli)->name() << "Async(self";
             if(!inParams.empty())
             {
@@ -830,7 +815,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
 
             _out << sp;
-            writeDocstring(*oli, DocAsyncBegin, false);
+            writeDocstring(*oli, DocAsyncBegin);
             _out << nl << "def begin_" << (*oli)->name() << "(self";
             if(!inParams.empty())
             {
@@ -847,7 +832,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
 
             _out << sp;
-            writeDocstring(*oli, DocAsyncEnd, false);
+            writeDocstring(*oli, DocAsyncEnd);
             _out << nl << "def end_" << (*oli)->name() << "(self, _r):";
             _out.inc();
             _out << nl << "return _M_" << classAbs << "._op_" << (*oli)->name() << ".end(self, _r)";
@@ -1159,11 +1144,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1307,11 +1287,6 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1652,11 +1627,6 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
@@ -1806,11 +1776,6 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
                 _out << "IcePy._t_ObjectPrx";
                 break;
             }
-            case Builtin::KindLocalObject:
-            {
-                _out << "IcePy._t_LocalObject";
-                break;
-            }
         }
         return;
     }
@@ -1871,7 +1836,6 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 _out << "None";
                 break;
@@ -2043,7 +2007,6 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
             case Slice::Builtin::KindValue:
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindLocalObject:
                 assert(false);
             }
         }
@@ -2649,7 +2612,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode, bool local)
+Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode)
 {
     OpComment comment;
     if(!parseOpComment(op->comment(), comment))
@@ -2715,7 +2678,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     case DocAsync:
     case DocAsyncBegin:
     case DocDispatch:
-        needArgs = !local || !inParams.empty();
+        needArgs = true;
         break;
     case DocAsyncEnd:
     case DocAsyncDispatch:
@@ -2746,12 +2709,12 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
                  << nl << "_ex -- The asynchronous exception callback."
                  << nl << "_sent -- The asynchronous sent callback.";
         }
-        if(!local && (mode == DocSync || mode == DocAsync || mode == DocAsyncBegin))
+        if(mode == DocSync || mode == DocAsync || mode == DocAsyncBegin)
         {
              const string contextParamName = getEscapedParamName(op, "context");
             _out << nl << contextParamName << " -- The request context for the invocation.";
         }
-        if(!local && (mode == DocDispatch || mode == DocAsyncDispatch))
+        if(mode == DocDispatch || mode == DocAsyncDispatch)
         {
             const string currentParamName = getEscapedParamName(op, "current");
             _out << nl << currentParamName << " -- The Current object for the invocation.";
@@ -3150,11 +3113,6 @@ Slice::Python::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Python::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     reject(p);
     return true;
 }
@@ -3162,11 +3120,6 @@ Slice::Python::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Python::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     reject(p);
     return true;
 }
@@ -3174,11 +3127,6 @@ Slice::Python::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Python::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     reject(p);
     return true;
 }
@@ -3247,20 +3195,12 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Python::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     reject(p);
 }
 
 void
 Slice::Python::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
     reject(p);
 }
 

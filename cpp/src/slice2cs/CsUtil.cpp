@@ -259,11 +259,6 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
         {
             return prefix + ".FSize";
         }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
-        }
         case Builtin::KindValue:
         {
             return prefix + ".Class";
@@ -374,7 +369,6 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "string",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "System.Object",
         "Ice.Value"
     };
 
@@ -546,7 +540,6 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
             case Builtin::KindString:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return false;
@@ -722,11 +715,6 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
                     out << nl << param << " = " << stream << ".readProxy()" << ';';
                 }
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
                 break;
             }
         }
@@ -1018,11 +1006,6 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                     out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<"
                         << getUnqualified("Ice.ObjectPrx", scope) << ">(" << stream << ".readProxy(" << tag << "));";
                 }
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
                 break;
             }
         }
@@ -2005,9 +1988,6 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             }
             break;
         }
-
-        case Builtin::KindLocalObject:
-            assert(false);
         }
 
         return;
@@ -2379,13 +2359,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         }
         else if(s == "delegate")
         {
-            ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
-            if(cl && cl->isDelegate())
-            {
-                newLocalMetaData.push_back(s);
-                continue;
-            }
-
             dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + s + "'");
             continue;
         }

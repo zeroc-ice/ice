@@ -19,6 +19,6 @@ jobs:
       - name: Build
         run: make -j8 V=1 CONFIGS="shared cpp98-shared cpp11-shared"
       - name: Tests
-        run: ./allTests.py --workers=4 --cpp-config=cpp11-shared
+        run: ./allTests.py --workers=4 --config=cpp11-shared
       - name: C++98 Tests
-        run: ./allTests.py --workers=4 --cpp-config=cpp98-shared --languages=cpp
+        run: ./allTests.py --workers=4 --config=cpp98-shared --languages=cpp

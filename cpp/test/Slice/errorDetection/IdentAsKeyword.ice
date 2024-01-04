@@ -28,8 +28,8 @@ class C { long extendS; }
 class C { long extends; }
 class D { long extends; }
 
-interface local;
-interface Local;
+// interface local;
+// interface Local;
 
 interface Object { void op(); }
 interface object { void op(); }
@@ -44,7 +44,7 @@ sequence<moDule> seq2;
 
 dictionary<long, long> throws;
 dictionary<long, long> thRows;
-dictionary<long, long> LOCALobject;
+// dictionary<long, long> LOCALobject;
 
 dictionary<module, long> d1;
 dictionary<MODULE, long> d2;
@@ -55,8 +55,8 @@ dictionary<long, OUT> d4;
 dictionary<void, void> d5;
 dictionary<VOID, VOID> d6;
 
-enum local { a, b }
-enum LOCAL { c, e }
+// enum local { a, b }
+// enum LOCAL { c, e }
 
 enum e1 { long, byte, foo }
 enum e2 { LONG, BYTE, bar } // Ok as of 3.7

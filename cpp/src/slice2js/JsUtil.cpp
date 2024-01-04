@@ -160,7 +160,6 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
         "",           // string
         "ice",        // Ice.Value
         "ice",        // Ice.ObjectPrx
-        "",           // LocalObject
         "ice"         // Ice.Object
     };
 
@@ -394,7 +393,6 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         "string",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "Object",
         "Ice.Value"
     };
 
@@ -410,7 +408,6 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         "String",
         "Ice.Value",
         "Ice.ObjectPrx",
-        "Object",
         "Ice.Value"
     };
 
@@ -788,11 +785,6 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 return;
             }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
-                return;
-            }
         }
     }
 
@@ -954,11 +946,6 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
             case Builtin::KindObjectProxy:
             {
                 return "Ice.ObjectPrx";
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
-                break;
             }
         }
     }
