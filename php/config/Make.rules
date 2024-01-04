@@ -63,7 +63,7 @@ ifneq ($(shell type $(PHP_CONFIG) > /dev/null 2>&1 && echo 0),0)
 $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
 endif
 
-php_cppflags            = $(shell $(PHP_CONFIG) --includes)
+php_cppflags            = -std=c++17 $(shell $(PHP_CONFIG) --includes)
 
 ifeq ($(USE_NAMESPACES),yes)
 php_cppflags            := $(php_cppflags) -DICEPHP_USE_NAMESPACES

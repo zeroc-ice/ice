@@ -178,11 +178,6 @@ Slice::Ruby::CodeVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     //
     // Emit forward declarations.
     //
@@ -203,11 +198,6 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     bool isInterface = p->isInterface();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
@@ -649,11 +639,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
 
@@ -803,11 +788,6 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     MemberInfoList memberList;
@@ -947,11 +927,6 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     //
     // Emit the type information.
     //
@@ -969,11 +944,6 @@ Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     //
     // Emit the type information.
     //
@@ -993,11 +963,6 @@ Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     EnumeratorList enums = p->enumerators();
@@ -1187,11 +1152,6 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
                 _out << "::Ice::T_ObjectPrx";
                 break;
             }
-            case Builtin::KindLocalObject:
-            {
-                _out << "::Ice::T_LocalObject";
-                break;
-            }
         }
         return;
     }
@@ -1248,7 +1208,6 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 return "nil";
             }
@@ -1321,7 +1280,6 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
             case Slice::Builtin::KindValue:
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindLocalObject:
                 assert(false);
             }
         }

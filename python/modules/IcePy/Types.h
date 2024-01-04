@@ -672,7 +672,9 @@ class ExceptionWriter : public Ice::UserException
 public:
 
     ExceptionWriter(const PyObjectHandle&, const ExceptionInfoPtr& = 0);
-    ~ExceptionWriter() throw();
+    ~ExceptionWriter();
+
+    ExceptionWriter(const ExceptionWriter&) = default;
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING
@@ -705,7 +707,9 @@ class ExceptionReader : public Ice::UserException
 public:
 
     ExceptionReader(const ExceptionInfoPtr&);
-    ~ExceptionReader() throw();
+    ~ExceptionReader();
+
+    ExceptionReader(const ExceptionReader&) = default;
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING

@@ -23,12 +23,7 @@ exception E
     Intf1 i; // Deprecated
 }
 
-local interface LIntf1 { }
-local interface LIntf2
-{
-    LIntf1 op(); // OK
-    Intf1 op2(); // Deprecated
-}
+interface LIntf1 { }
 
 sequence<Intf1> Seq; // Deprecated
 dictionary<string, Intf1> Dict; // Deprecated
