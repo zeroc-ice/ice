@@ -30,16 +30,16 @@ public:
         std::string,
         Ice::Int,
         Ice::Int,
-        ::std::function<void(const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)>,
-        ::std::function<void(::std::exception_ptr)>,
+        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+        std::function<void(std::exception_ptr)>,
         const Ice::Current&) const;
 
     void getLargeFileCompressedAsync(
         std::string,
         Ice::Long,
         Ice::Int,
-        ::std::function<void(const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)>,
-        ::std::function<void(::std::exception_ptr)>,
+        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+        std::function<void(std::exception_ptr)>,
         const Ice::Current&) const;
 
 private:
