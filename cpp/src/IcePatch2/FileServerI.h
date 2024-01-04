@@ -26,26 +26,31 @@ public:
 
     Ice::ByteSeq getChecksum(const Ice::Current&) const;
 
-    void getFileCompressed_async(const AMD_FileServer_getFileCompressedPtr&,
-                                 const std::string&,
-                                 Ice::Int,
-                                 Ice::Int,
-                                 const Ice::Current&) const;
+    void getFileCompressedAsync(
+        std::string,
+        Ice::Int,
+        Ice::Int,
+        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) const;
 
-    void getLargeFileCompressed_async(const AMD_FileServer_getLargeFileCompressedPtr&,
-                                      const std::string&,
-                                      Ice::Long,
-                                      Ice::Int,
-                                      const Ice::Current&) const;
+    void getLargeFileCompressedAsync(
+        std::string,
+        Ice::Long,
+        Ice::Int,
+        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) const;
 
 private:
 
     void
-    getFileCompressedInternal(const std::string&,
-                              Ice::Long,
-                              Ice::Int,
-                              std::vector<Ice::Byte>&,
-                              bool) const;
+    getFileCompressedInternal(
+        std::string,
+        Ice::Long,
+        Ice::Int,
+        std::vector<Ice::Byte>&,
+        bool) const;
 
     const std::string _dataDir;
     const IcePatch2Internal::FileTree0 _tree0;

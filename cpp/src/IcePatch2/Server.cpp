@@ -131,7 +131,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
     Identity id;
     id.category = instanceName;
     id.name = "server";
-    adapter->add(new FileServerI(dataDir, infoSeq), id);
+    adapter->add(make_shared<FileServerI>(dataDir, infoSeq), id);
 
     adapter->activate();
 

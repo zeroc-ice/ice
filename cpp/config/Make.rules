@@ -64,6 +64,7 @@ static_excludes         = test/Ice/library test/Ice/plugin
 cpp98_projects          = %
 cpp98_excludes          = glacier2router \
                           icebridge \
+                          icepatch2server icepatch2client icepatch2calc \
                           icegridnode icegridregistry icegridadmin  icegriddb \
                           IceStormService icestormadmin icestormdb \
                           IceXML \
@@ -79,6 +80,7 @@ cpp98_excludes          = glacier2router \
 cpp11_components        = $(coreandstub_components) \
                           glacier2router Glacier2CryptPermissionsVerifier \
                           icebox icebridge \
+                          icepatch2server icepatch2client icepatch2calc \
                           IceDB \
                           IceXML \
                           icegridnode icegridregistry icegridadmin icegriddb \
