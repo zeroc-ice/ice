@@ -660,7 +660,7 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
                 const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
-                bool implCpp98, bool implCpp11, bool ice) :
+                bool implCpp98, bool implCpp11) :
     _base(base),
     _headerExtension(headerExtension),
     _implHeaderExtension(headerExtension),
@@ -671,8 +671,7 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
     _dllExport(dllExport),
     _dir(dir),
     _implCpp98(implCpp98),
-    _implCpp11(implCpp11),
-    _ice(ice)
+    _implCpp11(implCpp11)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {

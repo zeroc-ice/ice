@@ -66,10 +66,6 @@ usage(const string& n)
         "--output-dir DIR         Create files in the directory DIR.\n"
         "-d, --debug              Print debug messages.\n"
         "--validate               Validate command line options.\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
-        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
-        "--underscore             Allow underscores in Slice identifiers\n"
-        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
@@ -86,8 +82,6 @@ compile(const vector<string>& argv)
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -142,10 +136,6 @@ compile(const vector<string>& argv)
     string output = opts.optArg("output-dir");
 
     bool debug = opts.isSet("debug");
-
-    bool ice = opts.isSet("ice");
-
-    bool underscore = opts.isSet("underscore");
 
     if(args.empty())
     {
@@ -207,7 +197,7 @@ compile(const vector<string>& argv)
         }
         else
         {
-            UnitPtr p = Unit::createUnit(false, false, ice, underscore);
+            UnitPtr p = Unit::createUnit(false, false);
             int parseStatus = p->parse(*i, cppHandle, debug);
 
             if(!icecpp->close())
