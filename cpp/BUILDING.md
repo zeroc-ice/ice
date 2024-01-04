@@ -427,7 +427,7 @@ For the C++11 mapping, you need to specify a C++11 config:
 - Linux/macOS
 
 ```shell
- python allTests.py --config=cpp11-shared # cpp11-shared config with the default platform
+python allTests.py --config=cpp11-shared # cpp11-shared config with the default platform
 ```
 
 - Windows C++11 debug builds

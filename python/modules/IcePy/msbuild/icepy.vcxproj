@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -83,7 +82,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{18BF13D3-85D3-43A5-8C96-E52EB0672F72}</ProjectGuid>
     <RootNamespace>IceGrid</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -151,21 +150,33 @@
     <Link>
       <ImportLibrary />
     </Link>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <ImportLibrary />
     </Link>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
       <ImportLibrary />
     </Link>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
       <ImportLibrary />
     </Link>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
@@ -177,11 +188,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v143.2.7.2.17\build\native\mcpp.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v143.2.7.2.17\build\native\mcpp.v143.targets'))" />
   </Target>
-
   <PropertyGroup>
     <TargetSuffix Condition="'$(Configuration)' == 'Debug'">d</TargetSuffix>
   </PropertyGroup>
-
   <Target Name="CopyDependencies">
     <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\bzip2$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
     <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\ice$(IceSoVersion)$(TargetSuffix).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />

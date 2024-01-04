@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Current.ice>
+#include <Ice/Context.ice>
 
 [["cs:typeid-namespace:Ice.operations.TypeId",
   "suppress-warning:deprecated"]] // For classes with operations

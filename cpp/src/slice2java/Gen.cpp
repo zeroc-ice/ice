@@ -1681,7 +1681,6 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                 case Builtin::KindDouble:
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
                 case Builtin::KindValue:
                 {
                     out << value;
@@ -2322,11 +2321,6 @@ Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) :
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = p->name();
     ClassList bases = p->bases();
     ClassDefPtr baseClass;
@@ -2371,10 +2365,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     if(p->isInterface())
     {
-        if(p->isDelegate())
-        {
-            out << nl << "@FunctionalInterface";
-        }
         out << nl << "public interface " << fixKwd(name);
         ClassList::const_iterator q = bases.begin();
         StringList::const_iterator r = implements.begin();
@@ -2717,11 +2707,6 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixKwd(p->name());
     string scoped = p->scoped();
     ExceptionPtr base = p->base();
@@ -3168,11 +3153,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     string name = fixKwd(p->name());
     string absolute = getUnqualified(p);
 
@@ -3298,7 +3278,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 case Builtin::KindString:
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
                 case Builtin::KindValue:
                 {
                     out << nl << "if(this." << memberName << " != r." << memberName << ')';
@@ -3867,11 +3846,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     string package = getPackage(p);
     string absolute = getUnqualified(p);
@@ -4107,11 +4081,6 @@ Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) :
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     string meta;
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
     if(!hasTypeMetaData(p) && builtin && builtin->kind() <= Builtin::KindString)
@@ -4316,11 +4285,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(p->isLocal())
-    {
-        return;
-    }
-
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
 
@@ -4427,11 +4391,6 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) :
 bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     //
     // Don't generate a proxy interface for a class with no operations.
     //
@@ -5214,11 +5173,6 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir) :
 bool
 Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(p->isInterface() || p->allOperations().empty())
     {
         return false;
@@ -5293,11 +5247,6 @@ Slice::Gen::ImplVisitor::ImplVisitor(const string& dir) :
 bool
 Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isLocal())
-    {
-        return false;
-    }
-
     if(!p->isAbstract())
     {
         return false;
@@ -5406,7 +5355,6 @@ Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& t
                 }
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
                 case Builtin::KindValue:
                 {
                     return "null";

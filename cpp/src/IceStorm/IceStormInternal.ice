@@ -8,7 +8,8 @@
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>
-#include <Ice/Current.ice>
+#include <Ice/Context.ice>
+#include <Ice/OperationMode.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 

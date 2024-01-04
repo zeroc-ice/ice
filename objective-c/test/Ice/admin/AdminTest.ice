@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Ice/Properties.ice>
+#include <Ice/PropertyDict.ice>
 
 ["objc:prefix:TestAdmin"]
 module Test

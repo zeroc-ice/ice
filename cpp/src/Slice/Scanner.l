@@ -749,8 +749,6 @@ void initScanner()
     keywordMap["string"] = ICE_STRING;
     keywordMap["Object"] = ICE_OBJECT;
     keywordMap["const"] = ICE_CONST;
-    keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
-    keywordMap["local"] = ICE_LOCAL;
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
