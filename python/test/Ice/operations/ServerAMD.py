@@ -14,8 +14,6 @@ if sys.version_info >= (3, 5):
 else:
     from TestAMDI import MyDerivedClassI
 
-from TestAMDI import BI
-
 from TestHelper import TestHelper
 TestHelper.loadSlice("Test.ice")
 import Ice
@@ -36,6 +34,5 @@ class ServerAMD(TestHelper):
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(MyDerivedClassI(), Ice.stringToIdentity("test"))
-            adapter.add(BI(), Ice.stringToIdentity("b"))
             adapter.activate()
             communicator.waitForShutdown()

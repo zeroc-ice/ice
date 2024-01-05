@@ -61,13 +61,13 @@ function allTests($helper)
     test($mo1->fss == $none);
     test($mo1->vss == $none);
     test($mo1->oos == $none);
-    test($mo1->oops == $none);
+    test($mo1->mips == $none);
 
     test($mo1->ied == $none);
     test($mo1->ifsd == $none);
     test($mo1->ivsd == $none);
     test($mo1->iood == $none);
-    test($mo1->ioopd == $none);
+    test($mo1->imipd == $none);
 
     test($mo1->bos == $none);
 
@@ -77,7 +77,7 @@ function allTests($helper)
     $fs = new $fscls(78);
     $vscls = $NS ? "Test\\VarStruct" : "Test_VarStruct";
     $vs = new $vscls("hello");
-    $prx = $communicator->stringToProxy("test");
+    $prx = $communicator->stringToProxy("test")->ice_uncheckedCast("::Test::MyInterface");
     $oo15 = new $oocls(15);
     $mocls = $NS ? "Test\\MultiOptional" : "Test_MultiOptional";
     $mo1 = new $mocls(15, true, 19, 78, 99, 5.5, 1.0, 'test', $enum,
@@ -109,13 +109,13 @@ function allTests($helper)
     test($mo1->fss[0] == $fs);
     test($mo1->vss[0] == $vs);
     test($mo1->oos[0] == $oo1);
-    test($mo1->oops[0] == $prx);
+    test($mo1->mips[0] == $prx);
 
     test($mo1->ied[4] == $enum);
     test($mo1->ifsd[4] == $fs);
     test($mo1->ivsd[5] == $vs);
     test($mo1->iood[5]->a == 15);
-    test($mo1->ioopd[5] == $prx);
+    test($mo1->imipd[5] == $prx);
 
     test($mo1->bos == array(false, true, false));
 
@@ -162,13 +162,13 @@ function allTests($helper)
     test($mo4->fss == $none);
     test($mo4->vss == $none);
     test($mo4->oos == $none);
-    test($mo4->oops == $none);
+    test($mo4->mips == $none);
 
     test($mo4->ied == $none);
     test($mo4->ifsd == $none);
     test($mo4->ivsd == $none);
     test($mo4->iood == $none);
-    test($mo4->ioopd == $none);
+    test($mo4->imipd == $none);
 
     test($mo4->bos == $none);
 
@@ -199,13 +199,13 @@ function allTests($helper)
     test($mo5->fss[0] == $fs);
     test($mo5->vss[0] == $vs);
     test($mo5->oos[0]->a == 15);
-    test($mo5->oops[0] == $prx);
+    test($mo5->mips[0] == $prx);
 
     test($mo5->ied[4] == $enum);
     test($mo5->ifsd[4] == $fs);
     test($mo5->ivsd[5] == $vs);
     test($mo5->iood[5]->a == 15);
-    test($mo5->ioopd[5] == $prx);
+    test($mo5->imipd[5] == $prx);
 
     test($mo5->bos == $mo1->bos);
 
@@ -250,13 +250,13 @@ function allTests($helper)
     test($mo7->fss[0] == $fs);
     test($mo7->vss == $none);
     test($mo7->oos[0]->a == 15);
-    test($mo7->oops == $none);
+    test($mo7->mips == $none);
 
     test($mo7->ied == $none);
     test($mo7->ifsd[4] == $fs);
     test($mo7->ivsd == $none);
     test($mo7->iood[5]->a == 15);
-    test($mo7->ioopd == $none);
+    test($mo7->imipd == $none);
 
     test($mo7->bos == array(false, true, false));
 
@@ -274,11 +274,11 @@ function allTests($helper)
 
     $mo8->es = $mo5->es;
     $mo8->vss = $mo5->vss;
-    $mo8->oops = $mo5->oops;
+    $mo8->mips = $mo5->mips;
 
     $mo8->ied = $mo5->ied;
     $mo8->ivsd = $mo5->ivsd;
-    $mo8->ioopd = $mo5->ioopd;
+    $mo8->imipd = $mo5->imipd;
 
     $mo9 = $initial->pingPong($mo8);
     test($mo9->a == $mo1->a);
@@ -304,13 +304,13 @@ function allTests($helper)
     test($mo9->fss == $none);
     test($mo9->vss[0] == $vs);
     test($mo9->oos == $none);
-    test($mo9->oops[0] == $prx);
+    test($mo9->mips[0] == $prx);
 
     test($mo9->ied[4] == $enum);
     test($mo9->ifsd == $none);
     test($mo9->ivsd[5] == $vs);
     test($mo9->iood == $none);
-    test($mo9->ioopd[5] == $prx);
+    test($mo9->imipd[5] == $prx);
 
     test($mo9->bos == $none);
 
@@ -550,9 +550,9 @@ function allTests($helper)
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == $p1->a && $p3->a == $p1->a);
 
-    $p3 = $initial->opOneOptionalProxy($none, $p2);
+    $p3 = $initial->opMyInterfaceProxy($none, $p2);
     test($p2 == $none && $p3 == $none);
-    $p3 = $initial->opOneOptionalProxy($prx, $p2);
+    $p3 = $initial->opMyInterfaceProxy($prx, $p2);
     test($p2 == $prx && $p3 == $prx);
 
     $p3 = $initial->opByteSeq($none, $p2);

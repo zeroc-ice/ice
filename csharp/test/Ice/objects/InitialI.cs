@@ -74,21 +74,6 @@ namespace Ice
                 return _f;
             }
 
-            public override Ice.Value getI(Ice.Current current)
-            {
-                return new II();
-            }
-
-            public override Ice.Value getJ(Ice.Current current)
-            {
-                return new JI();
-            }
-
-            public override Ice.Value getH(Ice.Current current)
-            {
-                return new HI();
-            }
-
             public override Test.K getK(Ice.Current current)
             {
                 return new Test.K(new Test.L("l"));
@@ -143,10 +128,6 @@ namespace Ice
             }
 
             public override void setG(Test.G theG, Ice.Current current)
-            {
-            }
-
-            public override void setI(Ice.Value theI, Ice.Current current)
             {
             }
 
@@ -231,12 +212,6 @@ namespace Ice
             hasF3(Ice.Current current)
             {
                 return true;
-            }
-
-            public override Test.N
-            opN(Test.N p1, Ice.Current current)
-            {
-                return p1;
             }
 
             private Ice.ObjectAdapter _adapter;

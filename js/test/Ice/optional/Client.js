@@ -65,13 +65,13 @@
             test(mo4.fss === undefined);
             test(mo4.vss === undefined);
             test(mo4.oos === undefined);
-            test(mo4.oops === undefined);
+            test(mo4.mips === undefined);
 
             test(mo4.ied === undefined);
             test(mo4.ifsd === undefined);
             test(mo4.ivsd === undefined);
             test(mo4.iood === undefined);
-            test(mo4.ioopd === undefined);
+            test(mo4.imipd === undefined);
 
             test(mo4.bos === undefined);
 
@@ -105,7 +105,7 @@
             mo1.fss = [mo1.fs];
             mo1.vss = [mo1.vs];
             mo1.oos = [oo1];
-            mo1.oops = [communicator.stringToProxy("test")];
+            mo1.mips = [communicator.stringToProxy("test")];
 
             mo1.ied = new Map();
             mo1.ied.set(4, Test.MyEnum.MyEnumMember);
@@ -115,8 +115,8 @@
             mo1.ivsd.set(5, mo1.vs);
             mo1.iood = new Map();
             mo1.iood.set(5, new Test.OneOptional(15));
-            mo1.ioopd = new Map();
-            mo1.ioopd.set(5, communicator.stringToProxy("test"));
+            mo1.imipd = new Map();
+            mo1.imipd.set(5, communicator.stringToProxy("test"));
 
             mo1.bos = [false, true, false];
 
@@ -144,13 +144,13 @@
             test(mo5.fss[0].equals(new Test.FixedStruct(78)));
             test(mo5.vss[0].equals(new Test.VarStruct("hello")));
             test(mo5.oos[0].a == 15);
-            test(mo5.oops[0].equals(communicator.stringToProxy("test")));
+            test(mo5.mips[0].equals(communicator.stringToProxy("test")));
 
             test(mo5.ied.get(4) == Test.MyEnum.MyEnumMember);
             test(mo5.ifsd.get(4).equals(new Test.FixedStruct(78)));
             test(mo5.ivsd.get(5).equals(new Test.VarStruct("hello")));
             test(mo5.iood.get(5).a == 15);
-            test(mo5.ioopd.get(5).equals(communicator.stringToProxy("test")));
+            test(mo5.imipd.get(5).equals(communicator.stringToProxy("test")));
 
             test(ArrayUtil.equals(mo5.bos, [false, true, false]));
 
@@ -194,13 +194,13 @@
             test(mo7.fss[0].equals(new Test.FixedStruct(78)));
             test(mo7.vss === undefined);
             test(mo7.oos[0].a == 15);
-            test(mo7.oops === undefined);
+            test(mo7.mips === undefined);
 
             test(mo7.ied === undefined);
             test(mo7.ifsd.get(4).equals(new Test.FixedStruct(78)));
             test(mo7.ivsd === undefined);
             test(mo7.iood.get(5).a == 15);
-            test(mo7.ioopd === undefined);
+            test(mo7.imipd === undefined);
 
             test(ArrayUtil.equals(mo7.bos, [false, true, false]));
 
@@ -218,11 +218,11 @@
 
             mo8.es = mo1.es;
             mo8.vss = mo1.vss;
-            mo8.oops = mo1.oops;
+            mo8.mips = mo1.mips;
 
             mo8.ied = mo1.ied;
             mo8.ivsd = mo1.ivsd;
-            mo8.ioopd = mo1.ioopd;
+            mo8.imipd = mo1.imipd;
 
             const mo9 = await initial.pingPong(mo8);
 
@@ -249,13 +249,13 @@
             test(mo9.fss === undefined);
             test(mo9.vss[0].equals(new Test.VarStruct("hello")));
             test(mo9.oos === undefined);
-            test(mo9.oops[0].equals(communicator.stringToProxy("test")));
+            test(mo9.mips[0].equals(communicator.stringToProxy("test")));
 
             test(mo9.ied.get(4) == Test.MyEnum.MyEnumMember);
             test(mo9.ifsd === undefined);
             test(mo9.ivsd.get(5).equals(new Test.VarStruct("hello")));
             test(mo9.iood === undefined);
-            test(mo9.ioopd.get(5).equals(communicator.stringToProxy("test")));
+            test(mo9.imipd.get(5).equals(communicator.stringToProxy("test")));
 
             test(mo9.bos === undefined);
 
@@ -457,10 +457,10 @@
             [p1, p2] = await initial.opOneOptional(new Test.OneOptional(58));
             test(p1 === p2);
             test(p2.a === 58);
-            [p1, p2] = await initial.opOneOptionalProxy();
+            [p1, p2] = await initial.opMyInterfaceProxy();
             test(p1 === undefined);
             test(p2 === undefined);
-            [p1, p2] = await initial.opOneOptionalProxy(communicator.stringToProxy("test"));
+            [p1, p2] = await initial.opMyInterfaceProxy(communicator.stringToProxy("test"));
             test(p1.equals(communicator.stringToProxy("test")));
             test(p2.equals(communicator.stringToProxy("test")));
             [p1, p2] = await initial.opByteSeq();

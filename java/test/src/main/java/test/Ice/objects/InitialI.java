@@ -123,24 +123,6 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public com.zeroc.Ice.Value getI(com.zeroc.Ice.Current current)
-    {
-        return new II();
-    }
-
-    @Override
-    public com.zeroc.Ice.Value getJ(com.zeroc.Ice.Current current)
-    {
-        return new JI();
-    }
-
-    @Override
-    public com.zeroc.Ice.Value getH(com.zeroc.Ice.Current current)
-    {
-        return new HI();
-    }
-
-    @Override
     public K getK(com.zeroc.Ice.Current current)
     {
         return new K(new L("l"));
@@ -193,11 +175,6 @@ public final class InitialI implements Initial
 
     @Override
     public void setG(G theG, com.zeroc.Ice.Current current)
-    {
-    }
-
-    @Override
-    public void setI(com.zeroc.Ice.Value theI, com.zeroc.Ice.Current current)
     {
     }
 
@@ -286,12 +263,6 @@ public final class InitialI implements Initial
     public boolean hasF3(com.zeroc.Ice.Current current)
     {
         return true;
-    }
-
-    @Override
-    public N opN(N p1, com.zeroc.Ice.Current current)
-    {
-        return p1;
     }
 
     private com.zeroc.Ice.ObjectAdapter _adapter;

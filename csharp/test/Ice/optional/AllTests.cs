@@ -53,7 +53,7 @@ namespace Ice
                 mo1.g = 1.0;
                 mo1.h = "test";
                 mo1.i = Test.MyEnum.MyEnumMember;
-                mo1.j = new Ice.Optional<Ice.ObjectPrx>(communicator.stringToProxy("test"));
+                mo1.j = new Ice.Optional<Test.MyInterfacePrx>(Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
                 mo1.k = mo1;
                 mo1.bs = new byte[] { 5 };
                 mo1.ss = new string[] { "test", "test2" };
@@ -73,7 +73,7 @@ namespace Ice
                 mo1.fss = new Test.FixedStruct[] { fs };
                 mo1.vss = new Test.VarStruct[] { vs };
                 mo1.oos = new Test.OneOptional[] { oo1 };
-                mo1.oops = new Ice.ObjectPrx[] { communicator.stringToProxy("test") };
+                mo1.mips = new Test.MyInterfacePrx[] { Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")) };
 
                 mo1.ied = new Dictionary<int, Test.MyEnum>();
                 mo1.ied.Value.Add(4, Test.MyEnum.MyEnumMember);
@@ -83,8 +83,8 @@ namespace Ice
                 mo1.ivsd.Value.Add(5, vs);
                 mo1.iood = new Dictionary<int, Test.OneOptional>();
                 mo1.iood.Value.Add(5, new Test.OneOptional(15));
-                mo1.ioopd = new Dictionary<int, Ice.ObjectPrx>();
-                mo1.ioopd.Value.Add(5, communicator.stringToProxy("test"));
+                mo1.imipd = new Dictionary<int, Test.MyInterfacePrx>();
+                mo1.imipd.Value.Add(5, Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
 
                 mo1.bos = new bool[] { false, true, false };
 
@@ -111,13 +111,13 @@ namespace Ice
                 test(mo1.fss.Value[0].Equals(new Test.FixedStruct(78)));
                 test(mo1.vss.Value[0].Equals(new Test.VarStruct("hello")));
                 test(mo1.oos.Value[0] == oo1);
-                test(mo1.oops.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo1.mips.Value[0].Equals(communicator.stringToProxy("test")));
 
                 test(mo1.ied.Value[4] == Test.MyEnum.MyEnumMember);
                 test(mo1.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
                 test(mo1.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
                 test(mo1.iood.Value[5].a.Value == 15);
-                test(mo1.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo1.imipd.Value[5].Equals(communicator.stringToProxy("test")));
 
                 test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
 
@@ -156,13 +156,13 @@ namespace Ice
                 test(!mo4.fss.HasValue);
                 test(!mo4.vss.HasValue);
                 test(!mo4.oos.HasValue);
-                test(!mo4.oops.HasValue);
+                test(!mo4.mips.HasValue);
 
                 test(!mo4.ied.HasValue);
                 test(!mo4.ifsd.HasValue);
                 test(!mo4.ivsd.HasValue);
                 test(!mo4.iood.HasValue);
-                test(!mo4.ioopd.HasValue);
+                test(!mo4.imipd.HasValue);
 
                 test(!mo4.bos.HasValue);
 
@@ -189,13 +189,13 @@ namespace Ice
                 test(mo5.fss.Value[0].Equals(new Test.FixedStruct(78)));
                 test(mo5.vss.Value[0].Equals(new Test.VarStruct("hello")));
                 test(mo5.oos.Value[0].a.Value == 15);
-                test(mo5.oops.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo5.mips.Value[0].Equals(communicator.stringToProxy("test")));
 
                 test(mo5.ied.Value[4] == Test.MyEnum.MyEnumMember);
                 test(mo5.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
                 test(mo5.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
                 test(mo5.iood.Value[5].a.Value == 15);
-                test(mo5.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo5.imipd.Value[5].Equals(communicator.stringToProxy("test")));
 
                 test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
 
@@ -240,13 +240,13 @@ namespace Ice
                 test(mo7.fss.Value[0].Equals(new Test.FixedStruct(78)));
                 test(!mo7.vss.HasValue);
                 test(mo7.oos.Value[0].a.Value == 15);
-                test(!mo7.oops.HasValue);
+                test(!mo7.mips.HasValue);
 
                 test(!mo7.ied.HasValue);
                 test(mo7.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
                 test(!mo7.ivsd.HasValue);
                 test(mo7.iood.Value[5].a.Value == 15);
-                test(!mo7.ioopd.HasValue);
+                test(!mo7.imipd.HasValue);
 
                 test(ArraysEqual(mo7.bos.Value, new bool[] { false, true, false }));
 
@@ -264,11 +264,11 @@ namespace Ice
 
                 mo8.es = mo5.es;
                 mo8.vss = mo5.vss;
-                mo8.oops = mo5.oops;
+                mo8.mips = mo5.mips;
 
                 mo8.ied = mo5.ied;
                 mo8.ivsd = mo5.ivsd;
-                mo8.ioopd = mo5.ioopd;
+                mo8.imipd = mo5.imipd;
 
                 Test.MultiOptional mo9 =(Test.MultiOptional)initial.pingPong(mo8);
                 test(mo9.a.Equals(mo1.a));
@@ -294,13 +294,13 @@ namespace Ice
                 test(!mo9.fss.HasValue);
                 test(mo9.vss.Value[0].Equals(new Test.VarStruct("hello")));
                 test(!mo9.oos.HasValue);
-                test(mo9.oops.Value[0].Equals(communicator.stringToProxy("test")));
+                test(mo9.mips.Value[0].Equals(communicator.stringToProxy("test")));
 
                 test(mo9.ied.Value[4] == Test.MyEnum.MyEnumMember);
                 test(!mo9.ifsd.HasValue);
                 test(mo9.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
                 test(!mo9.iood.HasValue);
-                test(mo9.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
+                test(mo9.imipd.Value[5].Equals(communicator.stringToProxy("test")));
 
                 test(!mo9.bos.HasValue);
 
@@ -1178,39 +1178,33 @@ namespace Ice
                 }
 
                 {
-                    Ice.Optional<Ice.ObjectPrx> p1 = new Ice.Optional<Ice.ObjectPrx>();
-                    Ice.Optional<Ice.ObjectPrx> p3;
-                    Ice.Optional<Ice.ObjectPrx> p2 = initial.opOneOptionalProxy(p1, out p3);
+                    Ice.Optional<Test.MyInterfacePrx> p1 = new Ice.Optional<Test.MyInterfacePrx>();
+                    Ice.Optional<Test.MyInterfacePrx> p3;
+                    Ice.Optional<Test.MyInterfacePrx> p2 = initial.opMyInterfaceProxy(p1, out p3);
                     test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opOneOptionalProxy(p1, out p3);
+                    p2 = initial.opMyInterfaceProxy(p1, out p3);
                     test(!p2.HasValue && !p3.HasValue);
-                    p2 = initial.opOneOptionalProxy(Ice.Util.None, out p3);
+                    p2 = initial.opMyInterfaceProxy(Ice.Util.None, out p3);
                     test(!p2.HasValue && !p3.HasValue);
                     if(initial.supportsNullOptional())
                     {
-                        p2 = initial.opOneOptionalProxy(null, out p3);
+                        p2 = initial.opMyInterfaceProxy(null, out p3);
                         test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
                     }
 
-                    //
-                    // Not allowed by C# language spec because OptionalOnePrx is an interface.
-                    //
-                    //p1 = Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
-                    p1 = new Ice.Optional<Ice.ObjectPrx>(communicator.stringToProxy("test"));
-                    p2 = initial.opOneOptionalProxy(p1, out p3);
+                    p1 = new Ice.Optional<Test.MyInterfacePrx>(
+                        Test.MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+                    p2 = initial.opMyInterfaceProxy(p1, out p3);
                     test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
 
-                    Ice.AsyncResult r = initial.begin_opOneOptionalProxy(p1);
-                    p2 = initial.end_opOneOptionalProxy(out p3, r);
+                    Ice.AsyncResult r = initial.begin_opMyInterfaceProxy(p1);
+                    p2 = initial.end_opMyInterfaceProxy(out p3, r);
                     test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    //p2 = initial.opOneOptionalProxy(p1.Value, out p3);
-                    //test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-                    //r = initial.begin_opOneOptionalProxy(p1.Value);
-                    //p2 = initial.end_opOneOptionalProxy(out p3, r);
-                    //test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
-
-                    p2 = initial.opOneOptionalProxy(new Ice.Optional<Ice.ObjectPrx>(), out p3);
-                    test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
+                    p2 = initial.opMyInterfaceProxy(p1, out p3);
+                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
+                    r = initial.begin_opMyInterfaceProxy(p1);
+                    p2 = initial.end_opMyInterfaceProxy(out p3, r);
+                    test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
 
                     os = new Ice.OutputStream(communicator);
                     os.startEncapsulation();
@@ -1220,7 +1214,7 @@ namespace Ice
                     os.endSize(pos);
                     os.endEncapsulation();
                     inEncaps = os.finished();
-                    initial.ice_invoke("opOneOptionalProxy", Ice.OperationMode.Normal, inEncaps, out outEncaps);
+                    initial.ice_invoke("opMyInterfaceProxy", Ice.OperationMode.Normal, inEncaps, out outEncaps);
                     @in = new Ice.InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, Ice.OptionalFormat.FSize));

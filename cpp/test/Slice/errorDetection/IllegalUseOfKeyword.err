@@ -7,7 +7,6 @@ IllegalUseOfKeyword.ice:17: keyword `class' cannot be used as struct name
 IllegalUseOfKeyword.ice:22: keyword `interface' cannot be used as class name
 IllegalUseOfKeyword.ice:23: keyword `struct' cannot be used as class name
 IllegalUseOfKeyword.ice:30: keyword `extends' cannot be used as interface name
-IllegalUseOfKeyword.ice:37: keyword `implements' cannot be used as operation name
 IllegalUseOfKeyword.ice:39: keyword `throws' cannot be used as parameter name
 IllegalUseOfKeyword.ice:39: keyword `void' cannot be used as parameter name
 IllegalUseOfKeyword.ice:41: keyword `byte' cannot be used as parameter name

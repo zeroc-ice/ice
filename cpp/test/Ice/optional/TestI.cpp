@@ -192,8 +192,8 @@ InitialI::opOneOptional(ICE_IN(Optional<OneOptionalPtr>) p1, Optional<OneOptiona
     return p1;
 }
 
-Optional<OneOptionalPrxPtr>
-InitialI::opOneOptionalProxy(ICE_IN(Optional<OneOptionalPrxPtr>) p1, Optional<OneOptionalPrxPtr>& p3, const Current&)
+Optional<MyInterfacePrxPtr>
+InitialI::opMyInterfaceProxy(ICE_IN(Optional<MyInterfacePrxPtr>) p1, Optional<MyInterfacePrxPtr>& p3, const Current&)
 {
     p3 = p1;
     return p1;

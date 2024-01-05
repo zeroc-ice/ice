@@ -52,7 +52,7 @@ module BEGIN
 
     interface extend
     {
-        END for(display freeze, elsif hash, break* if, display inspect, elsif method, int methods)
+        END for(display freeze, elsif* hash, break* if, display inspect, elsif* method, int methods)
             throws nil;
     }
 

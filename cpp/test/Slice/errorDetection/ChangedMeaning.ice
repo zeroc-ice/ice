@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["suppress-warning:deprecated"]] // for classes with operations
-
 module Test
 {
 
@@ -86,7 +84,6 @@ class c2 {}
 
 module C
 {
-    class cc1 implements c1 {}
     class c1 {}                // Changed meaning
     class c2 extends c2 {}     // Changed meaning
 }
@@ -167,10 +164,10 @@ module M1
     }
 }
 
-const Test::M1::M2::C MyConstant1 = Test::M1::M2::C2; // OK
-const ::Test::M1::M2::C MyConstant2 = Test::M1::M2::C2; // OK
-const Test::M1::M2::C MyConstant3 = ::Test::M1::M2::C2; // OK
-const ::Test::M1::M2::C MyConstant4 = ::Test::M1::M2::C2; // OK
+const Test::M1::M2::C MyConstant1 = Test::M1::M2::C::C2; // OK
+const ::Test::M1::M2::C MyConstant2 = Test::M1::M2::C::C2; // OK
+const Test::M1::M2::C MyConstant3 = ::Test::M1::M2::C::C2; // OK
+const ::Test::M1::M2::C MyConstant4 = ::Test::M1::M2::C::C2; // OK
 
 interface smnpTest1Class
 {
@@ -194,18 +191,6 @@ interface Foo2
     void op1(int a, int A); // Changed meaning
     void op2(int Foo2); // OK
     void op3(int op3); // Ok
-}
-
-class Foo3
-{
-    void x(int x);
-    string x; // Changed meaning
-}
-
-class Foo4
-{
-    void op(int x);
-    string x; // Ok
 }
 
 exception Foo5

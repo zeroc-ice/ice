@@ -854,15 +854,3 @@
     return YES;
 }
 @end
-
-@implementation TestOperationsBI
-
--(void) opB:(ICECurrent*)__unused current
-{
-}
-
--(void) opIntf:(ICECurrent*)__unused current
-{
-}
-
-@end

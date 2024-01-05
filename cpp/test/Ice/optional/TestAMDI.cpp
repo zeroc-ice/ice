@@ -187,8 +187,8 @@ InitialI::opOneOptionalAsync(Ice::optional<::std::shared_ptr<::Test::OneOptional
 }
 
 void
-InitialI::opOneOptionalProxyAsync(Ice::optional<::std::shared_ptr<::Ice::ObjectPrx>> p1,
-                                       ::std::function<void(const Ice::optional<::std::shared_ptr<::Ice::ObjectPrx>>&, const Ice::optional<::std::shared_ptr<::Ice::ObjectPrx>>&)> response,
+InitialI::opMyInterfaceProxyAsync(Ice::optional<::std::shared_ptr<MyInterfacePrx>> p1,
+                                       ::std::function<void(const Ice::optional<::std::shared_ptr<MyInterfacePrx>>&, const Ice::optional<::std::shared_ptr<MyInterfacePrx>>&)> response,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -735,8 +735,8 @@ InitialI::opOneOptional_async(const ::Test::AMD_Initial_opOneOptionalPtr& cb,
 }
 
 void
-InitialI::opOneOptionalProxy_async(const ::Test::AMD_Initial_opOneOptionalProxyPtr& cb,
-                                   const IceUtil::Optional< Test::OneOptionalPrx>& p1,
+InitialI::opMyInterfaceProxy_async(const ::Test::AMD_Initial_opMyInterfaceProxyPtr& cb,
+                                   const IceUtil::Optional< Test::MyInterfacePrx>& p1,
                                    const ::Ice::Current&)
 {
     cb->ice_response(p1, p1);

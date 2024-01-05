@@ -7,13 +7,6 @@
 
 #include <Test.h>
 
-#ifdef ICE_CPP11_MAPPING
-namespace Test
-{
-using OneOptionalPrxPtr = std::shared_ptr<Ice::ObjectPrx>;
-}
-#endif
-
 class InitialI : public Test::Initial
 {
 public:
@@ -97,8 +90,8 @@ public:
                                                                   IceUtil::Optional< Test::OneOptionalPtr>&,
                                                                   const ::Ice::Current&);
 
-    virtual IceUtil::Optional<Test::OneOptionalPrxPtr> opOneOptionalProxy(ICE_IN(IceUtil::Optional< Test::OneOptionalPrxPtr>),
-                                                                          IceUtil::Optional< Test::OneOptionalPrxPtr>&,
+    virtual IceUtil::Optional<Test::MyInterfacePrxPtr> opMyInterfaceProxy(ICE_IN(IceUtil::Optional< Test::MyInterfacePrxPtr>),
+                                                                          IceUtil::Optional< Test::MyInterfacePrxPtr>&,
                                                                           const ::Ice::Current&);
 
     virtual IceUtil::Optional< ::Test::ByteSeq> opByteSeq(

@@ -9,7 +9,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def twoways(helper, p, bprx):
+def twoways(helper, p):
 
     communicator = helper.communicator()
     literals = p.opStringLiterals()
@@ -1431,6 +1431,3 @@ def twoways(helper, p, bprx):
     p1 = { "test": "test" }
     (p3, p2) = p.opMDict2(p1)
     test(p3["test"] == "test" and p2["test"] == "test")
-
-    bprx.opB()
-    bprx.opIntf()

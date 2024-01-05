@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For classes with operations
-
 module Test
 {
 
@@ -341,27 +339,4 @@ interface MyDerivedClass extends Test::MyClass
 {
 }
 
-}
-
-//
-// Test proxy inheritance for class with operations
-// see: https://github.com/zeroc-ice/ice/issues/406
-//
-module M
-{
-    class A
-    {
-        int x;
-        // void opA();
-    }
-
-    interface Intf
-    {
-        void opIntf();
-    }
-
-    class B extends A implements Intf
-    {
-        void opB();
-    }
 }

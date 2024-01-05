@@ -14,11 +14,9 @@ classdef AllTests
             cl = MyClassPrx.checkedCast(base);
             derived = MyDerivedClassPrx.checkedCast(cl);
 
-            bprx = BPrx.checkedCast(communicator.stringToProxy(['b:', helper.getTestEndpoint()]));
-
             fprintf('testing twoway operations... ');
-            Twoways.twoways(helper, cl, bprx);
-            Twoways.twoways(helper, derived, bprx);
+            Twoways.twoways(helper, cl);
+            Twoways.twoways(helper, derived);
             derived.opDerived();
             fprintf('ok\n');
 

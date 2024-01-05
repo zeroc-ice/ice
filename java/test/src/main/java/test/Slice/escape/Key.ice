@@ -54,7 +54,7 @@ exception import extends hashCode
 
 interface new
 {
-    assert notify(break notifyAll, else null, finalize package, else* private, finalize* protected, catch* public,
+    assert notify(break notifyAll, else null, finalize* package, catch* public,
                 default* return, int static, int strictfp, int super)
         throws hashCode, import;
 }

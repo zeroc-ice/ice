@@ -27,11 +27,6 @@ exception BaseEx
     string reason;
 }
 
-class AbstractBase extends Base
-{
-    void op();
-}
-
 class B;
 class C;
 
@@ -90,15 +85,6 @@ interface I
 
 interface J extends I
 {
-}
-
-class H implements I
-{
-}
-
-class N
-{
-    I i;
 }
 
 sequence<Base> BaseSeq;
@@ -235,9 +221,6 @@ interface Initial
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
-    I getH();
-    I getI();
-    I getJ();
     K getK();
 
     Value opValue(Value v1, out Value v2);
@@ -248,7 +231,6 @@ interface Initial
     void throwEDerived() throws EDerived;
 
     void setG(G theG);
-    void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
@@ -266,8 +248,6 @@ interface Initial
     F2* opF2(F2* f21, out F2* f22);
     bool hasF3();
     F3 opF3(F3 f31, out F3 f32);
-
-    N opN(N p1);
 }
 
 interface TestIntf

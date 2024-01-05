@@ -277,11 +277,11 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
         return builtinTable[builtin->kind()];
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        string mName = moduleName(findModule(proxy->_class()));
-        return "id<" + mName + (proxy->_class()->name()) + "Prx>";
+        string mName = moduleName(findModule(proxy));
+        return "id<" + mName + (proxy->name()) + "Prx>";
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -294,15 +294,6 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
     if(d)
     {
         return fixName(d);
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        if(cl->isInterface())
-        {
-            return "ICEObject";
-        }
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -395,10 +386,10 @@ Slice::ObjCGenerator::outTypeToString(const TypePtr& type, bool optional, bool a
 string
 Slice::ObjCGenerator::typeToObjCTypeString(const TypePtr& type)
 {
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        return moduleName(findModule(proxy->_class())) + (proxy->_class()->name()) + "Prx";
+        return moduleName(findModule(proxy)) + (proxy->name()) + "Prx";
     }
     else
     {
@@ -513,12 +504,7 @@ Slice::ObjCGenerator::mapsToPointerType(const TypePtr& type)
     {
        return builtin->kind() != Builtin::KindObjectProxy;
     }
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl && cl->isInterface())
-    {
-        return true;
-    }
-    return !ProxyPtr::dynamicCast(type);
+    return !InterfaceDeclPtr::dynamicCast(type);
 }
 
 string
@@ -660,7 +646,7 @@ Slice::ObjCGenerator::getOptionalFormat(const TypePtr& type)
         return st->isVariableLength() ? "ICEOptionalFormatFSize" : "ICEOptionalFormatVSize";
     }
 
-    if(ProxyPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type))
     {
         return "ICEOptionalFormatFSize";
     }
@@ -737,7 +723,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     if(prx)
     {
         if(marshal)
@@ -746,7 +732,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         }
         else
         {
-            string name = moduleName(findModule(prx->_class())) + prx->_class()->name() + "Prx";
+            string name = moduleName(findModule(prx)) + prx->name() + "Prx";
             out << nl << param << " = (id<" << name << ">)[" << stream;
             if(autoreleased)
             {
@@ -760,7 +746,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
             // We use objc_getClass to get the proxy class instead of [name class]. This is to avoid
             // a warning if the proxy is forward declared.
             //
-            if(prx->_class()->definition())
+            if(prx->definition())
             {
                 out << "[" << name << " class]];";
             }
@@ -791,21 +777,14 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
                 out << nl << "[" << stream << " " << "newValue:(ICEObject**)&" << param;
             }
 
-            if(cl->isInterface())
+            string name = moduleName(findModule(cl)) + cl->name();
+            if(cl->definition())
             {
-                out << "];";
+                out << " expectedType:[" << name << " class]];";
             }
             else
             {
-                string name = moduleName(findModule(cl)) + cl->name();
-                if(cl->definition())
-                {
-                    out << " expectedType:[" << name << " class]];";
-                }
-                else
-                {
-                    out << " expectedType:objc_getClass(\"" << name << "\")];";
-                }
+                out << " expectedType:objc_getClass(\"" << name << "\")];";
             }
         }
         return;
@@ -898,11 +877,11 @@ Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const Type
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     if(prx)
     {
         optionalHelper = "ICEVarLengthOptionalHelper";
-        helper = "objc_getClass(\"" + moduleName(findModule(prx->_class())) + prx->_class()->name() + "PrxHelper\")";
+        helper = "objc_getClass(\"" + moduleName(findModule(prx)) + prx->name() + "PrxHelper\")";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -971,14 +950,14 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
 {
     string helper;
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(builtin)
     {
         helper = "ICE" + getBuiltinName(builtin) + "Helper";
     }
     else if(proxy)
     {
-        helper = moduleName(findModule(proxy->_class())) + (proxy->_class()->name()) + "PrxHelper";
+        helper = moduleName(findModule(proxy)) + (proxy->name()) + "PrxHelper";
     }
     else
     {

@@ -453,9 +453,4 @@ module M
     {
         void opIntf();
     }
-
-    class B extends A implements Intf
-    {
-        void opB();
-    }
 }

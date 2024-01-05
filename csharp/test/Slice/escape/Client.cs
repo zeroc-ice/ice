@@ -40,10 +40,9 @@ public class Client : Test.TestHelper
 
     public sealed class implicitI : @abstract.@implicitDisp_
     {
-        public override @abstract.@as @in(@abstract.@break @internal, @abstract.@delegate @is, Ice.Value @lock,
+        public override @abstract.@as @in(@abstract.@break @internal, @abstract.@delegate @is, @abstract.explicitPrx @lock,
                                  @abstract.casePrx @namespace, @abstract.decimalPrx @new, @abstract.@delegate @null,
-                                 @abstract.explicitPrx @operator, int @override, int @params, int @private,
-                                 Ice.Current current)
+                                 int @override, int @params, int @private, Ice.Current current)
         {
             return @abstract.@as.@base;
         }

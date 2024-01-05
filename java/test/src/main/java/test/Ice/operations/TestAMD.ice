@@ -6,8 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[["java:package:test.Ice.operations.AMD",
-  "suppress-warning:deprecated"]] // For classes with operations
+[["java:package:test.Ice.operations.AMD"]]
 module Test
 {
 
@@ -365,10 +364,5 @@ module M
     ["amd"] interface Intf
     {
         void opIntf();
-    }
-
-    ["amd"] class B extends A implements Intf
-    {
-        void opB();
     }
 }

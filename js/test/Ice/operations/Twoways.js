@@ -7,7 +7,7 @@
     const Ice = require("ice").Ice;
     const test = require("TestHelper").TestHelper.test;
 
-    async function run(communicator, prx, Test, M, bidir, helper)
+    async function run(communicator, prx, Test, bidir, helper)
     {
         const literals = await prx.opStringLiterals();
 
@@ -1471,12 +1471,6 @@
                 ds[i] = 1278312346.0 / 13.0;
             }
             await prx.opDoubleMarshaling(1278312346.0 / 13.0, ds);
-        }
-
-        {
-            const b = M.BPrx.uncheckedCast(communicator.stringToProxy("b:" + helper.getTestEndpoint()));
-            await b.opB();
-            await b.opIntf();
         }
     }
 

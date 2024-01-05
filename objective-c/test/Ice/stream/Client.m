@@ -156,7 +156,7 @@ run(id<ICECommunicator> communicator)
         s.d = 6.0;
         s.str = @"7";
         s.e = TestStreamenum2;
-        s.p = [TestStreamMyClassPrx uncheckedCast:[communicator stringToProxy:@"test:default"]];
+        s.p = [TestStreamMyInterfacePrx uncheckedCast:[communicator stringToProxy:@"test:default"]];
         [TestStreamSmallStructHelper write:s stream:out];
         data = [out finished];
         in = [ICEUtil createInputStream:communicator data:data];
@@ -465,7 +465,7 @@ run(id<ICECommunicator> communicator)
             s.d = 6.0;
             s.str = @"7";
             s.e = TestStreamenum2;
-            s.p = [TestStreamMyClassPrx uncheckedCast:[communicator stringToProxy:@"test:default"]];
+            s.p = [TestStreamMyInterfacePrx uncheckedCast:[communicator stringToProxy:@"test:default"]];
             [arr addObject:s];
         }
         out = [ICEUtil createOutputStream:communicator];
@@ -584,19 +584,6 @@ run(id<ICECommunicator> communicator)
         in = [ICEUtil createInputStream:communicator data:data];
         TestStreamMyClassSS* arr2S = [TestStreamMyClassSSHelper read:in];
         test([arr2S count] == [arrS count]);
-    }
-
-    {
-        TestStreamMyInterface ICE_AUTORELEASING_QUALIFIER * i = ICE_AUTORELEASE([TestStreamMyInterface new]);
-        out = [ICEUtil createOutputStream:communicator];
-        [TestStreamMyInterfaceHelper write:i stream:out];
-        [out writePendingValues];
-        data = [out finished];
-        in = [ICEUtil createInputStream:communicator data:data];
-        i = nil;
-        [TestStreamMyInterfaceHelper read:&i stream:in];
-        [in readPendingValues];
-        test(i != nil);
     }
 
     //

@@ -6,7 +6,6 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
-    const M = require("Test").M;
     const TestHelper = require("TestHelper").TestHelper;
     const Twoways = require("Twoways").Twoways;
     const Oneways = require("Oneways").Oneways;
@@ -24,8 +23,8 @@
             const cl = await Test.MyClassPrx.checkedCast(base);
             const derived = await Test.MyDerivedClassPrx.checkedCast(cl);
 
-            await Twoways.run(communicator, cl, Test, M, bidir, this);
-            await Twoways.run(communicator, derived, Test, M, bidir, this);
+            await Twoways.run(communicator, cl, Test, bidir, this);
+            await Twoways.run(communicator, derived, Test, bidir, this);
             out.writeLine("ok");
 
             out.write("testing oneway operations... ");

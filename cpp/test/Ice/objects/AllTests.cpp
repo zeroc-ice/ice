@@ -19,15 +19,6 @@ using namespace Test;
 namespace
 {
 
-class AbstractBaseI : public AbstractBase
-{
-public:
-
-    virtual void op(const Ice::Current&)
-    {
-    }
-};
-
 void
 testUOE(const Ice::CommunicatorPtr& communicator)
 {
@@ -183,20 +174,6 @@ allTests(Test::TestHelper* helper)
     test(bp1->theS.str == bp2->theS.str);
     test(bp1->str == bp2->str);
 
-#ifndef ICE_CPP11_MAPPING
-    //
-    // With C++11 mapping value classes are never abstracts.
-    //
-    AbstractBasePtr abp1 = new AbstractBaseI();
-    try
-    {
-        abp1->ice_clone();
-        test(false);
-    }
-    catch(const Ice::CloneNotImplementedException&)
-    {
-    }
-#endif
     cout << "ok" << endl;
 
     cout << "getting B1... " << flush;
@@ -332,24 +309,6 @@ allTests(Test::TestHelper* helper)
 #endif
     cout << "ok" << endl;
 
-    cout << "getting I, J and H... " << flush;
-#ifdef ICE_CPP11_MAPPING
-    shared_ptr<Ice::Value> i = initial->getI();
-    test(i->ice_id() == "::Test::I");
-    shared_ptr<Ice::Value> j = initial->getJ();
-    test(j->ice_id() == "::Test::J");
-    shared_ptr<Ice::Value> h = initial->getH();
-    test(h && dynamic_pointer_cast<H>(h));
-#else
-    IPtr i = initial->getI();
-    test(i);
-    IPtr j = initial->getJ();
-    test(j && JPtr::dynamicCast(j));
-    IPtr h = initial->getH();
-    test(h && HPtr::dynamicCast(h));
-#endif
-    cout << "ok" << endl;
-
     cout << "getting K... " << flush;
     {
         KPtr k = initial->getK();
@@ -426,12 +385,6 @@ allTests(Test::TestHelper* helper)
     catch(const Ice::OperationNotExistException&)
     {
     }
-    cout << "ok" << endl;
-
-    cout << "setting I... " << flush;
-    initial->setI(i);
-    initial->setI(j);
-    initial->setI(h);
     cout << "ok" << endl;
 
     cout << "testing sequences... " << flush;
@@ -621,15 +574,6 @@ allTests(Test::TestHelper* helper)
             test(!acceptsCycles);
         }
         rec->v = ICE_NULLPTR;
-    }
-    cout << "ok" << endl;
-
-    cout << "testing class with interface by value member... " << flush;
-    {
-        i = initial->getI();
-        NPtr n = ICE_MAKE_SHARED(N);
-        n->i = i;
-        n = initial->opN(n);
     }
     cout << "ok" << endl;
 
