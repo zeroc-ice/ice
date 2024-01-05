@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["js:es6-module"]] // For classes with operations
-
 module Test
 {
 

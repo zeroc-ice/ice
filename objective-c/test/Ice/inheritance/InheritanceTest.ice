@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For classes with operations
-
 ["objc:prefix:TestInheritance"]
 module Test
 {

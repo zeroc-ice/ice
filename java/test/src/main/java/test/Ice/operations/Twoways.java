@@ -12,7 +12,7 @@ import java.util.Map;
 import com.zeroc.Ice.*;
 
 import test.Ice.operations.Test.*;
-import test.Ice.operations.M.*;
+
 class Twoways
 {
     private static void test(boolean b)

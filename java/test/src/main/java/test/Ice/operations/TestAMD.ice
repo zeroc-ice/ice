@@ -348,21 +348,3 @@ const string su1 = "\u0128\u0178\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198
 const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 
 }
-
-//
-// Test proxy inheritance for class with operations
-// see: https://github.com/zeroc-ice/ice/issues/406
-//
-module M
-{
-    class A
-    {
-        int x;
-        // void opA();
-    }
-
-    ["amd"] interface Intf
-    {
-        void opIntf();
-    }
-}

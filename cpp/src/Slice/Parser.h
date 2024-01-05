@@ -555,7 +555,7 @@ public:
     bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
     bool hasOnlyInterfaces() const;
-    bool hasOperations() const; // interfaces or classes with operations
+    bool hasOperations() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     bool hasAsyncOps() const;
