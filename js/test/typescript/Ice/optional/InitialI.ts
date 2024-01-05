@@ -158,6 +158,11 @@ export class InitialI extends Test.Initial
         return [p1, p1];
     }
 
+    opMyInterfaceProxy(p1:Test.MyInterfacePrx, current:Ice.Current):[Test.MyInterfacePrx, Test.MyInterfacePrx]
+    {
+        return [p1, p1];
+    }
+
     opByteSeq(p1:Test.ByteSeq, current:Ice.Current):[Test.ByteSeq, Test.ByteSeq]
     {
         return [p1, p1];

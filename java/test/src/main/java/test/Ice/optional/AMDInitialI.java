@@ -281,6 +281,22 @@ public final class AMDInitialI implements Initial
     }
 
     @Override
+    public CompletionStage<Initial.OpMyInterfaceProxyResult> opMyInterfaceProxyAsync(
+        Optional<MyInterfacePrx> p1,
+        Current current)
+    {
+        return CompletableFuture.completedFuture(new Initial.OpMyInterfaceProxyResult(p1, p1));
+    }
+
+    @Override
+    public CompletionStage<Initial.OpMyInterfaceProxyReqResult> opMyInterfaceProxyReqAsync(
+        Optional<MyInterfacePrx> p1,
+        Current current)
+    {
+        return CompletableFuture.completedFuture(new Initial.OpMyInterfaceProxyReqResult(p1, p1));
+    }
+
+    @Override
     public CompletionStage<Initial.OpByteSeqResult> opByteSeqAsync(Optional<byte[]> p1, Current current)
     {
         return CompletableFuture.completedFuture(new Initial.OpByteSeqResult(p1, p1));

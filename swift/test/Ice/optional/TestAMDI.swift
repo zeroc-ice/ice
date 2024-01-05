@@ -101,6 +101,11 @@ class InitialI: Initial {
         return Promise.value((p1, p1))
     }
 
+    func opMyInterfaceProxyAsync(p1: MyInterfacePrx?,
+                                 current _: Current) -> Promise<(returnValue: MyInterfacePrx?, p3: MyInterfacePrx?)> {
+        return Promise.value((p1, p1))
+    }
+
     func opByteSeqAsync(p1: ByteSeq?, current _: Current) -> Promise<(returnValue: ByteSeq?, p3: ByteSeq?)> {
         return Promise.value((p1, p1))
     }

@@ -7,7 +7,7 @@ import PromiseKit
 import TestCommon
 
 class TestValueReader: Ice.Value {
-    public override func _iceRead(from istr: Ice.InputStream) throws {
+    override public func _iceRead(from istr: Ice.InputStream) throws {
         istr.startValue()
         _ = try istr.startSlice()
         try istr.endSlice()
@@ -16,7 +16,7 @@ class TestValueReader: Ice.Value {
 }
 
 class BValueReader: Ice.Value {
-    public override func _iceRead(from istr: Ice.InputStream) throws {
+    override public func _iceRead(from istr: Ice.InputStream) throws {
         istr.startValue()
         // ::Test::B
         _ = try istr.startSlice()
@@ -31,7 +31,7 @@ class BValueReader: Ice.Value {
 }
 
 class CValueReader: Ice.Value {
-    public override func _iceRead(from istr: Ice.InputStream) throws {
+    override public func _iceRead(from istr: Ice.InputStream) throws {
         istr.startValue()
         // ::Test::C
         _ = try istr.startSlice()
@@ -49,7 +49,7 @@ class CValueReader: Ice.Value {
 }
 
 class DValueWriter: Ice.Value {
-    public override func _iceWrite(to ostr: Ice.OutputStream) {
+    override public func _iceWrite(to ostr: Ice.OutputStream) {
         ostr.startValue(data: nil)
         // ::Test::D
         ostr.startSlice(typeId: "::Test::D", compactId: -1, last: false)
@@ -90,7 +90,7 @@ class DValueReader: Ice.Value {
         self.helper = helper
     }
 
-    public override func _iceRead(from istr: Ice.InputStream) throws {
+    override public func _iceRead(from istr: Ice.InputStream) throws {
         istr.startValue()
         // ::Test::D
         _ = try istr.startSlice()
@@ -128,7 +128,7 @@ class FValueReader: Ice.Value {
         super.init()
     }
 
-    public override func _iceRead(from istr: Ice.InputStream) throws {
+    override public func _iceRead(from istr: Ice.InputStream) throws {
         _f = F()
         istr.startValue()
         _ = try istr.startSlice()
@@ -228,6 +228,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo1.g = 1.0
     mo1.h = "test"
     mo1.i = .MyEnumMember
+    mo1.j = try uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
     // mo1.k = mo1
     mo1.bs = ByteSeq([5])
     mo1.ss = ["test", "test2"]
@@ -245,11 +246,13 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     mo1.fss = [fs]
     mo1.vss = [vs]
     mo1.oos = [oo1]
+    mo1.mips = try [uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)]
 
     mo1.ied = [4: .MyEnumMember]
     mo1.ifsd = [4: fs]
     mo1.ivsd = [5: vs]
     mo1.iood = [5: OneOptional(a: 15)]
+    mo1.imipd = try [5: uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)]
 
     mo1.bos = [false, true, false]
 
@@ -262,6 +265,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo1.g! == 1.0)
     try test(mo1.h! == "test")
     try test(mo1.i! == .MyEnumMember)
+    try test(mo1.j! == communicator.stringToProxy("test"))
     // try test(mo1.k! === mo1)
     try test(mo1.bs! == ByteSeq([5]))
     try test(mo1.ss! == ["test", "test2"])
@@ -277,11 +281,13 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     try test(mo1.fss![0] == FixedStruct(m: 78))
     try test(mo1.vss![0] == VarStruct(m: "hello"))
     try test(mo1.oos![0] === oo1)
+    try test(mo1.mips![0] == communicator.stringToProxy("test"))
 
     try test(mo1.ied![4] == .MyEnumMember)
     try test(mo1.ifsd![4] == FixedStruct(m: 78))
     try test(mo1.ivsd![5] == VarStruct(m: "hello"))
     try test(mo1.iood![5]!!.a! == 15)
+    try test(mo1.imipd![5]! == communicator.stringToProxy("test"))
 
     try test(mo1.bos == [false, true, false])
 
@@ -311,6 +317,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo4.g == nil)
         try test(mo4.h == nil)
         try test(mo4.i == nil)
+        try test(mo4.j == nil)
         try test(mo4.k == nil)
         try test(mo4.bs == nil)
         try test(mo4.ss == nil)
@@ -324,11 +331,13 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo4.fss == nil)
         try test(mo4.vss == nil)
         try test(mo4.oos == nil)
+        try test(mo4.mips == nil)
 
         try test(mo4.ied == nil)
         try test(mo4.ifsd == nil)
         try test(mo4.ivsd == nil)
         try test(mo4.iood == nil)
+        try test(mo4.imipd == nil)
 
         try test(mo4.bos == nil)
 
@@ -350,6 +359,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo5.g == mo1.g)
         try test(mo5.h == mo1.h)
         try test(mo5.i == mo1.i)
+        try test(mo5.j == mo1.j)
         // try test(mo5.k === mo5)
         try test(mo5.bs == mo1.bs)
         try test(mo5.ss == mo1.ss)
@@ -363,11 +373,13 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo5.fss![0] == FixedStruct(m: 78))
         try test(mo5.vss![0] == VarStruct(m: "hello"))
         try test(mo5.oos![0]!.a! == 15)
+        try test(mo5.mips![0] == communicator.stringToProxy("test"))
 
         try test(mo5.ied![4] == .MyEnumMember)
         try test(mo5.ifsd![4] == FixedStruct(m: 78))
         try test(mo5.ivsd![5] == VarStruct(m: "hello"))
         try test(mo5.iood![5]!!.a == 15)
+        try test(mo5.imipd![5]! == communicator.stringToProxy("test"))
 
         try test(mo5.bos == [false, true, false])
 
@@ -376,6 +388,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         mo6.d = mo5.d
         mo6.f = mo5.f
         mo6.h = mo5.h
+        mo6.j = mo5.j
         mo6.bs = mo5.bs
         mo6.iid = mo5.iid
         mo6.fs = mo5.fs
@@ -399,9 +412,11 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
         mo8.es = mo5.es
         mo8.vss = mo5.vss
+        mo8.mips = mo5.mips
 
         mo8.ied = mo5.ied
         mo8.ivsd = mo5.ivsd
+        mo8.imipd = mo5.imipd
     } else {
         try test(false)
     }
@@ -416,6 +431,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo7.g == nil)
         try test(mo7.h == mo1.h)
         try test(mo7.i == nil)
+        try test(mo7.j == mo1.j)
         try test(mo7.k == nil)
         try test(mo7.bs == mo1.bs)
         try test(mo7.ss == nil)
@@ -429,11 +445,13 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo7.fss![0] == FixedStruct(m: 78))
         try test(mo7.vss == nil)
         try test(mo7.oos![0]!.a == 15)
+        try test(mo7.mips == nil)
 
         try test(mo7.ied == nil)
         try test(mo7.ifsd![4] == FixedStruct(m: 78))
         try test(mo7.ivsd == nil)
         try test(mo7.iood![5]!!.a == 15)
+        try test(mo7.imipd == nil)
 
         try test(mo7.bos == [false, true, false])
         try test(mo7.ser == nil)
@@ -451,6 +469,7 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo9.g == mo1.g)
         try test(mo9.h == nil)
         try test(mo9.i == mo1.i)
+        try test(mo9.j == nil)
         // try test(mo9.k === mo9)
         try test(mo9.bs == nil)
         try test(mo9.ss == mo1.ss)
@@ -465,11 +484,13 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try test(mo9.fss == nil)
         try test(mo9.vss![0] == VarStruct(m: "hello"))
         try test(mo9.oos == nil)
+        try test(mo9.mips![0] == communicator.stringToProxy("test"))
 
         try test(mo9.ied![4] == .MyEnumMember)
         try test(mo9.ifsd == nil)
         try test(mo9.ivsd![5] == VarStruct(m: "hello"))
         try test(mo9.iood == nil)
+        try test(mo9.imipd![5]! == communicator.stringToProxy("test"))
 
         try test(mo9.bos == nil)
     } else {
@@ -1892,6 +1913,78 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
         try istr.read { v2 = $0 }
         try istr.endEncapsulation()
         try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)
+
+        istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+        _ = try istr.startEncapsulation()
+        try istr.endEncapsulation()
+    }
+
+    do {
+        var p1: MyInterfacePrx?
+        var p2: MyInterfacePrx?
+        var p3: MyInterfacePrx?
+        (p2, p3) = try initial.opMyInterfaceProxy(p1)
+        try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opMyInterfaceProxy(nil)
+        try test(p2 == nil && p3 == nil)
+
+        (p2, p3) = try initial.opMyInterfaceProxy()
+        try test(p2 == nil && p3 == nil)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opMyInterfaceProxyAsync(nil)
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opMyInterfaceProxyAsync()
+            }.done { p2, p3 in
+                try test(p2 == nil && p3 == nil)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        p1 = try uncheckedCast(prx: communicator.stringToProxy("test")!, type: MyInterfacePrx.self)
+        (p2, p3) = try initial.opMyInterfaceProxy(p1)
+        try test(p2 == p1 && p3 == p1)
+
+        try Promise<Void> { seal in
+            firstly {
+                initial.opMyInterfaceProxyAsync(p1)
+            }.done { p2, p3 in
+                try test(p2 == p1 && p3 == p1)
+                seal.fulfill(())
+            }.catch { e in
+                seal.reject(e)
+            }
+        }.wait()
+
+        (p2, p3) = try initial.opMyInterfaceProxy(nil)
+        try test(p2 == nil && p3 == nil) // Ensure out parameter is cleared.
+
+        let ostr = Ice.OutputStream(communicator: communicator)
+        ostr.startEncapsulation()
+        ostr.write(tag: 2, value: p1)
+        ostr.endEncapsulation()
+        let inEncaps = ostr.finished()
+        let result = try initial.ice_invoke(operation: "opMyInterfaceProxy", mode: .Normal, inEncaps: inEncaps)
+        var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
+        _ = try istr.startEncapsulation()
+        p2 = try istr.read(tag: 1, type: MyInterfacePrx.self)
+        try test(p2 == p1)
+        p3 = try istr.read(tag: 3, type: MyInterfacePrx.self)
+        try test(p3 == p1)
+        try istr.endEncapsulation()
 
         istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()

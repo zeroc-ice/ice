@@ -142,6 +142,12 @@ namespace Ice
                     return Task.FromResult(new Test.Initial_OpOneOptionalResult(p1, p1));
                 }
 
+                public override Task<Test.Initial_OpMyInterfaceProxyResult>
+                opMyInterfaceProxyAsync(Ice.Optional<Test.MyInterfacePrx> p1, Ice.Current current)
+                {
+                    return Task.FromResult(new Test.Initial_OpMyInterfaceProxyResult(p1, p1));
+                }
+
                 public override Task<Test.Initial_OpByteSeqResult>
                 opByteSeqAsync(Ice.Optional<byte[]> p1, Ice.Current current)
                 {

@@ -159,6 +159,11 @@
             return [p1, p1];
         }
 
+        opMyInterfaceProxy(p1, current)
+        {
+            return [p1, p1];
+        }
+
         opByteSeq(p1, current)
         {
             return [p1, p1];

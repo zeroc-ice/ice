@@ -123,7 +123,7 @@
     *p3 = p1;
     return p1;
 }
--(id) opOneOptionalProxy:(id)p1 p3:(id *)p3 current:(ICECurrent *)__unused current
+-(id) opMyInterfaceProxy:(id)p1 p3:(id *)p3 current:(ICECurrent *)__unused current
 {
     *p3 = p1;
     return p1;

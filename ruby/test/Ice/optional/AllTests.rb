@@ -37,6 +37,7 @@ def allTests(helper, communicator)
     test(mo1.g == Ice::Unset)
     test(mo1.h == Ice::Unset)
     test(mo1.i == Ice::Unset)
+    test(mo1.j == Ice::Unset)
     test(mo1.k == Ice::Unset)
     test(mo1.bs == Ice::Unset)
     test(mo1.ss == Ice::Unset)
@@ -50,11 +51,13 @@ def allTests(helper, communicator)
     test(mo1.fss == Ice::Unset)
     test(mo1.vss == Ice::Unset)
     test(mo1.oos == Ice::Unset)
+    test(mo1.mips == Ice::Unset)
 
     test(mo1.ied == Ice::Unset)
     test(mo1.ifsd == Ice::Unset)
     test(mo1.ivsd == Ice::Unset)
     test(mo1.iood == Ice::Unset)
+    test(mo1.imipd == Ice::Unset)
 
     test(mo1.bos == Ice::Unset)
 
@@ -62,10 +65,13 @@ def allTests(helper, communicator)
     fs = Test::FixedStruct.new(78)
     vs = Test::VarStruct.new("hello")
     mo1 = Test::MultiOptional.new(15, true, 19, 78, 99, 5.5, 1.0, "test", Test::MyEnum::MyEnumMember, \
+                                  Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test")), \
                                   nil, [5], ["test", "test2"], {4=>3}, {"test"=>10}, fs, vs, [1], \
                                   [Test::MyEnum::MyEnumMember, Test::MyEnum::MyEnumMember], \
                                   [ fs ], [ vs ], [ oo1 ], \
+                                  [ Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test")) ], \
                                   {4=> Test::MyEnum::MyEnumMember}, {4=>fs}, {5=>vs}, {5=>Test::OneOptional.new(15)}, \
+                                  {5=> Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test"))}, \
                                   [false, true, false])
 
     test(mo1.a == 15)
@@ -77,6 +83,7 @@ def allTests(helper, communicator)
     test(mo1.g == 1.0)
     test(mo1.h == "test")
     test(mo1.i == Test::MyEnum::MyEnumMember)
+    test(mo1.j == communicator.stringToProxy("test"))
     test(mo1.k == nil)
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
@@ -90,11 +97,13 @@ def allTests(helper, communicator)
     test(mo1.fss[0] == Test::FixedStruct.new(78))
     test(mo1.vss[0] == Test::VarStruct.new("hello"))
     test(mo1.oos[0] == oo1)
+    test(mo1.mips[0] == communicator.stringToProxy("test"))
 
     test(mo1.ied[4] == Test::MyEnum::MyEnumMember)
     test(mo1.ifsd[4] == Test::FixedStruct.new(78))
     test(mo1.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo1.iood[5].a == 15)
+    test(mo1.imipd[5] == communicator.stringToProxy("test"))
 
     test(mo1.bos == [false, true, false])
 
@@ -127,6 +136,7 @@ def allTests(helper, communicator)
     test(mo4.g == Ice::Unset)
     test(mo4.h == Ice::Unset)
     test(mo4.i == Ice::Unset)
+    test(mo4.j == Ice::Unset)
     test(mo4.k == Ice::Unset)
     test(mo4.bs == Ice::Unset)
     test(mo4.ss == Ice::Unset)
@@ -140,11 +150,13 @@ def allTests(helper, communicator)
     test(mo4.fss == Ice::Unset)
     test(mo4.vss == Ice::Unset)
     test(mo4.oos == Ice::Unset)
+    test(mo4.mips == Ice::Unset)
 
     test(mo4.ied == Ice::Unset)
     test(mo4.ifsd == Ice::Unset)
     test(mo4.ivsd == Ice::Unset)
     test(mo4.iood == Ice::Unset)
+    test(mo4.imipd == Ice::Unset)
 
     test(mo4.bos == Ice::Unset)
 
@@ -158,6 +170,7 @@ def allTests(helper, communicator)
     test(mo5.g == mo1.g)
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
+    test(mo5.j == mo1.j)
     #
     # With Swift mapping you cannot distinguish null from unset
     # so we test for both here to support cross testing.
@@ -174,11 +187,13 @@ def allTests(helper, communicator)
     test(mo5.fss[0] == Test::FixedStruct.new(78))
     test(mo5.vss[0] == Test::VarStruct.new("hello"))
     test(mo5.oos[0].a == 15)
+    test(mo5.mips[0] == communicator.stringToProxy("test"))
 
     test(mo5.ied[4] == Test::MyEnum::MyEnumMember)
     test(mo5.ifsd[4] == Test::FixedStruct.new(78))
     test(mo5.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo5.iood[5].a == 15)
+    test(mo5.imipd[5] == communicator.stringToProxy("test"))
 
     test(mo5.bos == mo1.bos)
 
@@ -188,6 +203,7 @@ def allTests(helper, communicator)
     mo6.d = mo5.d
     mo6.f = mo5.f
     mo6.h = mo5.h
+    mo6.j = mo5.j
     mo6.bs = mo5.bs
     mo6.iid = mo5.iid
     mo6.fs = mo5.fs
@@ -208,6 +224,7 @@ def allTests(helper, communicator)
     test(mo7.g == Ice::Unset)
     test(mo7.h == mo1.h)
     test(mo7.i == Ice::Unset)
+    test(mo7.j == mo1.j)
     test(mo7.k == Ice::Unset)
     test(mo7.bs.unpack("C*") == [0x05])
     test(mo7.ss == Ice::Unset)
@@ -221,11 +238,13 @@ def allTests(helper, communicator)
     test(mo7.fss[0] == Test::FixedStruct.new(78))
     test(mo7.vss == Ice::Unset)
     test(mo7.oos[0].a == 15)
+    test(mo7.mips == Ice::Unset)
 
     test(mo7.ied == Ice::Unset)
     test(mo7.ifsd[4] == Test::FixedStruct.new(78))
     test(mo7.ivsd == Ice::Unset)
     test(mo7.iood[5].a == 15)
+    test(mo7.imipd == Ice::Unset)
 
     test(mo7.bos == [false, true, false])
 
@@ -243,9 +262,11 @@ def allTests(helper, communicator)
 
     mo8.es = mo5.es
     mo8.vss = mo5.vss
+    mo8.mips = mo5.mips
 
     mo8.ied = mo5.ied
     mo8.ivsd = mo5.ivsd
+    mo8.imipd = mo5.imipd
 
     mo9 = initial.pingPong(mo8)
     test(mo9.a == mo1.a)
@@ -257,6 +278,7 @@ def allTests(helper, communicator)
     test(mo9.g == mo1.g)
     test(mo9.h == Ice::Unset)
     test(mo9.i == mo1.i)
+    test(mo9.j == Ice::Unset)
     test(mo9.k == mo9)
     test(mo9.bs == Ice::Unset)
     test(mo9.ss == mo1.ss)
@@ -270,11 +292,13 @@ def allTests(helper, communicator)
     test(mo9.fss == Ice::Unset)
     test(mo9.vss[0] == Test::VarStruct.new("hello"))
     test(mo9.oos == Ice::Unset)
+    test(mo9.mips[0] == communicator.stringToProxy("test"))
 
     test(mo9.ied[4] == Test::MyEnum::MyEnumMember)
     test(mo9.ifsd == Ice::Unset)
     test(mo9.ivsd[5] == Test::VarStruct.new("hello"))
     test(mo9.iood == Ice::Unset)
+    test(mo9.imipd[5] == communicator.stringToProxy("test"))
 
     test(mo9.bos == Ice::Unset)
 
@@ -503,6 +527,12 @@ def allTests(helper, communicator)
     p1 = Test::OneOptional.new(58)
     p2, p3 = initial.opOneOptional(p1)
     test(p2.a == p1.a && p3.a == p1.a)
+
+    p2, p3 = initial.opMyInterfaceProxy(Ice::Unset)
+    test(p2 == Ice::Unset && p3 == Ice::Unset)
+    p1 = Test::MyInterfacePrx::uncheckedCast(communicator.stringToProxy("test"))
+    p2, p3 = initial.opMyInterfaceProxy(p1)
+    test(p2 == p1 && p3 == p1)
 
     p2, p3 = initial.opByteSeq(Ice::Unset)
     test(p2 == Ice::Unset && p3 == Ice::Unset)

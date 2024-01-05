@@ -288,6 +288,19 @@ public final class InitialI implements Initial
     }
 
     @Override
+    public Initial.OpMyInterfaceProxyResult opMyInterfaceProxy(Optional<MyInterfacePrx> p1, Current current)
+    {
+        return new Initial.OpMyInterfaceProxyResult(p1, p1);
+    }
+
+    @Override
+    public Initial.OpMyInterfaceProxyReqResult opMyInterfaceProxyReq(Optional<MyInterfacePrx> p1,
+                                                                     Current current)
+    {
+        return new Initial.OpMyInterfaceProxyReqResult(p1, p1);
+    }
+
+    @Override
     public Initial.OpByteSeqResult opByteSeq(Optional<byte[]> p1, Current current)
     {
         return new Initial.OpByteSeqResult(p1, p1);

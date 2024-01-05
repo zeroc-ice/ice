@@ -90,6 +90,10 @@ public:
                                     ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&, const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
+    virtual void opMyInterfaceProxyAsync(Ice::optional<::std::shared_ptr<Test::MyInterfacePrx>>,
+                                         ::std::function<void(const Ice::optional<::std::shared_ptr<Test::MyInterfacePrx>>&, const Ice::optional<::std::shared_ptr<Test::MyInterfacePrx>>&)>,
+                                         ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
+
     virtual void opByteSeqAsync(Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,
                                 ::std::function<void(const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)>,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -356,6 +360,10 @@ public:
     virtual void opOneOptional_async(const ::Test::AMD_Initial_opOneOptionalPtr&,
                                      const IceUtil::Optional< Test::OneOptionalPtr>&,
                                      const ::Ice::Current&);
+
+    virtual void opMyInterfaceProxy_async(const ::Test::AMD_Initial_opMyInterfaceProxyPtr&,
+                                          const IceUtil::Optional< Test::MyInterfacePrx>&,
+                                          const ::Ice::Current&);
 
     virtual void opByteSeq_async(const ::Test::AMD_Initial_opByteSeqPtr&,
                                  const IceUtil::Optional< ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> >&,
