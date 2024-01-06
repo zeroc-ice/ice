@@ -936,7 +936,6 @@ Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     _H << sp;
     _H << nl << "@class " << fixName(p) << ";";
-    _H << nl << "@protocol " << fixName(p) << ";";
 }
 
 void
@@ -990,19 +989,6 @@ bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = fixName(p);
-    ClassDefPtr base = p->base();
-
-    _H << sp << nl << _dllExport << "@protocol " << name;
-
-    if (base)
-    {
-        _H << " <" << fixName(base) << ">";
-    }
-    else
-    {
-        _H << " <NSObject>";
-    }
-
     _M << sp << nl << "@implementation " << name;
     return true;
 }
@@ -1024,8 +1010,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
-
-    _H << nl << "@end";
 
     _H << sp << nl << _dllExport << "@interface " << name << " : " << baseName;
 

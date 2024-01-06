@@ -5,31 +5,25 @@
 #import <ObjectsTest.h>
 #import <ObjectsForward.h>
 
-@interface TestObjectsBI : TestObjectsB<TestObjectsB>
+@interface TestObjectsBI : TestObjectsB
 {
 }
 @end
 
-@interface TestObjectsCI : TestObjectsC<TestObjectsC>
+@interface TestObjectsCI : TestObjectsC
 {
 }
 @end
 
-@interface TestObjectsDI : TestObjectsD<TestObjectsD>
+@interface TestObjectsDI : TestObjectsD
 {
 }
 @end
 
-@interface TestObjectsEI : TestObjectsE<TestObjectsE>
+@interface TestObjectsEI : TestObjectsE
 @end
 
-@interface TestObjectsFI : TestObjectsF<TestObjectsF>
-@end
-
-//@interface TestObjectsII : TestObjectsI<TestObjectsI>
-//@end
-
-@interface TestObjectsJI : TestObjectsJ<TestObjectsJ>
+@interface TestObjectsFI : TestObjectsF
 @end
 
 @interface TestObjectsF2I : TestObjectsF2<TestObjectsF2>

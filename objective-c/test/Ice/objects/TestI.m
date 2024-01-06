@@ -64,16 +64,6 @@
 }
 @end
 
-/*@implementation TestObjectsII
--(void) dealloc
-{
-    printf("Deallocating Object");
-}
-@end*/
-
-@implementation TestObjectsJI
-@end
-
 @implementation TestObjectsF2I
 -(void) op:(ICECurrent*)__unused current
 {
