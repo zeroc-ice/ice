@@ -766,6 +766,7 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         _H << nl << "#import <objc/Ice/Proxy.h>";
         _H << nl << "#import <objc/Ice/Current.h>";
+        _H << nl << "#import <objc/Ice/Value.h>";
         _H << nl << "#import <objc/Ice/Object.h>";
     }
 
@@ -1014,8 +1015,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
 
-    // TODO: fix the base to not include ice_id etc.
-    string baseName = base ? fixName(base) : "ICEServant";
+    string baseName = base ? fixName(base) : "ICEValue";
     DataMemberList baseDataMembers;
     if(base)
     {
@@ -1110,52 +1110,18 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     _M << eb;
 
-    // TODO: the code below is a very complicated way to implement ice_staticId through ICEObject.
+    _H << nl << "+(NSString *) ice_staticId;";
+    _H << nl << "-(NSString *) ice_id;";
 
-    ClassList allBases = p->allBases();
-    StringList ids;
-
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
-
-    _M << sp << nl << "static NSString * iceS_" << name << "_ids[] =";
+    _M << sp << nl << "+(NSString *) ice_staticId";
     _M << sb;
-    {
-        StringList::const_iterator q = ids.begin();
-        while(q != ids.end())
-        {
-            _M << nl << "@\"" << *q << '"';
-            if(++q != ids.end())
-            {
-                _M << ',';
-            }
-        }
-    }
-    _M << eb << ";";
-
-    _M << sp << nl << "+(NSString * const*) iceStaticIds:(int*)count idIndex:(int*)idx";
-    _M << sb;
-    _M << nl << "*count = sizeof(iceS_" << name << "_ids) / sizeof(NSString *);";
-    _M << nl << "*idx = " << scopedPos << ";";
-    _M << nl << "return iceS_" << name << "_ids;";
+    _M << nl << "return @\"" << p->scoped() << "\";";
     _M << eb;
 
-    // end TODO
+    _M << sp << nl << "-(NSString *) ice_id";
+    _M << sb;
+    _M << nl << "return @\"" << p->scoped() << "\";";
+    _M << eb;
 
     if(preserved && !basePreserved)
     {
@@ -2345,11 +2311,11 @@ bool
 Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = moduleName(findModule(p)) + p->name() + "Helper";
-    _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectHelper";
+    _H << sp << nl << _dllExport << "@interface " << name << " : ICEValueHelper";
     _H << nl << "@end";
 
     _M << sp << nl << "@implementation " << name;
-    _M << nl << "+(void) readRetained:(ICEObject*ICE_STRONG_QUALIFIER*)obj stream:(id<ICEInputStream>)stream";
+    _M << nl << "+(void) readRetained:(ICEValue*ICE_STRONG_QUALIFIER*)obj stream:(id<ICEInputStream>)stream";
     _M << sb;
     _M << nl << "[stream newValue:obj expectedType:[" << fixName(p) << " class]];";
     _M << eb;
@@ -2506,7 +2472,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     if((valueBuiltin && (valueBuiltin->kind() == Builtin::KindObject || valueBuiltin->kind() == Builtin::KindValue)) ||
        valueClass)
     {
-        _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectDictionaryHelper";
+        _H << sp << nl << _dllExport << "@interface " << name << " : ICEValueDictionaryHelper";
         _H << nl << "@end";
 
         _M << sp << nl << "@implementation " << name;
@@ -2519,7 +2485,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         }
         else
         {
-            _M << nl << "return [stream newValueDict:[" << keyS << " class] expectedType:[ICEObject class]];";
+            _M << nl << "return [stream newValueDict:[" << keyS << " class] expectedType:[ICEValue class]];";
         }
         _M << eb;
         _M << nl << "+(void) write:(id)obj stream:(id<ICEOutputStream>)stream";

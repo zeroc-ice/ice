@@ -228,12 +228,12 @@
     *theD = _d;
 }
 
--(ICEObject*) getK:(ICECurrent*)__unused current
+-(TestObjectsK*) getK:(ICECurrent*)__unused current
 {
     return [[TestObjectsK alloc] init:[[TestObjectsL alloc] init:@"l"]];
 }
 
--(ICEObject*) opValue:(ICEObject*)v1 v2:(ICEObject**)v2 current:(ICECurrent*)__unused current
+-(ICEValue*) opValue:(ICEValue*)v1 v2:(ICEValue**)v2 current:(ICECurrent*)__unused current
 {
     *v2 = v1;
     return v1;

@@ -114,9 +114,6 @@ soversion               = 37
 #
 compatversion           = $(version)
 
-# We assume Make.rules.$(os) defines cppflags.
-cppflags                += -std=c++17
-
 ifneq ($(filter all cpp obj%c,$(ICE_BIN_DIST)),)
 # NOTE: on macOS, if ICE_HOME isn't set we build against /usr/local/opt/ice because the
 # XCode SDK is not accessible through /usr/local

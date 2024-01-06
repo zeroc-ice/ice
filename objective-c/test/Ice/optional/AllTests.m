@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface TestObjectReader : ICEObject
+@interface TestObjectReader : ICEValue
 {
 }
 @end
@@ -23,7 +23,7 @@
 }
 @end
 
-@interface BObjectReader : ICEObject
+@interface BObjectReader : ICEValue
 {
 }
 @end
@@ -44,7 +44,7 @@
 };
 @end
 
-@interface CObjectReader : ICEObject
+@interface CObjectReader : ICEValue
 {
 }
 @end
@@ -68,7 +68,7 @@
 };
 @end
 
-@interface DObjectWriter : ICEObject
+@interface DObjectWriter : ICEValue
 {
 }
 @end
@@ -108,7 +108,7 @@
 }
 @end
 
-@interface DObjectReader : ICEObject
+@interface DObjectReader : ICEValue
 {
     TestOptionalA* a_;
 }
@@ -137,7 +137,7 @@
          [[o objectAtIndex:2] isEqualToString:@"test3"] &&
          [[o objectAtIndex:3] isEqualToString:@"test4"]);
     test([is readOptional:1000 format:ICEOptionalFormatClass]);
-    [is newValue:(ICEObject**)&a_ expectedType:[TestOptionalA class]];
+    [is newValue:(ICEValue**)&a_ expectedType:[TestOptionalA class]];
     [is endSlice];
 
     // ::Test::B
@@ -156,7 +156,7 @@
 }
 @end
 
-@interface FObjectReader : ICEObject
+@interface FObjectReader : ICEValue
 {
     TestOptionalF* f_;
 }
@@ -183,11 +183,11 @@
     [is startValue];
     [is startSlice];
     // Don't read optional af on purpose
-    //[is_ readValue:(ICEObject**)&self->af expectedType:[TestOptionalA class]];
+    //[is_ readValue:(ICEValue**)&self->af expectedType:[TestOptionalA class]];
     [is endSlice];
     [is startSlice];
     TestOptionalA* ICE_AUTORELEASING_QUALIFIER ae;
-    [is readValue:(ICEObject**)&ae expectedType:[TestOptionalA class]];
+    [is readValue:(ICEValue**)&ae expectedType:[TestOptionalA class]];
     [is endSlice];
     [is endValue:NO];
     f_.ae = ae;
@@ -207,7 +207,7 @@
 }
 @end
 
-@interface FactoryI : ICEObject
+@interface FactoryI : ICEValue
 {
     BOOL enabled_;
 }
@@ -229,7 +229,7 @@
     }
     return self;
 }
--(ICEObject*) create:(NSString*)typeId
+-(ICEValue*) create:(NSString*)typeId
 {
     if(!enabled_)
     {
@@ -590,7 +590,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);
     id<ICEInputStream> is = [ICEUtil createInputStream:communicator data:outEncaps];
     [is startEncapsulation];
-    ICEObject* obj;
+    ICEValue* obj;
     [is readValue:&obj];
     [is endEncapsulation];
     test(obj != nil && [obj isKindOfClass:[TestObjectReader class]]);
@@ -779,7 +779,7 @@ optionalAllTests(id<ICECommunicator> communicator)
             [factory setEnabled:YES];
             os = [ICEUtil createOutputStream:communicator];
             [os startEncapsulation];
-            ICEObject* d = [DObjectWriter new];
+            ICEValue* d = [DObjectWriter new];
             [os writeValue:d];
             ICE_RELEASE(d);
             [os endEncapsulation];
@@ -803,7 +803,7 @@ optionalAllTests(id<ICECommunicator> communicator)
             [os startEncapsulation];
             [os writeValue:a];
             DObjectWriter* writer = [DObjectWriter new];
-            [ICEObjectHelper writeOptional:writer stream:os tag:1];
+            [ICEValueHelper writeOptional:writer stream:os tag:1];
             ICE_RELEASE(writer);
             [os endEncapsulation];
             inEncaps = [os finished];
@@ -1170,14 +1170,14 @@ optionalAllTests(id<ICECommunicator> communicator)
 
         os = [ICEUtil createOutputStream:communicator];
         [os startEncapsulation];
-        [ICEObjectHelper writeOptional:p1 stream:os tag:2];
+        [ICEValueHelper writeOptional:p1 stream:os tag:2];
         [os endEncapsulation];
         inEncaps = [os finished];
         [initial ice_invoke:@"opOneOptional" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps];
         is = [ICEUtil createInputStream:communicator data:outEncaps];
         [is startEncapsulation];
-        [ICEObjectHelper readOptional:&p2 stream:is tag:1];
-        [ICEObjectHelper readOptional:&p3 stream:is tag:3];
+        [ICEValueHelper readOptional:&p2 stream:is tag:1];
+        [ICEValueHelper readOptional:&p3 stream:is tag:3];
         [is endEncapsulation];
         test([p2 isKindOfClass:[TestOptionalOneOptional class]] && [p3 isKindOfClass:[TestOptionalOneOptional class]]);
         test(((TestOptionalOneOptional*)p2).a == 58 && ((TestOptionalOneOptional*)p3).a == 58);

@@ -16,6 +16,9 @@ ifeq ($(os),Darwin)
 include         $(lang_srcdir)/config/Make.xcodesdk.rules
 endif
 
+# We assume Make.rules.$(os) defines cppflags.
+cppflags                += -std=c++17
+
 # Validate platforms and configs
 $(eval $(call validate-config))
 

@@ -91,10 +91,12 @@ public:
     {
     }
 
-    ~ExceptionWriter() throw()
+    ~ExceptionWriter()
     {
         [_ex release];
     }
+
+    ExceptionWriter(const ExceptionWriter& rhs) = default;
 
     void
     _write(Ice::OutputStream* s) const

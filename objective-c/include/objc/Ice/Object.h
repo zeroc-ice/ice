@@ -41,12 +41,7 @@ ICE_API @interface ICEObject : NSObject<ICEObject, NSCopying>
 -(NSString*) ice_id;
 -(NSArray*) ice_ids;
 +(NSString*) ice_staticId;
--(void) ice_preMarshal;
--(void) ice_postUnmarshal;
--(id<ICESlicedData>) ice_getSlicedData;
 +(NSString*const*) iceStaticIds:(int*)count idIndex:(int*)idx;
--(void) iceWrite:(id<ICEOutputStream>)os;
--(void) iceRead:(id<ICEInputStream>)is;
 @end
 
 ICE_API @interface ICEServant : ICEObject
@@ -61,8 +56,6 @@ ICE_API @interface ICEServant : ICEObject
 +(void) iceD_ice_id:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
 +(void) iceD_ice_ids:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
 -(void) iceDispatch:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
--(void) iceWriteImpl:(id<ICEOutputStream>)os;
--(void) iceReadImpl:(id<ICEInputStream>)is;
 -(id) iceTarget;
 @end
 
