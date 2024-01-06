@@ -14,20 +14,11 @@
 #include <Ice/Current.h>
 #include <Ice/Format.h>
 
-namespace Ice
-{
-
-class OutputStream;
-class InputStream;
-
-}
-
 namespace IceInternal
 {
 
 class Incoming;
 class Direct;
-class GCVisitor;
 
 }
 
@@ -189,7 +180,7 @@ protected:
  * The base class for servants.
  * \headerfile Ice/Ice.h
  */
-class ICE_API Object  : public virtual IceUtil::Shared
+class ICE_API Object : public virtual IceUtil::Shared
 {
 public:
 
@@ -240,78 +231,10 @@ public:
     /// \endcond
 
     /**
-     * Returns the Freeze metadata attributes for an operation.
-     *
-     * @param operation The name of the operation.
-     * @return The least significant bit indicates whether the operation is a read
-     * or write operation. If the bit is set, the operation is a write operation.
-     * The expression ice_operationAttributes("op") &amp; 0x1 is true if
-     * the operation has a <code>["freeze:write"]</code> metadata directive.
-     * <p>
-     * The second and third least significant bit indicate the transactional mode
-     * of the operation. The expression <code>ice_operationAttributes("op") &amp; 0x6 &gt;&gt; 1</code>
-     * indicates the transactional mode as follows:
-     * <dl>
-     *   <dt>0</dt>
-     *   <dd><code>["freeze:read:supports"]</code></dd>
-     *   <dt>1</dt>
-     *   <dd><code>["freeze:read:mandatory"]</code> or <code>["freeze:write:mandatory"]</code></dd>
-     *   <dt>2</dt>
-     *   <dd><code>["freeze:read:required"]</code> or <code>["freeze:write:required"]</code></dd>
-     *   <dt>3</dt>
-     *   <dd><code>["freeze:read:never"]</code></dd>
-     * </dl>
-     *
-     * Refer to the Freeze manual for more information on the TransactionalEvictor.
-     */
-    virtual Int ice_operationAttributes(const std::string& operation) const;
-
-    /// \cond STREAM
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
-    /// \endcond
-
-    /// \cond INTERNAL
-    virtual bool _iceGcVisit(IceInternal::GCVisitor&) { return false; }
-    /// \endcond
-
-    /**
-     * Determines whether this object, and by extension the graph of all objects reachable from this object,
-     * are eligible for garbage collection when all external references to the graph have been released.
-     * @param b True if the object is eligible, false otherwise.
-     */
-    virtual void ice_collectable(bool b);
-
-    /**
-     * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
-     * to override this method in order to validate its data members.
-     */
-    virtual void ice_preMarshal();
-
-    /**
-     * The Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
-     * subclass to override this method in order to perform additional initialization.
-     */
-    virtual void ice_postUnmarshal();
-
-    /**
      * Obtains the Slice type ID of this type.
      * @return The return value is always "::Ice::Object".
      */
     static const std::string& ice_staticId();
-
-    /**
-     * Returns a shallow copy of the object.
-     * @return The cloned object.
-     */
-    virtual ObjectPtr ice_clone() const;
-
-    /**
-     * Obtains the sliced data associated with this instance.
-     * @return The sliced data if the value has a preserved-slice base class and has been sliced during
-     * unmarshaling of the value, nil otherwise.
-     */
-    virtual SlicedDataPtr ice_getSlicedData() const;
 
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
@@ -326,28 +249,11 @@ public:
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
     /// \endcond
 
-protected:
+    protected:
 
-    Object() {} // This class is abstract.
-#if defined(__clang__)
-#   pragma clang diagnostic push
-#   pragma clang diagnostic ignored "-Wdeprecated-copy-dtor"
-#endif
-    virtual ~Object() {}
-#if defined(__clang__)
-#   pragma clang diagnostic pop
-#endif
-
-protected:
-
-    /// \cond STREAM
-    virtual void _iceWriteImpl(Ice::OutputStream*) const {}
-    virtual void _iceReadImpl(Ice::InputStream*) {}
-    /// \endcond
-
-    /// \cond INTERNAL
-    static void _iceCheckMode(OperationMode, OperationMode);
-    /// \endcond
+        /// \cond INTERNAL
+        static void _iceCheckMode(OperationMode, OperationMode);
+        /// \endcond
 };
 #endif
 

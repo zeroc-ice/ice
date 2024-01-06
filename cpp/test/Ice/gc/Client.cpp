@@ -125,17 +125,17 @@ class TestHaveCycles : public IceInternal::GCVisitor
 {
 public:
 
-    virtual bool visit(IceInternal::GCObject* obj)
+    virtual bool visit(IceInternal::GCValue* obj)
     {
-        if(obj->__hasFlag(IceInternal::GCObject::Visiting))
+        if(obj->__hasFlag(IceInternal::GCValue::Visiting))
         {
             return false;
         }
-        test(obj->__hasFlag(IceInternal::GCObject::CycleMember) && obj->__hasFlag(IceInternal::GCObject::Collectable));
+        test(obj->__hasFlag(IceInternal::GCValue::CycleMember) && obj->__hasFlag(IceInternal::GCValue::Collectable));
 
-        obj->__setFlag(IceInternal::GCObject::Visiting);
+        obj->__setFlag(IceInternal::GCValue::Visiting);
         obj->_iceGcVisitMembers(*this);
-        obj->__clearFlag(IceInternal::GCObject::Visiting);
+        obj->__clearFlag(IceInternal::GCValue::Visiting);
         return false;
     }
 };

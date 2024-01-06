@@ -2733,7 +2733,7 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
 #ifdef ICE_CPP11_MAPPING
             addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
 #else
-            addPatchEntry(*p, &patchHandle<Object>, &instances[j++]);
+            addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
 #endif
         }
     }

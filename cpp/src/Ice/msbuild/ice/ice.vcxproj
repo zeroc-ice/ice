@@ -626,7 +626,7 @@
     <ClCompile Include="..\..\Exception.cpp" />
     <ClCompile Include="..\..\FactoryTable.cpp" />
     <ClCompile Include="..\..\FactoryTableInit.cpp" />
-    <ClCompile Include="..\..\GCObject.cpp" />
+    <ClCompile Include="..\..\GCValue.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
     <ClCompile Include="..\..\ImplicitContextI.cpp" />

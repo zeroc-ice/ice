@@ -641,7 +641,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::Ice::Float",
         "::Ice::Double",
         "::std::string",
-        "::Ice::ObjectPtr",
+        "::Ice::ValuePtr",
         "::Ice::ObjectPrx",
         "::Ice::ValuePtr"
     };
@@ -656,7 +656,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "float",
         "double",
         "::std::string",
-        "::std::shared_ptr<::Ice::Object>",
+        "::std::shared_ptr<::Ice::Value>",
         "::std::shared_ptr<::Ice::ObjectPrx>",
         "::std::shared_ptr<::Ice::Value>"
     };
@@ -794,7 +794,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "::Ice::Float",
         "::Ice::Double",
         "const ::std::string&",
-        "const ::Ice::ObjectPtr&",
+        "const ::Ice::ValuePtr&",
         "const ::Ice::ObjectPrx&",
         "const ::Ice::ValuePtr&"
     };
@@ -809,7 +809,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "float",
         "double",
         "const ::std::string&",
-        "const ::std::shared_ptr<::Ice::Object>&",
+        "const ::std::shared_ptr<::Ice::Value>&",
         "const ::std::shared_ptr<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
     };
@@ -928,7 +928,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::Ice::Float&",
         "::Ice::Double&",
         "::std::string&",
-        "::Ice::ObjectPtr&",
+        "::Ice::ValuePtr&",
         "::Ice::ObjectPrxPtr&",
         "::Ice::ValuePtr&"
     };
@@ -943,7 +943,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "float&",
         "double&",
         "::std::string&",
-        "::std::shared_ptr<::Ice::Object>&",
+        "::std::shared_ptr<::Ice::Value>&",
         "::std::shared_ptr<::Ice::ObjectPrx>&",
         "::std::shared_ptr<::Ice::Value>&"
     };

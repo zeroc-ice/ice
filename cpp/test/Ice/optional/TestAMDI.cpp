@@ -562,7 +562,7 @@ InitialI::shutdown_async(const ::Test::AMD_Initial_shutdownPtr& cb,
 
 void
 InitialI::pingPong_async(const ::Test::AMD_Initial_pingPongPtr& cb,
-                         const Ice::ObjectPtr& obj,
+                         const Ice::ValuePtr& obj,
                          const Ice::Current&)
 {
     cb->ice_response(obj);

@@ -384,7 +384,7 @@
     <ClCompile Include="..\..\FactoryTableInit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\GCObject.cpp">
+    <ClCompile Include="..\..\GCValue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\HttpParser.cpp">

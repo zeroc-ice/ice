@@ -33,11 +33,7 @@ toArrayRange(const T* v, size_t sz)
 
 }
 
-#ifdef ICE_CPP11_MAPPING
 class TestObjectReader : public Ice::Value
-#else
-class TestObjectReader : public Ice::Object
-#endif
 {
 public:
     virtual void _iceWrite(Ice::OutputStream*) const { }
@@ -63,11 +59,7 @@ protected:
 #endif
 };
 
-#ifdef ICE_CPP11_MAPPING
 class BObjectReader : public Ice::Value
-#else
-class BObjectReader : public Ice::Object
-#endif
 {
 public:
     virtual void _iceWrite(Ice::OutputStream*) const { }
@@ -100,11 +92,7 @@ protected:
 #endif
 };
 
-#ifdef ICE_CPP11_MAPPING
 class CObjectReader : public Ice::Value
-#else
-class CObjectReader : public Ice::Object
-#endif
 {
 public:
     virtual void _iceWrite(Ice::OutputStream*) const { }
@@ -140,11 +128,7 @@ protected:
 #endif
 };
 
-#ifdef ICE_CPP11_MAPPING
 class DObjectWriter : public Ice::Value
-#else
-class DObjectWriter : public Ice::Object
-#endif
 {
 public:
 
@@ -194,11 +178,7 @@ protected:
 
 };
 
-#ifdef ICE_CPP11_MAPPING
 class DObjectReader : public Ice::Value
-#else
-class DObjectReader : public Ice::Object
-#endif
 {
 public:
     virtual void _iceWrite(Ice::OutputStream*) const { }
@@ -251,11 +231,7 @@ private:
     IceUtil::Optional<APtr> a;
 };
 
-#ifdef ICE_CPP11_MAPPING
 class FObjectReader : public Ice::Value
-#else
-class FObjectReader : public Ice::Object
-#endif
 {
 public:
     virtual void _iceWrite(Ice::OutputStream*) const { }
@@ -1029,7 +1005,7 @@ allTests(Test::TestHelper* helper, bool)
 #ifdef ICE_CPP11_MAPPING
             out.write(1, Ice::make_optional(make_shared<DObjectWriter>()));
 #else
-            out.write(1, IceUtil::makeOptional(Ice::ObjectPtr(new DObjectWriter)));
+            out.write(1, IceUtil::makeOptional(Ice::ValuePtr(new DObjectWriter)));
 #endif
             out.endEncapsulation();
             out.finished(inEncaps);

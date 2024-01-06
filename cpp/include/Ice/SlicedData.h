@@ -6,7 +6,7 @@
 #define ICE_SLICED_DATA_H
 
 #include <Ice/SlicedDataF.h>
-#include <Ice/GCObject.h>
+#include <Ice/GCValue.h>
 #include <Ice/Value.h>
 
 namespace Ice
@@ -93,7 +93,7 @@ class ICE_API UnknownSlicedValue :
 #ifdef ICE_CPP11_MAPPING
     public Value
 #else
-    public IceInternal::GCObject
+    public IceInternal::GCValue
 #endif
 {
 public:
@@ -146,10 +146,9 @@ protected:
 
     /**
      * Determine the Slice type ID associated with this instance.
-     * @param current The current object for this invocation.
      * @return The type ID supplied to the constructor.
      */
-    virtual const std::string& ice_id(const Current& current = Ice::emptyCurrent) const;
+    virtual std::string ice_id() const;
 
     /// \cond INTERNAL
     virtual void _iceGcVisitMembers(IceInternal::GCVisitor&);

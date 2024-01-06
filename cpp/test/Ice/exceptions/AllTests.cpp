@@ -38,7 +38,7 @@ public:
 class ValueFactoryI : public virtual Ice::ValueFactory
 {
 public:
-    virtual Ice::ObjectPtr create(const string&) { return 0; }
+    virtual Ice::ValuePtr create(const string&) { return 0; }
 };
 #endif
 

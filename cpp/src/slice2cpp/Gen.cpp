@@ -2635,7 +2635,7 @@ Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     // depends on this name
     //
     H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllExport << getUnqualified("::Ice::Object*", scope) << " upCast(" << name << "*);";
+    H << nl << _dllExport << getUnqualified("::Ice::Value*", scope) << " upCast(" << name << "*);";
     H << nl << "/// \\endcond";
     H << nl << "typedef ::IceInternal::Handle< " << name << "> " << p->name() << "Ptr;";
 
@@ -2644,8 +2644,8 @@ Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     // is allowed to define classes, functions etc. that start with _.
     //
     H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllExport << "void _icePatchObjectPtr(" << p->name() << "Ptr&, const "
-      << getUnqualified("::Ice::ObjectPtr&", scope) << ");";
+    H << nl << _dllExport << "void _icePatchValuePtr(" << p->name() << "Ptr&, const "
+      << getUnqualified("::Ice::ValuePtr&", scope) << ");";
     H << nl << "/// \\endcond";
 }
 
@@ -2939,72 +2939,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << eb;
         C << eb;
         C << nl << "/// \\endcond";
-
-        //
-        // Check if we need to generate ice_operationAttributes()
-        //
-        map<string, int> attributesMap;
-        for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
-        {
-            int attributes = (*r)->attributes();
-            if(attributes != 0)
-            {
-                attributesMap.insert(map<string, int>::value_type((*r)->name(), attributes));
-            }
-        }
-
-        if(!attributesMap.empty())
-        {
-            H << sp;
-            H << nl << "/// \\cond INTERNAL";
-            H << nl << "virtual " << getUnqualified("::Ice::Int", scope)
-              << " ice_operationAttributes(const ::std::string&) const;";
-            H << nl << "/// \\endcond";
-
-            string opAttrFlatName = "iceC" + p->flattenedScope() + p->name() + "_operationAttributes";
-
-            C << sp << nl << "namespace";
-            C << nl << "{";
-            C << nl << "const int " << opAttrFlatName << "[] = ";
-            C << sb;
-
-            for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-            {
-                int attributes = 0;
-                string opName = *q;
-                map<string, int>::iterator it = attributesMap.find(opName);
-                if(it != attributesMap.end())
-                {
-                    attributes = it->second;
-                }
-                C << nl << attributes;
-
-                if(++q != allOpNames.end())
-                {
-                    C << ',';
-                }
-                C << " // " << opName;
-            }
-
-            C << eb << ';';
-            C << sp << nl << "}";
-
-            C << sp;
-
-            C << nl << "::Ice::Int" << nl << scoped.substr(2)
-              << "::ice_operationAttributes(const ::std::string& opName) const";
-            C << sb;
-
-            C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
-              << "::std::equal_range(" << flatName << ", " << flatName << " + " << allOpNames.size() << ", opName);";
-            C << nl << "if(r.first == r.second)";
-            C << sb;
-            C << nl << "return -1;";
-            C << eb;
-
-            C << nl << "return " << opAttrFlatName << "[r.first - " << flatName << "];";
-            C << eb;
-        }
     }
 
     H << eb << ';';
@@ -3273,14 +3207,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        H << "public virtual " << getUnqualified("::Ice::Object", scope);
+        H << "public virtual " << getUnqualified("::Ice::Value", scope);
     }
 
     bool override = p->canBeCyclic() && (!base || !base->canBeCyclic());
-    bool hasGCObjectBaseClass = basePreserved || override || preserved;
+    bool hasGCValueBaseClass = basePreserved || override || preserved;
     if(!basePreserved && (override || preserved))
     {
-        H << ", public ::IceInternal::GCObject";
+        H << ", public ::IceInternal::GCValue";
     }
 
     H.restoreIndent();
@@ -3350,7 +3284,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     C << sp;
     C << nl << "/// \\cond INTERNAL";
-    C << nl << _dllExport << "::Ice::Object* " << scope.substr(2) << "upCast(" << name << "* p) { return p; }" << nl;
+    C << nl << _dllExport << "::Ice::Value* " << scope.substr(2) << "upCast(" << name << "* p) { return p; }" << nl;
     C << nl << "/// \\endcond";
 
     //
@@ -3363,9 +3297,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Polymorphically clones this object.";
     H << nl << " * @return A shallow copy of this object.";
     H << nl << " */";
-    H << nl << "virtual " << getUnqualified("::Ice::ObjectPtr", scope) << " ice_clone() const;";
+    H << nl << "virtual " << getUnqualified("::Ice::ValuePtr", scope) << " ice_clone() const;";
 
-    if(hasGCObjectBaseClass)
+    if(hasGCValueBaseClass)
     {
         C.zeroIndent();
         C << sp;
@@ -3375,14 +3309,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << nl << "#endif";
         C.restoreIndent();
     }
-    C << nl << "::Ice::ObjectPtr";
+    C << nl << "::Ice::ValuePtr";
     C << nl << scoped.substr(2) << "::ice_clone() const";
     C << sb;
-    C << nl << getUnqualified("::Ice::Object*", scope) << " p = new " << name << "(*this);";
+    C << nl << getUnqualified("::Ice::Value*", scope) << " p = new " << name << "(*this);";
     C << nl << "return p;";
 
     C << eb;
-    if(hasGCObjectBaseClass)
+    if(hasGCValueBaseClass)
     {
         C.zeroIndent();
         C << nl << "#if defined(_MSC_VER)";
@@ -3391,95 +3325,31 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         C.restoreIndent();
     }
 
-    ClassList allBases = p->allBases();
-    StringList ids;
-    transform(
-        allBases.begin(), allBases.end(), back_inserter(ids), [](const ContainedPtr& it) { return it->scoped(); });
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
-    assert(scopedIter != ids.end());
-
     H << sp;
     H << nl << "/**";
-    H << nl << " * Determines whether this object supports an interface with the given Slice type ID.";
-    H << nl << " * @param id The fully-scoped Slice type ID.";
-    H << nl << " * @param current The Current object for the invocation.";
-    H << nl << " * @return True if this object supports the interface, false, otherwise.";
+    H << nl << " * Obtains the Slice type ID of the most-derived class implemented by this instance.";
+    H << nl << " * @return The type ID.";
     H << nl << " */";
-    H << nl << "virtual bool ice_isA(const ::std::string& id, const " << getUnqualified("::Ice::Current&", scope)
-      << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
-    H << sp;
-    H << nl << "/**";
-    H << nl << " * Obtains a list of the Slice type IDs representing the interfaces supported by this object.";
-    H << nl << " * @param current The Current object for the invocation.";
-    H << nl << " * @return A list of fully-scoped type IDs.";
-    H << nl << " */";
-    H << nl << "virtual ::std::vector< ::std::string> ice_ids(const " << getUnqualified("::Ice::Current&", scope)
-      << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
-    H << sp;
-    H << nl << "/**";
-    H << nl << " * Obtains a Slice type ID representing the most-derived interface supported by this object.";
-    H << nl << " * @param current The Current object for the invocation.";
-    H << nl << " * @return A fully-scoped type ID.";
-    H << nl << " */";
-    H << nl << "virtual const ::std::string& ice_id(const " << getUnqualified("::Ice::Current&", scope)
-      << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
+    H << nl << "virtual ::std::string ice_id() const;";
     H << sp;
     H << nl << "/**";
     H << nl << " * Obtains the Slice type ID corresponding to this class.";
-    H << nl << " * @return A fully-scoped type ID.";
+    H << nl << " * @return The type ID.";
     H << nl << " */";
     H << nl << "static const ::std::string& ice_staticId();";
 
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_ids";
-
-    C << sp << nl << "namespace";
-    C << nl << "{";
-    C << nl << "const ::std::string " << flatName << '[' << ids.size() << "] =";
-    C << sb;
-
-    for(StringList::const_iterator r = ids.begin(); r != ids.end();)
-    {
-        C << nl << '"' << *r << '"';
-        if(++r != ids.end())
-        {
-            C << ',';
-        }
-    }
-    C << eb << ';';
-    C << sp << nl << "}";
-
     C << sp;
-    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const "
-      << getUnqualified("::Ice::Current&", scope) << ") const";
-    C << sb;
-    C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", s);";
-    C << eb;
-
-    C << sp;
-    C << nl << "::std::vector< ::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
-      << getUnqualified("::Ice::Current&", scope) << ") const";
-    C << sb;
-    C << nl << "return ::std::vector< ::std::string>(&" << flatName << "[0], &" << flatName << '[' << ids.size()
-      << "]);";
-    C << eb;
-
-    C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id(const "
-      << getUnqualified("::Ice::Current&", scope) << ") const";
+    C << nl << "std::string" << nl << scoped.substr(2) << "::ice_id() const";
     C << sb;
     C << nl << "return ice_staticId();";
     C << eb;
 
-    C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << *scopedIter << "\";";
+    //
+    // Use local static so that ice_staticId() is usable during static construction.
+    //
+    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -3703,8 +3573,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sp;
     C << nl << "/// \\cond INTERNAL";
     C << nl << "void";
-    C << nl << scope.substr(2) << "_icePatchObjectPtr(" << p->name() << "Ptr& handle, const "
-      << getUnqualified("::Ice::ObjectPtr&", scope) << " v)";
+    C << nl << scope.substr(2) << "_icePatchValuePtr(" << p->name() << "Ptr& handle, const "
+      << getUnqualified("::Ice::ValuePtr&", scope) << " v)";
     C << sb;
     C << nl << "handle = " << p->name() << "Ptr::dynamicCast(v);";
     C << nl << "if(v && !handle)";
@@ -3718,14 +3588,14 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << "/// \\cond INTERNAL";
     H << nl << "inline bool operator==(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name()) << "& rhs)";
     H << sb;
-    H << nl << "return static_cast<const " << getUnqualified("::Ice::Object&", scope) << ">(lhs) == static_cast<const "
-      << getUnqualified("::Ice::Object&", scope) << ">(rhs);";
+    H << nl << "return static_cast<const " << getUnqualified("::Ice::Value&", scope) << ">(lhs) == static_cast<const "
+      << getUnqualified("::Ice::Value&", scope) << ">(rhs);";
     H << eb;
     H << sp;
     H << nl << "inline bool operator<(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name()) << "& rhs)";
     H << sb;
-    H << nl << "return static_cast<const " << getUnqualified("::Ice::Object&", scope) << ">(lhs) < static_cast<const "
-      << getUnqualified("::Ice::Object&", scope) << ">(rhs);";
+    H << nl << "return static_cast<const " << getUnqualified("::Ice::Value&", scope) << ">(lhs) < static_cast<const "
+      << getUnqualified("::Ice::Value&", scope) << ">(rhs);";
     H << eb;
     H << nl << "/// \\endcond";
 
@@ -4005,7 +3875,7 @@ Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& cal
     }
     else
     {
-        C << getUnqualified("::Ice::Object", scope);
+        C << getUnqualified("::Ice::Value", scope);
     }
     C << call;
 }
