@@ -7,16 +7,11 @@
 //
 // Forward declarations.
 //
-@class ICEValue;
 @protocol ICEInputStream;
 @protocol ICEOutputStream;
 @protocol ICESlicedData;
 
-ICE_API @protocol ICEValue <NSObject>
--(NSString*) ice_id;
-@end
-
-ICE_API @interface ICEValue : NSObject<ICEValue, NSCopying>
+ICE_API @interface ICEValue : NSObject<NSCopying>
 +(NSString*) ice_staticId;
 -(NSString*) ice_id;
 -(void) ice_preMarshal;
