@@ -301,22 +301,6 @@ static NSString* ICEObject_ids[1] =
 {
     [super dealloc];
 }
--(BOOL) ice_isA:(NSString*)typeId
-{
-    return [self ice_isA:typeId current:nil];
-}
--(void) ice_ping
-{
-    [self ice_ping:nil];
-}
--(NSString*) ice_id
-{
-    return [self ice_id:nil];
-}
--(NSArray*) ice_ids
-{
-    return [self ice_ids:nil];
-}
 -(BOOL) ice_isA:(NSString*)__unused typeId current:(ICECurrent*)__unused current
 {
     NSAssert(NO, @"ice_isA requires override");

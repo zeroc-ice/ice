@@ -36,10 +36,6 @@ ICE_API @protocol ICEObject <NSObject>
 @end
 
 ICE_API @interface ICEObject : NSObject<ICEObject, NSCopying>
--(BOOL) ice_isA:(NSString*)typeId;
--(void) ice_ping;
--(NSString*) ice_id;
--(NSArray*) ice_ids;
 +(NSString*) ice_staticId;
 +(NSString*const*) iceStaticIds:(int*)count idIndex:(int*)idx;
 @end
