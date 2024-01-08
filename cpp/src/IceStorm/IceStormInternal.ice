@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h"]]
+[["cpp:header-ext:h"]]
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>

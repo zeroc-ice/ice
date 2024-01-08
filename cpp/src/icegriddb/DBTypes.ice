@@ -6,7 +6,7 @@
 
 #include <IceGrid/Admin.ice>
 
-[["ice-prefix", "cpp:header-ext:h"]]
+[["cpp:header-ext:h"]]
 
 module IceGrid
 {
