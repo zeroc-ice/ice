@@ -64,12 +64,8 @@ public:
      */
     SendQueueSizeMaxReached(const char* file, int line);
 
-#ifdef ICE_CPP11_COMPILER
     SendQueueSizeMaxReached(const SendQueueSizeMaxReached&) = default;
     virtual ~SendQueueSizeMaxReached();
-#else
-    virtual ~SendQueueSizeMaxReached() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.

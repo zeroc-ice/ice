@@ -4,7 +4,6 @@
 
 #include <JsUtil.h>
 #include <Slice/Util.h>
-#include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 
 #include <sys/types.h>

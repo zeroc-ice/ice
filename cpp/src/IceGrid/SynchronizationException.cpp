@@ -26,15 +26,9 @@ IceGrid::SynchronizationException::SynchronizationException(const char* file, in
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 IceGrid::SynchronizationException::~SynchronizationException()
 {
 }
-#else
-IceGrid::SynchronizationException::~SynchronizationException() throw()
-{
-}
-#endif
 
 ::std::string
 IceGrid::SynchronizationException::ice_id() const

@@ -27,9 +27,6 @@ class CompilerException : public ::IceUtil::Exception
 public:
 
     CompilerException(const char*, int, const std::string&);
-#ifndef ICE_CPP11_COMPILER
-    ~CompilerException() throw();
-#endif
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 #ifndef ICE_CPP11_MAPPING
@@ -194,10 +191,6 @@ public:
     bool operator()(const std::string&, const std::string&) const;
 };
 
-#if defined(__SUNPRO_CC)
-bool cICompare(const std::string&, const std::string&);
-#endif
-
 // ----------------------------------------------------------------------
 // DerivedToBaseCompare -- function object to do sort exceptions into
 // most-derived to least-derived order.
@@ -209,10 +202,6 @@ public:
 
     bool operator()(const ExceptionPtr&, const ExceptionPtr&) const;
 };
-
-#if defined(__SUNPRO_CC)
-bool derivedToBaseCompare(const ExceptionPtr&, const ExceptionPtr&);
-#endif
 
 // ----------------------------------------------------------------------
 // ParserVisitor

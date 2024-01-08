@@ -1760,12 +1760,7 @@ allTests(Test::TestHelper* helper, bool)
 
         StringSeq ss(10);
         fill(ss.begin(), ss.end(), "test1");
-#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
-        std::pair<StringSeq::const_iterator, StringSeq::const_iterator> cpair(ss.begin(), ss.end());
-        p1 = cpair;
-#else
         p1 = make_pair(ss.begin(), ss.end());
-#endif
         p2 = initial->opStringSeq(p1, p3);
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
@@ -1843,12 +1838,7 @@ allTests(Test::TestHelper* helper, bool)
         test(!p2 && !p3);
 
         VarStructSeq ss(10);
-#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
-        std::pair<VarStructSeq::const_iterator, VarStructSeq::const_iterator> cpair(ss.begin(), ss.end());
-        p1 = cpair;
-#else
         p1 = make_pair(ss.begin(), ss.end());
-#endif
         p2 = initial->opVarStructSeq(p1, p3);
         test(p2 && p3);
         test(p2 == ss && p3 == ss);

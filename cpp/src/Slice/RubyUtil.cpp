@@ -4,7 +4,6 @@
 
 #include <Slice/RubyUtil.h>
 #include <Slice/Util.h>
-#include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
 #include <iterator>
 

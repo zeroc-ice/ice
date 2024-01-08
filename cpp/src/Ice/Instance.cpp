@@ -1681,15 +1681,10 @@ IceInternal::Instance::destroy()
         _endpointHostResolver->getThreadControl().join();
     }
 
-#ifdef ICE_CPP11_COMPILER
     for(const auto& p : _objectFactoryMap)
     {
         p.second->destroy();
     }
-#else
-    for_each(_objectFactoryMap.begin(), _objectFactoryMap.end(),
-        Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
-#endif
     _objectFactoryMap.clear();
 
     if(_routerManager)

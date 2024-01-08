@@ -10,13 +10,6 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-//
-// Work-around for strange VS2017 15.5 optimizer bug, see ICE-8611
-//
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
-#   pragma optimize("g", off)
-#endif
-
 void
 testExceptions(const TestIntfPrxPtr& obj)
 {
@@ -214,13 +207,6 @@ testExceptions(const TestIntfPrxPtr& obj)
         test(false);
     }
 }
-
-//
-// See above
-//
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
-#   pragma optimize("g", on)
-#endif
 
 TestIntfPrxPtr
 allTests(Test::TestHelper* helper)

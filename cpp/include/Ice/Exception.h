@@ -35,13 +35,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     LocalException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     LocalException(const LocalException&) = default;
     virtual ~LocalException();
-#else
-    virtual ~LocalException() throw();
-#endif
 
     /**
      * Polymorphically clones this exception.
@@ -117,13 +112,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     SystemException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     SystemException(const SystemException&) = default;
     virtual ~SystemException();
-#else
-    virtual ~SystemException() throw();
-#endif
 
     /**
      * Polymorphically clones this exception.

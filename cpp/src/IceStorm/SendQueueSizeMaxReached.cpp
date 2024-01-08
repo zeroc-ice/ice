@@ -26,15 +26,9 @@ IceStorm::SendQueueSizeMaxReached::SendQueueSizeMaxReached(const char* file, int
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached()
 {
 }
-#else
-IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached() throw()
-{
-}
-#endif
 
 ::std::string
 IceStorm::SendQueueSizeMaxReached::ice_id() const

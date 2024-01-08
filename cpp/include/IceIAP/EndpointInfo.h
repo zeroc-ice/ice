@@ -189,10 +189,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     EndpointInfo(const EndpointInfo&) = default;
     EndpointInfo& operator=(const EndpointInfo&) = default;
-#endif
 
     /**
      * The accessory manufacturer or empty to not match against

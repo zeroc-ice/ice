@@ -48,7 +48,6 @@ IceUtil::Shared* IceInternal::upCast(IncomingConnectionFactory* p) { return p; }
 namespace
 {
 
-#ifdef ICE_CPP11_COMPILER
 template <typename Map> void
 remove(Map& m, const typename Map::key_type& k, const typename Map::mapped_type& v)
 {
@@ -78,41 +77,6 @@ find(const Map& m, const typename Map::key_type& k, Predicate predicate)
     }
     return nullptr;
 }
-
-#else
-template <typename K, typename V> void
-remove(multimap<K, V>& m, K k, V v)
-{
-    pair<typename multimap<K, V>::iterator, typename multimap<K, V>::iterator> pr = m.equal_range(k);
-    assert(pr.first != pr.second);
-    for(typename multimap<K, V>::iterator q = pr.first; q != pr.second; ++q)
-    {
-        if(q->second.get() == v.get())
-        {
-            m.erase(q);
-            return;
-        }
-    }
-    assert(false); // Nothing was removed which is an error.
-}
-
-template <typename K, typename V> ::IceInternal::Handle<V>
-find(const multimap<K,::IceInternal::Handle<V> >& m,
-     K k,
-     const ::IceUtilInternal::ConstMemFun<bool, V, ::IceInternal::Handle<V> >& predicate)
-{
-    pair<typename multimap<K, ::IceInternal::Handle<V> >::const_iterator,
-         typename multimap<K, ::IceInternal::Handle<V> >::const_iterator> pr = m.equal_range(k);
-    for(typename multimap<K, ::IceInternal::Handle<V> >::const_iterator q = pr.first; q != pr.second; ++q)
-    {
-        if(predicate(q->second))
-        {
-            return q->second;
-        }
-    }
-    return IceInternal::Handle<V>();
-}
-#endif
 
 class StartAcceptor : public IceUtil::TimerTask
 #ifdef ICE_CPP11_MAPPING
@@ -186,16 +150,10 @@ IceInternal::OutgoingConnectionFactory::destroy()
         return;
     }
 
-#ifdef ICE_CPP11_COMPILER
     for(const auto& p : _connections)
     {
         p.second->destroy(ConnectionI::CommunicatorDestroyed);
     }
-#else
-    for_each(_connections.begin(), _connections.end(),
-             bind2nd(Ice::secondVoidMemFun1<const ConnectorPtr, ConnectionI, ConnectionI::DestructionReason>
-                     (&ConnectionI::destroy), ConnectionI::CommunicatorDestroyed));
-#endif
     _destroyed = true;
     _communicator = 0;
 
@@ -206,15 +164,10 @@ void
 IceInternal::OutgoingConnectionFactory::updateConnectionObservers()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-#ifdef ICE_CPP11_COMPILER
     for(const auto& p : _connections)
     {
         p.second->updateObserver();
     }
-#else
-    for_each(_connections.begin(), _connections.end(),
-             Ice::secondVoidMemFun<const ConnectorPtr, ConnectionI>(&ConnectionI::updateObserver));
-#endif
 }
 
 void
@@ -242,15 +195,11 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
         connections = _connections;
     }
 
-#ifdef ICE_CPP11_COMPILER
     for(const auto& p : _connections)
     {
         p.second->waitUntilFinished();
     }
-#else
-    for_each(connections.begin(), connections.end(),
-             Ice::secondVoidMemFun<const ConnectorPtr, ConnectionI>(&ConnectionI::waitUntilFinished));
-#endif
+
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         // Ensure all the connections are finished and reapable at this point.
@@ -463,15 +412,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
     assert(!endpoints.empty());
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-#ifdef ICE_CPP11_COMPILER
         auto connection = find(_connectionsByEndpoint, *p,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
                                });
-#else
-        ConnectionIPtr connection = find(_connectionsByEndpoint, *p, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
-#endif
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)
@@ -501,15 +446,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             continue;
         }
 
-#ifdef ICE_CPP11_COMPILER
         auto connection = find(_connections, p->connector,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
                                });
-#else
-        ConnectionIPtr connection = find(_connections, p->connector, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
-#endif
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)
@@ -1236,14 +1177,10 @@ void
 IceInternal::IncomingConnectionFactory::updateConnectionObservers()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-#ifdef ICE_CPP11_COMPILER
     for(const auto& conn : _connections)
     {
         conn->updateObserver();
     }
-#else
-    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::updateObserver));
-#endif
 }
 
 void
@@ -1273,14 +1210,10 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
     //
     // Now we wait until each connection is in holding state.
     //
-#ifdef ICE_CPP11_COMPILER
     for(const auto& conn : connections)
     {
         conn->waitUntilHolding();
     }
-#else
-    for_each(connections.begin(), connections.end(), Ice::constVoidMemFun(&ConnectionI::waitUntilHolding));
-#endif
 }
 
 void
@@ -1310,14 +1243,10 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
         connections = _connections;
     }
 
-#ifdef ICE_CPP11_COMPILER
     for(const auto& conn : connections)
     {
         conn->waitUntilFinished();
     }
-#else
-    for_each(connections.begin(), connections.end(), Ice::voidMemFun(&ConnectionI::waitUntilFinished));
-#endif
 
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -1375,16 +1304,11 @@ IceInternal::IncomingConnectionFactory::connections() const
     //
     // Only copy connections which have not been destroyed.
     //
-#ifdef ICE_CPP11_COMPILER
     remove_copy_if(_connections.begin(), _connections.end(), back_inserter(result),
                    [](const ConnectionIPtr& conn)
                    {
                        return !conn->isActiveOrHolding();
                    });
-#else
-    remove_copy_if(_connections.begin(), _connections.end(), back_inserter(result),
-                   not1(Ice::constMemFun(&ConnectionI::isActiveOrHolding)));
-#endif
     return result;
 }
 
@@ -1832,14 +1756,11 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 }
                 _adapter->getThreadPool()->_register(ICE_SHARED_FROM_THIS, SocketOperationRead);
             }
-#ifdef ICE_CPP11_COMPILER
+
             for(const auto& conn : _connections)
             {
                 conn->activate();
             }
-#else
-            for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::activate));
-#endif
             break;
         }
 
@@ -1858,14 +1779,10 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 }
                 _adapter->getThreadPool()->unregister(ICE_SHARED_FROM_THIS, SocketOperationRead);
             }
-#ifdef ICE_CPP11_COMPILER
             for(const auto& conn : _connections)
             {
                 conn->hold();
             }
-#else
-            for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::hold));
-#endif
             break;
         }
 
@@ -1894,15 +1811,10 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 state = StateFinished;
             }
 
-#ifdef ICE_CPP11_COMPILER
             for(const auto& conn : _connections)
             {
                 conn->destroy(ConnectionI::ObjectAdapterDeactivated);
             }
-#else
-            for_each(_connections.begin(), _connections.end(),
-                     bind2nd(Ice::voidMemFun1(&ConnectionI::destroy), ConnectionI::ObjectAdapterDeactivated));
-#endif
             break;
         }
 

@@ -97,7 +97,7 @@ IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& i
 }
 
 Ice::ValueFactoryPtr
-IceRuby::ValueFactoryManager::find(const string& id) const ICE_NOEXCEPT
+IceRuby::ValueFactoryManager::find(const string& id) const noexcept
 {
     Lock lock(*this);
 

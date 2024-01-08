@@ -581,7 +581,6 @@
       <SliceCompileSource>..\..\..\..\..\slice\Ice\Version.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\ConsoleUtil.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\ConvertUTF.cpp" />
     <ClCompile Include="..\..\..\IceUtil\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\InputUtil.cpp" />
@@ -595,7 +594,6 @@
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Time.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\Unicode.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UUID.cpp" />
     <ClCompile Include="..\..\Acceptor.cpp" />

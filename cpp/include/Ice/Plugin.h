@@ -192,12 +192,9 @@ public:
     typedef PluginPtr PointerType;
 
     virtual ~Plugin();
-
-#ifdef ICE_CPP11_COMPILER
     Plugin() = default;
     Plugin(const Plugin&) = default;
     Plugin& operator=(const Plugin&) = default;
-#endif
 
     /**
      * Perform any necessary initialization steps.
@@ -233,12 +230,9 @@ public:
     typedef PluginManagerPtr PointerType;
 
     virtual ~PluginManager();
-
-#ifdef ICE_CPP11_COMPILER
     PluginManager() = default;
     PluginManager(const PluginManager&) = default;
     PluginManager& operator=(const PluginManager&) = default;
-#endif
 
     /**
      * Initialize the configured plug-ins. The communicator automatically initializes the plug-ins by default, but an
@@ -255,7 +249,7 @@ public:
      * @return The names of the plugins installed.
      * @see #getPlugin
      */
-    virtual StringSeq getPlugins() ICE_NOEXCEPT = 0;
+    virtual StringSeq getPlugins() noexcept = 0;
 
     /**
      * Obtain a plug-in by name.
@@ -276,7 +270,7 @@ public:
     /**
      * Called when the communicator is being destroyed.
      */
-    virtual void destroy() ICE_NOEXCEPT = 0;
+    virtual void destroy() noexcept = 0;
 };
 
 /// \cond INTERNAL

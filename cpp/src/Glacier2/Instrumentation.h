@@ -218,11 +218,9 @@ public:
 
     virtual ~SessionObserver();
 
-#ifdef ICE_CPP11_COMPILER
     SessionObserver() = default;
     SessionObserver(const SessionObserver&) = default;
     SessionObserver& operator=(const SessionObserver&) = default;
-#endif
 
     /**
      * Notification of a forwarded request. This also implies removing the event from the queue.
@@ -275,11 +273,9 @@ public:
 
     virtual ~ObserverUpdater();
 
-#ifdef ICE_CPP11_COMPILER
     ObserverUpdater() = default;
     ObserverUpdater(const ObserverUpdater&) = default;
     ObserverUpdater& operator=(const ObserverUpdater&) = default;
-#endif
 
     /**
      * Update the router sessions.
@@ -314,11 +310,9 @@ public:
 
     virtual ~RouterObserver();
 
-#ifdef ICE_CPP11_COMPILER
     RouterObserver() = default;
     RouterObserver(const RouterObserver&) = default;
     RouterObserver& operator=(const RouterObserver&) = default;
-#endif
 
     /**
      * This method should return an observer for the given session.

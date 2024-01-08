@@ -26,7 +26,7 @@ IceInternal::EndpointI::streamWrite(Ice::OutputStream* s) const
 }
 
 string
-IceInternal::EndpointI::toString() const ICE_NOEXCEPT
+IceInternal::EndpointI::toString() const noexcept
 {
     //
     // WARNING: Certain features, such as proxy validation in Glacier2,

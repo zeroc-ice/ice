@@ -169,7 +169,7 @@ class ValueFactoryManager : public Ice::ValueFactoryManager
 public:
 
     virtual void add(const Ice::ValueFactoryPtr&, const string&);
-    virtual Ice::ValueFactoryPtr find(const string&) const ICE_NOEXCEPT;
+    virtual Ice::ValueFactoryPtr find(const string&) const noexcept;
 
     void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -2270,7 +2270,7 @@ IcePHP::ValueFactoryManager::add(const Ice::ValueFactoryPtr&, const string&)
 }
 
 Ice::ValueFactoryPtr
-IcePHP::ValueFactoryManager::find(const string& id) const ICE_NOEXCEPT
+IcePHP::ValueFactoryManager::find(const string& id) const noexcept
 {
     //
     // Get the TSRM id for the current request.

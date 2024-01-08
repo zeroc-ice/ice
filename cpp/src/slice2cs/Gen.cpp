@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Gen.h>
@@ -14,12 +13,12 @@
 #  include <direct.h>
 #endif
 
-#include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <DotNetNames.h>
 #include <string.h>
+#include <iterator>
 
 using namespace std;
 using namespace Slice;
@@ -390,7 +389,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
      StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
 
     _out << sp << nl << "#region Slice type-related members";
 
@@ -3902,11 +3901,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // handler, causing compiler warnings and resulting in the base exception
         // being marshaled instead of the derived exception.
         //
-#if defined(__SUNPRO_CC)
-        throws.sort(Slice::derivedToBaseCompare);
-#else
         throws.sort(Slice::DerivedToBaseCompare());
-#endif
 
         string context = getEscapedParamName(op, "context");
 
@@ -4010,11 +4005,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // handler, causing compiler warnings and resulting in the base exception
         // being marshaled instead of the derived exception.
         //
-#if defined(__SUNPRO_CC)
-        throws.sort(Slice::derivedToBaseCompare);
-#else
         throws.sort(Slice::DerivedToBaseCompare());
-#endif
 
         //
         // Write the public Async method.
@@ -4510,7 +4501,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
 
     //
     // Need static-readonly for arrays in C# (not const)

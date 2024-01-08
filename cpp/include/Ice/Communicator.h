@@ -628,11 +628,9 @@ public:
 
     virtual ~Communicator();
 
-#ifdef ICE_CPP11_COMPILER
     Communicator() = default;
     Communicator(const Communicator&) = default;
     Communicator& operator=(const Communicator&) = default;
-#endif
 
     /**
      * Destroy the communicator. This operation calls {@link #shutdown} implicitly. Calling {@link #destroy} cleans up
@@ -641,7 +639,7 @@ public:
      * @see #shutdown
      * @see ObjectAdapter#destroy
      */
-    virtual void destroy() ICE_NOEXCEPT = 0;
+    virtual void destroy() noexcept = 0;
 
     /**
      * Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
@@ -654,7 +652,7 @@ public:
      * @see #waitForShutdown
      * @see ObjectAdapter#deactivate
      */
-    virtual void shutdown() ICE_NOEXCEPT = 0;
+    virtual void shutdown() noexcept = 0;
 
     /**
      * Wait until the application has called {@link #shutdown} (or {@link #destroy}). On the server side, this
@@ -667,14 +665,14 @@ public:
      * @see #destroy
      * @see ObjectAdapter#waitForDeactivate
      */
-    virtual void waitForShutdown() ICE_NOEXCEPT = 0;
+    virtual void waitForShutdown() noexcept = 0;
 
     /**
      * Check whether communicator has been shut down.
      * @return True if the communicator has been shut down; false otherwise.
      * @see #shutdown
      */
-    virtual bool isShutdown() const ICE_NOEXCEPT = 0;
+    virtual bool isShutdown() const noexcept = 0;
 
     /**
      * Convert a stringified proxy into a proxy.
@@ -815,34 +813,34 @@ public:
      *
      * @deprecated findObjectFactory() is deprecated, use ValueFactoryManager::find() instead.
      */
-    ICE_DEPRECATED_API("findObjectFactory() is deprecated, use ValueFactoryManager::find() instead.") virtual ObjectFactoryPtr findObjectFactory(const ::std::string& id) const ICE_NOEXCEPT = 0;
+    ICE_DEPRECATED_API("findObjectFactory() is deprecated, use ValueFactoryManager::find() instead.") virtual ObjectFactoryPtr findObjectFactory(const ::std::string& id) const noexcept = 0;
 
     /**
      * Get the implicit context associated with this communicator.
      * @return The implicit context associated with this communicator; returns null when the property Ice.ImplicitContext
      * is not set or is set to None.
      */
-    virtual ImplicitContextPtr getImplicitContext() const ICE_NOEXCEPT = 0;
+    virtual ImplicitContextPtr getImplicitContext() const noexcept = 0;
 
     /**
      * Get the properties for this communicator.
      * @return This communicator's properties.
      * @see Properties
      */
-    virtual PropertiesPtr getProperties() const ICE_NOEXCEPT = 0;
+    virtual PropertiesPtr getProperties() const noexcept = 0;
 
     /**
      * Get the logger for this communicator.
      * @return This communicator's logger.
      * @see Logger
      */
-    virtual LoggerPtr getLogger() const ICE_NOEXCEPT = 0;
+    virtual LoggerPtr getLogger() const noexcept = 0;
 
     /**
      * Get the observer resolver object for this communicator.
      * @return This communicator's observer resolver object.
      */
-    virtual ::Ice::Instrumentation::CommunicatorObserverPtr getObserver() const ICE_NOEXCEPT = 0;
+    virtual ::Ice::Instrumentation::CommunicatorObserverPtr getObserver() const noexcept = 0;
 
     /**
      * Get the default router for this communicator.
@@ -897,7 +895,7 @@ public:
      * @return This communicator's value factory manager.
      * @see ValueFactoryManager
      */
-    virtual ValueFactoryManagerPtr getValueFactoryManager() const ICE_NOEXCEPT = 0;
+    virtual ValueFactoryManagerPtr getValueFactoryManager() const noexcept = 0;
 
     /**
      * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies

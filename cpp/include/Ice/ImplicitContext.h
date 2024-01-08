@@ -196,12 +196,9 @@ public:
     typedef ImplicitContextPtr PointerType;
 
     virtual ~ImplicitContext();
-
-#ifdef ICE_CPP11_COMPILER
     ImplicitContext() = default;
     ImplicitContext(const ImplicitContext&) = default;
     ImplicitContext& operator=(const ImplicitContext&) = default;
-#endif
 
     /**
      * Get a copy of the underlying context.

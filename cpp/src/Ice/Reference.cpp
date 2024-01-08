@@ -494,30 +494,6 @@ IceInternal::Reference::operator<(const Reference& r) const
     return false;
 }
 
-#ifndef ICE_CPP11_COMPILER
-class ConnectionIsDatagram : public unary_function<ConnectionIPtr, bool>
-{
-public:
-
-    bool
-    operator()(ConnectionIPtr p) const
-    {
-        return p->endpoint()->datagram();
-    }
-};
-
-class ConnectionIsSecure : public unary_function<ConnectionIPtr, bool>
-{
-public:
-
-    bool
-    operator()(ConnectionIPtr p) const
-    {
-        return p->endpoint()->secure();
-    }
-};
-#endif
-
 IceInternal::Reference::Reference(const InstancePtr& instance,
                                   const CommunicatorPtr& communicator,
                                   const Identity& id,
@@ -1607,7 +1583,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     {
     public:
 
-        class Callback2 ICE_FINAL : public Reference::GetConnectionCallback
+        class Callback2 final : public Reference::GetConnectionCallback
         {
         public:
 
@@ -1880,86 +1856,46 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 {
 }
 
-namespace
-{
-
-#ifndef ICE_CPP11_COMPILER
-struct EndpointIsOpaque : public unary_function<EndpointIPtr, bool>
-{
-public:
-
-    bool
-    operator()(EndpointIPtr p) const
-    {
-        return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
-    }
-};
-#endif
-
-}
-
 vector<EndpointIPtr>
 IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allEndpoints) const
 {
     vector<EndpointIPtr> endpoints = allEndpoints;
 
-    //
     // Filter out unknown endpoints.
-    //
-#ifdef ICE_CPP11_COMPILER
     endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                               [](const EndpointIPtr& p)
                               {
                                   return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
                               }),
                     endpoints.end());
-#else
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsOpaque()), endpoints.end());
-#endif
-    //
+
     // Filter out endpoints according to the mode of the reference.
-    //
     switch(getMode())
     {
         case Reference::ModeTwoway:
         case Reference::ModeOneway:
         case Reference::ModeBatchOneway:
         {
-            //
             // Filter out datagram endpoints.
-            //
-#ifdef ICE_CPP11_COMPILER
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                                       [](const EndpointIPtr& p)
                                       {
                                           return p->datagram();
                                       }),
                             endpoints.end());
-#else
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::datagram)),
-                            endpoints.end());
-#endif
             break;
         }
 
         case Reference::ModeDatagram:
         case Reference::ModeBatchDatagram:
         {
-            //
             // Filter out non-datagram endpoints.
-            //
-#ifdef ICE_CPP11_COMPILER
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                                       [](const EndpointIPtr& p)
                                       {
                                           return !p->datagram();
                                       }),
                             endpoints.end());
-#else
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      not1(Ice::constMemFun(&EndpointI::datagram))),
-                            endpoints.end());
-#endif
             break;
         }
     }
@@ -1995,17 +1931,12 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
     if(overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
     {
-#ifdef ICE_CPP11_COMPILER
         endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                                   [](const EndpointIPtr& p)
                                   {
                                       return !p->secure();
                                   }),
                         endpoints.end());
-#else
-        endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
-                        endpoints.end());
-#endif
     }
     else if(getPreferSecure())
     {
@@ -2014,15 +1945,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-#ifdef ICE_CPP11_COMPILER
         stable_partition(endpoints.begin(), endpoints.end(),
                          [](const EndpointIPtr& p)
                          {
                              return p->secure();
                          });
-#else
-        stable_partition(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::secure));
-#endif
     }
     else
     {
@@ -2031,15 +1958,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-#ifdef ICE_CPP11_COMPILER
         stable_partition(endpoints.begin(), endpoints.end(),
                          [](const EndpointIPtr& p)
                          {
                              return !p->secure();
                          });
-#else
-        stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure)));
-#endif
     }
 
     return endpoints;

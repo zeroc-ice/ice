@@ -11,8 +11,9 @@
 
 #ifndef ICE_CPP11_MAPPING
 #   include <IceUtil/ScopedArray.h>
-#   include <IceUtil/Iterator.h>
 #endif
+
+#include <iterator>
 
 namespace Ice
 {
@@ -625,7 +626,7 @@ struct StreamHelper<std::pair<T, T>, StreamHelperCategorySequence>
     template<class S> static inline void
     write(S* stream, const std::pair<T, T>& v)
     {
-        stream->writeSize(static_cast<Int>(IceUtilInternal::distance(v.first, v.second)));
+        stream->writeSize(static_cast<Int>(std::distance(v.first, v.second)));
         for(T p = v.first; p != v.second; ++p)
         {
             stream->write(*p);
@@ -651,7 +652,7 @@ struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
     write(S* stream, const std::pair< ::std::vector<bool>::const_iterator,
                                       ::std::vector<bool>::const_iterator>& v)
     {
-        stream->writeSize(static_cast<Int>(IceUtilInternal::distance(v.first, v.second)));
+        stream->writeSize(static_cast<Int>(std::distance(v.first, v.second)));
         for(::std::vector<bool>::const_iterator p = v.first; p != v.second; ++p)
         {
             stream->write(static_cast<bool>(*p));
