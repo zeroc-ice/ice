@@ -40,8 +40,8 @@ class AbortMarshaling
 
 typedef std::map<PyObject*, Ice::ValuePtr> ObjectMap;
 
-class ObjectReader;
-typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+class ValueReader;
+typedef IceUtil::Handle<ValueReader> ValueReaderPtr;
 
 //
 // The delayed nature of class unmarshaling in the Ice protocol requires us to
@@ -67,15 +67,15 @@ public:
 typedef IceUtil::Handle<UnmarshalCallback> UnmarshalCallbackPtr;
 
 //
-// ReadObjectCallback retains all of the information necessary to store an unmarshaled
+// ReadValueCallback retains all of the information necessary to store an unmarshaled
 // Slice value as a Python object.
 //
-class ReadObjectCallback : public IceUtil::Shared
+class ReadValueCallback : public IceUtil::Shared
 {
 public:
 
-    ReadObjectCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
-    ~ReadObjectCallback();
+    ReadValueCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
+    ~ReadValueCallback();
 
     void invoke(const ::Ice::ValuePtr&);
 
@@ -86,7 +86,7 @@ private:
     PyObject* _target;
     void* _closure;
 };
-typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
+typedef IceUtil::Handle<ReadValueCallback> ReadValueCallbackPtr;
 
 //
 // This class assists during unmarshaling of Slice classes and exceptions.
@@ -100,14 +100,14 @@ public:
     ~StreamUtil();
 
     //
-    // Keep a reference to a ReadObjectCallback for patching purposes.
+    // Keep a reference to a ReadValueCallback for patching purposes.
     //
-    void add(const ReadObjectCallbackPtr&);
+    void add(const ReadValueCallbackPtr&);
 
     //
     // Keep track of object instances that have preserved slices.
     //
-    void add(const ObjectReaderPtr&);
+    void add(const ValueReaderPtr&);
 
     //
     // Updated the sliced data information for all stored object instances.
@@ -119,8 +119,8 @@ public:
 
 private:
 
-    std::vector<ReadObjectCallbackPtr> _callbacks;
-    std::set<ObjectReaderPtr> _readers;
+    std::vector<ReadValueCallbackPtr> _callbacks;
+    std::set<ValueReaderPtr> _readers;
     static PyObject* _slicedDataType;
     static PyObject* _sliceInfoType;
 };
@@ -612,14 +612,14 @@ private:
 };
 
 //
-// ObjectWriter wraps a Python object for marshaling.
+// ValueWriter wraps a Python object for marshaling.
 //
-class ObjectWriter : public Ice::Value
+class ValueWriter : public Ice::Value
 {
 public:
 
-    ObjectWriter(PyObject*, ObjectMap*, const ValueInfoPtr&);
-    ~ObjectWriter();
+    ValueWriter(PyObject*, ObjectMap*, const ValueInfoPtr&);
+    ~ValueWriter();
 
     virtual void ice_preMarshal();
 
@@ -637,14 +637,14 @@ private:
 };
 
 //
-// ObjectReader unmarshals the state of an Ice object.
+// ValueReader unmarshals the state of an Ice object.
 //
-class ObjectReader : public Ice::Value
+class ValueReader : public Ice::Value
 {
 public:
 
-    ObjectReader(PyObject*, const ValueInfoPtr&);
-    ~ObjectReader();
+    ValueReader(PyObject*, const ValueInfoPtr&);
+    ~ValueReader();
 
     virtual void ice_postUnmarshal();
 
