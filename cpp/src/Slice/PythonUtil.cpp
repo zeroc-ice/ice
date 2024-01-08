@@ -431,7 +431,6 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 }
 
-
 void
 Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
