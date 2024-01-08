@@ -14,20 +14,35 @@ concurrency:
 
 jobs:
   ci:
-    name: ${{ join(matrix.languages, ',') }} / ${{ matrix.os }}
+    name: ${{ matrix.language }} on ${{ matrix.os }}
     strategy:
       matrix:
-        languages: [[cpp], [csharp], [java]]
+        language: [cpp, csharp, java]
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
-            languages: [swift, objective-c]
+            language: swift
           - os: macos-latest
-            languages: [php, ruby, python, js]
+            language: objective-c
+          - os: macos-latest
+            language: python
+          - os: macos-latest
+            language: php
+          - os: macos-latest
+            language: ruby
+
           - os: ubuntu-latest
-            languages: [php, ruby, python, js]
+            language: php
+          - os: ubuntu-latest
+            language: ruby
+          - os: ubuntu-latest
+            language: python
+          - os: ubuntu-latest
+            language: js
+
           - os: windows-latest
-            languages: [python, js]
+            language: python
+
       fail-fast: false
 
     runs-on: ${{ matrix.os }}
@@ -42,9 +57,9 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           # create-symlink: true
-          key: ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
+          key: ${{ runner.os }}-build-${{ matrix.language }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
+            ${{ runner.os }}-build-${{ matrix.language }}
             ${{ runner.os }}-build-
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
 
@@ -54,13 +69,13 @@ jobs:
         with:
           path: |
             **/msbuild/**/x64
-          key: ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}-${{ github.sha }}
+          key: ${{ runner.os }}-build-${{ matrix.language }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ join(matrix.languages, '-') }}
+            ${{ runner.os }}-build-${{ matrix.language }}
             ${{ runner.os }}-build-
 
-      - name: Build ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
+      - name: Build ${{ matrix.language }} on ${{ matrix.os }}
         uses: ./.github/actions/build
 
-      - name: Test ${{ join(matrix.languages, ',') }} on ${{ matrix.os }}
+      - name: Test ${{ matrix.language }} on ${{ matrix.os }}
         uses: ./.github/actions/test
