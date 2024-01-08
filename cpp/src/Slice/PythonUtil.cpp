@@ -431,7 +431,6 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 }
 
-
 void
 Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
@@ -692,11 +691,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string prxName = fixIdent(p->name() + "Prx");
     string prxType = getAbsolute(p, "_t_", "Prx");
     InterfaceList bases = p->bases();
-
-    // TODO: remove this interface-by-value.
-    _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', Ice.Value, -1, ";
-    writeMetaData(p->getMetaData());
-    _out << ", False, True, None, ())";
 
     _out << sp << nl << "if " << getDictLookup(p, "", "Prx") << ':';
     _out.inc();
