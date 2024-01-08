@@ -75,7 +75,7 @@ public:
     StreamEndpointI(const InstancePtr&);
     StreamEndpointI(const InstancePtr&, Ice::InputStream*);
 
-    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
+    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
 
     virtual Ice::Int timeout() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;

@@ -3775,13 +3775,8 @@ public:
      * @param reason The reason for the failure.
      */
     InitializationException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     InitializationException(const InitializationException&) = default;
     virtual ~InitializationException();
-#else
-    virtual ~InitializationException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -3831,13 +3826,8 @@ public:
      * @param reason The reason for the failure.
      */
     PluginInitializationException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     PluginInitializationException(const PluginInitializationException&) = default;
     virtual ~PluginInitializationException();
-#else
-    virtual ~PluginInitializationException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -3881,13 +3871,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     CollocationOptimizationException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     CollocationOptimizationException(const CollocationOptimizationException&) = default;
     virtual ~CollocationOptimizationException();
-#else
-    virtual ~CollocationOptimizationException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -3935,13 +3920,8 @@ public:
      * @param id The ID (or name) of the object that is registered already.
      */
     AlreadyRegisteredException(const char* file, int line, const ::std::string& kindOfObject, const ::std::string& id);
-
-#ifdef ICE_CPP11_COMPILER
     AlreadyRegisteredException(const AlreadyRegisteredException&) = default;
     virtual ~AlreadyRegisteredException();
-#else
-    virtual ~AlreadyRegisteredException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4001,13 +3981,8 @@ public:
      * @param id The ID (or name) of the object that could not be removed.
      */
     NotRegisteredException(const char* file, int line, const ::std::string& kindOfObject, const ::std::string& id);
-
-#ifdef ICE_CPP11_COMPILER
     NotRegisteredException(const NotRegisteredException&) = default;
     virtual ~NotRegisteredException();
-#else
-    virtual ~NotRegisteredException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4064,13 +4039,8 @@ public:
      * @param operation The name of the operation that was invoked.
      */
     TwowayOnlyException(const char* file, int line, const ::std::string& operation);
-
-#ifdef ICE_CPP11_COMPILER
     TwowayOnlyException(const TwowayOnlyException&) = default;
     virtual ~TwowayOnlyException();
-#else
-    virtual ~TwowayOnlyException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4115,13 +4085,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     CloneNotImplementedException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     CloneNotImplementedException(const CloneNotImplementedException&) = default;
     virtual ~CloneNotImplementedException();
-#else
-    virtual ~CloneNotImplementedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4168,13 +4133,8 @@ public:
      * @param unknown This field is set to the textual representation of the unknown exception if available.
      */
     UnknownException(const char* file, int line, const ::std::string& unknown);
-
-#ifdef ICE_CPP11_COMPILER
     UnknownException(const UnknownException&) = default;
     virtual ~UnknownException();
-#else
-    virtual ~UnknownException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4228,13 +4188,8 @@ public:
      * @param unknown This field is set to the textual representation of the unknown exception if available.
      */
     UnknownLocalException(const char* file, int line, const ::std::string& unknown);
-
-#ifdef ICE_CPP11_COMPILER
     UnknownLocalException(const UnknownLocalException&) = default;
     virtual ~UnknownLocalException();
-#else
-    virtual ~UnknownLocalException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4283,13 +4238,8 @@ public:
      * @param unknown This field is set to the textual representation of the unknown exception if available.
      */
     UnknownUserException(const char* file, int line, const ::std::string& unknown);
-
-#ifdef ICE_CPP11_COMPILER
     UnknownUserException(const UnknownUserException&) = default;
     virtual ~UnknownUserException();
-#else
-    virtual ~UnknownUserException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4326,13 +4276,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     VersionMismatchException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     VersionMismatchException(const VersionMismatchException&) = default;
     virtual ~VersionMismatchException();
-#else
-    virtual ~VersionMismatchException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4370,13 +4315,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     CommunicatorDestroyedException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     CommunicatorDestroyedException(const CommunicatorDestroyedException&) = default;
     virtual ~CommunicatorDestroyedException();
-#else
-    virtual ~CommunicatorDestroyedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4423,13 +4363,8 @@ public:
      * @param name Name of the adapter.
      */
     ObjectAdapterDeactivatedException(const char* file, int line, const ::std::string& name);
-
-#ifdef ICE_CPP11_COMPILER
     ObjectAdapterDeactivatedException(const ObjectAdapterDeactivatedException&) = default;
     virtual ~ObjectAdapterDeactivatedException();
-#else
-    virtual ~ObjectAdapterDeactivatedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4480,13 +4415,8 @@ public:
      * @param id Adapter ID.
      */
     ObjectAdapterIdInUseException(const char* file, int line, const ::std::string& id);
-
-#ifdef ICE_CPP11_COMPILER
     ObjectAdapterIdInUseException(const ObjectAdapterIdInUseException&) = default;
     virtual ~ObjectAdapterIdInUseException();
-#else
-    virtual ~ObjectAdapterIdInUseException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4536,13 +4466,8 @@ public:
      * @param proxy The stringified proxy for which no suitable endpoint is available.
      */
     NoEndpointException(const char* file, int line, const ::std::string& proxy);
-
-#ifdef ICE_CPP11_COMPILER
     NoEndpointException(const NoEndpointException&) = default;
     virtual ~NoEndpointException();
-#else
-    virtual ~NoEndpointException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4592,13 +4517,8 @@ public:
      * @param str Describes the failure and includes the string that could not be parsed.
      */
     EndpointParseException(const char* file, int line, const ::std::string& str);
-
-#ifdef ICE_CPP11_COMPILER
     EndpointParseException(const EndpointParseException&) = default;
     virtual ~EndpointParseException();
-#else
-    virtual ~EndpointParseException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4648,13 +4568,8 @@ public:
      * @param str Describes the failure and includes the string that could not be parsed.
      */
     EndpointSelectionTypeParseException(const char* file, int line, const ::std::string& str);
-
-#ifdef ICE_CPP11_COMPILER
     EndpointSelectionTypeParseException(const EndpointSelectionTypeParseException&) = default;
     virtual ~EndpointSelectionTypeParseException();
-#else
-    virtual ~EndpointSelectionTypeParseException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4704,13 +4619,8 @@ public:
      * @param str Describes the failure and includes the string that could not be parsed.
      */
     VersionParseException(const char* file, int line, const ::std::string& str);
-
-#ifdef ICE_CPP11_COMPILER
     VersionParseException(const VersionParseException&) = default;
     virtual ~VersionParseException();
-#else
-    virtual ~VersionParseException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4760,13 +4670,8 @@ public:
      * @param str Describes the failure and includes the string that could not be parsed.
      */
     IdentityParseException(const char* file, int line, const ::std::string& str);
-
-#ifdef ICE_CPP11_COMPILER
     IdentityParseException(const IdentityParseException&) = default;
     virtual ~IdentityParseException();
-#else
-    virtual ~IdentityParseException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4816,13 +4721,8 @@ public:
      * @param str Describes the failure and includes the string that could not be parsed.
      */
     ProxyParseException(const char* file, int line, const ::std::string& str);
-
-#ifdef ICE_CPP11_COMPILER
     ProxyParseException(const ProxyParseException&) = default;
     virtual ~ProxyParseException();
-#else
-    virtual ~ProxyParseException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4872,13 +4772,8 @@ public:
      * @param id The illegal identity.
      */
     IllegalIdentityException(const char* file, int line, const Identity& id);
-
-#ifdef ICE_CPP11_COMPILER
     IllegalIdentityException(const IllegalIdentityException&) = default;
     virtual ~IllegalIdentityException();
-#else
-    virtual ~IllegalIdentityException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4928,13 +4823,8 @@ public:
      * @param reason Describes why this servant is illegal.
      */
     IllegalServantException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     IllegalServantException(const IllegalServantException&) = default;
     virtual ~IllegalServantException();
-#else
-    virtual ~IllegalServantException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -4988,13 +4878,8 @@ public:
      * @param operation The operation name of the request.
      */
     RequestFailedException(const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation);
-
-#ifdef ICE_CPP11_COMPILER
     RequestFailedException(const RequestFailedException&) = default;
     virtual ~RequestFailedException();
-#else
-    virtual ~RequestFailedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5055,13 +4940,8 @@ public:
      * @param operation The operation name of the request.
      */
     ObjectNotExistException(const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation);
-
-#ifdef ICE_CPP11_COMPILER
     ObjectNotExistException(const ObjectNotExistException&) = default;
     virtual ~ObjectNotExistException();
-#else
-    virtual ~ObjectNotExistException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5109,13 +4989,8 @@ public:
      * @param operation The operation name of the request.
      */
     FacetNotExistException(const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation);
-
-#ifdef ICE_CPP11_COMPILER
     FacetNotExistException(const FacetNotExistException&) = default;
     virtual ~FacetNotExistException();
-#else
-    virtual ~FacetNotExistException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5163,13 +5038,8 @@ public:
      * @param operation The operation name of the request.
      */
     OperationNotExistException(const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation);
-
-#ifdef ICE_CPP11_COMPILER
     OperationNotExistException(const OperationNotExistException&) = default;
     virtual ~OperationNotExistException();
-#else
-    virtual ~OperationNotExistException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5215,13 +5085,8 @@ public:
      * @param error The error number describing the system exception.
      */
     SyscallException(const char* file, int line, Int error);
-
-#ifdef ICE_CPP11_COMPILER
     SyscallException(const SyscallException&) = default;
     virtual ~SyscallException();
-#else
-    virtual ~SyscallException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5273,13 +5138,8 @@ public:
      * @param error The error number describing the system exception.
      */
     SocketException(const char* file, int line, Int error);
-
-#ifdef ICE_CPP11_COMPILER
     SocketException(const SocketException&) = default;
     virtual ~SocketException();
-#else
-    virtual ~SocketException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5325,13 +5185,8 @@ public:
      * @param domain The domain of the error.
      */
     CFNetworkException(const char* file, int line, Int error, const ::std::string& domain);
-
-#ifdef ICE_CPP11_COMPILER
     CFNetworkException(const CFNetworkException&) = default;
     virtual ~CFNetworkException();
-#else
-    virtual ~CFNetworkException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5382,13 +5237,8 @@ public:
      * @param path The path of the file responsible for the error.
      */
     FileException(const char* file, int line, Int error, const ::std::string& path);
-
-#ifdef ICE_CPP11_COMPILER
     FileException(const FileException&) = default;
     virtual ~FileException();
-#else
-    virtual ~FileException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5438,13 +5288,8 @@ public:
      * @param error The error number describing the system exception.
      */
     ConnectFailedException(const char* file, int line, Int error);
-
-#ifdef ICE_CPP11_COMPILER
     ConnectFailedException(const ConnectFailedException&) = default;
     virtual ~ConnectFailedException();
-#else
-    virtual ~ConnectFailedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5489,13 +5334,8 @@ public:
      * @param error The error number describing the system exception.
      */
     ConnectionRefusedException(const char* file, int line, Int error);
-
-#ifdef ICE_CPP11_COMPILER
     ConnectionRefusedException(const ConnectionRefusedException&) = default;
     virtual ~ConnectionRefusedException();
-#else
-    virtual ~ConnectionRefusedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5540,13 +5380,8 @@ public:
      * @param error The error number describing the system exception.
      */
     ConnectionLostException(const char* file, int line, Int error);
-
-#ifdef ICE_CPP11_COMPILER
     ConnectionLostException(const ConnectionLostException&) = default;
     virtual ~ConnectionLostException();
-#else
-    virtual ~ConnectionLostException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5592,13 +5427,8 @@ public:
      * @param host The host name that could not be resolved.
      */
     DNSException(const char* file, int line, Int error, const ::std::string& host);
-
-#ifdef ICE_CPP11_COMPILER
     DNSException(const DNSException&) = default;
     virtual ~DNSException();
-#else
-    virtual ~DNSException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5645,13 +5475,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     OperationInterruptedException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     OperationInterruptedException(const OperationInterruptedException&) = default;
     virtual ~OperationInterruptedException();
-#else
-    virtual ~OperationInterruptedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5688,13 +5513,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     TimeoutException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     TimeoutException(const TimeoutException&) = default;
     virtual ~TimeoutException();
-#else
-    virtual ~TimeoutException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5731,13 +5551,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     ConnectTimeoutException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     ConnectTimeoutException(const ConnectTimeoutException&) = default;
     virtual ~ConnectTimeoutException();
-#else
-    virtual ~ConnectTimeoutException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5774,13 +5589,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     CloseTimeoutException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     CloseTimeoutException(const CloseTimeoutException&) = default;
     virtual ~CloseTimeoutException();
-#else
-    virtual ~CloseTimeoutException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5817,13 +5627,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     ConnectionTimeoutException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     ConnectionTimeoutException(const ConnectionTimeoutException&) = default;
     virtual ~ConnectionTimeoutException();
-#else
-    virtual ~ConnectionTimeoutException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5860,13 +5665,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     InvocationTimeoutException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     InvocationTimeoutException(const InvocationTimeoutException&) = default;
     virtual ~InvocationTimeoutException();
-#else
-    virtual ~InvocationTimeoutException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5903,13 +5703,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     InvocationCanceledException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     InvocationCanceledException(const InvocationCanceledException&) = default;
     virtual ~InvocationCanceledException();
-#else
-    virtual ~InvocationCanceledException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -5954,13 +5749,8 @@ public:
      * @param reason The reason for the failure.
      */
     ProtocolException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     ProtocolException(const ProtocolException&) = default;
     virtual ~ProtocolException();
-#else
-    virtual ~ProtocolException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6011,13 +5801,8 @@ public:
      * @param badMagic A sequence containing the first four bytes of the incorrect message.
      */
     BadMagicException(const char* file, int line, const ::std::string& reason, const ByteSeq& badMagic);
-
-#ifdef ICE_CPP11_COMPILER
     BadMagicException(const BadMagicException&) = default;
     virtual ~BadMagicException();
-#else
-    virtual ~BadMagicException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6069,13 +5854,8 @@ public:
      * @param supported The version of the protocol that is supported.
      */
     UnsupportedProtocolException(const char* file, int line, const ::std::string& reason, const ProtocolVersion& bad, const ProtocolVersion& supported);
-
-#ifdef ICE_CPP11_COMPILER
     UnsupportedProtocolException(const UnsupportedProtocolException&) = default;
     virtual ~UnsupportedProtocolException();
-#else
-    virtual ~UnsupportedProtocolException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6131,13 +5911,8 @@ public:
      * @param supported The version of the encoding that is supported.
      */
     UnsupportedEncodingException(const char* file, int line, const ::std::string& reason, const EncodingVersion& bad, const EncodingVersion& supported);
-
-#ifdef ICE_CPP11_COMPILER
     UnsupportedEncodingException(const UnsupportedEncodingException&) = default;
     virtual ~UnsupportedEncodingException();
-#else
-    virtual ~UnsupportedEncodingException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6191,13 +5966,8 @@ public:
      * @param reason The reason for the failure.
      */
     UnknownMessageException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     UnknownMessageException(const UnknownMessageException&) = default;
     virtual ~UnknownMessageException();
-#else
-    virtual ~UnknownMessageException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6242,13 +6012,8 @@ public:
      * @param reason The reason for the failure.
      */
     ConnectionNotValidatedException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     ConnectionNotValidatedException(const ConnectionNotValidatedException&) = default;
     virtual ~ConnectionNotValidatedException();
-#else
-    virtual ~ConnectionNotValidatedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6293,13 +6058,8 @@ public:
      * @param reason The reason for the failure.
      */
     UnknownRequestIdException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     UnknownRequestIdException(const UnknownRequestIdException&) = default;
     virtual ~UnknownRequestIdException();
-#else
-    virtual ~UnknownRequestIdException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6344,13 +6104,8 @@ public:
      * @param reason The reason for the failure.
      */
     UnknownReplyStatusException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     UnknownReplyStatusException(const UnknownReplyStatusException&) = default;
     virtual ~UnknownReplyStatusException();
-#else
-    virtual ~UnknownReplyStatusException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6399,13 +6154,8 @@ public:
      * @param reason The reason for the failure.
      */
     CloseConnectionException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     CloseConnectionException(const CloseConnectionException&) = default;
     virtual ~CloseConnectionException();
-#else
-    virtual ~CloseConnectionException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6452,13 +6202,8 @@ public:
      * @param graceful True if the connection was closed gracefully, false otherwise.
      */
     ConnectionManuallyClosedException(const char* file, int line, bool graceful);
-
-#ifdef ICE_CPP11_COMPILER
     ConnectionManuallyClosedException(const ConnectionManuallyClosedException&) = default;
     virtual ~ConnectionManuallyClosedException();
-#else
-    virtual ~ConnectionManuallyClosedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6508,13 +6253,8 @@ public:
      * @param reason The reason for the failure.
      */
     IllegalMessageSizeException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     IllegalMessageSizeException(const IllegalMessageSizeException&) = default;
     virtual ~IllegalMessageSizeException();
-#else
-    virtual ~IllegalMessageSizeException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6559,13 +6299,8 @@ public:
      * @param reason The reason for the failure.
      */
     CompressionException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     CompressionException(const CompressionException&) = default;
     virtual ~CompressionException();
-#else
-    virtual ~CompressionException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6611,13 +6346,8 @@ public:
      * @param reason The reason for the failure.
      */
     DatagramLimitException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     DatagramLimitException(const DatagramLimitException&) = default;
     virtual ~DatagramLimitException();
-#else
-    virtual ~DatagramLimitException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6662,13 +6392,8 @@ public:
      * @param reason The reason for the failure.
      */
     MarshalException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     MarshalException(const MarshalException&) = default;
     virtual ~MarshalException();
-#else
-    virtual ~MarshalException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6713,13 +6438,8 @@ public:
      * @param reason The reason for the failure.
      */
     ProxyUnmarshalException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     ProxyUnmarshalException(const ProxyUnmarshalException&) = default;
     virtual ~ProxyUnmarshalException();
-#else
-    virtual ~ProxyUnmarshalException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6764,13 +6484,8 @@ public:
      * @param reason The reason for the failure.
      */
     UnmarshalOutOfBoundsException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     UnmarshalOutOfBoundsException(const UnmarshalOutOfBoundsException&) = default;
     virtual ~UnmarshalOutOfBoundsException();
-#else
-    virtual ~UnmarshalOutOfBoundsException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6820,13 +6535,8 @@ public:
      * @param type The Slice type ID of the class instance for which no factory could be found.
      */
     NoValueFactoryException(const char* file, int line, const ::std::string& reason, const ::std::string& type);
-
-#ifdef ICE_CPP11_COMPILER
     NoValueFactoryException(const NoValueFactoryException&) = default;
     virtual ~NoValueFactoryException();
-#else
-    virtual ~NoValueFactoryException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6881,13 +6591,8 @@ public:
      * @param expectedType The Slice type ID that was expected by the receiving operation.
      */
     UnexpectedObjectException(const char* file, int line, const ::std::string& reason, const ::std::string& type, const ::std::string& expectedType);
-
-#ifdef ICE_CPP11_COMPILER
     UnexpectedObjectException(const UnexpectedObjectException&) = default;
     virtual ~UnexpectedObjectException();
-#else
-    virtual ~UnexpectedObjectException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6942,13 +6647,8 @@ public:
      * @param reason The reason for the failure.
      */
     MemoryLimitException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     MemoryLimitException(const MemoryLimitException&) = default;
     virtual ~MemoryLimitException();
-#else
-    virtual ~MemoryLimitException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -6993,13 +6693,8 @@ public:
      * @param reason The reason for the failure.
      */
     StringConversionException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     StringConversionException(const StringConversionException&) = default;
     virtual ~StringConversionException();
-#else
-    virtual ~StringConversionException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -7044,13 +6739,8 @@ public:
      * @param reason The reason for the failure.
      */
     EncapsulationException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     EncapsulationException(const EncapsulationException&) = default;
     virtual ~EncapsulationException();
-#else
-    virtual ~EncapsulationException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -7096,13 +6786,8 @@ public:
      * @param unsupportedFeature The name of the unsupported feature.
      */
     FeatureNotSupportedException(const char* file, int line, const ::std::string& unsupportedFeature);
-
-#ifdef ICE_CPP11_COMPILER
     FeatureNotSupportedException(const FeatureNotSupportedException&) = default;
     virtual ~FeatureNotSupportedException();
-#else
-    virtual ~FeatureNotSupportedException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -7152,13 +6837,8 @@ public:
      * @param reason The reason for the failure.
      */
     SecurityException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     SecurityException(const SecurityException&) = default;
     virtual ~SecurityException();
-#else
-    virtual ~SecurityException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -7200,13 +6880,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     FixedProxyException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     FixedProxyException(const FixedProxyException&) = default;
     virtual ~FixedProxyException();
-#else
-    virtual ~FixedProxyException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -7243,13 +6918,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
     ResponseSentException(const char* file, int line);
-
-#ifdef ICE_CPP11_COMPILER
     ResponseSentException(const ResponseSentException&) = default;
     virtual ~ResponseSentException();
-#else
-    virtual ~ResponseSentException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.

@@ -24,21 +24,6 @@ using namespace std;
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-#ifdef __SUNPRO_CC
-
-//
-// The call to sk_GENERAL_NAME_pop_free fails to compile if we don't
-// remove the extern "C" vs non extern "C" check with the macro below:
-//
-
-extern "C" typedef void (*FreeFunc)(void*);
-
-#undef CHECKED_SK_FREE_FUNC
-#define CHECKED_SK_FREE_FUNC(type, p) \
-    (FreeFunc) (p)
-
-#endif
-
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
 #   define X509_get_extension_flags(x) (x->ex_flags)
 #   define X509_get_key_usage(x)  (x->ex_kusage)

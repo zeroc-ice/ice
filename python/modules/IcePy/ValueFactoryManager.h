@@ -65,7 +65,7 @@ public:
     ~ValueFactoryManager();
 
     virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryPtr find(const std::string&) const ICE_NOEXCEPT;
+    virtual Ice::ValueFactoryPtr find(const std::string&) const noexcept;
 
     virtual void add(PyObject*, PyObject*, const std::string&);
     PyObject* findValueFactory(const std::string&) const;

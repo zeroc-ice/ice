@@ -331,11 +331,9 @@ public:
 
     virtual ~TopicObserver();
 
-#ifdef ICE_CPP11_COMPILER
     TopicObserver() = default;
     TopicObserver(const TopicObserver&) = default;
     TopicObserver& operator=(const TopicObserver&) = default;
-#endif
 
     /**
      * Notification of an event published on the topic by a publisher.
@@ -368,11 +366,9 @@ public:
 
     virtual ~SubscriberObserver();
 
-#ifdef ICE_CPP11_COMPILER
     SubscriberObserver() = default;
     SubscriberObserver(const SubscriberObserver&) = default;
     SubscriberObserver& operator=(const SubscriberObserver&) = default;
-#endif
 
     /**
      * Notification of some events being queued.
@@ -416,11 +412,9 @@ public:
 
     virtual ~ObserverUpdater();
 
-#ifdef ICE_CPP11_COMPILER
     ObserverUpdater() = default;
     ObserverUpdater(const ObserverUpdater&) = default;
     ObserverUpdater& operator=(const ObserverUpdater&) = default;
-#endif
 
     /**
      * Update topic observers associated with each topics.
@@ -464,11 +458,9 @@ public:
 
     virtual ~TopicManagerObserver();
 
-#ifdef ICE_CPP11_COMPILER
     TopicManagerObserver() = default;
     TopicManagerObserver(const TopicManagerObserver&) = default;
     TopicManagerObserver& operator=(const TopicManagerObserver&) = default;
-#endif
 
     /**
      * This method should return an observer for the given topic.

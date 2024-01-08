@@ -341,11 +341,9 @@ public:
 
     virtual ~ReplicaGroupFilter();
 
-#ifdef ICE_CPP11_COMPILER
     ReplicaGroupFilter() = default;
     ReplicaGroupFilter(const ReplicaGroupFilter&) = default;
     ReplicaGroupFilter& operator=(const ReplicaGroupFilter&) = default;
-#endif
 
     /**
      * Filter the given set of adapters.
@@ -385,11 +383,9 @@ public:
 
     virtual ~TypeFilter();
 
-#ifdef ICE_CPP11_COMPILER
     TypeFilter() = default;
     TypeFilter(const TypeFilter&) = default;
     TypeFilter& operator=(const TypeFilter&) = default;
-#endif
 
     /**
      * Filter the given set of proxies.
@@ -428,11 +424,9 @@ public:
 
     virtual ~RegistryPluginFacade();
 
-#ifdef ICE_CPP11_COMPILER
     RegistryPluginFacade() = default;
     RegistryPluginFacade(const RegistryPluginFacade&) = default;
     RegistryPluginFacade& operator=(const RegistryPluginFacade&) = default;
-#endif
 
     /**
      * Get an application descriptor.
@@ -530,7 +524,7 @@ public:
      * empty filter id.
      * @param filter The filter implementation.
      */
-    virtual void addReplicaGroupFilter(const ::std::string& id, const ReplicaGroupFilterPtr& filter) ICE_NOEXCEPT = 0;
+    virtual void addReplicaGroupFilter(const ::std::string& id, const ReplicaGroupFilterPtr& filter) noexcept = 0;
 
     /**
      * Remove a replica group filter.
@@ -538,14 +532,14 @@ public:
      * @param filter The filter implementation.
      * @return True of the filter was removed, false otherwise.
      */
-    virtual bool removeReplicaGroupFilter(const ::std::string& id, const ReplicaGroupFilterPtr& filter) ICE_NOEXCEPT = 0;
+    virtual bool removeReplicaGroupFilter(const ::std::string& id, const ReplicaGroupFilterPtr& filter) noexcept = 0;
 
     /**
      * Add a type filter.
      * @param type The type to register this filter with.
      * @param filter The filter implementation.
      */
-    virtual void addTypeFilter(const ::std::string& type, const TypeFilterPtr& filter) ICE_NOEXCEPT = 0;
+    virtual void addTypeFilter(const ::std::string& type, const TypeFilterPtr& filter) noexcept = 0;
 
     /**
      * Remove a type filter.
@@ -553,7 +547,7 @@ public:
      * @param filter The filter implementation.
      * @return True of the filter was removed, false otherwise.
      */
-    virtual bool removeTypeFilter(const ::std::string& type, const TypeFilterPtr& filter) ICE_NOEXCEPT = 0;
+    virtual bool removeTypeFilter(const ::std::string& type, const TypeFilterPtr& filter) noexcept = 0;
 };
 
 /// \cond INTERNAL

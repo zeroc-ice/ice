@@ -11,7 +11,7 @@ using namespace std;
 namespace
 {
 
-class BatchRequestInterceptorI ICE_FINAL
+class BatchRequestInterceptorI final
 #ifndef ICE_CPP11_MAPPING
     : public Ice::BatchRequestInterceptor
 #endif

@@ -66,15 +66,9 @@ IceBT::BluetoothException::BluetoothException(const char* file, int line, const 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 IceBT::BluetoothException::~BluetoothException()
 {
 }
-#else
-IceBT::BluetoothException::~BluetoothException() throw()
-{
-}
-#endif
 
 ::std::string
 IceBT::BluetoothException::ice_id() const

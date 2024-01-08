@@ -1027,10 +1027,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     ConnectionInfo(const ConnectionInfo&) = default;
     ConnectionInfo& operator=(const ConnectionInfo&) = default;
-#endif
 
     /**
      * The information of the underyling transport or null if there's no underlying transport.
@@ -1075,11 +1073,9 @@ public:
 
     virtual ~CloseCallback();
 
-#ifdef ICE_CPP11_COMPILER
     CloseCallback() = default;
     CloseCallback(const CloseCallback&) = default;
     CloseCallback& operator=(const CloseCallback&) = default;
-#endif
 
     /**
      * This method is called by the connection when the connection is closed. If the callback needs more information
@@ -1115,11 +1111,9 @@ public:
 
     virtual ~HeartbeatCallback();
 
-#ifdef ICE_CPP11_COMPILER
     HeartbeatCallback() = default;
     HeartbeatCallback(const HeartbeatCallback&) = default;
     HeartbeatCallback& operator=(const HeartbeatCallback&) = default;
-#endif
 
     /**
      * This method is called by the connection when a heartbeat is received from the peer.
@@ -1151,19 +1145,16 @@ public:
     typedef ConnectionPtr PointerType;
 
     virtual ~Connection();
-
-#ifdef ICE_CPP11_COMPILER
     Connection() = default;
     Connection(const Connection&) = default;
     Connection& operator=(const Connection&) = default;
-#endif
 
     /**
      * Manually close the connection using the specified closure mode.
      * @param mode Determines how the connection will be closed.
      * @see ConnectionClose
      */
-    virtual void close(ConnectionClose mode) ICE_NOEXCEPT = 0;
+    virtual void close(ConnectionClose mode) noexcept = 0;
 
     /**
      * Create a special proxy that always uses this connection. This can be used for callbacks from a server to a
@@ -1193,13 +1184,13 @@ public:
      * @return The object adapter that dispatches requests for the connection, or null if no adapter is set.
      * @see #setAdapter
      */
-    virtual ObjectAdapterPtr getAdapter() const ICE_NOEXCEPT = 0;
+    virtual ObjectAdapterPtr getAdapter() const noexcept = 0;
 
     /**
      * Get the endpoint from which the connection was created.
      * @return The endpoint from which the connection was created.
      */
-    virtual EndpointPtr getEndpoint() const ICE_NOEXCEPT = 0;
+    virtual EndpointPtr getEndpoint() const noexcept = 0;
 
     /**
      * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
@@ -1307,25 +1298,25 @@ public:
      * Get the ACM parameters.
      * @return The ACM parameters.
      */
-    virtual ACM getACM() ICE_NOEXCEPT = 0;
+    virtual ACM getACM() noexcept = 0;
 
     /**
      * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
      * @return The type of the connection.
      */
-    virtual ::std::string type() const ICE_NOEXCEPT = 0;
+    virtual ::std::string type() const noexcept = 0;
 
     /**
      * Get the timeout for the connection.
      * @return The connection's timeout.
      */
-    virtual Int timeout() const ICE_NOEXCEPT = 0;
+    virtual Int timeout() const noexcept = 0;
 
     /**
      * Return a description of the connection as human readable text, suitable for logging or error messages.
      * @return The description of the connection as human readable text.
      */
-    virtual ::std::string toString() const ICE_NOEXCEPT = 0;
+    virtual ::std::string toString() const noexcept = 0;
 
     /**
      * Returns the connection information.
@@ -1402,10 +1393,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     IPConnectionInfo(const IPConnectionInfo&) = default;
     IPConnectionInfo& operator=(const IPConnectionInfo&) = default;
-#endif
 
     /**
      * The local address.
@@ -1476,10 +1465,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     TCPConnectionInfo(const TCPConnectionInfo&) = default;
     TCPConnectionInfo& operator=(const TCPConnectionInfo&) = default;
-#endif
 
     /**
      * The connection buffer receive size.
@@ -1547,10 +1534,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     UDPConnectionInfo(const UDPConnectionInfo&) = default;
     UDPConnectionInfo& operator=(const UDPConnectionInfo&) = default;
-#endif
 
     /**
      * The multicast address.
@@ -1612,10 +1597,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     WSConnectionInfo(const WSConnectionInfo&) = default;
     WSConnectionInfo& operator=(const WSConnectionInfo&) = default;
-#endif
 
     /**
      * The headers from the HTTP upgrade request.

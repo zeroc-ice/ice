@@ -19,7 +19,6 @@
 #   include <IceUtil/CtrlCHandler.h>
 #endif
 #include <IceUtil/Exception.h>
-#include <IceUtil/Functional.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/Lock.h>
 #include <IceUtil/Monitor.h>

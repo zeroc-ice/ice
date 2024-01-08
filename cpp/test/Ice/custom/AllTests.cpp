@@ -3,10 +3,10 @@
 //
 
 #include <Ice/Ice.h>
-#include <IceUtil/Iterator.h>
 #include <TestHelper.h>
 #include <Test.h>
 #include <Wstring.h>
+#include <iterator>
 
 #ifdef _MSC_VER
 #   pragma warning( 4 : 4503 ) // C4503: ... : decorated name length exceeded, name was truncated

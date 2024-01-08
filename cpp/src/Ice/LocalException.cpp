@@ -783,15 +783,9 @@ Ice::InitializationException::InitializationException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::InitializationException::~InitializationException()
 {
 }
-#else
-Ice::InitializationException::~InitializationException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::InitializationException::ice_id() const
@@ -822,15 +816,9 @@ Ice::PluginInitializationException::PluginInitializationException(const char* fi
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::PluginInitializationException::~PluginInitializationException()
 {
 }
-#else
-Ice::PluginInitializationException::~PluginInitializationException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::PluginInitializationException::ice_id() const
@@ -855,15 +843,9 @@ Ice::CollocationOptimizationException::CollocationOptimizationException(const ch
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::CollocationOptimizationException::~CollocationOptimizationException()
 {
 }
-#else
-Ice::CollocationOptimizationException::~CollocationOptimizationException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::CollocationOptimizationException::ice_id() const
@@ -895,15 +877,9 @@ Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* file, in
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::AlreadyRegisteredException::~AlreadyRegisteredException()
 {
 }
-#else
-Ice::AlreadyRegisteredException::~AlreadyRegisteredException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::AlreadyRegisteredException::ice_id() const
@@ -935,15 +911,9 @@ Ice::NotRegisteredException::NotRegisteredException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::NotRegisteredException::~NotRegisteredException()
 {
 }
-#else
-Ice::NotRegisteredException::~NotRegisteredException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::NotRegisteredException::ice_id() const
@@ -974,15 +944,9 @@ Ice::TwowayOnlyException::TwowayOnlyException(const char* file, int line, const 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::TwowayOnlyException::~TwowayOnlyException()
 {
 }
-#else
-Ice::TwowayOnlyException::~TwowayOnlyException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::TwowayOnlyException::ice_id() const
@@ -1007,15 +971,9 @@ Ice::CloneNotImplementedException::CloneNotImplementedException(const char* file
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::CloneNotImplementedException::~CloneNotImplementedException()
 {
 }
-#else
-Ice::CloneNotImplementedException::~CloneNotImplementedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::CloneNotImplementedException::ice_id() const
@@ -1046,15 +1004,9 @@ Ice::UnknownException::UnknownException(const char* file, int line, const ::std:
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnknownException::~UnknownException()
 {
 }
-#else
-Ice::UnknownException::~UnknownException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnknownException::ice_id() const
@@ -1084,15 +1036,9 @@ Ice::UnknownLocalException::UnknownLocalException(const char* file, int line, co
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnknownLocalException::~UnknownLocalException()
 {
 }
-#else
-Ice::UnknownLocalException::~UnknownLocalException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnknownLocalException::ice_id() const
@@ -1122,15 +1068,9 @@ Ice::UnknownUserException::UnknownUserException(const char* file, int line, cons
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnknownUserException::~UnknownUserException()
 {
 }
-#else
-Ice::UnknownUserException::~UnknownUserException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnknownUserException::ice_id() const
@@ -1155,15 +1095,9 @@ Ice::VersionMismatchException::VersionMismatchException(const char* file, int li
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::VersionMismatchException::~VersionMismatchException()
 {
 }
-#else
-Ice::VersionMismatchException::~VersionMismatchException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::VersionMismatchException::ice_id() const
@@ -1188,15 +1122,9 @@ Ice::CommunicatorDestroyedException::CommunicatorDestroyedException(const char* 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::CommunicatorDestroyedException::~CommunicatorDestroyedException()
 {
 }
-#else
-Ice::CommunicatorDestroyedException::~CommunicatorDestroyedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::CommunicatorDestroyedException::ice_id() const
@@ -1227,15 +1155,9 @@ Ice::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ObjectAdapterDeactivatedException::~ObjectAdapterDeactivatedException()
 {
 }
-#else
-Ice::ObjectAdapterDeactivatedException::~ObjectAdapterDeactivatedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ObjectAdapterDeactivatedException::ice_id() const
@@ -1266,15 +1188,9 @@ Ice::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* fi
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ObjectAdapterIdInUseException::~ObjectAdapterIdInUseException()
 {
 }
-#else
-Ice::ObjectAdapterIdInUseException::~ObjectAdapterIdInUseException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ObjectAdapterIdInUseException::ice_id() const
@@ -1305,15 +1221,9 @@ Ice::NoEndpointException::NoEndpointException(const char* file, int line, const 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::NoEndpointException::~NoEndpointException()
 {
 }
-#else
-Ice::NoEndpointException::~NoEndpointException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::NoEndpointException::ice_id() const
@@ -1344,15 +1254,9 @@ Ice::EndpointParseException::EndpointParseException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::EndpointParseException::~EndpointParseException()
 {
 }
-#else
-Ice::EndpointParseException::~EndpointParseException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::EndpointParseException::ice_id() const
@@ -1383,15 +1287,9 @@ Ice::EndpointSelectionTypeParseException::EndpointSelectionTypeParseException(co
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::EndpointSelectionTypeParseException::~EndpointSelectionTypeParseException()
 {
 }
-#else
-Ice::EndpointSelectionTypeParseException::~EndpointSelectionTypeParseException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::EndpointSelectionTypeParseException::ice_id() const
@@ -1422,15 +1320,9 @@ Ice::VersionParseException::VersionParseException(const char* file, int line, co
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::VersionParseException::~VersionParseException()
 {
 }
-#else
-Ice::VersionParseException::~VersionParseException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::VersionParseException::ice_id() const
@@ -1461,15 +1353,9 @@ Ice::IdentityParseException::IdentityParseException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::IdentityParseException::~IdentityParseException()
 {
 }
-#else
-Ice::IdentityParseException::~IdentityParseException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::IdentityParseException::ice_id() const
@@ -1500,15 +1386,9 @@ Ice::ProxyParseException::ProxyParseException(const char* file, int line, const 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ProxyParseException::~ProxyParseException()
 {
 }
-#else
-Ice::ProxyParseException::~ProxyParseException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ProxyParseException::ice_id() const
@@ -1539,15 +1419,9 @@ Ice::IllegalIdentityException::IllegalIdentityException(const char* file, int li
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::IllegalIdentityException::~IllegalIdentityException()
 {
 }
-#else
-Ice::IllegalIdentityException::~IllegalIdentityException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::IllegalIdentityException::ice_id() const
@@ -1578,15 +1452,9 @@ Ice::IllegalServantException::IllegalServantException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::IllegalServantException::~IllegalServantException()
 {
 }
-#else
-Ice::IllegalServantException::~IllegalServantException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::IllegalServantException::ice_id() const
@@ -1619,15 +1487,9 @@ Ice::RequestFailedException::RequestFailedException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::RequestFailedException::~RequestFailedException()
 {
 }
-#else
-Ice::RequestFailedException::~RequestFailedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::RequestFailedException::ice_id() const
@@ -1657,15 +1519,9 @@ Ice::ObjectNotExistException::ObjectNotExistException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ObjectNotExistException::~ObjectNotExistException()
 {
 }
-#else
-Ice::ObjectNotExistException::~ObjectNotExistException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ObjectNotExistException::ice_id() const
@@ -1695,15 +1551,9 @@ Ice::FacetNotExistException::FacetNotExistException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::FacetNotExistException::~FacetNotExistException()
 {
 }
-#else
-Ice::FacetNotExistException::~FacetNotExistException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::FacetNotExistException::ice_id() const
@@ -1733,15 +1583,9 @@ Ice::OperationNotExistException::OperationNotExistException(const char* file, in
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::OperationNotExistException::~OperationNotExistException()
 {
 }
-#else
-Ice::OperationNotExistException::~OperationNotExistException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::OperationNotExistException::ice_id() const
@@ -1773,15 +1617,9 @@ Ice::SyscallException::SyscallException(const char* file, int line, Int error) :
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::SyscallException::~SyscallException()
 {
 }
-#else
-Ice::SyscallException::~SyscallException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::SyscallException::ice_id() const
@@ -1811,15 +1649,9 @@ Ice::SocketException::SocketException(const char* file, int line, Int error) :
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::SocketException::~SocketException()
 {
 }
-#else
-Ice::SocketException::~SocketException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::SocketException::ice_id() const
@@ -1850,15 +1682,9 @@ Ice::CFNetworkException::CFNetworkException(const char* file, int line, Int erro
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::CFNetworkException::~CFNetworkException()
 {
 }
-#else
-Ice::CFNetworkException::~CFNetworkException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::CFNetworkException::ice_id() const
@@ -1889,15 +1715,9 @@ Ice::FileException::FileException(const char* file, int line, Int error, const :
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::FileException::~FileException()
 {
 }
-#else
-Ice::FileException::~FileException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::FileException::ice_id() const
@@ -1927,15 +1747,9 @@ Ice::ConnectFailedException::ConnectFailedException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ConnectFailedException::~ConnectFailedException()
 {
 }
-#else
-Ice::ConnectFailedException::~ConnectFailedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ConnectFailedException::ice_id() const
@@ -1965,15 +1779,9 @@ Ice::ConnectionRefusedException::ConnectionRefusedException(const char* file, in
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ConnectionRefusedException::~ConnectionRefusedException()
 {
 }
-#else
-Ice::ConnectionRefusedException::~ConnectionRefusedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ConnectionRefusedException::ice_id() const
@@ -2003,15 +1811,9 @@ Ice::ConnectionLostException::ConnectionLostException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ConnectionLostException::~ConnectionLostException()
 {
 }
-#else
-Ice::ConnectionLostException::~ConnectionLostException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ConnectionLostException::ice_id() const
@@ -2044,15 +1846,9 @@ Ice::DNSException::DNSException(const char* file, int line, Int error, const ::s
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::DNSException::~DNSException()
 {
 }
-#else
-Ice::DNSException::~DNSException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::DNSException::ice_id() const
@@ -2077,15 +1873,9 @@ Ice::OperationInterruptedException::OperationInterruptedException(const char* fi
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::OperationInterruptedException::~OperationInterruptedException()
 {
 }
-#else
-Ice::OperationInterruptedException::~OperationInterruptedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::OperationInterruptedException::ice_id() const
@@ -2110,15 +1900,9 @@ Ice::TimeoutException::TimeoutException(const char* file, int line) :
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::TimeoutException::~TimeoutException()
 {
 }
-#else
-Ice::TimeoutException::~TimeoutException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::TimeoutException::ice_id() const
@@ -2143,15 +1927,9 @@ Ice::ConnectTimeoutException::ConnectTimeoutException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ConnectTimeoutException::~ConnectTimeoutException()
 {
 }
-#else
-Ice::ConnectTimeoutException::~ConnectTimeoutException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ConnectTimeoutException::ice_id() const
@@ -2176,15 +1954,9 @@ Ice::CloseTimeoutException::CloseTimeoutException(const char* file, int line) :
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::CloseTimeoutException::~CloseTimeoutException()
 {
 }
-#else
-Ice::CloseTimeoutException::~CloseTimeoutException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::CloseTimeoutException::ice_id() const
@@ -2209,15 +1981,9 @@ Ice::ConnectionTimeoutException::ConnectionTimeoutException(const char* file, in
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ConnectionTimeoutException::~ConnectionTimeoutException()
 {
 }
-#else
-Ice::ConnectionTimeoutException::~ConnectionTimeoutException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ConnectionTimeoutException::ice_id() const
@@ -2242,15 +2008,9 @@ Ice::InvocationTimeoutException::InvocationTimeoutException(const char* file, in
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::InvocationTimeoutException::~InvocationTimeoutException()
 {
 }
-#else
-Ice::InvocationTimeoutException::~InvocationTimeoutException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::InvocationTimeoutException::ice_id() const
@@ -2275,15 +2035,9 @@ Ice::InvocationCanceledException::InvocationCanceledException(const char* file, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::InvocationCanceledException::~InvocationCanceledException()
 {
 }
-#else
-Ice::InvocationCanceledException::~InvocationCanceledException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::InvocationCanceledException::ice_id() const
@@ -2314,15 +2068,9 @@ Ice::ProtocolException::ProtocolException(const char* file, int line, const ::st
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ProtocolException::~ProtocolException()
 {
 }
-#else
-Ice::ProtocolException::~ProtocolException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ProtocolException::ice_id() const
@@ -2353,15 +2101,9 @@ Ice::BadMagicException::BadMagicException(const char* file, int line, const ::st
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::BadMagicException::~BadMagicException()
 {
 }
-#else
-Ice::BadMagicException::~BadMagicException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::BadMagicException::ice_id() const
@@ -2393,15 +2135,9 @@ Ice::UnsupportedProtocolException::UnsupportedProtocolException(const char* file
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnsupportedProtocolException::~UnsupportedProtocolException()
 {
 }
-#else
-Ice::UnsupportedProtocolException::~UnsupportedProtocolException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnsupportedProtocolException::ice_id() const
@@ -2433,15 +2169,9 @@ Ice::UnsupportedEncodingException::UnsupportedEncodingException(const char* file
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnsupportedEncodingException::~UnsupportedEncodingException()
 {
 }
-#else
-Ice::UnsupportedEncodingException::~UnsupportedEncodingException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnsupportedEncodingException::ice_id() const
@@ -2471,15 +2201,9 @@ Ice::UnknownMessageException::UnknownMessageException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnknownMessageException::~UnknownMessageException()
 {
 }
-#else
-Ice::UnknownMessageException::~UnknownMessageException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnknownMessageException::ice_id() const
@@ -2509,15 +2233,9 @@ Ice::ConnectionNotValidatedException::ConnectionNotValidatedException(const char
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException()
 {
 }
-#else
-Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ConnectionNotValidatedException::ice_id() const
@@ -2547,15 +2265,9 @@ Ice::UnknownRequestIdException::UnknownRequestIdException(const char* file, int 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnknownRequestIdException::~UnknownRequestIdException()
 {
 }
-#else
-Ice::UnknownRequestIdException::~UnknownRequestIdException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnknownRequestIdException::ice_id() const
@@ -2585,15 +2297,9 @@ Ice::UnknownReplyStatusException::UnknownReplyStatusException(const char* file, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnknownReplyStatusException::~UnknownReplyStatusException()
 {
 }
-#else
-Ice::UnknownReplyStatusException::~UnknownReplyStatusException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnknownReplyStatusException::ice_id() const
@@ -2623,15 +2329,9 @@ Ice::CloseConnectionException::CloseConnectionException(const char* file, int li
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::CloseConnectionException::~CloseConnectionException()
 {
 }
-#else
-Ice::CloseConnectionException::~CloseConnectionException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::CloseConnectionException::ice_id() const
@@ -2662,15 +2362,9 @@ Ice::ConnectionManuallyClosedException::ConnectionManuallyClosedException(const 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ConnectionManuallyClosedException::~ConnectionManuallyClosedException()
 {
 }
-#else
-Ice::ConnectionManuallyClosedException::~ConnectionManuallyClosedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ConnectionManuallyClosedException::ice_id() const
@@ -2700,15 +2394,9 @@ Ice::IllegalMessageSizeException::IllegalMessageSizeException(const char* file, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::IllegalMessageSizeException::~IllegalMessageSizeException()
 {
 }
-#else
-Ice::IllegalMessageSizeException::~IllegalMessageSizeException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::IllegalMessageSizeException::ice_id() const
@@ -2738,15 +2426,9 @@ Ice::CompressionException::CompressionException(const char* file, int line, cons
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::CompressionException::~CompressionException()
 {
 }
-#else
-Ice::CompressionException::~CompressionException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::CompressionException::ice_id() const
@@ -2776,15 +2458,9 @@ Ice::DatagramLimitException::DatagramLimitException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::DatagramLimitException::~DatagramLimitException()
 {
 }
-#else
-Ice::DatagramLimitException::~DatagramLimitException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::DatagramLimitException::ice_id() const
@@ -2814,15 +2490,9 @@ Ice::MarshalException::MarshalException(const char* file, int line, const ::std:
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::MarshalException::~MarshalException()
 {
 }
-#else
-Ice::MarshalException::~MarshalException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::MarshalException::ice_id() const
@@ -2852,15 +2522,9 @@ Ice::ProxyUnmarshalException::ProxyUnmarshalException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ProxyUnmarshalException::~ProxyUnmarshalException()
 {
 }
-#else
-Ice::ProxyUnmarshalException::~ProxyUnmarshalException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ProxyUnmarshalException::ice_id() const
@@ -2890,15 +2554,9 @@ Ice::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* fi
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException()
 {
 }
-#else
-Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnmarshalOutOfBoundsException::ice_id() const
@@ -2929,15 +2587,9 @@ Ice::NoValueFactoryException::NoValueFactoryException(const char* file, int line
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::NoValueFactoryException::~NoValueFactoryException()
 {
 }
-#else
-Ice::NoValueFactoryException::~NoValueFactoryException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::NoValueFactoryException::ice_id() const
@@ -2969,15 +2621,9 @@ Ice::UnexpectedObjectException::UnexpectedObjectException(const char* file, int 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::UnexpectedObjectException::~UnexpectedObjectException()
 {
 }
-#else
-Ice::UnexpectedObjectException::~UnexpectedObjectException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::UnexpectedObjectException::ice_id() const
@@ -3007,15 +2653,9 @@ Ice::MemoryLimitException::MemoryLimitException(const char* file, int line, cons
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::MemoryLimitException::~MemoryLimitException()
 {
 }
-#else
-Ice::MemoryLimitException::~MemoryLimitException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::MemoryLimitException::ice_id() const
@@ -3045,15 +2685,9 @@ Ice::StringConversionException::StringConversionException(const char* file, int 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::StringConversionException::~StringConversionException()
 {
 }
-#else
-Ice::StringConversionException::~StringConversionException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::StringConversionException::ice_id() const
@@ -3083,15 +2717,9 @@ Ice::EncapsulationException::EncapsulationException(const char* file, int line, 
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::EncapsulationException::~EncapsulationException()
 {
 }
-#else
-Ice::EncapsulationException::~EncapsulationException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::EncapsulationException::ice_id() const
@@ -3122,15 +2750,9 @@ Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* file
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::FeatureNotSupportedException::~FeatureNotSupportedException()
 {
 }
-#else
-Ice::FeatureNotSupportedException::~FeatureNotSupportedException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::FeatureNotSupportedException::ice_id() const
@@ -3161,15 +2783,9 @@ Ice::SecurityException::SecurityException(const char* file, int line, const ::st
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::SecurityException::~SecurityException()
 {
 }
-#else
-Ice::SecurityException::~SecurityException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::SecurityException::ice_id() const
@@ -3194,15 +2810,9 @@ Ice::FixedProxyException::FixedProxyException(const char* file, int line) :
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::FixedProxyException::~FixedProxyException()
 {
 }
-#else
-Ice::FixedProxyException::~FixedProxyException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::FixedProxyException::ice_id() const
@@ -3227,15 +2837,9 @@ Ice::ResponseSentException::ResponseSentException(const char* file, int line) :
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 Ice::ResponseSentException::~ResponseSentException()
 {
 }
-#else
-Ice::ResponseSentException::~ResponseSentException() throw()
-{
-}
-#endif
 
 ::std::string
 Ice::ResponseSentException::ice_id() const

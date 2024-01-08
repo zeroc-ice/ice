@@ -182,10 +182,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     ConnectionInfo(const ConnectionInfo&) = default;
     ConnectionInfo& operator=(const ConnectionInfo&) = default;
-#endif
 
     /**
      * The negotiated cipher suite.

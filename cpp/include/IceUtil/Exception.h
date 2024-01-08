@@ -34,10 +34,6 @@ public:
      */
     Exception(const char* file, int line);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~Exception() throw() = 0;
-#endif
-
     /**
      * Returns the type ID of this exception. This corresponds to the Slice
      * type ID for Slice-defined exceptions, and to a similar fully scoped name
@@ -56,7 +52,7 @@ public:
      * Returns a description of this exception.
      * @return The description.
      */
-    virtual const char* what() const ICE_NOEXCEPT;
+    virtual const char* what() const noexcept;
 #ifdef ICE_CPP11_MAPPING
 
     /**
@@ -207,10 +203,6 @@ public:
     IllegalArgumentException(const char*, int);
     IllegalArgumentException(const char*, int, const std::string&);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~IllegalArgumentException() throw();
-#endif
-
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 
@@ -240,10 +232,6 @@ public:
     IllegalConversionException(const char*, int);
     IllegalConversionException(const char*, int, const std::string&);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~IllegalConversionException() throw();
-#endif
-
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
 
@@ -271,10 +259,6 @@ class ICE_API SyscallException : public ExceptionHelper<SyscallException>
 public:
 
     SyscallException(const char*, int, int);
-
-#ifndef ICE_CPP11_COMPILER
-    virtual ~SyscallException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
@@ -333,10 +317,6 @@ class ICE_API FileLockException : public ExceptionHelper<FileLockException>
 public:
 
     FileLockException(const char*, int, int, const std::string&);
-
-#ifndef ICE_CPP11_COMPILER
-    virtual ~FileLockException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;

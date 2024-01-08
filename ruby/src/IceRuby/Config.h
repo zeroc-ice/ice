@@ -11,32 +11,6 @@
 
 #include <Ice/Config.h>
 
-//
-// COMPILERFIX: This is required to prevent annoying warnings with aCC.
-// The aCC -mt option causes the definition of the _POSIX_C_SOURCE macro
-// (with another lower value.) and this is causing a warning because of
-// the redefinition.
-//
-//#if defined(__HP_aCC) && defined(_POSIX_C_SOURCE)
-//#    undef _POSIX_C_SOURCE
-//#endif
-
-//
-// Ruby defines _FILE_OFFSET_BITS without a guard; we undefine it to
-// avoid a warning
-//
-#if defined(__SUNPRO_CC) && defined(_FILE_OFFSET_BITS)
-   #undef _FILE_OFFSET_BITS
-#endif
-
-//
-// COMPILERFIX: Mingw headers fail to find some definitions if
-// wincrypt.h isn't included before ruby.h
-//
-#ifdef _WIN32
-#   include <wincrypt.h>
-#endif
-
 // The ruby.h check for the isfinite macro fails with some C++ standard libraries
 // (libc++ > 4000) because the isfinite macro included from the C library's
 // math.h is undefined and replaced with a function. As a result, Ruby defines isfinite

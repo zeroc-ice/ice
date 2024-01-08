@@ -25,10 +25,10 @@ public:
     static void registerPluginFactory(const std::string&, PluginFactory, bool);
 
     virtual void initializePlugins();
-    virtual StringSeq getPlugins() ICE_NOEXCEPT;
+    virtual StringSeq getPlugins() noexcept;
     virtual PluginPtr getPlugin(const std::string&);
     virtual void addPlugin(const std::string&, const PluginPtr&);
-    virtual void destroy() ICE_NOEXCEPT;
+    virtual void destroy() noexcept;
     PluginManagerI(const CommunicatorPtr&, const IceInternal::DynamicLibraryListPtr&);
 
 private:

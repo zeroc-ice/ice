@@ -15,12 +15,8 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/StringUtil.h>
 
-#ifdef ICE_HAS_CODECVT_UTF8
 #include <codecvt>
 #include <locale>
-#else
-#include <IceUtil/Unicode.h>
-#endif
 
 using namespace IceUtil;
 using namespace IceUtilInternal;
@@ -32,8 +28,6 @@ namespace
 IceUtil::Mutex* processStringConverterMutex = 0;
 IceUtil::StringConverterPtr processStringConverter;
 IceUtil::WstringConverterPtr processWstringConverter;
-
-#ifdef ICE_HAS_CODECVT_UTF8
 
 template<size_t wcharSize>
 struct SelectCodeCvt;
@@ -53,15 +47,6 @@ struct SelectCodeCvt<4>
 class UnicodeWstringConverter : public WstringConverter
 {
 public:
-
-#if defined(_MSC_VER) && (_MSC_VER <= 1800)
-    //
-    // VS 2013 needs a default ctor
-    //
-    UnicodeWstringConverter()
-    {
-    }
-#endif
 
     virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
     {
@@ -186,56 +171,6 @@ private:
     typedef SelectCodeCvt<sizeof(wchar_t)>::Type CodeCvt;
     const CodeCvt _codecvt;
 };
-
-#else
-
-class UnicodeWstringConverter : public WstringConverter
-{
-public:
-
-    virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
-    {
-        if(sourceStart == sourceEnd)
-        {
-            return buffer.getMoreBytes(1, 0);
-        }
-
-        Byte* targetStart = 0;
-        Byte* targetEnd = 0;
-
-        //
-        // The number of bytes we request from buffer for each remaining source character
-        //
-        size_t factor = 2;
-
-        do
-        {
-            assert(factor <= 4);
-            const size_t chunkSize = std::max<size_t>((sourceEnd - sourceStart) * factor, 4);
-            ++factor; // at the next round, we'll allocate more bytes per remaining source character
-
-            targetStart = buffer.getMoreBytes(chunkSize, targetStart);
-            targetEnd = targetStart + chunkSize;
-        }
-        while(convertUTFWstringToUTF8(sourceStart, sourceEnd, targetStart, targetEnd) == false);
-
-        return targetStart;
-    }
-
-    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, wstring& target) const
-    {
-        if(sourceStart == sourceEnd)
-        {
-            target = L"";
-        }
-        else
-        {
-            convertUTF8ToUTFWstring(sourceStart, sourceEnd, target);
-        }
-    }
-};
-
-#endif
 
 class Init
 {
@@ -435,12 +370,8 @@ IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& conv
     return tmp;
 }
 
-#ifdef ICE_HAS_CODECVT_UTF8
-
 typedef char16_t Char16T;
 typedef char32_t Char32T;
-
-#endif
 
 vector<unsigned short>
 IceUtilInternal::toUTF16(const vector<Byte>& source)
@@ -448,30 +379,24 @@ IceUtilInternal::toUTF16(const vector<Byte>& source)
     vector<unsigned short> result;
     if(!source.empty())
     {
+        assert(sizeof(Char16T) == sizeof(unsigned short));
 
-#ifdef ICE_HAS_CODECVT_UTF8
-    assert(sizeof(Char16T) == sizeof(unsigned short));
+        typedef wstring_convert<codecvt_utf8_utf16<Char16T>, Char16T> Convert;
 
-    typedef wstring_convert<codecvt_utf8_utf16<Char16T>, Char16T> Convert;
+        Convert convert;
 
-    Convert convert;
+        try
+        {
+            Convert::wide_string ws = convert.from_bytes(reinterpret_cast<const char*>(&source.front()),
+                                                         reinterpret_cast<const char*>(&source.front() + source.size()));
 
-    try
-    {
-        Convert::wide_string ws = convert.from_bytes(reinterpret_cast<const char*>(&source.front()),
-                                                     reinterpret_cast<const char*>(&source.front() + source.size()));
-
-        result = vector<unsigned short>(reinterpret_cast<const unsigned short*>(ws.data()),
-                                        reinterpret_cast<const unsigned short*>(ws.data()) + ws.length());
-    }
-    catch(const std::range_error& ex)
-    {
-        throw IllegalConversionException(__FILE__, __LINE__, ex.what());
-    }
-
-#else
-    convertUTF8ToUTF16(source, result);
-#endif
+            result = vector<unsigned short>(reinterpret_cast<const unsigned short*>(ws.data()),
+                                            reinterpret_cast<const unsigned short*>(ws.data()) + ws.length());
+        }
+        catch(const std::range_error& ex)
+        {
+            throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+        }
     }
     return result;
 }
@@ -482,29 +407,23 @@ IceUtilInternal::toUTF32(const vector<Byte>& source)
     vector<unsigned int> result;
     if(!source.empty())
     {
+        assert(sizeof(Char32T) == sizeof(unsigned int));
 
-#ifdef ICE_HAS_CODECVT_UTF8
-    assert(sizeof(Char32T) == sizeof(unsigned int));
+        typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
+        Convert convert;
 
-    typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
-    Convert convert;
+        try
+        {
+            Convert::wide_string ws = convert.from_bytes(reinterpret_cast<const char*>(&source.front()),
+                                                         reinterpret_cast<const char*>(&source.front() + source.size()));
 
-    try
-    {
-        Convert::wide_string ws = convert.from_bytes(reinterpret_cast<const char*>(&source.front()),
-                                                     reinterpret_cast<const char*>(&source.front() + source.size()));
-
-        result = vector<unsigned int>(reinterpret_cast<const unsigned int*>(ws.data()),
-                                      reinterpret_cast<const unsigned int*>(ws.data()) + ws.length());
-    }
-    catch(const std::range_error& ex)
-    {
-        throw IllegalConversionException(__FILE__, __LINE__, ex.what());
-    }
-
-#else
-    convertUTF8ToUTF32(source, result);
-#endif
+            result = vector<unsigned int>(reinterpret_cast<const unsigned int*>(ws.data()),
+                                          reinterpret_cast<const unsigned int*>(ws.data()) + ws.length());
+        }
+        catch(const std::range_error& ex)
+        {
+            throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+        }
     }
     return result;
 }
@@ -515,29 +434,23 @@ IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
     vector<Byte> result;
     if(!source.empty())
     {
+        assert(sizeof(Char32T) == sizeof(unsigned int));
 
-#ifdef ICE_HAS_CODECVT_UTF8
-    assert(sizeof(Char32T) == sizeof(unsigned int));
+        typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
+        Convert convert;
 
-    typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
-    Convert convert;
+        try
+        {
+            Convert::byte_string bs = convert.to_bytes(reinterpret_cast<const Char32T*>(&source.front()),
+                                                       reinterpret_cast<const Char32T*>(&source.front() + source.size()));
 
-    try
-    {
-        Convert::byte_string bs = convert.to_bytes(reinterpret_cast<const Char32T*>(&source.front()),
-                                                   reinterpret_cast<const Char32T*>(&source.front() + source.size()));
-
-        result = vector<Byte>(reinterpret_cast<const Byte*>(bs.data()),
-                              reinterpret_cast<const Byte*>(bs.data()) + bs.length());
+            result = vector<Byte>(reinterpret_cast<const Byte*>(bs.data()),
+                                  reinterpret_cast<const Byte*>(bs.data()) + bs.length());
         }
-    catch(const std::range_error& ex)
-    {
-        throw IllegalConversionException(__FILE__, __LINE__, ex.what());
-    }
-
-#else
-    convertUTF32ToUTF8(source, result);
-#endif
+        catch(const std::range_error& ex)
+        {
+            throw IllegalConversionException(__FILE__, __LINE__, ex.what());
+        }
     }
     return result;
 }

@@ -156,12 +156,10 @@ def create_platform_targets(project, platform, bindist)
             "Ice" => ["Application.cpp",
                       "AsyncResult.cpp",
                       "AsyncResult.cpp",
-                      "ConvertUTF.cpp",
                       "DLLMain.cpp",
                       "GCObject.cpp",
                       "ResponseHandler.cpp",
                       "SystemdJournal.cpp",
-                      "Unicode.cpp",
                       "OpenSSL*",
                       "SChannel*"]
         }
