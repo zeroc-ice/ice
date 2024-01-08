@@ -8,7 +8,7 @@
 #include <Config.h>
 #include <Util.h>
 #include <Ice/FactoryTable.h>
-#include <Ice/Object.h>
+#include <Ice/Value.h>
 #include <Ice/SlicedDataF.h>
 #include <IceUtil/OutputUtil.h>
 
@@ -38,7 +38,7 @@ class AbortMarshaling
 {
 };
 
-typedef std::map<PyObject*, Ice::ObjectPtr> ObjectMap;
+typedef std::map<PyObject*, Ice::ValuePtr> ObjectMap;
 
 class ObjectReader;
 typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
@@ -77,7 +77,7 @@ public:
     ReadObjectCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
     ~ReadObjectCallback();
 
-    void invoke(const ::Ice::ObjectPtr&);
+    void invoke(const ::Ice::ValuePtr&);
 
 private:
 
@@ -614,7 +614,7 @@ private:
 //
 // ObjectWriter wraps a Python object for marshaling.
 //
-class ObjectWriter : public Ice::Object
+class ObjectWriter : public Ice::Value
 {
 public:
 
@@ -639,7 +639,7 @@ private:
 //
 // ObjectReader unmarshals the state of an Ice object.
 //
-class ObjectReader : public Ice::Object
+class ObjectReader : public Ice::Value
 {
 public:
 

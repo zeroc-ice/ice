@@ -27,7 +27,7 @@ namespace
 ValueInfoPtr
 getValueInfo(const string& id)
 {
-    return id == Ice::Object::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
+    return id == Ice::Value::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
 }
 
 }

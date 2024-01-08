@@ -412,7 +412,7 @@ IcePy::StreamUtil::~StreamUtil()
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
-            vector<Ice::ObjectPtr> tmp;
+            vector<Ice::ValuePtr> tmp;
             tmp.swap((*q)->instances);
         }
     }
@@ -562,7 +562,7 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         }
 
         int j = 0;
-        for(vector<Ice::ObjectPtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for(vector<Ice::ValuePtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
             // Each element in the instances list is an instance of ObjectReader that wraps a Python object.
@@ -667,7 +667,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 {
                     PyObject* o = PyTuple_GET_ITEM(instances.get(), j);
 
-                    Ice::ObjectPtr writer;
+                    Ice::ValuePtr writer;
 
                     ObjectMap::iterator k = objectMap->find(o);
                     if(k == objectMap->end())
@@ -3474,7 +3474,7 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
 
     if(p == Py_None)
     {
-        Ice::ObjectPtr nil;
+        Ice::ValuePtr nil;
         os->write(nil);
         return;
     }
@@ -3486,12 +3486,12 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
     }
 
     //
-    // Ice::ObjectWriter is a subclass of Ice::Object that wraps a Python object for marshaling.
+    // Ice::ObjectWriter is a subclass of Ice::Value that wraps a Python object for marshaling.
     // It is possible that this Python object has already been marshaled, therefore we first must
     // check the object map to see if this object is present. If so, we use the existing ObjectWriter,
     // otherwise we create a new one.
     //
-    Ice::ObjectPtr writer;
+    Ice::ValuePtr writer;
     assert(objectMap);
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
@@ -3514,7 +3514,7 @@ namespace
 {
 
 void
-patchObject(void* addr, const Ice::ObjectPtr& v)
+patchObject(void* addr, const Ice::ValuePtr& v)
 {
     ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
     assert(cb);
@@ -3950,7 +3950,7 @@ IcePy::ObjectReader::_iceRead(Ice::InputStream* is)
     //
     // Unmarshal the slices of a user-defined class.
     //
-    if(!unknown && _info->id != Ice::Object::ice_staticId())
+    if(!unknown && _info->id != Ice::Value::ice_staticId())
     {
         ValueInfoPtr info = _info;
         while(info)
@@ -4047,7 +4047,7 @@ IcePy::ReadObjectCallback::~ReadObjectCallback()
 }
 
 void
-IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
+IcePy::ReadObjectCallback::invoke(const Ice::ValuePtr& p)
 {
     if(p)
     {
@@ -4055,13 +4055,13 @@ IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
         assert(reader);
 
         //
-        // Verify that the object's type is compatible with the formal type.
+        // Verify that the value's type is compatible with the formal type.
         //
         PyObject* obj = reader->getObject(); // Borrowed reference.
         if(!PyObject_IsInstance(obj, _info->pythonType))
         {
             Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
-            ex.reason = "unmarshaled object is not an instance of " + _info->id;
+            ex.reason = "unmarshaled value is not an instance of " + _info->id;
             ex.type = reader->getInfo()->getId();
             ex.expectedType = _info->id;
             throw ex;
