@@ -458,7 +458,7 @@ Slice::argvToArgs(int argc, char* argv[])
      return ids;
  }
 
- bool
+bool
 Slice::checkIdentifier(const string& id)
 {
     // check whether the identifier is scoped
