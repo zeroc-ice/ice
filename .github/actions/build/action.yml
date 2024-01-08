@@ -6,7 +6,7 @@ runs:
     - name: Build C++
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        export CONFIGS="shared cpp11-shared"
+        export CONFIGS="shared cpp98-shared cpp11-shared"
         make -C cpp -j3 V=1
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
