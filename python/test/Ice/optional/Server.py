@@ -73,7 +73,7 @@ class InitialI(Test.Initial):
     def opOneOptional(self, p1, current=None):
         return (p1, p1)
 
-    def opOneOptionalProxy(self, p1, current=None):
+    def opMyInterfaceProxy(self, p1, current=None):
         return (p1, p1)
 
     def opByteSeq(self, p1, current=None):

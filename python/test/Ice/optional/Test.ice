@@ -14,6 +14,11 @@ class OneOptional
     optional(1) int a;
 }
 
+interface MyInterface
+{
+    void op();
+}
+
 enum MyEnum
 {
     MyEnumMember
@@ -77,7 +82,7 @@ class MultiOptional
     optional(7) double g;
     optional(8) string h;
     optional(9) MyEnum i;
-    optional(10) MultiOptional* j;
+    optional(10) MyInterface* j;
     optional(11) MultiOptional k;
     optional(12) ByteSeq bs;
     optional(13) StringSeq ss;
@@ -236,7 +241,7 @@ interface Initial
 
     optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
 
-    optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
+    optional(1) MyInterface* opMyInterfaceProxy(optional(2) MyInterface* p1, out optional(3) MyInterface* p3);
 
     optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
 
