@@ -20,6 +20,9 @@ jobs:
         language: [cpp, csharp, java]
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
+          - os: macos-beta
+            language: cpp
+
           - os: macos-latest
             language: swift
           - os: macos-latest
