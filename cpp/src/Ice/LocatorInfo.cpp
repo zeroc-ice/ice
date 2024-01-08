@@ -132,12 +132,7 @@ void
 IceInternal::LocatorManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
-
-#ifdef ICE_CPP11_COMPILER
     for_each(_table.begin(), _table.end(), [](pair<Ice::LocatorPrxPtr, LocatorInfoPtr> it){ it.second->destroy(); });
-#else
-    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
-#endif
     _table.clear();
     _tableHint = _table.end();
 
@@ -773,16 +768,11 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
 
     const char* sep = endpoints.size() > 1 ? ":" : "";
     ostringstream o;
-#ifdef ICE_CPP11_COMPILER
     transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
               [](const EndpointPtr& endpoint)
               {
                   return endpoint->toString();
               });
-#else
-    transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
-              Ice::constMemFun(&Endpoint::toString));
-#endif
     out << "endpoints = " << o.str();
 }
 

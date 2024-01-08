@@ -60,10 +60,10 @@ class CommunicatorI : public Communicator
 {
 public:
 
-    virtual void destroy() ICE_NOEXCEPT;
-    virtual void shutdown() ICE_NOEXCEPT;
-    virtual void waitForShutdown() ICE_NOEXCEPT;
-    virtual bool isShutdown() const ICE_NOEXCEPT;
+    virtual void destroy() noexcept;
+    virtual void shutdown() noexcept;
+    virtual void waitForShutdown() noexcept;
+    virtual bool isShutdown() const noexcept;
 
     virtual ObjectPrxPtr stringToProxy(const std::string&) const;
     virtual std::string proxyToString(const ObjectPrxPtr&) const;
@@ -79,13 +79,13 @@ public:
     virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrxPtr&);
 
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
-    virtual ObjectFactoryPtr findObjectFactory(const std::string&) const ICE_NOEXCEPT;
+    virtual ObjectFactoryPtr findObjectFactory(const std::string&) const noexcept;
 
-    virtual ImplicitContextPtr getImplicitContext() const ICE_NOEXCEPT;
+    virtual ImplicitContextPtr getImplicitContext() const noexcept;
 
-    virtual PropertiesPtr getProperties() const ICE_NOEXCEPT;
-    virtual LoggerPtr getLogger() const ICE_NOEXCEPT;
-    virtual Ice::Instrumentation::CommunicatorObserverPtr getObserver() const ICE_NOEXCEPT;
+    virtual PropertiesPtr getProperties() const noexcept;
+    virtual LoggerPtr getLogger() const noexcept;
+    virtual Ice::Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;
 
     virtual RouterPrxPtr getDefaultRouter() const;
     virtual void setDefaultRouter(const RouterPrxPtr&);
@@ -95,7 +95,7 @@ public:
 
     virtual PluginManagerPtr getPluginManager() const;
 
-    virtual ValueFactoryManagerPtr getValueFactoryManager() const ICE_NOEXCEPT;
+    virtual ValueFactoryManagerPtr getValueFactoryManager() const noexcept;
 
 #ifdef ICE_SWIFT
     virtual dispatch_queue_t getClientDispatchQueue() const;

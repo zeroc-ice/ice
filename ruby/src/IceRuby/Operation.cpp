@@ -604,9 +604,6 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
     }
 
     throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception");
-#ifdef __SUNPRO_CC
-    return 0;
-#endif
 }
 
 bool

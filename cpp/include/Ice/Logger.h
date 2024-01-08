@@ -161,12 +161,9 @@ public:
     typedef LoggerPtr PointerType;
 
     virtual ~Logger();
-
-#ifdef ICE_CPP11_COMPILER
     Logger() = default;
     Logger(const Logger&) = default;
     Logger& operator=(const Logger&) = default;
-#endif
 
     /**
      * Print a message. The message is printed literally, without any decorations such as executable name or time

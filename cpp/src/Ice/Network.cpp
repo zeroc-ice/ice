@@ -83,20 +83,6 @@ public:
     }
 };
 
-#ifndef ICE_CPP11_COMPILER
-
-struct AddressIsIPv6 : public unary_function<Address, bool>
-{
-public:
-
-    bool
-    operator()(const Address& ss) const
-    {
-        return ss.saStorage.ss_family == AF_INET6;
-    }
-};
-#endif
-
 void
 sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
 {
@@ -107,7 +93,6 @@ sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSel
 
     if(protocol == EnableBoth)
     {
-#ifdef ICE_CPP11_COMPILER
         if(preferIPv6)
         {
             stable_partition(addrs.begin(), addrs.end(),
@@ -124,16 +109,6 @@ sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSel
                                  return ss.saStorage.ss_family != AF_INET6;
                              });
         }
-#else
-        if(preferIPv6)
-        {
-            stable_partition(addrs.begin(), addrs.end(), AddressIsIPv6());
-        }
-        else
-        {
-            stable_partition(addrs.begin(), addrs.end(), not1(AddressIsIPv6()));
-        }
-#endif
     }
 }
 

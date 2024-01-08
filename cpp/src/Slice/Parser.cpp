@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/Parser.h>
@@ -24,12 +23,6 @@ Slice::CompilerException::CompilerException(const char* file, int line, const st
     _reason(r)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-Slice::CompilerException::~CompilerException() throw()
-{
-}
-#endif
 
 string
 Slice::CompilerException::ice_id() const
@@ -1116,11 +1109,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 void
 Slice::Container::destroy()
 {
-#ifdef ICE_CPP11_COMPILER
     for_each(_contents.begin(), _contents.end(), [](const SyntaxTreeBasePtr& it) { it->destroy();  });
-#else
-    for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&SyntaxTreeBase::destroy));
-#endif
     _contents.clear();
     _introducedMap.clear();
     SyntaxTreeBase::destroy();
@@ -3200,18 +3189,7 @@ Slice::Constructed::dependencies()
     set<ConstructedPtr> resultSet;
     recDependencies(resultSet);
 
-#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
-    // TODO: find a more usable work-around for this std lib limitation.
-    ConstructedList result;
-    set<ConstructedPtr>::iterator it = resultSet.begin();
-    while(it != resultSet.end())
-    {
-        result.push_back(*it++);
-    }
-    return result;
-#else
     return ConstructedList(resultSet.begin(), resultSet.end());
-#endif
 }
 
 Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) :
@@ -6608,15 +6586,6 @@ Slice::CICompare::operator()(const string& s1, const string& s2) const
     }
 }
 
-#if defined(__SUNPRO_CC)
-bool
-Slice::cICompare(const std::string& s1, const std::string& s2)
-{
-    CICompare c;
-    return c(s1, s2);
-}
-#endif
-
 // ----------------------------------------------------------------------
 // DerivedToBaseCompare
 // ----------------------------------------------------------------------
@@ -6626,11 +6595,3 @@ Slice::DerivedToBaseCompare::operator()(const ExceptionPtr& e1, const ExceptionP
 {
     return e2->isBaseOf(e1);
 }
-
-#if defined(__SUNPRO_CC)
-bool
-Slice::derivedToBaseCompare(const ExceptionPtr& e1, const ExceptionPtr& e2)
-{
-    return e2->isBaseOf(e1);
-}
-#endif

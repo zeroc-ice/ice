@@ -2524,12 +2524,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 // handler, causing compiler warnings and resulting in the base exception
                 // being marshaled instead of the derived exception.
                 //
-#if defined(__SUNPRO_CC)
-                exceptions.sort(Slice::derivedToBaseCompare);
-#else
                 exceptions.sort(Slice::DerivedToBaseCompare());
-#endif
-
                 if(!exceptions.empty())
                 {
                     out << nl << op->name() << "_ex_ = { ";

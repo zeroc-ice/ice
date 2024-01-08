@@ -126,7 +126,7 @@ Ice::PluginManagerI::initializePlugins()
 }
 
 StringSeq
-Ice::PluginManagerI::getPlugins() ICE_NOEXCEPT
+Ice::PluginManagerI::getPlugins() noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -179,7 +179,7 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 }
 
 void
-Ice::PluginManagerI::destroy() ICE_NOEXCEPT
+Ice::PluginManagerI::destroy() noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 

@@ -434,7 +434,7 @@ IceBT::EndpointI::options() const
 }
 
 Ice::EndpointInfoPtr
-IceBT::EndpointI::getInfo() const ICE_NOEXCEPT
+IceBT::EndpointI::getInfo() const noexcept
 {
     EndpointInfoPtr info = ICE_MAKE_SHARED(EndpointInfoI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->addr = _addr;
@@ -614,19 +614,19 @@ IceBT::EndpointInfoI::~EndpointInfoI()
 }
 
 Ice::Short
-IceBT::EndpointInfoI::type() const ICE_NOEXCEPT
+IceBT::EndpointInfoI::type() const noexcept
 {
     return _endpoint->type();
 }
 
 bool
-IceBT::EndpointInfoI::datagram() const ICE_NOEXCEPT
+IceBT::EndpointInfoI::datagram() const noexcept
 {
     return _endpoint->datagram();
 }
 
 bool
-IceBT::EndpointInfoI::secure() const ICE_NOEXCEPT
+IceBT::EndpointInfoI::secure() const noexcept
 {
     return _endpoint->secure();
 }

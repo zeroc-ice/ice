@@ -80,7 +80,7 @@ IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
 }
 
 Ice::ValueFactoryPtr
-IcePy::ValueFactoryManager::find(const string& id) const ICE_NOEXCEPT
+IcePy::ValueFactoryManager::find(const string& id) const noexcept
 {
     Lock lock(*this);
 

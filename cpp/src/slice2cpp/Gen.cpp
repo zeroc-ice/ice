@@ -5,8 +5,6 @@
 #include "Gen.h"
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
-#include <IceUtil/Functional.h>
-#include <IceUtil/Iterator.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/FileTracker.h>
 #include <IceUtil/FileUtil.h>
@@ -1256,22 +1254,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << allParamDecls << epar << ';';
     }
 
-    H.zeroIndent();
-    H << sp << nl << "#ifdef ICE_CPP11_COMPILER";
-    H.restoreIndent();
     H << nl << name << "(const " << name << "&) = default;";
     H << nl << "virtual ~" << name << "();";
-
-    H.zeroIndent();
-    H << nl << "#else";
-    H.restoreIndent();
-
-    H << nl << "virtual ~" << name << "() throw();";
-
-    H.zeroIndent();
-    H << nl << "#endif";
-    H.restoreIndent();
-
     H << sp;
 
     string initName = "iceC" + p->flattenedScope() + p->name() + "_init";
@@ -1340,27 +1324,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         C << eb;
     }
 
-    C.zeroIndent();
-    C << sp << nl << "#ifdef ICE_CPP11_COMPILER";
-    C.restoreIndent();
-
     C << nl;
     C << scoped.substr(2) << "::~" << name << "()";
     C << sb;
     C << eb;
-
-    C.zeroIndent();
-    C << nl << "#else";
-    C.restoreIndent();
-
-    C << nl;
-    C << scoped.substr(2) << "::~" << name << "() throw()";
-    C << sb;
-    C << eb;
-
-    C.zeroIndent();
-    C << nl << "#endif";
-    C.restoreIndent();
 
     H << nl << "/**";
     H << nl << " * Obtains the Slice type ID of this exception.";
@@ -2506,11 +2473,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         ExceptionList throws = p->throws();
         throws.sort();
         throws.unique();
-#if defined(__SUNPRO_CC)
-        throws.sort(derivedToBaseCompare);
-#else
         throws.sort(Slice::DerivedToBaseCompare());
-#endif
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
             C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
@@ -2568,11 +2531,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         ExceptionList throws = p->throws();
         throws.sort();
         throws.unique();
-#if defined(__SUNPRO_CC)
-        throws.sort(derivedToBaseCompare);
-#else
         throws.sort(Slice::DerivedToBaseCompare());
-#endif
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
             C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
@@ -2825,9 +2784,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         emitOneShotConstructor(p);
     }
 
-    H.zeroIndent();
-    H << sp << nl << "#ifdef ICE_CPP11_COMPILER";
-    H.restoreIndent();
     if (p->isInterface())
     {
         // If this is not an interface it's defined above
@@ -2835,10 +2791,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     H << nl << name << "(const " << name << "&) = default;";
     H << nl <<  name << "& operator=(const " << name << "&) = default;";
-
-    H.zeroIndent();
-    H << nl << "#endif";
-    H.restoreIndent();
 
     C << sp;
     C << nl << "/// \\cond INTERNAL";

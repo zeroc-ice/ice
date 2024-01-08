@@ -252,12 +252,9 @@ public:
     typedef PropertiesPtr PointerType;
 
     virtual ~Properties();
-
-#ifdef ICE_CPP11_COMPILER
     Properties() = default;
     Properties(const Properties&) = default;
     Properties& operator=(const Properties&) = default;
-#endif
 
     /**
      * Get a property by key. If the property is not set, an empty string is returned.
@@ -265,7 +262,7 @@ public:
      * @return The property value.
      * @see #setProperty
      */
-    virtual ::std::string getProperty(const ::std::string& key) ICE_NOEXCEPT = 0;
+    virtual ::std::string getProperty(const ::std::string& key) noexcept = 0;
 
     /**
      * Get a property by key. If the property is not set, the given default value is returned.
@@ -274,7 +271,7 @@ public:
      * @return The property value or the default value.
      * @see #setProperty
      */
-    virtual ::std::string getPropertyWithDefault(const ::std::string& key, const ::std::string& value) ICE_NOEXCEPT = 0;
+    virtual ::std::string getPropertyWithDefault(const ::std::string& key, const ::std::string& value) noexcept = 0;
 
     /**
      * Get a property as an integer. If the property is not set, 0 is returned.
@@ -282,7 +279,7 @@ public:
      * @return The property value interpreted as an integer.
      * @see #setProperty
      */
-    virtual Int getPropertyAsInt(const ::std::string& key) ICE_NOEXCEPT = 0;
+    virtual Int getPropertyAsInt(const ::std::string& key) noexcept = 0;
 
     /**
      * Get a property as an integer. If the property is not set, the given default value is returned.
@@ -291,7 +288,7 @@ public:
      * @return The property value interpreted as an integer, or the default value.
      * @see #setProperty
      */
-    virtual Int getPropertyAsIntWithDefault(const ::std::string& key, Int value) ICE_NOEXCEPT = 0;
+    virtual Int getPropertyAsIntWithDefault(const ::std::string& key, Int value) noexcept = 0;
 
     /**
      * Get a property as a list of strings. The strings must be separated by whitespace or comma. If the property is
@@ -303,7 +300,7 @@ public:
      * @return The property value interpreted as a list of strings.
      * @see #setProperty
      */
-    virtual StringSeq getPropertyAsList(const ::std::string& key) ICE_NOEXCEPT = 0;
+    virtual StringSeq getPropertyAsList(const ::std::string& key) noexcept = 0;
 
     /**
      * Get a property as a list of strings.  The strings must be separated by whitespace or comma. If the property is
@@ -316,7 +313,7 @@ public:
      * @return The property value interpreted as list of strings, or the default value.
      * @see #setProperty
      */
-    virtual StringSeq getPropertyAsListWithDefault(const ::std::string& key, const StringSeq& value) ICE_NOEXCEPT = 0;
+    virtual StringSeq getPropertyAsListWithDefault(const ::std::string& key, const StringSeq& value) noexcept = 0;
 
     /**
      * Get all properties whose keys begins with <em>prefix</em>. If <em>prefix</em> is an empty string, then all
@@ -324,7 +321,7 @@ public:
      * @param prefix The prefix to search for (empty string if none).
      * @return The matching property set.
      */
-    virtual PropertyDict getPropertiesForPrefix(const ::std::string& prefix) ICE_NOEXCEPT = 0;
+    virtual PropertyDict getPropertiesForPrefix(const ::std::string& prefix) noexcept = 0;
 
     /**
      * Set a property. To unset a property, set it to the empty string.
@@ -339,7 +336,7 @@ public:
      * sequence is a command-line option of the form <code>--<em>key</em>=<em>value</em></code>.
      * @return The command line options for this property set.
      */
-    virtual StringSeq getCommandLineOptions() ICE_NOEXCEPT = 0;
+    virtual StringSeq getCommandLineOptions() noexcept = 0;
 
     /**
      * Convert a sequence of command-line options into properties. All options that begin with
@@ -370,7 +367,7 @@ public:
      * Create a copy of this property set.
      * @return A copy of this property set.
      */
-    virtual PropertiesPtr clone() ICE_NOEXCEPT = 0;
+    virtual PropertiesPtr clone() noexcept = 0;
 };
 
 /// \cond INTERNAL

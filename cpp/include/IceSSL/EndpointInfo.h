@@ -153,10 +153,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     EndpointInfo(const EndpointInfo&) = default;
     EndpointInfo& operator=(const EndpointInfo&) = default;
-#endif
 };
 
 /// \cond INTERNAL

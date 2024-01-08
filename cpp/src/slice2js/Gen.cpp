@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
 #include <Gen.h>
-#include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
+#include <iterator>
 
 // TODO: fix this warning!
 #if defined(_MSC_VER)
@@ -1325,7 +1324,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
 
     _out << sp;
     _out << nl << "const iceC_" << getLocalScope(scoped, "_") << "_ids = [";
@@ -1701,11 +1700,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ExceptionList throws = op->throws();
                 throws.sort();
                 throws.unique();
-#if defined(__SUNPRO_CC)
-                throws.sort(derivedToBaseCompare);
-#else
                 throws.sort(Slice::DerivedToBaseCompare());
-#endif
                 if(throws.empty())
                 {
                     _out << " ";

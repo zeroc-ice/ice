@@ -476,27 +476,25 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     EndpointInfo(const EndpointInfo&) = default;
     EndpointInfo& operator=(const EndpointInfo&) = default;
-#endif
 
     /**
      * Returns the type of the endpoint.
      * @return The endpoint type.
      */
-    virtual Short type() const ICE_NOEXCEPT = 0;
+    virtual Short type() const noexcept = 0;
 
     /**
      * Returns true if this endpoint is a datagram endpoint.
      * @return True for a datagram endpoint.
      */
-    virtual bool datagram() const ICE_NOEXCEPT = 0;
+    virtual bool datagram() const noexcept = 0;
 
     /**
      * @return True for a secure endpoint.
      */
-    virtual bool secure() const ICE_NOEXCEPT = 0;
+    virtual bool secure() const noexcept = 0;
 
     /**
      * The information of the underyling endpoint or null if there's no underlying endpoint.
@@ -535,24 +533,21 @@ public:
     typedef EndpointPtr PointerType;
 
     virtual ~Endpoint();
-
-#ifdef ICE_CPP11_COMPILER
     Endpoint() = default;
     Endpoint(const Endpoint&) = default;
     Endpoint& operator=(const Endpoint&) = default;
-#endif
 
     /**
      * Return a string representation of the endpoint.
      * @return The string representation of the endpoint.
      */
-    virtual ::std::string toString() const ICE_NOEXCEPT = 0;
+    virtual ::std::string toString() const noexcept = 0;
 
     /**
      * Returns the endpoint information.
      * @return The endpoint information class.
      */
-    virtual EndpointInfoPtr getInfo() const ICE_NOEXCEPT = 0;
+    virtual EndpointInfoPtr getInfo() const noexcept = 0;
 };
 
 /// \cond INTERNAL
@@ -600,11 +595,8 @@ public:
         sourceAddress(sourceAddress)
     {
     }
-
-#ifdef ICE_CPP11_COMPILER
     IPEndpointInfo(const IPEndpointInfo&) = default;
     IPEndpointInfo& operator=(const IPEndpointInfo&) = default;
-#endif
 
     /**
      * The host or address configured with the endpoint.
@@ -663,10 +655,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     TCPEndpointInfo(const TCPEndpointInfo&) = default;
     TCPEndpointInfo& operator=(const TCPEndpointInfo&) = default;
-#endif
 };
 
 /// \cond INTERNAL
@@ -716,10 +706,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     UDPEndpointInfo(const UDPEndpointInfo&) = default;
     UDPEndpointInfo& operator=(const UDPEndpointInfo&) = default;
-#endif
 
     /**
      * The multicast interface.
@@ -772,10 +760,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     WSEndpointInfo(const WSEndpointInfo&) = default;
     WSEndpointInfo& operator=(const WSEndpointInfo&) = default;
-#endif
 
     /**
      * The URI configured with the endpoint.
@@ -827,10 +813,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     OpaqueEndpointInfo(const OpaqueEndpointInfo&) = default;
     OpaqueEndpointInfo& operator=(const OpaqueEndpointInfo&) = default;
-#endif
 
     /**
      * The encoding version of the opaque endpoint (to decode or encode the rawBytes).

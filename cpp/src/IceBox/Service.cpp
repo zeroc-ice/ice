@@ -76,15 +76,9 @@ IceBox::FailureException::FailureException(const char* file, int line, const ::s
 {
 }
 
-#ifdef ICE_CPP11_COMPILER
 IceBox::FailureException::~FailureException()
 {
 }
-#else
-IceBox::FailureException::~FailureException() throw()
-{
-}
-#endif
 
 ::std::string
 IceBox::FailureException::ice_id() const

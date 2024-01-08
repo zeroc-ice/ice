@@ -106,7 +106,7 @@ IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
 }
 
 EndpointInfoPtr
-IceInternal::UdpEndpointI::getInfo() const ICE_NOEXCEPT
+IceInternal::UdpEndpointI::getInfo() const noexcept
 {
     Ice::UDPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::UDPEndpointInfo>,
                                                    ICE_DYNAMIC_CAST(UdpEndpointI, ICE_SHARED_FROM_CONST_THIS(UdpEndpointI)));

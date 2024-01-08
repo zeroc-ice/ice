@@ -216,13 +216,8 @@ public:
      * @param reason The reason for the failure.
      */
     FailureException(const char* file, int line, const ::std::string& reason);
-
-#ifdef ICE_CPP11_COMPILER
     FailureException(const FailureException&) = default;
     virtual ~FailureException();
-#else
-    virtual ~FailureException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -266,12 +261,9 @@ public:
     typedef ServicePtr PointerType;
 
     virtual ~Service();
-
-#ifdef ICE_CPP11_COMPILER
     Service() = default;
     Service(const Service&) = default;
     Service& operator=(const Service&) = default;
-#endif
 
     /**
      * Start the service. The given communicator is created by the {@link ServiceManager} for use by the service. This

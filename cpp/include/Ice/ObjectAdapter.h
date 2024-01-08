@@ -559,25 +559,22 @@ public:
     typedef ObjectAdapterPtr PointerType;
 
     virtual ~ObjectAdapter();
-
-#ifdef ICE_CPP11_COMPILER
     ObjectAdapter() = default;
     ObjectAdapter(const ObjectAdapter&) = default;
     ObjectAdapter& operator=(const ObjectAdapter&) = default;
-#endif
 
     /**
      * Get the name of this object adapter.
      * @return This object adapter's name.
      */
-    virtual ::std::string getName() const ICE_NOEXCEPT = 0;
+    virtual ::std::string getName() const noexcept = 0;
 
     /**
      * Get the communicator this object adapter belongs to.
      * @return This object adapter's communicator.
      * @see Communicator
      */
-    virtual CommunicatorPtr getCommunicator() const ICE_NOEXCEPT = 0;
+    virtual CommunicatorPtr getCommunicator() const noexcept = 0;
 
     /**
      * Activate all endpoints that belong to this object adapter. After activation, the object adapter can dispatch
@@ -622,7 +619,7 @@ public:
      * @see #waitForDeactivate
      * @see Communicator#shutdown
      */
-    virtual void deactivate() ICE_NOEXCEPT = 0;
+    virtual void deactivate() noexcept = 0;
 
     /**
      * Wait until the object adapter has deactivated. Calling {@link #deactivate} initiates object adapter
@@ -631,14 +628,14 @@ public:
      * @see #waitForHold
      * @see Communicator#waitForShutdown
      */
-    virtual void waitForDeactivate() ICE_NOEXCEPT = 0;
+    virtual void waitForDeactivate() noexcept = 0;
 
     /**
      * Check whether object adapter has been deactivated.
      * @return Whether adapter has been deactivated.
      * @see Communicator#shutdown
      */
-    virtual bool isDeactivated() const ICE_NOEXCEPT = 0;
+    virtual bool isDeactivated() const noexcept = 0;
 
     /**
      * Destroys the object adapter and cleans up all resources held by the object adapter. If the object adapter has
@@ -649,7 +646,7 @@ public:
      * @see #waitForDeactivate
      * @see Communicator#destroy
      */
-    virtual void destroy() ICE_NOEXCEPT = 0;
+    virtual void destroy() noexcept = 0;
 
     /**
      * Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several Ice
@@ -932,14 +929,14 @@ public:
      * @see Locator
      * @see #setLocator
      */
-    virtual LocatorPrx getLocator() const ICE_NOEXCEPT = 0;
+    virtual LocatorPrx getLocator() const noexcept = 0;
 
     /**
      * Get the set of endpoints configured with this object adapter.
      * @return The set of endpoints.
      * @see Endpoint
      */
-    virtual EndpointSeq getEndpoints() const ICE_NOEXCEPT = 0;
+    virtual EndpointSeq getEndpoints() const noexcept = 0;
 
     /**
      * Refresh the set of published endpoints. The run time re-reads the PublishedEndpoints property if it is set and
@@ -955,7 +952,7 @@ public:
      * @see #refreshPublishedEndpoints
      * @see Endpoint
      */
-    virtual EndpointSeq getPublishedEndpoints() const ICE_NOEXCEPT = 0;
+    virtual EndpointSeq getPublishedEndpoints() const noexcept = 0;
 
     /**
      * Set of the endpoints that proxies created by this object adapter will contain.

@@ -632,12 +632,9 @@ public:
     typedef ObserverPtr PointerType;
 
     virtual ~Observer();
-
-#ifdef ICE_CPP11_COMPILER
     Observer() = default;
     Observer(const Observer&) = default;
     Observer& operator=(const Observer&) = default;
-#endif
 
     /**
      * This method is called when the instrumented object is created or when the observer is attached to an existing
@@ -682,12 +679,9 @@ public:
     typedef ThreadObserverPtr PointerType;
 
     virtual ~ThreadObserver();
-
-#ifdef ICE_CPP11_COMPILER
     ThreadObserver() = default;
     ThreadObserver(const ThreadObserver&) = default;
     ThreadObserver& operator=(const ThreadObserver&) = default;
-#endif
 
     /**
      * Notification of thread state change.
@@ -720,12 +714,9 @@ public:
     typedef ConnectionObserverPtr PointerType;
 
     virtual ~ConnectionObserver();
-
-#ifdef ICE_CPP11_COMPILER
     ConnectionObserver() = default;
     ConnectionObserver(const ConnectionObserver&) = default;
     ConnectionObserver& operator=(const ConnectionObserver&) = default;
-#endif
 
     /**
      * Notification of sent bytes over the connection.
@@ -763,12 +754,9 @@ public:
     typedef DispatchObserverPtr PointerType;
 
     virtual ~DispatchObserver();
-
-#ifdef ICE_CPP11_COMPILER
     DispatchObserver() = default;
     DispatchObserver(const DispatchObserver&) = default;
     DispatchObserver& operator=(const DispatchObserver&) = default;
-#endif
 
     /**
      * Notification of a user exception.
@@ -805,12 +793,9 @@ public:
     typedef ChildInvocationObserverPtr PointerType;
 
     virtual ~ChildInvocationObserver();
-
-#ifdef ICE_CPP11_COMPILER
     ChildInvocationObserver() = default;
     ChildInvocationObserver(const ChildInvocationObserver&) = default;
     ChildInvocationObserver& operator=(const ChildInvocationObserver&) = default;
-#endif
 
     /**
      * Reply notification.
@@ -842,12 +827,9 @@ public:
     typedef RemoteObserverPtr PointerType;
 
     virtual ~RemoteObserver();
-
-#ifdef ICE_CPP11_COMPILER
     RemoteObserver() = default;
     RemoteObserver(const RemoteObserver&) = default;
     RemoteObserver& operator=(const RemoteObserver&) = default;
-#endif
 };
 
 /// \cond INTERNAL
@@ -873,12 +855,9 @@ public:
     typedef CollocatedObserverPtr PointerType;
 
     virtual ~CollocatedObserver();
-
-#ifdef ICE_CPP11_COMPILER
     CollocatedObserver() = default;
     CollocatedObserver(const CollocatedObserver&) = default;
     CollocatedObserver& operator=(const CollocatedObserver&) = default;
-#endif
 };
 
 /// \cond INTERNAL
@@ -905,12 +884,9 @@ public:
     typedef InvocationObserverPtr PointerType;
 
     virtual ~InvocationObserver();
-
-#ifdef ICE_CPP11_COMPILER
     InvocationObserver() = default;
     InvocationObserver(const InvocationObserver&) = default;
     InvocationObserver& operator=(const InvocationObserver&) = default;
-#endif
 
     /**
      * Notification of the invocation being retried.
@@ -970,12 +946,9 @@ public:
     typedef ObserverUpdaterPtr PointerType;
 
     virtual ~ObserverUpdater();
-
-#ifdef ICE_CPP11_COMPILER
     ObserverUpdater() = default;
     ObserverUpdater(const ObserverUpdater&) = default;
     ObserverUpdater& operator=(const ObserverUpdater&) = default;
-#endif
 
     /**
      * Update connection observers associated with each of the Ice connection from the communicator and its object
@@ -1021,12 +994,9 @@ public:
     typedef CommunicatorObserverPtr PointerType;
 
     virtual ~CommunicatorObserver();
-
-#ifdef ICE_CPP11_COMPILER
     CommunicatorObserver() = default;
     CommunicatorObserver(const CommunicatorObserver&) = default;
     CommunicatorObserver& operator=(const CommunicatorObserver&) = default;
-#endif
 
     /**
      * This method should return an observer for the given endpoint information and connector. The Ice run-time calls
