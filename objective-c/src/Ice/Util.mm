@@ -409,7 +409,7 @@ IceObjC::Exception::Exception(const IceObjC::Exception& ex) : _ex([ex._ex retain
 {
 }
 
-IceObjC::Exception::~Exception() throw()
+IceObjC::Exception::~Exception()
 {
     [_ex release];
 }

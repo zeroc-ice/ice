@@ -91,7 +91,12 @@ public:
     {
     }
 
-    ~ExceptionWriter() throw()
+    ExceptionWriter(const ExceptionWriter& other) : _ex(other._ex)
+    {
+        [_ex retain];
+    }
+
+    ~ExceptionWriter()
     {
         [_ex release];
     }
