@@ -13,10 +13,6 @@ exception InvalidInputException
     string reason;
 }
 
-local exception RetryException
-{
-}
-
 interface MyObject
 {
     //

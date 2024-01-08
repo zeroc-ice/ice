@@ -68,9 +68,8 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+
   <ItemGroup>
-    <Filter>Header Files</Filter>
-  </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h">
     <Filter>Header Files</Filter>
   </ClInclude>

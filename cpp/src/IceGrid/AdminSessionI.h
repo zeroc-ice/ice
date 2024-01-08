@@ -14,131 +14,134 @@ namespace IceGrid
 {
 
 class RegistryI;
-typedef IceUtil::Handle<RegistryI> RegistryIPtr;
-
 class FileIteratorI;
-typedef IceUtil::Handle<FileIteratorI> FileIteratorIPtr;
 
 class AdminSessionI : public BaseSessionI, public AdminSession
 {
 public:
 
-    AdminSessionI(const std::string&, const DatabasePtr&, int, const RegistryIPtr&);
-    virtual ~AdminSessionI();
+    AdminSessionI(const std::string&, const std::shared_ptr<Database>&,
+                  std::chrono::seconds, const std::shared_ptr<RegistryI>&);
 
-    Ice::ObjectPrx _register(const SessionServantManagerPtr&, const Ice::ConnectionPtr&);
+    std::shared_ptr<Ice::ObjectPrx> _register(const std::shared_ptr<SessionServantManager>&,
+                                              const std::shared_ptr<Ice::Connection>&);
 
-    virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
+    void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
 
-    virtual AdminPrx getAdmin(const Ice::Current&) const;
-    virtual Ice::ObjectPrx getAdminCallbackTemplate(const Ice::Current&) const;
+    std::shared_ptr<AdminPrx> getAdmin(const Ice::Current&) const override;
+    std::shared_ptr<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const override;
 
-    virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const ApplicationObserverPrx&,
-                              const AdapterObserverPrx&, const ObjectObserverPrx&, const Ice::Current&);
+    void setObservers(std::shared_ptr<RegistryObserverPrx>, std::shared_ptr<NodeObserverPrx>,
+                      std::shared_ptr<ApplicationObserverPrx>, std::shared_ptr<AdapterObserverPrx>,
+                      std::shared_ptr<ObjectObserverPrx>, const Ice::Current&) override;
 
-    virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Identity&,
-                                        const Ice::Identity&, const Ice::Identity&, const Ice::Current&);
+    void setObserversByIdentity(Ice::Identity, Ice::Identity, Ice::Identity, Ice::Identity, Ice::Identity,
+                                const Ice::Current&) override;
 
-    virtual int startUpdate(const Ice::Current&);
-    virtual void finishUpdate(const Ice::Current&);
+    int startUpdate(const Ice::Current&) override;
+    void finishUpdate(const Ice::Current&) override;
 
-    virtual std::string getReplicaName(const Ice::Current&) const;
+    std::string getReplicaName(const Ice::Current&) const override;
 
-    virtual FileIteratorPrx openServerLog(const std::string&, const std::string&, int, const Ice::Current&);
-    virtual FileIteratorPrx openServerStdOut(const std::string&, int, const Ice::Current&);
-    virtual FileIteratorPrx openServerStdErr(const std::string&, int, const Ice::Current&);
+    std::shared_ptr<FileIteratorPrx> openServerLog(std::string, std::string, int, const Ice::Current&) override;
+    std::shared_ptr<FileIteratorPrx> openServerStdOut(std::string, int, const Ice::Current&) override;
+    std::shared_ptr<FileIteratorPrx> openServerStdErr(std::string, int, const Ice::Current&) override;
 
-    virtual FileIteratorPrx openNodeStdOut(const std::string&, int, const Ice::Current&);
-    virtual FileIteratorPrx openNodeStdErr(const std::string&, int, const Ice::Current&);
+    std::shared_ptr<FileIteratorPrx> openNodeStdOut(std::string, int, const Ice::Current&) override;
+    std::shared_ptr<FileIteratorPrx> openNodeStdErr(std::string, int, const Ice::Current&) override;
 
-    virtual FileIteratorPrx openRegistryStdOut(const std::string&, int, const Ice::Current&);
-    virtual FileIteratorPrx openRegistryStdErr(const std::string&, int, const Ice::Current&);
+    std::shared_ptr<FileIteratorPrx> openRegistryStdOut(std::string, int, const Ice::Current&) override;
+    std::shared_ptr<FileIteratorPrx> openRegistryStdErr(std::string, int, const Ice::Current&) override;
 
-    virtual void destroy(const Ice::Current&);
+    void destroy(const Ice::Current&) override;
 
     void removeFileIterator(const Ice::Identity&, const Ice::Current&);
 
 private:
 
-    void setupObserverSubscription(TopicName, const Ice::ObjectPrx&, bool = false);
-    Ice::ObjectPrx addForwarder(const Ice::Identity&, const Ice::Current&);
-    Ice::ObjectPrx addForwarder(const Ice::ObjectPrx&);
-    FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, int, const Ice::Current&);
+    void setupObserverSubscription(TopicName, const std::shared_ptr<Ice::ObjectPrx>&, bool = false);
+    std::shared_ptr<Ice::ObjectPrx> addForwarder(const Ice::Identity&, const Ice::Current&);
+    std::shared_ptr<Ice::ObjectPrx> addForwarder(const std::shared_ptr<Ice::ObjectPrx>&);
+    std::shared_ptr<FileIteratorPrx> addFileIterator(const std::shared_ptr<FileReaderPrx>&, const std::string&, int,
+                                                     const Ice::Current&);
 
-    virtual void destroyImpl(bool);
+    void destroyImpl(bool) override;
 
-    const int _timeout;
+    const std::chrono::seconds _timeout;
     const std::string _replicaName;
-    AdminPrx _admin;
-    std::map<TopicName, std::pair<Ice::ObjectPrx, bool> > _observers;
-    RegistryIPtr _registry;
-    Ice::ObjectPrx _adminCallbackTemplate;
+    std::shared_ptr<AdminPrx> _admin;
+    std::map<TopicName, std::pair<std::shared_ptr<Ice::ObjectPrx>, bool>> _observers;
+    std::shared_ptr<RegistryI> _registry;
+    std::shared_ptr<Ice::ObjectPrx> _adminCallbackTemplate;
 };
-typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 
-class AdminSessionFactory : public virtual IceUtil::Shared
+class AdminSessionFactory
 {
 public:
 
-    AdminSessionFactory(const SessionServantManagerPtr&, const DatabasePtr&, const ReapThreadPtr&, const RegistryIPtr&);
+    AdminSessionFactory(const std::shared_ptr<SessionServantManager>&, const std::shared_ptr<Database>&,
+                        const std::shared_ptr<ReapThread>&, const std::shared_ptr<RegistryI>&);
 
-    Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
-    AdminSessionIPtr createSessionServant(const std::string&);
+    std::shared_ptr<Glacier2::SessionPrx> createGlacier2Session(const std::string&,
+                                                                const std::shared_ptr<Glacier2::SessionControlPrx>&);
+    std::shared_ptr<AdminSessionI> createSessionServant(const std::string&);
 
-    const TraceLevelsPtr& getTraceLevels() const;
+    const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
 private:
 
-    const SessionServantManagerPtr _servantManager;
-    const DatabasePtr _database;
-    const int _timeout;
-    const ReapThreadPtr _reaper;
-    const RegistryIPtr _registry;
+    const std::shared_ptr<SessionServantManager> _servantManager;
+    const std::shared_ptr<Database> _database;
+    const std::chrono::seconds _timeout;
+    const std::shared_ptr<ReapThread> _reaper;
+    const std::shared_ptr<RegistryI> _registry;
     const bool _filters;
 };
-typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;
 
-class AdminSessionManagerI : public virtual Glacier2::SessionManager
+class AdminSessionManagerI : public Glacier2::SessionManager
 {
 public:
 
-    AdminSessionManagerI(const AdminSessionFactoryPtr&);
+    AdminSessionManagerI(const std::shared_ptr<AdminSessionFactory>&);
 
-    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
+    std::shared_ptr<Glacier2::SessionPrx> create(std::string, std::shared_ptr<Glacier2::SessionControlPrx>,
+                                                 const Ice::Current&) override;
 
 private:
 
-    const AdminSessionFactoryPtr _factory;
+    const std::shared_ptr<AdminSessionFactory> _factory;
 };
 
-class AdminSSLSessionManagerI : public virtual Glacier2::SSLSessionManager
+class AdminSSLSessionManagerI : public Glacier2::SSLSessionManager
 {
 public:
 
-    AdminSSLSessionManagerI(const AdminSessionFactoryPtr&);
-    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&,
-                                        const Ice::Current&);
+    AdminSSLSessionManagerI(const std::shared_ptr<AdminSessionFactory>&);
+
+    std::shared_ptr<Glacier2::SessionPrx> create(Glacier2::SSLInfo, std::shared_ptr<Glacier2::SessionControlPrx>,
+                                                 const Ice::Current&) override;
 
 private:
 
-    const AdminSessionFactoryPtr _factory;
+    const std::shared_ptr<AdminSessionFactory> _factory;
 };
 
 class FileIteratorI : public FileIterator
 {
 public:
 
-    FileIteratorI(const AdminSessionIPtr&, const FileReaderPrx&, const std::string&, Ice::Long, int);
+    FileIteratorI(const std::shared_ptr<AdminSessionI>&, const std::shared_ptr<FileReaderPrx>&, const std::string&,
+                  long long, int);
 
     virtual bool read(int, Ice::StringSeq&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
 private:
 
-    const AdminSessionIPtr _session;
-    const FileReaderPrx _reader;
+    const std::shared_ptr<AdminSessionI> _session;
+    const std::shared_ptr<FileReaderPrx> _reader;
     const std::string _filename;
-    Ice::Long _offset;
+    long long _offset;
     const int _messageSizeMax;
 };
 

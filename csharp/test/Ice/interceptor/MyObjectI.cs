@@ -22,6 +22,14 @@ namespace Ice
             }
         };
 
+        class MyRetryException : Ice.LocalException
+        {
+            override public string ice_id()
+            {
+                return "::MyRetryException";
+            }
+        }
+
         class MyObjectI : Test.MyObjectDisp_
         {
             protected static void
@@ -49,7 +57,7 @@ namespace Ice
                 {
                     return x + y;
                 }
-                throw new Test.RetryException();
+                throw new MyRetryException();
             }
 
             public override int
@@ -90,7 +98,7 @@ namespace Ice
                 }
                 else
                 {
-                    throw new Test.RetryException();
+                    throw new MyRetryException();
                 }
             }
 

@@ -21,14 +21,11 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/Properties.ice>
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEGRID"]
 module IceGrid

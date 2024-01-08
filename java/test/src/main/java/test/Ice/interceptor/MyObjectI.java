@@ -8,7 +8,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
 
 import test.Ice.interceptor.Test.InvalidInputException;
-import test.Ice.interceptor.Test.RetryException;
 import test.Ice.interceptor.Test.MyObject;
 
 class MyObjectI implements MyObject
@@ -26,7 +25,7 @@ class MyObjectI implements MyObject
 
         if(val == null || !val.equals("no"))
         {
-            throw new RetryException();
+            throw new MyRetryException();
         }
         return x + y;
     }
@@ -93,7 +92,7 @@ class MyObjectI implements MyObject
         }
         else
         {
-            throw new RetryException();
+            throw new MyRetryException();
         }
     }
 

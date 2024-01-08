@@ -5,18 +5,6 @@
 import Ice
 import TestCommon
 
-extension G {
-    var _GDescription: String {
-        return ":\nG: \(data)"
-    }
-}
-
-extension H {
-    var _HDescription: String {
-        return ":\nH: \(data)"
-    }
-}
-
 class EmptyI: Empty {}
 
 class Server: TestHelperI {

@@ -13,7 +13,7 @@
     {
     }
 
-    class CookieI
+    class Cookie
     {
         message()
         {
@@ -57,7 +57,7 @@
             //
             test(this._requestId == -1);
             this._requestId = current.requestId;
-            cookie.value = new CookieI();
+            cookie.value = new Cookie();
             return new TestI();
         }
 

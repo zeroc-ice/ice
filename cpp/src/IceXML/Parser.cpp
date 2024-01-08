@@ -4,7 +4,9 @@
 
 #include <IceXML/Parser.h>
 #include <IceUtil/FileUtil.h>
+
 #include <expat.h>
+
 #include <list>
 #include <fstream>
 
@@ -23,12 +25,6 @@ IceXML::ParserException::ParserException(const char* file, int line, const strin
     IceUtil::ExceptionHelper<ParserException>(file, line), _reason(reason)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-IceXML::ParserException::~ParserException() throw()
-{
-}
-#endif
 
 string
 IceXML::ParserException::ice_id() const
@@ -50,14 +46,6 @@ IceXML::ParserException::ice_print(std::ostream& out) const
     }
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceXML::ParserException*
-IceXML::ParserException::ice_clone() const
-{
-    return new ParserException(*this);
-}
-#endif
-
 string
 IceXML::ParserException::reason() const
 {
@@ -67,16 +55,12 @@ IceXML::ParserException::reason() const
 //
 // Node
 //
-IceXML::Node::Node(const NodePtr& parent, const string& name, const string& value, int line, int column) :
+IceXML::Node::Node(const shared_ptr<Node>& parent, const string& name, const string& value, int line, int column) :
     _parent(parent), _name(name), _value(value), _line(line), _column(column)
 {
 }
 
-IceXML::Node::~Node()
-{
-}
-
-IceXML::NodePtr
+shared_ptr<IceXML::Node>
 IceXML::Node::getParent() const
 {
     return _parent;
@@ -113,7 +97,7 @@ IceXML::Node::getAttribute(const string&) const
 }
 
 bool
-IceXML::Node::addChild(const NodePtr&)
+IceXML::Node::addChild(const shared_ptr<Node>&)
 {
     return false;
 }
@@ -139,13 +123,9 @@ IceXML::Node::getColumn() const
 //
 // Element
 //
-IceXML::Element::Element(const NodePtr& parent, const string& name, const Attributes& attributes, int line,
+IceXML::Element::Element(const shared_ptr<Node>& parent, const string& name, const Attributes& attributes, int line,
                          int column) :
     Node(parent, name, "", line, column), _attributes(attributes)
-{
-}
-
-IceXML::Element::~Element()
 {
 }
 
@@ -173,7 +153,7 @@ IceXML::Element::getAttribute(const string& name) const
 }
 
 bool
-IceXML::Element::addChild(const NodePtr& child)
+IceXML::Element::addChild(const shared_ptr<Node>& child)
 {
     _children.push_back(child);
     return true;
@@ -192,12 +172,8 @@ IceXML::Element::destroy()
 //
 // Text
 //
-IceXML::Text::Text(const NodePtr& parent, const string& value, int line, int column) :
+IceXML::Text::Text(const shared_ptr<Node>& parent, const string& value, int line, int column) :
     Node(parent, "", value, line, column)
-{
-}
-
-IceXML::Text::~Text()
 {
 }
 
@@ -209,10 +185,6 @@ IceXML::Document::Document() :
 {
 }
 
-IceXML::Document::~Document()
-{
-}
-
 IceXML::NodeList
 IceXML::Document::getChildren() const
 {
@@ -220,7 +192,7 @@ IceXML::Document::getChildren() const
 }
 
 bool
-IceXML::Document::addChild(const NodePtr& child)
+IceXML::Document::addChild(const shared_ptr<Node>& child)
 {
     _children.push_back(child);
     return true;
@@ -267,28 +239,28 @@ public:
     virtual void endElement(const string&, int, int);
     virtual void characters(const string&, int, int);
 
-    DocumentPtr getDocument() const;
+    shared_ptr<Document> getDocument() const;
 
 private:
 
-    list<NodePtr> _nodeStack;
-    DocumentPtr _document;
+    list<shared_ptr<Node>> _nodeStack;
+    shared_ptr<Document> _document;
 };
 
 }
 
 IceXML::DocumentBuilder::DocumentBuilder()
 {
-    _document = new Document;
+    _document = make_shared<Document>();
     _nodeStack.push_front(_document);
 }
 
 void
 IceXML::DocumentBuilder::startElement(const string& name, const Attributes& attributes, int line, int column)
 {
-    NodePtr parent = _nodeStack.front();
+    auto parent = _nodeStack.front();
+    auto element = make_shared<Element>(parent, name, attributes, line, column);
 
-    Element* element = new Element(parent, name, attributes, line, column);
 #ifdef NDEBUG
     parent->addChild(element);
 #else
@@ -308,12 +280,12 @@ IceXML::DocumentBuilder::endElement(const string&, int, int)
 void
 IceXML::DocumentBuilder::characters(const string& data, int line, int column)
 {
-    NodePtr parent = _nodeStack.front();
-    TextPtr text = new Text(parent, data, line, column);
+    auto parent = _nodeStack.front();
+    auto text = make_shared<Text>(parent, data, line, column);
     parent->addChild(text);
 }
 
-DocumentPtr
+shared_ptr<Document>
 IceXML::DocumentBuilder::getDocument() const
 {
     return _document;
@@ -372,7 +344,7 @@ characterDataHandler(void* data, const XML_Char* s, int len)
 //
 // Parser
 //
-IceXML::DocumentPtr
+shared_ptr<IceXML::Document>
 IceXML::Parser::parse(const string& file)
 {
     DocumentBuilder builder;
@@ -380,7 +352,7 @@ IceXML::Parser::parse(const string& file)
     return builder.getDocument();
 }
 
-IceXML::DocumentPtr
+shared_ptr<IceXML::Document>
 IceXML::Parser::parse(istream& in)
 {
     DocumentBuilder builder;

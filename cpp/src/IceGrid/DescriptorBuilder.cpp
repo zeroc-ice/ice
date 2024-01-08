@@ -13,7 +13,7 @@ using namespace std;
 using namespace IceGrid;
 
 XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs,
-                                         const Ice::LoggerPtr& logger,
+                                         const shared_ptr<Ice::Logger>& logger,
                                          const string& filename,
                                          int line) :
     _attributes(attrs),
@@ -215,7 +215,7 @@ PropertySetDescriptorBuilder::finish()
     return true;
 }
 
-ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
                                                            const XmlAttributesHelper& attrs,
                                                            const map<string, string>& overrides) :
     _communicator(communicator),
@@ -225,7 +225,7 @@ ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::Communicat
     _descriptor.variables = overrides;
 }
 
-ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
                                                            const ApplicationDescriptor& app,
                                                            const XmlAttributesHelper& attrs,
                                                            const map<string, string>& overrides) :
@@ -264,7 +264,7 @@ ApplicationDescriptorBuilder::finishReplicaGroup()
 {
     if(!_descriptor.replicaGroups.back().loadBalancing)
     {
-        _descriptor.replicaGroups.back().loadBalancing = new RandomLoadBalancingPolicy();
+        _descriptor.replicaGroups.back().loadBalancing = make_shared<RandomLoadBalancingPolicy>();
         _descriptor.replicaGroups.back().loadBalancing->nReplicas = "0";
     }
 }
@@ -272,23 +272,23 @@ ApplicationDescriptorBuilder::finishReplicaGroup()
 void
 ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
 {
-    LoadBalancingPolicyPtr policy;
+    shared_ptr<LoadBalancingPolicy> policy;
     string type = attrs("type");
     if(type == "random")
     {
-        policy = new RandomLoadBalancingPolicy();
+        policy = make_shared<RandomLoadBalancingPolicy>();
     }
     else if(type == "ordered")
     {
-        policy = new OrderedLoadBalancingPolicy();
+        policy = make_shared<OrderedLoadBalancingPolicy>();
     }
     else if(type == "round-robin")
     {
-        policy = new RoundRobinLoadBalancingPolicy();
+        policy = make_shared<RoundRobinLoadBalancingPolicy>();
     }
     else if(type == "adaptive")
     {
-        AdaptiveLoadBalancingPolicyPtr alb = new AdaptiveLoadBalancingPolicy();
+        auto alb = make_shared<AdaptiveLoadBalancingPolicy>();
         alb->loadSample = attrs("load-sample", "1");
         policy = alb;
     }
@@ -510,7 +510,7 @@ NodeDescriptorBuilder::addServerInstance(const ServerInstanceDescriptor& desc)
 }
 
 void
-NodeDescriptorBuilder::addServer(const ServerDescriptorPtr& server)
+NodeDescriptorBuilder::addServer(const shared_ptr<ServerDescriptor>& server)
 {
     _descriptor.servers.push_back(server);
 }
@@ -556,7 +556,7 @@ TemplateDescriptorBuilder::addParameter(const XmlAttributesHelper& attrs)
 }
 
 void
-TemplateDescriptorBuilder::setDescriptor(const CommunicatorDescriptorPtr& desc)
+TemplateDescriptorBuilder::setDescriptor(const shared_ptr<CommunicatorDescriptor>& desc)
 {
     _descriptor.descriptor = desc;
 }
@@ -591,13 +591,13 @@ TemplateDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
     return new ServiceDescriptorBuilder(_application.getCommunicator(), attrs);
 }
 
-CommunicatorDescriptorBuilder::CommunicatorDescriptorBuilder(const Ice::CommunicatorPtr& communicator) :
+CommunicatorDescriptorBuilder::CommunicatorDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator) :
     _communicator(communicator)
 {
 }
 
 void
-CommunicatorDescriptorBuilder::init(const CommunicatorDescriptorPtr& desc, const XmlAttributesHelper&)
+CommunicatorDescriptorBuilder::init(const shared_ptr<CommunicatorDescriptor>& desc, const XmlAttributesHelper&)
 {
     _descriptor = desc;
 }
@@ -656,7 +656,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     else
     {
         string fqn = "${server}";
-        if(ServiceDescriptorPtr::dynamicCast(_descriptor))
+        if(dynamic_pointer_cast<ServiceDescriptor>(_descriptor))
         {
             fqn += ".${service}";
         }
@@ -756,20 +756,20 @@ ServiceInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& de
     p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
 }
 
-ServerDescriptorBuilder::ServerDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+ServerDescriptorBuilder::ServerDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
                                                  const XmlAttributesHelper& attrs) :
     CommunicatorDescriptorBuilder(communicator)
 {
-    init(new ServerDescriptor(), attrs);
+    init(make_shared<ServerDescriptor>(), attrs);
 }
 
-ServerDescriptorBuilder::ServerDescriptorBuilder(const Ice::CommunicatorPtr& communicator) :
+ServerDescriptorBuilder::ServerDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator) :
     CommunicatorDescriptorBuilder(communicator)
 {
 }
 
 void
-ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttributesHelper& attrs)
+ServerDescriptorBuilder::init(const shared_ptr<ServerDescriptor>& desc, const XmlAttributesHelper& attrs)
 {
     CommunicatorDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
@@ -810,7 +810,7 @@ ServerDescriptorBuilder::addEnv(const string& v)
 }
 
 void
-ServerDescriptorBuilder::addService(const ServiceDescriptorPtr& /*desc*/)
+ServerDescriptorBuilder::addService(const shared_ptr<ServiceDescriptor>& /*desc*/)
 {
     assert(false);
 }
@@ -833,15 +833,15 @@ ServerDescriptorBuilder::addDistributionDirectory(const string& directory)
     _descriptor->distrib.directories.push_back(directory);
 }
 
-IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
                                                  const XmlAttributesHelper& attrs) :
     ServerDescriptorBuilder(communicator)
 {
-    init(new IceBoxDescriptor(), attrs);
+    init(make_shared<IceBoxDescriptor>(), attrs);
 }
 
 void
-IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttributesHelper& attrs)
+IceBoxDescriptorBuilder::init(const shared_ptr<IceBoxDescriptor>& desc, const XmlAttributesHelper& attrs)
 {
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
@@ -872,7 +872,7 @@ IceBoxDescriptorBuilder::addServiceInstance(const ServiceInstanceDescriptor& des
 }
 
 void
-IceBoxDescriptorBuilder::addService(const ServiceDescriptorPtr& desc)
+IceBoxDescriptorBuilder::addService(const shared_ptr<ServiceDescriptor>& desc)
 {
     ServiceInstanceDescriptor instance;
     assert(desc);
@@ -880,15 +880,15 @@ IceBoxDescriptorBuilder::addService(const ServiceDescriptorPtr& desc)
     _descriptor->services.push_back(instance);
 }
 
-ServiceDescriptorBuilder::ServiceDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+ServiceDescriptorBuilder::ServiceDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
                                                    const XmlAttributesHelper& attrs) :
     CommunicatorDescriptorBuilder(communicator)
 {
-    init(new ServiceDescriptor(), attrs);
+    init(make_shared<ServiceDescriptor>(), attrs);
 }
 
 void
-ServiceDescriptorBuilder::init(const ServiceDescriptorPtr& desc, const XmlAttributesHelper& attrs)
+ServiceDescriptorBuilder::init(const shared_ptr<ServiceDescriptor>& desc, const XmlAttributesHelper& attrs)
 {
     CommunicatorDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;

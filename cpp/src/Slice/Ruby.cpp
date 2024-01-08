@@ -71,10 +71,6 @@ usage(const string& n)
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--all                    Generate code for Slice definitions in included files.\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
-        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
-        "--underscore             Allow underscores in Slice identifiers\n"
-        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
@@ -95,8 +91,6 @@ Slice::Ruby::compile(const vector<string>& argv)
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
     opts.addOpt("", "all");
 
     vector<string> args;
@@ -154,10 +148,6 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
-    bool ice = opts.isSet("ice");
-
-    bool underscore = opts.isSet("underscore");
-
     bool all = opts.isSet("all");
 
     if(args.empty())
@@ -206,7 +196,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+            UnitPtr u = Unit::createUnit(false, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -253,7 +243,7 @@ Slice::Ruby::compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all, ice, underscore);
+                UnitPtr u = Unit::createUnit(false, all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())

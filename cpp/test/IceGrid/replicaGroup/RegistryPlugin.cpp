@@ -13,34 +13,34 @@ using namespace IceGrid;
 namespace
 {
 
-class RegistryPluginI : public Ice::Plugin
+class RegistryPluginI final : public Ice::Plugin
 {
 public:
 
-    RegistryPluginI(const Ice::CommunicatorPtr&);
+    RegistryPluginI(const shared_ptr<Ice::Communicator>&);
 
-    virtual void initialize();
-    virtual void destroy();
+    void initialize() override;
+    void destroy() override;
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
-    ReplicaGroupFilterPtr _filterByServer;
-    ReplicaGroupFilterPtr _excludeServer2;
-    ReplicaGroupFilterPtr _excludeServer3;
-    TypeFilterPtr _type;
+    const shared_ptr<Ice::Communicator> _communicator;
+    shared_ptr<ReplicaGroupFilter> _filterByServer;
+    shared_ptr<ReplicaGroupFilter> _excludeServer2;
+    shared_ptr<ReplicaGroupFilter> _excludeServer3;
+    shared_ptr<TypeFilter> _type;
 };
 
-class ReplicaGroupFilterI : public IceGrid::ReplicaGroupFilter
+class ReplicaGroupFilterI final : public IceGrid::ReplicaGroupFilter
 {
 public:
 
-    ReplicaGroupFilterI(const RegistryPluginFacadePtr& facade) : _facade(facade), _testFacade(true)
+    ReplicaGroupFilterI(const shared_ptr<RegistryPluginFacade>& facade) : _facade(facade), _testFacade(true)
     {
     }
 
-    virtual Ice::StringSeq
-    filter(const string& id, const Ice::StringSeq& adpts, const Ice::ConnectionPtr&, const Ice::Context& ctx)
+    Ice::StringSeq
+    filter(const string& id, const Ice::StringSeq& adpts, const shared_ptr<Ice::Connection>&, const Ice::Context& ctx) override
     {
         if(_testFacade)
         {
@@ -67,7 +67,7 @@ public:
             }
         }
 
-        Ice::Context::const_iterator p = ctx.find("server");
+        auto p = ctx.find("server");
         if(p == ctx.end())
         {
             return adpts;
@@ -75,11 +75,11 @@ public:
 
         string server = p->second;
         Ice::StringSeq filteredAdapters;
-        for(Ice::StringSeq::const_iterator q = adpts.begin(); q != adpts.end(); ++q)
+        for(const auto& adapter : adpts)
         {
-            if(_facade->getAdapterServer(*q) == server)
+            if(_facade->getAdapterServer(adapter) == server)
             {
-                filteredAdapters.push_back(*q);
+                filteredAdapters.push_back(adapter);
             }
         }
         return filteredAdapters;
@@ -87,22 +87,23 @@ public:
 
 private:
 
-    RegistryPluginFacadePtr _facade;
+    shared_ptr<RegistryPluginFacade> _facade;
     bool _testFacade;
 };
 
-class TypeFilterI : public IceGrid::TypeFilter
+class TypeFilterI final : public IceGrid::TypeFilter
 {
 public:
 
-    TypeFilterI(const RegistryPluginFacadePtr& facade) : _facade(facade)
+    TypeFilterI(const shared_ptr<RegistryPluginFacade>& facade) : _facade(facade)
     {
     }
 
-    virtual Ice::ObjectProxySeq
-    filter(const string& /*type*/, const Ice::ObjectProxySeq& objects, const Ice::ConnectionPtr&, const Ice::Context& ctx)
+    Ice::ObjectProxySeq
+    filter(const string&, const Ice::ObjectProxySeq& objects, const shared_ptr<Ice::Connection>&,
+           const Ice::Context& ctx) override
     {
-        Ice::Context::const_iterator p = ctx.find("server");
+        auto p = ctx.find("server");
         if(p == ctx.end())
         {
             return objects;
@@ -110,11 +111,11 @@ public:
 
         string server = p->second;
         Ice::ObjectProxySeq filteredObjects;
-        for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
+        for(const auto& object : objects)
         {
-            if(_facade->getAdapterServer((*q)->ice_getAdapterId()) == server)
+            if(_facade->getAdapterServer(object->ice_getAdapterId()) == server)
             {
-                filteredObjects.push_back(*q);
+                filteredObjects.push_back(object);
             }
         }
         return filteredObjects;
@@ -122,22 +123,23 @@ public:
 
 private:
 
-    RegistryPluginFacadePtr _facade;
+    shared_ptr<RegistryPluginFacade> _facade;
 };
 
-class ExcludeReplicaGroupFilterI : public IceGrid::ReplicaGroupFilter
+class ExcludeReplicaGroupFilterI final : public IceGrid::ReplicaGroupFilter
 {
 public:
 
-    ExcludeReplicaGroupFilterI(const RegistryPluginFacadePtr& facade, const string& exclude) :
+    ExcludeReplicaGroupFilterI(const shared_ptr<RegistryPluginFacade>& facade, const string& exclude) :
         _facade(facade), _exclude(exclude)
     {
     }
 
-    virtual Ice::StringSeq
-    filter(const string& /*id*/, const Ice::StringSeq& adapters, const Ice::ConnectionPtr& /*con*/, const Ice::Context& ctx)
+    Ice::StringSeq
+    filter(const string&, const Ice::StringSeq& adapters, const shared_ptr<Ice::Connection>& ,
+           const Ice::Context& ctx) override
     {
-        Ice::Context::const_iterator p = ctx.find("server");
+        auto p = ctx.find("server");
         if(p == ctx.end() || p->second == _exclude)
         {
             return Ice::StringSeq();
@@ -147,7 +149,7 @@ public:
 
 private:
 
-    const RegistryPluginFacadePtr _facade;
+    const shared_ptr<RegistryPluginFacade> _facade;
     const string _exclude;
 };
 
@@ -158,27 +160,27 @@ extern "C"
 {
 
 ICE_DECLSPEC_EXPORT Ice::Plugin*
-createRegistryPlugin(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
+createRegistryPlugin(const shared_ptr<Ice::Communicator>& communicator, const string&, const Ice::StringSeq&)
 {
     return new RegistryPluginI(communicator);
 }
 
 }
 
-RegistryPluginI::RegistryPluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
+RegistryPluginI::RegistryPluginI(const shared_ptr<Ice::Communicator>& communicator) : _communicator(communicator)
 {
 }
 
 void
 RegistryPluginI::initialize()
 {
-    IceGrid::RegistryPluginFacadePtr facade = IceGrid::getRegistryPluginFacade();
+    auto facade = IceGrid::getRegistryPluginFacade();
     assert(facade);
 
-    _filterByServer = new ReplicaGroupFilterI(facade);
-    _excludeServer2 = new ExcludeReplicaGroupFilterI(facade, "Server2");
-    _excludeServer3 = new ExcludeReplicaGroupFilterI(facade, "Server3");
-    _type = new TypeFilterI(facade);
+    _filterByServer = make_shared<ReplicaGroupFilterI>(facade);
+    _excludeServer2 = make_shared<ExcludeReplicaGroupFilterI>(facade, "Server2");
+    _excludeServer3 = make_shared<ExcludeReplicaGroupFilterI>(facade, "Server3");
+    _type = make_shared<TypeFilterI>(facade);
 
     facade->addReplicaGroupFilter("filterByServer", _filterByServer);
     test(facade->removeReplicaGroupFilter("filterByServer", _filterByServer));
@@ -193,7 +195,7 @@ RegistryPluginI::initialize()
 void
 RegistryPluginI::destroy()
 {
-    IceGrid::RegistryPluginFacadePtr facade = IceGrid::getRegistryPluginFacade();
+    auto facade = IceGrid::getRegistryPluginFacade();
     assert(facade);
 
     facade->removeReplicaGroupFilter("filterByServer", _filterByServer);

@@ -53,8 +53,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
         opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
         opts.addOpt("d", "debug");
-        opts.addOpt("", "ice");
-        opts.addOpt("", "underscore");
         opts.addOpt("", "all");
 
         vector<string> files;
@@ -79,8 +77,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         vector<string> cppArgs;
         vector<string> includePaths;
         bool debug = false;
-        bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
-        bool underscore = opts.isSet("underscore");
         bool all = false;
         if(opts.isSet("D"))
         {
@@ -122,7 +118,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                 throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
             }
 
-            UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, underscore);
+            UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all);
             int parseStatus = u->parse(file, cppHandle, debug);
 
             if(!icecpp->close() || parseStatus == EXIT_FAILURE)

@@ -17,7 +17,7 @@ TestI::shutdown(const Ice::Current& current)
 }
 
 std::string
-TestI::getProperty(const std::string& name, const Ice::Current&)
+TestI::getProperty(std::string name, const Ice::Current&)
 {
     return _properties->getProperty(name);
 }

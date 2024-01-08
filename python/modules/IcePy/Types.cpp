@@ -2,6 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#ifdef _WIN32
+     // Prevents windows.h from defining min/max macros.
+#    define NOMINMAX
+#endif
+
 #include <Types.h>
 #include <Current.h>
 #include <Proxy.h>
@@ -4278,7 +4283,7 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
     }
 }
 
-IcePy::ExceptionWriter::~ExceptionWriter() throw()
+IcePy::ExceptionWriter::~ExceptionWriter()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -4332,7 +4337,7 @@ IcePy::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 {
 }
 
-IcePy::ExceptionReader::~ExceptionReader() throw()
+IcePy::ExceptionReader::~ExceptionReader()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 

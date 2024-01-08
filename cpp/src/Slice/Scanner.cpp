@@ -1,11 +1,11 @@
-#line 2 "src/Slice/Scanner.cpp"
+#line 1 "src/Slice/Scanner.cpp"
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
 #include <IceUtil/ScannerConfig.h>
 
-#line 9 "src/Slice/Scanner.cpp"
+#line 8 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -1197,7 +1197,7 @@ void preAction();
 #define YY_USER_INIT initScanner();
 #define YY_USER_ACTION preAction();
 
-#line 1201 "src/Slice/Scanner.cpp"
+#line 1200 "src/Slice/Scanner.cpp"
 #line 80 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
@@ -1224,7 +1224,7 @@ void preAction();
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 1228 "src/Slice/Scanner.cpp"
+#line 1227 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define C_COMMENT 1
@@ -1515,7 +1515,7 @@ YY_DECL
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
-#line 1519 "src/Slice/Scanner.cpp"
+#line 1518 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -2150,7 +2150,7 @@ YY_RULE_SETUP
 #line 554 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2154 "src/Slice/Scanner.cpp"
+#line 2153 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(PRE_SLICE):
 case YY_STATE_EOF(SLICE):
@@ -3223,33 +3223,6 @@ int checkIdentifier(const string& id)
     {
         unit->error("illegal double underscore in identifier `" + name + "'");
     }
-    else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
-    {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
-        {
-            unit->error("illegal underscore in identifier `" + name + "'");
-        }
-    }
-
-    // Check the identifier for illegal ice prefixes
-    if(unit->currentIncludeLevel() == 0 && !unit->allowIcePrefix() && name.size() > 2)
-    {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no 'ice-prefix' metadata
-        {
-            string prefix3;
-            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-            if(prefix3 == "ice")
-            {
-                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-            }
-        }
-    }
 
     return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
 }
@@ -3354,8 +3327,6 @@ void initScanner()
     keywordMap["string"] = ICE_STRING;
     keywordMap["Object"] = ICE_OBJECT;
     keywordMap["const"] = ICE_CONST;
-    keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
-    keywordMap["local"] = ICE_LOCAL;
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;

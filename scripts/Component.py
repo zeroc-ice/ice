@@ -117,14 +117,13 @@ class Ice(Component):
                 if testId == "IceStorm/repgrid":
                     return False
 
-        # No C++11 tests for IceStorm, IceGrid, etc
-        if isinstance(mapping, CppMapping) and current.config.cpp11:
-            if parent in ["IceStorm", "IceBridge"]:
-                return False
-            elif parent in ["IceGrid"] and testId not in ["IceGrid/simple"]:
-                return False
-            elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
-                return False
+        # No C++98 tests for Glacier2, IceGrid, IceStorm, IceBridge
+        if isinstance(mapping, CppMapping) and not current.config.cpp11 and parent in [
+                "Glacier2",
+                "IceBridge",
+                "IceGrid",
+                "IceStorm"]:
+            return False
 
         return True
 
@@ -208,8 +207,6 @@ from IceStormUtil import *
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
     if m == "cpp" or re.match("cpp-.*", m):
         Mapping.add(m, CppMapping(), component)
-    elif m == "java-compat" or re.match("java-compat-.*", m):
-        Mapping.add(m, JavaCompatMapping(), component)
     elif m == "java" or re.match("java-.*", m):
         Mapping.add(m, JavaMapping(), component)
     elif m == "python" or re.match("python-.*", m):

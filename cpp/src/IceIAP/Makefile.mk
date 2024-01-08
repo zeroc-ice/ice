@@ -9,7 +9,6 @@ IceIAP_platforms        := iphoneos iphonesimulator
 
 IceIAP_targetdir        := $(libdir)
 IceIAP_dependencies     := Ice
-IceIAP_sliceflags       := --include-dir IceIAP
 IceIAP_cppflags         := -DICEIAP_API_EXPORTS
 
 projects += $(project)

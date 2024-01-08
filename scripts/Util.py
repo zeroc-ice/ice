@@ -2359,10 +2359,7 @@ class AndroidProcessController(RemoteProcessController):
         return self.device is not None  # Discovery is only used with devices
 
     def getControllerIdentity(self, current):
-        if isinstance(current.testcase.getMapping(), JavaCompatMapping):
-            return "AndroidCompat/ProcessController"
-        else:
-            return "Android/ProcessController"
+        return "Android/ProcessController"
 
     def adb(self):
         return "adb -d" if self.device == "usb" else "adb"
@@ -3078,6 +3075,9 @@ class CppMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
+            if self.buildConfig == platform.getDefaultBuildConfig():
+                self.buildConfig = "cpp98-shared"
+
             # Derive from the build config the cpp11 option. This is used by canRun to allow filtering
             # tests on the cpp11 value in the testcase options specification
             self.cpp11 = self.buildConfig.lower().find("cpp11") >= 0
@@ -3249,8 +3249,6 @@ class JavaMapping(Mapping):
             "client" : "Client.java",
             "server" : "Server.java",
             "serveramd" : "AMDServer.java",
-            "servertie" : "TieServer.java",
-            "serveramdtie" : "AMDTieServer.java",
             "collocated" : "Collocated.java",
         }[processType]
 
@@ -3264,36 +3262,6 @@ class JavaMapping(Mapping):
 
     def getActivityName(self):
         return "com.zeroc.testcontroller/.ControllerActivity"
-
-class JavaCompatMapping(JavaMapping):
-
-    class Config(JavaMapping.Config):
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("Java Compat Mapping options:")
-            print("--android                 Run the Android tests.")
-            print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
-            print("--avd=<name>              Start specific Android Virtual Device.")
-
-    def getPluginEntryPoint(self, plugin, process, current):
-        return {
-            "IceSSL" : "IceSSL.PluginFactory",
-            "IceBT" : "IceBT.PluginFactory",
-            "IceDiscovery" : "IceDiscovery.PluginFactory",
-            "IceLocatorDiscovery" : "IceLocatorDiscovery.PluginFactory"
-        }[plugin]
-
-    def getEnv(self, process, current):
-        classPath = [os.path.join(self.path, "lib", "test.jar")]
-        if os.path.exists(os.path.join(self.path, "lib", "IceTestLambda.jar")):
-            classPath += [os.path.join(self.path, "lib", "IceTestLambda.jar")]
-        return { "CLASSPATH" : os.pathsep.join(classPath) }
-
-    def getSDKPackage(self):
-        return "system-images;android-33;google_apis;{}".format(
-            "arm64-v8a" if platform_machine() == "arm64" else "x86_64")
 
 class CSharpMapping(Mapping):
 

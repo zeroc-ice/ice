@@ -30,7 +30,7 @@ TestI::deactivate(const Current& current)
 }
 
 string
-CookieI::message() const
+Cookie::message() const
 {
     return "blahblah";
 }

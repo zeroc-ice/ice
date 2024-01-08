@@ -21,6 +21,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{48EF9416-336F-4FA5-A376-FDFB7726ADBA}</ProjectGuid>
+    <ProjectName>icegridnode++11</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -44,7 +45,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp98.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp11.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -152,6 +153,7 @@
     <ClCompile Include="..\..\SessionI.cpp" />
     <ClCompile Include="..\..\SessionManager.cpp" />
     <ClCompile Include="..\..\SessionServantManager.cpp" />
+    <ClCompile Include="..\..\SynchronizationException.cpp" />
     <ClCompile Include="..\..\Topics.cpp" />
     <ClCompile Include="..\..\TraceLevels.cpp" />
     <ClCompile Include="..\..\Util.cpp" />

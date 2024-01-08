@@ -139,7 +139,7 @@ isMutableAfterReturnType(const TypePtr& type)
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue))
+    if(builtin && builtin->usesClasses())
     {
         return true;
     }
@@ -162,7 +162,7 @@ void
 checkDeprecatedType(const UnitPtr& unt, const TypePtr& type)
 {
     ClassDeclPtr decl = ClassDeclPtr::dynamicCast(type);
-    if(decl && !decl->isLocal() && decl->isInterface())
+    if(decl && decl->isInterface())
     {
         unt->warning(Deprecated, "interface by value is deprecated");
     }
@@ -227,6 +227,12 @@ bool
 Slice::DefinitionContext::hasMetaData() const
 {
     return !_metaData.empty();
+}
+
+bool
+Slice::DefinitionContext::hasMetaDataDirective(const string& directive) const
+{
+    return findMetaData(directive) == directive;
 }
 
 void
@@ -444,80 +450,17 @@ Slice::Type::Type(const UnitPtr& unt) :
 // Builtin
 // ----------------------------------------------------------------------
 
-bool
-Slice::Builtin::isLocal() const
-{
-    return _kind == KindLocalObject;
-}
-
 string
 Slice::Builtin::typeId() const
 {
-    switch(_kind)
+    if(usesClasses() || _kind == KindObjectProxy)
     {
-        case KindByte:
-        {
-            return "byte";
-            break;
-        }
-        case KindBool:
-        {
-            return "bool";
-            break;
-        }
-        case KindShort:
-        {
-            return "short";
-            break;
-        }
-        case KindInt:
-        {
-            return "int";
-            break;
-        }
-        case KindLong:
-        {
-            return "long";
-            break;
-        }
-        case KindFloat:
-        {
-            return "float";
-            break;
-        }
-        case KindDouble:
-        {
-            return "double";
-            break;
-        }
-        case KindString:
-        {
-            return "string";
-            break;
-        }
-        case KindObject:
-        {
-            return "::Ice::Object";
-            break;
-        }
-        case KindObjectProxy:
-        {
-            return "::Ice::Object*";
-            break;
-        }
-        case KindLocalObject:
-        {
-            return "::Ice::LocalObject";
-            break;
-        }
-        case KindValue:
-        {
-            return "::Ice::Value";
-            break;
-        }
+        return "::Ice::" + kindAsString();
     }
-    assert(false);
-    return ""; // Keep the compiler happy.
+    else
+    {
+        return kindAsString();
+    }
 }
 
 bool
@@ -529,30 +472,97 @@ Slice::Builtin::usesClasses() const
 size_t
 Slice::Builtin::minWireSize() const
 {
-    static size_t minWireSizeTable[] =
+    switch(_kind)
     {
-        1, // KindByte
-        1, // KindBool
-        2, // KindShort
-        4, // KindInt
-        8, // KindLong
-        4, // KindFloat
-        8, // KindDouble
-        1, // KindString: at least one byte for an empty string.
-        1, // KindObject: at least one byte (to marshal an index instead of an instance).
-        2, // KindObjectProxy: at least an empty identity for a nil proxy, that is, 2 bytes.
-        0, // KindLocalObject: unused
-        1  // KindValue: at least one byte (to marshal an index instead of an instance).
-    };
+        case KindBool: return 1;
+        case KindByte: return 1;
+        case KindShort: return 2;
+        case KindInt: return 4;
+        case KindLong: return 8;
+        case KindFloat: return 4;
+        case KindDouble: return 8;
+        case KindString: return 1; // at least one byte for an empty string.
+        case KindObject: return 1; // at least one byte (to marshal an index instead of an instance).
+        case KindObjectProxy: return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
+        case KindValue: return 1; // at least one byte (to marshal an index instead of an instance).
+        default:
+            throw logic_error("no min wire size");
+    }
+}
 
-    assert(_kind != KindLocalObject);
-    return minWireSizeTable[_kind];
+string
+Slice::Builtin::getTagFormat() const
+{
+    switch(_kind)
+    {
+        case KindBool:
+        case KindByte:
+            return "F1";
+        case KindShort:
+            return "F2";
+        case KindInt:
+        case KindFloat:
+            return "F4";
+        case KindLong:
+        case KindDouble:
+            return "F8";
+        case KindString:
+            return "VSize";
+        case KindObject:
+        case KindValue:
+            return "Class";
+        case KindObjectProxy:
+            return "FSize";
+        default:
+            throw logic_error("no tag format");
+    }
 }
 
 bool
 Slice::Builtin::isVariableLength() const
 {
-    return _kind == KindString || _kind == KindObject || _kind == KindObjectProxy || _kind == KindValue;
+    switch(_kind)
+    {
+        case KindString:
+        case KindObject:
+        case KindObjectProxy:
+        case KindValue:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool
+Slice::Builtin::isNumericType() const
+{
+    switch(_kind)
+    {
+        case KindByte:
+        case KindShort:
+        case KindInt:
+        case KindLong:
+        case KindFloat:
+        case KindDouble:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool
+Slice::Builtin::isIntegralType() const
+{
+    switch(_kind)
+    {
+        case KindByte:
+        case KindShort:
+        case KindInt:
+        case KindLong:
+            return true;
+        default:
+            return false;
+    }
 }
 
 Builtin::Kind
@@ -562,26 +572,23 @@ Slice::Builtin::kind() const
 }
 
 string
-Builtin::kindAsString() const
+Slice::Builtin::kindAsString() const
 {
     return builtinTable[_kind];
 }
 
-const char* Slice::Builtin::builtinTable[] =
+optional<Slice::Builtin::Kind>
+Slice::Builtin::kindFromString(string_view str)
+{
+    for(size_t i = 0; i < builtinTable.size(); i++)
     {
-        "byte",
-        "bool",
-        "short",
-        "int",
-        "long",
-        "float",
-        "double",
-        "string",
-        "Object",
-        "Object*",
-        "LocalObject",
-        "Value"
-    };
+        if(str == builtinTable[i])
+        {
+            return static_cast<Kind>(i);
+        }
+    }
+    return nullopt;
+}
 
 Slice::Builtin::Builtin(const UnitPtr& ut, Kind kind) :
     SyntaxTreeBase(ut),
@@ -1172,7 +1179,7 @@ Slice::Container::createModule(const string& name)
 }
 
 ClassDefPtr
-Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases, bool local)
+Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
@@ -1180,7 +1187,7 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
         ClassDeclPtr decl = ClassDeclPtr::dynamicCast(*p);
         if(decl)
         {
-            if(checkInterfaceAndLocal(name, false, intf, decl->isInterface(), local, decl->isLocal()))
+            if(checkInterfaceAndLocal(name, false, intf, decl->isInterface()))
             {
                 continue;
             }
@@ -1238,9 +1245,9 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
         return 0;
     }
 
-    ClassDecl::checkBasesAreLegal(name, intf, local, bases, _unit);
+    ClassDecl::checkBasesAreLegal(name, bases, _unit);
 
-    ClassDefPtr def = new ClassDef(this, name, id, intf, bases, local);
+    ClassDefPtr def = new ClassDef(this, name, id, intf, bases);
     _contents.push_back(def);
 
     for(ContainedList::const_iterator q = matches.begin(); q != matches.end(); ++q)
@@ -1254,14 +1261,14 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    ClassDeclPtr decl = createClassDecl(name, intf, local);
+    ClassDeclPtr decl = createClassDecl(name, intf);
     def->_declaration = decl;
 
     return def;
 }
 
 ClassDeclPtr
-Slice::Container::createClassDecl(const string& name, bool intf, bool local)
+Slice::Container::createClassDecl(const string& name, bool intf)
 {
     ClassDefPtr def;
 
@@ -1271,7 +1278,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
         ClassDefPtr clDef = ClassDefPtr::dynamicCast(*p);
         if(clDef)
         {
-            if(checkInterfaceAndLocal(name, true, intf, clDef->isInterface(), local, clDef->isLocal()))
+            if(checkInterfaceAndLocal(name, true, intf, clDef->isInterface()))
             {
                 assert(!def);
                 def = clDef;
@@ -1283,7 +1290,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
         ClassDeclPtr clDecl = ClassDeclPtr::dynamicCast(*p);
         if(clDecl)
         {
-            if(checkInterfaceAndLocal(name, false, intf, clDecl->isInterface(), local, clDecl->isLocal()))
+            if(checkInterfaceAndLocal(name, false, intf, clDecl->isInterface()))
             {
                 continue;
             }
@@ -1338,7 +1345,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
     }
 
     _unit->currentContainer();
-    ClassDeclPtr decl = new ClassDecl(this, name, intf, local);
+    ClassDeclPtr decl = new ClassDecl(this, name, intf);
     _contents.push_back(decl);
 
     if(def)
@@ -1350,7 +1357,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 }
 
 ExceptionPtr
-Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local, NodeType nt)
+Slice::Container::createException(const string& name, const ExceptionPtr& base, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1386,21 +1393,13 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway
     }
 
-    //
-    // If this definition is non-local, base cannot be local.
-    //
-    if(!local && base && base->isLocal())
-    {
-        _unit->error("non-local exception `" + name + "' cannot have local base exception `" + base->name() + "'");
-    }
-
-    ExceptionPtr p = new Exception(this, name, base, local);
+    ExceptionPtr p = new Exception(this, name, base);
     _contents.push_back(p);
     return p;
 }
 
 StructPtr
-Slice::Container::createStruct(const string& name, bool local, NodeType nt)
+Slice::Container::createStruct(const string& name, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1436,14 +1435,13 @@ Slice::Container::createStruct(const string& name, bool local, NodeType nt)
         checkForGlobalDef(name, "structure"); // Don't return here -- we create the struct anyway.
     }
 
-    StructPtr p = new Struct(this, name, local);
+    StructPtr p = new Struct(this, name);
     _contents.push_back(p);
     return p;
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local,
-                                 NodeType nt)
+Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1479,26 +1477,16 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
     }
 
-    //
-    // If sequence is non-local, element type cannot be local.
-    //
-    if(!local && type->isLocal())
-    {
-        string msg = "non-local sequence `" + name + "' cannot have local element type";
-        _unit->error(msg);
-    }
-
     checkDeprecatedType(_unit, type);
 
-    SequencePtr p = new Sequence(this, name, type, metaData, local);
+    SequencePtr p = new Sequence(this, name, type, metaData);
     _contents.push_back(p);
     return p;
 }
 
 DictionaryPtr
 Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
-                                   const TypePtr& valueType, const StringList& valueMetaData, bool local,
-                                   NodeType nt)
+                                   const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1548,29 +1536,15 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         }
     }
 
-    if(!local)
-    {
-        if(keyType->isLocal())
-        {
-            string msg = "non-local dictionary `" + name + "' cannot have local key type";
-            _unit->error(msg);
-        }
-        if(valueType->isLocal())
-        {
-            string msg = "non-local dictionary `" + name + "' cannot have local value type";
-            _unit->error(msg);
-        }
-    }
-
     checkDeprecatedType(_unit, valueType);
 
-    DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData, local);
+    DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData);
     _contents.push_back(p);
     return p;
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name, bool local, NodeType nt)
+Slice::Container::createEnum(const string& name, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1606,7 +1580,7 @@ Slice::Container::createEnum(const string& name, bool local, NodeType nt)
         checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
     }
 
-    EnumPtr p = new Enum(this, name, local);
+    EnumPtr p = new Enum(this, name);
     _contents.push_back(p);
     return p;
 }
@@ -1705,14 +1679,10 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     //
     // Check for builtin type.
     //
-    for(unsigned int i = 0; i < sizeof(Builtin::builtinTable) / sizeof(const char*); ++i)
+    auto kind = Builtin::kindFromString(sc);
+    if(kind)
     {
-        if(sc == Builtin::builtinTable[i])
-        {
-            TypeList result;
-            result.push_back(_unit->builtin(static_cast<Builtin::Kind>(i)));
-            return result;
-        }
+        return { _unit->builtin(kind.value()) };
     }
 
     //
@@ -2170,114 +2140,18 @@ Slice::Container::contents() const
 }
 
 bool
-Slice::Container::hasNonLocalClassDecls() const
+Slice::Container::hasSequences() const
 {
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalClassDecls())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalClassDefs() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasLocalClassDefsWithAsync() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isLocal())
-        {
-            if(cl->hasMetaData("async-oneway"))
-            {
-                return true;
-            }
-
-            OperationList ol = cl->operations();
-            for(OperationList::const_iterator q = ol.begin(); q != ol.end(); ++q)
-            {
-                if((*q)->hasMetaData("async-oneway"))
-                {
-                    return true;
-                }
-            }
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasLocalClassDefsWithAsync())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalSequences() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         SequencePtr s = SequencePtr::dynamicCast(*p);
-        if(s && !s->isLocal())
+        if(s)
         {
             return true;
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalSequences())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalExceptions() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-        if(q && !q->isLocal())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalExceptions())
+        if(container && container->hasSequences())
         {
             return true;
         }
@@ -2370,40 +2244,6 @@ Slice::Container::hasDictionaries() const
 }
 
 bool
-Slice::Container::hasOnlyDictionaries(DictionaryList& dicts) const
-{
-    bool ret = true;
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr m = ModulePtr::dynamicCast(*p);
-        if(m)
-        {
-            bool subret = m->hasOnlyDictionaries(dicts);
-            if(!subret && ret)
-            {
-                ret = false;
-            }
-        }
-        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
-        if(d && ret)
-        {
-            dicts.push_back(d);
-        }
-        else
-        {
-            ret = false;
-        }
-    }
-
-    if(!ret)
-    {
-        dicts.clear();
-    }
-
-    return ret;
-}
-
-bool
 Slice::Container::hasClassDefs() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2424,38 +2264,18 @@ Slice::Container::hasClassDefs() const
 }
 
 bool
-Slice::Container::hasLocalClassDefs() const
+Slice::Container::hasInterfaceDefs() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isLocal())
+        if(cl && cl->isInterface())
         {
             return true;
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasLocalClassDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalInterfaceDefs() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal() && (cl->isInterface() || !cl->allOperations().empty()))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalInterfaceDefs())
+        if(container && container->hasInterfaceDefs())
         {
             return true;
         }
@@ -2469,7 +2289,7 @@ Slice::Container::hasValueDefs() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal() && !cl->isInterface())
+        if(cl && !cl->isInterface())
         {
             return true;
         }
@@ -2506,6 +2326,42 @@ Slice::Container::hasOnlyClassDecls() const
 }
 
 bool
+Slice::Container::hasOnlyInterfaces() const
+{
+    for (const auto& p: _contents)
+    {
+        ModulePtr m = ModulePtr::dynamicCast(p);
+        if (m)
+        {
+            if (!m->hasOnlyInterfaces())
+            {
+                return false;
+            }
+        }
+        else
+        {
+            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(p);
+            if (classDecl)
+            {
+                if (!classDecl->isInterface())
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                ClassDefPtr classDef = ClassDefPtr::dynamicCast(p);
+                if (!classDef || !classDef->isInterface())
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool
 Slice::Container::hasOperations() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2518,51 +2374,6 @@ Slice::Container::hasOperations() const
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
         if(container && container->hasOperations())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalAbstractClassDefs() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isAbstract() && !cl->isLocal())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalAbstractClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalDataOnlyClasses() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
-        if(q)
-        {
-            if(!q->isLocal() && !q->isAbstract())
-            {
-                return true;
-            }
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalDataOnlyClasses())
         {
             return true;
         }
@@ -2627,7 +2438,7 @@ Slice::Container::hasAsyncOps() const
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && !cl->isLocal())
+        if(cl)
         {
             OperationList ops = cl->operations();
             if(!ops.empty() && cl->hasMetaData("amd"))
@@ -2655,7 +2466,7 @@ Slice::Container::hasAsyncOps() const
 }
 
 bool
-Slice::Container::hasNonLocalContained(Contained::ContainedType type) const
+Slice::Container::hasContained(Contained::ContainedType type) const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -2665,7 +2476,7 @@ Slice::Container::hasNonLocalContained(Contained::ContainedType type) const
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalContained(type))
+        if(container && container->hasContained(type))
         {
             return true;
         }
@@ -3006,9 +2817,8 @@ Slice::Container::Container(const UnitPtr& unit) :
 }
 
 bool
-Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
-                                         bool intf, bool intfOther,
-                                         bool local, bool localOther)
+Slice::Container::checkInterfaceAndLocal(const string& name, bool defined, bool intf, bool intfOther)
+
 {
     string definedOrDeclared;
     if(defined)
@@ -3038,28 +2848,6 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
         msg += "' was ";
         msg += definedOrDeclared;
         msg += " as class";
-        _unit->error(msg);
-        return false;
-    }
-
-    if(!local && localOther)
-    {
-        string msg = "non-local `";
-        msg += name;
-        msg += "' was ";
-        msg += definedOrDeclared;
-        msg += " local";
-        _unit->error(msg);
-        return false;
-    }
-
-    if(local && !localOther)
-    {
-        string msg = "local `";
-        msg += name;
-        msg += "' was ";
-        msg += definedOrDeclared;
-        msg += " non-local";
         _unit->error(msg);
         return false;
     }
@@ -3132,30 +2920,18 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
 
     if(b)
     {
-        switch(b->kind())
+        if(b->usesClasses() || b->kind() == Builtin::KindObjectProxy)
         {
-            case Builtin::KindBool:
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
-                break;
-            default:
+            if(isConstant)
             {
-                if(isConstant)
-                {
-                    _unit->error("constant `" + name + "' has illegal type: `" + b->kindAsString() + "'");
-                }
-                else
-                {
-                    _unit->error("default value not allowed for data member `" + name + "' of type `" +
-                                 b->kindAsString() + "'");
-                }
-                return false;
+                _unit->error("constant `" + name + "' has illegal type: `" + b->kindAsString() + "'");
             }
+            else
+            {
+                _unit->error("default value not allowed for data member `" + name + "' of type `" +
+                             b->kindAsString() + "'");
+            }
+            return false;
         }
     }
     else if(!e)
@@ -3190,69 +2966,18 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
 
         if(lt)
         {
-            bool ok = true;
-            switch(b->kind())
+            bool ok = false;
+            if(b->kind() == lt->kind())
             {
-                case Builtin::KindBool:
-                {
-                    if(lt->kind() != Builtin::KindBool)
-                    {
-                        ok = false;
-                    }
-                    break;
-                }
-                case Builtin::KindByte:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                {
-                    switch(lt->kind())
-                    {
-                    case Builtin::KindByte:
-                    case Builtin::KindShort:
-                    case Builtin::KindInt:
-                    case Builtin::KindLong:
-                        break;
-                    default:
-                        ok = false;
-                        break;
-                    }
-                    break;
-                }
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                {
-                    switch(lt->kind())
-                    {
-                    case Builtin::KindByte:
-                    case Builtin::KindShort:
-                    case Builtin::KindInt:
-                    case Builtin::KindLong:
-                    case Builtin::KindFloat:
-                    case Builtin::KindDouble:
-                        break;
-                    default:
-                        ok = false;
-                        break;
-                    }
-                    break;
-                }
-                case Builtin::KindString:
-                {
-                    if(lt->kind() != Builtin::KindString)
-                    {
-                        ok = false;
-                    }
-                    break;
-                }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
-                case Builtin::KindValue:
-                {
-                    assert(false);
-                    break;
-                }
+                ok = true;
+            }
+            else if(b->isIntegralType())
+            {
+                ok = lt->isIntegralType();
+            }
+            else if(b->isNumericType())
+            {
+                ok = lt->isNumericType();
             }
 
             if(!ok)
@@ -3463,12 +3188,6 @@ Slice::Module::Module(const ContainerPtr& container, const string& name) :
 // Constructed
 // ----------------------------------------------------------------------
 
-bool
-Slice::Constructed::isLocal() const
-{
-    return _local;
-}
-
 string
 Slice::Constructed::typeId() const
 {
@@ -3495,11 +3214,10 @@ Slice::Constructed::dependencies()
 #endif
 }
 
-Slice::Constructed::Constructed(const ContainerPtr& container, const string& name, bool local) :
+Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
-    Contained(container, name),
-    _local(local)
+    Contained(container, name)
 {
 }
 
@@ -3550,6 +3268,12 @@ Slice::ClassDecl::minWireSize() const
     return 1; // At least four bytes for an instance, if the instance is marshaled as an index.
 }
 
+string
+Slice::ClassDecl::getTagFormat() const
+{
+    return "Class";
+}
+
 bool
 Slice::ClassDecl::isVariableLength() const
 {
@@ -3559,13 +3283,7 @@ Slice::ClassDecl::isVariableLength() const
 string
 Slice::ClassDecl::kindOf() const
 {
-    string s;
-    if(isLocal())
-    {
-        s += "local ";
-    }
-    s += _interface ? "interface" : "class";
-    return s;
+    return _interface ? "interface" : "class";
 }
 
 void
@@ -3589,24 +3307,8 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 void
-Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, const ClassList& bases,
-                                     const UnitPtr& ut)
+Slice::ClassDecl::checkBasesAreLegal(const string& name, const ClassList& bases, const UnitPtr& ut)
 {
-    //
-    // Local definitions cannot have non-local bases, and vice versa.
-    //
-    for(ClassList::const_iterator p = bases.begin(); p != bases.end(); ++p)
-    {
-        if(local != (*p)->isLocal())
-        {
-            ostringstream msg;
-            msg << (local ? "local" : "non-local") << " " << (intf ? "interface" : "class") << " `"
-                << name << "' cannot have " << ((*p)->isLocal() ? "local" : "non-local") << " base "
-                << ((*p)->isInterface() ? "interface" : "class") << " `" << (*p)->name() << "'";
-            ut->error(msg.str());
-        }
-    }
-
     //
     // Check whether, for multiple inheritance, any of the bases define
     // the same operations.
@@ -3644,11 +3346,11 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, 
     }
 }
 
-Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf, bool local) :
+Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _interface(intf)
 {
     _unit->currentContainer();
@@ -3880,17 +3582,7 @@ Slice::ClassDef::createOperation(const string& name,
         }
     }
 
-    //
-    // Non-local class/interface cannot have operation with local return type.
-    //
-    if(!isLocal() && returnType && returnType->isLocal())
-    {
-        string msg = "non-local " + this->kindOf() + " `" + this->name() + "' cannot have operation `";
-        msg += name + "' with local return type";
-        _unit->error(msg);
-    }
-
-    if(!isInterface() && !isLocal() && !_hasOperations)
+    if(!isInterface() && !_hasOperations)
     {
         // Only warn for the first operation
         _unit->warning(Deprecated, "classes with operations are deprecated");
@@ -3974,15 +3666,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                 _unit->error(msg);
             }
         }
-    }
-
-    //
-    // If data member is local, enclosing class/interface must be local.
-    //
-    if(!isLocal() && type->isLocal())
-    {
-        string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
-        _unit->error(msg);
     }
 
     SyntaxTreeBasePtr dlt = defaultValueType;
@@ -4156,9 +3839,7 @@ Slice::ClassDef::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) ||
-               (builtin && builtin->kind() == Builtin::KindValue) ||
-               ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -4259,12 +3940,6 @@ Slice::ClassDef::isA(const string& id) const
 }
 
 bool
-Slice::ClassDef::isLocal() const
-{
-    return _local;
-}
-
-bool
 Slice::ClassDef::hasDataMembers() const
 {
     return _hasDataMembers;
@@ -4333,13 +4008,7 @@ Slice::ClassDef::uses(const ContainedPtr&) const
 string
 Slice::ClassDef::kindOf() const
 {
-    string s;
-    if(isLocal())
-    {
-        s += "local ";
-    }
-    s += isInterface() ? "interface" : "class";
-    return s;
+    return isInterface() ? "interface" : "class";
 }
 
 void
@@ -4358,14 +4027,7 @@ Slice::ClassDef::compactId() const
     return _compactId;
 }
 
-bool
-Slice::ClassDef::isDelegate() const
-{
-    return isLocal() && isInterface() && hasMetaData("delegate") && allOperations().size() == 1;
-}
-
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases,
-                          bool local) :
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
@@ -4373,10 +4035,9 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     _hasDataMembers(false),
     _hasOperations(false),
     _bases(bases),
-    _local(local),
     _compactId(id)
 {
-    if(!local && !intf)
+    if(!intf)
     {
         for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
         {
@@ -4408,12 +4069,6 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
 // Proxy
 // ----------------------------------------------------------------------
 
-bool
-Slice::Proxy::isLocal() const
-{
-    return _classDecl->isLocal();
-}
-
 string
 Slice::Proxy::typeId() const
 {
@@ -4430,6 +4085,12 @@ size_t
 Slice::Proxy::minWireSize() const
 {
     return 2; // At least two bytes for a nil proxy (empty name and empty category strings).
+}
+
+string
+Slice::Proxy::getTagFormat() const
+{
+    return "FSize";
 }
 
 bool
@@ -4521,15 +4182,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                 _unit->error(msg);
             }
         }
-    }
-
-    //
-    // If data member is local, enclosing class/interface must be local.
-    //
-    if(!isLocal() && type->isLocal())
-    {
-        string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
-        _unit->error(msg);
     }
 
     SyntaxTreeBasePtr dlt = defaultValueType;
@@ -4633,9 +4285,7 @@ Slice::Exception::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) ||
-               (builtin && builtin->kind() == Builtin::KindValue) ||
-               ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
@@ -4704,12 +4354,6 @@ Slice::Exception::isBaseOf(const ExceptionPtr& other) const
         }
     }
     return false;
-}
-
-bool
-Slice::Exception::isLocal() const
-{
-    return _local;
 }
 
 Contained::ContainedType
@@ -4791,12 +4435,11 @@ Slice::Exception::visit(ParserVisitor* visitor, bool all)
     }
 }
 
-Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base, bool local) :
+Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
-    _base(base),
-    _local(local)
+    _base(base)
 {
 }
 
@@ -4845,15 +4488,6 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
         msg += "' cannot contain itself";
         _unit->error(msg);
         return 0;
-    }
-
-    //
-    // If data member is local, enclosing class/interface must be local.
-    //
-    if(!isLocal() && type->isLocal())
-    {
-        string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
-        _unit->error(msg);
     }
 
     SyntaxTreeBasePtr dlt = defaultValueType;
@@ -4925,15 +4559,19 @@ Slice::Struct::classDataMembers() const
         if(q)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) ||
-               (builtin && builtin->kind() == Builtin::KindValue) ||
-               ClassDeclPtr::dynamicCast(q->type()))
+            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(q->type()))
             {
                 result.push_back(q);
             }
         }
     }
     return result;
+}
+
+string
+Slice::Struct::getTagFormat() const
+{
+    return isVariableLength() ? "FSize" : "VSize";
 }
 
 Contained::ContainedType
@@ -5031,12 +4669,12 @@ Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
     containerRecDependencies(dependencies);
 }
 
-Slice::Struct::Struct(const ContainerPtr& container, const string& name, bool local) :
+Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local)
+    Constructed(container, name)
 {
 }
 
@@ -5093,6 +4731,12 @@ Slice::Sequence::isVariableLength() const
 }
 
 string
+Slice::Sequence::getTagFormat() const
+{
+    return _type->isVariableLength() ? "FSize" : "VSize";
+}
+
+string
 Slice::Sequence::kindOf() const
 {
     return "sequence";
@@ -5116,11 +4760,11 @@ Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type,
-                          const StringList& typeMetaData, bool local) :
+                          const StringList& typeMetaData) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _type(type),
     _typeMetaData(typeMetaData)
 {
@@ -5194,6 +4838,12 @@ Slice::Dictionary::minWireSize() const
     return 1; // An empty dictionary.
 }
 
+string
+Slice::Dictionary::getTagFormat() const
+{
+    return _keyType->isVariableLength() || _valueType->isVariableLength() ? "FSize" : "VSize";
+}
+
 bool
 Slice::Dictionary::isVariableLength() const
 {
@@ -5265,7 +4915,6 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
             case Builtin::KindDouble:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 return false;
@@ -5309,11 +4958,11 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
 
 Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
                               const StringList& keyMetaData, const TypePtr& valueType,
-                              const StringList& valueMetaData, bool local) :
+                              const StringList& valueMetaData) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _keyType(keyType),
     _valueType(valueType),
     _keyMetaData(keyMetaData),
@@ -5373,6 +5022,12 @@ Slice::Enum::minWireSize() const
     return 1;
 }
 
+string
+Slice::Enum::getTagFormat() const
+{
+    return "Size";
+}
+
 bool
 Slice::Enum::isVariableLength() const
 {
@@ -5397,12 +5052,12 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
     // An Enum does not have any dependencies.
 }
 
-Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local) :
+Slice::Enum::Enum(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local),
+    Constructed(container, name),
     _explicitValue(false),
     _minValue(Int32Max),
     _maxValue(0),
@@ -5715,18 +5370,6 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     }
 
     //
-    // Non-local class/interface cannot have operation with local parameters.
-    //
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
-    assert(cl);
-    if(type->isLocal() && !cl->isLocal())
-    {
-        string msg = "non-local " + cl->kindOf() + " `" + cl->name() + "' cannot have local parameter `";
-        msg += name + "' in operation `" + this->name() + "'";
-        _unit->error(msg);
-    }
-
-    //
     // Issue a warning for a deprecated parameter type.
     //
     checkDeprecatedType(_unit, type);
@@ -5888,24 +5531,6 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
             msg += ", `" + (*i)->name() + "'";
         }
         _unit->error(msg);
-    }
-
-    //
-    // If the interface is non-local, no local exception can be thrown.
-    //
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container());
-    assert(cl);
-    if(!cl->isLocal())
-    {
-        for(ExceptionList::const_iterator ep = el.begin(); ep != el.end(); ++ep)
-        {
-            if((*ep)->isLocal())
-            {
-                string msg = "non-local " + cl->kindOf() + " `" + cl->name() + "' cannot have operation `";
-                msg += name() + "' throwing local exception `" + (*ep)->name() + "'";
-                _unit->error(msg);
-            }
-        }
     }
 }
 
@@ -6309,28 +5934,15 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                        const StringList& defaultGlobalMetadata)
+Slice::Unit::createUnit(bool ignRedefs, bool all, const StringList& defaultGlobalMetadata)
 {
-    return new Unit(ignRedefs, all, allowIcePrefix, allowUnderscore, defaultGlobalMetadata);
+    return new Unit(ignRedefs, all, defaultGlobalMetadata);
 }
 
 bool
 Slice::Unit::ignRedefs() const
 {
     return _ignRedefs;
-}
-
-bool
-Slice::Unit::allowIcePrefix() const
-{
-    return _allowIcePrefix;
-}
-
-bool
-Slice::Unit::allowUnderscore() const
-{
-    return _allowUnderscore;
 }
 
 void
@@ -6746,13 +6358,13 @@ Slice::Unit::usesNonLocals() const
         for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
         {
             ConstructedPtr constr = ConstructedPtr::dynamicCast(*q);
-            if(constr && !constr->isLocal())
+            if(constr)
             {
                 return true;
             }
 
             ExceptionPtr exc = ExceptionPtr::dynamicCast(*q);
-            if(exc && !exc->isLocal())
+            if(exc)
             {
                 return true;
             }
@@ -6919,14 +6531,11 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                  const StringList& defaultGlobalMetadata) :
+Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultGlobalMetadata) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
-    _allowIcePrefix(allowIcePrefix),
-    _allowUnderscore(allowUnderscore),
     _defaultGlobalMetaData(defaultGlobalMetadata),
     _errors(0),
     _currentIncludeLevel(0)

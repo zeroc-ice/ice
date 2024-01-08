@@ -7,6 +7,15 @@
 
 #include <Test.h>
 
+class MyRetryException : public std::runtime_error
+{
+public:
+
+    MyRetryException() : std::runtime_error("retry exception")
+    {
+    }
+};
+
 class MySystemException : public Ice::SystemException
 {
 public:

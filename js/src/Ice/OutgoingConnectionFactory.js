@@ -8,7 +8,7 @@ require("../Ice/ACM");
 require("../Ice/AsyncResultBase");
 require("../Ice/ConnectionI");
 require("../Ice/Debug");
-require("../Ice/EndpointTypes");
+require("../Ice/EndpointSelectionType");
 require("../Ice/Exception");
 require("../Ice/HashMap");
 require("../Ice/LocalException");

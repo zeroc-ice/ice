@@ -350,7 +350,7 @@ run(const Ice::StringSeq& args)
 
     try
     {
-        IcePatch2::PatcherFeedbackPtr feedback = new TextPatcherFeedback;
+        IcePatch2::PatcherFeedbackPtr feedback = make_shared<TextPatcherFeedback>();
         IcePatch2::PatcherPtr patcher = IcePatch2::PatcherFactory::create(communicator, feedback);
 
         aborted = !patcher->prepare();

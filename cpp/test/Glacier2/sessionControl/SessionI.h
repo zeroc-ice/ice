@@ -7,27 +7,29 @@
 
 #include <Session.h>
 
-class SessionManagerI : public Glacier2::SessionManager
+class SessionManagerI final : public Glacier2::SessionManager
 {
 public:
 
-    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
+    std::shared_ptr<Glacier2::SessionPrx>
+    create(std::string, std::shared_ptr<Glacier2::SessionControlPrx>, const Ice::Current&) override;
 };
 
-class SessionI : public Test::Session
+class SessionI final : public Test::Session
 {
 public:
 
-    SessionI(const Glacier2::SessionControlPrx&);
+    explicit SessionI(std::shared_ptr<Glacier2::SessionControlPrx>);
 
-    virtual void destroyFromClient_async(const Test::AMD_Session_destroyFromClientPtr&, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void
+    destroyFromClientAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void destroy(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
+    void destroy(const Ice::Current&) override;
 
 private:
 
-    Glacier2::SessionControlPrx _sessionControl;
+    std::shared_ptr<Glacier2::SessionControlPrx> _sessionControl;
 };
 
 #endif

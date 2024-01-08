@@ -5,59 +5,50 @@
 #ifndef ICE_GRID_LOCATOR_REGISTRY_I_H
 #define ICE_GRID_LOCATOR_REGISTRY_I_H
 
-#include <IceGrid/Internal.h>
 #include <Ice/Locator.h>
-#include <IceUtil/Shared.h>
+#include <IceGrid/Internal.h>
 
 namespace IceGrid
 {
 
 class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
-
-class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
 class ReplicaSessionManager;
+class TraceLevels;
 
-class LocatorRegistryI : public Ice::LocatorRegistry
+class LocatorRegistryI final : public Ice::LocatorRegistry, public std::enable_shared_from_this<LocatorRegistryI>
 {
 public:
 
-    class AdapterSetDirectProxyCB : public virtual IceUtil::Shared
-    {
-    public:
+    LocatorRegistryI(const std::shared_ptr<Database>&, bool, bool, ReplicaSessionManager&);
 
-        virtual void response() = 0;
-        virtual void exception(const ::Ice::Exception&) = 0;
-    };
-    typedef IceUtil::Handle<AdapterSetDirectProxyCB> AdapterSetDirectProxyCBPtr;
+    void setAdapterDirectProxyAsync(std::string, std::shared_ptr<Ice::ObjectPrx>,
+                                    std::function<void()>,
+                                    std::function<void(std::exception_ptr)>,
+                                    const Ice::Current&) override;
 
-    LocatorRegistryI(const DatabasePtr&, bool, bool, ReplicaSessionManager&);
+    void setReplicatedAdapterDirectProxyAsync(std::string, std::string, std::shared_ptr<Ice::ObjectPrx>,
+                                              std::function<void()>,
+                                              std::function<void(std::exception_ptr)>,
+                                              const Ice::Current&) override;
 
-    virtual void setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr&,
-                                             const std::string&, const Ice::ObjectPrx&, const Ice::Current&);
+    void setServerProcessProxyAsync(std::string, std::shared_ptr<Ice::ProcessPrx>,
+                                    std::function<void()>,
+                                    std::function<void(std::exception_ptr)>,
+                                    const Ice::Current&) override;
 
-    virtual void setReplicatedAdapterDirectProxy_async(
-        const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr&, const std::string&, const std::string&,
-        const Ice::ObjectPrx&, const Ice::Current&);
+    void setAdapterDirectProxy(std::string, std::string, std::shared_ptr<Ice::ObjectPrx>,
+                               std::function<void()>,
+                               std::function<void(std::exception_ptr)>);
 
-    virtual void setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr&,
-                                             const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
-
-    void setAdapterDirectProxy(const AdapterSetDirectProxyCBPtr&, const std::string&, const std::string&,
-                               const Ice::ObjectPrx&);
-
-    const TraceLevelsPtr& getTraceLevels() const;
+    const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
 private:
 
-    const DatabasePtr _database;
+    const std::shared_ptr<Database> _database;
     const bool _dynamicRegistration;
     const bool _master;
     ReplicaSessionManager& _session;
 };
-typedef IceUtil::Handle<LocatorRegistryI> LocatorRegistryIPtr;
 
 }
 

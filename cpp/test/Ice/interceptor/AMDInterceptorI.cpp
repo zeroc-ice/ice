@@ -36,7 +36,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
         virtual bool exception(const std::exception& ex)
         {
             test(_count++ == 0); // Ensure it's only called once
-            test(dynamic_cast<const Test::RetryException*>(&ex) != 0);
+            test(dynamic_cast<const MyRetryException*>(&ex) != 0);
             return false;
         }
 
@@ -86,7 +86,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
                 {
                     rethrow_exception(ex);
                 }
-                catch(const Test::RetryException&)
+                catch(const MyRetryException&)
                 {
                 }
                 catch(...)

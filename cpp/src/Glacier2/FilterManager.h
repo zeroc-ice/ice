@@ -10,74 +10,73 @@
 // this is the most expeditious approach for now.
 //
 #include <Glacier2/Instance.h>
-#include <Glacier2/FilterI.h>
+#include <Glacier2/FilterT.h>
 #include <Ice/ObjectAdapter.h>
 
 namespace Glacier2
 {
 
-class FilterManager;
-typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
-
-class FilterManager : public IceUtil::Shared
+class FilterManager
 {
 public:
+    FilterManager(std::shared_ptr<Instance>,
+                  std::shared_ptr<StringSetI>,
+                  std::shared_ptr<StringSetI>,
+                  std::shared_ptr<IdentitySetI>);
     virtual ~FilterManager();
 
     void destroy();
 
-    StringSetIPtr
+    std::shared_ptr<StringSetI>
     categories() const
     {
         return _categories;
     }
 
-    StringSetIPtr
+    std::shared_ptr<StringSetI>
     adapterIds() const
     {
         return _adapters;
     }
 
-    IdentitySetIPtr
+    std::shared_ptr<IdentitySetI>
     identities() const
     {
         return _identities;
     }
 
-    StringSetPrx
+    std::shared_ptr<StringSetPrx>
     categoriesPrx() const
     {
         return _categoriesPrx;
     }
 
-    StringSetPrx
+    std::shared_ptr<StringSetPrx>
     adapterIdsPrx() const
     {
         return _adapterIdsPrx;
     }
 
-    IdentitySetPrx
+    std::shared_ptr<IdentitySetPrx>
     identitiesPrx() const
     {
         return _identitiesPrx;
     }
 
-    static FilterManagerPtr
-    create(const InstancePtr&, const std::string&, const bool);
+    static std::shared_ptr<FilterManager>
+    create(std::shared_ptr<Instance>, const std::string&, bool);
 
 private:
 
-    StringSetPrx _categoriesPrx;
-    StringSetPrx _adapterIdsPrx;
-    IdentitySetPrx _identitiesPrx;
+    std::shared_ptr<StringSetPrx> _categoriesPrx;
+    std::shared_ptr<StringSetPrx> _adapterIdsPrx;
+    std::shared_ptr<IdentitySetPrx> _identitiesPrx;
 
-    const StringSetIPtr _categories;
-    const StringSetIPtr _adapters;
-    const IdentitySetIPtr _identities;
-    const InstancePtr _instance;
-
-    FilterManager(const InstancePtr& , const StringSetIPtr&, const StringSetIPtr&, const IdentitySetIPtr&);
+    const std::shared_ptr<StringSetI> _categories;
+    const std::shared_ptr<StringSetI> _adapters;
+    const std::shared_ptr<IdentitySetI> _identities;
+    const std::shared_ptr<Instance> _instance;
 };
-};
+}
 
 #endif /* FILTER_MANAGER_H */

@@ -7,8 +7,6 @@ package test.Ice.interceptor;
 import java.util.concurrent.CompletionStage;
 
 import com.zeroc.Ice.OutputStream;
-
-import test.Ice.interceptor.Test.RetryException;
 import test.Ice.interceptor.Test.InvalidInputException;
 
 class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
@@ -60,7 +58,7 @@ class InterceptorI extends com.zeroc.Ice.DispatchInterceptor
                     _servant.ice_dispatch(request);
                     test(false);
                 }
-                catch(RetryException re)
+                catch(MyRetryException re)
                 {
                     //
                     // Expected, retry

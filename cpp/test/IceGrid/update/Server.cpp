@@ -23,7 +23,7 @@ Server::run(int argc, char** argv)
     string name = properties->getProperty("Ice.ProgramName");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
-    Ice::ObjectPtr object = new TestI(properties);
+    auto object = make_shared<TestI>(properties);
     adapter->add(object, Ice::stringToIdentity(name));
 
     try

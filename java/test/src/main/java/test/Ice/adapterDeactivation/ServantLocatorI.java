@@ -4,7 +4,6 @@
 
 package test.Ice.adapterDeactivation;
 
-import test.Ice.adapterDeactivation.Test.Cookie;
 import com.zeroc.Ice.ServantLocator;
 
 public final class ServantLocatorI implements ServantLocator
@@ -67,7 +66,7 @@ public final class ServantLocatorI implements ServantLocator
         test(current.id.category.length() == 0);
         test(current.id.name.equals("test"));
 
-        return new ServantLocator.LocateResult(new TestI(), new CookieI());
+        return new ServantLocator.LocateResult(new TestI(), new Cookie());
     }
 
     public void finished(com.zeroc.Ice.Current current, com.zeroc.Ice.Object servant, java.lang.Object cookie)

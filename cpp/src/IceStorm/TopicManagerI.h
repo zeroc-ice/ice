@@ -12,35 +12,27 @@
 #include <IceStorm/Instrumentation.h>
 #include <IceStorm/Util.h>
 
-#include <IceUtil/RecMutex.h>
-
 namespace IceStorm
 {
 
-//
-// Forward declarations.
-//
 class PersistentInstance;
-typedef IceUtil::Handle<PersistentInstance> PersistentInstancePtr;
-
 class TopicImpl;
-typedef IceUtil::Handle<TopicImpl> TopicImplPtr;
 
 //
 // TopicManager implementation.
 //
-class TopicManagerImpl : public IceStormElection::Replica,
-                         public IceStorm::Instrumentation::ObserverUpdater,
-                         public IceUtil::RecMutex
+class TopicManagerImpl final : public IceStormElection::Replica,
+                               public IceStorm::Instrumentation::ObserverUpdater,
+                               public std::enable_shared_from_this<TopicManagerImpl>
 {
 public:
 
-    TopicManagerImpl(const PersistentInstancePtr&);
+    static std::shared_ptr<TopicManagerImpl> create(const std::shared_ptr<PersistentInstance>&);
 
     // TopicManager methods.
-    TopicPrx create(const std::string&);
-    TopicPrx retrieve(const std::string&) const;
-    TopicDict retrieveAll() const;
+    std::shared_ptr<TopicPrx> create(const std::string&);
+    std::shared_ptr<TopicPrx> retrieve(const std::string&);
+    TopicDict retrieveAll();
 
     // Observer methods.
     void observerInit(const IceStormElection::LogUpdate&, const IceStormElection::TopicContentSeq&);
@@ -54,40 +46,41 @@ public:
     void getContent(IceStormElection::LogUpdate&, IceStormElection::TopicContentSeq&);
 
     // Replica methods.
-    virtual IceStormElection::LogUpdate getLastLogUpdate() const;
-    virtual void sync(const Ice::ObjectPrx&);
-    virtual void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const IceStormElection::LogUpdate&);
-    virtual Ice::ObjectPrx getObserver() const;
-    virtual Ice::ObjectPrx getSync() const;
+    IceStormElection::LogUpdate getLastLogUpdate() const override;
+    void sync(const std::shared_ptr<Ice::ObjectPrx>&) override;
+    void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const IceStormElection::LogUpdate&) override;
+    std::shared_ptr<Ice::ObjectPrx> getObserver() const override;
+    std::shared_ptr<Ice::ObjectPrx> getSync() const override;
 
     void reap();
 
     void shutdown();
 
-    Ice::ObjectPtr getServant() const;
+    std::shared_ptr<Ice::Object> getServant() const;
 
 private:
 
-    void updateTopicObservers();
-    void updateSubscriberObservers();
+    TopicManagerImpl(std::shared_ptr<PersistentInstance>);
 
-    TopicPrx installTopic(const std::string&, const Ice::Identity&, bool,
-                          const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
+    void updateTopicObservers() override;
+    void updateSubscriberObservers() override;
 
-    const PersistentInstancePtr _instance;
+    std::shared_ptr<TopicPrx> installTopic(const std::string&, const Ice::Identity&, bool,
+                                           const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
-    std::map<std::string, TopicImplPtr> _topics;
+    const std::shared_ptr<PersistentInstance> _instance;
 
-    Ice::ObjectPtr _managerImpl;
-    Ice::ObjectPtr _observerImpl;
-    Ice::ObjectPrx _observer;
-    Ice::ObjectPtr _syncImpl;
-    Ice::ObjectPrx _sync;
+    std::map<std::string, std::shared_ptr<TopicImpl>> _topics;
+
+    std::shared_ptr<Ice::Object> _managerImpl;
+    std::shared_ptr<Ice::ObjectPrx> _observer;
+    std::shared_ptr<Ice::ObjectPrx> _sync;
 
     LLUMap _lluMap;
     SubscriberMap _subscriberMap;
+
+    std::recursive_mutex _mutex;
 };
-typedef IceUtil::Handle<TopicManagerImpl> TopicManagerImplPtr;
 
 } // End namespace IceStorm
 

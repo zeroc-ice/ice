@@ -4,7 +4,6 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/Options.h>
-#include <IceUtil/IceUtil.h>
 #include <IceStorm/IceStorm.h>
 #include <TestHelper.h>
 #include <Single.h>
@@ -14,11 +13,11 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-class Publisher : public Test::TestHelper
+class Publisher final : public Test::TestHelper
 {
 public:
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -39,8 +38,8 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    PropertiesPtr properties = communicator->getProperties();
-    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto properties = communicator->getProperties();
+    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         ostringstream os;
@@ -48,7 +47,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
         communicator->stringToProxy(managerProxy));
     if(!manager)
     {
@@ -57,7 +56,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    TopicPrx topic;
+    shared_ptr<TopicPrx> topic;
     while(true)
     {
         try
@@ -86,16 +85,16 @@ Publisher::run(int argc, char** argv)
     //
     if(opts.isSet("cycle"))
     {
-        Ice::ObjectPrx prx = topic->getPublisher()->ice_twoway();
-        vector<SinglePrx> single;
-        Ice::EndpointSeq endpoints = prx->ice_getEndpoints();
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        auto prx = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
+        vector<shared_ptr<SinglePrx>> single;
+        auto endpoints = prx->ice_getEndpoints();
+        for(const auto& p: endpoints)
         {
-            if((*p)->toString().substr(0, 3) != "udp")
+            if(p->toString().substr(0, 3) != "udp")
             {
                 Ice::EndpointSeq e;
-                e.push_back(*p);
-                single.push_back(SinglePrx::uncheckedCast(prx->ice_endpoints(e)));
+                e.push_back(p);
+                single.push_back(prx->ice_endpoints(e));
             }
         }
         if(single.size() <= 1)
@@ -107,13 +106,13 @@ Publisher::run(int argc, char** argv)
         size_t which = 0;
         for(size_t i = 0; i < 1000; ++i)
         {
-            single[which]->event(static_cast<Ice::Int>(i));
+            single[which]->event(static_cast<int>(i));
             which = (which + 1) % single.size();
         }
     }
     else
     {
-        SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_twoway());
+        auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
         for(int i = 0; i < 1000; ++i)
         {
             single->event(i);

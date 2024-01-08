@@ -4,7 +4,7 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
-require("../Ice/EndpointTypes");
+require("../Ice/EndpointSelectionType");
 require("../Ice/FormatType");
 require("../Ice/LocalException");
 require("../Ice/Protocol");

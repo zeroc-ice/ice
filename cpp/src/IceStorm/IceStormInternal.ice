@@ -8,7 +8,8 @@
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>
-#include <Ice/Current.ice>
+#include <Ice/Context.ice>
+#include <Ice/OperationMode.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
@@ -18,7 +19,7 @@ module IceStorm
 {
 
 /// The event data.
-["cpp:class"] struct EventData
+struct EventData
 {
     /// The operation name.
     string op;
@@ -30,12 +31,8 @@ module IceStorm
     Ice::Context context;
 }
 
-local exception SendQueueSizeMaxReached
-{
-}
-
 /// A sequence of EventData.
-["cpp:type:std::deque< ::IceStorm::EventDataPtr>"] sequence<EventData> EventDataSeq;
+["cpp:type:std::deque<IceStorm::EventData>"] sequence<EventData> EventDataSeq;
 
 /// The TopicLink interface. This is used to forward events between federated Topic instances.
 /// @see TopicInternal

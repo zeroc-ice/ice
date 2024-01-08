@@ -6,17 +6,19 @@ $(project)_libraries            := IceStormService
 $(project)_programs             := icestormadmin icestormdb
 $(project)_sliceflags           := -Isrc --include-dir IceStorm
 $(project)_generated_includedir := $(project)/generated/IceStorm
-$(project)_dependencies         := IceStorm Ice
+$(project)_dependencies         := IceStorm Ice Glacier2
 
 IceStormService_targetdir       := $(libdir)
-IceStormService_dependencies    := IceGrid Glacier2 IceBox IceDB
+IceStormService_dependencies    := IceGrid IceBox IceDB
 IceStormService_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 IceStormService_devinstall      := no
 IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
+                                                             Instrumentation.cpp \
                                                              InstrumentationI.cpp \
                                                              NodeI.cpp \
                                                              Observers.cpp \
                                                              Service.cpp \
+                                                             SendQueueSizeMaxReached.cpp \
                                                              Subscriber.cpp \
                                                              TopicI.cpp \
                                                              TopicManagerI.cpp \
@@ -26,7 +28,6 @@ IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              Util.cpp \
                                                              Election.ice \
                                                              IceStormInternal.ice \
-                                                             Instrumentation.ice \
                                                              LinkRecord.ice \
                                                              LLURecord.ice \
                                                              SubscriberRecord.ice \
@@ -45,6 +46,6 @@ icestormadmin_sources           := $(addprefix $(currentdir)/,Admin.cpp \
 icestormdb_targetdir            := $(bindir)
 icestormdb_dependencies         := IcePatch2 IceDB
 icestormdb_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
-icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp DBTypes.ice)
+icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp SubscriberRecord.ice DBTypes.ice)
 
 projects += $(project)

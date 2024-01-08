@@ -187,15 +187,8 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
         _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
         _out.inc();
-        if(p->isLocal())
-        {
-            _out << nl << name << " = ::Ice::__declareLocalClass('" << scoped << "')";
-        }
-        else
-        {
-            _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
-            _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
-        }
+        _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
+        _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
         _out.dec();
         _out << nl << "end";
         _classHistory.insert(scoped); // Avoid redundant declarations.
@@ -206,16 +199,7 @@ bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     bool isInterface = p->isInterface();
-    bool isLocal = p->isLocal();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
-
-    //
-    // Do not generate any code for local interfaces.
-    //
-    if(isLocal && isInterface)
-    {
-        return false;
-    }
 
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "_Mixin)";
     _out.inc();
@@ -235,7 +219,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     DataMemberList members = p->dataMembers();
 
-    if(isLocal || !isInterface)
+    if(!isInterface)
     {
         if(!bases.empty() && !bases.front()->isInterface())
         {
@@ -247,7 +231,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << " < " << getAbsolute(base, IdentToUpper);
         }
-        else if(!isLocal)
+        else
         {
             _out << " < ::Ice::Value";
         }
@@ -348,7 +332,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Generate proxy support. This includes a mix-in module for the proxy's
     // operations and a class for the proxy itself.
     //
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << nl << "module " << name << "Prx_mixin";
         _out.inc();
@@ -417,17 +401,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << ')';
     _out.inc();
-    if(p->isLocal())
+    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
+    if(isAbstract)
     {
-        _out << nl << "T_" << name << " = ::Ice::__declareLocalClass('" << scoped << "')";
-    }
-    else
-    {
-        _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-        if(isAbstract)
-        {
-            _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
-        }
+        _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
     }
     _out.dec();
     _out << nl << "end";
@@ -492,7 +469,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
     //
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, ";
 
@@ -674,10 +651,6 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         baseName = getAbsolute(base, IdentToUpper);
         _out << baseName;
-    }
-    else if(p->isLocal())
-    {
-        _out << "Ice::LocalException";
     }
     else
     {
@@ -1179,11 +1152,6 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
                 _out << "::Ice::T_ObjectPrx";
                 break;
             }
-            case Builtin::KindLocalObject:
-            {
-                _out << "::Ice::T_LocalObject";
-                break;
-            }
         }
         return;
     }
@@ -1240,7 +1208,6 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
             case Builtin::KindValue:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             {
                 return "nil";
             }
@@ -1313,7 +1280,6 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
             case Slice::Builtin::KindValue:
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindLocalObject:
                 assert(false);
             }
         }

@@ -5,25 +5,20 @@
 #ifndef CALLBACK_I_H
 #define CALLBACK_I_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <Callback.h>
 #include <vector>
 
-class CallbackReceiverI : public ::Test::CallbackReceiver, public IceUtil::Monitor<IceUtil::Mutex>
+class CallbackReceiverI final : public Test::CallbackReceiver
 {
 public:
 
-    CallbackReceiverI();
+    void callback(const Ice::Current&) override;
+    void callbackEx(const Ice::Current&) override;
+    void concurrentCallbackAsync(int, std::function<void(int)>, std::function<void(std::exception_ptr)>,
+                                 const ::Ice::Current&) override;
 
-    virtual void callback(const Ice::Current&);
-    virtual void callbackEx(const Ice::Current&);
-    virtual void concurrentCallback_async(const ::Test::AMD_CallbackReceiver_concurrentCallbackPtr&,
-                                      Ice::Int,
-                                      const ::Ice::Current&);
-
-    virtual void waitCallback(const ::Ice::Current&);
-    virtual void callbackWithPayload(const Ice::ByteSeq&, const ::Ice::Current&);
+    void waitCallback(const ::Ice::Current&) override;
+    void callbackWithPayload(Ice::ByteSeq, const ::Ice::Current&) override;
 
     void callbackOK(int = 1);
     void waitCallbackOK();
@@ -33,36 +28,41 @@ public:
 
 private:
 
-    int _callback;
-    bool _waitCallback;
-    bool _callbackWithPayload;
-    bool _finishWaitCallback;
-    std::vector<std::pair< ::Test::AMD_CallbackReceiver_concurrentCallbackPtr, Ice::Int> > _callbacks;
-};
-typedef IceUtil::Handle<CallbackReceiverI> CallbackReceiverIPtr;
+    int _callback = 0;
+    bool _waitCallback = false;
+    bool _callbackWithPayload = false;
+    bool _finishWaitCallback = false;
+    std::vector<std::tuple<std::function<void(int)>, std::function<void(std::exception_ptr)>, int>> _callbacks;
 
-class CallbackI : public ::Test::Callback
+    std::mutex _mutex;
+    std::condition_variable _condVar;
+};
+
+class CallbackI final : public ::Test::Callback
 {
 public:
 
-    CallbackI();
+    void initiateCallbackAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+                               std::function<void()>, std::function<void(std::exception_ptr)>,
+                               const Ice::Current&) override;
 
-    virtual void initiateCallback_async(const ::Test::AMD_Callback_initiateCallbackPtr&,
-                                        const ::Test::CallbackReceiverPrx&, const Ice::Current&);
-    virtual void initiateCallbackEx_async(const ::Test::AMD_Callback_initiateCallbackExPtr&,
-                                          const ::Test::CallbackReceiverPrx&, const Ice::Current&);
-    virtual void initiateConcurrentCallback_async(const ::Test::AMD_Callback_initiateConcurrentCallbackPtr&,
-                                                  Ice::Int,
-                                                  const ::Test::CallbackReceiverPrx&,
-                                                  const ::Ice::Current&);
-    virtual void initiateWaitCallback_async(const ::Test::AMD_Callback_initiateWaitCallbackPtr&,
-                                            const ::Test::CallbackReceiverPrx&,
-                                            const ::Ice::Current&);
-    virtual void initiateCallbackWithPayload_async(const ::Test::AMD_Callback_initiateCallbackWithPayloadPtr&,
-                                                   const ::Test::CallbackReceiverPrx&,
-                                                   const ::Ice::Current&);
+    void initiateCallbackExAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+                                 std::function<void()>, std::function<void(std::exception_ptr)>,
+                                 const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    void initiateConcurrentCallbackAsync(int, std::shared_ptr<Test::CallbackReceiverPrx>,
+                                         std::function<void(int)>, std::function<void(std::exception_ptr)>,
+                                         const Ice::Current&) override;
+
+    void initiateWaitCallbackAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+                                   std::function<void()>, std::function<void(std::exception_ptr)>,
+                                   const Ice::Current&) override;
+
+    void initiateCallbackWithPayloadAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+                                          std::function<void()>, std::function<void(std::exception_ptr)>,
+                                          const Ice::Current&) override;
+
+    void shutdown(const Ice::Current&) override;
 };
 
 #endif

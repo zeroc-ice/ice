@@ -13,7 +13,7 @@
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../TestAMDI.cs" />
     <Compile Include="../../ServerAMD.cs" />
-    <Compile Include="../../CookieAMDI.cs" />
+    <Compile Include="../../Cookie.cs" />
     <Compile Include="../../ServantLocatorAMDI.cs" />
     <Compile Include="../../TestActivationAMDI.cs" />
     <Compile Include="generated\TestAMD.cs">

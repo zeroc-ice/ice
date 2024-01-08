@@ -84,6 +84,9 @@ int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 #ifdef __GNUC__
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #  pragma GCC diagnostic ignored "-Wunused-label"
+
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98753
+#  pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
 
 // Avoid clang warnings in generate grammar
@@ -137,8 +140,8 @@ slice_error(const char* s)
 %token ICE_IMPLEMENTS
 %token ICE_THROWS
 %token ICE_VOID
-%token ICE_BYTE
 %token ICE_BOOL
+%token ICE_BYTE
 %token ICE_SHORT
 %token ICE_INT
 %token ICE_LONG
@@ -146,8 +149,6 @@ slice_error(const char* s)
 %token ICE_DOUBLE
 %token ICE_STRING
 %token ICE_OBJECT
-%token ICE_LOCAL_OBJECT
-%token ICE_LOCAL
 %token ICE_CONST
 %token ICE_FALSE
 %token ICE_TRUE
@@ -402,7 +403,7 @@ exception_id
 // ----------------------------------------------------------------------
 exception_decl
 // ----------------------------------------------------------------------
-: local_qualifier exception_id
+: exception_id
 {
     unit->error("exceptions cannot be forward declared");
     $$ = 0;
@@ -412,13 +413,12 @@ exception_decl
 // ----------------------------------------------------------------------
 exception_def
 // ----------------------------------------------------------------------
-: local_qualifier exception_id exception_extends
+: exception_id exception_extends
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ExceptionPtr base = ExceptionPtr::dynamicCast($3);
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
+    ExceptionPtr base = ExceptionPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    ExceptionPtr ex = cont->createException(ident->v, base, local->v);
+    ExceptionPtr ex = cont->createException(ident->v, base);
     if(ex)
     {
         cont->checkIntroduced(ident->v, ex);
@@ -428,11 +428,11 @@ exception_def
 }
 '{' exception_exports '}'
 {
-    if($4)
+    if($3)
     {
         unit->popContainer();
     }
-    $$ = $4;
+    $$ = $3;
 }
 ;
 
@@ -567,26 +567,14 @@ tag
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b)
+        if(b && b->isIntegralType())
         {
-            switch(b->kind())
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            if(l < 0 || l > Int32Max)
             {
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-                if(l < 0 || l > Int32Max)
-                {
-                    unit->error("tag is out of range");
-                }
-                tag = static_cast<int>(l);
-                break;
+                unit->error("tag is out of range");
             }
-            default:
-                break;
-            }
+            tag = static_cast<int>(l);
         }
     }
     else if(enumerator)
@@ -692,26 +680,14 @@ optional
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b)
+        if(b && b->isIntegralType())
         {
-            switch(b->kind())
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            if(l < 0 || l > Int32Max)
             {
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-                if(l < 0 || l > Int32Max)
-                {
-                    unit->error("tag is out of range");
-                }
-                tag = static_cast<int>(l);
-                break;
+                unit->error("tag is out of range");
             }
-            default:
-                break;
-            }
+            tag = static_cast<int>(l);
         }
     }
     else if(enumerator)
@@ -796,7 +772,7 @@ struct_id
 // ----------------------------------------------------------------------
 struct_decl
 // ----------------------------------------------------------------------
-: local_qualifier struct_id
+: struct_id
 {
     unit->error("structs cannot be forward declared");
     $$ = 0; // Dummy
@@ -806,12 +782,11 @@ struct_decl
 // ----------------------------------------------------------------------
 struct_def
 // ----------------------------------------------------------------------
-: local_qualifier struct_id
+: struct_id
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    StructPtr st = cont->createStruct(ident->v, local->v);
+    StructPtr st = cont->createStruct(ident->v);
     if(st)
     {
         cont->checkIntroduced(ident->v, st);
@@ -819,7 +794,7 @@ struct_def
     }
     else
     {
-        st = cont->createStruct(IceUtil::generateUUID(), local->v); // Dummy
+        st = cont->createStruct(IceUtil::generateUUID()); // Dummy
         assert(st);
         unit->pushContainer(st);
     }
@@ -827,11 +802,11 @@ struct_def
 }
 '{' struct_exports '}'
 {
-    if($3)
+    if($2)
     {
         unit->popContainer();
     }
-    $$ = $3;
+    $$ = $2;
 
     //
     // Empty structures are not allowed
@@ -974,26 +949,14 @@ class_id
     if(constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b)
+        if(b && b->isIntegralType())
         {
-            switch(b->kind())
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            if(l < 0 || l > Int32Max)
             {
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-                if(l < 0 || l > Int32Max)
-                {
-                    unit->error("compact id for class is out of range");
-                }
-                id = static_cast<int>(l);
-                break;
+                unit->error("compact id for class is out of range");
             }
-            default:
-                break;
-            }
+            id = static_cast<int>(l);
         }
     }
     else if(enumerator)
@@ -1032,12 +995,11 @@ class_id
 // ----------------------------------------------------------------------
 class_decl
 // ----------------------------------------------------------------------
-: local_qualifier class_name
+: class_name
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v, false, local->v);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v, false);
     $$ = cl;
 }
 ;
@@ -1045,18 +1007,17 @@ class_decl
 // ----------------------------------------------------------------------
 class_def
 // ----------------------------------------------------------------------
-: local_qualifier class_id class_extends implements
+: class_id class_extends implements
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast($2);
+    ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    ClassDefPtr base = ClassDefPtr::dynamicCast($3);
-    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
+    ClassDefPtr base = ClassDefPtr::dynamicCast($2);
+    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($3);
     if(base)
     {
         bases->v.push_front(base);
     }
-    ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, false, bases->v, local->v);
+    ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, false, bases->v);
     if(cl)
     {
         cont->checkIntroduced(ident->v, cl);
@@ -1070,10 +1031,10 @@ class_def
 }
 '{' class_exports '}'
 {
-    if($5)
+    if($4)
     {
         unit->popContainer();
-        $$ = $5;
+        $$ = $4;
     }
     else
     {
@@ -1551,12 +1512,11 @@ interface_id
 // ----------------------------------------------------------------------
 interface_decl
 // ----------------------------------------------------------------------
-: local_qualifier interface_id
+: interface_id
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v, true, local->v);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v, true);
     cont->checkIntroduced(ident->v, cl);
     $$ = cl;
 }
@@ -1565,13 +1525,12 @@ interface_decl
 // ----------------------------------------------------------------------
 interface_def
 // ----------------------------------------------------------------------
-: local_qualifier interface_id interface_extends
+: interface_id interface_extends
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($3);
-    ClassDefPtr cl = cont->createClassDef(ident->v, -1, true, bases->v, local->v);
+    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($2);
+    ClassDefPtr cl = cont->createClassDef(ident->v, -1, true, bases->v);
     if(cl)
     {
         cont->checkIntroduced(ident->v, cl);
@@ -1585,10 +1544,10 @@ interface_def
 }
 '{' interface_exports '}'
 {
-    if($4)
+    if($3)
     {
         unit->popContainer();
-        $$ = $4;
+        $$ = $3;
     }
     else
     {
@@ -1754,7 +1713,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-        exception = cont->createException(IceUtil::generateUUID(), 0, false, Dummy); // Dummy
+        exception = cont->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
@@ -1763,30 +1722,28 @@ exception
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, false, Dummy); // Dummy
+    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
 ;
 
 // ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
-: local_qualifier ICE_SEQUENCE '<' meta_data type '>' ICE_IDENTIFIER
+: ICE_SEQUENCE '<' meta_data type '>' ICE_IDENTIFIER
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($7);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
-    TypePtr type = TypePtr::dynamicCast($5);
+    StringTokPtr ident = StringTokPtr::dynamicCast($6);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
+    TypePtr type = TypePtr::dynamicCast($4);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, metaData->v, local->v);
+    $$ = cont->createSequence(ident->v, type, metaData->v);
 }
-| local_qualifier ICE_SEQUENCE '<' meta_data type '>' keyword
+| ICE_SEQUENCE '<' meta_data type '>' keyword
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($7);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
-    TypePtr type = TypePtr::dynamicCast($5);
+    StringTokPtr ident = StringTokPtr::dynamicCast($6);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
+    TypePtr type = TypePtr::dynamicCast($4);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, metaData->v, local->v); // Dummy
+    $$ = cont->createSequence(ident->v, type, metaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 ;
@@ -1794,27 +1751,25 @@ sequence_def
 // ----------------------------------------------------------------------
 dictionary_def
 // ----------------------------------------------------------------------
-: local_qualifier ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' ICE_IDENTIFIER
+: ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' ICE_IDENTIFIER
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($10);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($4);
-    TypePtr keyType = TypePtr::dynamicCast($5);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($7);
-    TypePtr valueType = TypePtr::dynamicCast($8);
+    StringTokPtr ident = StringTokPtr::dynamicCast($9);
+    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($3);
+    TypePtr keyType = TypePtr::dynamicCast($4);
+    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($6);
+    TypePtr valueType = TypePtr::dynamicCast($7);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v, local->v);
+    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
 }
-| local_qualifier ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword
+| ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($10);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($4);
-    TypePtr keyType = TypePtr::dynamicCast($5);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($7);
-    TypePtr valueType = TypePtr::dynamicCast($8);
+    StringTokPtr ident = StringTokPtr::dynamicCast($9);
+    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($3);
+    TypePtr keyType = TypePtr::dynamicCast($4);
+    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($6);
+    TypePtr valueType = TypePtr::dynamicCast($7);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v, local->v); // Dummy
+    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 ;
@@ -1837,51 +1792,49 @@ enum_id
 // ----------------------------------------------------------------------
 enum_def
 // ----------------------------------------------------------------------
-: local_qualifier enum_id
+: enum_id
 {
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v, local->v);
+    EnumPtr en = cont->createEnum(ident->v);
     if(en)
     {
         cont->checkIntroduced(ident->v, en);
     }
     else
     {
-        en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy);
+        en = cont->createEnum(IceUtil::generateUUID(), Dummy);
     }
     unit->pushContainer(en);
     $$ = en;
 }
 '{' enumerator_list '}'
 {
-    EnumPtr en = EnumPtr::dynamicCast($3);
+    EnumPtr en = EnumPtr::dynamicCast($2);
     if(en)
     {
-        EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+        EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($4);
         if(enumerators->v.empty())
         {
             unit->error("enum `" + en->name() + "' must have at least one enumerator");
         }
         unit->popContainer();
     }
-    $$ = $3;
+    $$ = $2;
 }
 |
-local_qualifier ICE_ENUM
+ICE_ENUM
 {
     unit->error("missing enumeration name");
-    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy);
+    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), Dummy);
     unit->pushContainer(en);
     $$ = en;
 }
 '{' enumerator_list '}'
 {
     unit->popContainer();
-    $$ = $2;
+    $$ = $1;
 }
 ;
 
@@ -1967,8 +1920,7 @@ enumerator_initializer
         {
             unit->currentContainer()->checkIntroduced(scoped->v, constant);
             BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-            if(b && (b->kind() == Builtin::KindByte || b->kind() == Builtin::KindShort ||
-                     b->kind() == Builtin::KindInt || b->kind() == Builtin::KindLong))
+            if(b && b->isIntegralType())
             {
                 IceUtil::Int64 v;
                 if(IceUtilInternal::stringToInt64(constant->value(), v))
@@ -2119,55 +2071,30 @@ scoped_name
 ;
 
 // ----------------------------------------------------------------------
+builtin
+// ----------------------------------------------------------------------
+: ICE_BOOL {}
+| ICE_BYTE {}
+| ICE_SHORT {}
+| ICE_INT {}
+| ICE_LONG {}
+| ICE_FLOAT {}
+| ICE_DOUBLE {}
+| ICE_STRING {}
+| ICE_OBJECT {}
+| ICE_VALUE {}
+
+// ----------------------------------------------------------------------
 type
 // ----------------------------------------------------------------------
-: ICE_BYTE
-{
-    $$ = unit->builtin(Builtin::KindByte);
-}
-| ICE_BOOL
-{
-    $$ = unit->builtin(Builtin::KindBool);
-}
-| ICE_SHORT
-{
-    $$ = unit->builtin(Builtin::KindShort);
-}
-| ICE_INT
-{
-    $$ = unit->builtin(Builtin::KindInt);
-}
-| ICE_LONG
-{
-    $$ = unit->builtin(Builtin::KindLong);
-}
-| ICE_FLOAT
-{
-    $$ = unit->builtin(Builtin::KindFloat);
-}
-| ICE_DOUBLE
-{
-    $$ = unit->builtin(Builtin::KindDouble);
-}
-| ICE_STRING
-{
-    $$ = unit->builtin(Builtin::KindString);
-}
-| ICE_OBJECT
-{
-    $$ = unit->builtin(Builtin::KindObject);
-}
-| ICE_OBJECT '*'
+: ICE_OBJECT '*'
 {
     $$ = unit->builtin(Builtin::KindObjectProxy);
 }
-| ICE_LOCAL_OBJECT
+| builtin
 {
-    $$ = unit->builtin(Builtin::KindLocalObject);
-}
-| ICE_VALUE
-{
-    $$ = unit->builtin(Builtin::KindValue);
+    StringTokPtr typeName = StringTokPtr::dynamicCast($1);
+    $$ = unit->builtin(Builtin::kindFromString(typeName->v).value());
 }
 | scoped_name
 {
@@ -2211,10 +2138,6 @@ type
                 YYERROR; // Can't continue, jump to next yyerrok
             }
             cont->checkIntroduced(scoped->v);
-            if(cl->isLocal())
-            {
-                unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'"); // $$ is dummy
-            }
             *p = new Proxy(cl);
         }
         $$ = types.front();
@@ -2256,23 +2179,6 @@ string_list
     StringListTokPtr stringList = new StringListTok;
     stringList->v.push_back(str->v);
     $$ = stringList;
-}
-;
-
-// ----------------------------------------------------------------------
-local_qualifier
-// ----------------------------------------------------------------------
-: ICE_LOCAL
-{
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    $$ = local;
-}
-| %empty
-{
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    $$ = local;
 }
 ;
 
@@ -2386,99 +2292,35 @@ const_def
 // ----------------------------------------------------------------------
 keyword
 // ----------------------------------------------------------------------
-: ICE_MODULE
-{
-}
-| ICE_CLASS
-{
-}
-| ICE_INTERFACE
-{
-}
-| ICE_EXCEPTION
-{
-}
-| ICE_STRUCT
-{
-}
-| ICE_SEQUENCE
-{
-}
-| ICE_DICTIONARY
-{
-}
-| ICE_ENUM
-{
-}
-| ICE_OUT
-{
-}
-| ICE_EXTENDS
-{
-}
-| ICE_IMPLEMENTS
-{
-}
-| ICE_THROWS
-{
-}
-| ICE_VOID
-{
-}
-| ICE_BYTE
-{
-}
-| ICE_BOOL
-{
-}
-| ICE_SHORT
-{
-}
-| ICE_INT
-{
-}
-| ICE_LONG
-{
-}
-| ICE_FLOAT
-{
-}
-| ICE_DOUBLE
-{
-}
-| ICE_STRING
-{
-}
-| ICE_OBJECT
-{
-}
-| ICE_LOCAL_OBJECT
-{
-}
-| ICE_LOCAL
-{
-}
-| ICE_CONST
-{
-}
-| ICE_FALSE
-{
-}
-| ICE_TRUE
-{
-}
-| ICE_IDEMPOTENT
-{
-}
-| ICE_TAG
-{
-}
-| ICE_OPTIONAL
-{
-}
-| ICE_VALUE
-{
-}
+: ICE_MODULE {}
+| ICE_CLASS {}
+| ICE_INTERFACE {}
+| ICE_EXCEPTION {}
+| ICE_STRUCT {}
+| ICE_SEQUENCE {}
+| ICE_DICTIONARY {}
+| ICE_ENUM {}
+| ICE_OUT {}
+| ICE_EXTENDS {}
+| ICE_IMPLEMENTS {}
+| ICE_THROWS {}
+| ICE_VOID {}
+| ICE_BOOL {}
+| ICE_BYTE {}
+| ICE_SHORT {}
+| ICE_INT {}
+| ICE_LONG {}
+| ICE_FLOAT {}
+| ICE_DOUBLE {}
+| ICE_STRING {}
+| ICE_OBJECT {}
+| ICE_CONST {}
+| ICE_FALSE {}
+| ICE_TRUE {}
+| ICE_IDEMPOTENT {}
+| ICE_TAG {}
+| ICE_OPTIONAL {}
+| ICE_VALUE {}
 ;
 
 %%

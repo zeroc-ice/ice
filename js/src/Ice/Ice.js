@@ -8,6 +8,7 @@ require("../Ice/Buffer");
 require("../Ice/BuiltinSequences");
 require("../Ice/Communicator");
 require("../Ice/CommunicatorI");
+require("../Ice/EndpointSelectionType");
 require("../Ice/EndpointTypes");
 require("../Ice/Exception");
 require("../Ice/HashMap");

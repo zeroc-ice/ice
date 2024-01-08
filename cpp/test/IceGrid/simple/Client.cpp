@@ -23,8 +23,7 @@ Client::run(int argc, char** argv)
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceLocatorDiscovery(false);
 #endif
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
-
+    Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
     bool withDeploy = false;
 
     for(int i = 1; i < argc; ++i)

@@ -23,9 +23,7 @@
 
 #include <IceStorm/Metrics.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 /// A messaging service with support for federation. In contrast to most other messaging or event services, IceStorm
 /// supports typed events, meaning that broadcasting a message over a federation is as easy as invoking a method on an
@@ -180,11 +178,11 @@ interface TopicManager
     /// @param name The name of the topic.
     /// @return A proxy to the topic instance.
     /// @throws NoSuchTopic Raised if the topic does not exist.
-    ["nonmutating", "cpp:const"] idempotent Topic* retrieve(string name) throws NoSuchTopic;
+    idempotent Topic* retrieve(string name) throws NoSuchTopic;
 
     /// Retrieve all topics managed by this topic manager.
     /// @return A dictionary of string, topic proxy pairs.
-    ["nonmutating", "cpp:const"] idempotent TopicDict retrieveAll();
+    idempotent TopicDict retrieveAll();
 }
 
 /// This interface is advertised by the IceStorm service through the Ice object with the identity `IceStorm/Finder'.

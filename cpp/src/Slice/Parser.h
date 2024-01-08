@@ -8,12 +8,15 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/Exception.h>
+#include <array>
 #include <string>
 #include <vector>
 #include <list>
 #include <stack>
 #include <map>
+#include <optional>
 #include <set>
+#include <string_view>
 #include <stdio.h>
 
 namespace Slice
@@ -255,6 +258,7 @@ public:
     void setSeenDefinition();
 
     bool hasMetaData() const;
+    bool hasMetaDataDirective(const std::string&) const;
     void setMetaData(const StringList&);
     std::string findMetaData(const std::string&) const;
     StringList getMetaData() const;
@@ -355,10 +359,10 @@ class Type : public virtual SyntaxTreeBase
 {
 public:
 
-    virtual bool isLocal() const = 0;
     virtual std::string typeId() const = 0;
     virtual bool usesClasses() const = 0;
     virtual size_t minWireSize() const = 0;
+    virtual std::string getTagFormat() const = 0;
     virtual bool isVariableLength() const = 0;
 
 protected:
@@ -386,27 +390,43 @@ public:
         KindString,
         KindObject,
         KindObjectProxy,
-        KindLocalObject,
         KindValue
     };
 
-    virtual bool isLocal() const;
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
+
+    bool isNumericType() const;
+    bool isIntegralType() const;
 
     Kind kind() const;
     std::string kindAsString() const;
+    static std::optional<Kind> kindFromString(std::string_view);
 
-    static const char* builtinTable[];
+    inline static const std::array<std::string, 11> builtinTable =
+    {
+        "byte",
+        "bool",
+        "short",
+        "int",
+        "long",
+        "float",
+        "double",
+        "string",
+        "Object",
+        "Object*",
+        "Value"
+    };
 
 protected:
 
     Builtin(const UnitPtr&, Kind);
     friend class Unit;
 
-    Kind _kind;
+    const Kind _kind;
 };
 
 // ----------------------------------------------------------------------
@@ -486,14 +506,14 @@ public:
 
     virtual void destroy();
     ModulePtr createModule(const std::string&);
-    ClassDefPtr createClassDef(const std::string&, int, bool, const ClassList&, bool);
-    ClassDeclPtr createClassDecl(const std::string&, bool, bool);
-    ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool, NodeType = Real);
-    StructPtr createStruct(const std::string&, bool, NodeType = Real);
-    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool, NodeType = Real);
+    ClassDefPtr createClassDef(const std::string&, int, bool, const ClassList&);
+    ClassDeclPtr createClassDecl(const std::string&, bool);
+    ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
+    StructPtr createStruct(const std::string&, NodeType = Real);
+    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-                                   const StringList&, bool, NodeType = Real);
-    EnumPtr createEnum(const std::string&, bool, NodeType = Real);
+                                   const StringList&, NodeType = Real);
+    EnumPtr createEnum(const std::string&, NodeType = Real);
     EnumeratorPtr createEnumerator(const std::string&);
     EnumeratorPtr createEnumerator(const std::string&, int);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
@@ -514,28 +534,21 @@ public:
     EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
     ContainedList contents() const;
-    bool hasNonLocalClassDecls() const;
-    bool hasNonLocalClassDefs() const;
-    bool hasLocalClassDefsWithAsync() const;
-    bool hasNonLocalSequences() const;
-    bool hasNonLocalExceptions() const;
+    bool hasSequences() const;
     bool hasStructs() const;
     bool hasExceptions() const;
     bool hasDictionaries() const;
-    bool hasOnlyDictionaries(DictionaryList&) const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
-    bool hasLocalClassDefs() const;
-    bool hasNonLocalInterfaceDefs() const;
+    bool hasInterfaceDefs() const;
     bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
+    bool hasOnlyInterfaces() const;
     bool hasOperations() const; // interfaces or classes with operations
-    bool hasNonLocalAbstractClassDefs() const; // interfaces or abstract classes
-    bool hasNonLocalDataOnlyClasses() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     bool hasAsyncOps() const;
-    bool hasNonLocalContained(Contained::ContainedType) const;
+    bool hasContained(Contained::ContainedType) const;
     std::string thisScope() const;
     void mergeModules();
     void sort();
@@ -551,7 +564,7 @@ protected:
 
     Container(const UnitPtr&);
 
-    bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
+    bool checkInterfaceAndLocal(const std::string&, bool, bool, bool);
     bool checkGlobalMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
     EnumeratorPtr validateEnumerator(const std::string&);
@@ -587,7 +600,6 @@ class Constructed : public virtual Type, public virtual Contained
 {
 public:
 
-    virtual bool isLocal() const;
     virtual std::string typeId() const;
     virtual bool isVariableLength() const = 0;
     ConstructedList dependencies();
@@ -595,9 +607,7 @@ public:
 
 protected:
 
-    Constructed(const ContainerPtr&, const std::string&, bool);
-
-    bool _local;
+    Constructed(const ContainerPtr&, const std::string&);
 };
 
 // ----------------------------------------------------------------------
@@ -615,16 +625,17 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
-    static void checkBasesAreLegal(const std::string&, bool, bool, const ClassList&, const UnitPtr&);
+    static void checkBasesAreLegal(const std::string&, const ClassList&, const UnitPtr&);
 
 protected:
 
-    ClassDecl(const ContainerPtr&, const std::string&, bool, bool);
+    ClassDecl(const ContainerPtr&, const std::string&, bool);
     friend class Container;
     friend class ClassDef;
 
@@ -652,7 +663,7 @@ public:
 
     //
     // Note: The order of definitions here *must* match the order of
-    // definitions of ::Ice::OperationMode in slice/Ice/Current.ice!
+    // definitions of ::Ice::OperationMode in slice/Ice/OperationMode.ice!
     //
     enum Mode
     {
@@ -732,7 +743,6 @@ public:
     bool isAbstract() const;
     bool isInterface() const;
     bool isA(const std::string&) const;
-    virtual bool isLocal() const;
     bool hasDataMembers() const;
     bool hasOperations() const;
     bool hasDefaultValues() const;
@@ -743,11 +753,10 @@ public:
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
     int compactId() const;
-    bool isDelegate() const;
 
 protected:
 
-    ClassDef(const ContainerPtr&, const std::string&, int, bool, const ClassList&, bool);
+    ClassDef(const ContainerPtr&, const std::string&, int, bool, const ClassList&);
     friend class Container;
 
     ClassDeclPtr _declaration;
@@ -755,7 +764,6 @@ protected:
     bool _hasDataMembers;
     bool _hasOperations;
     ClassList _bases;
-    bool _local;
     int _compactId;
 };
 
@@ -767,10 +775,10 @@ class Proxy : public virtual Type
 {
 public:
 
-    virtual bool isLocal() const;
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
 
     ClassDeclPtr _class() const;
@@ -802,7 +810,6 @@ public:
     ExceptionPtr base() const;
     ExceptionList allBases() const;
     virtual bool isBaseOf(const ExceptionPtr&) const;
-    virtual bool isLocal() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     bool usesClasses(bool) const;
@@ -814,11 +821,10 @@ public:
 
 protected:
 
-    Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&, bool);
+    Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&);
     friend class Container;
 
     ExceptionPtr _base;
-    bool _local;
 };
 
 // ----------------------------------------------------------------------
@@ -837,6 +843,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     bool hasDefaultValues() const;
     virtual std::string kindOf() const;
@@ -845,7 +852,7 @@ public:
 
 protected:
 
-    Struct(const ContainerPtr&, const std::string&, bool);
+    Struct(const ContainerPtr&, const std::string&);
     friend class Container;
 };
 
@@ -863,6 +870,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -870,7 +878,7 @@ public:
 
 protected:
 
-    Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, bool);
+    Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
     friend class Container;
 
     TypePtr _type;
@@ -893,6 +901,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -903,7 +912,7 @@ public:
 protected:
 
     Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-               const StringList&, bool);
+               const StringList&);
     friend class Container;
 
     TypePtr _keyType;
@@ -928,6 +937,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -935,7 +945,7 @@ public:
 
 protected:
 
-    Enum(const ContainerPtr&, const std::string&, bool);
+    Enum(const ContainerPtr&, const std::string&);
     int newEnumerator(const EnumeratorPtr&);
 
     friend class Container;
@@ -1075,11 +1085,9 @@ class Unit : public virtual Container
 {
 public:
 
-    static UnitPtr createUnit(bool, bool, bool, bool, const StringList& = StringList());
+    static UnitPtr createUnit(bool, bool, const StringList& = StringList());
 
     bool ignRedefs() const;
-    bool allowIcePrefix() const;
-    bool allowUnderscore() const;
 
     void setComment(const std::string&);
     void addToComment(const std::string&);
@@ -1143,13 +1151,11 @@ public:
 
 private:
 
-    Unit(bool, bool, bool, bool, const StringList&);
+    Unit(bool, bool, const StringList&);
     static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
     bool _all;
-    bool _allowIcePrefix;
-    bool _allowUnderscore;
     StringList _defaultGlobalMetaData;
     int _errors;
     std::string _currentComment;

@@ -20,9 +20,7 @@
 
 #include <Ice/Metrics.ice>
 
-#ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
-#endif
 
 ["objc:prefix:ICEMX", "swift:module:Glacier2:MX"]
 module IceMX

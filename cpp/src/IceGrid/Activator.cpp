@@ -46,33 +46,12 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-class TerminationListenerThread : public IceUtil::Thread
-{
-public:
-
-    TerminationListenerThread(Activator& activator) :
-        IceUtil::Thread("IceGrid termination listener thread"),
-        _activator(activator)
-    {
-    }
-
-    virtual
-    void run()
-    {
-        _activator.runTerminationListener();
-    }
-
-private:
-
-    Activator& _activator;
-};
-
 #ifndef _WIN32
 //
 // Helper function for async-signal safe error reporting
 //
 void
-reportChildError(int err, int fd, const char* cannot, const char* name, const TraceLevelsPtr& traceLevels)
+reportChildError(int err, int fd, const char* cannot, const char* name, const shared_ptr<TraceLevels>& traceLevels)
 {
     //
     // Send any errors to the parent process, using the write
@@ -303,19 +282,19 @@ extern "C" void CALLBACK activatorWaitCallback(PVOID data, BOOLEAN)
 }
 #endif
 
-Activator::Activator(const TraceLevelsPtr& traceLevels) :
+Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) :
     _traceLevels(traceLevels),
     _deactivating(false)
 {
 #ifdef _WIN32
     _hIntr = CreateEvent(
-        ICE_NULLPTR,  // Security attributes
+        nullptr,  // Security attributes
         TRUE,  // Manual reset
         FALSE, // Initial state is nonsignaled
-        ICE_NULLPTR   // Unnamed
+        nullptr   // Unnamed
     );
 
-    if(_hIntr == ICE_NULLPTR)
+    if(_hIntr == nullptr)
     {
         throw SyscallException(__FILE__, __LINE__, getSystemErrno());
 
@@ -337,10 +316,8 @@ Activator::Activator(const TraceLevelsPtr& traceLevels) :
 
 Activator::~Activator()
 {
-    assert(!_thread);
-
 #ifdef _WIN32
-    if(_hIntr != ICE_NULLPTR)
+    if(_hIntr != nullptr)
     {
         CloseHandle(_hIntr);
     }
@@ -360,9 +337,9 @@ Activator::activate(const string& name,
 #endif
                     const Ice::StringSeq& options,
                     const Ice::StringSeq& envs,
-                    const ServerIPtr& server)
+                    const shared_ptr<ServerI>& server)
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_deactivating)
     {
@@ -585,10 +562,10 @@ Activator::activate(const string& name,
     PROCESS_INFORMATION pi;
     ZeroMemory(&pi, sizeof(pi));
     BOOL b = CreateProcessW(
-        ICE_NULLPTR,                     // Executable
+        nullptr,                  // Executable
         cmdbuf,                   // Command line
-        ICE_NULLPTR,                     // Process attributes
-        ICE_NULLPTR,                     // Thread attributes
+        nullptr,                  // Process attributes
+        nullptr,                  // Thread attributes
         FALSE,                    // Do NOT inherit handles
         CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT, // Process creation flags
         (LPVOID)env,              // Process environment
@@ -811,7 +788,7 @@ Activator::activate(const string& name,
         int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
         if(maxFd <= 0)
         {
-            maxFd = INT_MAX;
+            maxFd = numeric_limits<int>::max();
         }
 
         for(int fd = 3; fd < maxFd; ++fd)
@@ -932,42 +909,8 @@ Activator::activate(const string& name,
 #endif
 }
 
-namespace
-{
-
-class ShutdownCallback : public IceUtil::Shared
-{
-public:
-
-    ShutdownCallback(const ActivatorPtr& activator, const string& name, const TraceLevelsPtr& traceLevels) :
-        _activator(activator), _name(name), _traceLevels(traceLevels)
-    {
-
-    }
-
-    virtual void
-    exception(const Ice::Exception& ex)
-    {
-        Ice::Warning out(_traceLevels->logger);
-        out << "exception occurred while deactivating `" << _name << "' using process proxy:\n" << ex;
-
-        //
-        // Send a SIGTERM to the process.
-        //
-        _activator->sendSignal(_name, SIGTERM);
-    }
-
-private:
-
-    const ActivatorPtr _activator;
-    const string _name;
-    const TraceLevelsPtr _traceLevels;
-};
-
-}
-
 void
-Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
+Activator::deactivate(const string& name, const shared_ptr<Ice::ProcessPrx>& process)
 {
 #ifdef _WIN32
     Ice::Int pid = getServerPid(name);
@@ -990,8 +933,24 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
             Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
             out << "deactivating `" << name << "' using process proxy";
         }
-        process->begin_shutdown(Ice::newCallback_Process_shutdown(new ShutdownCallback(this, name, _traceLevels),
-                                                                  &ShutdownCallback::exception));
+
+        process->shutdownAsync(nullptr, [self = shared_from_this(), name] (exception_ptr ex)
+        {
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                Ice::Warning out(self->_traceLevels->logger);
+                out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << e;
+            }
+
+            //
+            // Send a SIGTERM to the process.
+            //
+            self->sendSignal(name, SIGTERM);
+        });
         return;
     }
 
@@ -1087,18 +1046,18 @@ Activator::sendSignal(const string& name, int signal)
 #endif
 }
 
-Ice::Int
+int
 Activator::getServerPid(const string& name)
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
-    map<string, Process>::const_iterator p = _processes.find(name);
+    auto p = _processes.find(name);
     if(p == _processes.end())
     {
         return 0;
     }
 
-    return static_cast<Ice::Int>(p->second.pid);
+    return static_cast<int>(p->second.pid);
 }
 
 void
@@ -1107,24 +1066,20 @@ Activator::start()
     //
     // Create and start the termination listener thread.
     //
-    _thread = new TerminationListenerThread(*this);
-    _thread->start();
+    _thread = thread([this] { runTerminationListener(); });
 }
 
 void
 Activator::waitForShutdown()
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-    while(!_deactivating)
-    {
-        wait();
-    }
+    unique_lock lock(_mutex);
+    _condVar.wait(lock, [this] { return _deactivating; });
 }
 
 void
 Activator::shutdown()
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_deactivating)
     {
         return;
@@ -1138,7 +1093,7 @@ Activator::shutdown()
     //
     _deactivating = true;
     setInterrupt();
-    notifyAll();
+    _condVar.notify_all();
 }
 
 void
@@ -1146,7 +1101,7 @@ Activator::destroy()
 {
     map<string, Process> processes;
     {
-        IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(_deactivating);
         processes = _processes;
     }
@@ -1154,7 +1109,7 @@ Activator::destroy()
     //
     // Stop all active processes.
     //
-    for(map<string, Process>::iterator p = processes.begin(); p != processes.end(); ++p)
+    for(const auto& [name, proc] : processes)
     {
         //
         // Stop the server. The listener thread should detect the
@@ -1163,7 +1118,7 @@ Activator::destroy()
         //
         try
         {
-            p->second.server->stop_async(0, Ice::emptyCurrent);
+            proc.server->stopAsync(nullptr, nullptr, Ice::emptyCurrent);
         }
         catch(const ServerStopException&)
         {
@@ -1178,7 +1133,7 @@ Activator::destroy()
         catch(const Ice::LocalException& ex)
         {
             Ice::Warning out(_traceLevels->logger);
-            out << "unexpected exception raised by server `" << p->first << "' stop:\n" << ex;
+            out << "unexpected exception raised by server `" << name << "' stop:\n" << ex;
         }
     }
 
@@ -1187,18 +1142,14 @@ Activator::destroy()
     // when there's no more processes and when _deactivating is set to
     // true.
     //
-    if(_thread)
-    {
-        _thread->getThreadControl().join();
-        _thread = 0;
-    }
+    _thread.join();
     assert(_processes.empty());
 }
 
 bool
 Activator::isActive()
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     return !_deactivating;
 }
 
@@ -1247,7 +1198,7 @@ Activator::terminationListener()
         vector<Process> terminated;
         bool deactivated = false;
         {
-            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+            lock_guard lock(_mutex);
             for(vector<Process*>::const_iterator q = _terminated.begin(); q != _terminated.end(); ++q)
             {
                 for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
@@ -1309,7 +1260,7 @@ Activator::terminationListener()
         FD_SET(_fdIntrRead, &fdSet);
 
         {
-            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+            lock_guard lock(_mutex);
 
             for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
             {
@@ -1346,7 +1297,7 @@ Activator::terminationListener()
         vector<Process> terminated;
         bool deactivated = false;
         {
-            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+            lock_guard lock(_mutex);
 
             if(FD_ISSET(_fdIntrRead, &fdSet))
             {
@@ -1463,8 +1414,7 @@ Activator::clearInterrupt()
     ResetEvent(_hIntr);
 #else
     char c;
-    while(read(_fdIntrRead, &c, 1) == 1)
-        ;
+    while(read(_fdIntrRead, &c, 1) == 1);
 #endif
 }
 
@@ -1536,7 +1486,7 @@ Activator::waitPid(pid_t processPid)
 void
 Activator::processTerminated(Activator::Process* process)
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     setInterrupt();
     _terminated.push_back(process);
 }

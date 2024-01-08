@@ -67,7 +67,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtilInternal::Output&, bool, bool);
+    CodeVisitor(IceUtilInternal::Output&, bool);
 
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -141,16 +141,14 @@ private:
     bool _ns; // Using namespaces?
     list<string> _moduleStack; // TODO: Necessary?
     set<string> _classHistory; // TODO: Necessary?
-    bool _php5; // Generate PHP5 compatible code
 };
 
 //
 // CodeVisitor implementation.
 //
-CodeVisitor::CodeVisitor(Output& out, bool ns, bool php5) :
+CodeVisitor::CodeVisitor(Output& out, bool ns) :
     _out(out),
-    _ns(ns),
-    _php5(php5)
+    _ns(ns)
 {
 }
 
@@ -170,14 +168,14 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 
         bool isInterface = p->isInterface();
         ClassDefPtr def = p->definition();
-        if(!p->isLocal() && (isInterface || (def && def->allOperations().size() > 0)))
+        if(isInterface || (def && def->allOperations().size() > 0))
         {
             _out << nl << "global " << type << "Prx;";
         }
         _out << nl << "if(!isset(" << type << "))";
         _out << sb;
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(!p->isLocal() && (isInterface || (def && def->allOperations().size() > 0)))
+        if(isInterface || (def && def->allOperations().size() > 0))
         {
             _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
         }
@@ -209,7 +207,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << nl << "global " << prxType << ';';
     }
@@ -217,50 +215,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define the class.
     //
-    if(isInterface)
-    {
-        if(p->isLocal())
-        {
-            _out << nl << "interface " << name;
-            if(bases.empty())
-            {
-                if(!p->isLocal())
-                {
-                    _out << " extends " << scopedToName("::Ice::Object", _ns);
-                }
-            }
-            else
-            {
-                _out << " extends ";
-                for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-                {
-                    if(q != bases.begin())
-                    {
-                        _out << ", ";
-                    }
-                    _out << getAbsolute(*q, _ns);
-                }
-            }
-            _out << sb;
-            for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
-            {
-                _out << nl << "public function " << fixIdent((*oli)->name()) << '(';
-                ParamDeclList params = (*oli)->parameters();
-                for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
-                {
-                    if(q != params.begin())
-                    {
-                        _out << ", ";
-                    }
-                    _out << '$' << fixIdent((*q)->name());
-                }
-                _out << ");";
-            }
-
-            _out << eb;
-        }
-    }
-    else
+    if(!isInterface)
     {
         _out << nl;
         _out << "class " << name;
@@ -275,26 +230,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            if(!p->isLocal())
-            {
-                _out << " extends " << scopedToName("::Ice::Value", _ns);
-            }
-        }
-
-        //
-        // Value objects don't implement any interfaces.
-        //
-        if(p->isLocal() && !bases.empty())
-        {
-            _out << " implements ";
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-            {
-                if(q != bases.begin())
-                {
-                    _out << ", ";
-                }
-                _out << getAbsolute(*q, _ns);
-            }
+            _out << " extends " << scopedToName("::Ice::Value", _ns);
         }
 
         _out << sb;
@@ -337,36 +273,26 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << eb;
 
-        if(!p->isLocal())
-        {
-            //
-            // ice_ice
-            //
-            _out << sp << nl << "public function ice_id()";
-            _out << sb;
-            _out << nl << "return '" << scoped << "';";
-            _out << eb;
+        //
+        // ice_ice
+        //
+        _out << sp << nl << "public function ice_id()";
+        _out << sb;
+        _out << nl << "return '" << scoped << "';";
+        _out << eb;
 
-            //
-            // ice_staticId
-            //
-            _out << sp << nl << "public static function ice_staticId()";
-            _out << sb;
-            _out << nl << "return '" << scoped << "';";
-            _out << eb;
-        }
+        //
+        // ice_staticId
+        //
+        _out << sp << nl << "public static function ice_staticId()";
+        _out << sb;
+        _out << nl << "return '" << scoped << "';";
+        _out << eb;
 
         //
         // __toString
         //
-        if (_php5)
-        {
-            _out << sp << nl << "public function __toString()";
-        }
-        else
-        {
-            _out << sp << nl << "public function __toString(): string";
-        }
+        _out << sp << nl << "public function __toString(): string";
 
         _out << sb;
         _out << nl << "global " << type << ';';
@@ -398,7 +324,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define the proxy class.
     //
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << sp << nl << "class " << prxName << "Helper";
         _out << sb;
@@ -427,7 +353,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Emit a forward declaration for the class in case a data member refers to this type.
         //
         _out << sp << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(!p->isLocal() && isAbstract)
+        if(isAbstract)
         {
             _out << nl << prxType << " = IcePHP_declareProxy('" << scoped << "');";
         }
@@ -436,7 +362,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         string type;
         vector<string> seenType;
-        if(base || (!p->isLocal() && !isInterface))
+        if(base || !isInterface)
         {
             _out << sp << nl << "global ";
             if(!base)
@@ -471,7 +397,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
          << (isInterface ? "true" : "false") << ", ";
     if(!base)
     {
-        if(p->isLocal() || isInterface)
+        if(isInterface)
         {
             _out << "null";
         }
@@ -518,7 +444,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << ");";
 
-    if(!p->isLocal() && isAbstract)
+    if(isAbstract)
     {
         _out << sp << nl << "global ";
         if(!base || base->allOperations().empty())
@@ -742,10 +668,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         baseName = getAbsolute(base, _ns);
         _out << baseName;
     }
-    else if(p->isLocal())
-    {
-        _out << scopedToName("::Ice::LocalException", _ns);
-    }
     else
     {
         _out << scopedToName("::Ice::UserException", _ns);
@@ -801,14 +723,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // __toString
     //
-    if (_php5)
-    {
-        _out << sp << nl << "public function __toString()";
-    }
-    else
-    {
-        _out << sp << nl << "public function __toString(): string";
-    }
+    _out << sp << nl << "public function __toString(): string";
 
     _out << sb;
     _out << nl << "global " << type << ';';
@@ -927,14 +842,8 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // __toString
     //
-    if (_php5)
-    {
-        _out << sp << nl << "public function __toString()";
-    }
-    else
-    {
-        _out << sp << nl << "public function __toString(): string";
-    }
+    _out << sp << nl << "public function __toString(): string";
+
     _out << sb;
     _out << nl << "global " << type << ';';
     _out << nl << "return IcePHP_stringify($this, " << type << ");";
@@ -1049,7 +958,6 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
             case Slice::Builtin::KindObject:
             case Slice::Builtin::KindObjectProxy:
-            case Slice::Builtin::KindLocalObject:
             case Slice::Builtin::KindValue:
                 assert(false);
         }
@@ -1248,10 +1156,6 @@ CodeVisitor::getType(const TypePtr& p)
             {
                 return "$Ice__t_ObjectPrx";
             }
-            case Builtin::KindLocalObject:
-            {
-                return "$Ice__t_LocalObject";
-            }
         }
     }
 
@@ -1309,7 +1213,6 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
             }
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
             case Builtin::KindValue:
             {
                 _out << "null";
@@ -1413,7 +1316,6 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                 }
                 case Slice::Builtin::KindObject:
                 case Slice::Builtin::KindObjectProxy:
-                case Slice::Builtin::KindLocalObject:
                 case Slice::Builtin::KindValue:
                     assert(false);
             }
@@ -1509,7 +1411,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 }
 
 static void
-generate(const UnitPtr& un, bool all, bool ns, bool php5, const vector<string>& includePaths, Output& out)
+generate(const UnitPtr& un, bool all, bool ns, const vector<string>& includePaths, Output& out)
 {
     if(!all)
     {
@@ -1540,7 +1442,7 @@ generate(const UnitPtr& un, bool all, bool ns, bool php5, const vector<string>& 
         }
     }
 
-    CodeVisitor codeVisitor(out, ns, php5);
+    CodeVisitor codeVisitor(out, ns);
     un->visit(&codeVisitor, false);
 
     out << nl; // Trailing newline.
@@ -1616,11 +1518,6 @@ usage(const string& n)
         "--validate               Validate command line options.\n"
         "--all                    Generate code for Slice definitions in included files.\n"
         "--no-namespace           Do not use PHP namespaces (deprecated).\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
-        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
-        "--underscore             Allow underscores in Slice identifiers\n"
-        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
-        "--php5                   Generate PHP5 compatible code.\n"
         ;
 }
 
@@ -1640,11 +1537,8 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("n", "no-namespace");
-    opts.addOpt("", "php5");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -1706,15 +1600,9 @@ compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
-    bool ice = opts.isSet("ice");
-
-    bool underscore = opts.isSet("underscore");
-
     bool all = opts.isSet("all");
 
     bool ns = !opts.isSet("no-namespace");
-
-    bool php5 = opts.isSet("php5");
 
     if(args.empty())
     {
@@ -1773,7 +1661,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+            UnitPtr u = Unit::createUnit(false, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -1820,7 +1708,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all, ice, underscore);
+                UnitPtr u = Unit::createUnit(false, all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())
@@ -1867,7 +1755,7 @@ compile(const vector<string>& argv)
                         //
                         // Generate the PHP mapping.
                         //
-                        generate(u, all, ns, php5, includePaths, out);
+                        generate(u, all, ns, includePaths, out);
 
                         out << "?>\n";
                         out.close();

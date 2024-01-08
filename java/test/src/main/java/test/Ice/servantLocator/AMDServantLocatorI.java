@@ -12,7 +12,6 @@ import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
 
-import test.Ice.servantLocator.AMD.Test.Cookie;
 import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
 import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
 
@@ -74,7 +73,7 @@ public final class AMDServantLocatorI implements ServantLocator
         test(_requestId == -1);
         _requestId = current.requestId;
 
-        return new ServantLocator.LocateResult(new AMDTestI(), new AMDCookieI());
+        return new ServantLocator.LocateResult(new AMDTestI(), new Cookie());
     }
 
     @Override

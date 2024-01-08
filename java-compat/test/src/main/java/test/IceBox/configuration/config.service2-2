@@ -1,9 +1,0 @@
-Service2OA.Endpoints=default -p 12011 -h 127.0.0.1
-
-#Ice.ProgramName
-Service2.Prop=1
-
-OverrideMe=3
-UnsetMe=
-
-Ice.PrintAdapterReady=0

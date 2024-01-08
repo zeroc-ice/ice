@@ -15,7 +15,7 @@ TestI::TestI(const Ice::PropertiesPtr& properties) :
 }
 
 string
-TestI::getServerFile(const string& path, const Ice::Current&)
+TestI::getServerFile(string path, const Ice::Current&)
 {
     string file = _properties->getProperty("ServerDistrib") + "/" + path;
     ifstream is(file.c_str());
@@ -28,7 +28,7 @@ TestI::getServerFile(const string& path, const Ice::Current&)
 }
 
 string
-TestI::getApplicationFile(const string& path, const Ice::Current&)
+TestI::getApplicationFile(string path, const Ice::Current&)
 {
     string file = _properties->getProperty("ApplicationDistrib") + "/" + path;
     ifstream is(file.c_str());

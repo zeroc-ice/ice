@@ -12,7 +12,6 @@ import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
 
-import test.Ice.servantLocator.Test.Cookie;
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfUserException;
 
@@ -74,7 +73,7 @@ public final class ServantLocatorI implements ServantLocator
         test(_requestId == -1);
         _requestId = current.requestId;
 
-        return new ServantLocator.LocateResult(new TestI(), new CookieI());
+        return new ServantLocator.LocateResult(new TestI(), new Cookie());
     }
 
     @Override

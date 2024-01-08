@@ -24,11 +24,7 @@ ifeq ($(filter all php,$(ICE_BIN_DIST)),)
 # Load Makefile.mk fragments
 #
 ifeq ($(filter tests,$(MAKECMDGOALS)),)
-    ifeq ($(php_major_version),5)
-        include $(lang_srcdir)/src/php5/Makefile.mk
-    else
-        include $(lang_srcdir)/src/php/Makefile.mk
-    endif
+    include $(lang_srcdir)/src/Makefile.mk
 endif
 
 #

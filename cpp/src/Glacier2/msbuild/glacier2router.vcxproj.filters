@@ -66,9 +66,6 @@
     <ClCompile Include="..\ClientBlobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\FilterI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\FilterManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,17 +96,8 @@
     <ClCompile Include="..\SessionRouterI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\Instrumentation.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\Instrumentation.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\Instrumentation.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\Instrumentation.cpp">
-      <Filter>Source Files\x64\Release</Filter>
+    <ClCompile Include="..\Instrumentation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,7 +107,7 @@
     <ClInclude Include="..\ClientBlobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\FilterI.h">
+    <ClInclude Include="..\FilterT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\FilterManager.h">
@@ -149,23 +137,6 @@
     <ClInclude Include="..\SessionRouterI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\Glacier2\Instrumentation.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Debug\Glacier2\Instrumentation.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Release\Glacier2\Instrumentation.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Release\Glacier2\Instrumentation.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <SliceCompile Include="..\Instrumentation.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
