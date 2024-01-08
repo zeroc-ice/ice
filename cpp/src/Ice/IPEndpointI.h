@@ -27,9 +27,9 @@ public:
     IPEndpointInfoI(const EndpointIPtr&);
     virtual ~IPEndpointInfoI();
 
-    virtual Ice::Short type() const ICE_NOEXCEPT;
-    virtual bool datagram() const ICE_NOEXCEPT;
-    virtual bool secure() const ICE_NOEXCEPT;
+    virtual Ice::Short type() const noexcept;
+    virtual bool datagram() const noexcept;
+    virtual bool secure() const noexcept;
 
 private:
 
@@ -45,7 +45,7 @@ public:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
 
-    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
+    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual bool secure() const;

@@ -17,10 +17,6 @@ Ice_libs                := bz2
 Ice_extra_sources       := $(wildcard src/IceUtil/*.cpp)
 Ice_excludes            = src/Ice/DLLMain.cpp
 
-ifeq ($(os),Darwin)
-Ice_excludes            += src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
-endif
-
 ifeq ($(os),Linux)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
 Ice_cppflags                            += -DICE_USE_SYSTEMD $(shell pkg-config --cflags libsystemd)

@@ -152,12 +152,8 @@ public:
      */
     BluetoothException(const char* file, int line, const ::std::string& reason);
 
-#ifdef ICE_CPP11_COMPILER
     BluetoothException(const BluetoothException&) = default;
     virtual ~BluetoothException();
-#else
-    virtual ~BluetoothException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.

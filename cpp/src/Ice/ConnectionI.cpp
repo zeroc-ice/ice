@@ -488,7 +488,7 @@ Ice::ConnectionI::destroy(DestructionReason reason)
 }
 
 void
-Ice::ConnectionI::close(ConnectionClose mode) ICE_NOEXCEPT
+Ice::ConnectionI::close(ConnectionClose mode) noexcept
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -1177,7 +1177,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
 }
 
 ACM
-Ice::ConnectionI::getACM() ICE_NOEXCEPT
+Ice::ConnectionI::getACM() noexcept
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     ACM acm;
@@ -1437,14 +1437,14 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 }
 
 ObjectAdapterPtr
-Ice::ConnectionI::getAdapter() const ICE_NOEXCEPT
+Ice::ConnectionI::getAdapter() const noexcept
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _adapter;
 }
 
 EndpointPtr
-Ice::ConnectionI::getEndpoint() const ICE_NOEXCEPT
+Ice::ConnectionI::getEndpoint() const noexcept
 {
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
@@ -2174,7 +2174,7 @@ Ice::ConnectionI::finish(bool close)
 }
 
 string
-Ice::ConnectionI::toString() const ICE_NOEXCEPT
+Ice::ConnectionI::toString() const noexcept
 {
     return _desc; // No mutex lock, _desc is immutable.
 }
@@ -2204,13 +2204,13 @@ Ice::ConnectionI::timedOut()
 }
 
 string
-Ice::ConnectionI::type() const ICE_NOEXCEPT
+Ice::ConnectionI::type() const noexcept
 {
     return _type; // No mutex lock, _type is immutable.
 }
 
 Ice::Int
-Ice::ConnectionI::timeout() const ICE_NOEXCEPT
+Ice::ConnectionI::timeout() const noexcept
 {
     return _endpoint->timeout(); // No mutex lock, _endpoint is immutable.
 }

@@ -122,7 +122,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 }
 
 EndpointInfoPtr
-IceInternal::WSEndpoint::getInfo() const ICE_NOEXCEPT
+IceInternal::WSEndpoint::getInfo() const noexcept
 {
     WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<WSEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
     info->underlying = _delegate->getInfo();

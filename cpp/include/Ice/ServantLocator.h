@@ -178,12 +178,9 @@ public:
     typedef ServantLocatorPtr PointerType;
 
     virtual ~ServantLocator();
-
-#ifdef ICE_CPP11_COMPILER
     ServantLocator() = default;
     ServantLocator(const ServantLocator&) = default;
     ServantLocator& operator=(const ServantLocator&) = default;
-#endif
 
     /**
      * Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.

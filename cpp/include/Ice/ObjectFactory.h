@@ -140,12 +140,9 @@ public:
     typedef ObjectFactoryPtr PointerType;
 
     virtual ~ObjectFactory();
-
-#ifdef ICE_CPP11_COMPILER
     ObjectFactory() = default;
     ObjectFactory(const ObjectFactory&) = default;
     ObjectFactory& operator=(const ObjectFactory&) = default;
-#endif
 
     /**
      * Create a new object for a given object type. The type is the absolute Slice type id, i.e., the id relative to

@@ -169,12 +169,9 @@ public:
     typedef ValueFactoryPtr PointerType;
 
     virtual ~ValueFactory();
-
-#ifdef ICE_CPP11_COMPILER
     ValueFactory() = default;
     ValueFactory(const ValueFactory&) = default;
     ValueFactory& operator=(const ValueFactory&) = default;
-#endif
 
     /**
      * Create a new value for a given value type. The type is the absolute Slice type id, i.e., the id relative to the
@@ -212,12 +209,9 @@ public:
     typedef ValueFactoryManagerPtr PointerType;
 
     virtual ~ValueFactoryManager();
-
-#ifdef ICE_CPP11_COMPILER
     ValueFactoryManager() = default;
     ValueFactoryManager(const ValueFactoryManager&) = default;
     ValueFactoryManager& operator=(const ValueFactoryManager&) = default;
-#endif
 
     /**
      * Add a value factory. Attempting to add a factory with an id for which a factory is already registered throws
@@ -248,7 +242,7 @@ public:
      * @param id The type id for which the factory can create instances, or an empty string for the default factory.
      * @return The value factory, or null if no value factory was found for the given id.
      */
-    virtual ValueFactoryPtr find(const ::std::string& id) const ICE_NOEXCEPT = 0;
+    virtual ValueFactoryPtr find(const ::std::string& id) const noexcept = 0;
 };
 
 /// \cond INTERNAL

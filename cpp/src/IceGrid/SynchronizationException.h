@@ -64,12 +64,8 @@ public:
      */
     SynchronizationException(const char* file, int line);
 
-#ifdef ICE_CPP11_COMPILER
     SynchronizationException(const SynchronizationException&) = default;
     virtual ~SynchronizationException();
-#else
-    virtual ~SynchronizationException() throw();
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.

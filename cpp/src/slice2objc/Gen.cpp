@@ -3,7 +3,6 @@
 //
 
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Functional.h>
 #include "Gen.h"
 #include <limits>
 #include <sys/stat.h>
@@ -12,11 +11,11 @@
 #else
 #  include <direct.h>
 #endif
-#include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <string.h>
+#include <iterator>
 
 using namespace std;
 using namespace Slice;
@@ -227,7 +226,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
 
     _M << sp << nl << "static NSString * iceS_" << name << "_ids[] =";
     _M << sb;

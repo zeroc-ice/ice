@@ -58,7 +58,7 @@ public:
 
     virtual std::string options() const;
 
-    Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
+    Ice::EndpointInfoPtr getInfo() const noexcept;
 
     void initWithOptions(std::vector<std::string>&, bool);
 
@@ -87,9 +87,9 @@ public:
     EndpointInfoI(const EndpointIPtr&);
     virtual ~EndpointInfoI();
 
-    virtual Ice::Short type() const ICE_NOEXCEPT;
-    virtual bool datagram() const ICE_NOEXCEPT;
-    virtual bool secure() const ICE_NOEXCEPT;
+    virtual Ice::Short type() const noexcept;
+    virtual bool datagram() const noexcept;
+    virtual bool secure() const noexcept;
 
 private:
 

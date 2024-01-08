@@ -47,10 +47,6 @@ public:
      */
     IconvInitializationException(const char* file, int line, const std::string& reason);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~IconvInitializationException() throw();
-#endif
-
     /**
      * Obtains the Slice type ID of this exception.
      * @return The fully-scoped type ID.
@@ -123,13 +119,6 @@ private:
 // Implementation
 //
 
-#ifdef __SUNPRO_CC
-extern "C"
-{
-    typedef void (*IcePthreadKeyDestructor)(void*);
-}
-#endif
-
 template<typename charT>
 IconvStringConverter<charT>::IconvStringConverter(const std::string& internalCode) :
     _internalCode(internalCode)
@@ -149,11 +138,7 @@ IconvStringConverter<charT>::IconvStringConverter(const std::string& internalCod
     //
     // Create thread-specific key
     //
-#ifdef __SUNPRO_CC
-    int rs = pthread_key_create(&_key, reinterpret_cast<IcePthreadKeyDestructor>(&cleanupKey));
-#else
     int rs = pthread_key_create(&_key, &cleanupKey);
-#endif
 
     if(rs != 0)
     {

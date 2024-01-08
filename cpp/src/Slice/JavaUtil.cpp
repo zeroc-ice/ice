@@ -6,7 +6,6 @@
 #include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
-#include <IceUtil/Functional.h>
 #include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
@@ -841,11 +840,7 @@ Slice::JavaGenerator::fixKwd(const string& name) const
         return lookupKwd(name);
     }
     vector<string> ids = splitScopedName(name);
-#ifdef ICE_CPP11_COMPILER
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-#else
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
-#endif
     stringstream result;
     for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {

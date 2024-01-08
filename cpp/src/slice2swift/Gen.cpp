@@ -5,7 +5,6 @@
 
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Functional.h>
 #include <Slice/Parser.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>

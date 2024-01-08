@@ -170,10 +170,8 @@ public:
     {
     }
 
-#ifdef ICE_CPP11_COMPILER
     EndpointInfo(const EndpointInfo&) = default;
     EndpointInfo& operator=(const EndpointInfo&) = default;
-#endif
 
     /**
      * The address configured with the endpoint.

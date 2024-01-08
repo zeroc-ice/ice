@@ -42,15 +42,8 @@ IceInternal::ObjectAdapterFactory::shutdown()
         notifyAll();
     }
 
-    //
-    // Deactivate outside the thread synchronization, to avoid
-    // deadlocks.
-    //
-#ifdef ICE_CPP11_COMPILER
+    // Deactivate outside the thread synchronization, to avoid deadlocks.
     for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->deactivate(); });
-#else
-    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::deactivate));
-#endif
 }
 
 void
@@ -72,14 +65,8 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
         adapters = _adapters;
     }
 
-    //
     // Now we wait for deactivation of each object adapter.
-    //
-#ifdef ICE_CPP11_COMPILER
     for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->waitForDeactivate(); });
-#else
-    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::waitForDeactivate));
-#endif
 }
 
 bool
@@ -105,14 +92,8 @@ IceInternal::ObjectAdapterFactory::destroy()
         adapters = _adapters;
     }
 
-    //
     // Now we destroy each object adapter.
-    //
-#ifdef ICE_CPP11_COMPILER
     for_each(adapters.begin(), adapters.end(), [](const ObjectAdapterIPtr& adapter) { adapter->destroy(); });
-#else
-    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::destroy));
-#endif
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         _adapters.clear();
@@ -128,15 +109,12 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         adapters = _adapters;
     }
-#ifdef ICE_CPP11_COMPILER
+
     for_each(adapters.begin(), adapters.end(),
-        [fn](const ObjectAdapterIPtr& adapter)
-        {
-            (adapter.get() ->* fn)();
-        });
-#else
-    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(fn));
-#endif
+             [fn](const ObjectAdapterIPtr& adapter)
+             {
+                 (adapter.get() ->* fn)();
+             });
 }
 
 ObjectAdapterPtr
