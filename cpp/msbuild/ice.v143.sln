@@ -266,7 +266,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ice2slice", "..\src\ice2sli
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glacier2cryptpermissionsverifier", "..\src\Glacier2CryptPermissionsVerifier\msbuild\glacier2cryptpermissionsverifier\glacier2cryptpermissionsverifier.vcxproj", "{519CB7EF-8E49-4BC1-B3DB-181BEF5AC3B3}"
 	ProjectSection(ProjectDependencies) = postProject
-		{2940A3C2-A9BA-44AA-AF65-00479C783407} = {2940A3C2-A9BA-44AA-AF65-00479C783407}
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2++11", "..\src\IcePatch2Lib\msbuild\icepatch2++11\icepatch2++11.vcxproj", "{18F381D8-BA61-4E6A-B877-9F6BC28C07E5}"
@@ -275,6 +275,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2++11", "..\src\Ice
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glacier2cryptpermissionsverifier++11", "..\src\Glacier2CryptPermissionsVerifier\msbuild\glacier2cryptpermissionsverifier++11\glacier2cryptpermissionsverifier++11.vcxproj", "{BF2077E4-D837-486B-9356-24FA5F659808}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2940A3C2-A9BA-44AA-AF65-00479C783407} = {2940A3C2-A9BA-44AA-AF65-00479C783407}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2server++11", "..\src\IcePatch2\msbuild\icepatch2server++11\icepatch2server++11.vcxproj", "{7E1D6372-D417-4143-A7AF-BE3E77550238}"
 	ProjectSection(ProjectDependencies) = postProject
