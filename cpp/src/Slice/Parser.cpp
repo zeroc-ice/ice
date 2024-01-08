@@ -1213,9 +1213,7 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name);
-    isIllegal |= !checkForGlobalDef(name, "class");
-    if(isIllegal)
+    if(!checkIdentifier(name) || !checkForGlobalDef(name, "class"))
     {
         return 0;
     }
