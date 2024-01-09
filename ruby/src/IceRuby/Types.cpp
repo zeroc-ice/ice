@@ -2911,7 +2911,7 @@ IceRuby::ExceptionReader::ice_clone() const
 void
 IceRuby::ExceptionReader::ice_throw() const
 {
-    throw this;
+    throw *this;
 }
 
 void
