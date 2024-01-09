@@ -2880,8 +2880,15 @@ IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 {
 }
 
+IceRuby::ExceptionReader::ExceptionReader(const ExceptionReader& reader) :
+    _info(reader._info),
+    _ex(reader._ex),
+    _slicedData(reader._slicedData)
+{
+    rb_gc_register_address(&_ex);
+}
+
 IceRuby::ExceptionReader::~ExceptionReader()
-    throw()
 {
     rb_gc_unregister_address(&_ex);
 }

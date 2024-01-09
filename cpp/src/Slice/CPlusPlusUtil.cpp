@@ -41,7 +41,7 @@ string
 toOptional(const string& s, int typeCtx)
 {
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
-    string result = cpp11 ? "Ice::optional" : "IceUtil::Optional";
+    string result = "std::optional";
     result += '<';
     if(cpp11)
     {
@@ -260,7 +260,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                 {
                     out << nl << "if(" << escapedParamName << ")";
                     out << sb;
-                    out << nl << paramName << ".__setIsSet();";
+                    out << nl << paramName << ".emplace();";
                     out << nl << "if(!" << escapedParamName << "->empty())";
                     out << sb;
                     out << nl << paramName << "->first" << " = &(*" << escapedParamName << ")[0];";
@@ -294,7 +294,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
             {
                 out << nl << "if(" << escapedParamName << ")";
                 out << sb;
-                out << nl << paramName << ".__setIsSet();";
+                out << nl << paramName << ".emplace();";
                 out << nl << paramName << "->first = (*" << escapedParamName << ").begin();";
                 out << nl << paramName << "->second = (*" << escapedParamName << ").end();";
                 out << eb;
