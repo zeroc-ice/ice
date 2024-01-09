@@ -2054,7 +2054,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const Ice
 
         //
         // Store a pointer to a local StreamUtil object as the stream's closure.
-        // This is necessary to support object unmarshaling (see ObjectReader).
+        // This is necessary to support object unmarshaling (see ValueReader).
         //
         StreamUtil util;
         assert(!is.getClosure());
@@ -2124,7 +2124,7 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const I
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
-    // This is necessary to support object unmarshaling (see ObjectReader).
+    // This is necessary to support object unmarshaling (see ValueReader).
     //
     StreamUtil util;
     assert(!is.getClosure());
@@ -3867,7 +3867,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
 
         //
         // Store a pointer to a local StreamUtil object as the stream's closure.
-        // This is necessary to support object unmarshaling (see ObjectReader).
+        // This is necessary to support object unmarshaling (see ValueReader).
         //
         StreamUtil util;
         assert(!is.getClosure());

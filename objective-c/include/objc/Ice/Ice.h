@@ -13,6 +13,7 @@
 #import <objc/Ice/Locator.h>
 #import <objc/Ice/Logger.h>
 #import <objc/Ice/NativePropertiesAdmin.h>
+#import <objc/Ice/Value.h>
 #import <objc/Ice/Object.h>
 #import <objc/Ice/ObjectAdapter.h>
 #import <objc/Ice/ServantLocator.h>

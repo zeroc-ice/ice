@@ -26,7 +26,7 @@
 #include <Ice/Comparable.h>
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
-#include <Ice/GCObject.h>
+#include <Ice/GCValue.h>
 #include <Ice/Value.h>
 #include <Ice/Incoming.h>
 #include <Ice/IncomingAsync.h>

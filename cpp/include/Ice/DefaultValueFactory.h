@@ -38,9 +38,9 @@ public:
     }
 
 #ifndef NDEBUG
-    virtual ::Ice::ObjectPtr create(const ::std::string& typeId)
+    virtual ::Ice::ValuePtr create(const ::std::string& typeId)
 #else
-    virtual ::Ice::ObjectPtr create(const ::std::string&)
+    virtual ::Ice::ValuePtr create(const ::std::string&)
 #endif
     {
         assert(typeId == _typeId);

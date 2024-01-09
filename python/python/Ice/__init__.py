@@ -1820,7 +1820,7 @@ signal, or False otherwise.'''
     _signalPolicy = HandleSignals
 
 #
-# Define Ice::Object and Ice::ObjectPrx.
+# Define Ice::Value and Ice::ObjectPrx.
 #
 IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, (), None, ())
 IcePy._t_Value = IcePy.defineValue('::Ice::Object', Value, -1, (), False, False, None, ())

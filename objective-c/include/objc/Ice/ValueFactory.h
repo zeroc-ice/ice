@@ -6,9 +6,9 @@
 #import <objc/Ice/Object.h>
 
 #if defined(__clang__) && __has_feature(objc_arc)
-typedef ICEObject* (^ICEValueFactory)(NSString*) NS_RETURNS_RETAINED;
+typedef ICEValue* (^ICEValueFactory)(NSString*) NS_RETURNS_RETAINED;
 #else
-typedef ICEObject* (^ICEValueFactory)(NSString*);
+typedef ICEValue* (^ICEValueFactory)(NSString*);
 #endif
 
 ICE_API @protocol ICEValueFactoryManager <NSObject>

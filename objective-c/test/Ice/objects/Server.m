@@ -6,33 +6,9 @@
 #import <TestCommon.h>
 #import <objects/TestI.h>
 
-#if defined(__clang__) && __has_feature(objc_arc)
-static ICEValueFactory factory = ^ICEObject* (NSString* type) NS_RETURNS_RETAINED
-#else
-static ICEValueFactory factory = ^ICEObject* (NSString* type)
-#endif
-{
-    if([type isEqualToString:@"::Test::I"])
-    {
-        return [[TestObjectsI alloc] init];
-    }
-    else if([type isEqualToString:@"::Test::J"])
-    {
-        return [[TestObjectsJI alloc] init];
-    }
-    else
-    {
-        test(NO); // Should never be reached
-    }
-    return nil;
-};
-
 static int
 run(id<ICECommunicator> communicator)
 {
-    [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::I"];
-    [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::J"];
-
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:getTestEndpoint(communicator, 0)];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
     ICEObject* initial = [TestObjectsInitialI initial];

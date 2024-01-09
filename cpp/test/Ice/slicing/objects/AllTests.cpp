@@ -171,10 +171,10 @@ class Callback : public CallbackBase
 public:
 
     void
-    response_SBaseAsObject(const ::Ice::ObjectPtr& o)
+    response_SBaseAsObject(const ::Ice::ValuePtr& o)
     {
         test(o);
-        test(o->ice_id(Ice::emptyCurrent) == "::Test::SBase");
+        test(o->ice_id() == "::Test::SBase");
         SBasePtr sb = ICE_DYNAMIC_CAST(SBase, o);
         test(sb);
         test(sb->sb == "SBase.sb");
@@ -229,7 +229,7 @@ public:
     }
 
     void
-    response_SUnknownAsObject10(const Ice::ObjectPtr&)
+    response_SUnknownAsObject10(const Ice::ValuePtr&)
     {
         test(false);
     }
@@ -242,7 +242,7 @@ public:
     }
 
     void
-    response_SUnknownAsObject11(const Ice::ObjectPtr& o)
+    response_SUnknownAsObject11(const Ice::ValuePtr& o)
     {
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_id() == "::Test::SUnknown");
@@ -663,7 +663,7 @@ class NodeFactoryI : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ObjectPtr create(const string& id)
+    virtual Ice::ValuePtr create(const string& id)
     {
         if(id == PNode::ice_staticId())
         {
@@ -702,7 +702,7 @@ class PreservedFactoryI : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ObjectPtr create(const string& id)
+    virtual Ice::ValuePtr create(const string& id)
     {
         if(id == Preserved::ice_staticId())
         {

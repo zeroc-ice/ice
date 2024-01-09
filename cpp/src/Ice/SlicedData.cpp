@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/SlicedData.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
+#include <Ice/SlicedData.h>
 
 using namespace std;
 using namespace Ice;
@@ -52,7 +52,7 @@ Ice::SlicedData::_iceGcVisitMembers(IceInternal::GCVisitor& visitor)
     //
     for(SliceInfoSeq::const_iterator p = slices.begin(); p != slices.end(); ++p)
     {
-        for(vector<ObjectPtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for(vector<ValuePtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             if(q->get()->_iceGcVisit(visitor))
             {
@@ -95,8 +95,8 @@ Ice::UnknownSlicedValue::_iceCloneImpl() const
 
 #else
 
-const string&
-Ice::UnknownSlicedValue::ice_id(const Current&) const
+string
+Ice::UnknownSlicedValue::ice_id() const
 {
     return _unknownTypeId;
 }

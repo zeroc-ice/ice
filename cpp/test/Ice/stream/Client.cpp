@@ -18,7 +18,7 @@ using namespace Test2::Sub2;
 #ifdef ICE_CPP11_MAPPING
 class TestObjectWriter : public Ice::ValueHelper<TestObjectWriter, Ice::Value>
 #else
-class TestObjectWriter : public Ice::Object
+class TestObjectWriter : public Ice::Value
 #endif
 {
 public:
@@ -48,7 +48,7 @@ ICE_DEFINE_PTR(TestObjectWriterPtr, TestObjectWriter);
 #ifdef ICE_CPP11_MAPPING
 class TestObjectReader : public Ice::ValueHelper<TestObjectReader, Ice::Value>
 #else
-class TestObjectReader : public Ice::Object
+class TestObjectReader : public Ice::Value
 #endif
 {
 public:
@@ -107,7 +107,7 @@ class TestValueFactory : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ObjectPtr
+    virtual Ice::ValuePtr
 #ifndef NDEBUG
     create(const string& type)
 #else
@@ -135,9 +135,9 @@ patchObject(void* addr, const Ice::ValuePtr& v)
 }
 #else
 void
-patchObject(void* addr, const Ice::ObjectPtr& v)
+patchObject(void* addr, const Ice::ValuePtr& v)
 {
-    Ice::ObjectPtr* p = static_cast<Ice::ObjectPtr*>(addr);
+    Ice::ValuePtr* p = static_cast<Ice::ValuePtr*>(addr);
     assert(p);
     *p = v;
 }
@@ -180,7 +180,7 @@ public:
         clear();
     }
 
-    virtual Ice::ObjectPtr create(const string& type)
+    virtual Ice::ValuePtr create(const string& type)
     {
         return _factory->create(type);
     }
@@ -206,24 +206,6 @@ private:
 typedef IceUtil::Handle<MyClassFactoryWrapper> MyClassFactoryWrapperPtr;
 #endif
 
-#ifndef ICE_CPP11_MAPPING
-class MyInterfaceFactory : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ObjectPtr
-    create(const string&)
-    {
-        return new MyInterface;
-    }
-
-    virtual void
-    destroy()
-    {
-    }
-};
-#endif
-
 void
 allTests(Test::TestHelper* helper)
 {
@@ -236,7 +218,6 @@ allTests(Test::TestHelper* helper)
 #else
     MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
     communicator->getValueFactoryManager()->add(factoryWrapper, MyClass::ice_staticId());
-    communicator->getValueFactoryManager()->add(new MyInterfaceFactory, MyInterface::ice_staticId());
 #endif
 
     vector<Ice::Byte> data;
@@ -953,7 +934,7 @@ allTests(Test::TestHelper* helper)
         Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
         out.write(w);
 #else
-        out.write(Ice::ObjectPtr(writer));
+        out.write(Ice::ValuePtr(writer));
 #endif
         out.writePendingValues();
         out.finished(data);
@@ -969,7 +950,7 @@ allTests(Test::TestHelper* helper)
         Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
         out.write(w);
 #else
-        out.write(Ice::ObjectPtr(writer));
+        out.write(Ice::ValuePtr(writer));
 #endif
         out.writePendingValues();
         out.finished(data);
@@ -983,7 +964,7 @@ allTests(Test::TestHelper* helper)
 #ifdef ICE_CPP11_MAPPING
         Ice::ValuePtr p;
 #else
-        Ice::ObjectPtr p;
+        Ice::ValuePtr p;
 #endif
         in.read(&patchObject, &p);
         in.readPendingValues();

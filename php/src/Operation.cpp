@@ -539,7 +539,7 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret,
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
-    // This is necessary to support object unmarshaling (see ObjectReader).
+    // This is necessary to support object unmarshaling (see ValueReader).
     //
     StreamUtil util;
     assert(!is.getClosure());
@@ -638,7 +638,7 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
-    // This is necessary to support object unmarshaling (see ObjectReader).
+    // This is necessary to support object unmarshaling (see ValueReader).
     //
     StreamUtil util;
     assert(!is.getClosure());

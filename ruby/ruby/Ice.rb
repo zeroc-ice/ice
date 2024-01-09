@@ -74,7 +74,7 @@ module Ice
     end
 
     #
-    # Ice::Object
+    # Ice::Value
     #
     T_Value = Ice.__declareClass('::Ice::Object')
     T_ObjectPrx = Ice.__declareProxy('::Ice::Object')

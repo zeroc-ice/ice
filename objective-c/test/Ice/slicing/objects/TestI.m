@@ -154,7 +154,7 @@ static void breakCycles(id o)
     [super dealloc];
 #endif
 }
--(ICEObject*) SBaseAsObject:(ICECurrent*)__unused current
+-(ICEValue*) SBaseAsObject:(ICECurrent*)__unused current
 {
     return [TestSlicingObjectsServerSBase sBase:@"SBase.sb"];
 }
@@ -188,7 +188,7 @@ static void breakCycles(id o)
                                                                   sbsud:@"SBSUnknownDerived.sbsud"];
 }
 
--(ICEObject*) SUnknownAsObject:(ICECurrent*)__unused current
+-(ICEValue*) SUnknownAsObject:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerSUnknown* s = [TestSlicingObjectsServerSUnknown sUnknown:@"SUnknown.su" cycle:nil];
     s.cycle = s;
@@ -196,7 +196,7 @@ static void breakCycles(id o)
     return s;
 }
 
--(void) checkSUnknown:(ICEObject*)object current:(ICECurrent*)__unused current
+-(void) checkSUnknown:(ICEValue*)object current:(ICECurrent*)__unused current
 {
     if([current encoding] == ICEEncoding_1_0)
     {

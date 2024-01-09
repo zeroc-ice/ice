@@ -268,7 +268,7 @@ IceRuby::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    return new ObjectReader(obj, info);
+    return new ValueReader(obj, info);
 }
 
 VALUE
@@ -341,7 +341,7 @@ IceRuby::DefaultValueFactory::create(const string& id)
     //
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
     assert(!NIL_P(obj));
-    return new ObjectReader(obj, info);
+    return new ValueReader(obj, info);
 }
 
 void

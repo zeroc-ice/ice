@@ -226,7 +226,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
     tprintf("testing Value as parameter... ");
     {
         TestObjectsL* v1 = [[TestObjectsL alloc] init:@"l"];
-        ICEObject* v2;
+        ICEValue* v2;
         TestObjectsL* v3 = (TestObjectsL*)[initial opValue:v1 v2:&v2];
         test([v3.data isEqualToString:@"l"]);
         test([((TestObjectsL*)v2).data isEqualToString:@"l"]);

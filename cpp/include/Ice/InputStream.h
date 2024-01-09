@@ -37,7 +37,7 @@ patchHandle(void* addr, const ValuePtr& v)
     }
 #else
     IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
-    _icePatchObjectPtr(*p, v); // Generated _icePatchObjectPtr function, necessary for forward declarations.
+    _icePatchValuePtr(*p, v); // Generated _icePatchValuePtr function, necessary for forward declarations.
 #endif
 }
 /// \endcond
