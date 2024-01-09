@@ -1,0 +1,44 @@
+name: Setup Dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install brew dependencies
+      run: brew install python3 ruby openjdk node php lmdb mcpp
+      shell: bash
+      if: runner.os == 'macOS'
+
+    - name: Install apt dependencies
+      run: sudo apt-get update && sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
+      shell: bash
+      if: runner.os == 'Linux'
+
+    # - name: Install dependencies
+    #   run: choco --yes install
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+      with:
+        msbuild-architecture: x64
+      if: runner.os == 'Windows'
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+      if: runner.os == 'Windows'
+
+    - name: Configure Windows Python Environment
+      run: |
+        echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
+      shell: powershell
+      if: runner.os == 'Windows'
+
+    - name: Install testing dependencies from pip
+      run: python3 -m pip install passlib cryptography
+      shell: bash
+      if: runner.os == 'macOS' || runner.os == 'Linux'
+
+    - name: Install testing dependencies from pip
+      run: python3 -m pip install passlib cryptography
+      shell: powershell
+      if: runner.os == 'Windows'
