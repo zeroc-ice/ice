@@ -60,7 +60,9 @@ runs:
 
     - name: Configure ccache path
       run: |
-        echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec:/opt/homebrew/opt/ccache/libexec" >> $GITHUB_PATH
+        echo "/usr/lib/ccache" >> $GITHUB_PATH
+        echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+        echo "/opt/homebrew/opt/ccache/libexec" >> $GITHUB_PATH
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 

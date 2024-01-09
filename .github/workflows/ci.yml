@@ -3,10 +3,10 @@ name: ci
 on:
   workflow_dispatch:
   push:
-    branches: ["3.7", "main"]
+    branches: ["main", "ci"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: ["3.7", "main"]
+    branches: ["main"]
 
 # See https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -18,12 +18,9 @@ jobs:
     name: ${{ matrix.language }} on ${{ matrix.os }}
     strategy:
       matrix:
-        language: [cpp, csharp, java]
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        language: [cpp]
+        os: [macos-latest, macos-beta, ubuntu-latest, windows-latest]
         include:
-          - os: macos-beta
-            language: cpp
-
           - os: macos-latest
             language: swift
           - os: macos-latest
@@ -35,6 +32,10 @@ jobs:
           - os: macos-latest
             language: ruby
 
+          - os: ubuntu-latest
+            language: csharp
+          - os: ubuntu-latest
+            language: java
           - os: ubuntu-latest
             language: php
           - os: ubuntu-latest
@@ -59,6 +60,8 @@ jobs:
 
       - name: Build ${{ matrix.language }} on ${{ matrix.os }}
         uses: ./.github/actions/build
+        timeout-minutes: 90
 
       - name: Test ${{ matrix.language }} on ${{ matrix.os }}
         uses: ./.github/actions/test
+        timeout-minutes: 90
