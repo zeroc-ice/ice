@@ -99,11 +99,6 @@ class Communicator
         return this._instance.proxyFactory().proxyToProperty(proxy, prefix);
     }
 
-    stringToIdentity(s)
-    {
-        return Ice.stringToIdentity(s);
-    }
-
     identityToString(ident)
     {
         return Ice.identityToString(ident, this._instance.toStringMode());

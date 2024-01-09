@@ -47,7 +47,6 @@ ICE_API @protocol ICECommunicator <NSObject>
 -(NSMutableString*) proxyToString:(id<ICEObjectPrx>)obj;
 -(id<ICEObjectPrx>) propertyToProxy:(NSString*)property;
 -(ICEMutablePropertyDict*) proxyToProperty:(id<ICEObjectPrx>)proxy property:(NSString*)property;
--(ICEIdentity*) stringToIdentity:(NSString*)str ICE_DEPRECATED_API("stringToIdentity() is deprecated, use the static stringToIdentity() method instead.");
 -(NSMutableString*) identityToString:(ICEIdentity*)ident;
 -(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name;
 -(id<ICEObjectAdapter>) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints;

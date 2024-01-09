@@ -511,38 +511,6 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_stringToIdentity_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, str)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_Communicator, stringToIdentity)
-{
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
-    assert(_this);
-
-    char* str;
-    size_t strLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &str, &strLen) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-    string s(str, strLen);
-
-    try
-    {
-        Ice::Identity id = _this->getCommunicator()->stringToIdentity(s);
-        if(!createIdentity(return_value, id))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex);
-        RETURN_NULL();
-    }
-}
-
 ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_identityToString_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
     ZEND_ARG_INFO(0, id)
 ZEND_END_ARG_INFO()
@@ -1595,7 +1563,6 @@ static zend_function_entry _classMethods[] =
     ZEND_ME(Ice_Communicator, proxyToString, Ice_Communicator_proxyToString_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, propertyToProxy, Ice_Communicator_propertyToProxy_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, proxyToProperty, Ice_Communicator_proxyToProperty_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToIdentity, Ice_Communicator_stringToIdentity_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, identityToString, Ice_Communicator_identityToString_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, addObjectFactory, Ice_Communicator_addObjectFactory_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, findObjectFactory, Ice_Communicator_findObjectFactory_arginfo, ZEND_ACC_PUBLIC)

@@ -123,18 +123,6 @@ public interface Communicator extends java.lang.AutoCloseable
     java.util.Map<java.lang.String, java.lang.String> proxyToProperty(ObjectPrx proxy, String property);
 
     /**
-     * Convert a string into an identity. If the string does not parse correctly, the operation throws
-     * IdentityParseException.
-     * @param str The string to convert into an identity.
-     * @return The identity.
-     *
-     * @see #identityToString
-     * @deprecated stringToIdentity() is deprecated, use the static stringToIdentity() method instead.
-     **/
-    @Deprecated
-    Identity stringToIdentity(String str);
-
-    /**
      * Convert an identity into a string.
      * @param ident The identity to convert into a string.
      * @return The "stringified" identity.

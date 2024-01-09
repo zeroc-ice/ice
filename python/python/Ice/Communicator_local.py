@@ -137,16 +137,6 @@ if 'Communicator' not in _M_Ice.__dict__:
             """
             raise NotImplementedError("method 'proxyToProperty' not implemented")
 
-        def stringToIdentity(self, str):
-            """
-             Convert a string into an identity. If the string does not parse correctly, the operation throws
-             IdentityParseException.
-            Arguments:
-            str -- The string to convert into an identity.
-            Returns: The identity.
-            """
-            raise NotImplementedError("method 'stringToIdentity' not implemented")
-
         def identityToString(self, ident):
             """
              Convert an identity into a string.

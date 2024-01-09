@@ -719,39 +719,6 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorStringToIdentity(CommunicatorObject* self, PyObject* args)
-{
-    PyObject* strObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
-    {
-        return 0;
-    }
-
-    string str;
-    if(!getStringArg(strObj, "str", str))
-    {
-        return 0;
-    }
-
-    assert(self->communicator);
-    Ice::Identity id;
-    try
-    {
-        id = (*self->communicator)->stringToIdentity(str);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    return createIdentity(id);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
@@ -1727,8 +1694,6 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("propertyToProxy(str) -> Ice.ObjectPrx")) },
     { STRCAST("proxyToProperty"), reinterpret_cast<PyCFunction>(communicatorProxyToProperty), METH_VARARGS,
         PyDoc_STR(STRCAST("proxyToProperty(Ice.ObjectPrx, str) -> dict")) },
-    { STRCAST("stringToIdentity"), reinterpret_cast<PyCFunction>(communicatorStringToIdentity), METH_VARARGS,
-        PyDoc_STR(STRCAST("stringToIdentity(str) -> Ice.Identity")) },
     { STRCAST("identityToString"), reinterpret_cast<PyCFunction>(communicatorIdentityToString), METH_VARARGS,
         PyDoc_STR(STRCAST("identityToString(Ice.Identity) -> string")) },
     { STRCAST("createObjectAdapter"), reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapter), METH_VARARGS,

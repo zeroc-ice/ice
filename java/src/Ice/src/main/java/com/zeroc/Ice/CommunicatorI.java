@@ -90,13 +90,6 @@ public final class CommunicatorI implements Communicator
         return _instance.proxyFactory().proxyToProperty(proxy, prefix);
     }
 
-    @Override @SuppressWarnings("deprecation")
-    public Identity
-    stringToIdentity(String s)
-    {
-        return Util.stringToIdentity(s);
-    }
-
     @Override
     public String
     identityToString(Identity ident)

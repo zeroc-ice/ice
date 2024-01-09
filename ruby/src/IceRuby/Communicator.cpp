@@ -518,21 +518,6 @@ IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
 
 extern "C"
 VALUE
-IceRuby_Communicator_stringToIdentity(VALUE self, VALUE str)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::CommunicatorPtr p = getCommunicator(self);
-        string s = getString(str);
-        Ice::Identity ident = p->stringToIdentity(s);
-        return createIdentity(ident);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
 IceRuby_Communicator_identityToString(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
@@ -757,7 +742,6 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "proxyToString", CAST_METHOD(IceRuby_Communicator_proxyToString), 1);
     rb_define_method(_communicatorClass, "propertyToProxy", CAST_METHOD(IceRuby_Communicator_propertyToProxy), 1);
     rb_define_method(_communicatorClass, "proxyToProperty", CAST_METHOD(IceRuby_Communicator_proxyToProperty), 2);
-    rb_define_method(_communicatorClass, "stringToIdentity", CAST_METHOD(IceRuby_Communicator_stringToIdentity), 1);
     rb_define_method(_communicatorClass, "identityToString", CAST_METHOD(IceRuby_Communicator_identityToString), 1);
     rb_define_method(_communicatorClass, "addObjectFactory", CAST_METHOD(IceRuby_Communicator_addObjectFactory), 2);
     rb_define_method(_communicatorClass, "findObjectFactory", CAST_METHOD(IceRuby_Communicator_findObjectFactory), 1);

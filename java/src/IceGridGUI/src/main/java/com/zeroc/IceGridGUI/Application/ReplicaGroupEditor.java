@@ -435,7 +435,7 @@ class ReplicaGroupEditor extends Editor
         {
             try
             {
-                com.zeroc.Ice.Identity id = communicator.stringToIdentity(p.getKey());
+                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[1]));
             }

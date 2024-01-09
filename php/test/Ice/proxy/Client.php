@@ -431,7 +431,7 @@ function allTests($helper)
 
     echo "testing proxy methods... ";
     flush();
-    test($communicator->identityToString($base->ice_identity($communicator->stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test($communicator->identityToString($base->ice_identity($stringToIdentity("other"))->ice_getIdentity()) == "other");
 
     //
     // Verify that ToStringMode is passed correctly
