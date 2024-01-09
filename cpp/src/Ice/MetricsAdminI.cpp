@@ -89,31 +89,14 @@ parseRule(const PropertiesPtr& properties, const string& name)
 
 MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _attribute(attribute)
 {
-#if !defined(ICE_CPP11_COMPILER_REGEXP)
-    if(regcomp(&_preg, regexp.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
-    {
-        throw SyscallException(__FILE__, __LINE__);
-    }
-#else
     _regex = regex(regexp, std::regex_constants::extended | std::regex_constants::nosubs);
-#endif
 }
 
-MetricsMapI::RegExp::~RegExp()
-{
-#if !defined(ICE_CPP11_COMPILER_REGEXP)
-    regfree(&_preg);
-#endif
-}
 
 bool
 MetricsMapI::RegExp::match(const string& value)
 {
-#if !defined(ICE_CPP11_COMPILER_REGEXP)
-    return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
-#else
     return regex_match(value, _regex);
-#endif
 }
 
 MetricsMapI::~MetricsMapI()
