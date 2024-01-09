@@ -53,27 +53,49 @@ NodeCache::get(const string& name, bool create) const
 {
     lock_guard lock(_mutex);
 
-    auto entry = getImpl(name);
-    if(!entry && create)
+    auto cacheEntry = getImpl(name);
+    if(!cacheEntry && create)
     {
         NodeCache& self = const_cast<NodeCache&>(*this);
-        entry = make_shared<NodeEntry>(self, name);
-        self.addImpl(name, entry);
+        cacheEntry = make_shared<NodeEntry>(self, name);
+        self.addImpl(name, cacheEntry);
     }
-    if(!entry)
+    if(!cacheEntry)
     {
         throw NodeNotExistException(name);
     }
 
-    // Return a "self removing" shared_ptr to the NodEntry which will remove
+    // Get a self removing shared_ptr to the cached NodeEntry which will remove
     // itself from the this cache upon destruction
-    return entry->selfRemovingPtr();
+    auto entry = cacheEntry->_selfRemovingPtr.lock();
+
+    if (!entry)
+    {
+        // Create self removing shared_ptr of cacheEntry. The cacheEntry maintains a ref count for the case where
+        // the self removing shared_ptr has no more references but its deleter has yet to run (weak_ptr has expired)
+        // and at the same time another thread calls NodeCache::get which refreshes the self removing ptr before
+        // the cached entry can be removed.
+        entry = shared_ptr<NodeEntry>(const_cast<NodeEntry*>(cacheEntry.get()),
+            [cache = const_cast<NodeCache*>(this), name](NodeEntry* e)
+            {
+                lock_guard cacheLock(cache->_mutex);
+                if(--e->_selfRemovingRefCount == 0)
+                {
+                    cache->removeImpl(name);
+                }
+            });
+        cacheEntry->_selfRemovingRefCount++;
+        cacheEntry->_selfRemovingPtr = entry;
+    }
+
+    return entry;
 }
 
 NodeEntry::NodeEntry(NodeCache& cache, const std::string& name) :
     _cache(cache),
     _name(name),
-    _registering(false)
+    _registering(false),
+    _selfRemovingRefCount(0)
 {
 }
 
@@ -280,9 +302,10 @@ NodeEntry::getAdminProxy() const
 bool
 NodeEntry::canRemove()
 {
-    lock_guard lock(_mutex), ptrLock(_selfRemovingMutex);
+    lock_guard lock(_mutex);
 
-    return _servers.empty() && !_session && _descriptors.empty() && _selfRemovingPtr.expired();
+    // The cache mutex must be locked to acesss _selfRemovingRefCount
+    return _servers.empty() && !_session && _descriptors.empty() && _selfRemovingRefCount == 0;
 }
 
 void
@@ -561,17 +584,21 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
         //
         _registering = true;
 
-        auto self = selfRemovingPtr();
+        // 'this' is only ever accessed though the self removing pointer, ensuring _selfRemovingPtr is always
+        // valid and its access is thread safe
+        auto self = _selfRemovingPtr.lock();
+        assert(self);
         _proxy->registerWithReplicaAsync(_cache.getReplicaCache().getInternalRegistry(),
-                                         [self]
-                                         {
-                                             self->finishedRegistration();
-                                         },
-                                         [self] (exception_ptr ex)
-                                         {
-                                             self->finishedRegistration(ex);
-                                         });
+                                        [self]
+                                        {
+                                            self->finishedRegistration();
+                                        },
+                                        [self] (exception_ptr ex)
+                                        {
+                                            self->finishedRegistration(ex);
+                                        });
         _proxy = nullptr; // Registration with the proxy is only attempted once.
+
     }
 
     // Consider the node down if it doesn't respond promptly.
@@ -646,24 +673,6 @@ NodeEntry::finishedRegistration(exception_ptr exptr)
         _registering = false;
         _condVar.notify_all();
     }
-}
-
-// Return the weak_ptr's copy or, if nullptr, create a new "self removing" shared_ptr NodeEntry from 'this'
-// which removes itself from the NodeCache upon destruction
-shared_ptr<NodeEntry>
-NodeEntry::selfRemovingPtr() const
-{
-    lock_guard lock(_selfRemovingMutex);
-
-    auto entry = _selfRemovingPtr.lock();
-
-    if (!entry)
-    {
-        entry = shared_ptr<NodeEntry>(const_cast<NodeEntry*>(this), [](NodeEntry* e) { e->_cache.remove(e->_name); });
-        _selfRemovingPtr = entry;
-    }
-
-    return entry;
 }
 
 shared_ptr<ServerDescriptor>

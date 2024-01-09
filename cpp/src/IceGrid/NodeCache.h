@@ -73,9 +73,12 @@ private:
     mutable std::mutex _mutex;
     mutable std::condition_variable _condVar;
 
-    // "self removing" shared_ptr of 'this' which removes itself from the NodeCache upon destruction
-    mutable std::weak_ptr<NodeEntry> _selfRemovingPtr;
-    mutable std::mutex _selfRemovingMutex;
+    // A self removing shared_ptr of 'this' which removes itself from the NodeCache upon destruction
+    std::weak_ptr<NodeEntry> _selfRemovingPtr;
+
+    // The number of self removing shared_ptr deleters left to run.
+    // Always accessed with the cache mutex locked
+    int _selfRemovingRefCount;
 
     friend NodeCache;
 };
