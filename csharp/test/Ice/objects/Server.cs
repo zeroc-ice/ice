@@ -21,10 +21,6 @@ namespace Ice
                 {
                     return new JI();
                 }
-                else if(type.Equals("::Test::H"))
-                {
-                    return new HI();
-                }
                 Debug.Assert(false); // Should never be reached
                 return null;
             }
@@ -39,7 +35,6 @@ namespace Ice
                 {
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

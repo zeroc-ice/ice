@@ -20,10 +20,6 @@ static ICEValueFactory factory = ^ICEObject* (NSString* type)
     {
         return [[TestObjectsJI alloc] init];
     }
-    else if([type isEqualToString:@"::Test::H"])
-    {
-        return [[TestObjectsHI alloc] init];
-    }
     else
     {
         test(NO); // Should never be reached
@@ -36,7 +32,6 @@ run(id<ICECommunicator> communicator)
 {
     [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::I"];
     [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::J"];
-    [[communicator getValueFactoryManager] add:factory sliceId:@"::Test::H"];
 
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:getTestEndpoint(communicator, 0)];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];

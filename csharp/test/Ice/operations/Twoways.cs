@@ -1571,12 +1571,6 @@ namespace Ice
                     test(Ice.CollectionComparer.Equals(p2, p1) &&
                          Ice.CollectionComparer.Equals(p3, p1));
                 }
-
-                {
-                    var b = M.BPrxHelper.uncheckedCast(communicator.stringToProxy("b:" + helper.getTestEndpoint(0)));
-                    b.opIntf();
-                    b.opB();
-                }
             }
         }
     }

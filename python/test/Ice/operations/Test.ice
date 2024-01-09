@@ -6,8 +6,6 @@
 
 #include <Ice/Context.ice>
 
-[["suppress-warning:deprecated"]] // For classes with operations
-
 module Test
 {
 
@@ -52,7 +50,6 @@ sequence<FloatS> FloatSS;
 sequence<DoubleS> DoubleSS;
 sequence<StringS> StringSS;
 sequence<MyEnumS> MyEnumSS;
-sequence<MyClassS> MyClassSS;
 
 sequence<StringSS> StringSSS;
 
@@ -363,27 +360,4 @@ interface MyDerivedClass extends Test::MyClass
 {
 }
 
-}
-
-//
-// test proxy inheritance for class with operations
-// see: https://github.com/zeroc-ice/ice/issues/406
-//
-module M
-{
-    class A
-    {
-        int x;
-        // void opA();
-    }
-
-    interface Intf
-    {
-        void opIntf();
-    }
-
-    class B extends A implements Intf
-    {
-        void opB();
-    }
 }

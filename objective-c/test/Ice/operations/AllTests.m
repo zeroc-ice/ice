@@ -13,13 +13,11 @@ operationsAllTests(id<ICECommunicator> communicator)
     id<ICEObjectPrx> base = [communicator stringToProxy:(ref)];
     id<TestOperationsMyClassPrx> cl = [TestOperationsMyClassPrx checkedCast:base];
     id<TestOperationsMyDerivedClassPrx> derived = [TestOperationsMyDerivedClassPrx checkedCast:cl];
-    id<TestOperationsMBPrx> bprx =
-        [TestOperationsMBPrx checkedCast:[communicator stringToProxy: [NSString stringWithFormat:@"b:%@", getTestEndpoint(communicator, 0)]]];
 
     tprintf("testing twoway operations... ");
-    void twoways(id<ICECommunicator>, id<TestOperationsMyClassPrx>, id<TestOperationsMBPrx>);
-    twoways(communicator, cl, bprx);
-    twoways(communicator, derived, bprx);
+    void twoways(id<ICECommunicator>, id<TestOperationsMyClassPrx>);
+    twoways(communicator, cl);
+    twoways(communicator, derived);
     [derived opDerived];
     tprintf("ok\n");
 

@@ -4,8 +4,7 @@
 
 #pragma once
 
-[["swift:class-resolver-prefix:IceOptionalAMD",
-  "suppress-warning:deprecated"]]
+[["swift:class-resolver-prefix:IceOptionalAMD"]]
 
 module Test
 {
@@ -13,6 +12,11 @@ module Test
 class OneOptional
 {
     optional(1) int a;
+}
+
+interface MyInterface
+{
+    void op();
 }
 
 enum MyEnum
@@ -56,7 +60,7 @@ sequence<FixedStruct> FixedStructSeq;
 ["cs:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
-sequence<OneOptional*> OneOptionalPrxSeq;
+sequence<MyInterface*> MyInterfacePrxSeq;
 
 ["cs:serializable:Ice.optional.Test.SerializableClass"]
 sequence<byte> Serializable;
@@ -67,7 +71,7 @@ dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
-dictionary<int, OneOptional*> IntOneOptionalPrxDict;
+dictionary<int, MyInterface*> IntMyInterfacePrxDict;
 
 class MultiOptional
 {
@@ -80,7 +84,7 @@ class MultiOptional
     optional(7) double g;
     optional(8) string h;
     optional(9) MyEnum i;
-    optional(10) MultiOptional* j;
+    optional(10) MyInterface* j;
     optional(11) MultiOptional k;
     optional(12) ByteSeq bs;
     optional(13) StringSeq ss;
@@ -94,13 +98,13 @@ class MultiOptional
     optional(20) FixedStructSeq fss;
     optional(21) VarStructSeq vss;
     optional(22) OneOptionalSeq oos;
-    optional(23) OneOptionalPrxSeq oops;
+    optional(23) MyInterfacePrxSeq mips;
 
     optional(24) IntEnumDict ied;
     optional(25) IntFixedStructDict ifsd;
     optional(26) IntVarStructDict ivsd;
     optional(27) IntOneOptionalDict iood;
-    optional(28) IntOneOptionalPrxDict ioopd;
+    optional(28) IntMyInterfacePrxDict imipd;
 
     optional(29) BoolSeq bos;
 
@@ -241,7 +245,7 @@ interface Initial
 
     optional(1) OneOptional opOneOptional(optional(2) OneOptional p1, out optional(3) OneOptional p3);
 
-    optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
+    optional(1) MyInterface* opMyInterfaceProxy(optional(2) MyInterface* p1, out optional(3) MyInterface* p3);
 
     optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
 

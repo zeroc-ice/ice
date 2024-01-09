@@ -6,12 +6,6 @@ import Foundation
 import Ice
 import TestCommon
 
-class BI: MBOperations {
-    func opB(current _: Ice.Current) throws {}
-
-    func opIntf(current _: Ice.Current) throws {}
-}
-
 class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     var _helper: TestHelper
     var _opByteSOnewayCallCount: Int32 = 0

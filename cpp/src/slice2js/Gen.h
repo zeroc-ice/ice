@@ -76,6 +76,7 @@ private:
         RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitOperation(const OperationPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
@@ -90,6 +91,7 @@ private:
         bool _icejs;
         bool _es6modules;
         bool _seenClass;
+        bool _seenInterface;
         bool _seenCompactId;
         bool _seenOperation;
         bool _seenStruct;
@@ -111,6 +113,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -149,6 +152,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -174,6 +178,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -199,6 +204,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);

@@ -5,11 +5,11 @@
 module Test
 {
 
-class Foo
+/*class Foo
 {
-    void Foo();
+    // void Foo();
     long l;
-}
+}*/
 
 interface IFoo
 {

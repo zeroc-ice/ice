@@ -5,7 +5,8 @@
 #ifndef SLICE_GRAMMAR_UTIL_H
 #define SLICE_GRAMMAR_UTIL_H
 
-#include <Slice/Parser.h>
+#include "Parser.h"
+#include "Util.h"
 
 namespace Slice
 {
@@ -19,6 +20,7 @@ class IntegerTok;
 class FloatingTok;
 class ExceptionListTok;
 class ClassListTok;
+class InterfaceListTok;
 class EnumeratorListTok;
 class ConstDefTok;
 class TaggedDefTok;
@@ -33,6 +35,7 @@ typedef ::IceUtil::Handle<IntegerTok> IntegerTokPtr;
 typedef ::IceUtil::Handle<FloatingTok> FloatingTokPtr;
 typedef ::IceUtil::Handle<ExceptionListTok> ExceptionListTokPtr;
 typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
+typedef ::IceUtil::Handle<InterfaceListTok> InterfaceListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
 typedef ::IceUtil::Handle<ConstDefTok> ConstDefTokPtr;
 typedef ::IceUtil::Handle<TaggedDefTok> TaggedDefTokPtr;
@@ -147,6 +150,18 @@ public:
 
     ClassListTok() { }
     ClassList v;
+};
+
+// ----------------------------------------------------------------------
+// InterfaceListTok
+// ----------------------------------------------------------------------
+
+class InterfaceListTok : public GrammarBase
+{
+public:
+
+    InterfaceListTok() { }
+    InterfaceList v;
 };
 
 // ----------------------------------------------------------------------

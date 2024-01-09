@@ -71,6 +71,8 @@ public:
 
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
+    virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
+    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
     virtual bool visitExceptionStart(const ExceptionPtr&);
     virtual bool visitStructStart(const StructPtr&);
     virtual void visitSequence(const SequencePtr&);
@@ -166,19 +168,36 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         string type = getTypeVar(p);
         _out << sp << nl << "global " << type << ';';
 
-        bool isInterface = p->isInterface();
-        ClassDefPtr def = p->definition();
-        if(isInterface || (def && def->allOperations().size() > 0))
-        {
-            _out << nl << "global " << type << "Prx;";
-        }
         _out << nl << "if(!isset(" << type << "))";
         _out << sb;
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(isInterface || (def && def->allOperations().size() > 0))
-        {
-            _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
-        }
+        _out << eb;
+
+        endNamespace();
+
+        _classHistory.insert(scoped); // Avoid redundant declarations.
+    }
+}
+
+void
+CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
+{
+    //
+    // Handle forward declarations.
+    //
+    string scoped = p->scoped();
+    if(_classHistory.count(scoped) == 0)
+    {
+        startNamespace(p);
+
+        string type = getTypeVar(p);
+        _out << sp << nl << "global " << type << ';';
+
+        _out << nl << "global " << type << "Prx;";
+        _out << nl << "if(!isset(" << type << "))";
+        _out << sb;
+        _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
+        _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
         _out << eb;
 
         endNamespace();
@@ -194,158 +213,110 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
-    string prxName = getName(p, "Prx");
-    string prxType = getTypeVar(p, "Prx");
-    string prxAbs = getAbsolute(p, _ns, "", "Prx");
-    ClassList bases = p->bases();
-    ClassDefPtr base;
-    OperationList ops = p->operations();
+    ClassDefPtr base = p->base();
     DataMemberList members = p->dataMembers();
-    bool isInterface = p->isInterface();
-    bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
     startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
-    if(isAbstract)
+
+    _out << nl;
+    _out << "class " << name;
+    if(base)
     {
-        _out << nl << "global " << prxType << ';';
+        _out << " extends " << getAbsolute(base, _ns);
+    }
+    else
+    {
+        _out << " extends " << scopedToName("::Ice::Value", _ns);
     }
 
+    _out << sb;
+
     //
-    // Define the class.
+    // __construct
     //
-    if(!isInterface)
+    _out << nl << "public function __construct(";
+    MemberInfoList allMembers;
+    collectClassMembers(p, allMembers, false);
+    writeConstructorParams(allMembers);
+    _out << ")";
+    _out << sb;
+    if(base)
     {
-        _out << nl;
-        _out << "class " << name;
-        if(!bases.empty() && !bases.front()->isInterface())
+        _out << nl << "parent::__construct(";
+        int count = 0;
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            base = bases.front();
-            bases.pop_front();
-        }
-        if(base)
-        {
-            _out << " extends " << getAbsolute(base, _ns);
-        }
-        else
-        {
-            _out << " extends " << scopedToName("::Ice::Value", _ns);
-        }
-
-        _out << sb;
-
-        //
-        // __construct
-        //
-        _out << nl << "public function __construct(";
-        MemberInfoList allMembers;
-        collectClassMembers(p, allMembers, false);
-        writeConstructorParams(allMembers);
-        _out << ")";
-        _out << sb;
-        if(base)
-        {
-            _out << nl << "parent::__construct(";
-            int count = 0;
-            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            if(q->inherited)
             {
-                if(q->inherited)
+                if(count)
                 {
-                    if(count)
-                    {
-                        _out << ", ";
-                    }
-                    _out << '$' << q->fixedName;
-                    ++count;
+                    _out << ", ";
                 }
-            }
-            _out << ");";
-        }
-        {
-            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-            {
-                if(!q->inherited)
-                {
-                    writeAssign(*q);
-                }
+                _out << '$' << q->fixedName;
+                ++count;
             }
         }
-        _out << eb;
-
-        //
-        // ice_ice
-        //
-        _out << sp << nl << "public function ice_id()";
-        _out << sb;
-        _out << nl << "return '" << scoped << "';";
-        _out << eb;
-
-        //
-        // ice_staticId
-        //
-        _out << sp << nl << "public static function ice_staticId()";
-        _out << sb;
-        _out << nl << "return '" << scoped << "';";
-        _out << eb;
-
-        //
-        // __toString
-        //
-        _out << sp << nl << "public function __toString(): string";
-
-        _out << sb;
-        _out << nl << "global " << type << ';';
-        _out << nl << "return IcePHP_stringify($this, " << type << ");";
-        _out << eb;
-
-        if(!members.empty())
+        _out << ");";
+    }
+    {
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            _out << sp;
-            bool isProtected = p->hasMetaData("protected");
-            for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+            if(!q->inherited)
             {
-                _out << nl;
-                if(isProtected || (*q)->hasMetaData("protected"))
-                {
-                    _out << "protected ";
-                }
-                else
-                {
-                    _out << "public ";
-                }
-                _out << "$" << fixIdent((*q)->name()) << ";";
+                writeAssign(*q);
             }
         }
+    }
+    _out << eb;
 
-        _out << eb; // End of class.
+    //
+    // ice_ice
+    //
+    _out << sp << nl << "public function ice_id()";
+    _out << sb;
+    _out << nl << "return '" << scoped << "';";
+    _out << eb;
+
+    //
+    // ice_staticId
+    //
+    _out << sp << nl << "public static function ice_staticId()";
+    _out << sb;
+    _out << nl << "return '" << scoped << "';";
+    _out << eb;
+
+    //
+    // __toString
+    //
+    _out << sp << nl << "public function __toString(): string";
+
+    _out << sb;
+    _out << nl << "global " << type << ';';
+    _out << nl << "return IcePHP_stringify($this, " << type << ");";
+    _out << eb;
+
+    if(!members.empty())
+    {
+        _out << sp;
+        bool isProtected = p->hasMetaData("protected");
+        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        {
+            _out << nl;
+            if(isProtected || (*q)->hasMetaData("protected"))
+            {
+                _out << "protected ";
+            }
+            else
+            {
+                _out << "public ";
+            }
+            _out << "$" << fixIdent((*q)->name()) << ";";
+        }
     }
 
-    //
-    // Define the proxy class.
-    //
-    if(isAbstract)
-    {
-        _out << sp << nl << "class " << prxName << "Helper";
-        _out << sb;
-
-        _out << sp << nl << "public static function checkedCast($proxy, $facetOrContext=null, $context=null)";
-        _out << sb;
-        _out << nl << "return $proxy->ice_checkedCast('" << scoped << "', $facetOrContext, $context);";
-        _out << eb;
-
-        _out << sp << nl << "public static function uncheckedCast($proxy, $facet=null)";
-        _out << sb;
-        _out << nl << "return $proxy->ice_uncheckedCast('" << scoped << "', $facet);";
-        _out << eb;
-
-        _out << sp << nl << "public static function ice_staticId()";
-        _out << sb;
-        _out << nl << "return '" << scoped << "';";
-        _out << eb;
-
-        _out << eb;
-    }
+    _out << eb; // End of class.
 
     if(_classHistory.count(scoped) == 0 && p->canBeCyclic())
     {
@@ -353,28 +324,21 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Emit a forward declaration for the class in case a data member refers to this type.
         //
         _out << sp << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(isAbstract)
-        {
-            _out << nl << prxType << " = IcePHP_declareProxy('" << scoped << "');";
-        }
     }
 
     {
         string type;
         vector<string> seenType;
-        if(base || !isInterface)
+        _out << sp << nl << "global ";
+        if(!base)
         {
-            _out << sp << nl << "global ";
-            if(!base)
-            {
-                type = "$Ice__t_Value";
-            }
-            else
-            {
-                type = getTypeVar(base);
-            }
-            _out << type << ";";
+            type = "$Ice__t_Value";
         }
+        else
+        {
+            type = getTypeVar(base);
+        }
+        _out << type << ";";
         seenType.push_back(type);
 
         for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
@@ -393,18 +357,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
     _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', "
-         << p->compactId() << ", " << (preserved ? "true" : "false") << ", "
-         << (isInterface ? "true" : "false") << ", ";
+         << p->compactId() << ", " << (preserved ? "true" : "false") << ", false, ";
     if(!base)
     {
-        if(isInterface)
-        {
-            _out << "null";
-        }
-        else
-        {
-            _out << "$Ice__t_Value";
-        }
+        _out << "$Ice__t_Value";
     }
     else
     {
@@ -444,198 +400,231 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << ");";
 
-    if(isAbstract)
+    endNamespace();
+
+    if(_classHistory.count(scoped) == 0)
     {
-        _out << sp << nl << "global ";
-        if(!base || base->allOperations().empty())
+        _classHistory.insert(scoped); // Avoid redundant declarations.
+    }
+
+    return false;
+}
+
+bool
+CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    string scoped = p->scoped();
+    string name = getName(p);
+    string type = getTypeVar(p);
+    string abs = getAbsolute(p, _ns);
+    string prxName = getName(p, "Prx");
+    string prxType = getTypeVar(p, "Prx");
+    string prxAbs = getAbsolute(p, _ns, "", "Prx");
+    InterfaceList bases = p->bases();
+    OperationList ops = p->operations();
+    startNamespace(p);
+
+    _out << sp << nl << "global " << type << ';';
+    _out << nl << "global " << prxType << ';';
+
+    //
+    // Define the proxy class.
+    //
+    _out << sp << nl << "class " << prxName << "Helper";
+    _out << sb;
+
+    _out << sp << nl << "public static function checkedCast($proxy, $facetOrContext=null, $context=null)";
+    _out << sb;
+    _out << nl << "return $proxy->ice_checkedCast('" << scoped << "', $facetOrContext, $context);";
+    _out << eb;
+
+    _out << sp << nl << "public static function uncheckedCast($proxy, $facet=null)";
+    _out << sb;
+    _out << nl << "return $proxy->ice_uncheckedCast('" << scoped << "', $facet);";
+    _out << eb;
+
+    _out << sp << nl << "public static function ice_staticId()";
+    _out << sb;
+    _out << nl << "return '" << scoped << "';";
+    _out << eb;
+
+    _out << eb;
+
+    _out << sp << nl << "global ";
+    _out << "$Ice__t_ObjectPrx";
+    _out << ";";
+    _out << nl << prxType << " = IcePHP_defineProxy('" << scoped << "', ";
+    _out << "$Ice__t_ObjectPrx";
+    _out << ", ";
+    //
+    // Interfaces
+    //
+    if(!bases.empty())
+    {
+        _out << "array(";
+        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            _out << "$Ice__t_ObjectPrx";
-        }
-        else
-        {
-            _out << getTypeVar(base, "Prx");
-        }
-        _out << ";";
-        _out << nl << prxType << " = IcePHP_defineProxy('" << scoped << "', ";
-        if(!base || base->allOperations().empty())
-        {
-            _out << "$Ice__t_ObjectPrx";
-        }
-        else
-        {
-            _out << getTypeVar(base, "Prx");
-        }
-        _out << ", ";
-        //
-        // Interfaces
-        //
-        if(!bases.empty())
-        {
-            _out << "array(";
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+            if(q != bases.begin())
             {
-                if(q != bases.begin())
-                {
-                    _out << ", ";
-                }
-                _out << getTypeVar(*q, "Prx");
+                _out << ", ";
             }
-            _out << ')';
+            _out << getTypeVar(*q, "Prx");
         }
-        else
-        {
-            _out << "null";
-        }
-        _out << ");";
+        _out << ')';
+    }
+    else
+    {
+        _out << "null";
+    }
+    _out << ");";
 
-        //
-        // Define each operation. The arguments to IcePHP_defineOperation are:
-        //
-        // $ClassType, 'opName', Mode, SendMode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
-        //
-        // where InParams and OutParams are arrays of type descriptions, and Exceptions
-        // is an array of exception type ids.
-        //
-        if(!ops.empty())
+    //
+    // Define each operation. The arguments to IcePHP_defineOperation are:
+    //
+    // $ClassType, 'opName', Mode, SendMode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
+    //
+    // where InParams and OutParams are arrays of type descriptions, and Exceptions
+    // is an array of exception type ids.
+    //
+    if(!ops.empty())
+    {
+        _out << sp;
+        vector<string> seenTypes;
+        for(OperationList::const_iterator p = ops.begin(); p != ops.end(); ++p)
         {
-            _out << sp;
-            vector<string> seenTypes;
-            for(OperationList::const_iterator p = ops.begin(); p != ops.end(); ++p)
+            ParamDeclList params = (*p)->parameters();
+            for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
             {
-                ParamDeclList params = (*p)->parameters();
-                for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+                string type = getType((*q)->type());
+                if(find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
                 {
-                    string type = getType((*q)->type());
-                    if(find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
-                    {
-                        seenTypes.push_back(type);
-                        _out << nl << "global " << type << ";";
-                    }
-                }
-
-                if((*p)->returnType())
-                {
-                    string type = getType((*p)->returnType());
-                    if(find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
-                    {
-                        seenTypes.push_back(type);
-                        _out << nl << "global " << type << ";";
-                    }
+                    seenTypes.push_back(type);
+                    _out << nl << "global " << type << ";";
                 }
             }
 
-            for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+            if((*p)->returnType())
             {
-                ParamDeclList params = (*oli)->parameters();
-                ParamDeclList::iterator t;
-                int count;
-
-                _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << (*oli)->name() << "', "
-                     << getOperationMode((*oli)->mode(), _ns) << ", " << getOperationMode((*oli)->sendMode(), _ns)
-                     << ", " << static_cast<int>((*oli)->format()) << ", ";
-                for(t = params.begin(), count = 0; t != params.end(); ++t)
+                string type = getType((*p)->returnType());
+                if(find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
                 {
-                    if(!(*t)->isOutParam())
+                    seenTypes.push_back(type);
+                    _out << nl << "global " << type << ";";
+                }
+            }
+        }
+
+        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+        {
+            ParamDeclList params = (*oli)->parameters();
+            ParamDeclList::iterator t;
+            int count;
+
+            _out << nl << "IcePHP_defineOperation(" << prxType << ", '" << (*oli)->name() << "', "
+                 << getOperationMode((*oli)->mode(), _ns) << ", " << getOperationMode((*oli)->sendMode(), _ns) << ", "
+                 << static_cast<int>((*oli)->format()) << ", ";
+            for(t = params.begin(), count = 0; t != params.end(); ++t)
+            {
+                if(!(*t)->isOutParam())
+                {
+                    if(count == 0)
                     {
-                        if(count == 0)
-                        {
-                            _out << "array(";
-                        }
-                        else if(count > 0)
-                        {
-                            _out << ", ";
-                        }
                         _out << "array(";
-                        writeType((*t)->type());
-                        if((*t)->optional())
-                        {
-                            _out << ", " << (*t)->tag();
-                        }
-                        _out << ')';
-                        ++count;
                     }
-                }
-                if(count > 0)
-                {
-                    _out << ')';
-                }
-                else
-                {
-                    _out << "null";
-                }
-                _out << ", ";
-                for(t = params.begin(), count = 0; t != params.end(); ++t)
-                {
-                    if((*t)->isOutParam())
+                    else if(count > 0)
                     {
-                        if(count == 0)
-                        {
-                            _out << "array(";
-                        }
-                        else if(count > 0)
-                        {
-                            _out << ", ";
-                        }
-                        _out << "array(";
-                        writeType((*t)->type());
-                        if((*t)->optional())
-                        {
-                            _out << ", " << (*t)->tag();
-                        }
-                        _out << ')';
-                        ++count;
+                        _out << ", ";
                     }
-                }
-                if(count > 0)
-                {
-                    _out << ')';
-                }
-                else
-                {
-                    _out << "null";
-                }
-                _out << ", ";
-                TypePtr returnType = (*oli)->returnType();
-                if(returnType)
-                {
-                    //
-                    // The return type has the same format as an in/out parameter:
-                    //
-                    // Type, Optional?, OptionalTag
-                    //
                     _out << "array(";
-                    writeType(returnType);
-                    if((*oli)->returnIsOptional())
+                    writeType((*t)->type());
+                    if((*t)->optional())
                     {
-                        _out << ", " << (*oli)->returnTag();
+                        _out << ", " << (*t)->tag();
                     }
                     _out << ')';
+                    ++count;
                 }
-                else
-                {
-                    _out << "null";
-                }
-                _out << ", ";
-                ExceptionList exceptions = (*oli)->throws();
-                if(!exceptions.empty())
-                {
-                    _out << "array(";
-                    for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
-                    {
-                        if(u != exceptions.begin())
-                        {
-                            _out << ", ";
-                        }
-                        _out << getTypeVar(*u);
-                    }
-                    _out << ')';
-                }
-                else
-                {
-                    _out << "null";
-                }
-                _out << ");";
             }
+            if(count > 0)
+            {
+                _out << ')';
+            }
+            else
+            {
+                _out << "null";
+            }
+            _out << ", ";
+            for(t = params.begin(), count = 0; t != params.end(); ++t)
+            {
+                if((*t)->isOutParam())
+                {
+                    if(count == 0)
+                    {
+                        _out << "array(";
+                    }
+                    else if(count > 0)
+                    {
+                        _out << ", ";
+                    }
+                    _out << "array(";
+                    writeType((*t)->type());
+                    if((*t)->optional())
+                    {
+                        _out << ", " << (*t)->tag();
+                    }
+                    _out << ')';
+                    ++count;
+                }
+            }
+            if(count > 0)
+            {
+                _out << ')';
+            }
+            else
+            {
+                _out << "null";
+            }
+            _out << ", ";
+            TypePtr returnType = (*oli)->returnType();
+            if(returnType)
+            {
+                //
+                // The return type has the same format as an in/out parameter:
+                //
+                // Type, Optional?, OptionalTag
+                //
+                _out << "array(";
+                writeType(returnType);
+                if((*oli)->returnIsOptional())
+                {
+                    _out << ", " << (*oli)->returnTag();
+                }
+                _out << ')';
+            }
+            else
+            {
+                _out << "null";
+            }
+            _out << ", ";
+            ExceptionList exceptions = (*oli)->throws();
+            if(!exceptions.empty())
+            {
+                _out << "array(";
+                for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+                {
+                    if(u != exceptions.begin())
+                    {
+                        _out << ", ";
+                    }
+                    _out << getTypeVar(*u);
+                }
+                _out << ')';
+            }
+            else
+            {
+                _out << "null";
+            }
+            _out << ");";
         }
     }
 
@@ -1159,18 +1148,10 @@ CodeVisitor::getType(const TypePtr& p)
         }
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(p);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(p);
     if(prx)
     {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            return getTypeVar(prx->_class(), "Prx");
-        }
-        else
-        {
-            return "$Ice__t_ObjectPrx";
-        }
+        return getTypeVar(prx, "Prx");
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(p);
@@ -1371,10 +1352,10 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode, bool /*ns*/)
 void
 CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
 {
-    ClassList bases = p->bases();
-    if(!bases.empty() && !bases.front()->isInterface())
+    ClassDefPtr base = p->base();
+    if(base)
     {
-        collectClassMembers(bases.front(), allMembers, true);
+        collectClassMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();

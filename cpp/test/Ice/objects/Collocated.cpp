@@ -54,18 +54,6 @@ public:
         {
             return new FI;
         }
-        else if(type == "::Test::I")
-        {
-            return new II;
-        }
-        else if(type == "::Test::J")
-        {
-            return new JI;
-        }
-        else if(type == "::Test::H")
-        {
-            return new HI;
-        }
 
         assert(false); // Should never be reached
         return 0;
@@ -123,9 +111,7 @@ Collocated::run(int argc, char** argv)
     communicator->getValueFactoryManager()->add(makeFactory<DI>(), "::Test::D");
     communicator->getValueFactoryManager()->add(makeFactory<EI>(), "::Test::E");
     communicator->getValueFactoryManager()->add(makeFactory<FI>(), "::Test::F");
-    communicator->getValueFactoryManager()->add(makeFactory<II>(), "::Test::I");
-    communicator->getValueFactoryManager()->add(makeFactory<JI>(), "::Test::J");
-    communicator->getValueFactoryManager()->add(makeFactory<HI>(), "::Test::H");
+
     communicator->addObjectFactory(make_shared<MyObjectFactory>(), "TestOF");
 #else
     Ice::ValueFactoryPtr factory = new MyValueFactory;
@@ -134,9 +120,6 @@ Collocated::run(int argc, char** argv)
     communicator->getValueFactoryManager()->add(factory, "::Test::D");
     communicator->getValueFactoryManager()->add(factory, "::Test::E");
     communicator->getValueFactoryManager()->add(factory, "::Test::F");
-    communicator->getValueFactoryManager()->add(factory, "::Test::I");
-    communicator->getValueFactoryManager()->add(factory, "::Test::J");
-    communicator->getValueFactoryManager()->add(factory, "::Test::H");
     communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
 #endif
 

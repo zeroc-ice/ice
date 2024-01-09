@@ -30,6 +30,7 @@ private:
     public:
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -50,6 +51,7 @@ private:
         TypesVisitor(const std::string&, const std::set<std::string>&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);

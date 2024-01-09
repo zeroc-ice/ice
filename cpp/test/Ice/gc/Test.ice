@@ -148,7 +148,6 @@ module AAA
 module CCC
 {
     class Forward;
-    sequence<Forward*> ForwardProxySeq;
 }
 
 module CCC
@@ -173,12 +172,9 @@ module DDD
 
     class U
     {
-        I myI;
         I* myIstar;
         C myC;
-        C* myCstar;
         C2 myC2;
-        C2* myC2star;
     }
 
     class C2

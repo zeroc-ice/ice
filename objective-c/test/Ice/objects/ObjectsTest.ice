@@ -4,8 +4,6 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For classes with operations
-
 ["objc:prefix:TestObjects"]
 
 module Test
@@ -25,11 +23,6 @@ class Base
 exception BaseEx
 {
     string reason;
-}
-
-class AbstractBase extends Base
-{
-    void op();
 }
 
 class B;
@@ -90,15 +83,6 @@ interface I
 
 interface J extends I
 {
-}
-
-class H implements I
-{
-}
-
-class N
-{
-    I i;
 }
 
 class CompactExt;
@@ -175,12 +159,10 @@ exception EDerived extends EBase
 sequence<Object> ObjectSeq;         // For Objective-C only
 sequence<Object*> ObjectPrxSeq;     // For Objective-C only
 sequence<Base> BaseSeq;             // For Objective-C only
-sequence<Base*> BasePrxSeq;         // For Objective-C only
 
 dictionary<string, Object> ObjectDict;      // For Objective-C only
 dictionary<string, Object*> ObjectPrxDict;  // For Objective-C only
 dictionary<string, Base> BaseDict;          // For Objective-C only
-dictionary<string, Base*> BasePrxDict;      // For Objective-C only
 
 class Recursive
 {
@@ -217,7 +199,7 @@ class M
 class F1;
 interface F2;
 
-class Initial
+interface Initial
 {
     void shutdown();
     B getB1();
@@ -238,11 +220,7 @@ class Initial
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
-    I getH();
-    I getI();
-    I getJ();
     K getK();
-
     Value opValue(Value v1, out Value v2);
     ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
     ValueMap opValueMap(ValueMap v1, out ValueMap v2);
@@ -251,7 +229,6 @@ class Initial
     void throwEDerived() throws EDerived;
 
     void setG(G theG);
-    void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
@@ -269,19 +246,16 @@ class Initial
     ObjectSeq getObjectSeq(ObjectSeq s);
     ObjectPrxSeq getObjectPrxSeq(ObjectPrxSeq s);
     BaseSeq getBaseSeq(BaseSeq s);
-    BasePrxSeq getBasePrxSeq(BasePrxSeq s);
 
     ObjectDict getObjectDict(ObjectDict d);
     ObjectPrxDict getObjectPrxDict(ObjectPrxDict d);
     BaseDict getBaseDict(BaseDict d);
-    BasePrxDict getBasePrxDict(BasePrxDict d);
     M opM(M v1, out M v2);
 
     F1 opF1(F1 f11, out F1 f12);
     F2* opF2(F2* f21, out F2* f22);
 
     bool hasF3();
-    N opN(N p1);
 }
 
 interface TestIntf

@@ -73,10 +73,6 @@
         }
     }
 
-    class HI extends Test.H
-    {
-    }
-
     class II extends Ice.InterfaceByValue
     {
         constructor()
@@ -111,8 +107,6 @@
                 return new II();
             case "::Test::J":
                 return new JI();
-            case "::Test::H":
-                return new HI();
             case "::Test::Inner::A":
                 return new Test.Inner.A();
             case "::Test::Inner::Sub::A":
@@ -137,7 +131,6 @@
                 communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
                 communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
                 communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
                 communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
                 communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
             }
@@ -244,21 +237,6 @@
             return Ice.Promise.resolve(this._b1);
         }
 
-        getI(current)
-        {
-            return new II();
-        }
-
-        getJ(current)
-        {
-            return new JI();
-        }
-
-        getH(current)
-        {
-            return new HI();
-        }
-
         getK(current)
         {
             return new Test.K(new Test.L("l"));
@@ -290,10 +268,6 @@
         }
 
         setG(theG, current)
-        {
-        }
-
-        setI(theI, current)
         {
         }
 

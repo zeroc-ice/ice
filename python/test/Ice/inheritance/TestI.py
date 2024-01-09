@@ -4,18 +4,6 @@
 
 import Ice, Test
 
-class CAI(Test.MA.CADisp):
-    def caop(self, p, current=None):
-        return p
-
-class CBI(Test.MB.CBDisp, CAI):
-     def cbop(self, p, current=None):
-        return p
-
-class CCI(Test.MA.CCDisp, CBI):
-    def ccop(self, p, current=None):
-        return p
-
 class IAI(Test.MA.IA):
     def iaop(self, p, current=None):
         return p
@@ -32,16 +20,8 @@ class ICI(Test.MA.IC, IB1I, IB2I):
     def icop(self, p, current=None):
         return p
 
-class CDI(Test.MA.CDDisp, CCI, IB1I, IB2I):
-    def cdop(self, p, current=None):
-        return p
-
 class InitialI(Test.Initial):
     def __init__(self, adapter):
-        self._ca = Test.MA.CAPrx.uncheckedCast(adapter.addWithUUID(CAI()))
-        self._cb = Test.MB.CBPrx.uncheckedCast(adapter.addWithUUID(CBI()))
-        self._cc = Test.MA.CCPrx.uncheckedCast(adapter.addWithUUID(CCI()))
-        self._cd = Test.MA.CDPrx.uncheckedCast(adapter.addWithUUID(CDI()))
         self._ia = Test.MA.IAPrx.uncheckedCast(adapter.addWithUUID(IAI()))
         self._ib1 = Test.MB.IB1Prx.uncheckedCast(adapter.addWithUUID(IB1I()))
         self._ib2 = Test.MB.IB2Prx.uncheckedCast(adapter.addWithUUID(IB2I()))
@@ -49,18 +29,6 @@ class InitialI(Test.Initial):
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
-
-    def caop(self, current=None):
-        return self._ca
-
-    def cbop(self, current=None):
-        return self._cb
-
-    def ccop(self, current=None):
-        return self._cc
-
-    def cdop(self, current=None):
-        return self._cd
 
     def iaop(self, current=None):
         return self._ia

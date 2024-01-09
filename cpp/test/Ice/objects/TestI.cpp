@@ -247,30 +247,6 @@ InitialI::setG(ICE_IN(Test::GPtr), const Ice::Current&)
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
-shared_ptr<Ice::Value>
-InitialI::getI(const Ice::Current&)
-{
-    return make_shared<II>();
-}
-
-void
-InitialI::setI(ICE_IN(shared_ptr<Ice::Value>), const Ice::Current&)
-{
-}
-#else
-IPtr
-InitialI::getI(const Ice::Current&)
-{
-    return new II();
-}
-
-void
-InitialI::setI(const IPtr&, const Ice::Current&)
-{
-}
-#endif
-
 BaseSeq
 InitialI::opBaseSeq(ICE_IN(BaseSeq) inSeq, BaseSeq& outSeq, const Ice::Current&)
 {
@@ -311,32 +287,6 @@ InitialI::throwInnerSubEx(const Ice::Current&)
     ex.reason = "Inner::Sub::Ex";
     throw ex;
 }
-
-#ifdef ICE_CPP11_MAPPING
-shared_ptr<Ice::Value>
-InitialI::getJ(const Ice::Current&)
-{
-    return make_shared<JI>();
-}
-
-shared_ptr<Ice::Value>
-InitialI::getH(const Ice::Current&)
-{
-    return make_shared<HI>();
-}
-#else
-IPtr
-InitialI::getJ(const Ice::Current&)
-{
-    return new JI();
-}
-
-IPtr
-InitialI::getH(const Ice::Current&)
-{
-    return new HI();
-}
-#endif
 
 KPtr
 InitialI::getK(const Ice::Current&)
@@ -430,10 +380,4 @@ bool
 InitialI::hasF3(const Ice::Current&)
 {
     return true;
-}
-
-Test::NPtr
-InitialI::opN(ICE_IN(Test::NPtr) p1, const ::Ice::Current&)
-{
-    return p1;
 }

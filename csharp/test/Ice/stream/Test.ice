@@ -7,7 +7,7 @@
 //
 // Suppress invalid metadata warnings
 //
-[["cs:typeid-namespace:Ice.stream.TypeId", "suppress-warning:invalid-metadata, deprecated"]]
+[["cs:typeid-namespace:Ice.stream.TypeId", "suppress-warning:invalid-metadata"]]
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -49,7 +49,6 @@ class OptionalClass
 
 sequence<MyEnum> MyEnumS;
 sequence<MyClass> MyClassS;
-sequence<MyInterface> MyInterfaceS;
 
 sequence<Ice::BoolSeq> BoolSS;
 sequence<Ice::ByteSeq> ByteSS;
@@ -61,7 +60,6 @@ sequence<Ice::DoubleSeq> DoubleSS;
 sequence<Ice::StringSeq> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
-sequence<MyInterfaceS> MyInterfaceSS;
 
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
@@ -79,8 +77,6 @@ sequence<MyEnum> MyEnumList;
 sequence<SmallStruct> SmallStructList;
 ["cs:generic:List"]
 sequence<MyClass> MyClassList;
-["cs:generic:List"]
-sequence<MyClass*> MyClassProxyList;
 ["cs:generic:List"]
 sequence<MyInterface*> MyInterfaceProxyList;
 
@@ -100,8 +96,6 @@ sequence<float> FloatStack;
 ["cs:generic:Stack"]
 sequence<SmallStruct> SmallStructStack;
 ["cs:generic:Stack"]
-sequence<MyClass*> MyClassProxyStack;
-["cs:generic:Stack"]
 sequence<MyInterface*> MyInterfaceProxyStack;
 
 //
@@ -119,14 +113,6 @@ sequence<Object> ObjectStack;
 //
 ["cs:generic:Stack"]
 sequence<MyClass> MyClassStack;
-
-//
-// This will produce a warning and use the default
-// sequence mapping. The generic:Stack metadata cannot be use
-// with object sequences.
-//
-["cs:generic:Stack"]
-sequence<MyInterface> MyInterfaceStack;
 
 ["cs:generic:Queue"]
 sequence<double> DoubleQueue;

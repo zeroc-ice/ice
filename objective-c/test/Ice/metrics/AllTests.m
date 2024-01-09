@@ -648,7 +648,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     checkFailure(clientMetrics, @"Connection", cm1.id_, @"::Ice::ConnectTimeoutException", 1);
     checkFailure(serverMetrics, @"Connection", sm1.id_, @"::Ice::ConnectionLostException", 0);
 
-    ICEMXMetricsPrx* m = [[metrics ice_timeout:500] ice_connectionId:@"Con1"];
+    TestMetricsMetricsPrx* m = [[metrics ice_timeout:500] ice_connectionId:@"Con1"];
     [m ice_ping];
 
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"parent", @"Communicator", nil);

@@ -27,14 +27,6 @@ class FutureThread(threading.Thread):
         time.sleep(0.01)
         self.future.set_result(self.result)
 
-
-class BI(M.BDisp):
-    def opB(self, current=None):
-        return Ice.Future.completed(())
-
-    def opIntf(self, current=None):
-        return Ice.Future.completed(())
-
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
         self.threads = []

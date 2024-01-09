@@ -309,7 +309,7 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
         }
     }
 
-    if(ProxyPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type))
     {
         return prefix + ".FSize";
     }
@@ -325,17 +325,11 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
 
-    assert(isClassType(type));
+    assert((b && b->usesClasses()) || cl);
 
     if(b)
     {
         return "Ice.Value.ice_staticId()";
-    }
-    else if(cl->isInterface())
-    {
-        ContainedPtr cont = ContainedPtr::dynamicCast(cl->container());
-        assert(cont);
-        return getUnqualified(cont) + "." + cl->name() + "Disp_.ice_staticId()";
     }
     else
     {
@@ -387,28 +381,13 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            return getUnqualified("Ice.Value", package);
-        }
-        else
-        {
-            return getUnqualified(cl, package);
-        }
+        return getUnqualified(cl, package);
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        ClassDefPtr def = proxy->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            return getUnqualified(proxy->_class(), package, "", "Prx");
-        }
-        else
-        {
-            return getUnqualified("Ice.ObjectPrx", package);
-        }
+        return getUnqualified(proxy, package, "", "Prx");
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -476,10 +455,10 @@ Slice::CsGenerator::resultStructName(const string& className, const string& opNa
 string
 Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bool dispatch)
 {
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
+    InterfaceDefPtr interface = op->interface();
     if(dispatch && op->hasMarshaledResult())
     {
-        return getUnqualified(cl, package, "", resultStructName("", op->name(), true));
+        return getUnqualified(interface, package, "", resultStructName("", op->name(), true));
     }
 
     string t;
@@ -492,7 +471,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
         }
         else if(op->returnType() || outParams.size() > 1)
         {
-            t = getUnqualified(cl, package, "", resultStructName("", op->name()));
+            t = getUnqualified(interface, package, "", resultStructName("", op->name()));
         }
         else
         {
@@ -720,32 +699,17 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     if(prx)
     {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
+        string typeS = typeToString(type, package);
+        if(marshal)
         {
-            string typeS = typeToString(type, package);
-            if(marshal)
-            {
-                out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
-            }
-            else
-            {
-                out << nl << param << " = " << typeS << "Helper.read(" << stream << ");";
-            }
+            out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
         }
         else
         {
-            if(marshal)
-            {
-                out << nl << stream << ".writeProxy(" << param << ");";
-            }
-            else
-            {
-                out << nl << param << " = " << stream << ".readProxy()" << ';';
-            }
+            out << nl << param << " = " << typeS << "Helper.read(" << stream << ");";
         }
         return;
     }
@@ -1011,7 +975,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     if(prx)
     {
         if(marshal)
@@ -1275,17 +1239,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     const string limitID = isArray ? "Length" : "Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    ClassDefPtr clsDef;
-    if(proxy)
-    {
-        clsDef = proxy->_class()->definition();
-    }
-    bool isObjectProxySeq = clsDef && !clsDef->isInterface() && clsDef->allOperations().size() == 0;
-    Builtin::Kind kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
 
-    if(builtin || isObjectProxySeq)
+    if(builtin)
     {
+        Builtin::Kind kind = builtin->kind();
         switch(kind)
         {
             case Builtin::KindValue:
@@ -1776,9 +1733,9 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
 
     string helperName;
-    if(ProxyPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type))
     {
-        helperName = getUnqualified(ProxyPtr::dynamicCast(type)->_class(), scope, "", "PrxHelper");
+        helperName = getUnqualified(InterfaceDeclPtr::dynamicCast(type), scope, "", "PrxHelper");
     }
     else
     {
@@ -2302,6 +2259,9 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     newLocalMetaData.push_back(s);
                     continue;
                 }
+            }
+            else if(InterfaceDefPtr::dynamicCast(cont))
+            {
                 static const string csImplementsPrefix = csPrefix + "implements:";
                 if(s.find(csImplementsPrefix) == 0)
                 {
@@ -2354,11 +2314,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
 
             dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + oldS + "'");
-            continue;
-        }
-        else if(s == "delegate")
-        {
-            dc->warning(InvalidMetaData, cont->file(), cont->line(), msg + " `" + s + "'");
             continue;
         }
         newLocalMetaData.push_back(s);

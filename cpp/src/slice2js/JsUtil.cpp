@@ -168,9 +168,7 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
         return builtinModuleTable[builtin->kind()];
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    return getModuleMetadata(proxy ? ContainedPtr::dynamicCast(proxy->_class()) :
-                                     ContainedPtr::dynamicCast(type));
+    return getModuleMetadata(ContainedPtr::dynamicCast(type));
 }
 
 string
@@ -243,26 +241,15 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
     {
         return typeToString(type, toplevel, imports, true);
     }
-    else if(ProxyPtr::dynamicCast(type))
+    else if(InterfaceDeclPtr::dynamicCast(type))
     {
-        ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-        if(proxy->_class()->definition())
-        {
-            return importPrefix(ContainedPtr::dynamicCast(proxy->_class()->definition()), toplevel, imports);
-        }
-        else
-        {
-            return importPrefix(proxy->_class(), toplevel, imports, getDefinedIn(proxy->_class()));
-        }
+        InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+        return importPrefix(ContainedPtr::dynamicCast(proxy), toplevel, imports);
     }
     else if(ContainedPtr::dynamicCast(type))
     {
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-        if(cl && cl->isInterface())
-        {
-            return "iceNS0.";
-        }
-        else if(cl)
+        if(cl)
         {
             if(cl->definition())
             {
@@ -437,11 +424,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         ostringstream os;
         if(typescript)
         {
-            if(cl->isInterface())
-            {
-                prefix = importPrefix("Ice.Value", toplevel);
-            }
-            else if(cl->definition())
+            if(cl->definition())
             {
                 prefix = importPrefix(ContainedPtr::dynamicCast(cl->definition()), toplevel, imports);
             }
@@ -453,14 +436,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         os << prefix;
         if(!prefix.empty() && typescript)
         {
-            if(cl->isInterface())
-            {
-                os << getUnqualified("Ice.Value", toplevel->scope(), prefix);
-            }
-            else
-            {
-                os << getUnqualified(fixId(cl->scoped()), toplevel->scope(), prefix);
-            }
+            os << getUnqualified(fixId(cl->scoped()), toplevel->scope(), prefix);
         }
         else
         {
@@ -469,46 +445,27 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         return os.str();
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
         ostringstream os;
-        ClassDefPtr def = proxy->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            string prefix;
-            if(typescript)
-            {
-                if(def)
-                {
-                    prefix = importPrefix(ContainedPtr::dynamicCast(def), toplevel, imports);
-                }
-                else
-                {
-                    prefix = importPrefix(proxy->_class(), toplevel, imports, getDefinedIn(proxy->_class()));
-                }
-                os << prefix;
-            }
 
-            if(prefix.empty() && typescript)
-            {
-                os << getUnqualified(fixId(proxy->_class()->scoped() + "Prx"), toplevel->scope(), prefix);
-            }
-            else
-            {
-                os << fixId(proxy->_class()->scoped() + "Prx");
-            }
+        string prefix;
+        if(typescript)
+        {
+            prefix = importPrefix(ContainedPtr::dynamicCast(proxy), toplevel, imports);
+            os << prefix;
+        }
+
+        if(prefix.empty() && typescript)
+        {
+            os << getUnqualified(fixId(proxy->scoped() + "Prx"), toplevel->scope(), prefix);
         }
         else
         {
-            if(getModuleMetadata(toplevel) != "ice")
-            {
-                os << "iceNS0.";
-            }
-            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
-                                 toplevel->scope(),
-                                 getModuleMetadata(toplevel));
+            os << fixId(proxy->scoped() + "Prx");
         }
+
         return os.str();
     }
 
@@ -800,7 +757,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(ProxyPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
     {
         if(marshal)
         {
@@ -822,15 +779,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         else
         {
             out << nl << stream << ".readValue(obj => " << param << " = obj, ";
-            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-            if(cl && cl->isInterface())
-            {
-                out << "Ice.Value);";
-            }
-            else
-            {
-                out << typeToString(type) << ");";
-            }
+            out << typeToString(type) << ");";
         }
         return;
     }
@@ -959,18 +908,10 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
         return typeToString(type);
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
     if(prx)
     {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            return typeToString(type);
-        }
-        else
-        {
-            return "Ice.ObjectPrx";
-        }
+        return typeToString(type);
     }
 
     if(SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type))

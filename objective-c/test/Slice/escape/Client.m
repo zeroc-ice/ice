@@ -42,12 +42,6 @@ testSymbols(void)
     [prx3 foo3:0 nil_:0];
     test(prx3 == 0);
 
-    anddoPrx* prx4 = 0;
-    test(prx4 == 0);
-
-    anddoPrx* prx5 = 0;
-    test(prx5 == 0);
-
     andcontinue c1 = andasm;
     test(c1 == andasm);
 

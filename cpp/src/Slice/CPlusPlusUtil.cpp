@@ -690,14 +690,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     {
         if(cpp11)
         {
-            if(cl->isInterface())
-            {
-                return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
-            }
-            else
-            {
-                return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
-            }
+            return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
         }
         else
         {
@@ -721,28 +714,16 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         }
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
         if(cpp11)
         {
-            ClassDefPtr def = proxy->_class()->definition();
-            //
-            // Classes without operations map to the base
-            // proxy class shared_ptr<Ice::ObjectPrx>
-            //
-            if(!def || def->isAbstract())
-            {
-                return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">";
-            }
-            else
-            {
-                return getUnqualified(cpp11BuiltinTable[Builtin::KindObjectProxy], scope);
-            }
+            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
         }
         else
         {
-            return getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope);
+            return getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope);
         }
     }
 
@@ -869,14 +850,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(cpp11)
         {
-            if(cl->isInterface())
-            {
-                return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
-            }
-            else
-            {
-                return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-            }
+            return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
         }
         else
         {
@@ -904,24 +878,16 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         }
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
         if(cpp11)
         {
-            ClassDefPtr def = proxy->_class()->definition();
-            if(def && !def->isInterface() && def->allOperations().empty())
-            {
-                return getUnqualified(cpp11InputBuiltinTable[Builtin::KindObjectProxy], scope);
-            }
-            else
-            {
-                return "const ::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">&";
-            }
+            return "const ::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
         }
         else
         {
-            return "const " + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + "&";
+            return "const " + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + "&";
         }
     }
 
@@ -1016,14 +982,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     {
         if(cpp11)
         {
-            if(cl->isInterface())
-            {
-                return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
-            }
-            else
-            {
-                return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-            }
+            return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
         }
         else
         {
@@ -1044,28 +1003,16 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         }
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
         if(cpp11)
         {
-            ClassDefPtr def = proxy->_class()->definition();
-            //
-            // Classes without operations map to the base
-            // proxy class shared_ptr<Ice::ObjectPrx>
-            //
-            if(def && !def->isInterface() && def->allOperations().empty())
-            {
-                return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindObjectProxy], scope);
-            }
-            else
-            {
-                return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">&";
-            }
+            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
         }
         else
         {
-            return getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx&"), scope);
+            return getUnqualified(fixKwd(proxy->scoped() + "Prx&"), scope);
         }
     }
 

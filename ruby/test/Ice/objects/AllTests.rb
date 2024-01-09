@@ -204,16 +204,6 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
-    print "getting I, J, H... "
-    STDOUT.flush
-    i = initial.getI()
-    test(i)
-    j = initial.getJ()
-    test(i)
-    h = initial.getH()
-    test(i)
-    puts "ok"
-
     print "getting K... "
     STDOUT.flush
     k = initial.getK()
@@ -267,13 +257,6 @@ def allTests(helper, communicator)
         initial.setG(Test::G.new(Test::S.new("hello"), "g"))
     rescue Ice::OperationNotExistException
     end
-    puts "ok"
-
-    print "setting I... "
-    STDOUT.flush
-    initial.setI(i)
-    initial.setI(j)
-    initial.setI(h)
     puts "ok"
 
     print "testing sequences... "
@@ -416,13 +399,6 @@ def allTests(helper, communicator)
     rescue Ice::UnknownLocalException => ex
         test(!acceptsCycles)
     end
-    puts "ok"
-
-    print "testing class with interface by value member... "
-    STDOUT.flush
-    i = initial.getI()
-    n = Test::N.new(i);
-    n = initial.opN(n)
     puts "ok"
 
     return initial

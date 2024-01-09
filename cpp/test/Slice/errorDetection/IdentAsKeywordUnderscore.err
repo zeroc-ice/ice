@@ -29,7 +29,6 @@ IdentAsKeywordUnderscore.ice:36: keyword `long' cannot be used as interface name
 IdentAsKeywordUnderscore.ice:36: `long': an interface can be defined only at module scope
 IdentAsKeywordUnderscore.ice:38: `impLEments': a sequence can be defined only at module scope
 IdentAsKeywordUnderscore.ice:39: sequence `implements' differs only in capitalization from sequence `impLEments'
-IdentAsKeywordUnderscore.ice:39: keyword `implements' cannot be used as sequence name
 IdentAsKeywordUnderscore.ice:40: `short': a sequence can be defined only at module scope
 IdentAsKeywordUnderscore.ice:40: keyword `short' cannot be used as sequence name
 IdentAsKeywordUnderscore.ice:42: syntax error

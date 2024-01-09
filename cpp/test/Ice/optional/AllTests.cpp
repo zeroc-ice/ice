@@ -10,15 +10,6 @@
 #include <TestHelper.h>
 #include <Test.h>
 
-#ifdef ICE_CPP11_MAPPING
-namespace Test
-{
-using OneOptionalPrx = Ice::ObjectPrx;
-using OneOptionalPrxPtr = ::std::shared_ptr<Ice::ObjectPrx>;
-using MultiOptionalPrx = Ice::ObjectPrx;
-}
-#endif
-
 using namespace std;
 using namespace Test;
 
@@ -433,7 +424,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->g = 1.0;
     mo1->h = string("test");
     mo1->i = ICE_ENUM(MyEnum, MyEnumMember);
-    mo1->j = ICE_UNCHECKED_CAST(MultiOptionalPrx, communicator->stringToProxy("test"));
+    mo1->j = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test"));
     mo1->k = mo1;
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(5);
@@ -462,8 +453,8 @@ allTests(Test::TestHelper* helper, bool)
     mo1->vss->push_back(vs);
     mo1->oos = OneOptionalSeq();
     mo1->oos->push_back(oo1);
-    mo1->oops = OneOptionalPrxSeq();
-    mo1->oops->push_back(ICE_UNCHECKED_CAST(OneOptionalPrx, communicator->stringToProxy("test")));
+    mo1->mips = MyInterfacePrxSeq();
+    mo1->mips->push_back(ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test")));
 
     mo1->ied = IntEnumDict();
     mo1->ied.value()[4] = ICE_ENUM(MyEnum, MyEnumMember);
@@ -474,8 +465,8 @@ allTests(Test::TestHelper* helper, bool)
     mo1->iood = IntOneOptionalDict();
     mo1->iood.value()[5] = ICE_MAKE_SHARED(OneOptional);
     mo1->iood.value()[5]->a = 15;
-    mo1->ioopd = IntOneOptionalPrxDict();
-    mo1->ioopd.value()[5] = ICE_UNCHECKED_CAST(OneOptionalPrx, communicator->stringToProxy("test"));
+    mo1->imipd = IntMyInterfacePrxDict();
+    mo1->imipd.value()[5] = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test"));
 
     mo1->bos = BoolSeq();
     mo1->bos->push_back(false);
@@ -500,7 +491,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
     test(mo3->i = ICE_ENUM(MyEnum, MyEnumMember));
-    test(mo3->j = ICE_UNCHECKED_CAST(MultiOptionalPrx, communicator->stringToProxy("test")));
+    test(mo3->j = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test")));
     test(mo3->k == mo1);
     test(mo3->bs == mo1->bs);
     test(mo3->ss == mo1->ss);
@@ -514,13 +505,13 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->fss == mo1->fss);
     test(mo3->vss == mo1->vss);
     test(mo3->oos == mo1->oos);
-    test(mo3->oops == mo1->oops);
+    test(mo3->mips == mo1->mips);
 
     test(mo3->ied == mo1->ied);
     test(mo3->ifsd == mo1->ifsd);
     test(mo3->ivsd == mo1->ivsd);
     test(mo3->iood == mo1->iood);
-    test(mo3->ioopd == mo1->ioopd);
+    test(mo3->imipd == mo1->imipd);
 
     test(mo3->bos == mo1->bos);
 
@@ -575,13 +566,13 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->fss);
     test(!mo4->vss);
     test(!mo4->oos);
-    test(!mo4->oops);
+    test(!mo4->mips);
 
     test(!mo4->ied);
     test(!mo4->ifsd);
     test(!mo4->ivsd);
     test(!mo4->iood);
-    test(!mo4->ioopd);
+    test(!mo4->imipd);
 
     test(!mo4->bos);
 
@@ -617,13 +608,13 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo5->oos->empty() && (*mo5->oos)[0]->a == oo1->a);
 
 #ifdef ICE_CPP11_MAPPING
-    test(mo5->oops.value().size() == mo1->oops.value().size());
-    for(size_t i = 0; i< mo5->oops.value().size(); ++i)
+    test(mo5->mips.value().size() == mo1->mips.value().size());
+    for(size_t i = 0; i< mo5->mips.value().size(); ++i)
     {
-        test(targetEqualTo(mo5->oops.value()[i], mo1->oops.value()[i]));
+        test(targetEqualTo(mo5->mips.value()[i], mo1->mips.value()[i]));
     }
 #else
-    test(mo5->oops == mo1->oops);
+    test(mo5->mips == mo1->mips);
 #endif
 
     test(mo5->ied == mo1->ied);
@@ -632,13 +623,13 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo5->iood->empty() && (*mo5->iood)[5]->a == 15);
 
 #ifdef ICE_CPP11_MAPPING
-    test(mo5->ioopd.value().size() == mo1->ioopd.value().size());
-    for(auto& v : mo5->ioopd.value())
+    test(mo5->imipd.value().size() == mo1->imipd.value().size());
+    for(auto& v : mo5->imipd.value())
     {
-        test(targetEqualTo(mo1->ioopd.value()[v.first], v.second));
+        test(targetEqualTo(mo1->imipd.value()[v.first], v.second));
     }
 #else
-    test(mo5->ioopd == mo1->ioopd);
+    test(mo5->imipd == mo1->imipd);
 #endif
 
     test(mo5->bos == mo1->bos);
@@ -657,11 +648,11 @@ allTests(Test::TestHelper* helper, bool)
 
     mo6->es = IceUtil::None;
     mo6->vss = IceUtil::None;
-    mo6->oops = IceUtil::None;
+    mo6->mips = IceUtil::None;
 
     mo6->ied = IceUtil::None;
     mo6->ivsd = IceUtil::None;
-    mo6->ioopd = IceUtil::None;
+    mo6->imipd = IceUtil::None;
 
     MultiOptionalPtr mo7 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo6));
     test(!mo7->a);
@@ -691,13 +682,13 @@ allTests(Test::TestHelper* helper, bool)
     test(mo7->fss == mo1->fss);
     test(!mo7->vss);
     test(!mo7->oos->empty() && (*mo7->oos)[0]->a == oo1->a);
-    test(!mo7->oops);
+    test(!mo7->mips);
 
     test(!mo7->ied);
     test(mo7->ifsd == mo1->ifsd);
     test(!mo7->ivsd);
     test(!mo7->iood->empty() && (*mo7->iood)[5]->a == 15);
-    test(!mo7->ioopd);
+    test(!mo7->imipd);
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = ICE_MAKE_SHARED(MultiOptional, *mo5);
@@ -747,13 +738,13 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo8->oos);
 
 #ifdef ICE_CPP11_MAPPING
-    test(mo8->oops.value().size() == mo1->oops.value().size());
-    for(size_t i = 0; i< mo8->oops.value().size(); ++i)
+    test(mo8->mips.value().size() == mo1->mips.value().size());
+    for(size_t i = 0; i< mo8->mips.value().size(); ++i)
     {
-        test(targetEqualTo(mo8->oops.value()[i], mo1->oops.value()[i]));
+        test(targetEqualTo(mo8->mips.value()[i], mo1->mips.value()[i]));
     }
 #else
-    test(mo8->oops == mo1->oops);
+    test(mo8->mips == mo1->mips);
 #endif
 
     test(mo8->ied == mo1->ied);
@@ -1477,13 +1468,13 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        IceUtil::Optional<OneOptionalPrxPtr> p1;
-        IceUtil::Optional<OneOptionalPrxPtr> p3;
-        IceUtil::Optional<OneOptionalPrxPtr> p2 = initial->opOneOptionalProxy(p1, p3);
+        IceUtil::Optional<MyInterfacePrxPtr> p1;
+        IceUtil::Optional<MyInterfacePrxPtr> p3;
+        IceUtil::Optional<MyInterfacePrxPtr> p2 = initial->opMyInterfaceProxy(p1, p3);
         test(!p2 && !p3);
 
-        p1 = ICE_UNCHECKED_CAST(OneOptionalPrx, communicator->stringToProxy("test"));
-        p2 = initial->opOneOptionalProxy(p1, p3);
+        p1 = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test"));
+        p2 = initial->opMyInterfaceProxy(p1, p3);
 
 #ifdef ICE_CPP11_MAPPING
         test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
@@ -1496,7 +1487,7 @@ allTests(Test::TestHelper* helper, bool)
         out.write(2, p1);
         out.endEncapsulation();
         out.finished(inEncaps);
-        initial->ice_invoke("opOneOptionalProxy", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        initial->ice_invoke("opMyInterfaceProxy", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
         Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
         in.startEncapsulation();
         in.read(1, p2);

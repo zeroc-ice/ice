@@ -159,7 +159,7 @@
             return [p1, p1];
         }
 
-        opOneOptionalProxy(p1, current)
+        opMyInterfaceProxy(p1, current)
         {
             return [p1, p1];
         }

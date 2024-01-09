@@ -75,7 +75,7 @@ public class AllTests
         mo1.setG(1.0);
         mo1.setH("test");
         mo1.setI(MyEnum.MyEnumMember);
-        mo1.setJ(communicator.stringToProxy("test"));
+        mo1.setJ(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
         mo1.setK(mo1);
         mo1.setBs(new byte[] { (byte)5 });
         mo1.setSs(new String[] { "test", "test2" });
@@ -95,7 +95,7 @@ public class AllTests
         mo1.setFss(new FixedStruct[] { fs });
         mo1.setVss(new VarStruct[] { vs });
         mo1.setOos(new OneOptional[] { oo1 });
-        mo1.setOops(new com.zeroc.Ice.ObjectPrx[] { communicator.stringToProxy("test") });
+        mo1.setMips(new MyInterfacePrx[] { MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")) });
 
         mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
@@ -105,8 +105,8 @@ public class AllTests
         mo1.getIvsd().put(5, vs);
         mo1.setIood(new java.util.HashMap<>());
         mo1.getIood().put(5, new OneOptional(15));
-        mo1.setIoopd(new java.util.HashMap<>());
-        mo1.getIoopd().put(5, communicator.stringToProxy("test"));
+        mo1.setImipd(new java.util.HashMap<>());
+        mo1.getImipd().put(5, MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
 
         mo1.setBos(new boolean[] { false, true, false });
 
@@ -136,13 +136,13 @@ public class AllTests
         test(mo1.getFss()[0].equals(new FixedStruct(78)));
         test(mo1.getVss()[0].equals(new VarStruct("hello")));
         test(mo1.getOos()[0] == oo1);
-        test(mo1.getOops()[0].equals(communicator.stringToProxy("test")));
+        test(mo1.getMips()[0].equals(communicator.stringToProxy("test")));
 
         test(mo1.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo1.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo1.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo1.getIood().get(5).getA() == 15);
-        test(mo1.getIoopd().get(5).equals(communicator.stringToProxy("test")));
+        test(mo1.getImipd().get(5).equals(communicator.stringToProxy("test")));
 
         test(java.util.Arrays.equals(mo1.getBos(), new boolean[] { false, true, false }));
 
@@ -183,13 +183,13 @@ public class AllTests
         test(!mo4.hasFss());
         test(!mo4.hasVss());
         test(!mo4.hasOos());
-        test(!mo4.hasOops());
+        test(!mo4.hasMips());
 
         test(!mo4.hasIed());
         test(!mo4.hasIfsd());
         test(!mo4.hasIvsd());
         test(!mo4.hasIood());
-        test(!mo4.hasIoopd());
+        test(!mo4.hasImipd());
 
         test(!mo4.hasBos());
 
@@ -224,13 +224,13 @@ public class AllTests
         test(mo5.getFss()[0].equals(new FixedStruct(78)));
         test(mo5.getVss()[0].equals(new VarStruct("hello")));
         test(mo5.getOos()[0].getA() == 15);
-        test(mo5.getOops()[0].equals(communicator.stringToProxy("test")));
+        test(mo5.getMips()[0].equals(communicator.stringToProxy("test")));
 
         test(mo5.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo5.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo5.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo5.getIood().get(5).getA() == 15);
-        test(mo5.getIoopd().get(5).equals(communicator.stringToProxy("test")));
+        test(mo5.getImipd().get(5).equals(communicator.stringToProxy("test")));
 
         test(java.util.Arrays.equals(mo5.getBos(), new boolean[] { false, true, false }));
 
@@ -280,13 +280,13 @@ public class AllTests
         test(mo7.getFss()[0].equals(new FixedStruct(78)));
         test(!mo7.hasVss());
         test(mo7.getOos()[0].getA() == 15);
-        test(!mo7.hasOops());
+        test(!mo7.hasMips());
 
         test(!mo7.hasIed());
         test(mo7.getIfsd().get(4).equals(new FixedStruct(78)));
         test(!mo7.hasIvsd());
         test(mo7.getIood().get(5).getA() == 15);
-        test(!mo7.hasIoopd());
+        test(!mo7.hasImipd());
 
         test(java.util.Arrays.equals(mo7.getBos(), new boolean[] { false, true, false }));
 
@@ -304,11 +304,11 @@ public class AllTests
 
         mo8.setEs(mo5.getEs());
         mo8.setVss(mo5.getVss());
-        mo8.setOops(mo5.getOops());
+        mo8.setMips(mo5.getMips());
 
         mo8.setIed(mo5.getIed());
         mo8.setIvsd(mo5.getIvsd());
-        mo8.setIoopd(mo5.getIoopd());
+        mo8.setImipd(mo5.getImipd());
 
         MultiOptional mo9 = (MultiOptional)initial.pingPong(mo8);
         test(mo9.getA() == mo1.getA());
@@ -334,13 +334,13 @@ public class AllTests
         test(!mo9.hasFss());
         test(mo9.getVss()[0].equals(new VarStruct("hello")));
         test(!mo9.hasOos());
-        test(mo9.getOops()[0].equals(communicator.stringToProxy("test")));
+        test(mo9.getMips()[0].equals(communicator.stringToProxy("test")));
 
         test(mo9.getIed().get(4) == MyEnum.MyEnumMember);
         test(!mo9.hasIfsd());
         test(mo9.getIvsd().get(5).equals(new VarStruct("hello")));
         test(!mo9.hasIood());
-        test(mo9.getIoopd().get(5).equals(communicator.stringToProxy("test")));
+        test(mo9.getImipd().get(5).equals(communicator.stringToProxy("test")));
 
         test(!mo9.hasBos());
 
@@ -1143,21 +1143,21 @@ public class AllTests
         }
 
         {
-            Optional<com.zeroc.Ice.ObjectPrx> p1 = Optional.empty();
-            Initial.OpOneOptionalProxyResult r = initial.opOneOptionalProxy(p1);
+            Optional<MyInterfacePrx> p1 = Optional.empty();
+            Initial.OpMyInterfaceProxyResult r = initial.opMyInterfaceProxy(p1);
             test(!r.returnValue.isPresent() && !r.p3.isPresent());
 
-            p1 = Optional.of(communicator.stringToProxy("test"));
-            r = initial.opOneOptionalProxy(p1);
+            p1 = Optional.of(MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")));
+            r = initial.opMyInterfaceProxy(p1);
             test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
-            r = initial.opOneOptionalProxyAsync(p1).join();
+            r = initial.opMyInterfaceProxyAsync(p1).join();
             test(r.returnValue.get().equals(p1.get()) && r.p3.get().equals(p1.get()));
 
             if(reqParams)
             {
-                Initial.OpOneOptionalProxyReqResult rr = initial.opOneOptionalProxyReq(p1.get());
+                Initial.OpMyInterfaceProxyReqResult rr = initial.opMyInterfaceProxyReq(p1.get());
                 test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
-                rr = initial.opOneOptionalProxyReqAsync(p1.get()).join();
+                rr = initial.opMyInterfaceProxyReqAsync(p1.get()).join();
                 test(rr.returnValue.get().equals(p1.get()) && rr.p3.get().equals(p1.get()));
 
                 os = new OutputStream(communicator);
@@ -1168,7 +1168,7 @@ public class AllTests
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
-                inv = initial.ice_invoke("opOneOptionalProxyReq", OperationMode.Normal, inEncaps);
+                inv = initial.ice_invoke("opMyInterfaceProxyReq", OperationMode.Normal, inEncaps);
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();
                 test(in.readProxy(1).get().equals(p1.get()));

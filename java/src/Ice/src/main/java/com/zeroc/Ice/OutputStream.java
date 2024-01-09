@@ -1619,7 +1619,7 @@ public class OutputStream
      * @param tag The optional tag.
      * @param v The optional proxy to write to the stream.
      **/
-    public void writeProxy(int tag, java.util.Optional<ObjectPrx> v)
+    public <Prx extends ObjectPrx> void writeProxy(int tag, java.util.Optional<Prx> v)
     {
         if(v != null && v.isPresent())
         {

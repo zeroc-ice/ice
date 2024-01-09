@@ -157,12 +157,12 @@ bool
 Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     //
-    // Add imports required for base classes
+    // Add imports required for base class
     //
-    ClassList bases = p->bases();
-    for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    ClassDefPtr base = p->base();
+    if (base)
     {
-        addImport(ContainedPtr::dynamicCast(*i), p);
+        addImport(ContainedPtr::dynamicCast(base), p);
     }
 
     //
@@ -172,6 +172,21 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
     {
         addImport((*i)->type(), p);
+    }
+
+    return false;
+}
+
+bool
+Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    //
+    // Add imports required for base interfaces
+    //
+    InterfaceList bases = p->bases();
+    for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    {
+        addImport(ContainedPtr::dynamicCast(*i), p);
     }
 
     //
@@ -340,15 +355,52 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ids << "]";
 
     out << sp;
-    out << nl << "/// Traits for Slice ";
-    if(p->isInterface())
+    out << nl << "/// Traits for Slice class";
+    out << '`' << name << "`.";
+    out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
+    out << sb;
+    out << nl << "public static let staticIds = " << ids.str();
+    out << nl << "public static let staticId = \"" << p->scoped() << '"';
+    out << eb;
+
+    return false;
+}
+
+bool
+Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
+    const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
+
+    InterfaceList allBases = p->allBases();
+    StringList allIds;
+    transform(allBases.begin(), allBases.end(), back_inserter(allIds),
+              [](const ContainedPtr& it)
+              {
+                  return it->scoped();
+              });
+    allIds.push_back(p->scoped());
+    allIds.push_back("::Ice::Object");
+    allIds.sort();
+    allIds.unique();
+
+    ostringstream ids;
+
+    ids << "[";
+    for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
     {
-        out << "interface ";
+        if(r != allIds.begin())
+        {
+            ids << ", ";
+        }
+        ids << "\"" << (*r) << "\"";
+
     }
-    else
-    {
-        out << "class ";
-    }
+    ids << "]";
+
+    out << sp;
+    out << nl << "/// Traits for Slice interface";
     out << '`' << name << "`.";
     out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
     out << sb;
@@ -1095,7 +1147,7 @@ Gen::ProxyVisitor::ProxyVisitor(::IceUtilInternal::Output& o) : out(o)
 bool
 Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    return p->hasClassDefs();
+    return p->hasInterfaceDefs();
 }
 
 void
@@ -1104,28 +1156,9 @@ Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
+Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    if(!p->isInterface() && p->allOperations().empty())
-    {
-        return false;
-    }
-
-    ClassList bases = p->bases();
-    bool hasBase = false;
-    while(!bases.empty() && !hasBase)
-    {
-        ClassDefPtr baseClass = bases.front();
-        if(!baseClass->isInterface() && baseClass->allOperations().empty())
-        {
-            // does not count
-            bases.pop_front();
-        }
-        else
-        {
-            hasBase = true;
-        }
-    }
+    InterfaceList bases = p->bases();
 
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
@@ -1136,13 +1169,13 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     writeProxyDocSummary(out, p, swiftModule);
     out << nl << "public protocol " << prx << ":";
-    if(!hasBase)
+    if (bases.size() == 0)
     {
         out << " " << getUnqualified("Ice.ObjectPrx", swiftModule);
     }
     else
     {
-        for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+        for(InterfaceList::const_iterator i = bases.begin(); i != bases.end();)
         {
             out << " " << getUnqualified(getAbsolute(*i), swiftModule) << "Prx";
             if(++i != bases.end())
@@ -1283,7 +1316,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
+Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
@@ -1302,22 +1335,12 @@ Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& o) : out(o)
 bool
 Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->isInterface())
-    {
-        return false;
-    }
-
     const string prefix = getClassResolverPrefix(p->unit());
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     const string traits = name + "Traits";
 
-    ClassList bases = p->bases();
-    ClassDefPtr base;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        base = bases.front();
-    }
+    ClassDefPtr base = p->base();
 
     out << sp;
     out << nl << "/// :nodoc:";
@@ -1529,18 +1552,12 @@ Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
+Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    if(!p->isInterface() && p->allOperations().empty())
-    {
-        return false;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string disp = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Disp");
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
-    const string servant = fixIdent(getUnqualified(getAbsolute(p), swiftModule) +
-                                    (p->isInterface() ? "" : "Operations"));
+    const string servant = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
 
     //
     // Disp struct
@@ -1620,27 +1637,11 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Protocol
     //
-    ClassList bases = p->bases();
-    bool hasBase = false;
-    while(!bases.empty() && !hasBase)
-    {
-        ClassDefPtr baseClass = bases.front();
-        if(!baseClass->isInterface() && baseClass->allOperations().empty())
-        {
-            // does not count
-            bases.pop_front();
-        }
-        else
-        {
-            hasBase = true;
-        }
-    }
-
+    InterfaceList bases = p->bases();
     StringList baseNames;
-    for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
-        baseNames.push_back(fixIdent(getUnqualified(getAbsolute(*i), swiftModule) +
-                                     ((*i)->isInterface() ? "" : "Operations")));
+        baseNames.push_back(fixIdent(getUnqualified(getAbsolute(*i), swiftModule)));
     }
 
     //
@@ -1679,7 +1680,7 @@ Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr&)
+Gen::ObjectVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
@@ -1737,17 +1738,10 @@ Gen::ObjectExtVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
+Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    if(!p->isInterface() && p->allOperations().empty())
-    {
-        return false;
-    }
-
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-    const string name = getUnqualified(getAbsolute(p), swiftModule) + (p->isInterface() ? "" : "Operations");
-
-    ClassList allBases = p->allBases();
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
 
     out << sp;
     writeServantDocSummary(out, p, swiftModule);
@@ -1758,7 +1752,7 @@ Gen::ObjectExtVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Gen::ObjectExtVisitor::visitClassDefEnd(const ClassDefPtr&)
+Gen::ObjectExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }

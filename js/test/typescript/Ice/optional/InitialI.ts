@@ -158,7 +158,7 @@ export class InitialI extends Test.Initial
         return [p1, p1];
     }
 
-    opOneOptionalProxy(p1:Ice.ObjectPrx, current:Ice.Current):[Ice.ObjectPrx, Ice.ObjectPrx]
+    opMyInterfaceProxy(p1:Test.MyInterfacePrx, current:Ice.Current):[Test.MyInterfacePrx, Test.MyInterfacePrx]
     {
         return [p1, p1];
     }

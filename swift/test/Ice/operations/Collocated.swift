@@ -16,7 +16,7 @@ class Collocated: TestHelperI {
         //
         // Its possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
-        // scheduling so we supress this warning.
+        // scheduling so we suppress this warning.
         //
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         //
@@ -34,7 +34,6 @@ class Collocated: TestHelperI {
 
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: MBDisp(BI()), id: Ice.stringToIdentity("b"))
         try adapter.add(servant: MyDerivedClassDisp(MyDerivedClassI(self)),
                         id: Ice.stringToIdentity("test"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.

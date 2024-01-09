@@ -104,8 +104,8 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opOneOptionalProxy(p1: Ice.ObjectPrx?, current _: Ice.Current) throws -> (returnValue: Ice.ObjectPrx?,
-                                                                                   p3: Ice.ObjectPrx?) {
+    func opMyInterfaceProxy(p1: MyInterfacePrx?, current _: Ice.Current) throws -> (returnValue: MyInterfacePrx?,
+                                                                                    p3: MyInterfacePrx?) {
         return (p1, p1)
     }
 

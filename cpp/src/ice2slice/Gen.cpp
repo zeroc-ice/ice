@@ -250,8 +250,8 @@ string typeToCsString(const TypePtr& type, bool optional)
         string csharpNamespace = getCSharpNamespace(contained, hasCSharpNamespaceAttribute);
 
         os << csharpNamespace << "." << contained->name();
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(contained);
-        if (cl && cl->isInterface())
+        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(contained);
+        if (interface)
         {
             os << "Proxy";
         }
@@ -376,6 +376,13 @@ Gen::OutputVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 bool
+Gen::OutputVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    _modules.insert(p->scope());
+    return false;
+}
+
+bool
 Gen::OutputVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     _modules.insert(p->scope());
@@ -419,111 +426,117 @@ Gen::TypesVisitor::TypesVisitor(const std::string& fileBase, const std::set<std:
 {
 }
 
-bool
-Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
+bool Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr &p)
 {
-    ClassList bases = p->bases();
+    ClassDefPtr base = p->base();
+    const string scope = p->scope();
+    Output &out = getOutput(p);
+
+    writeComment(p, out);
+
+    out << nl << "class " << p->name();
+    if (base)
+    {
+        out << " : " << getUnqualified(base, scope);
+    }
+    out << " {";
+    out.inc();
+
+    writeDataMembers(out, p->dataMembers(), scope);
+
+    out.dec();
+    out << nl << "}";
+    out << nl;
+    return false;
+}
+
+bool
+Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    InterfaceList bases = p->bases();
     const string scope = p->scope();
     Output& out = getOutput(p);
 
     writeComment(p, out);
-    if (p->isInterface())
+    out << nl << "interface " << p->name();
+    if (bases.size() > 0)
     {
-        out << nl << "interface " << p->name();
-        if (bases.size() > 0)
+        out << " :";
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
         {
-            out << " :";
-            for (ClassList::const_iterator q = bases.begin(); q != bases.end();)
-            {
-                ClassDefPtr base = *q;
-                out << " " << getUnqualified(base, scope);
-                q++;
-                if (q != bases.end())
-                {
-                    out << ",";
-                }
-            }
-        }
-        out << " {";
-        out.inc();
-        OperationList operations = p->operations();
-        for (OperationList::const_iterator q = operations.begin(); q != operations.end();)
-        {
-            OperationPtr op = *q;
-            writeComment(op, out);
-            if (op->hasMetaData("marshaled-result"))
-            {
-                out << nl << "[cs::encodedReturn]";
-            }
-            out << nl;
-            if (op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
-            {
-                out << "idempotent ";
-            }
-            out << op->name();
-            ParamInfoList inParams = getAllInParams(op);
-            out << getParamList(inParams, scope);
-            ParamInfoList outParams = getAllOutParams(op);
-            if (outParams.size() > 1)
-            {
-                out << " -> " << getParamList(outParams, scope);
-            }
-            else if (outParams.size() > 0)
-            {
-                out << " -> " << paramToString(outParams.front(), scope);
-            }
-
-            ExceptionList throws = op->throws();
-            throws.sort();
-            throws.unique();
-            if (throws.size() == 1)
-            {
-                out << " throws " << getUnqualified(throws.front(), scope);
-            }
-            else if (throws.size() > 1)
-            {
-                out << " throws (";
-                for (ExceptionList::const_iterator r = throws.begin(); r != throws.end();)
-                {
-                    ExceptionPtr ex = *r;
-                    out << getUnqualified(ex, scope);
-                    r++;
-                    if (r != throws.end())
-                    {
-                        out << ", ";
-                    }
-                }
-                out << ")";
-            }
-
+            InterfaceDefPtr base = *q;
+            out << " " << getUnqualified(base, scope);
             q++;
-            if (q != operations.end())
+            if (q != bases.end())
             {
-                out << sp;
+                out << ",";
             }
         }
-        out.dec();
-        out << nl << "}";
-        out << sp;
-
-        out << nl << "[cs::type(\"" << typeToCsString(p->declaration(), false) << "\")]";
-        out << nl << "custom " << p->name() << "Proxy";
     }
-    else
+    out << " {";
+    out.inc();
+    OperationList operations = p->operations();
+    for (OperationList::const_iterator q = operations.begin(); q != operations.end();)
     {
-        out << nl << "class " << p->name();
-        if (bases.size() > 0)
+        OperationPtr op = *q;
+        writeComment(op, out);
+        if (op->hasMetaData("marshaled-result"))
         {
-            out << " : " << getUnqualified(bases.front(), scope);
+            out << nl << "[cs::encodedReturn]";
         }
-        out << " {";
-        out.inc();
+        out << nl;
+        if (op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
+        {
+            out << "idempotent ";
+        }
+        out << op->name();
+        ParamInfoList inParams = getAllInParams(op);
+        out << getParamList(inParams, scope);
+        ParamInfoList outParams = getAllOutParams(op);
+        if (outParams.size() > 1)
+        {
+            out << " -> " << getParamList(outParams, scope);
+        }
+        else if (outParams.size() > 0)
+        {
+            out << " -> " << paramToString(outParams.front(), scope);
+        }
 
-        writeDataMembers(out, p->dataMembers(), scope);
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+        if (throws.size() == 1)
+        {
+            out << " throws " << getUnqualified(throws.front(), scope);
+        }
+        else if (throws.size() > 1)
+        {
+            out << " throws (";
+            for (ExceptionList::const_iterator r = throws.begin(); r != throws.end();)
+            {
+                ExceptionPtr ex = *r;
+                out << getUnqualified(ex, scope);
+                r++;
+                if (r != throws.end())
+                {
+                    out << ", ";
+                }
+            }
+            out << ")";
+        }
 
-        out.dec();
-        out << nl << "}";
+        q++;
+        if (q != operations.end())
+        {
+            out << sp;
+        }
     }
+    out.dec();
+    out << nl << "}";
+    out << sp;
+
+    out << nl << "[cs::type(\"" << typeToCsString(p->declaration(), false) << "\")]";
+    out << nl << "custom " << p->name() << "Proxy";
     out << nl;
     return false;
 }

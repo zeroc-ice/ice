@@ -59,9 +59,6 @@ class JI(Ice.InterfaceByValue):
     def __init__(self):
         Ice.InterfaceByValue.__init__(self, "::Test::J")
 
-class HI(Test.H):
-    pass
-
 class InitialI(Test.Initial):
     def __init__(self, adapter):
         self._adapter = adapter
@@ -145,15 +142,6 @@ class InitialI(Test.Initial):
         self._d.preMarshalInvoked = False
         return (self._b1, self._b2, self._c, self._d)
 
-    def getI(self, current=None):
-        return II()
-
-    def getJ(self, current=None):
-        return JI()
-
-    def getH(self, current=None):
-        return HI()
-
     def getK(self, current=None):
         return Test.K(Test.L("l"))
 
@@ -173,9 +161,6 @@ class InitialI(Test.Initial):
         raise Test.EDerived(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
 
     def setG(self, g, current=None):
-        pass
-
-    def setI(self, i, current=None):
         pass
 
     def opBaseSeq(self, inSeq, current=None):
@@ -211,9 +196,6 @@ class InitialI(Test.Initial):
 
     def hasF3(self, current):
         return True
-
-    def opN(self, p1, current):
-        return p1
 
 
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
