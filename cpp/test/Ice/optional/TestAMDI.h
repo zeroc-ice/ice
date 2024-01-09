@@ -284,7 +284,7 @@ public:
                                 const Ice::Current&);
 
     virtual void pingPong_async(const ::Test::AMD_Initial_pingPongPtr&,
-                                const Ice::ObjectPtr&,
+                                const Ice::ValuePtr&,
                                 const Ice::Current&);
 
     virtual void opOptionalException_async(const ::Test::AMD_Initial_opOptionalExceptionPtr&,

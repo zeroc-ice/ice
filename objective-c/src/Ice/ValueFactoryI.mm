@@ -21,11 +21,11 @@ class UnknownSlicedValueFactoryI : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ObjectPtr
+    virtual Ice::ValuePtr
     create(const std::string&)
     {
         ICEUnknownSlicedValue* obj = [[ICEUnknownSlicedValue alloc] init];
-        Ice::ObjectPtr o = [ICEInputStream createObjectReader:obj];
+        Ice::ValuePtr o = [ICEInputStream createObjectReader:obj];
         [obj release];
         return o;
     }
@@ -48,7 +48,7 @@ public:
         CFRelease(_prefixTable);
     }
 
-    virtual Ice::ObjectPtr
+    virtual Ice::ValuePtr
     create(const std::string& type)
     {
         NSString* sliceId = [[NSString alloc] initWithUTF8String:type.c_str()];
@@ -65,7 +65,7 @@ public:
                 }
             }
 
-            ICEObject* obj = nil;
+            ICEValue* obj = nil;
             if(factory != nil)
             {
                 obj = factory(sliceId);
@@ -79,13 +79,13 @@ public:
                 {
                     return 0; // No value factory.
                 }
-                if([c isSubclassOfClass:[ICEObject class]])
+                if([c isSubclassOfClass:[ICEValue class]])
                 {
-                    obj = (ICEObject*)[[c alloc] init];
+                    obj = (ICEValue*)[[c alloc] init];
                 }
             }
 
-            Ice::ObjectPtr o;
+            Ice::ValuePtr o;
             if(obj != nil)
             {
                 o = [ICEInputStream createObjectReader:obj];

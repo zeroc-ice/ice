@@ -195,7 +195,7 @@ public:
                                                        const ::Ice::Current&);
 
     virtual void SUnknownAsObject_async(const ::Test::AMD_TestIntf_SUnknownAsObjectPtr&, const ::Ice::Current&);
-    virtual void checkSUnknown_async(const ::Test::AMD_TestIntf_checkSUnknownPtr&, const Ice::ObjectPtr&,
+    virtual void checkSUnknown_async(const ::Test::AMD_TestIntf_checkSUnknownPtr&, const Ice::ValuePtr&,
                                      const ::Ice::Current&);
 
     virtual void oneElementCycle_async(const ::Test::AMD_TestIntf_oneElementCyclePtr&, const ::Ice::Current&);

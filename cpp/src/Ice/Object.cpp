@@ -21,12 +21,6 @@ const Current emptyCurrent = Current();
 #ifndef ICE_CPP11_MAPPING
 Object* Ice::upCast(Object* p) { return p; }
 
-void
-Ice::_icePatchObjectPtr(ObjectPtr& obj, const ObjectPtr& v)
-{
-    obj = v;
-}
-
 bool
 Ice::Object::operator==(const Object& r) const
 {
@@ -38,6 +32,7 @@ Ice::Object::operator<(const Object& r) const
 {
     return this < &r;
 }
+
 #endif
 
 namespace
@@ -107,20 +102,6 @@ Ice::Object::ice_staticId()
 {
     return object_ids[0];
 }
-
-#ifndef ICE_CPP11_MAPPING
-Ice::ObjectPtr
-Ice::Object::ice_clone() const
-{
-    throw CloneNotImplementedException(__FILE__, __LINE__);
-}
-
-Ice::SlicedDataPtr
-Ice::Object::ice_getSlicedData() const
-{
-    return 0;
-}
-#endif
 
 bool
 Ice::Object::_iceD_ice_isA(Incoming& inS, const Current& current)
@@ -249,45 +230,6 @@ Ice::Object::_iceDispatch(Incoming& in, const Current& current)
         }
     }
 }
-
-#ifndef ICE_CPP11_MAPPING
-void
-Ice::Object::ice_collectable(bool)
-{
-}
-
-void
-Ice::Object::ice_preMarshal()
-{
-}
-
-void
-Ice::Object::ice_postUnmarshal()
-{
-}
-
-void
-Ice::Object::_iceWrite(Ice::OutputStream* os) const
-{
-    os->startValue(0);
-    _iceWriteImpl(os);
-    os->endValue();
-}
-
-void
-Ice::Object::_iceRead(Ice::InputStream* is)
-{
-   is->startValue();
-   _iceReadImpl(is);
-   is->endValue(false);
-}
-
-Ice::Int
-Ice::Object::ice_operationAttributes(const string&) const
-{
-    return 0;
-}
-#endif
 
 namespace
 {

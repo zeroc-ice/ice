@@ -27,7 +27,7 @@ namespace
 ValueInfoPtr
 getValueInfo(const string& id)
 {
-    return id == Ice::Object::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
+    return id == Ice::Value::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
 }
 
 }
@@ -232,7 +232,7 @@ IcePy::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    return new ObjectReader(obj.get(), info);
+    return new ValueReader(obj.get(), info);
 }
 
 PyObject*
@@ -300,7 +300,7 @@ IcePy::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    return new ObjectReader(obj.get(), info);
+    return new ValueReader(obj.get(), info);
 }
 
 void

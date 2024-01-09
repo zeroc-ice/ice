@@ -724,7 +724,7 @@ TestI::SUnknownAsObject_async(const AMD_TestIntf_SUnknownAsObjectPtr& cb, const 
 
 void
 TestI::checkSUnknown_async(const AMD_TestIntf_checkSUnknownPtr& cb,
-                           const Ice::ObjectPtr& obj,
+                           const Ice::ValuePtr& obj,
                            const ::Ice::Current& current)
 {
     SUnknownPtr su = SUnknownPtr::dynamicCast(obj);

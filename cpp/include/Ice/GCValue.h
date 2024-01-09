@@ -7,7 +7,7 @@
 
 #ifndef ICE_CPP11_MAPPING
 
-#include <Ice/Object.h>
+#include <Ice/Value.h>
 
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>
@@ -15,7 +15,7 @@
 namespace IceInternal
 {
 
-class GCObject;
+class GCValue;
 
 class GCVisitor
 {
@@ -25,10 +25,10 @@ public:
     {
     }
 
-    virtual bool visit(GCObject*) = 0;
+    virtual bool visit(GCValue*) = 0;
 };
 
-class ICE_API GCObject : public virtual Ice::Object
+class ICE_API GCValue : public virtual Ice::Value
 {
 public:
 

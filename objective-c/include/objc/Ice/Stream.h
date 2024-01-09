@@ -11,6 +11,7 @@
 // Forward declarations
 //
 @class ICEObject;
+@class ICEValue;
 @protocol ICEObjectPrx;
 @protocol ICESlicedData;
 @class ICEUserException;
@@ -32,7 +33,7 @@ typedef enum
 } ICEOptionalFormat;
 
 ICE_API @protocol ICEReadObjectCallback <NSObject>
--(void)invoke:(ICEObject*)obj;
+-(void)invoke:(ICEValue*)obj;
 @end
 
 //
@@ -91,10 +92,10 @@ ICE_API @protocol ICEInputStream <NSObject>
 -(id<ICEObjectPrx>) newProxy:(Class)c;
 -(id<ICEObjectPrx>) readProxy:(Class)c;
 
--(void) newValue:(ICEObject*ICE_STRONG_QUALIFIER*)object;
--(void) newValue:(ICEObject*ICE_STRONG_QUALIFIER*)object expectedType:(Class)type;
--(void) readValue:(ICEObject**)object;
--(void) readValue:(ICEObject**)object expectedType:(Class)type;
+-(void) newValue:(ICEValue*ICE_STRONG_QUALIFIER*)object;
+-(void) newValue:(ICEValue*ICE_STRONG_QUALIFIER*)object expectedType:(Class)type;
+-(void) readValue:(ICEValue**)object;
+-(void) readValue:(ICEValue**)object expectedType:(Class)type;
 -(NSMutableArray*) newValueSeq:(Class)expectedType;
 -(NSMutableArray*) readValueSeq:(Class)expectedType;
 -(NSMutableDictionary*) newValueDict:(Class)keyType expectedType:(Class)type;
@@ -168,7 +169,7 @@ ICE_API @protocol ICEOutputStream <NSObject>
 
 -(void) writeProxy:(id<ICEObjectPrx>)v;
 
--(void) writeValue:(ICEObject*)v;
+-(void) writeValue:(ICEValue*)v;
 -(void) writeValueSeq:(NSArray*)v;
 -(void) writeValueDict:(NSDictionary*)v helper:(Class)helper;
 
@@ -248,8 +249,8 @@ ICE_API @interface ICEDoubleHelper : ICEStreamHelper
 ICE_API @interface ICEStringHelper : ICEStreamHelper
 @end
 
-ICE_API @interface ICEObjectHelper : ICEStreamHelper
-+(void)read:(ICEObject**)v stream:(id<ICEInputStream>)stream;
+ICE_API @interface ICEValueHelper : ICEStreamHelper
++(void)read:(ICEValue**)v stream:(id<ICEInputStream>)stream;
 +(void)readOptional:(id*)v stream:(id<ICEInputStream>)stream tag:(ICEInt)tag;
 @end
 
@@ -320,7 +321,7 @@ ICE_API @interface ICEDictionaryHelper : ICEStreamHelper<ICEDictionaryStreamHelp
 +(Class) getOptionalHelper;
 @end
 
-ICE_API @interface ICEObjectDictionaryHelper : ICEDictionaryHelper
+ICE_API @interface ICEValueDictionaryHelper : ICEDictionaryHelper
 @end
 
 //

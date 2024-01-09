@@ -169,14 +169,14 @@ class Recursive
     Recursive v;
 }
 
+class K
+{
+    Value value;
+}
+
 class L
 {
     string data;
-}
-
-class K
-{
-    Object value;
 }
 
 sequence<Value> ValueSeq;

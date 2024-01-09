@@ -42,10 +42,10 @@ class ClassInfo;
 typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
 typedef std::vector<ClassInfoPtr> ClassInfoList;
 
-typedef std::map<unsigned int, Ice::ObjectPtr> ObjectMap;
+typedef std::map<unsigned int, Ice::ValuePtr> ObjectMap;
 
-class ObjectReader;
-typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+class ValueReader;
+typedef IceUtil::Handle<ValueReader> ValueReaderPtr;
 
 struct PrintObjectHistory
 {
@@ -87,7 +87,7 @@ public:
     ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, zval*, void*);
     ~ReadObjectCallback();
 
-    virtual void invoke(const ::Ice::ObjectPtr&);
+    virtual void invoke(const ::Ice::ValuePtr&);
 
 private:
 
@@ -116,7 +116,7 @@ public:
     //
     // Keep track of object instances that have preserved slices.
     //
-    void add(const ObjectReaderPtr&);
+    void add(const ValueReaderPtr&);
 
     void updateSlicedData(void);
 
@@ -126,7 +126,7 @@ public:
 private:
 
     std::vector<ReadObjectCallbackPtr> _callbacks;
-    std::set<ObjectReaderPtr> _readers;
+    std::set<ValueReaderPtr> _readers;
     static zend_class_entry* _slicedDataType;
     static zend_class_entry* _sliceInfoType;
 };
@@ -526,14 +526,14 @@ bool typesRequestInit(void);
 bool typesRequestShutdown(void);
 
 //
-// ObjectWriter wraps a PHP object for marshaling.
+// ValueWriter wraps a PHP object for marshaling.
 //
-class ObjectWriter : public Ice::Object
+class ValueWriter : public Ice::Value
 {
 public:
 
-    ObjectWriter(zval*, ObjectMap*, const ClassInfoPtr&);
-    ~ObjectWriter();
+    ValueWriter(zval*, ObjectMap*, const ClassInfoPtr&);
+    ~ValueWriter();
 
     virtual void ice_preMarshal();
 
@@ -551,14 +551,14 @@ private:
 };
 
 //
-// ObjectReader unmarshals the state of an Ice object.
+// ValueReader unmarshals the state of an Ice value.
 //
-class ObjectReader : public Ice::Object
+class ValueReader : public Ice::Value
 {
 public:
 
-    ObjectReader(zval*, const ClassInfoPtr&, const CommunicatorInfoPtr&);
-    ~ObjectReader();
+    ValueReader(zval*, const ClassInfoPtr&, const CommunicatorInfoPtr&);
+    ~ValueReader();
 
     virtual void ice_postUnmarshal();
 

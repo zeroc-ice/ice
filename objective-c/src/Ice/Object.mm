@@ -301,36 +301,10 @@ static NSString* ICEObject_ids[1] =
 {
     [super dealloc];
 }
--(BOOL) ice_isA:(NSString*)typeId
-{
-    return [self ice_isA:typeId current:nil];
-}
--(void) ice_ping
-{
-    [self ice_ping:nil];
-}
--(NSString*) ice_id
-{
-    return [self ice_id:nil];
-}
--(NSArray*) ice_ids
-{
-    return [self ice_ids:nil];
-}
--(void) ice_preMarshal
-{
-}
--(void) ice_postUnmarshal
-{
-}
--(id<ICESlicedData>) ice_getSlicedData
-{
-    return nil;
-}
 -(BOOL) ice_isA:(NSString*)__unused typeId current:(ICECurrent*)__unused current
 {
     NSAssert(NO, @"ice_isA requires override");
-    return false;
+    return NO;
 }
 -(void) ice_ping:(ICECurrent*)__unused current
 {
@@ -361,14 +335,6 @@ static NSString* ICEObject_ids[1] =
     *count = sizeof(ICEObject_ids) / sizeof(NSString*);
     *idx = 0;
     return ICEObject_ids;
-}
--(void) iceWrite:(id<ICEOutputStream>)__unused os
-{
-    NSAssert(NO, @"iceWrite requires override");
-}
--(void) iceRead:(id<ICEInputStream>)__unused is
-{
-    NSAssert(NO, @"iceRead requires override");
 }
 -(id) copyWithZone:(NSZone*)zone
 {
@@ -518,30 +484,6 @@ static NSString* ICEObject_all[4] =
                                                                facet:current.facet
                                                            operation:current.operation];
     }
-}
-
--(void) iceWrite:(id<ICEOutputStream>)os
-{
-    [os startValue:nil];
-    [self iceWriteImpl:os];
-    [os endValue];
-}
-
--(void) iceRead:(id<ICEInputStream>)is
-{
-    [is startValue];
-    [self iceReadImpl:is];
-    [is endValue:NO];
-}
-
--(void) iceWriteImpl:(id<ICEOutputStream>)__unused os
-{
-    NSAssert(NO, @"iceWriteImpl requires override");
-}
-
--(void) iceReadImpl:(id<ICEInputStream>)__unused is
-{
-    NSAssert(NO, @"iceReadImpl requires override");
 }
 
 -(id)iceTarget
@@ -699,32 +641,7 @@ static NSString* ICEObject_all[4] =
 {
     @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
 }
--(void) iceWrite:(id<ICEOutputStream>)os
-{
-    NSException* nsex = nil;
-    try
-    {
-        object_->_iceWrite([(ICEOutputStream*)os os]);
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-}
--(void) iceRead:(id<ICEInputStream>)is
-{
-    NSException* nsex = nil;
-    try
-    {
-        object_->_iceRead([(ICEInputStream*)is is]);
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    @throw nsex;
-}
+
 -(Ice::Object*) iceObject
 {
     return object_;

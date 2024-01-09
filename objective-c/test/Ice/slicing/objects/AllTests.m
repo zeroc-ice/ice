@@ -187,10 +187,10 @@ static void breakCycles(id o)
     [cond signal];
     [cond unlock];
 }
--(void) SBaseAsObjectResponse:(ICEObject*)o
+-(void) SBaseAsObjectResponse:(ICEValue*)o
 {
     test(o);
-    test([[o ice_id:nil] isEqualToString:@"::Test::SBase"]);
+    test([[o ice_id] isEqualToString:@"::Test::SBase"]);
     test([o isKindOfClass:[TestSlicingObjectsClientSBase class]]);
     TestSlicingObjectsClientSBase* sb = (TestSlicingObjectsClientSBase*)o;
     test([sb.sb isEqualToString:@"SBase.sb"]);
@@ -259,7 +259,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) SUnknownAsObjectResponse10:(ICEObject*)__unused o
+-(void) SUnknownAsObjectResponse10:(ICEValue*)__unused o
 {
     test(NO);
 }
@@ -270,7 +270,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) SUnknownAsObjectResponse11:(ICEObject*)o
+-(void) SUnknownAsObjectResponse11:(ICEValue*)o
 {
     [self called];
     [[o ice_getSlicedData] clear];
@@ -284,7 +284,7 @@ static void breakCycles(id o)
 -(void) oneElementCycleResponse:(TestSlicingObjectsClientB*)b
 {
     test(b);
-    test([[b ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[b ice_id] isEqualToString:@"::Test::B"]);
     test([b.sb isEqualToString:@"B1.sb"]);
     test(b.pb == b);
     breakCycles(b);
@@ -299,12 +299,12 @@ static void breakCycles(id o)
 -(void) twoElementCycleResponse:(TestSlicingObjectsClientB*)b1
 {
     test(b1);
-    test([[b1 ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[b1 ice_id] isEqualToString:@"::Test::B"]);
     test([b1.sb isEqualToString:@"B1.sb"]);
 
     TestSlicingObjectsClientB* b2 = b1.pb;
     test(b2);
-    test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[b2 ice_id] isEqualToString:@"::Test::B"]);
     test([b2.sb isEqualToString:@"B2.sb"]);
     test(b2.pb == b1);
 
@@ -320,7 +320,7 @@ static void breakCycles(id o)
 -(void) D1AsBResponse:(TestSlicingObjectsClientB*)b1
 {
     test(b1);
-    test([[b1 ice_id:nil] isEqualToString:@"::Test::D1"]);
+    test([[b1 ice_id] isEqualToString:@"::Test::D1"]);
     test([b1.sb isEqualToString:@"D1.sb"]);
     test(b1.pb);
     test(b1.pb != b1);
@@ -335,7 +335,7 @@ static void breakCycles(id o)
     test(b2);
     test(b2.pb == b1);
     test([b2.sb isEqualToString:@"D2.sb"]);
-    test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[b2 ice_id] isEqualToString:@"::Test::B"]);
 
     breakCycles(d1);
 
@@ -350,14 +350,14 @@ static void breakCycles(id o)
 -(void) D1AsD1Response:(TestSlicingObjectsClientD1*)d1
 {
     test(d1);
-    test([[d1 ice_id:nil] isEqualToString:@"::Test::D1"]);
+    test([[d1 ice_id] isEqualToString:@"::Test::D1"]);
     test([d1.sb isEqualToString:@"D1.sb"]);
     test(d1.pb);
     test(d1.pb != d1);
 
     TestSlicingObjectsClientB* b2 = d1.pb;
     test(b2);
-    test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[b2 ice_id] isEqualToString:@"::Test::B"]);
     test([b2.sb isEqualToString:@"D2.sb"]);
     test(b2.pb == d1);
 
@@ -374,14 +374,14 @@ static void breakCycles(id o)
 -(void) D2AsBResponse:(TestSlicingObjectsClientB*)b2
 {
     test(b2);
-    test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[b2 ice_id] isEqualToString:@"::Test::B"]);
     test([b2.sb isEqualToString:@"D2.sb"]);
     test(b2.pb);
     test(b2.pb != b2);
 
     TestSlicingObjectsClientB* b1 = b2.pb;
     test(b1);
-    test([[b1 ice_id:nil] isEqualToString:@"::Test::D1"]);
+    test([[b1 ice_id] isEqualToString:@"::Test::D1"]);
     test([b1.sb isEqualToString:@"D1.sb"]);
     test(b1.pb == b2);
     test([b1 isKindOfClass:[TestSlicingObjectsClientD1 class]]);
@@ -402,7 +402,7 @@ static void breakCycles(id o)
 -(void) paramTest1Response:(TestSlicingObjectsClientB*)b1 p2:(TestSlicingObjectsClientB*)b2
 {
     test(b1);
-    test([[b1 ice_id:nil] isEqualToString:@"::Test::D1"]);
+    test([[b1 ice_id] isEqualToString:@"::Test::D1"]);
     test([b1.sb isEqualToString:@"D1.sb"]);
     test(b1.pb == b2);
     test([b1 isKindOfClass:[TestSlicingObjectsClientD1 class]]);
@@ -411,7 +411,7 @@ static void breakCycles(id o)
     test(d1.pd1 == b2);
 
     test(b2);
-    test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);      // No factory, must be sliced
+    test([[b2 ice_id] isEqualToString:@"::Test::B"]);      // No factory, must be sliced
     test([b2.sb isEqualToString:@"D2.sb"]);
     test(b2.pb == b1);
 
@@ -469,17 +469,17 @@ static void breakCycles(id o)
     test(p1);
     test([p1.sb isEqualToString:@"D2.sb (p1 1)"]);
     test(p1.pb == 0);
-    test([[p1 ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[p1 ice_id] isEqualToString:@"::Test::B"]);
 
     test(p2);
     test([p2.sb isEqualToString:@"D2.sb (p2 1)"]);
     test(p2.pb == 0);
-    test([[p2 ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[p2 ice_id] isEqualToString:@"::Test::B"]);
 
     test(ret);
     test([ret.sb isEqualToString:@"D1.sb (p2 2)"]);
     test(ret.pb == 0);
-    test([[ret ice_id:nil] isEqualToString:@"::Test::D1"]);
+    test([[ret ice_id] isEqualToString:@"::Test::D1"]);
     [self called];
 
     breakCycles(ret);
@@ -497,12 +497,12 @@ static void breakCycles(id o)
     test(b);
     test([b.sb isEqualToString:@"D4.sb (1)"]);
     test(b.pb == 0);
-    test([[b ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[b ice_id] isEqualToString:@"::Test::B"]);
 
     test(ret);
     test([ret.sb isEqualToString:@"B.sb (2)"]);
     test(ret.pb == 0);
-    test([[ret ice_id:nil] isEqualToString:@"::Test::B"]);
+    test([[ret ice_id] isEqualToString:@"::Test::B"]);
     [self called];
 
     breakCycles(ret);
@@ -745,7 +745,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
 
     tprintf("base as Object... ");
     {
-        ICEObject* o = nil;
+        ICEValue* o = nil;
         @try
         {
             o = [test SBaseAsObject];
@@ -765,7 +765,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
     tprintf("base as Object (AMI)... ");
     {
         TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
-        [test begin_SBaseAsObject:^(ICEObject* o) { [cb SBaseAsObjectResponse:o]; }
+        [test begin_SBaseAsObject:^(ICEValue* o) { [cb SBaseAsObjectResponse:o]; }
                         exception:^(ICEException* ex) { [cb SBaseAsObjectException:ex]; }];
         [cb check];
     }
@@ -928,7 +928,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
 
     tprintf("unknown with Object as Object... ");
     {
-        ICEObject* o;
+        ICEValue* o;
         @try
         {
             o = [test SUnknownAsObject];
@@ -958,12 +958,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
             if([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
             {
-                [test begin_SUnknownAsObject:^(ICEObject* o) { [cb SUnknownAsObjectResponse10:o]; }
+                [test begin_SUnknownAsObject:^(ICEValue* o) { [cb SUnknownAsObjectResponse10:o]; }
                 exception:^(ICEException* e) { [cb SUnknownAsObjectException10:e]; }];
             }
             else
             {
-                [test begin_SUnknownAsObject:^(ICEObject* o) { [cb SUnknownAsObjectResponse11:o]; }
+                [test begin_SUnknownAsObject:^(ICEValue* o) { [cb SUnknownAsObjectResponse11:o]; }
                 exception:^(ICEException* e) { [cb SUnknownAsObjectException11:e]; }];
             }
             [cb check];
@@ -1343,7 +1343,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
 
             test(b1);
             test([b1.sb isEqualToString:@"D1.sb"]);
-            test([[b1 ice_id:nil] isEqualToString:@"::Test::D1"]);
+            test([[b1 ice_id] isEqualToString:@"::Test::D1"]);
             test([b1 isKindOfClass:[TestSlicingObjectsClientD1 class]]);
             TestSlicingObjectsClientD1* p1 = (TestSlicingObjectsClientD1*)b1;
             test([p1.sd1 isEqualToString:@"D1.sd1"]);
@@ -1352,7 +1352,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientB* b2 = b1.pb;
             test(b2);
             test([b2.sb isEqualToString:@"D3.sb"]);
-            test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);  // Sliced by server
+            test([[b2 ice_id] isEqualToString:@"::Test::B"]);  // Sliced by server
             test(b2.pb == b1);
             test(![b2 isKindOfClass:[TestSlicingObjectsClientD3 class]]);
 
@@ -1442,13 +1442,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
 
             test(b1);
             test([b1.sb isEqualToString:@"D3.sb"]);
-            test([[b1 ice_id:nil] isEqualToString:@"::Test::B"]);  // Sliced by server
+            test([[b1 ice_id] isEqualToString:@"::Test::B"]);  // Sliced by server
             test(![b1 isKindOfClass:[TestSlicingObjectsClientD3 class]]);
 
             TestSlicingObjectsClientB* b2 = b1.pb;
             test(b2);
             test([b2.sb isEqualToString:@"D1.sb"]);
-            test([[b2 ice_id:nil] isEqualToString:@"::Test::D1"]);
+            test([[b2 ice_id] isEqualToString:@"::Test::D1"]);
             test(b2.pb == b1);
             test([b2 isKindOfClass:[TestSlicingObjectsClientD1 class]]);
             TestSlicingObjectsClientD1* p3 = (TestSlicingObjectsClientD1*)b2;
@@ -1605,7 +1605,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientB* r = cb.r;
 
             test(r);
-            test([[r ice_id:nil] isEqualToString:@"::Test::B"]);
+            test([[r ice_id] isEqualToString:@"::Test::B"]);
             test([r.sb isEqualToString:@"D3.sb"]);
             test(r.pb == r);
 
@@ -1686,7 +1686,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             [cb check];
             TestSlicingObjectsClientB* r = cb.r;
             test(r);
-            test([[r ice_id:nil] isEqualToString:@"::Test::B"]);
+            test([[r ice_id] isEqualToString:@"::Test::B"]);
             test([r.sb isEqualToString:@"D3.sb"]);
             test(r.pb == r);
 
@@ -1876,13 +1876,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(ss2d1.pb == ss2b);
             test(ss2d3.pb == ss2b);
 
-            test([[ss1b ice_id:nil] isEqualToString:@"::Test::B"]);
-            test([[ss1d1 ice_id:nil] isEqualToString:@"::Test::D1"]);
-            test([[ss1d3 ice_id:nil] isEqualToString:@"::Test::B"]);
+            test([[ss1b ice_id] isEqualToString:@"::Test::B"]);
+            test([[ss1d1 ice_id] isEqualToString:@"::Test::D1"]);
+            test([[ss1d3 ice_id] isEqualToString:@"::Test::B"]);
 
-            test([[ss2b ice_id:nil] isEqualToString:@"::Test::B"]);
-            test([[ss2d1 ice_id:nil] isEqualToString:@"::Test::D1"]);
-            test([[ss2d3 ice_id:nil] isEqualToString:@"::Test::B"]);
+            test([[ss2b ice_id] isEqualToString:@"::Test::B"]);
+            test([[ss2d1 ice_id] isEqualToString:@"::Test::D1"]);
+            test([[ss2d3 ice_id] isEqualToString:@"::Test::B"]);
 
             breakCycles(ss);
         }

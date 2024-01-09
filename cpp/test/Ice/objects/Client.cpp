@@ -40,7 +40,7 @@ class MyValueFactory : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ObjectPtr create(const string& type)
+    virtual Ice::ValuePtr create(const string& type)
     {
         if(type == "::Test::B")
         {

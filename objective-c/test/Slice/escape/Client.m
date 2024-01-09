@@ -18,9 +18,6 @@
 @interface andswitchI : andswitch<andswitch>
 @end
 
-@interface anddoI : anddo<anddo>
-@end
-
 //
 // This section of the test is present to ensure that the C++ types
 // are named correctly. It is not expected to run.

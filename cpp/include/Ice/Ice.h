@@ -48,7 +48,6 @@
 #   include <Ice/NativePropertiesAdmin.h>
 #   include <Ice/Instrumentation.h>
 #   include <Ice/RegisterPlugins.h>
-#   include <Ice/InterfaceByValue.h>
 #   include <Ice/StringConverter.h>
 #   include <Ice/IconvStringConverter.h>
 #   include <Ice/UUID.h>

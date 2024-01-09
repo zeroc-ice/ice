@@ -221,7 +221,7 @@ public:
 
     Exception(id<NSObject>);
     Exception(const Exception&);
-    ~Exception();
+    virtual ~Exception();
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream& os) const;

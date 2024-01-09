@@ -399,9 +399,9 @@ IcePy::StreamUtil::StreamUtil()
 IcePy::StreamUtil::~StreamUtil()
 {
     //
-    // Make sure we break any cycles among the ObjectReaders in preserved slices.
+    // Make sure we break any cycles among the ValueReaders in preserved slices.
     //
-    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for(set<ValueReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         Ice::SlicedDataPtr slicedData = (*p)->getSlicedData();
         for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
@@ -412,20 +412,20 @@ IcePy::StreamUtil::~StreamUtil()
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
-            vector<Ice::ObjectPtr> tmp;
+            vector<Ice::ValuePtr> tmp;
             tmp.swap((*q)->instances);
         }
     }
 }
 
 void
-IcePy::StreamUtil::add(const ReadObjectCallbackPtr& callback)
+IcePy::StreamUtil::add(const ReadValueCallbackPtr& callback)
 {
     _callbacks.push_back(callback);
 }
 
 void
-IcePy::StreamUtil::add(const ObjectReaderPtr& reader)
+IcePy::StreamUtil::add(const ValueReaderPtr& reader)
 {
     assert(reader->getSlicedData());
     _readers.insert(reader);
@@ -434,7 +434,7 @@ IcePy::StreamUtil::add(const ObjectReaderPtr& reader)
 void
 IcePy::StreamUtil::updateSlicedData()
 {
-    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for(set<ValueReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         setSlicedDataMember((*p)->getObject(), (*p)->getSlicedData());
     }
@@ -562,13 +562,13 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         }
 
         int j = 0;
-        for(vector<Ice::ObjectPtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for(vector<Ice::ValuePtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
-            // Each element in the instances list is an instance of ObjectReader that wraps a Python object.
+            // Each element in the instances list is an instance of ValueReader that wraps a Python object.
             //
             assert(*q);
-            ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
+            ValueReaderPtr r = ValueReaderPtr::dynamicCast(*q);
             assert(r);
             PyObject* pobj = r->getObject();
             assert(pobj != Py_None); // Should be non-nil.
@@ -667,12 +667,12 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 {
                     PyObject* o = PyTuple_GET_ITEM(instances.get(), j);
 
-                    Ice::ObjectPtr writer;
+                    Ice::ValuePtr writer;
 
                     ObjectMap::iterator k = objectMap->find(o);
                     if(k == objectMap->end())
                     {
-                        writer = new ObjectWriter(o, objectMap, 0);
+                        writer = new ValueWriter(o, objectMap, 0);
                         objectMap->insert(ObjectMap::value_type(o, writer));
                     }
                     else
@@ -3474,7 +3474,7 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
 
     if(p == Py_None)
     {
-        Ice::ObjectPtr nil;
+        Ice::ValuePtr nil;
         os->write(nil);
         return;
     }
@@ -3486,17 +3486,17 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
     }
 
     //
-    // Ice::ObjectWriter is a subclass of Ice::Object that wraps a Python object for marshaling.
+    // Ice::ValueWriter is a subclass of Ice::Value that wraps a Python object for marshaling.
     // It is possible that this Python object has already been marshaled, therefore we first must
-    // check the object map to see if this object is present. If so, we use the existing ObjectWriter,
+    // check the object map to see if this object is present. If so, we use the existing ValueWriter,
     // otherwise we create a new one.
     //
-    Ice::ObjectPtr writer;
+    Ice::ValuePtr writer;
     assert(objectMap);
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        writer = new ObjectWriter(p, objectMap, this);
+        writer = new ValueWriter(p, objectMap, this);
         objectMap->insert(ObjectMap::value_type(p, writer));
     }
     else
@@ -3514,9 +3514,9 @@ namespace
 {
 
 void
-patchObject(void* addr, const Ice::ObjectPtr& v)
+patchObject(void* addr, const Ice::ValuePtr& v)
 {
-    ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
+    ReadValueCallback* cb = static_cast<ReadValueCallback*>(addr);
     assert(cb);
     cb->invoke(v);
 }
@@ -3538,7 +3538,7 @@ IcePy::ValueInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb
     // attached to the stream keeps a reference to the callback object to ensure it lives
     // long enough.
     //
-    ReadObjectCallbackPtr rocb = new ReadObjectCallback(this, cb, target, closure);
+    ReadValueCallbackPtr rocb = new ReadValueCallback(this, cb, target, closure);
     StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
     assert(util);
     util->add(rocb);
@@ -3772,9 +3772,9 @@ IcePy::ProxyInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
 }
 
 //
-// ObjectWriter implementation.
+// ValueWriter implementation.
 //
-IcePy::ObjectWriter::ObjectWriter(PyObject* object, ObjectMap* objectMap, const ValueInfoPtr& formal) :
+IcePy::ValueWriter::ValueWriter(PyObject* object, ObjectMap* objectMap, const ValueInfoPtr& formal) :
     _object(object), _map(objectMap), _formal(formal)
 {
     Py_INCREF(_object);
@@ -3791,13 +3791,13 @@ IcePy::ObjectWriter::ObjectWriter(PyObject* object, ObjectMap* objectMap, const 
     }
 }
 
-IcePy::ObjectWriter::~ObjectWriter()
+IcePy::ValueWriter::~ValueWriter()
 {
     Py_DECREF(_object);
 }
 
 void
-IcePy::ObjectWriter::ice_preMarshal()
+IcePy::ValueWriter::ice_preMarshal()
 {
     if(PyObject_HasAttrString(_object, STRCAST("ice_preMarshal")) == 1)
     {
@@ -3811,7 +3811,7 @@ IcePy::ObjectWriter::ice_preMarshal()
 }
 
 void
-IcePy::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
+IcePy::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
@@ -3860,13 +3860,13 @@ IcePy::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
 }
 
 void
-IcePy::ObjectWriter::_iceRead(Ice::InputStream*)
+IcePy::ValueWriter::_iceRead(Ice::InputStream*)
 {
     assert(false);
 }
 
 void
-IcePy::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& members) const
+IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& members) const
 {
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
@@ -3907,21 +3907,21 @@ IcePy::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 }
 
 //
-// ObjectReader implementation.
+// ValueReader implementation.
 //
-IcePy::ObjectReader::ObjectReader(PyObject* object, const ValueInfoPtr& info) :
+IcePy::ValueReader::ValueReader(PyObject* object, const ValueInfoPtr& info) :
     _object(object), _info(info)
 {
     Py_INCREF(_object);
 }
 
-IcePy::ObjectReader::~ObjectReader()
+IcePy::ValueReader::~ValueReader()
 {
     Py_DECREF(_object);
 }
 
 void
-IcePy::ObjectReader::ice_postUnmarshal()
+IcePy::ValueReader::ice_postUnmarshal()
 {
     if(PyObject_HasAttrString(_object, STRCAST("ice_postUnmarshal")) == 1)
     {
@@ -3935,13 +3935,13 @@ IcePy::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePy::ObjectReader::_iceWrite(Ice::OutputStream*) const
+IcePy::ValueReader::_iceWrite(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePy::ObjectReader::_iceRead(Ice::InputStream* is)
+IcePy::ValueReader::_iceRead(Ice::InputStream* is)
 {
     is->startValue();
 
@@ -3950,7 +3950,7 @@ IcePy::ObjectReader::_iceRead(Ice::InputStream* is)
     //
     // Unmarshal the slices of a user-defined class.
     //
-    if(!unknown && _info->id != Ice::Object::ice_staticId())
+    if(!unknown && _info->id != Ice::Value::ice_staticId())
     {
         ValueInfoPtr info = _info;
         while(info)
@@ -4014,54 +4014,54 @@ IcePy::ObjectReader::_iceRead(Ice::InputStream* is)
 }
 
 ValueInfoPtr
-IcePy::ObjectReader::getInfo() const
+IcePy::ValueReader::getInfo() const
 {
     return _info;
 }
 
 PyObject*
-IcePy::ObjectReader::getObject() const
+IcePy::ValueReader::getObject() const
 {
     return _object;
 }
 
 Ice::SlicedDataPtr
-IcePy::ObjectReader::getSlicedData() const
+IcePy::ValueReader::getSlicedData() const
 {
     return _slicedData;
 }
 
 //
-// ReadObjectCallback implementation.
+// ReadValueCallback implementation.
 //
-IcePy::ReadObjectCallback::ReadObjectCallback(const ValueInfoPtr& info, const UnmarshalCallbackPtr& cb,
+IcePy::ReadValueCallback::ReadValueCallback(const ValueInfoPtr& info, const UnmarshalCallbackPtr& cb,
                                               PyObject* target, void* closure) :
     _info(info), _cb(cb), _target(target), _closure(closure)
 {
     Py_XINCREF(_target);
 }
 
-IcePy::ReadObjectCallback::~ReadObjectCallback()
+IcePy::ReadValueCallback::~ReadValueCallback()
 {
     Py_XDECREF(_target);
 }
 
 void
-IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
+IcePy::ReadValueCallback::invoke(const Ice::ValuePtr& p)
 {
     if(p)
     {
-        ObjectReaderPtr reader = ObjectReaderPtr::dynamicCast(p);
+        ValueReaderPtr reader = ValueReaderPtr::dynamicCast(p);
         assert(reader);
 
         //
-        // Verify that the object's type is compatible with the formal type.
+        // Verify that the value's type is compatible with the formal type.
         //
         PyObject* obj = reader->getObject(); // Borrowed reference.
         if(!PyObject_IsInstance(obj, _info->pythonType))
         {
             Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
-            ex.reason = "unmarshaled object is not an instance of " + _info->id;
+            ex.reason = "unmarshaled value is not an instance of " + _info->id;
             ex.type = reader->getInfo()->getId();
             ex.expectedType = _info->id;
             throw ex;

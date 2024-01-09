@@ -24,11 +24,11 @@ ICE_API id ICENone = nil;
 namespace IceObjC
 {
 
-class ValueWrapper : public Ice::Object
+class ValueWrapper : public Ice::Value
 {
 public:
 
-    ValueWrapper(ICEObject* obj) : _obj(obj)
+    ValueWrapper(ICEValue* obj) : _obj(obj)
     {
         CFRetain(_obj);
     }
@@ -74,7 +74,7 @@ public:
         [_obj ice_postUnmarshal];
     }
 
-    ICEObject*
+    ICEValue*
     getValue()
     {
         return _obj;
@@ -82,7 +82,7 @@ public:
 
 private:
 
-    ICEObject* _obj;
+    ICEValue* _obj;
 };
 typedef IceUtil::Handle<ValueWrapper> ValueWrapperPtr;
 
@@ -100,7 +100,7 @@ public:
     }
 
     virtual void invoke(const Ice::ValuePtr&) = 0;
-    void checkType(ICEObject*);
+    void checkType(ICEValue*);
 
 private:
 
@@ -114,7 +114,7 @@ patchFunc(void* obj, const Ice::ValuePtr& value)
 }
 
 void
-ReadValueBase::checkType(ICEObject* o)
+ReadValueBase::checkType(ICEValue* o)
 {
     if(o != nil && ![o isKindOfClass:_expectedType])
     {
@@ -135,7 +135,7 @@ class ReadValue : public ReadValueBase
 {
 public:
 
-    ReadValue(ICEObject** addr, Class expectedType, bool autorelease) :
+    ReadValue(ICEValue** addr, Class expectedType, bool autorelease) :
         ReadValueBase(expectedType), _addr(addr), _autorelease(autorelease)
     {
     }
@@ -147,7 +147,7 @@ public:
         {
             if(obj)
             {
-                ICEObject* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
+                ICEValue* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
                 checkType(o);
                 *_addr = [o retain];
                 if(_autorelease)
@@ -168,7 +168,7 @@ public:
 
 private:
 
-    ICEObject** _addr;
+    ICEValue** _addr;
     bool _autorelease;
 };
 
@@ -188,7 +188,7 @@ public:
         {
             if(obj)
             {
-                ICEObject* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
+                ICEValue* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
                 checkType(o);
                 [_array replaceObjectAtIndex:static_cast<NSUInteger>(_index) withObject:o];
             }
@@ -229,7 +229,7 @@ public:
         {
             if(obj)
             {
-                ICEObject* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
+                ICEValue* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
                 checkType(o);
                 [_dict setObject:o forKey:_key];
             }
@@ -422,7 +422,7 @@ private:
     [super dealloc];
 }
 
-+(Ice::Object*)createObjectReader:(ICEObject*)obj
++(Ice::Value*)createObjectReader:(ICEValue*)obj
 {
     return new IceObjC::ValueWrapper(obj);
 }
@@ -923,11 +923,11 @@ private:
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(void) readValue:(ICEObject**)object
+-(void) readValue:(ICEValue**)object
 {
-    [self readValue:object expectedType:[ICEObject class]];
+    [self readValue:object expectedType:[ICEValue class]];
 }
--(void) readValue:(ICEObject**)object expectedType:(Class)type
+-(void) readValue:(ICEValue**)object expectedType:(Class)type
 {
     NSException* nsex = nil;
     try
@@ -949,11 +949,11 @@ private:
         @throw nsex;
     }
 }
--(void) newValue:(ICEObject*ICE_STRONG_QUALIFIER*)object
+-(void) newValue:(ICEValue*ICE_STRONG_QUALIFIER*)object
 {
-    [self newValue:object expectedType:[ICEObject class]];
+    [self newValue:object expectedType:[ICEValue class]];
 }
--(void) newValue:(ICEObject*ICE_STRONG_QUALIFIER*)object expectedType:(Class)type
+-(void) newValue:(ICEValue*ICE_STRONG_QUALIFIER*)object expectedType:(Class)type
 {
     NSException* nsex = nil;
     try
@@ -1960,7 +1960,7 @@ private:
     }
 }
 
--(void) writeValue:(ICEObject*)v
+-(void) writeValue:(ICEValue*)v
 {
     NSException* nsex = nil;
     try
@@ -2268,19 +2268,19 @@ private:
     }
 }
 
--(Ice::Object*) addObject:(ICEObject*)object
+-(Ice::Value*) addObject:(ICEValue*)object
 {
     //
-    // Ice::ValueWrapper is a subclass of Ice::Object that wraps an Objective-C object for marshaling.
+    // Ice::ValueWrapper is a subclass of Ice::Value that wraps an Objective-C object for marshaling.
     // It is possible that this Objective-C object has already been marshaled, therefore we first must
     // check the object map to see if this object is present. If so, we use the existing ValueWrapper,
     // otherwise we create a new one.
     //
     if(!objectWriters_)
     {
-        objectWriters_ = new std::map<ICEObject*, Ice::ValuePtr>();
+        objectWriters_ = new std::map<ICEValue*, Ice::ValuePtr>();
     }
-    std::map<ICEObject*, Ice::ValuePtr>::const_iterator p = objectWriters_->find(object);
+    std::map<ICEValue*, Ice::ValuePtr>::const_iterator p = objectWriters_->find(object);
     if(p != objectWriters_->end())
     {
         return p->second.get();
@@ -2687,22 +2687,22 @@ private:
 }
 @end
 
-@implementation ICEObjectHelper
+@implementation ICEValueHelper
 +(id) readRetained:(id<ICEInputStream>)stream
 {
     //
     // This will only work with the 1.1 encoding. With the 1.0 encoding
     // objects are read when readPendingObjects is called.
     //
-    ICEObject* obj;
+    ICEValue* obj;
     [stream newValue:&obj];
     return (id)obj;
 }
-+(void)readRetained:(ICEObject**)v stream:(id<ICEInputStream>)stream
++(void)readRetained:(ICEValue**)v stream:(id<ICEInputStream>)stream
 {
     [stream newValue:v];
 }
-+(void)read:(ICEObject**)v stream:(id<ICEInputStream>)stream
++(void)read:(ICEValue**)v stream:(id<ICEInputStream>)stream
 {
     [stream readValue:v];
 }
@@ -2720,8 +2720,8 @@ private:
 }
 +(void) writeOptional:(id)v stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
 {
-    ICEObject* value;
-    if([ICEOptionalGetter get:v value:&value type:[ICEObject class]] &&
+    ICEValue* value;
+    if([ICEOptionalGetter get:v value:&value type:[ICEValue class]] &&
        [stream writeOptional:tag format:ICEOptionalFormatClass])
     {
         [self write:value stream:stream];
@@ -2731,7 +2731,7 @@ private:
 {
     if([stream readOptional:tag format:ICEOptionalFormatClass])
     {
-        [self readRetained:(ICEObject**)v stream:stream];
+        [self readRetained:(ICEValue**)v stream:stream];
     }
     else
     {
@@ -2742,7 +2742,7 @@ private:
 {
     if([stream readOptional:tag format:ICEOptionalFormatClass])
     {
-        [self read:(ICEObject**)v stream:stream];
+        [self read:(ICEValue**)v stream:stream];
     }
     else
     {
@@ -3134,7 +3134,7 @@ private:
 @implementation ICEObjectSequenceHelper
 +(id) readRetained:(id<ICEInputStream>)stream
 {
-    return [stream newValueSeq:[ICEObject class]];
+    return [stream newValueSeq:[ICEValue class]];
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
@@ -3142,7 +3142,7 @@ private:
 }
 +(Class) getElementHelper
 {
-    return [ICEObjectHelper class];
+    return [ICEValueHelper class];
 }
 +(Class) getOptionalHelper
 {
@@ -3210,16 +3210,16 @@ private:
 }
 @end
 
-@implementation ICEObjectDictionaryHelper
+@implementation ICEValueDictionaryHelper
 +(id) readRetained:(id<ICEInputStream>)__unused stream
 {
-    NSAssert(NO, @"ICEObjectDictionaryHelper readRetained requires override");
+    NSAssert(NO, @"ICEValueDictionaryHelper readRetained requires override");
     return nil;
 }
 
 +(void) write:(id)__unused obj stream:(id<ICEOutputStream>)__unused stream
 {
-    NSAssert(NO, @"ICEObjectDictionaryHelper write requires override");
+    NSAssert(NO, @"ICEValueDictionaryHelper write requires override");
 }
 
 +(Class) getOptionalHelper

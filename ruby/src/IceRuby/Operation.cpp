@@ -418,7 +418,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
         //
         os->startEncapsulation(proxy->ice_getEncodingVersion(), _format);
 
-        ObjectMap objectMap;
+        ValueMap valueMap;
         ParamInfoList::iterator p;
 
         //
@@ -445,7 +445,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
             if(!info->optional)
             {
                 volatile VALUE arg = RARRAY_AREF(args, info->pos);
-                info->type->marshal(arg, os, &objectMap, false);
+                info->type->marshal(arg, os, &valueMap, false);
             }
         }
 
@@ -458,7 +458,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice
             volatile VALUE arg = RARRAY_AREF(args, info->pos);
             if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
             {
-                info->type->marshal(arg, os, &objectMap, true);
+                info->type->marshal(arg, os, &valueMap, true);
             }
         }
 
@@ -492,7 +492,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
-    // This is necessary to support object unmarshaling (see ObjectReader).
+    // This is necessary to support object unmarshaling (see ValueReader).
     //
     StreamUtil util;
     assert(!is.getClosure());
@@ -561,7 +561,7 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
 
     //
     // Store a pointer to a local StreamUtil object as the stream's closure.
-    // This is necessary to support object unmarshaling (see ObjectReader).
+    // This is necessary to support object unmarshaling (see ValueReader).
     //
     StreamUtil util;
     assert(!is.getClosure());

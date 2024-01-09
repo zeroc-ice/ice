@@ -3,8 +3,7 @@
 //
 
 #import <objc/Ice/Config.h>
-
-#import <objc/Ice/Object.h>
+#import <objc/Ice/Value.h>
 
 //
 // SlicedData holds the slices of unknown types.
@@ -19,7 +18,7 @@ ICE_API @protocol ICESlicedData<NSObject>
 //
 // Unknown sliced object holds instance of unknown type.
 //
-ICE_API @interface ICEUnknownSlicedValue : ICEObject
+ICE_API @interface ICEUnknownSlicedValue : ICEValue
 {
 @private
     NSString* unknownTypeId_;

@@ -12,9 +12,9 @@
 #endif
 
 #if defined(__clang__) && __has_feature(objc_arc)
-ICEValueFactory factory = ^ICEObject* (NSString* type) NS_RETURNS_RETAINED
+ICEValueFactory factory = ^ICEValue* (NSString* type) NS_RETURNS_RETAINED
 #else
-ICEValueFactory factory = ^ICEObject* (NSString* type)
+ICEValueFactory factory = ^ICEValue* (NSString* type)
 #endif
 {
     if([type isEqualToString:@"::Test::B"])
@@ -37,14 +37,6 @@ ICEValueFactory factory = ^ICEObject* (NSString* type)
     {
         return [[TestObjectsFI alloc] init];
     }
-    else if([type isEqualToString:@"::Test::I"])
-    {
-        return [[TestObjectsI alloc] init];
-    }
-    else if([type isEqualToString:@"::Test::J"])
-    {
-        return [[TestObjectsJI alloc] init];
-    }
     else
     {
         test(NO);
@@ -57,7 +49,7 @@ ICEValueFactory factory = ^ICEObject* (NSString* type)
 
 @implementation CollocatedMyObjectFactory
 
--(ICEObject*) create:(NSString*)__unused type
+-(ICEValue*) create:(NSString*)__unused type
 {
     return nil;
 }
@@ -77,8 +69,6 @@ run(id<ICECommunicator> communicator)
     [manager add:factory sliceId:@"::Test::D"];
     [manager add:factory sliceId:@"::Test::E"];
     [manager add:factory sliceId:@"::Test::F"];
-    [manager add:factory sliceId:@"::Test::I"];
-    [manager add:factory sliceId:@"::Test::J"];
 
     id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[CollocatedMyObjectFactory alloc] init]);
     [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];

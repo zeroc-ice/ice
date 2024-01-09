@@ -35,10 +35,10 @@ class AbortMarshaling
 {
 };
 
-typedef std::map<VALUE, Ice::ObjectPtr> ObjectMap;
+typedef std::map<VALUE, Ice::ValuePtr> ValueMap;
 
-class ObjectReader;
-typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+class ValueReader;
+typedef IceUtil::Handle<ValueReader> ValueReaderPtr;
 
 struct PrintObjectHistory
 {
@@ -70,16 +70,16 @@ public:
 typedef IceUtil::Handle<UnmarshalCallback> UnmarshalCallbackPtr;
 
 //
-// ReadObjectCallback retains all of the information necessary to store an unmarshaled
+// ReadValueCallback retains all of the information necessary to store an unmarshaled
 // Slice value as a Ruby object.
 //
-class ReadObjectCallback : public IceUtil::Shared
+class ReadValueCallback : public IceUtil::Shared
 {
 public:
 
-    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    ReadValueCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-    void invoke(const ::Ice::ObjectPtr&);
+    void invoke(const ::Ice::ValuePtr&);
 
 private:
 
@@ -88,7 +88,7 @@ private:
     VALUE _target;
     void* _closure;
 };
-typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
+typedef IceUtil::Handle<ReadValueCallback> ReadValueCallbackPtr;
 
 //
 // This class assists during unmarshaling of Slice classes and exceptions.
@@ -102,14 +102,14 @@ public:
     ~StreamUtil();
 
     //
-    // Keep a reference to a ReadObjectCallback for patching purposes.
+    // Keep a reference to a ReadValueCallback for patching purposes.
     //
-    void add(const ReadObjectCallbackPtr&);
+    void add(const ReadValueCallbackPtr&);
 
     //
     // Keep track of object instances that have preserved slices.
     //
-    void add(const ObjectReaderPtr&);
+    void add(const ValueReaderPtr&);
 
     //
     // Updated the sliced data information for all stored object instances.
@@ -117,12 +117,12 @@ public:
     void updateSlicedData();
 
     static void setSlicedDataMember(VALUE, const Ice::SlicedDataPtr&);
-    static Ice::SlicedDataPtr getSlicedDataMember(VALUE, ObjectMap*);
+    static Ice::SlicedDataPtr getSlicedDataMember(VALUE, ValueMap*);
 
 private:
 
-    std::vector<ReadObjectCallbackPtr> _callbacks;
-    std::set<ObjectReaderPtr> _readers;
+    std::vector<ReadValueCallbackPtr> _callbacks;
+    std::set<ValueReaderPtr> _readers;
     static VALUE _slicedDataType;
     static VALUE _sliceInfoType;
 };
@@ -158,7 +158,7 @@ public:
     // The marshal and unmarshal functions can raise Ice exceptions, and may raise
     // AbortMarshaling if an error occurs.
     //
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool) = 0;
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool) = 0;
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool) = 0;
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
@@ -195,7 +195,7 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -225,7 +225,7 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -271,7 +271,7 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -309,7 +309,7 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
@@ -347,9 +347,9 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
-    void marshalElement(VALUE, VALUE, Ice::OutputStream*, ObjectMap*);
+    void marshalElement(VALUE, VALUE, Ice::OutputStream*, ValueMap*);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -398,7 +398,7 @@ public:
 
     virtual bool usesClasses() const; // Default implementation returns false.
 
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -442,7 +442,7 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(VALUE, Ice::OutputStream*, ObjectMap*, bool);
+    virtual void marshal(VALUE, Ice::OutputStream*, ValueMap*, bool);
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -481,14 +481,14 @@ public:
 };
 
 //
-// ObjectWriter wraps a Ruby object for marshaling.
+// ValueWriter wraps a Ruby object for marshaling.
 //
-class ObjectWriter : public Ice::Object
+class ValueWriter : public Ice::Value
 {
 public:
 
-    ObjectWriter(VALUE, ObjectMap*, const ClassInfoPtr&);
-    virtual ~ObjectWriter();
+    ValueWriter(VALUE, ValueMap*, const ClassInfoPtr&);
+    virtual ~ValueWriter();
 
     virtual void ice_preMarshal();
 
@@ -500,20 +500,20 @@ private:
     void writeMembers(Ice::OutputStream*, const DataMemberList&) const;
 
     VALUE _object;
-    ObjectMap* _map;
+    ValueMap* _map;
     ClassInfoPtr _info;
     ClassInfoPtr _formal;
 };
 
 //
-// ObjectReader unmarshals the state of an Ice object.
+// ValueReader unmarshals the state of an Ice object.
 //
-class ObjectReader : public Ice::Object
+class ValueReader : public Ice::Value
 {
 public:
 
-    ObjectReader(VALUE, const ClassInfoPtr&);
-    virtual ~ObjectReader();
+    ValueReader(VALUE, const ClassInfoPtr&);
+    virtual ~ValueReader();
 
     virtual void ice_postUnmarshal();
 

@@ -265,9 +265,9 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
         "ICEFloat",
         "ICEDouble",
         "NSString",
-        "ICEObject",
+        "ICEValue",
         "id<ICEObjectPrx>",
-        "ICEObject"
+        "ICEValue"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -763,17 +763,17 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         if(marshal)
         {
             // Cast avoids warning for forward-declared classes.
-            out << nl << "[" << stream << " writeValue:(ICEObject*)" << param << "];";
+            out << nl << "[" << stream << " writeValue:(ICEValue*)" << param << "];";
         }
         else
         {
             if(autoreleased)
             {
-                out << nl << "[" << stream << " " << "readValue:(ICEObject**)&" << param;
+                out << nl << "[" << stream << " " << "readValue:(ICEValue**)&" << param;
             }
             else
             {
-                out << nl << "[" << stream << " " << "newValue:(ICEObject**)&" << param;
+                out << nl << "[" << stream << " " << "newValue:(ICEValue**)&" << param;
             }
 
             string name = moduleName(findModule(cl)) + cl->name();

@@ -2026,7 +2026,7 @@ IcePHP::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    return new ObjectReader(&obj, cls, _info);
+    return new ValueReader(&obj, cls, _info);
 }
 
 void
@@ -2118,7 +2118,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    return new ObjectReader(&obj, cls, _info);
+    return new ValueReader(&obj, cls, _info);
 }
 
 void

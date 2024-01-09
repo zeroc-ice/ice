@@ -18,7 +18,7 @@
     NSDictionary* prefixTable_;
     NSData* data_;
 }
-+(Ice::Object*)createObjectReader:(ICEObject*)obj;
++(Ice::Value*)createObjectReader:(ICEValue*)obj;
 -(id)initWithCxxCommunicator:(Ice::Communicator*)com data:(const std::pair<const Byte*, const Byte*>&)data;
 -(id)initWithCommunicator:(id<ICECommunicator>)com data:(NSData*)data encoding:(ICEEncodingVersion*)e;
 -(Ice::InputStream*) is;
@@ -28,7 +28,7 @@
 {
     Ice::OutputStream* os_;
     Ice::OutputStream stream_;
-    std::map<ICEObject*, Ice::ObjectPtr>* objectWriters_;
+    std::map<ICEValue*, Ice::ValuePtr>* objectWriters_;
 }
 -(id)initWithCxxCommunicator:(Ice::Communicator*)communicator;
 -(id)initWithCxxStream:(Ice::OutputStream*)stream;

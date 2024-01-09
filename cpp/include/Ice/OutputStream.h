@@ -7,8 +7,14 @@
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/Object.h>
-#include <Ice/ValueF.h>
+
+// TODO: temporary
+#ifdef ICE_CPP11_MAPPING
+#   include <Ice/ValueF.h>
+#else
+#   include <Ice/Value.h>
+#endif
+
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
 #include <Ice/Protocol.h>
@@ -794,7 +800,7 @@ public:
      * Writes a value instance to the stream.
      * @param v The value to be written.
      */
-    void write(const ObjectPtr& v)
+    void write(const ValuePtr& v)
     {
         initEncaps();
         _currentEncaps->encoder->write(v);
@@ -806,7 +812,7 @@ public:
      */
     template<typename T> void write(const IceInternal::Handle<T>& v)
     {
-        write(ObjectPtr(upCast(v.get())));
+        write(ValuePtr(upCast(v.get())));
     }
 #endif
 
