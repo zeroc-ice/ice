@@ -59,7 +59,5 @@ IdentAsKeyword.ice:76: `i9': an interface can be defined only at module scope
 IdentAsKeyword.ice:77: `i10': an interface can be defined only at module scope
 IdentAsKeyword.ice:79: `true': an interface can be defined only at module scope
 IdentAsKeyword.ice:87: illegal double underscore in identifier `b__c'
-IdentAsKeyword.ice:87: `b__c': an interface can be defined only at module scope
 IdentAsKeyword.ice:88: illegal double underscore in identifier `b___c'
-IdentAsKeyword.ice:88: `b___c': an interface can be defined only at module scope
 IdentAsKeyword.ice:93: syntax error
