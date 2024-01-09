@@ -1,0 +1,17 @@
+name: Build Ice
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build ${{ matrix.language }}
+      env:
+        CONFIGS: "shared cpp98-shared cpp11-shared"
+      run: |
+        make -j3 V=1 LANGUAGES="cpp ${{ matrix.language }}"
+      shell: bash
+      if: runner.os == 'macOS' || runner.os == 'Linux'
+
+    - name: Build
+      run: msbuild /m /p:Platform=x64 ice.proj
+      shell: powershell
+      if: runner.os == 'Windows'
