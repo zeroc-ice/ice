@@ -141,25 +141,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Collections.Generic.Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string property);
 
-
-        /// <summary>
-        /// Convert a string into an identity.
-        ///
-        /// <para>stringToIdentity() is deprecated, use the static stringToIdentity() method instead.</para>
-        ///
-        /// If the string does not parse correctly, the operation throws
-        ///  IdentityParseException.
-        /// </summary>
-        ///  <param name="str">The string to convert into an identity.
-        ///  </param>
-        /// <returns>The identity.
-        ///  </returns>
-
-        [global::System.Obsolete("stringToIdentity() is deprecated, use the static stringToIdentity() method instead.")]
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        Identity stringToIdentity(string str);
-
-
         /// <summary>
         /// Convert an identity into a string.
         /// </summary>

@@ -210,17 +210,6 @@ public:
     virtual ::Ice::PropertyDict proxyToProperty(const ::std::shared_ptr<ObjectPrx>& proxy, const ::std::string& property) const = 0;
 
     /**
-     * Convert a string into an identity. If the string does not parse correctly, the operation throws
-     * IdentityParseException.
-     * @param str The string to convert into an identity.
-     * @return The identity.
-     * @see #identityToString
-     *
-     * @deprecated stringToIdentity() is deprecated, use the static stringToIdentity() method instead.
-     */
-    ICE_DEPRECATED_API("stringToIdentity() is deprecated, use the static stringToIdentity() method instead.") virtual ::Ice::Identity stringToIdentity(const ::std::string& str) const = 0;
-
-    /**
      * Convert an identity into a string.
      * @param ident The identity to convert into a string.
      * @return The "stringified" identity.

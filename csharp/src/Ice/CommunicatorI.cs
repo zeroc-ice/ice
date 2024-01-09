@@ -74,11 +74,6 @@ namespace Ice
             return _instance.proxyFactory().proxyToProperty(proxy, prefix);
         }
 
-        public Identity stringToIdentity(string s)
-        {
-            return Util.stringToIdentity(s);
-        }
-
         public string identityToString(Identity ident)
         {
             return Util.identityToString(ident, _instance.toStringMode());

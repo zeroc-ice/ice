@@ -230,11 +230,6 @@
     return nil; // Keep the compiler happy.
 }
 
--(ICEIdentity*) stringToIdentity:(NSString*)str
-{
-    return [ICEUtil stringToIdentity:str];
-}
-
 -(NSMutableString*) identityToString:(ICEIdentity*)ident
 {
     NSException* nsex = nil;

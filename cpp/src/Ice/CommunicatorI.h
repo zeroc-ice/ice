@@ -71,7 +71,6 @@ public:
     virtual ObjectPrxPtr propertyToProxy(const std::string&) const;
     virtual PropertyDict proxyToProperty(const ObjectPrxPtr&, const std::string&) const;
 
-    virtual Identity stringToIdentity(const std::string&) const;
     virtual std::string identityToString(const Identity&) const;
 
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);

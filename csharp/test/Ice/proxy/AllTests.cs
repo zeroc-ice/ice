@@ -571,11 +571,8 @@ namespace Ice
 
                 output.Write("testing proxy methods... ");
 
-                // Disable Obsolete warning/error
-#pragma warning disable 612, 618
                 test(communicator.identityToString(
-                         baseProxy.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
-#pragma warning restore 612, 618
+                    baseProxy.ice_identity(Util.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
                 test(baseProxy.ice_facet("facet").ice_getFacet().Equals("facet"));
                 test(baseProxy.ice_adapterId("id").ice_getAdapterId().Equals("id"));
                 test(baseProxy.ice_twoway().ice_isTwoway());
