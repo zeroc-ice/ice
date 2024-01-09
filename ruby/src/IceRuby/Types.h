@@ -541,7 +541,7 @@ class ExceptionReader : public Ice::UserException
 public:
 
     ExceptionReader(const ExceptionInfoPtr&);
-    ~ExceptionReader() throw();
+    ~ExceptionReader();
 
     virtual std::string ice_id() const;
 #ifndef ICE_CPP11_MAPPING

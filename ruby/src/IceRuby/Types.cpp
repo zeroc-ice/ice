@@ -2881,7 +2881,6 @@ IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 }
 
 IceRuby::ExceptionReader::~ExceptionReader()
-    throw()
 {
     rb_gc_unregister_address(&_ex);
 }
