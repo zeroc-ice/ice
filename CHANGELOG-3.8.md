@@ -15,14 +15,13 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 - Removed local Slice. `local` is no longer a Slice keyword.
 
 - Slice classes can no longer define operations or implement interfaces, and `implements` is no longer a Slice keyword.
-This feature was deprecated since Ice 3.7.
+This feature has been deprecated since Ice 3.7.
 
 - Slice classes no longer represent remote Ice objects; the syntax `MyClass*` (a proxy to a class) is now invalid.
 
-- An interface can no longer be used as a data member or operation parameter. This feature, known as "interface by
-value", was deprecated since Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter`
-represents an interface.
+- An interface can no longer be used as a type This feature, known as "interface by value", has been deprecated since
+Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
 ## Ice Service Changes
 
-- The implementation of Glacier2, IceGrid, IceStorm and IcePatch2 was updated to use the new C++ mapping.
+- The implementations of Glacier2, IceGrid, IceStorm and IcePatch2 were updated to use the new C++ mapping.

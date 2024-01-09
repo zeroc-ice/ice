@@ -52,9 +52,6 @@ splitScopedName(const std::string&, bool = true);
 bool
 checkIdentifier(const std::string&);
 
-bool
-ciequals(const std::string& a, const std::string& b);
-
 }
 
 #endif

@@ -3634,7 +3634,7 @@ yyreduce:
     yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
-#line 3629 "src/Slice/Grammar.cpp"
+#line 3638 "src/Slice/Grammar.cpp"
     break;
 
   case 147: /* enum_id: ICE_ENUM ICE_IDENTIFIER  */
@@ -4089,9 +4089,9 @@ yyreduce:
             InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(*p);
             if(interface)
             {
-                string msg = "add '*' to specify the proxy type for interface '";
+                string msg = "add a '*' after the interface name to specify its proxy type: '";
                 msg += scoped->v;
-                msg += "'";
+                msg += "*'";
                 unit->error(msg);
                 YYERROR; // Can't continue, jump to next yyerrok
             }

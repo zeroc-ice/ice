@@ -2093,9 +2093,9 @@ type
             InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(*p);
             if(interface)
             {
-                string msg = "add '*' to specify the proxy type for interface '";
+                string msg = "add a '*' after the interface name to specify its proxy type: '";
                 msg += scoped->v;
-                msg += "'";
+                msg += "*'";
                 unit->error(msg);
                 YYERROR; // Can't continue, jump to next yyerrok
             }

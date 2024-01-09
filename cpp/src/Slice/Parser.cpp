@@ -1363,9 +1363,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name);
-    isIllegal |= !checkForGlobalDef(name, "interface");
-    if (isIllegal)
+    if (!checkIdentifier(name) || !checkForGlobalDef(name, "interface"))
     {
         return 0;
     }
@@ -1429,9 +1427,7 @@ Slice::Container::createInterfaceDecl(const string& name)
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name);
-    isIllegal |= !checkForGlobalDef(name, "interface");
-    if (isIllegal)
+    if (!checkIdentifier(name) || !checkForGlobalDef(name, "interface"))
     {
         return 0;
     }
@@ -2345,14 +2341,14 @@ Slice::Container::hasDictionaries() const
 bool
 Slice::Container::hasClassDefs() const
 {
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& p : _contents)
     {
-        if(ClassDefPtr::dynamicCast(*p))
+        if(ClassDefPtr::dynamicCast(p))
         {
             return true;
         }
 
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        ContainerPtr container = ContainerPtr::dynamicCast(p);
         if(container && container->hasClassDefs())
         {
             return true;
@@ -2367,8 +2363,7 @@ Slice::Container::hasInterfaceDefs() const
 {
     for (const auto& p : _contents)
     {
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-        if (def)
+        if (InterfaceDefPtr::dynamicCast(p))
         {
             return true;
         }
@@ -2385,15 +2380,14 @@ Slice::Container::hasInterfaceDefs() const
 bool
 Slice::Container::hasValueDefs() const
 {
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& p : _contents)
     {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl)
+        if(ClassDefPtr::dynamicCast(p))
         {
             return true;
         }
 
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        ContainerPtr container = ContainerPtr::dynamicCast(p);
         if(container && container->hasValueDefs())
         {
             return true;
@@ -2405,9 +2399,9 @@ Slice::Container::hasValueDefs() const
 bool
 Slice::Container::hasOnlyClassDecls() const
 {
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& p : _contents)
     {
-        ModulePtr m = ModulePtr::dynamicCast(*p);
+        ModulePtr m = ModulePtr::dynamicCast(p);
         if(m)
         {
             if(!m->hasOnlyClassDecls())
@@ -2415,7 +2409,7 @@ Slice::Container::hasOnlyClassDecls() const
                 return false;
             }
         }
-        else if(!ClassDeclPtr::dynamicCast(*p))
+        else if(!ClassDeclPtr::dynamicCast(p))
         {
             return false;
         }
@@ -2556,6 +2550,7 @@ Slice::Container::hasAsyncOps() const
 
     return false;
 }
+
 bool
 Slice::Container::hasContained(Contained::ContainedType type) const
 {

@@ -592,7 +592,6 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
 {
     string name = p->name();
 
-    ContainerPtr container = p->container();
     InterfaceDefPtr interface = p->interface();
     string interfaceScope = fixKwd(interface->scope());
 

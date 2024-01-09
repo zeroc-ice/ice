@@ -483,6 +483,7 @@ Slice::checkIdentifier(const string& id)
         {
             unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
             isValid = false;
+            break;
         }
     }
 
@@ -505,13 +506,4 @@ Slice::checkIdentifier(const string& id)
     }
 
     return isValid;
-}
-
-bool
-Slice::ciequals(const string& lhs, const string& rhs)
-{
-    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char a, char b)
-                                                                      {
-                                                                          return tolower(a) == tolower(b);
-                                                                      });
 }
