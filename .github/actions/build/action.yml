@@ -4,9 +4,9 @@ runs:
   using: "composite"
   steps:
     - name: Build ${{ matrix.language }}
+      env:
+        CONFIGS: "shared cpp98-shared cpp11-shared"
       run: |
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:/opt/homebrew/opt/ccache/libexec:$PATH"
-        export CONFIGS="shared cpp98-shared cpp11-shared"
         make -j3 V=1 LANGUAGES="cpp ${{ matrix.language }}"
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'

@@ -2880,6 +2880,14 @@ IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 {
 }
 
+IceRuby::ExceptionReader::ExceptionReader(const ExceptionReader& reader) :
+    _info(reader._info),
+    _ex(reader._ex),
+    _slicedData(reader._slicedData)
+{
+    rb_gc_register_address(&_ex);
+}
+
 IceRuby::ExceptionReader::~ExceptionReader()
 {
     rb_gc_unregister_address(&_ex);
@@ -2903,7 +2911,7 @@ IceRuby::ExceptionReader::ice_clone() const
 void
 IceRuby::ExceptionReader::ice_throw() const
 {
-    throw *this;
+    throw this;
 }
 
 void

@@ -56,27 +56,6 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
-      - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          # create-symlink: true
-          key: ${{ runner.os }}-build-${{ matrix.language }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ matrix.language }}
-            ${{ runner.os }}-build-
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
-
-      - name: Window Cache
-        if: startsWith(matrix.os, 'windows')
-        uses: actions/cache@v3
-        with:
-          path: |
-            **/msbuild/**/x64
-          key: ${{ runner.os }}-build-${{ matrix.language }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ matrix.language }}
-            ${{ runner.os }}-build-
-
       - name: Build ${{ matrix.language }} on ${{ matrix.os }}
         uses: ./.github/actions/build
 
