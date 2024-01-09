@@ -613,11 +613,11 @@ InitialI::opRequiredException_async(const ::Test::AMD_Initial_opRequiredExceptio
     ex.o = o;
     if(b)
     {
-        ex.ss = b.get();
+        ex.ss = b.value();
     }
     if(o)
     {
-        ex.o2 = o.get();
+        ex.o2 = o.value();
     }
     cb->ice_exception(ex);
 }
