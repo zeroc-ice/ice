@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         language: [cpp]
-        os: [macos-latest, macos-beta, ubuntu-latest, windows-latest]
+        os: [macos-latest, macos-13, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
             language: swift
