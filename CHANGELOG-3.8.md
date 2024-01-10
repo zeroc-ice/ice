@@ -33,7 +33,17 @@ Ice::Object was the base class for both mapped class instances and servants.
 
 - (Original mapping) Ice::Value does not derive from IceUtil::Shared and the generated Ptr for mapped classed is now an
 Ice::SharedPtr that behaves mostly like the previous IceUtil (and IceInternal) Handle by wrapping a std::shared_ptr.
-The comparison operators of Ice::SharedPtr compare pointers like std::shared_ptr but unlike IceUtil::Handle.
+The important differences are:
+ - the comparison operators of Ice::SharedPtr compare pointers like std::shared_ptr but unlike IceUtil::Handle.
+ - the pointed-to object no longer holds the reference count, and as result you must be careful and avoid creating
+ multiple SharedPtr managing the same object. For example:
+ ```
+ MyClassPtr c1 = new MyClass(); // SharedPtr to class instance
+ MyClassPtr c2 = c1; // c1 and c2 point to the same instance
+ MyClassPtr c3 = c1.get(); // c3 points to the same instance. With Ice 3.7 and before, it's ok as it simply adds a
+                           // a reference count to the shared instance. As of Ice 3.8, it's incorrect since c3 is a new
+                           // independent SharedPtr with its own reference count.
+ ```
 
 - (New mapping) Ice::optional is now an alias for std::optional.
 
