@@ -24,11 +24,7 @@
 using namespace std;
 using namespace IcePy;
 
-#if PY_VERSION_HEX < 0x03070000
-static long _mainThreadId;
-#else
 static unsigned long _mainThreadId;
-#endif
 
 namespace IcePy
 {

@@ -97,7 +97,7 @@ msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=
 
 ## Building on Linux or macOS
 
-Ice for Python supports Python versions 2.7 and 3.11. Note however that
+Ice for Python supports Python versions 3.11 and greater. Note however that
 your Python installation must have been built with a C++ compiler that is
 compatible with the compiler used to build Ice for C++.
 

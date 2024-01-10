@@ -35,11 +35,7 @@ using namespace IcePy;
 #   pragma GCC diagnostic ignored "-Wcast-function-type"
 #endif
 
-#if PY_VERSION_HEX < 0x03070000
-static long _mainThreadId;
-#else
 static unsigned long _mainThreadId;
-#endif
 
 typedef map<Ice::CommunicatorPtr, PyObject*> CommunicatorMap;
 static CommunicatorMap _communicatorMap;
