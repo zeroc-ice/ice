@@ -22,6 +22,32 @@ This feature has been deprecated since Ice 3.7.
 - An interface can no longer be used as a type This feature, known as "interface by value", has been deprecated since
 Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
+## C++ Changes
+
+- The C++98 mapping is now called the original mapping.
+
+- The C++11 mapping is now called the new mapping.
+
+- (Original mapping) The base class for mapped class instances is now Ice::Value, like in the new mapping. Previously,
+Ice::Object was the base class for both mapped class instances and servants.
+
+- (Original mapping) Ice::Value does not derive from IceUtil::Shared and the generated Ptr for mapped classed is now an
+Ice::SharedPtr that behaves mostly like the previous IceUtil (and IceInternal) Handle by wrapping a std::shared_ptr.
+The comparison operators of Ice::SharedPtr compare pointers like std::shared_ptr but unlike IceUtil::Handle.
+
+- (New mapping) Ice::optional is now an alias for std::optional.
+
+- (Original mapping) IceUtil::Optional is now an alias for std::optional. When upgrading from Ice 3.7 or earlier, you
+need to replace calls to `get()` on IceUtil::Optional by calls to `value()`.
+
+## Objective-C Changes
+
+- The base class for class instances is now Ice::Value. Previously, Ice::Object was the base class for both mapped class
+instances and servants.
+
+- The slice compiler no longer generates an Objective-C protocol for Slice classes. It generates only an Objective-C
+class (interface).
+
 ## Ice Service Changes
 
 - The implementations of Glacier2, IceGrid, IceStorm and IcePatch2 were updated to use the new C++ mapping.

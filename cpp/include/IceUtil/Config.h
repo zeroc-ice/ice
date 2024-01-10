@@ -291,9 +291,11 @@ typedef long long Int64;
 #   include <future>
 #   define ICE_HANDLE ::std::shared_ptr
 #   define ICE_INTERNAL_HANDLE ::std::shared_ptr
+#   define ICE_SHARED_PTR ::std::shared_ptr
 #   define ICE_PROXY_HANDLE ::std::shared_ptr
 #   define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
 #   define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
+#   define ICE_DEFINE_SHARED_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
 #   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
 #   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
 #   define ICE_NULLPTR nullptr
@@ -309,9 +311,11 @@ typedef long long Int64;
 #else // C++98 mapping
 #   define ICE_HANDLE ::IceUtil::Handle
 #   define ICE_INTERNAL_HANDLE ::IceInternal::Handle
+#   define ICE_SHARED_PTR ::Ice::SharedPtr
 #   define ICE_PROXY_HANDLE ::IceInternal::ProxyHandle
 #   define ICE_MAKE_SHARED(T, ...) new T(__VA_ARGS__)
 #   define ICE_DEFINE_PTR(TPtr, T) typedef ::IceUtil::Handle<T> TPtr
+#   define ICE_DEFINE_SHARED_PTR(TPtr, T) using TPtr = ::Ice::SharedPtr<T>
 #   define ICE_ENUM(CLASS,ENUMERATOR) ENUMERATOR
 #   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS##ENUMERATOR
 #   define ICE_NULLPTR 0

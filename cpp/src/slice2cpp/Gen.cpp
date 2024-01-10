@@ -2588,15 +2588,7 @@ Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "class " << name << ';';
-
-    //
-    // upCast is not _upCast nor _iceUpCast for historical reasons. IceInternal::Handle
-    // depends on this name
-    //
-    H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllExport << getUnqualified("::Ice::Value*", scope) << " upCast(" << name << "*);";
-    H << nl << "/// \\endcond";
-    H << nl << "typedef ::IceInternal::Handle< " << name << "> " << p->name() << "Ptr;";
+    H << nl << "using " << p->name() << "Ptr = ::Ice::SharedPtr<" << name << ">;";
 
     //
     // _ice prefix because this function is in the Slice module namespace, where the user
@@ -3218,11 +3210,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << name << "(const " << name << "&) = default;";
     H << nl <<  name << "& operator=(const " << name << "&) = default;";
 
-    C << sp;
-    C << nl << "/// \\cond INTERNAL";
-    C << nl << _dllExport << "::Ice::Value* " << scope.substr(2) << "upCast(" << name << "* p) { return p; }" << nl;
-    C << nl << "/// \\endcond";
-
     //
     // It would make sense to provide a covariant ice_clone(); unfortunately many compilers
     // (including VS2010) generate bad code for covariant types that use virtual inheritance
@@ -3498,21 +3485,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << eb;
     C << eb;
     C << nl << "/// \\endcond";
-
-    H << sp;
-    H << nl << "/// \\cond INTERNAL";
-    H << nl << "inline bool operator==(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name()) << "& rhs)";
-    H << sb;
-    H << nl << "return static_cast<const " << getUnqualified("::Ice::Value&", scope) << ">(lhs) == static_cast<const "
-      << getUnqualified("::Ice::Value&", scope) << ">(rhs);";
-    H << eb;
-    H << sp;
-    H << nl << "inline bool operator<(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name()) << "& rhs)";
-    H << sb;
-    H << nl << "return static_cast<const " << getUnqualified("::Ice::Value&", scope) << ">(lhs) < static_cast<const "
-      << getUnqualified("::Ice::Value&", scope) << ">(rhs);";
-    H << eb;
-    H << nl << "/// \\endcond";
 
     _useWstring = resetUseWstring(_useWstringHist);
 }

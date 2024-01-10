@@ -5,13 +5,7 @@
 #ifndef ICE_VALUE_H
 #define ICE_VALUE_H
 
-// TODO: temporary
-#ifdef ICE_CPP11_MAPPING
-#   include <Ice/Value.h>
-#else
-#   include <Ice/ValueF.h>
-#endif
-
+#include <Ice/ValueF.h>
 #include <Ice/SlicedDataF.h>
 
 namespace Ice
@@ -148,12 +142,16 @@ protected:
  * The base class for instances of Slice classes.
  * \headerfile Ice/Ice.h
  */
-class ICE_API Value : public virtual IceUtil::Shared
+class ICE_API Value
 {
 public:
 
-    virtual bool operator==(const Value&) const;
-    virtual bool operator<(const Value&) const;
+    Value() = default;
+    Value(const Value&) = default;
+    Value(Value&&) = default;
+    Value& operator=(const Value&) = default;
+    Value& operator=(Value&&) = default;
+    virtual ~Value() = default;
 
     /// \cond STREAM
     virtual void _iceWrite(Ice::OutputStream*) const;
@@ -196,15 +194,6 @@ public:
      * unmarshaling of the value, nil otherwise.
      */
     virtual SlicedDataPtr ice_getSlicedData() const;
-
-protected:
-
-    Value() = default;
-    Value(const Value&) = default;
-    Value(Value&&) = default;
-    Value& operator=(const Value&) = default;
-    Value& operator=(Value&&) = default;
-    virtual ~Value() = default;
 
 protected:
 

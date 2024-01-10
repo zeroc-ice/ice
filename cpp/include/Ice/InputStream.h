@@ -36,7 +36,7 @@ patchHandle(void* addr, const ValuePtr& v)
         IceInternal::Ex::throwUOE(T::ice_staticId(), v);
     }
 #else
-    IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
+    SharedPtr<T>* p = static_cast<SharedPtr<T>*>(addr);
     _icePatchValuePtr(*p, v); // Generated _icePatchValuePtr function, necessary for forward declarations.
 #endif
 }
@@ -1084,7 +1084,7 @@ public:
         read(&patchHandle<T>, &v);
     }
 #else // C++98 mapping
-    template<typename T> void read(IceInternal::Handle<T>& v)
+    template<typename T> void read(Ice::SharedPtr<T>& v)
     {
         read(&patchHandle<T>, &v);
     }

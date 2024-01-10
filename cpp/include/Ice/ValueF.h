@@ -6,7 +6,7 @@
 #define ICE_VALUE_F_H
 
 #include <Ice/Config.h>
-#include <Ice/Handle.h>
+#include <Ice/SharedPtr.h>
 
 namespace Ice
 {
@@ -20,8 +20,8 @@ using ValuePtr = ::std::shared_ptr<Value>;
 
 #else
 
-ICE_API Value* upCast(Value*);
-typedef IceInternal::Handle<Value> ValuePtr;
+using ValuePtr = SharedPtr<Value>;
+
 /// \cond INTERNAL
 ICE_API void _icePatchValuePtr(ValuePtr&, const ValuePtr&);
 /// \endcond

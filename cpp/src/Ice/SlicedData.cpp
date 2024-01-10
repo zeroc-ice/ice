@@ -10,9 +10,6 @@ using namespace std;
 using namespace Ice;
 
 #ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* Ice::upCast(SliceInfo* p) { return p; }
-IceUtil::Shared* Ice::upCast(SlicedData* p) { return p; }
-IceUtil::Shared* Ice::upCast(UnknownSlicedValue* p) { return p; }
 
 Ice::SlicedData::~SlicedData()
 {

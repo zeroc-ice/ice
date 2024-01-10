@@ -31,7 +31,7 @@ public:
 
     virtual std::string operator()(const std::string&) const = 0;
 
-    virtual void initMetrics(const ICE_INTERNAL_HANDLE<T>&) const
+    virtual void initMetrics(const ICE_SHARED_PTR<T>&) const
     {
         // To be overridden in specialization to initialize state attributes
     }

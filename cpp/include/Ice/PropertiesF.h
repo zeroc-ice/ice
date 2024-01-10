@@ -115,9 +115,6 @@ ICE_API Object* upCast(PropertiesAdmin*);
 typedef ::IceInternal::Handle< PropertiesAdmin> PropertiesAdminPtr;
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::PropertiesAdmin> PropertiesAdminPrx;
 typedef PropertiesAdminPrx PropertiesAdminPrxPtr;
-/// \cond INTERNAL
-ICE_API void _icePatchValuePtr(PropertiesAdminPtr&, const ObjectPtr&);
-/// \endcond
 
 }
 

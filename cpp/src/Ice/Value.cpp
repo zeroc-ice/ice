@@ -5,6 +5,7 @@
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
 #include <Ice/Value.h>
+#include <Ice/SlicedData.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -71,24 +72,10 @@ Ice::Value::ice_getSlicedData() const
 
 #else
 
-Value* Ice::upCast(Value* p) { return p; }
-
 void
 Ice::_icePatchValuePtr(ValuePtr& obj, const ValuePtr& v)
 {
     obj = v;
-}
-
-bool
-Ice::Value::operator==(const Value& r) const
-{
-    return this == &r;
-}
-
-bool
-Ice::Value::operator<(const Value& r) const
-{
-    return this < &r;
 }
 
 void

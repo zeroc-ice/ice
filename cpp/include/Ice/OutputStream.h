@@ -810,9 +810,9 @@ public:
      * Writes a value instance to the stream.
      * @param v The value to be written.
      */
-    template<typename T> void write(const IceInternal::Handle<T>& v)
+    template<typename T> void write(const Ice::SharedPtr<T>& v)
     {
-        write(ValuePtr(upCast(v.get())));
+        write(ValuePtr(v));
     }
 #endif
 

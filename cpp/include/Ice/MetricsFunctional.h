@@ -64,6 +64,22 @@ template<typename R> struct ReferenceWrapper<const IceInternal::Handle<R>& >
         return v.get();
     }
 };
+
+template<typename R> struct ReferenceWrapper<Ice::SharedPtr<R> >
+{
+    static R* get(const Ice::SharedPtr<R>& v)
+    {
+        return v.get();
+    }
+};
+
+template<typename R> struct ReferenceWrapper<const Ice::SharedPtr<R>& >
+{
+    static R* get(const Ice::SharedPtr<R>& v)
+    {
+        return v.get();
+    }
+};
 #endif
 
 template<typename R> struct ReferenceWrapper<R*>
