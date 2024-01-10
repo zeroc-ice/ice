@@ -2026,7 +2026,9 @@ IcePHP::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    return new ValueReader(&obj, cls, _info);
+    // Create a temporary shared_ptr that sees enable_shared_from_this.
+    ValueReaderPtr result = new ValueReader(&obj, cls, _info);
+    return result;
 }
 
 void
@@ -2118,7 +2120,9 @@ IcePHP::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    return new ValueReader(&obj, cls, _info);
+    // Create a temporary shared_ptr that sees enable_shared_from_this.
+    ValueReaderPtr result = new ValueReader(&obj, cls, _info);
+    return result;
 }
 
 void

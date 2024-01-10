@@ -45,7 +45,7 @@ typedef std::vector<ClassInfoPtr> ClassInfoList;
 typedef std::map<unsigned int, Ice::ValuePtr> ObjectMap;
 
 class ValueReader;
-typedef IceUtil::Handle<ValueReader> ValueReaderPtr;
+typedef Ice::SharedPtr<ValueReader> ValueReaderPtr;
 
 struct PrintObjectHistory
 {
@@ -553,7 +553,7 @@ private:
 //
 // ValueReader unmarshals the state of an Ice value.
 //
-class ValueReader : public Ice::Value
+class ValueReader : public std::enable_shared_from_this<ValueReader>, public Ice::Value
 {
 public:
 
