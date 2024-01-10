@@ -425,7 +425,7 @@ exception_def
     }
     $$ = ex;
 }
-'{' exception_exports '}'
+'{' data_members '}'
 {
     if($3)
     {
@@ -453,37 +453,12 @@ exception_extends
 ;
 
 // ----------------------------------------------------------------------
-exception_exports
-// ----------------------------------------------------------------------
-: meta_data exception_export ';' exception_exports
-{
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if(contained && !metaData->v.empty())
-    {
-        contained->setMetaData(metaData->v);
-    }
-}
-| error ';' exception_exports
-{
-}
-| meta_data exception_export
-{
-    unit->error("`;' missing after definition");
-}
-| %empty
-{
-}
-;
-
-// ----------------------------------------------------------------------
 type_id
 // ----------------------------------------------------------------------
 : type ICE_IDENTIFIER
 {
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    checkIdentifier(ident->v);
     TypeStringTokPtr typestring = new TypeStringTok;
     typestring->v = make_pair(type, ident->v);
     $$ = typestring;
@@ -749,12 +724,6 @@ tagged_type_id
 ;
 
 // ----------------------------------------------------------------------
-exception_export
-// ----------------------------------------------------------------------
-: data_member
-;
-
-// ----------------------------------------------------------------------
 struct_id
 // ----------------------------------------------------------------------
 : ICE_STRUCT ICE_IDENTIFIER
@@ -800,7 +769,7 @@ struct_def
     }
     $$ = st;
 }
-'{' struct_exports '}'
+'{' data_members '}'
 {
     if($2)
     {
@@ -818,36 +787,6 @@ struct_def
         unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
-;
-
-// ----------------------------------------------------------------------
-struct_exports
-// ----------------------------------------------------------------------
-: meta_data struct_export ';' struct_exports
-{
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
-    ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if(contained && !metaData->v.empty())
-    {
-        contained->setMetaData(metaData->v);
-    }
-}
-| error ';' struct_exports
-{
-}
-| meta_data struct_export
-{
-    unit->error("`;' missing after definition");
-}
-| %empty
-{
-}
-;
-
-// ----------------------------------------------------------------------
-struct_export
-// ----------------------------------------------------------------------
-: struct_data_member
 ;
 
 // ----------------------------------------------------------------------
@@ -1024,7 +963,7 @@ class_def
         $$ = 0;
     }
 }
-'{' class_exports '}'
+'{' data_members '}'
 {
     if($3)
     {
@@ -1093,9 +1032,9 @@ extends
 ;
 
 // ----------------------------------------------------------------------
-class_exports
+data_members
 // ----------------------------------------------------------------------
-: meta_data class_export ';' class_exports
+: meta_data data_member ';' data_members
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
@@ -1104,10 +1043,10 @@ class_exports
         contained->setMetaData(metaData->v);
     }
 }
-| error ';' class_exports
+| error ';' data_members
 {
 }
-| meta_data class_export
+| meta_data data_member
 {
     unit->error("`;' missing after definition");
 }
@@ -1131,7 +1070,15 @@ data_member
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        if (def->isTagged)
+        {
+            unit->error("tagged data members are not supported in structs");
+            dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
+        }
+        else
+        {
+            dm = st->createDataMember(def->name, def->type, false, -1, 0, "", "");
+        }
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
@@ -1156,8 +1103,16 @@ data_member
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
-                                  value->valueAsString, value->valueAsLiteral);
+        if (def->isTagged)
+        {
+            unit->error("tagged data members are not supported in structs");
+            dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
+        }
+        else
+        {
+            dm = st->createDataMember(def->name, def->type, false, -1, value->v,
+                                      value->valueAsString, value->valueAsLiteral);
+        }
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
@@ -1208,86 +1163,6 @@ data_member
     {
         $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
-    assert($$);
-    unit->error("missing data member name");
-}
-;
-
-// ----------------------------------------------------------------------
-struct_data_member
-// ----------------------------------------------------------------------
-: type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, 0, "", "");
-    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
-    $$ = dm;
-}
-| type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, value->v,
-                                            value->valueAsString, value->valueAsLiteral);
-    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
-    $$ = dm;
-}
-| tag type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| tag type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| optional type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| optional type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| type keyword
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    string name = StringTokPtr::dynamicCast($2)->v;
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("keyword `" + name + "' cannot be used as data member name");
-}
-| type
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     assert($$);
     unit->error("missing data member name");
 }
@@ -1470,12 +1345,6 @@ throws
 ;
 
 // ----------------------------------------------------------------------
-class_export
-// ----------------------------------------------------------------------
-: data_member
-;
-
-// ----------------------------------------------------------------------
 interface_id
 // ----------------------------------------------------------------------
 : ICE_INTERFACE ICE_IDENTIFIER
@@ -1523,7 +1392,7 @@ interface_def
         $$ = 0;
     }
 }
-'{' interface_exports '}'
+'{' operations '}'
 {
     if($3)
     {
@@ -1636,9 +1505,9 @@ interface_extends
 ;
 
 // ----------------------------------------------------------------------
-interface_exports
+operations
 // ----------------------------------------------------------------------
-: meta_data interface_export ';' interface_exports
+: meta_data operation ';' operations
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
@@ -1647,22 +1516,16 @@ interface_exports
         contained->setMetaData(metaData->v);
     }
 }
-| error ';' interface_exports
+| error ';' operations
 {
 }
-| meta_data interface_export
+| meta_data operation
 {
     unit->error("`;' missing after definition");
 }
 | %empty
 {
 }
-;
-
-// ----------------------------------------------------------------------
-interface_export
-// ----------------------------------------------------------------------
-: operation
 ;
 
 // ----------------------------------------------------------------------
@@ -2088,20 +1951,20 @@ type
         {
             YYERROR; // Can't continue, jump to next yyerrok
         }
-        for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
+        TypePtr firstType = types.front();
+
+        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(firstType);
+        if(interface)
         {
-            InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(*p);
-            if(interface)
-            {
-                string msg = "add a '*' after the interface name to specify its proxy type: '";
-                msg += scoped->v;
-                msg += "*'";
-                unit->error(msg);
-                YYERROR; // Can't continue, jump to next yyerrok
-            }
-            cont->checkIntroduced(scoped->v);
+            string msg = "add a '*' after the interface name to specify its proxy type: '";
+            msg += scoped->v;
+            msg += "*'";
+            unit->error(msg);
+            YYERROR; // Can't continue, jump to next yyerrok
         }
-        $$ = types.front();
+        cont->checkIntroduced(scoped->v);
+
+        $$ = firstType;
     }
     else
     {
@@ -2119,20 +1982,20 @@ type
         {
             YYERROR; // Can't continue, jump to next yyerrok
         }
-        for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
+        TypePtr firstType = types.front();
+
+        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(firstType);
+        if(!interface)
         {
-            InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(*p);
-            if(!interface)
-            {
-                string msg = "`";
-                msg += scoped->v;
-                msg += "' must be an interface";
-                unit->error(msg);
-                YYERROR; // Can't continue, jump to next yyerrok
-            }
-            cont->checkIntroduced(scoped->v);
+            string msg = "`";
+            msg += scoped->v;
+            msg += "' must be an interface";
+            unit->error(msg);
+            YYERROR; // Can't continue, jump to next yyerrok
         }
-        $$ = types.front();
+        cont->checkIntroduced(scoped->v);
+
+        $$ = firstType;
     }
     else
     {
@@ -2222,14 +2085,9 @@ const_initializer
         else
         {
             def = new ConstDefTok;
-            string msg = "illegal initializer: `" + scoped->v + "' is a";
-            static const string vowels = "aeiou";
+            string msg = "illegal initializer: `" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
-            if(vowels.find_first_of(kindOf[0]) != string::npos)
-            {
-                msg += "n";
-            }
-            msg += " " + kindOf;
+            msg += prependA(kindOf)
             unit->error(msg); // $$ is dummy
         }
     }

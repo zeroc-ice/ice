@@ -592,7 +592,6 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
 {
     string name = p->name();
 
-    ContainerPtr container = p->container();
     InterfaceDefPtr interface = p->interface();
     string interfaceScope = fixKwd(interface->scope());
 
@@ -1712,7 +1711,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    ContainerPtr container = p->container();
     string name = fixKwd(p->name());
 
     writeDocSummary(H, p);
@@ -2154,7 +2152,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
     string retInS = retS != "void" ? inputTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring) : "";
 
-    ContainerPtr container = p->container();
     InterfaceDefPtr interface = p->interface();
     string interfaceName = interface->name();
     string interfaceScope = fixKwd(interface->scope());
@@ -2905,7 +2902,6 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
 
-    ContainerPtr container = p->container();
     InterfaceDefPtr interface = p->interface();
     string classNameAMD = "AMD_" + interface->name();
     string classScope = fixKwd(interface->scope());
@@ -4551,7 +4547,6 @@ Slice::Gen::AsyncVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 {
-    ContainerPtr container = p->container();
     InterfaceDefPtr interface = p->interface();
 
     if((!interface->hasMetaData("amd") && !p->hasMetaData("amd")))
@@ -6290,8 +6285,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     string name = p->name();
     string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
 
-    ContainerPtr container = p->container();
-
     InterfaceDefPtr interface = p->interface();
     string interfaceScope = fixKwd(interface->scope());
 
@@ -7134,7 +7127,6 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     vector<string> responseParamsDecl;
     vector<string> responseParamsImplDecl;
 
-    ContainerPtr container = p->container();
     InterfaceDefPtr interface = p->interface();
     string interfaceScope = fixKwd(interface->scope());
 
