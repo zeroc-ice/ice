@@ -70,7 +70,11 @@ runs:
       uses: actions/cache@v3
       with:
         path: |
+          **/bin/x64
+          **/lib/x64
           **/msbuild/**/x64
+          **/include/generated
+
         key: ${{ runner.os }}-build-${{ matrix.language }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-build-${{ matrix.language }}
