@@ -58,7 +58,7 @@ PLATFORMS               ?= $(firstword $(supported-platforms))
 # Run `make print V=supported-configs` to see the list of supported
 # configurations.
 #
-CONFIGS                 ?= $(firstword $(supported-configs))
+CONFIGS                 ?= $(default-configs)
 
 #
 # List of binary distributions to build against. Defaults to undefined,
@@ -101,6 +101,7 @@ supported-languages     ?= $(strip cpp java python ruby php \
                                    $(if $(filter %/dotnet,$(dotnet)),csharp) \
                                    $(if $(filter Darwin,$(os)),objective-c swift))
 supported-configs       ?= shared
+default-configs         ?= $(firstword $(supported-configs))
 
 version                 = 3.7.10
 mmversion               = 3.7
