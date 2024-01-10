@@ -92,11 +92,6 @@ Ice::Value::operator<(const Value& r) const
 }
 
 void
-Ice::Value::ice_collectable(bool)
-{
-}
-
-void
 Ice::Value::ice_preMarshal()
 {
 }

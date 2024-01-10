@@ -9,8 +9,7 @@
 #include <Ice/Config.h>
 
 //
-// "Handle" or "smart pointer" template for classes derived from
-// IceInternal::GCShared, IceUtil::Shared, or IceUtil::SimpleShared.
+// "Handle" or "smart pointer" template for classes derived from IceUtil::Shared, or IceUtil::SimpleShared.
 //
 // In contrast to IceUtil::Handle, IceInternal::Handle<T> can be used
 // for a type T that has been declared but not defined. The only

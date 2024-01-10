@@ -20,11 +20,7 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    //
-    // For this test, we enable object collection.
-    //
     properties->setProperty("Ice.AcceptClassCycles", "1");
-    properties->setProperty("Ice.CollectObjects", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     TestIntfPrxPtr allTests(Test::TestHelper*);

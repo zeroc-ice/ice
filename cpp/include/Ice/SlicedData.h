@@ -6,7 +6,6 @@
 #define ICE_SLICED_DATA_H
 
 #include <Ice/SlicedDataF.h>
-#include <Ice/GCValue.h>
 #include <Ice/Value.h>
 
 namespace Ice
@@ -76,25 +75,13 @@ public:
      * Clears the slices to break potential cyclic references.
      */
     void clear();
-
-#ifndef ICE_CPP11_MAPPING
-    /// \cond INTERNAL
-    void _iceGcVisitMembers(IceInternal::GCVisitor&);
-    /// \endcond
-#endif
-
 };
 
 /**
  * Represents an instance of an unknown type.
  * \headerfile Ice/Ice.h
  */
-class ICE_API UnknownSlicedValue :
-#ifdef ICE_CPP11_MAPPING
-    public Value
-#else
-    public IceInternal::GCValue
-#endif
+class ICE_API UnknownSlicedValue : public Value
 {
 public:
 
@@ -149,10 +136,6 @@ protected:
      * @return The type ID supplied to the constructor.
      */
     virtual std::string ice_id() const;
-
-    /// \cond INTERNAL
-    virtual void _iceGcVisitMembers(IceInternal::GCVisitor&);
-    /// \endcond
 
     /// \cond STREAM
     virtual void _iceWrite(::Ice::OutputStream*) const;

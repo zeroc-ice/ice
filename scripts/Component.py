@@ -61,7 +61,6 @@ class Ice(Component):
                     ["Ice/background",
                      "Ice/echo",
                      "Ice/faultTolerance",
-                     "Ice/gc",
                      "Ice/library",
                      "Ice/logger",
                      "Ice/properties",

@@ -156,10 +156,6 @@ Ice::InputStream::initialize(Instance* instance, const EncodingVersion& encoding
     initialize(encoding);
 
     _instance = instance;
-
-#ifndef ICE_CPP11_MAPPING
-    _collectObjects = _instance->collectObjects();
-#endif
     _traceSlicing = _instance->traceLevels()->slicing > 0;
     _classGraphDepthMax = _instance->classGraphDepthMax();
 }
@@ -170,9 +166,6 @@ Ice::InputStream::initialize(const EncodingVersion& encoding)
     _instance = 0;
     _encoding = encoding;
     _currentEncaps = 0;
-#ifndef ICE_CPP11_MAPPING
-    _collectObjects = false;
-#endif
     _traceSlicing = false;
     _classGraphDepthMax = 0x7fffffff;
     _closure = 0;
@@ -216,14 +209,6 @@ Ice::InputStream::setCompactIdResolver(const CompactIdResolverPtr& r)
 {
     _compactIdResolver = r;
 }
-
-#ifndef ICE_CPP11_MAPPING
-void
-Ice::InputStream::setCollectObjects(bool on)
-{
-    _collectObjects = on;
-}
-#endif
 
 void
 Ice::InputStream::setSliceValues(bool on)
@@ -271,9 +256,6 @@ Ice::InputStream::swap(InputStream& other)
 
     std::swap(_instance, other._instance);
     std::swap(_encoding, other._encoding);
-#ifndef ICE_CPP11_MAPPING
-    std::swap(_collectObjects, other._collectObjects);
-#endif
     std::swap(_traceSlicing, other._traceSlicing);
     std::swap(_classGraphDepthMax, other._classGraphDepthMax);
     std::swap(_closure, other._closure);
@@ -1595,12 +1577,6 @@ Ice::InputStream::postUnmarshal(const ValuePtr& v) const
 {
     try
     {
-#ifndef ICE_CPP11_MAPPING
-        if(_collectObjects)
-        {
-            v->ice_collectable(true);
-        }
-#endif
         v->ice_postUnmarshal();
     }
     catch(const std::exception& ex)

@@ -76,7 +76,6 @@ const IceInternal::Property IcePropsData[] =
     IceInternal::Property("Ice.ClassGraphDepthMax", false, 0),
     IceInternal::Property("Ice.ClientAccessPolicyProtocol", false, 0),
     IceInternal::Property("Ice.Compression.Level", false, 0),
-    IceInternal::Property("Ice.CollectObjects", false, 0),
     IceInternal::Property("Ice.Config", false, 0),
     IceInternal::Property("Ice.ConsoleListener", false, 0),
     IceInternal::Property("Ice.Default.CollocationOptimized", false, 0),

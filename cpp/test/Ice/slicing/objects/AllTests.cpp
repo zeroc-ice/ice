@@ -1636,7 +1636,7 @@ allTests(Test::TestHelper* helper)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d1->ice_collectable(true);
 #endif
 
@@ -1688,7 +1688,7 @@ allTests(Test::TestHelper* helper)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d1->ice_collectable(true);
 #endif
 
@@ -1749,7 +1749,7 @@ allTests(Test::TestHelper* helper)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d1->ice_collectable(true);
 #endif
             BPtr b1 = test->returnTest3(d3, d1);
@@ -1802,7 +1802,7 @@ allTests(Test::TestHelper* helper)
             d3->pd3 = d1;
             d1->pb = d3;
             d1->pd1 = d3;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d1->ice_collectable(true);
 #endif
 
@@ -2002,7 +2002,7 @@ allTests(Test::TestHelper* helper)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d3->ice_collectable(true);
 #endif
 
@@ -2041,7 +2041,7 @@ allTests(Test::TestHelper* helper)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d3->ice_collectable(true);
 #endif
 
@@ -2089,7 +2089,7 @@ allTests(Test::TestHelper* helper)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d3->ice_collectable(true);
 #endif
             D1Ptr d12 = ICE_MAKE_SHARED(D1);
@@ -2097,7 +2097,7 @@ allTests(Test::TestHelper* helper)
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d12->ice_collectable(true);
 #endif
             BPtr r = test->returnTest3(d3, d12);
@@ -2133,7 +2133,7 @@ allTests(Test::TestHelper* helper)
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d3->ice_collectable(true);
 #endif
             D1Ptr d12 = ICE_MAKE_SHARED(D1);
@@ -2141,7 +2141,7 @@ allTests(Test::TestHelper* helper)
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
-#ifndef ICE_CPP11_MAPPING
+#if 0
             d12->ice_collectable(true);
 #endif
 
@@ -2190,7 +2190,7 @@ allTests(Test::TestHelper* helper)
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
-#ifndef ICE_CPP11_MAPPING
+#if 0
                 ss1d3->ice_collectable(true);
 #endif
                 BPtr ss2b = ICE_MAKE_SHARED(B);
@@ -2223,7 +2223,7 @@ allTests(Test::TestHelper* helper)
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
 
-#ifndef ICE_CPP11_MAPPING
+#if 0
                 ss1->ice_collectable(true);
                 ss2->ice_collectable(true);
 #endif
@@ -2289,7 +2289,7 @@ allTests(Test::TestHelper* helper)
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
-#ifndef ICE_CPP11_MAPPING
+#if 0
                 ss1d3->ice_collectable(true);
 #endif
 
@@ -2322,7 +2322,7 @@ allTests(Test::TestHelper* helper)
                 ss2->s.push_back(ss2b);
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
-#ifndef ICE_CPP11_MAPPING
+#if 0
                 ss1->ice_collectable(true);
                 ss2->ice_collectable(true);
 #endif
@@ -2395,7 +2395,7 @@ allTests(Test::TestHelper* helper)
                 d1->pb = d1;
                 d1->sd1 = s.str();
                 bin[i] = d1;
-#ifndef ICE_CPP11_MAPPING
+#if 0
                 d1->ice_collectable(true);
 #endif
             }
@@ -2459,7 +2459,7 @@ allTests(Test::TestHelper* helper)
                 d1->pb = d1;
                 d1->sd1 = s.str();
                 bin[i] = d1;
-#ifndef ICE_CPP11_MAPPING
+#if 0
                 d1->ice_collectable(true);
 #endif
             }
@@ -2769,7 +2769,7 @@ allTests(Test::TestHelper* helper)
         pd->pi = 3;
         pd->ps = "preserved";
         pd->pb = pd;
-#ifndef ICE_CPP11_MAPPING
+#if 0
         pd->ice_collectable(true);
 #endif
         PBasePtr r = test->exchangePBase(pd);
@@ -2814,7 +2814,7 @@ allTests(Test::TestHelper* helper)
         PCDerivedPtr pcd = ICE_MAKE_SHARED(PCDerived);
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-#ifndef ICE_CPP11_MAPPING
+#if 0
         pcd->ice_collectable(true);
 #endif
 
@@ -2848,7 +2848,7 @@ allTests(Test::TestHelper* helper)
         CompactPCDerivedPtr pcd = ICE_MAKE_SHARED(CompactPCDerived);
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-#ifndef ICE_CPP11_MAPPING
+#if 0
         pcd->ice_collectable(true);
 #endif
 
@@ -2968,7 +2968,7 @@ allTests(Test::TestHelper* helper)
         pd->ps = "preserved";
         pd->pb = pd;
 
-#ifndef ICE_CPP11_MAPPING
+#if 0
         pd->ice_collectable(true);
 #endif
 
@@ -3055,7 +3055,7 @@ allTests(Test::TestHelper* helper)
         }
         breakCycles(pcd);
 #else
-        pcd->ice_collectable(true);
+        // pcd->ice_collectable(true);
 
         CallbackPtr cb = new Callback;
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
@@ -3103,7 +3103,7 @@ allTests(Test::TestHelper* helper)
         }
         breakCycles(pcd);
 #else
-        pcd->ice_collectable(true);
+        // pcd->ice_collectable(true);
 
         CallbackPtr cb = new Callback;
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
@@ -3189,130 +3189,5 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-#ifndef ICE_CPP11_MAPPING
-    cout << "garbage collection for preserved classes... " << flush;
-    try
-    {
-        //
-        // Register a factory in order to substitute our own subclass of PNode. This provides
-        // an easy way to determine how many unmarshaled instances currently exist.
-        //
-        communicator->getValueFactoryManager()->add(new NodeFactoryI, PNode::ice_staticId());
-
-        //
-        // Relay a graph through the server. This test uses a preserved class
-        // with a class member, so the preserved class already supports GC.
-        //
-        {
-            PNodePtr c = new PNode;
-            c->next = new PNode;
-            c->next->next = new PNode;
-            c->next->next->next = c;
-
-            test(PNodeI::counter == 0);
-            PNodePtr n = test->exchangePNode(c);
-            c->next->next->next = 0; // Break the cycle.
-
-            test(PNodeI::counter == 3);
-            n = 0;                          // Release reference.
-            test(PNodeI::counter == 0);
-        }
-
-        //
-        // Obtain a preserved object from the server where the most-derived
-        // type is unknown. The preserved slice refers to a graph of PNode
-        // objects.
-        //
-        {
-            test(PNodeI::counter == 0);
-            PreservedPtr p = test->PBSUnknownAsPreservedWithGraph();
-            test->checkPBSUnknownWithGraph(p);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
-            {
-                test(!p->ice_getSlicedData());
-                test(PNodeI::counter == 0);
-            }
-            else
-            {
-                test(p->ice_getSlicedData());
-                test(PNodeI::counter == 3);
-                p->ice_getSlicedData()->clear();
-                p = 0;                          // Release reference.
-                test(PNodeI::counter == 0);
-            }
-        }
-
-        //
-        // Register a factory in order to substitute our own subclass of Preserved. This provides
-        // an easy way to determine how many unmarshaled instances currently exist.
-        //
-        communicator->getValueFactoryManager()->add(new PreservedFactoryI, Preserved::ice_staticId());
-
-        //
-        // Obtain a preserved object from the server where the most-derived
-        // type is unknown. A data member in the preserved slice refers to the
-        // outer object, so the chain of references looks like this:
-        //
-        // outer->slicedData->outer
-        //
-        {
-            test(PreservedI::counter == 0);
-            PreservedPtr p = test->PBSUnknown2AsPreservedWithGraph();
-            test->checkPBSUnknown2WithGraph(p);
-            if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
-            {
-                test(p->ice_getSlicedData());
-                p->ice_getSlicedData()->clear();
-            }
-            test(PreservedI::counter == 1);
-            p = 0;                          // Release reference.
-            test(PreservedI::counter == 0);
-        }
-
-        //
-        // Throw a preserved exception where the most-derived type is unknown.
-        // The preserved exception slice contains a class data member. This
-        // object is also preserved, and its most-derived type is also unknown.
-        // The preserved slice of the object contains a class data member that
-        // refers to itself.
-        //
-        // The chain of references looks like this:
-        //
-        // ex->slicedData->obj->slicedData->obj
-        //
-        try
-        {
-            test(PreservedI::counter == 0);
-
-            try
-            {
-                test->throwPreservedException();
-            }
-            catch(const PreservedException&)
-            {
-                //
-                // The class instance is only retained when the encoding is > 1.0.
-                //
-                if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
-                {
-                    test(PreservedI::counter == 1);
-                }
-            }
-
-            //
-            // Exception has gone out of scope.
-            //
-            test(PreservedI::counter == 0);
-        }
-        catch(const Ice::Exception&)
-        {
-            test(false);
-        }
-    }
-    catch(const Ice::OperationNotExistException&)
-    {
-    }
-    cout << "ok" << endl;
-#endif
     return test;
 }

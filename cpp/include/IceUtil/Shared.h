@@ -80,7 +80,7 @@ public:
 
     //
     // Flag constant used by the Shared class. Derived classes
-    // such as GCValue define more flag constants.
+    // can define more flag constants.
     //
     static const unsigned char NoDelete;
 

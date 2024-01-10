@@ -103,8 +103,6 @@ cpp11_projects          = test/Common \
                           test/IceGrid/% \
                           test/IceBridge/simple
 
-cpp11_excludes          = test/Ice/gc
-
 #
 # If building on a Linux multilib platform, we restrict what we build for
 # the 32-bits architecture. We basically, build the same set of components

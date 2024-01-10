@@ -251,16 +251,6 @@ public:
     void setCompactIdResolver(const CompactIdResolverPtr& r);
 #endif
 
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Indicates whether to mark instances of Slice classes as collectable. If the stream is
-     * initialized with a communicator, this setting defaults to the value of the
-     * Ice.CollectObjects property, otherwise the setting defaults to false.
-     * @param b True to mark instances as collectable, false otherwise.
-     */
-    void setCollectObjects(bool b);
-#endif
-
     /**
      * Indicates whether to slice instances of Slice classes to a known Slice type when a more
      * derived type is unknown. An instance is "sliced" when no static information is available
@@ -1475,10 +1465,6 @@ private:
     void initEncaps();
 
     Encaps _preAllocatedEncaps;
-
-#ifndef ICE_CPP11_MAPPING
-    bool _collectObjects;
-#endif
 
     bool _traceSlicing;
 

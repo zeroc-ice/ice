@@ -217,7 +217,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
     su->su = "SUnknown.su";
     su->cycle = su;
 #ifndef ICE_CPP11_MAPPING
-    su->ice_collectable(true);
+    // su->ice_collectable(true);
 #else
     _values.push_back(su);
 #endif
@@ -249,7 +249,7 @@ TestI::oneElementCycle(const ::Ice::Current&)
     b->sb = "B1.sb";
     b->pb = b;
 #ifndef ICE_CPP11_MAPPING
-    b->ice_collectable(true);
+    // b->ice_collectable(true);
 #else
     _values.push_back(b);
 #endif
@@ -266,7 +266,7 @@ TestI::twoElementCycle(const ::Ice::Current&)
     b2->pb = b1;
     b1->pb = b2;
 #ifndef ICE_CPP11_MAPPING
-    b1->ice_collectable(true);
+   // b1->ice_collectable(true);
 #else
     _values.push_back(b1);
 #endif
@@ -287,7 +287,7 @@ TestI::D1AsB(const ::Ice::Current&)
     d1->pb = d2;
     d1->pd1 = d2;
 #ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
+    // d1->ice_collectable(true);
 #else
     _values.push_back(d1);
 #endif
@@ -308,7 +308,7 @@ TestI::D1AsD1(const ::Ice::Current&)
     d1->pb = d2;
     d1->pd1 = d2;
 #ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
+    // d1->ice_collectable(true);
 #else
     _values.push_back(d1);
 #endif
@@ -329,7 +329,7 @@ TestI::D2AsB(const ::Ice::Current&)
     d2->pb = d1;
     d2->pd2 = d1;
 #ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
+    // d1->ice_collectable(true);
 #else
     _values.push_back(d1);
 #endif
@@ -352,7 +352,7 @@ TestI::paramTest1(BPtr& p1, BPtr& p2, const ::Ice::Current&)
     p1 = d1;
     p2 = d2;
 #ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
+   // d1->ice_collectable(true);
 #else
     _values.push_back(d1);
 #endif
@@ -478,7 +478,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
         d2->sd2 = "D2";
         d2->pd2 = d2;
 #ifndef ICE_CPP11_MAPPING
-        d2->ice_collectable(true);
+        // d2->ice_collectable(true);
 #else
         _values.push_back(d2);
 #endif
@@ -495,7 +495,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
         d1->sd1 = s.str();
         d1->pd1 = d1;
 #ifndef ICE_CPP11_MAPPING
-        d1->ice_collectable(true);
+      //  d1->ice_collectable(true);
 #else
         _values.push_back(d1);
 #endif
@@ -664,7 +664,7 @@ TestI::throwBaseAsBase(const ::Ice::Current&)
     be.pb->sb = "sb";
     be.pb->pb = be.pb;
 #ifndef ICE_CPP11_MAPPING
-    be.pb->ice_collectable(true);
+   // be.pb->ice_collectable(true);
 #else
     _values.push_back(be.pb);
 #endif
@@ -686,8 +686,8 @@ TestI::throwDerivedAsBase(const ::Ice::Current&)
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
 #ifndef ICE_CPP11_MAPPING
-    de.pb->ice_collectable(true);
-    de.pd1->ice_collectable(true);
+   // de.pb->ice_collectable(true);
+    //de.pd1->ice_collectable(true);
 #else
     _values.push_back(de.pb);
     _values.push_back(de.pd1);
@@ -710,8 +710,8 @@ TestI::throwDerivedAsDerived(const ::Ice::Current&)
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
 #ifndef ICE_CPP11_MAPPING
-    de.pb->ice_collectable(true);
-    de.pd1->ice_collectable(true);
+    //de.pb->ice_collectable(true);
+   // de.pd1->ice_collectable(true);
 #else
     _values.push_back(de.pb);
     _values.push_back(de.pd1);
@@ -728,7 +728,7 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     d2->sd2 = "sd2 d2";
     d2->pd2 = d2;
 #ifndef ICE_CPP11_MAPPING
-    d2->ice_collectable(true);
+    //d2->ice_collectable(true);
 #else
     _values.push_back(d2);
 #endif
@@ -777,7 +777,7 @@ TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
     f->h = ICE_MAKE_SHARED(Hidden);
     f->h->f = f;
 #ifndef ICE_CPP11_MAPPING
-    f->ice_collectable(true);
+    //f->ice_collectable(true);
 #else
     _values.push_back(f);
 #endif

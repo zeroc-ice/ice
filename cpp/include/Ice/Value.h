@@ -20,11 +20,6 @@ namespace Ice
     class InputStream;
 }
 
-namespace IceInternal
-{
-    class GCVisitor;
-}
-
 namespace Ice
 {
 
@@ -164,17 +159,6 @@ public:
     virtual void _iceWrite(Ice::OutputStream*) const;
     virtual void _iceRead(Ice::InputStream*);
     /// \endcond
-
-    /// \cond INTERNAL
-    virtual bool _iceGcVisit(IceInternal::GCVisitor&) { return false; }
-    /// \endcond
-
-    /**
-     * Determines whether this object, and by extension the graph of all objects reachable from this object,
-     * are eligible for garbage collection when all external references to the graph have been released.
-     * @param b True if the object is eligible, false otherwise.
-     */
-    virtual void ice_collectable(bool b);
 
     /**
      * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass

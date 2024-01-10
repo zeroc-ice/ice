@@ -820,10 +820,7 @@ allTests(Test::TestHelper* helper)
             c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
 
             c->d["hi"] = c;
-#ifndef ICE_CPP11_MAPPING
-            //
-            // No GC support in C++11.
-            //
+#if 0
             c->ice_collectable(true);
 #endif
             arr.push_back(c);
@@ -834,9 +831,6 @@ allTests(Test::TestHelper* helper)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in.setCollectObjects(true);
-#endif
         MyClassS arr2;
         in.read(arr2);
         in.readPendingValues();
@@ -870,9 +864,6 @@ allTests(Test::TestHelper* helper)
         out2.finished(data);
 
         Ice::InputStream in2(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in2.setCollectObjects(true);
-#endif
         MyClassSS arr2S;
         in2.read(arr2S);
         in2.readPendingValues();
@@ -1034,10 +1025,7 @@ allTests(Test::TestHelper* helper)
         c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
 
         ex.c = c;
-#ifndef ICE_CPP11_MAPPING
-        //
-        // No GC support in C++11.
-        //
+#if 0
         ex.c->ice_collectable(true);
 #endif
 
@@ -1045,9 +1033,6 @@ allTests(Test::TestHelper* helper)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in.setCollectObjects(true);
-#endif
         try
         {
             in.throwException();

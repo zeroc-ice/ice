@@ -449,7 +449,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->bos->push_back(true);
     mo1->bos->push_back(false);
 
-#ifndef ICE_CPP11_MAPPING
+#if 0
     mo1->ice_collectable(true);
 #endif
 
@@ -668,7 +668,7 @@ allTests(Test::TestHelper* helper, bool)
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = ICE_MAKE_SHARED(MultiOptional, *mo5);
-#ifndef ICE_CPP11_MAPPING
+#if 0
     mo8->ice_collectable(true);
 #endif
     mo8->b = IceUtil::None;

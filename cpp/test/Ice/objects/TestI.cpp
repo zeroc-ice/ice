@@ -79,7 +79,7 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _e(new EI),
     _f(new FI(_e))
 {
-#ifndef ICE_CPP11_MAPPING
+#if 0
     _b1->ice_collectable(true);
     _b2->ice_collectable(true);
     _c->ice_collectable(true);
