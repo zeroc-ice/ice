@@ -77,18 +77,6 @@ string readWriteAttribute[] = { "read", "write" };
 string txAttribute[] = { "supports", "mandatory", "required", "never" };
 enum { Supports, Mandatory, Required, Never };
 
-string
-prependA(const string& s) // return a or an <s>
-{
-    static const string vowels = "aeiou";
-    string prefix = "a";
-    if (vowels.find_first_of(s[0]) != string::npos)
-    {
-        prefix += "n";
-    }
-    return prefix + " " + s;
-}
-
 DataMemberList
 filterOrderedOptionalDataMembers(const DataMemberList& members)
 {
