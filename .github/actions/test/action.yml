@@ -10,7 +10,7 @@ runs:
   using: "composite"
   steps:
     - name: Test ${{ matrix.language }}
-      run: python3 allTests.py --debug --all --continue --workers=4  --export-xml=test-report.xml --config=cpp11-shared --languages=${{ matrix.language }} ${{ inputs.flags }}
+      run: python3 allTests.py --debug --all --continue --workers=4  --export-xml=test-report.xml --languages=${{ matrix.language }} ${{ inputs.flags }}
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
