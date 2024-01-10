@@ -2,17 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil
-import copy, inspect, xml.sax.saxutils
+import os, sys, runpy, getopt, traceback, types, threading, time, re, itertools, random, subprocess, shutil
+import copy, xml.sax.saxutils
 from platform import machine as platform_machine
 
-isPython2 = sys.version_info[0] == 2
-if isPython2:
-    import Queue as queue
-    from StringIO import StringIO
-else:
-    import queue
-    from io import StringIO
+from io import StringIO
 
 from collections import OrderedDict
 import Expect
@@ -65,10 +59,7 @@ illegalXMLChars = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uF
 
 def escapeXml(s, attribute=False):
     # Remove backspace characters from the output (they aren't accepted by Jenkins XML parser)
-    if isPython2:
-        s = "".join(ch for ch in unicode(s.decode("utf-8")) if ch != u"\u0008").encode("utf-8")
-    else:
-        s = "".join(ch for ch in s if ch != u"\u0008")
+    s = "".join(ch for ch in s if ch != u"\u0008")
     s = illegalXMLChars.sub("?", s) # Strip invalid XML characters
     return xml.sax.saxutils.quoteattr(s) if attribute else xml.sax.saxutils.escape(s)
 
@@ -1141,7 +1132,7 @@ class Process(Runnable):
         assert(self in current.processes)
 
         def d(s):
-            return s if isPython2 else s.decode(encoding) if isinstance(s, bytes) else s
+            return s.decode(encoding) if isinstance(s, bytes) else s
 
         output = d(current.processes[self].getOutput())
         try:
@@ -2817,8 +2808,8 @@ class Driver:
                 testcase.parent = None
 
         def createFile(self, path, lines, encoding=None):
-            path = os.path.join(self.testsuite.getPath(), path.decode("utf-8") if isPython2 else path)
-            with open(path, "w", encoding=encoding) if not isPython2 and encoding else open(path, "w") as file:
+            path = os.path.join(self.testsuite.getPath(), path)
+            with open(path, "w", encoding=encoding) if encoding else open(path, "w") as file:
                 for l in lines:
                     file.write("%s\n" % l)
             self.files.append(path)

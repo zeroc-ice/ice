@@ -2,11 +2,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os, time, threading
+import sys, os, time, threading, queue
 from Util import *
-from Component import component
-
-isPython2 = sys.version_info[0] == 2
 
 #
 # The Executor class runs testsuites on multiple worker threads.
@@ -322,7 +319,7 @@ class XmlExporter:
         self.failures = failures
 
     def save(self, filename, hostname):
-        with open(filename, "w") if isPython2 else open(filename, "w", encoding="utf-8") as out:
+        with open(filename, "w", encoding="utf-8") as out:
             out.write('<?xml version="1.1" encoding="UTF-8"?>\n')
             out.write('<testsuites tests="{0}" failures="{1}" time="{2:.9f}">\n'.format(len(self.results),
                                                                                         self.duration,

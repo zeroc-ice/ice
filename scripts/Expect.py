@@ -2,6 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+import io
 import os
 import re
 import signal
@@ -42,19 +43,10 @@ class TIMEOUT(Exception):
         return str(self.value)
 
 
-def getStringIO():
-    if sys.version_info[0] == 2:
-        import StringIO
-        return StringIO.StringIO()
-    else:
-        import io
-        return io.StringIO()
-
-
 def escape(s, escapeNewlines=True):
     if s == TIMEOUT:
         return "<TIMEOUT>"
-    o = getStringIO()
+    o = io.StringIO()
     for c in s:
         if c == '\\':
             o.write('\\\\')
@@ -121,11 +113,11 @@ def terminateProcess(p, hasInterruptSupport=True):
 class reader(threading.Thread):
     def __init__(self, desc, p, logfile):
         self.desc = desc
-        self.buf = getStringIO()
+        self.buf = io.StringIO()
         self.cv = threading.Condition()
         self.p = p
         self._trace = False
-        self._tbuf = getStringIO()
+        self._tbuf = io.StringIO()
         self._tracesuppress = None
         self.logfile = logfile
         self.watchDog = None
@@ -220,7 +212,7 @@ class reader(threading.Thread):
             else:
                 tdesc = "%.2fs" % timeout
             p = [escape(s) for (s, r) in pattern]
-            pdesc = getStringIO()
+            pdesc = io.StringIO()
             if len(p) == 1:
                 pdesc.write(escape(p[0]))
             else:

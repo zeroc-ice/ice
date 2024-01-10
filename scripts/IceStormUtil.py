@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os
+import os
 from Util import *
 from Component import component
 from IceBoxUtil import *

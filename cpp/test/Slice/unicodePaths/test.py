@@ -15,15 +15,10 @@ class SliceUnicodePathsTestCase(ClientTestCase):
                 current.writeln("Please set LC_ALL to xx_xx.UTF-8, for example FR_FR.UTF-8")
                 current.writeln("Skipping test")
                 return
-        elif isinstance(platform, Windows) and isPython2:
-            current.writeln("To run this test on Windows you need to be using Python 3.x")
-            current.writeln("Python 2.x subprocess module doesn't support unicode on Windows")
-            current.writeln("Skipping test")
-            return
 
         current.write("testing Slice compiler and unicode file paths... ")
 
-        srcPath = "./\xe4\xb8\xad\xe5\x9b\xbd" if isPython2 else "./\u4e2d\u56fd"
+        srcPath = "./\u4e2d\u56fd"
 
         if os.path.exists(srcPath): shutil.rmtree(srcPath)
         os.mkdir(srcPath)
