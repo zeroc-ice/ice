@@ -10,19 +10,12 @@ runs:
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
-    - name: Build C++ 98 Tests for Scripting Languages
-      env:
-        CONFIGS: "cpp98-shared"
-      run: make -j3 V=1 -C cpp tests
-      shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (matrix.language == 'php' || matrix.language == 'js' || matrix.language == 'ruby')
-
     - name: Build C++ 11 Tests for Scripting Languages
       env:
         CONFIGS: "cpp11-shared"
       run: make -j3 V=1 -C cpp tests
       shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (matrix.language == 'js')
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (matrix.language == 'php' || matrix.language == 'js' || matrix.language == 'ruby')
 
     - name: Build ${{ matrix.language }}
       env:
