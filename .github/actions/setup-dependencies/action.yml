@@ -3,8 +3,9 @@ name: Setup Dependencies
 runs:
   using: "composite"
   steps:
+    # Python3 is already installed though Homebrew
     - name: Install brew dependencies
-      run: brew install python3 ruby openjdk node php lmdb mcpp
+      run: brew install ruby openjdk node php lmdb mcpp
       shell: bash
       if: runner.os == 'macOS'
 
