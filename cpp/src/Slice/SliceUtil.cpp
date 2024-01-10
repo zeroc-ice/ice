@@ -458,6 +458,18 @@ Slice::argvToArgs(int argc, char* argv[])
      return ids;
  }
 
+string
+Slice::prependA(const string& s)
+{
+    static const string vowels = "aeiou";
+    string prefix = "a";
+    if (vowels.find_first_of(s[0]) != string::npos)
+    {
+        prefix += "n";
+    }
+    return prefix + " " + s;
+}
+
 bool
 Slice::checkIdentifier(const string& id)
 {
