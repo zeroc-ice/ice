@@ -2087,7 +2087,7 @@ const_initializer
             def = new ConstDefTok;
             string msg = "illegal initializer: `" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
-            msg += prependA(kindOf)
+            msg += prependA(kindOf);
             unit->error(msg); // $$ is dummy
         }
     }
