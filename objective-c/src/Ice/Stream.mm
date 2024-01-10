@@ -84,7 +84,7 @@ private:
 
     ICEValue* _obj;
 };
-typedef IceUtil::Handle<ValueWrapper> ValueWrapperPtr;
+typedef Ice::SharedPtr<ValueWrapper> ValueWrapperPtr;
 
 class ReadValueBase : public IceUtil::Shared
 {
@@ -2268,7 +2268,7 @@ private:
     }
 }
 
--(Ice::Value*) addObject:(ICEValue*)object
+-(Ice::ValuePtr) addObject:(ICEValue*)object
 {
     //
     // Ice::ValueWrapper is a subclass of Ice::Value that wraps an Objective-C object for marshaling.
@@ -2283,13 +2283,13 @@ private:
     std::map<ICEValue*, Ice::ValuePtr>::const_iterator p = objectWriters_->find(object);
     if(p != objectWriters_->end())
     {
-        return p->second.get();
+        return p->second;
     }
     else
     {
         IceObjC::ValueWrapperPtr writer = new IceObjC::ValueWrapper(object);
         objectWriters_->insert(std::make_pair(object, writer));
-        return writer.get();
+        return writer;
     }
 }
 

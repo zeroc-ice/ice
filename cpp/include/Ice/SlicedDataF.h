@@ -7,6 +7,7 @@
 
 #include <Ice/SharedPtr.h>
 #include <Ice/Handle.h>
+#include <IceUtil/Shared.h>
 
 namespace Ice
 {
