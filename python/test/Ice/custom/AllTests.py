@@ -19,22 +19,15 @@ def allTests(helper, communicator):
     test(custom)
 
     byteList = [1, 2, 3, 4, 5]
-    if sys.version_info[0] == 2:
-        byteString = ''.join(map(chr, byteList))
-    else:
-        byteString = bytes(byteList)
+    byteString = bytes(byteList)
     stringList = ['s1', 's2', 's3']
 
     sys.stdout.write("testing custom sequences... ")
     sys.stdout.flush()
 
     (r, b2) = custom.opByteString1(byteString)
-    if sys.version_info[0] == 2:
-        test(isinstance(r, str))
-        test(isinstance(b2, str))
-    else:
-        test(isinstance(r, bytes))
-        test(isinstance(b2, bytes))
+    test(isinstance(r, bytes))
+    test(isinstance(b2, bytes))
     test(r == byteString)
     test(b2 == byteString)
 
@@ -53,10 +46,7 @@ def allTests(helper, communicator):
         test(b2[i] == byteList[i])
 
     (r, b2) = custom.opByteList2(byteList)
-    if sys.version_info[0] == 2:
-        test(isinstance(r, str))
-    else:
-        test(isinstance(r, bytes))
+    test(isinstance(r, bytes))
     test(isinstance(b2, tuple))
     test(r == byteString)
     for i in range(0, len(byteList)):
@@ -183,26 +173,22 @@ def allTests(helper, communicator):
     test(len(v1) == 0)
     test(len(v2) == 0)
 
-    #
-    # The array "q" type specifier is new in Python 3.3
-    #
-    if sys.version_info[:2] >= (3, 3):
-        v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-        v1, v2 = custom.opLongSeq(array.array("q", v))
-        test(isinstance(v1, array.array))
-        test(isinstance(v2, array.array))
-        test(len(v1) == len(v))
-        test(len(v2) == len(v))
-        for i in range(len(v)):
-            test(v1[i] == v[i])
-            test(v2[i] == v[i])
+    v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
+    v1, v2 = custom.opLongSeq(array.array("q", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(v1[i] == v[i])
+        test(v2[i] == v[i])
 
-        v = []
-        v1, v2 = custom.opLongSeq(array.array("q", v))
-        test(isinstance(v1, array.array))
-        test(isinstance(v2, array.array))
-        test(len(v1) == 0)
-        test(len(v2) == 0)
+    v = []
+    v1, v2 = custom.opLongSeq(array.array("q", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == 0)
+    test(len(v2) == 0)
 
     v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
     v1, v2 = custom.opFloatSeq(array.array("f", v))
@@ -244,11 +230,7 @@ def allTests(helper, communicator):
     d.byteSeq = array.array("b", [0, 2, 4, 8, 16, 32, 64, 127])
     d.shortSeq = array.array("h", [0, 2, 4, 8, 16, 32, 64, 128, 256])
     d.intSeq = array.array("i", [0, 2, 4, 8, 16, 32, 64, 128, 256])
-    #
-    # The array "q" type specifier is new in Python 3.3
-    #
-    if sys.version_info[:2] >= (3, 3):
-        d.longSeq = array.array("q", [0, 2, 4, 8, 16, 32, 64, 128, 256])
+    d.longSeq = array.array("q", [0, 2, 4, 8, 16, 32, 64, 128, 256])
     d.floatSeq = array.array("f", [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256])
     d.doubleSeq = array.array("d", [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256])
 
@@ -268,14 +250,10 @@ def allTests(helper, communicator):
     for i in range(len(d.intSeq)):
         test(d.intSeq[i] == d1.intSeq[i])
 
-    #
-    # The array "q" type specifier is new in Python 3.3
-    #
-    if sys.version_info[:2] >= (3, 3):
-        test(isinstance(d1.longSeq, array.array))
-        test(len(d1.longSeq) == len(d.longSeq))
-        for i in range(len(d.longSeq)):
-            test(d.longSeq[i] == d1.longSeq[i])
+    test(isinstance(d1.longSeq, array.array))
+    test(len(d1.longSeq) == len(d.longSeq))
+    for i in range(len(d.longSeq)):
+        test(d.longSeq[i] == d1.longSeq[i])
 
     test(isinstance(d1.floatSeq, array.array))
     test(len(d1.floatSeq) == len(d.floatSeq))
@@ -294,47 +272,44 @@ def allTests(helper, communicator):
     test(d1.longSeq == Ice.Unset)
     test(d1.floatSeq == Ice.Unset)
     test(d1.doubleSeq == Ice.Unset)
-    #
-    # With python 3.3 we use the new buffer interface for marshaling
-    # sequences of types that implement the buffer protocol and this
-    # allow Ice to check that the container item size and endianness
-    #
-    if sys.version_info[0] >= 3:
-        try:
-            custom.opBoolSeq(array.array("h", [1, 2, 3, 4]))
-            test(False)
-        except ValueError:
-            pass
 
-        try:
-            custom.opShortSeq(array.array("i", [1, 2, 3, 4]))
-            test(False)
-        except ValueError:
-            pass
+    # Use the new buffer interface for marshaling sequences of types that implement the buffer protocol and this allow
+    # Ice to check that the container item size and endianness
+    try:
+        custom.opBoolSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
 
-        try:
-            custom.opIntSeq(array.array("h", [1, 2, 3, 4]))
-            test(False)
-        except ValueError:
-            pass
+    try:
+        custom.opShortSeq(array.array("i", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
 
-        try:
-            custom.opLongSeq(array.array("h", [1, 2, 3, 4]))
-            test(False)
-        except ValueError:
-            pass
+    try:
+        custom.opIntSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
 
-        try:
-            custom.opFloatSeq(array.array("h", [1, 2, 3, 4]))
-            test(False)
-        except ValueError:
-            pass
+    try:
+        custom.opLongSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
 
-        try:
-            custom.opDoubleSeq(array.array("h", [1, 2, 3, 4]))
-            test(False)
-        except ValueError:
-            pass
+    try:
+        custom.opFloatSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opDoubleSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
 
     try:
         custom.opBogusArrayNotExistsFactory()

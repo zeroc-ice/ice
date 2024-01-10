@@ -167,7 +167,6 @@ IcePy::getString(PyObject* p)
     string str;
     if(p != Py_None)
     {
-#if PY_VERSION_HEX >= 0x03000000
         PyObjectHandle bytes = PyUnicode_AsUTF8String(p);
         if(bytes.get())
         {
@@ -176,9 +175,6 @@ IcePy::getString(PyObject* p)
             PyBytes_AsStringAndSize(bytes.get(), &s, &sz);
             str.assign(s, static_cast<size_t>(sz));
         }
-#else
-        str.assign(PyString_AS_STRING(p), static_cast<size_t>(PyString_GET_SIZE(p)));
-#endif
     }
     return str;
 }

@@ -664,12 +664,8 @@ def allTests(helper, communicator, collocated):
     cbWC.check()
 
     cbs = []
-    if sys.version_info[0] == 2:
-        b = [chr(random.randint(0, 255)) for x in range(0, 1024)]
-        seq = ''.join(b)
-    else:
-        b = [random.randint(0, 255) for x in range(0, 1024)]
-        seq = bytes(b)
+    b = [random.randint(0, 255) for x in range(0, 1024)]
+    seq = bytes(b)
     testController.holdAdapter()
     try:
         cb = SentCallback()
@@ -1024,12 +1020,8 @@ def allTests(helper, communicator, collocated):
     r2 = None
     try:
         r1 = p.begin_op()
-        if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 1024)]
-            seq = ''.join(b)
-        else:
-            b = [random.randint(0, 255) for x in range(0, 1024)]
-            seq = bytes(b)
+        b = [random.randint(0, 255) for x in range(0, 1024)]
+        seq = bytes(b)
         while(True):
             r2 = p.begin_opWithPayload(seq)
             if not r2.sentSynchronously():
@@ -1122,12 +1114,8 @@ def allTests(helper, communicator, collocated):
         r1 = None;
         r2 = None;
 
-        if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 10024)]
-            seq = ''.join(b)
-        else:
-            b = [random.randint(0, 255) for x in range(0, 10024)]
-            seq = bytes(b)
+        b = [random.randint(0, 255) for x in range(0, 10024)]
+        seq = bytes(b)
 
         testController.holdAdapter()
 
@@ -1199,12 +1187,8 @@ def allTests(helper, communicator, collocated):
         #
         # Remote case.
         #
-        if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 10*1024)]
-            seq = ''.join(b)
-        else:
-            b = [random.randint(0, 255) for x in range(0, 10*1024)]
-            seq = bytes(b)
+        b = [random.randint(0, 255) for x in range(0, 10*1024)]
+        seq = bytes(b)
 
         #
         # Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
@@ -1536,12 +1520,8 @@ def allTestsFuture(helper, communicator, collocated):
     cb.check()
 
     cbs = []
-    if sys.version_info[0] == 2:
-        b = [chr(random.randint(0, 255)) for x in range(0, 1024)]
-        seq = ''.join(b)
-    else:
-        b = [random.randint(0, 255) for x in range(0, 1024)]
-        seq = bytes(b)
+    b = [random.randint(0, 255) for x in range(0, 1024)]
+    seq = bytes(b)
     testController.holdAdapter()
     try:
         cb = FutureSentCallback()
@@ -1745,12 +1725,8 @@ def allTestsFuture(helper, communicator, collocated):
     f2 = None
     try:
         f1 = p.opAsync()
-        if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 1024)]
-            seq = ''.join(b)
-        else:
-            b = [random.randint(0, 255) for x in range(0, 1024)]
-            seq = bytes(b)
+        b = [random.randint(0, 255) for x in range(0, 1024)]
+        seq = bytes(b)
         while(True):
             f2 = p.opWithPayloadAsync(seq)
             if not f2.is_sent_synchronously():
@@ -1843,12 +1819,8 @@ def allTestsFuture(helper, communicator, collocated):
         f1 = None
         f2 = None
 
-        if sys.version_info[0] == 2:
-            b = [chr(random.randint(0, 255)) for x in range(0, 10024)]
-            seq = ''.join(b)
-        else:
-            b = [random.randint(0, 255) for x in range(0, 10024)]
-            seq = bytes(b)
+        b = [random.randint(0, 255) for x in range(0, 10024)]
+        seq = bytes(b)
 
         testController.holdAdapter()
 

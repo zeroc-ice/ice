@@ -26,13 +26,7 @@ class Callback:
 
 def batchOneways(p):
 
-    if sys.version_info[0] == 2:
-        bs1 = []
-        bs1[0:10 * 1024] = range(0, 10 * 1024) # add 100,000 entries.
-        bs1 = ['\x00' for x in bs1] # set them all to \x00
-        bs1 = ''.join(bs1) # make into a byte array
-    else:
-        bs1 = bytes([0 for x in range(0, 10 * 1024)])
+    bs1 = bytes([0 for x in range(0, 10 * 1024)])
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
     f = batch.ice_flushBatchRequestsAsync() # Empty flush

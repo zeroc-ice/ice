@@ -97,9 +97,7 @@ static PyMethodDef methods[] =
     { 0, 0 } /* sentinel */
 };
 
-#if PY_VERSION_HEX >= 0x03000000
-
-#   define INIT_RETURN return(0)
+#define INIT_RETURN return(0)
 
 static struct PyModuleDef iceModule =
 {
@@ -114,26 +112,16 @@ static struct PyModuleDef iceModule =
     ICE_NULLPTR
 };
 
-#else
 
-#   define INIT_RETURN return
-
-PyDoc_STRVAR(moduleDoc, "The Internet Communications Engine.");
-
-#endif
-
-#if defined(__GNUC__) && PY_VERSION_HEX >= 0x03000000
+#if defined(__GNUC__)
 extern "C" __attribute__((visibility ("default"))) PyObject *
 #elif defined(_WIN32) // On Windows, PyMoDINIT_FUNC already defines dllexport
 PyMODINIT_FUNC
 #else
 PyMODINIT_FUNC ICE_DECLSPEC_EXPORT
 #endif
-#if PY_VERSION_HEX >= 0x03000000
+
 PyInit_IcePy(void)
-#else
-initIcePy(void)
-#endif
 {
     PyObject* module;
 
@@ -149,17 +137,10 @@ initIcePy(void)
     PyEval_InitThreads();
 #endif
 
-#if PY_VERSION_HEX >= 0x03000000
     //
     // Create the module.
     //
     module = PyModule_Create(&iceModule);
-#else
-    //
-    // Initialize the module.
-    //
-    module = Py_InitModule3(STRCAST("IcePy"), methods, moduleDoc);
-#endif
 
     //
     // Install built-in Ice types.
@@ -232,10 +213,7 @@ initIcePy(void)
     {
         INIT_RETURN;
     }
-
-#if PY_VERSION_HEX >= 0x03000000
     return module;
-#endif
 }
 
 extern "C"

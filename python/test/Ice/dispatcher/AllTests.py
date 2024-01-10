@@ -87,13 +87,8 @@ def allTests(helper, communicator):
     # Hold adapter to make sure invocations don't _complete_ synchronously
     #
     testController.holdAdapter()
-
-    if sys.version_info[0] == 2:
-        b = [chr(random.randint(0, 255)) for x in range(0, 1024)]
-        seq = ''.join(b)
-    else:
-        b = [random.randint(0, 255) for x in range(0, 1024)]
-        seq = bytes(b)
+    b = [random.randint(0, 255) for x in range(0, 1024)]
+    seq = bytes(b)
 
     f = None
     while True:

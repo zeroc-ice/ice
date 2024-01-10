@@ -9,10 +9,7 @@ import sys
 # load a source file that uses the async/await keywords, so we
 # have two versions of MyDerivedClassI.
 #
-if sys.version_info >= (3, 5):
-    from TestAMDCoroI import MyDerivedClassI
-else:
-    from TestAMDI import MyDerivedClassI
+from TestAMDCoroI import MyDerivedClassI
 
 from TestHelper import TestHelper
 TestHelper.loadSlice("Test.ice")

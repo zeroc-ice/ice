@@ -213,13 +213,8 @@ opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self, PyObject* /*args*/)
 {
     Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(*self->endpointInfo);
     assert(info);
-#if PY_VERSION_HEX >= 0x03000000
     return PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&info->rawBytes[0]),
                                      static_cast<int>(info->rawBytes.size()));
-#else
-    return PyString_FromStringAndSize(reinterpret_cast<const char*>(&info->rawBytes[0]),
-                                      static_cast<int>(info->rawBytes.size()));
-#endif
 }
 
 #ifdef WIN32

@@ -182,10 +182,7 @@ def allTests(helper, communicator):
     # so we test for both here to support cross testing.
     #
     test(mo5.k is None or mo5.k is Ice.Unset)
-    if sys.version_info[0] == 2:
-        test(mo5.bs == "\x05")
-    else:
-        test(mo5.bs[0] == 5)
+    test(mo5.bs[0] == 5)
     test(mo5.ss == mo1.ss)
     test(mo5.iid[4] == 3)
     test(mo5.sid["test"] == 10)
@@ -235,10 +232,7 @@ def allTests(helper, communicator):
     test(mo7.i is Ice.Unset)
     test(mo7.j == mo1.j)
     test(mo7.k is Ice.Unset)
-    if sys.version_info[0] == 2:
-        test(mo7.bs == "\x05")
-    else:
-        test(mo7.bs[0] == 5)
+    test(mo7.bs[0] == 5)
     test(mo7.ss is Ice.Unset)
     test(mo7.iid[4] == 3)
     test(mo7.sid is Ice.Unset)
@@ -587,21 +581,13 @@ def allTests(helper, communicator):
     p1 = [56 for x in range(100)]
     (p2, p3) = initial.opByteSeq(p1)
     test(len(p2) == len(p1) and len(p3) == len(p1))
-    if sys.version_info[0] == 2:
-        test(p2[0] == '\x38')
-        test(p3[0] == '\x38')
-    else:
-        test(p2[0] == 0x38)
-        test(p3[0] == 0x38)
+    test(p2[0] == 0x38)
+    test(p3[0] == 0x38)
     f = initial.opByteSeqAsync(p1)
     (p2, p3) = f.result()
     test(len(p2) == len(p1) and len(p3) == len(p1))
-    if sys.version_info[0] == 2:
-        test(p2[0] == '\x38')
-        test(p3[0] == '\x38')
-    else:
-        test(p2[0] == 0x38)
-        test(p3[0] == 0x38)
+    test(p2[0] == 0x38)
+    test(p3[0] == 0x38)
 
     (p2, p3) = initial.opBoolSeq(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)

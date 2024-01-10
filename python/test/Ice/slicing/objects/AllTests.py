@@ -1700,31 +1700,8 @@ def allTests(helper, communicator):
         test(n.next.next != n.next.next.next)
         test(n.next.next.next == n)
         n = None        # Release reference.
-        if sys.version_info[0] == 3 and sys.version_info[1] >= 4:
-            #
-            # In Python 3.4, objects with a __del__ method can still be collected.
-            #
-            gc.collect()
-            test(PNodeI.counter == 0)
-        else:
-            #
-            # The PNodeI class declares a __del__ method, which means the Python
-            # garbage collector will NOT collect a cycle of PNodeI objects.
-            #
-            gc.collect()    # No effect.
-            test(PNodeI.counter == 3)
-            #
-            # The uncollectable objects are stored in gc.garbage. We have to
-            # manually break the cycle and then remove the objects from the
-            # gc.garbage list.
-            #
-            test(len(gc.garbage) > 0)
-            for o in gc.garbage:
-                if isinstance(o, PNodeI):
-                    o.next = None
-            o = None        # Remove last reference.
-            del gc.garbage[:]
-            test(PNodeI.counter == 0)
+        gc.collect()
+        test(PNodeI.counter == 0)
 
         #
         # Obtain a preserved object from the server where the most-derived
@@ -1737,31 +1714,8 @@ def allTests(helper, communicator):
         test(PNodeI.counter == 3)
         t.checkPBSUnknownWithGraph(p)
         p = None        # Release reference.
-        if sys.version_info[0] == 3 and sys.version_info[1] >= 4:
-            #
-            # In Python 3.4, objects with a __del__ method can still be collected.
-            #
-            gc.collect()
-            test(PNodeI.counter == 0)
-        else:
-            #
-            # The PNodeI class declares a __del__ method, which means the Python
-            # garbage collector will NOT collect a cycle of PNodeI objects.
-            #
-            gc.collect()    # No effect.
-            test(PNodeI.counter == 3)
-            #
-            # The uncollectable objects are stored in gc.garbage. We have to
-            # manually break the cycle and then remove the objects from the
-            # gc.garbage list.
-            #
-            test(len(gc.garbage) > 0)
-            for o in gc.garbage:
-                if isinstance(o, PNodeI):
-                    o.next = None
-            o = None        # Remove last reference.
-            del gc.garbage[:]
-            test(PNodeI.counter == 0)
+        gc.collect()
+        test(PNodeI.counter == 0)
 
         #
         # Register a factory in order to substitute our own subclass of
@@ -1817,18 +1771,7 @@ def allTests(helper, communicator):
             #
             if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
                 gc.collect()
-                if sys.version_info[0] == 3 and sys.version_info[1] >= 4:
-                    #
-                    # In Python 3.4, objects with a __del__ method can still be collected.
-                    #
-                    test(len(gc.garbage) == 0)
-                else:
-                    test(len(gc.garbage) > 0)
-                    for o in gc.garbage:
-                        if isinstance(o, PreservedI):
-                            o._ice_slicedData = None
-                    o = None        # Remove last reference.
-                    del gc.garbage[:]
+                test(len(gc.garbage) == 0)
                 test(PreservedI.counter == 0)
         except Ice.Exception:
             test(False)
