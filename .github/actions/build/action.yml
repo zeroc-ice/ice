@@ -4,8 +4,6 @@ runs:
   using: "composite"
   steps:
     - name: Build C++ Dependencies
-      env:
-        CONFIGS: "cpp98-shared cpp11-shared"
       run: make -j3 V=1 -C cpp srcs
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
@@ -18,8 +16,6 @@ runs:
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (matrix.language == 'php' || matrix.language == 'js' || matrix.language == 'ruby')
 
     - name: Build ${{ matrix.language }}
-      env:
-        CONFIGS: "shared cpp98-shared cpp11-shared"
       run: |
         make -j3 V=1 LANGUAGES="${{ matrix.language }}"
       shell: bash

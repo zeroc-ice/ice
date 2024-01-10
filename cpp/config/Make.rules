@@ -10,6 +10,7 @@
 # Supported configurations
 #
 supported-configs = cpp98-shared cpp98-static cpp11-shared cpp11-static
+default-configs   = cpp11-shared cpp98-shared
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
