@@ -381,9 +381,7 @@ struct DoneCallbackObject
 {
     PyObject_HEAD
     UpcallPtr* upcall;
-#if PY_VERSION_HEX >= 0x03050000
     PyObject* coroutine;
-#endif
 };
 
 struct DispatchCallbackObject
@@ -665,9 +663,7 @@ doneCallbackNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
         return 0;
     }
     self->upcall = 0;
-#if PY_VERSION_HEX >= 0x03050000
     self->coroutine = 0;
-#endif
     return self;
 }
 
@@ -678,9 +674,7 @@ static void
 doneCallbackDealloc(DoneCallbackObject* self)
 {
     delete self->upcall;
-#if PY_VERSION_HEX >= 0x03050000
     Py_XDECREF(self->coroutine);
-#endif
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
