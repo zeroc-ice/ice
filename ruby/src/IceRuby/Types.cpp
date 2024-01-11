@@ -338,7 +338,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
             {
                 volatile VALUE s = RARRAY_AREF(sl, i);
 
-                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
 
                 volatile VALUE typeId = callRuby(rb_iv_get, s, "@typeId");
                 info->typeId = getString(typeId);
@@ -389,7 +389,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 slices.push_back(info);
             }
 
-            slicedData = new Ice::SlicedData(slices);
+            slicedData = std::make_shared<Ice::SlicedData>(slices);
         }
     }
 

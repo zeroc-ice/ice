@@ -16,9 +16,6 @@ namespace Ice
  * \headerfile Ice/Ice.h
  */
 struct ICE_API SliceInfo
-#ifndef ICE_CPP11_MAPPING
-    : public ::IceUtil::Shared
-#endif
 {
     /**
      * The Slice type ID for this slice.
@@ -56,15 +53,8 @@ struct ICE_API SliceInfo
  * \headerfile Ice/Ice.h
  */
 class ICE_API SlicedData
-#ifndef ICE_CPP11_MAPPING
-    : public ::IceUtil::Shared
-#endif
 {
 public:
-
-#ifndef ICE_CPP11_MAPPING
-    virtual ~SlicedData();
-#endif
 
     SlicedData(const SliceInfoSeq&);
 

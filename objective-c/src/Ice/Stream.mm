@@ -1204,7 +1204,7 @@ private:
     try
     {
         Ice::SlicedDataPtr slicedData = is_->endValue(preserve);
-        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData.get()] : nil;
+        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -1240,7 +1240,7 @@ private:
     try
     {
         Ice::SlicedDataPtr slicedData = is_->endException(preserve);
-        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData.get()] : nil;
+        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -2293,14 +2293,14 @@ private:
     }
 }
 
--(Ice::SlicedData*) writeSlicedData:(id<ICESlicedData>)sd
+-(Ice::SlicedDataPtr) writeSlicedData:(id<ICESlicedData>)sd
 {
     NSAssert([sd isKindOfClass:[ICESlicedData class]], @"invalid sliced data object");
-    Ice::SlicedData* origSlicedData = [((ICESlicedData*)sd) slicedData];
+    Ice::SlicedDataPtr origSlicedData = [((ICESlicedData*)sd) slicedData];
     Ice::SliceInfoSeq slices;
     for(Ice::SliceInfoSeq::const_iterator p = origSlicedData->slices.begin(); p != origSlicedData->slices.end(); ++p)
     {
-        Ice::SliceInfoPtr info = new Ice::SliceInfo;
+        Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
         info->typeId = (*p)->typeId;
         info->compactId = (*p)->compactId;
         info->bytes = (*p)->bytes;
@@ -2321,7 +2321,7 @@ private:
         }
         slices.push_back(info);
     }
-    return new Ice::SlicedData(slices);
+    return std::make_shared<Ice::SlicedData>(slices);
 }
 
 @end

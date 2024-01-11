@@ -9,17 +9,6 @@
 using namespace std;
 using namespace Ice;
 
-#ifndef ICE_CPP11_MAPPING
-
-IceUtil::Shared* Ice::upCast(SliceInfo* p) { return p; }
-IceUtil::Shared* Ice::upCast(SlicedData* p) { return p; }
-
-Ice::SlicedData::~SlicedData()
-{
-    // Out of line to avoid weak vtable
-}
-#endif
-
 Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
     slices(seq)
 {

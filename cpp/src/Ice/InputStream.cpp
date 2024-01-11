@@ -2504,7 +2504,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     //
     // Preserve this slice.
     //
-    SliceInfoPtr info = ICE_MAKE_SHARED(SliceInfo);
+    SliceInfoPtr info = make_shared<SliceInfo>();
     info->typeId = _current->typeId;
     info->compactId = _current->compactId;
     info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
@@ -2706,12 +2706,8 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
         IndexList::size_type j = 0;
         for(IndexList::const_iterator p = table.begin(); p != table.end(); ++p)
         {
-#ifdef ICE_CPP11_MAPPING
             addPatchEntry(*p, patchHandle<Value>, &instances[j++]);
-#else
-            addPatchEntry(*p, patchHandle<Value>, &instances[j++]);
-#endif
         }
     }
-    return ICE_MAKE_SHARED(SlicedData, _current->slices);
+    return make_shared<SlicedData>(_current->slices);
 }

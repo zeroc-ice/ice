@@ -586,7 +586,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 PyObjectHandle s = PyTuple_GET_ITEM(sl.get(), i);
                 Py_INCREF(s.get());
 
-                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
 
                 PyObjectHandle typeId = getAttr(s.get(), "typeId", false);
                 assert(typeId.get());
@@ -640,7 +640,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 slices.push_back(info);
             }
 
-            slicedData = new Ice::SlicedData(slices);
+            slicedData = std::make_shared<Ice::SlicedData>(slices);
         }
     }
 

@@ -11,8 +11,8 @@
 @interface ICESlicedData : NSObject<ICESlicedData>
 {
 @private
-    Ice::SlicedData* slicedData_;
+    Ice::SlicedDataPtr slicedData_;
 }
--(id) initWithSlicedData:(Ice::SlicedData*)slicedData;
--(Ice::SlicedData*) slicedData;
+-(id) initWithSlicedData:(Ice::SlicedDataPtr)slicedData;
+-(Ice::SlicedDataPtr) slicedData;
 @end

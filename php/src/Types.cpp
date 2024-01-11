@@ -446,7 +446,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
             {
                 assert(Z_OBJCE_P(s) == _sliceInfoType);
 
-                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
 
                 zval* typeId = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("typeId"), sizeof("typeId") - 1);
                 assert(Z_TYPE_P(typeId) == IS_INDIRECT);
@@ -538,7 +538,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
             }
             ZEND_HASH_FOREACH_END();
 
-            slicedData = new Ice::SlicedData(slices);
+            slicedData = std::make_shared<Ice::SlicedData>(slices);
         }
     }
 
