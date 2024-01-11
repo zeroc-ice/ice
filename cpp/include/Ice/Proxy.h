@@ -159,12 +159,7 @@ public:
     {
         if(response)
         {
-#if ICE_CPLUSPLUS >= 201402L
-            // Move capture with C++14
             _response = [this, response = std::move(response)](bool ok)
-#else
-            _response = [this, response](bool ok)
-#endif
             {
                 if(this->_is.b.empty())
                 {
@@ -221,11 +216,7 @@ public:
                              ::std::function<void(bool)> sent) :
         ProxyGetConnection(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
     {
-#if ICE_CPLUSPLUS >= 201402L
         _response = [&, response = std::move(response)](bool)
-#else
-        _response = [&, response](bool)
-#endif
         {
             response(getConnection());
         };
@@ -577,11 +568,7 @@ public:
         ::std::function<void(::Ice::Object::Ice_invokeResult&&)> r;
         if(response)
         {
-#if ICE_CPLUSPLUS >= 201402L
             r = [response = std::move(response)](::Ice::Object::Ice_invokeResult&& result)
-#else
-            r = [response](::Ice::Object::Ice_invokeResult&& result)
-#endif
             {
                 response(result.returnValue, std::move(result.outParams));
             };
@@ -667,11 +654,7 @@ public:
         ::std::function<void(Result&&)> r;
         if(response)
         {
-#if ICE_CPLUSPLUS >= 201402L
             r = [response = std::move(response)](Result&& result)
-#else
-            r = [response](Result&& result)
-#endif
             {
                 response(::std::get<0>(result), ::std::move(::std::get<1>(result)));
             };
@@ -1460,9 +1443,6 @@ ICE_API bool proxyIdentityAndFacetEqual(const ::std::shared_ptr<ObjectPrx>& lhs,
  */
 
 struct ProxyIdentityLess
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
-#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {
@@ -1476,9 +1456,6 @@ struct ProxyIdentityLess
  * \headerfile Ice/Ice.h
  */
 struct ProxyIdentityEqual
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
-#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {
@@ -1492,9 +1469,6 @@ struct ProxyIdentityEqual
  * \headerfile Ice/Ice.h
  */
 struct ProxyIdentityAndFacetLess
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
-#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {
@@ -1508,9 +1482,6 @@ struct ProxyIdentityAndFacetLess
  * \headerfile Ice/Ice.h
  */
 struct ProxyIdentityAndFacetEqual
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
-#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {
@@ -3147,9 +3118,6 @@ ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& r
  * \headerfile Ice/Ice.h
  */
 struct ProxyIdentityLess
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
@@ -3163,9 +3131,6 @@ struct ProxyIdentityLess
  * \headerfile Ice/Ice.h
  */
 struct ProxyIdentityEqual
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
@@ -3179,9 +3144,6 @@ struct ProxyIdentityEqual
  * \headerfile Ice/Ice.h
  */
 struct ProxyIdentityAndFacetLess
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
@@ -3195,9 +3157,6 @@ struct ProxyIdentityAndFacetLess
  * \headerfile Ice/Ice.h
  */
 struct ProxyIdentityAndFacetEqual
-#if (ICE_CPLUSPLUS < 201703L)
-    : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
-#endif
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
