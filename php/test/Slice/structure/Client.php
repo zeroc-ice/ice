@@ -7,8 +7,6 @@ require_once('Test.php');
 
 function allTests($helper)
 {
-    global $NS;
-
     $communicator = $helper->communicator();
 
     echo "testing equals() for Slice structures... ";
@@ -17,22 +15,25 @@ function allTests($helper)
     //
     // Define some default values.
     //
-    $def_s2 = $NS ?
-        eval("return new Test\\S2(true, 98, 99, 100, 101, 1.0, 2.0, \"string\", array(\"one\", \"two\", \"three\"),
-                                  array(\"abc\" => \"def\"), new Test\\S1(\"name\"), new Test\\C(5),
-                                  \$communicator->stringToProxy(\"test\"));") :
-        new Test_S2(true, 98, 99, 100, 101, 1.0, 2.0, "string", array("one", "two", "three"),
-                    array("abc" => "def"), new Test_S1("name"), new Test_C(5),
-                    $communicator->stringToProxy("test"));
+    $def_s2 = new Test\S2(
+        true,
+        98,
+        99,
+        100,
+        101,
+        1.0,
+        2.0,
+        "string",
+        array("one", "two", "three"),
+        array("abc" => "def"),
+        new Test\S1("name"),
+        new Test\C(5),
+        $communicator->stringToProxy("test"));
 
-    //
     // Compare default-constructed structures.
-    //
-    test($NS ? eval("return new Test\\S2 == new Test\\S2;") : new Test_S2 == new Test_S2);
+    test(new Test\S2 == new Test\S2);
 
-    //
     // Change one primitive member at a time.
-    //
     $v = clone $def_s2;
     test($v == $def_s2);
 
@@ -68,9 +69,7 @@ function allTests($helper)
     $v->str = "";
     test($v != $def_s2);
 
-    //
     // String member
-    //
     $v1 = clone $def_s2;
     $v1->str = "string";
     test($v1 == $def_s2);
@@ -91,9 +90,7 @@ function allTests($helper)
     $v2->str = null;
     test($v1 == $v2);
 
-    //
     // Sequence member
-    //
     $v1 = clone $def_s2;
     $v1->ss = $def_s2->ss;
     test($v1 == $def_s2);
@@ -116,9 +113,7 @@ function allTests($helper)
     $v2->ss = null;
     test($v1 != $v2);
 
-    //
     // Dictionary member
-    //
     $v1 = clone $def_s2;
     $v1->sd = array("abc"=>"def");
     test($v1 == $def_s2);
@@ -137,19 +132,17 @@ function allTests($helper)
     $v2->sd = null;
     test($v1 != $v2);
 
-    //
     // Struct member
-    //
     $v1 = clone $def_s2;
     $v1->s = clone $def_s2->s;
     test($v1 == $def_s2);
 
     $v1 = clone $def_s2;
-    $v1->s = $NS ? eval("return new Test\\S1(\"name\");") : new Test_S1("name");
+    $v1->s = new Test\S1("name");
     test($v1 == $def_s2);
 
     $v1 = clone $def_s2;
-    $v1->s = $NS ? eval("return new Test\\S1(\"noname\");") : new Test_S1("noname");
+    $v1->s = new Test\S1("noname");
     test($v1 != $def_s2);
 
     $v1 = clone $def_s2;
@@ -162,9 +155,7 @@ function allTests($helper)
     $v2->s = null;
     test($v1 != $v2);
 
-    //
     // Class member
-    //
     $v1 = clone $def_s2;
     $v1->cls = clone $def_s2->cls;
     test($v1 == $def_s2); // PHP performs its own equality test.
@@ -179,9 +170,7 @@ function allTests($helper)
     $v2->cls = null;
     test($v1 != $v2);
 
-    //
     // Proxy member
-    //
     $v1 = clone $def_s2;
     $v1->prx = $communicator->stringToProxy("test");
     test($v1 == $def_s2);

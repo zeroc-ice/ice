@@ -7,11 +7,7 @@ require_once('ClientPrivate.php');
 
 function allTests($helper)
 {
-    global $NS;
     global $Ice_Encoding_1_0;
-
-    $enum = $NS ? constant("Test\\MyEnum::MyEnumMember") : constant("Test_MyEnum::MyEnumMember");
-    $none = $NS ? constant("Ice\\None") : constant("Ice_Unset");
 
     echo "testing stringToProxy... ";
     flush();
@@ -28,62 +24,56 @@ function allTests($helper)
     echo "testing optional data members... ";
     flush();
 
-    $oocls = $NS ? "Test\\OneOptional" : "Test_OneOptional";
-    $oo1 = new $oocls;
-    test($oo1->a == $none);
+    $oo1 = new Test\OneOptional;
+    test($oo1->a == Ice\None);
     $oo1->a = 15;
 
-    $oo2 = new $oocls(16);
+    $oo2 = new Test\OneOptional(16);
     test($oo2->a == 16);
 
-    $mocls = $NS ? "Test\\MultiOptional" : "Test_MultiOptional";
-    $mo1 = new $mocls;
-    test($mo1->a == $none);
-    test($mo1->b == $none);
-    test($mo1->c == $none);
-    test($mo1->d == $none);
-    test($mo1->e == $none);
-    test($mo1->f == $none);
-    test($mo1->g == $none);
-    test($mo1->h == $none);
-    test($mo1->i == $none);
-    test($mo1->j == $none);
-    test($mo1->k == $none);
-    test($mo1->bs == $none);
-    test($mo1->ss == $none);
-    test($mo1->iid == $none);
-    test($mo1->sid == $none);
-    test($mo1->fs == $none);
-    test($mo1->vs == $none);
+    $mo1 = new Test\MultiOptional;
+    test($mo1->a == Ice\None);
+    test($mo1->b == Ice\None);
+    test($mo1->c == Ice\None);
+    test($mo1->d == Ice\None);
+    test($mo1->e == Ice\None);
+    test($mo1->f == Ice\None);
+    test($mo1->g == Ice\None);
+    test($mo1->h == Ice\None);
+    test($mo1->i == Ice\None);
+    test($mo1->j == Ice\None);
+    test($mo1->k == Ice\None);
+    test($mo1->bs == Ice\None);
+    test($mo1->ss == Ice\None);
+    test($mo1->iid == Ice\None);
+    test($mo1->sid == Ice\None);
+    test($mo1->fs == Ice\None);
+    test($mo1->vs == Ice\None);
 
-    test($mo1->shs == $none);
-    test($mo1->es == $none);
-    test($mo1->fss == $none);
-    test($mo1->vss == $none);
-    test($mo1->oos == $none);
-    test($mo1->mips == $none);
+    test($mo1->shs == Ice\None);
+    test($mo1->es == Ice\None);
+    test($mo1->fss == Ice\None);
+    test($mo1->vss == Ice\None);
+    test($mo1->oos == Ice\None);
+    test($mo1->mips == Ice\None);
 
-    test($mo1->ied == $none);
-    test($mo1->ifsd == $none);
-    test($mo1->ivsd == $none);
-    test($mo1->iood == $none);
-    test($mo1->imipd == $none);
+    test($mo1->ied == Ice\None);
+    test($mo1->ifsd == Ice\None);
+    test($mo1->ivsd == Ice\None);
+    test($mo1->iood == Ice\None);
+    test($mo1->imipd == Ice\None);
 
-    test($mo1->bos == $none);
+    test($mo1->bos == Ice\None);
 
-    $sscls = $NS ? "Test\\SmallStruct" : "Test_SmallStruct";
-    $ss = new $sscls();
-    $fscls = $NS ? "Test\\FixedStruct" : "Test_FixedStruct";
-    $fs = new $fscls(78);
-    $vscls = $NS ? "Test\\VarStruct" : "Test_VarStruct";
-    $vs = new $vscls("hello");
+    $ss = new Test\SmallStruct();
+    $fs = new Test\FixedStruct(78);
+    $vs = new Test\VarStruct("hello");
     $prx = $communicator->stringToProxy("test")->ice_uncheckedCast("::Test::MyInterface");
-    $oo15 = new $oocls(15);
-    $mocls = $NS ? "Test\\MultiOptional" : "Test_MultiOptional";
-    $mo1 = new $mocls(15, true, 19, 78, 99, 5.5, 1.0, 'test', $enum,
+    $oo15 = new Test\OneOptional(15);
+    $mo1 = new Test\MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', Test\MyEnum::MyEnumMember,
                       $prx, null, array(5), array('test', 'test2'), array(4=>3), array('test'=>10),
-                      $fs, $vs, array(1), array($enum, $enum), array($fs), array($vs), array($oo1),
-                      array($prx), array(4=>$enum), array(4=>$fs), array(5=>$vs),
+                      $fs, $vs, array(1), array(Test\MyEnum::MyEnumMember, Test\MyEnum::MyEnumMember), array($fs), array($vs), array($oo1),
+                      array($prx), array(4=>Test\MyEnum::MyEnumMember), array(4=>$fs), array(5=>$vs),
                       array(5=>$oo15), array(5=>$prx), array(false, true, false));
 
     test($mo1->a == 15);
@@ -94,7 +84,7 @@ function allTests($helper)
     test($mo1->f == 5.5);
     test($mo1->g == 1.0);
     test($mo1->h == "test");
-    test($mo1->i == $enum);
+    test($mo1->i == Test\MyEnum::MyEnumMember);
     test($mo1->j == $prx);
     test($mo1->k == null);
     test($mo1->bs == array(5));
@@ -105,13 +95,13 @@ function allTests($helper)
     test($mo1->vs == $vs);
 
     test($mo1->shs[0] == 1);
-    test($mo1->es[0] == $enum && $mo1->es[1] == $enum);
+    test($mo1->es[0] == Test\MyEnum::MyEnumMember && $mo1->es[1] == Test\MyEnum::MyEnumMember);
     test($mo1->fss[0] == $fs);
     test($mo1->vss[0] == $vs);
     test($mo1->oos[0] == $oo1);
     test($mo1->mips[0] == $prx);
 
-    test($mo1->ied[4] == $enum);
+    test($mo1->ied[4] == Test\MyEnum::MyEnumMember);
     test($mo1->ifsd[4] == $fs);
     test($mo1->ivsd[5] == $vs);
     test($mo1->iood[5]->a == 15);
@@ -120,57 +110,57 @@ function allTests($helper)
     test($mo1->bos == array(false, true, false));
 
     //
-    // Test generated struct and classes compare with $none
+    // Test generated struct and classes compare with Ice\None
     //
-    test($ss != $none);
-    test($fs != $none);
-    test($vs != $none);
-    test($mo1 != $none);
+    test($ss != Ice\None);
+    test($fs != Ice\None);
+    test($vs != Ice\None);
+    test($mo1 != Ice\None);
 
     echo "ok\n";
 
     echo "testing marshaling... ";
     flush();
 
-    $oo4 = $initial->pingPong(new $oocls);
-    test($oo4->a == $none);
+    $oo4 = $initial->pingPong(new Test\OneOptional);
+    test($oo4->a == Ice\None);
 
     $oo5 = $initial->pingPong($oo1);
     test($oo1->a == $oo5->a);
 
-    $mo4 = $initial->pingPong(new $mocls);
-    test($mo4->a == $none);
-    test($mo4->b == $none);
-    test($mo4->c == $none);
-    test($mo4->d == $none);
-    test($mo4->e == $none);
-    test($mo4->f == $none);
-    test($mo4->g == $none);
-    test($mo4->h == $none);
-    test($mo4->i == $none);
-    test($mo4->j == $none);
-    test($mo4->k == $none);
-    test($mo4->bs == $none);
-    test($mo4->ss == $none);
-    test($mo4->iid == $none);
-    test($mo4->sid == $none);
-    test($mo4->fs == $none);
-    test($mo4->vs == $none);
+    $mo4 = $initial->pingPong(new Test\MultiOptional);
+    test($mo4->a == Ice\None);
+    test($mo4->b == Ice\None);
+    test($mo4->c == Ice\None);
+    test($mo4->d == Ice\None);
+    test($mo4->e == Ice\None);
+    test($mo4->f == Ice\None);
+    test($mo4->g == Ice\None);
+    test($mo4->h == Ice\None);
+    test($mo4->i == Ice\None);
+    test($mo4->j == Ice\None);
+    test($mo4->k == Ice\None);
+    test($mo4->bs == Ice\None);
+    test($mo4->ss == Ice\None);
+    test($mo4->iid == Ice\None);
+    test($mo4->sid == Ice\None);
+    test($mo4->fs == Ice\None);
+    test($mo4->vs == Ice\None);
 
-    test($mo4->shs == $none);
-    test($mo4->es == $none);
-    test($mo4->fss == $none);
-    test($mo4->vss == $none);
-    test($mo4->oos == $none);
-    test($mo4->mips == $none);
+    test($mo4->shs == Ice\None);
+    test($mo4->es == Ice\None);
+    test($mo4->fss == Ice\None);
+    test($mo4->vss == Ice\None);
+    test($mo4->oos == Ice\None);
+    test($mo4->mips == Ice\None);
 
-    test($mo4->ied == $none);
-    test($mo4->ifsd == $none);
-    test($mo4->ivsd == $none);
-    test($mo4->iood == $none);
-    test($mo4->imipd == $none);
+    test($mo4->ied == Ice\None);
+    test($mo4->ifsd == Ice\None);
+    test($mo4->ivsd == Ice\None);
+    test($mo4->iood == Ice\None);
+    test($mo4->imipd == Ice\None);
 
-    test($mo4->bos == $none);
+    test($mo4->bos == Ice\None);
 
     $mo5 = $initial->pingPong($mo1);
     test($mo5->a == $mo1->a);
@@ -187,7 +177,7 @@ function allTests($helper)
     // With Swift mapping you cannot distinguish null from unset
     // so we test for both here to support cross testing.
     //
-    test($mo5->k == null || $mo5->k == $none);
+    test($mo5->k == null || $mo5->k == Ice\None);
     test($mo5->bs[0] == 5);
     test($mo5->ss == $mo1->ss);
     test($mo5->iid[4] == 3);
@@ -195,13 +185,13 @@ function allTests($helper)
     test($mo5->fs == $mo1->fs);
     test($mo5->vs == $mo1->vs);
     test($mo5->shs == $mo1->shs);
-    test($mo5->es[0] == $enum && $mo1->es[1] == $enum);
+    test($mo5->es[0] == Test\MyEnum::MyEnumMember && $mo1->es[1] == Test\MyEnum::MyEnumMember);
     test($mo5->fss[0] == $fs);
     test($mo5->vss[0] == $vs);
     test($mo5->oos[0]->a == 15);
     test($mo5->mips[0] == $prx);
 
-    test($mo5->ied[4] == $enum);
+    test($mo5->ied[4] == Test\MyEnum::MyEnumMember);
     test($mo5->ifsd[4] == $fs);
     test($mo5->ivsd[5] == $vs);
     test($mo5->iood[5]->a == 15);
@@ -210,7 +200,7 @@ function allTests($helper)
     test($mo5->bos == $mo1->bos);
 
     // Clear the first half of the optional members
-    $mo6 = new $mocls;
+    $mo6 = new Test\MultiOptional;
     $mo6->b = $mo5->b;
     $mo6->d = $mo5->d;
     $mo6->f = $mo5->f;
@@ -227,41 +217,41 @@ function allTests($helper)
     $mo6->bos = $mo5->bos;
 
     $mo7 = $initial->pingPong($mo6);
-    test($mo7->a == $none);
+    test($mo7->a == Ice\None);
     test($mo7->b == $mo1->b);
-    test($mo7->c == $none);
+    test($mo7->c == Ice\None);
     test($mo7->d == $mo1->d);
-    test($mo7->e == $none);
+    test($mo7->e == Ice\None);
     test($mo7->f == $mo1->f);
-    test($mo7->g == $none);
+    test($mo7->g == Ice\None);
     test($mo7->h == $mo1->h);
-    test($mo7->i == $none);
+    test($mo7->i == Ice\None);
     test($mo7->j == $mo1->j);
-    test($mo7->k == $none);
+    test($mo7->k == Ice\None);
     test($mo7->bs[0] == 5);
-    test($mo7->ss == $none);
+    test($mo7->ss == Ice\None);
     test($mo7->iid[4] == 3);
-    test($mo7->sid == $none);
+    test($mo7->sid == Ice\None);
     test($mo7->fs == $mo1->fs);
-    test($mo7->vs == $none);
+    test($mo7->vs == Ice\None);
 
     test($mo7->shs == $mo1->shs);
-    test($mo7->es == $none);
+    test($mo7->es == Ice\None);
     test($mo7->fss[0] == $fs);
-    test($mo7->vss == $none);
+    test($mo7->vss == Ice\None);
     test($mo7->oos[0]->a == 15);
-    test($mo7->mips == $none);
+    test($mo7->mips == Ice\None);
 
-    test($mo7->ied == $none);
+    test($mo7->ied == Ice\None);
     test($mo7->ifsd[4] == $fs);
-    test($mo7->ivsd == $none);
+    test($mo7->ivsd == Ice\None);
     test($mo7->iood[5]->a == 15);
-    test($mo7->imipd == $none);
+    test($mo7->imipd == Ice\None);
 
     test($mo7->bos == array(false, true, false));
 
     // Clear the second half of the optional members
-    $mo8 = new $mocls;
+    $mo8 = new Test\MultiOptional;
     $mo8->a = $mo5->a;
     $mo8->c = $mo5->c;
     $mo8->e = $mo5->e;
@@ -282,67 +272,62 @@ function allTests($helper)
 
     $mo9 = $initial->pingPong($mo8);
     test($mo9->a == $mo1->a);
-    test($mo9->b == $none);
+    test($mo9->b == Ice\None);
     test($mo9->c == $mo1->c);
-    test($mo9->d == $none);
+    test($mo9->d == Ice\None);
     test($mo9->e == $mo1->e);
-    test($mo9->f == $none);
+    test($mo9->f == Ice\None);
     test($mo9->g == $mo1->g);
-    test($mo9->h == $none);
+    test($mo9->h == Ice\None);
     test($mo9->i == $mo1->i);
-    test($mo9->j == $none);
+    test($mo9->j == Ice\None);
     test($mo9->k == $mo9);
-    test($mo9->bs == $none);
+    test($mo9->bs == Ice\None);
     test($mo9->ss == $mo1->ss);
-    test($mo9->iid == $none);
+    test($mo9->iid == Ice\None);
     test($mo9->sid["test"] == 10);
-    test($mo9->fs == $none);
+    test($mo9->fs == Ice\None);
     test($mo9->vs == $mo1->vs);
 
-    test($mo9->shs == $none);
-    test($mo9->es[0] == $enum && $mo1->es[1] == $enum);
-    test($mo9->fss == $none);
+    test($mo9->shs == Ice\None);
+    test($mo9->es[0] == Test\MyEnum::MyEnumMember && $mo1->es[1] == Test\MyEnum::MyEnumMember);
+    test($mo9->fss == Ice\None);
     test($mo9->vss[0] == $vs);
-    test($mo9->oos == $none);
+    test($mo9->oos == Ice\None);
     test($mo9->mips[0] == $prx);
 
-    test($mo9->ied[4] == $enum);
-    test($mo9->ifsd == $none);
+    test($mo9->ied[4] == Test\MyEnum::MyEnumMember);
+    test($mo9->ifsd == Ice\None);
     test($mo9->ivsd[5] == $vs);
-    test($mo9->iood == $none);
+    test($mo9->iood == Ice\None);
     test($mo9->imipd[5] == $prx);
 
-    test($mo9->bos == $none);
+    test($mo9->bos == Ice\None);
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.
     //
-    $oo = new $oocls(53);
+    $oo = new Test\OneOptional(53);
     $initial->sendOptionalClass(true, $oo);
     $initial->ice_encodingVersion($Ice_Encoding_1_0)->sendOptionalClass(true, $oo);
 
     $initial->returnOptionalClass(true, $oo);
-    test($oo != $none);
+    test($oo != Ice\None);
     $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalClass(true, $oo);
-    test($oo == $none);
+    test($oo == Ice\None);
 
-    $gcls = $NS ? "Test\\G" : "Test_G";
-    $g1cls = $NS ? "Test\\G1" : "Test_G1";
-    $g2cls = $NS ? "Test\\G2" : "Test_G2";
-
-    $g = new $gcls;
-    $g->gg1Opt = new $g1cls("gg1Opt");
-    $g->gg2 = new $g2cls(10);
-    $g->gg2Opt = new $g2cls(20);
-    $g->gg1 = new $g1cls("gg1");
+    $g = new Test\G;
+    $g->gg1Opt = new Test\G1("gg1Opt");
+    $g->gg2 = new Test\G2(10);
+    $g->gg2Opt = new Test\G2(20);
+    $g->gg1 = new Test\G1("gg1");
     $r = $initial->opG($g);
     test($r->gg1Opt->a == "gg1Opt");
     test($r->gg2->a == 10);
     test($r->gg2Opt->a == 20);
     test($r->gg1->a == "gg1");
 
-    $initial2 = $NS ? eval("return Test\\Initial2PrxHelper::uncheckedCast(\$base);") :
-                      eval("return Test_Initial2PrxHelper::uncheckedCast(\$base);");
+    $initial2 = Test\Initial2PrxHelper::uncheckedCast($base);
     $initial2->opVoid(15, "test");
 
     echo "ok\n";
@@ -350,7 +335,7 @@ function allTests($helper)
     echo "testing marshaling of large containers with fixed size elements... ";
     flush();
 
-    $mc = new $mocls;
+    $mc = new Test\MultiOptional;
     $mc->bs = array();
     for($i = 0; $i < 1000; $i++)
     {
@@ -364,12 +349,12 @@ function allTests($helper)
     $mc->fss = array();
     for($i = 0; $i < 300; $i++)
     {
-        $mc->fss[$i] = new $fscls;
+        $mc->fss[$i] = new Test\FixedStruct;
     }
     $mc->ifsd = array();
     for($i = 0; $i < 300; $i++)
     {
-        $mc->ifsd[$i] = new $fscls;
+        $mc->ifsd[$i] = new Test\FixedStruct;
     }
 
     $mc = $initial->pingPong($mc);
@@ -383,12 +368,11 @@ function allTests($helper)
     echo "testing tag marshaling... ";
     flush();
 
-    $bcls = $NS ? "Test\\B" : "Test_B";
-    $b = new $bcls;
+    $b = new Test\B;
     $b2 = $initial->pingPong($b);
-    test($b2->ma == $none);
-    test($b2->mb == $none);
-    test($b2->mc == $none);
+    test($b2->ma == Ice\None);
+    test($b2->mb == Ice\None);
+    test($b2->mc == Ice\None);
 
     $b->ma = 10;
     $b->mb = 11;
@@ -406,11 +390,9 @@ function allTests($helper)
     echo "testing marshalling of objects with optional objects...";
     flush();
 
-    $fcls = $NS ? "Test\\F" : "Test_F";
-    $f = new $fcls;
+    $f = new Test\F;
 
-    $acls = $NS ? "Test\\A" : "Test_A";
-    $f->af = new $acls;
+    $f->af = new Test\A;
     $f->ae = $f->af;
 
     $rf = $initial->pingPong($f);
@@ -421,15 +403,14 @@ function allTests($helper)
     echo "testing optional with default values... ";
     flush();
 
-    $wdcls = $NS ? "Test\\WD" : "Test_WD";
-    $wd = $initial->pingPong(new $wdcls);
+    $wd = $initial->pingPong(new Test\WD);
     test($wd->a == 5);
     test($wd->s == "test");
-    $wd->a = $none;
-    $wd->s = $none;
+    $wd->a = Ice\None;
+    $wd->s = Ice\None;
     $wd = $initial->pingPong($wd);
-    test($wd->a == $none);
-    test($wd->s == $none);
+    test($wd->a == Ice\None);
+    test($wd->s == Ice\None);
 
     echo "ok\n";
 
@@ -438,15 +419,14 @@ function allTests($helper)
         echo "testing marshaling with unknown class slices... ";
         flush();
 
-        $ccls = $NS ? "Test\\C" : "Test_C";
-        $c = new $ccls;
+        $c = new Test\C;
         $c->ss = "test";
         $c->ms = "testms";
         $c = $initial->pingPong($c);
-        test($c->ma == $none);
-        test($c->mb == $none);
-        test($c->mc == $none);
-        test($c->md == $none);
+        test($c->ma == Ice\None);
+        test($c->mb == Ice\None);
+        test($c->mc == Ice\None);
+        test($c->md == Ice\None);
         test($c->ss == "test");
         test($c->ms == "testms");
 
@@ -455,17 +435,14 @@ function allTests($helper)
         echo "testing optionals with unknown classes... ";
         flush();
 
-        $initial2 = $NS ? eval("return Test\\Initial2PrxHelper::uncheckedCast(\$base);") :
-                          eval("return Test_Initial2PrxHelper::uncheckedCast(\$base);");
-        $acls = $NS ? "Test\\A" : "Test_A";
-        $dcls = $NS ? "Test\\D" : "Test_D";
-        $d = new $dcls;
+        $initial2 = Test\Initial2PrxHelper::uncheckedCast($base);
+        $d = new Test\D;
         $d->ds = "test";
         $d->seq = array("test1", "test2", "test3", "test4");
-        $d->ao = new $acls(18);
+        $d->ao = new Test\A(18);
         $d->requiredB = 14;
         $d->requiredA = 14;
-        $initial2->opClassAndUnknownOptional(new $acls, $d);
+        $initial2->opClassAndUnknownOptional(new Test\A, $d);
 
         echo "ok\n";
     }
@@ -474,89 +451,89 @@ function allTests($helper)
     flush();
 
     $p2 = 0;
-    $p3 = $initial->opByte($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opByte(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opByte(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opBool($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opBool(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opBool(true, $p2);
     test($p2 == true && $p3 == true);
 
-    $p3 = $initial->opShort($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opShort(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opShort(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opInt($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opInt(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opInt(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opLong($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opLong(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opLong(56, $p2);
     test($p2 == 56 && $p3 == 56);
 
-    $p3 = $initial->opFloat($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opFloat(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opFloat(1.0, $p2);
     test($p2 == 1.0 && $p3 == 1.0);
 
-    $p3 = $initial->opDouble($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opDouble(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opDouble(1.0, $p2);
     test($p2 == 1.0 && $p3 == 1.0);
 
-    $p3 = $initial->opString($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opString(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opString("test", $p2);
     test($p2 == "test" && $p3 == "test");
 
-    $p3 = $initial->opMyEnum($none, $p2);
-    test($p2 == $none && $p3 == $none);
-    $p3 = $initial->opMyEnum($enum, $p2);
-    test($p2 == $enum && $p3 == $enum);
+    $p3 = $initial->opMyEnum(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
+    $p3 = $initial->opMyEnum(Test\MyEnum::MyEnumMember, $p2);
+    test($p2 == Test\MyEnum::MyEnumMember && $p3 == Test\MyEnum::MyEnumMember);
 
-    $p3 = $initial->opSmallStruct($none, $p2);
-    test($p2 == $none && $p3 == $none);
-    $p1 = new $sscls(56);
+    $p3 = $initial->opSmallStruct(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
+    $p1 = new Test\SmallStruct(56);
     $p3 = $initial->opSmallStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
     $p3 = $initial->opSmallStruct(null, $p2); // Testing null struct
     test($p2->m == 0 && $p3->m == 0);
 
-    $p3 = $initial->opFixedStruct($none, $p2);
-    test($p2 == $none && $p3 == $none);
-    $p1 = new $fscls(56);
+    $p3 = $initial->opFixedStruct(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
+    $p1 = new Test\FixedStruct(56);
     $p3 = $initial->opFixedStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opVarStruct($none, $p2);
-    test($p2 == $none && $p3 == $none);
-    $p1 = new $vscls("test");
+    $p3 = $initial->opVarStruct(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
+    $p1 = new Test\VarStruct("test");
     $p3 = $initial->opVarStruct($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opOneOptional($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opOneOptional(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     if($initial->supportsNullOptional())
     {
         $p3 = $initial->opOneOptional(null, $p2);
         test($p2 == null && $p3 == null);
     }
-    $p1 = new $oocls(58);
+    $p1 = new Test\OneOptional(58);
     $p3 = $initial->opOneOptional($p1, $p2);
     test($p2->a == $p1->a && $p3->a == $p1->a);
 
-    $p3 = $initial->opMyInterfaceProxy($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opMyInterfaceProxy(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p3 = $initial->opMyInterfaceProxy($prx, $p2);
     test($p2 == $prx && $p3 == $prx);
 
-    $p3 = $initial->opByteSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opByteSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -565,8 +542,8 @@ function allTests($helper)
     $p3 = $initial->opByteSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opBoolSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opBoolSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -575,8 +552,8 @@ function allTests($helper)
     $p3 = $initial->opBoolSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opShortSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opShortSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -585,8 +562,8 @@ function allTests($helper)
     $p3 = $initial->opShortSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opIntSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opIntSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -595,8 +572,8 @@ function allTests($helper)
     $p3 = $initial->opIntSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opLongSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opLongSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -605,8 +582,8 @@ function allTests($helper)
     $p3 = $initial->opLongSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opFloatSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opFloatSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -615,8 +592,8 @@ function allTests($helper)
     $p3 = $initial->opFloatSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opDoubleSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opDoubleSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -625,8 +602,8 @@ function allTests($helper)
     $p3 = $initial->opDoubleSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opStringSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opStringSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 100; $i++)
     {
@@ -635,51 +612,51 @@ function allTests($helper)
     $p3 = $initial->opStringSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opSmallStructSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opSmallStructSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 10; $i++)
     {
-        $p1[$i] = new $sscls(1);
+        $p1[$i] = new Test\SmallStruct(1);
     }
     $p3 = $initial->opSmallStructSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opFixedStructSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opFixedStructSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 10; $i++)
     {
-        $p1[$i] = new $fscls(1);
+        $p1[$i] = new Test\FixedStruct(1);
     }
     $p3 = $initial->opFixedStructSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opVarStructSeq($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opVarStructSeq(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array();
     for($i = 0; $i < 10; $i++)
     {
-        $p1[$i] = new $vscls("test");
+        $p1[$i] = new Test\VarStruct("test");
     }
     $p3 = $initial->opVarStructSeq($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opIntIntDict($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opIntIntDict(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array(1=>2, 2=>3);
     $p3 = $initial->opIntIntDict($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opStringIntDict($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opStringIntDict(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
     $p1 = array("1"=>2, "2"=>3);
     $p3 = $initial->opStringIntDict($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opIntOneOptionalDict($none, $p2);
-    test($p2 == $none && $p3 == $none);
-    $p1 = array(1=>new $oocls(58), 2=>new $oocls(59));
+    $p3 = $initial->opIntOneOptionalDict(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
+    $p1 = array(1=>new Test\OneOptional(58), 2=>new Test\OneOptional(59));
     $p3 = $initial->opIntOneOptionalDict($p1, $p2);
     test($p2[1]->a == 58 && $p3[1]->a == 58);
 
@@ -690,23 +667,18 @@ function allTests($helper)
 
     try
     {
-        $initial->opOptionalException($none, $none, $none);
+        $initial->opOptionalException(Ice\None, Ice\None, Ice\None);
     }
-    catch(Exception $ex)
+    catch(Test\OptionalException $ex)
     {
-        $excls = $NS ? "Test\\OptionalException" : "Test_OptionalException";
-        if(!($ex instanceof $excls))
-        {
-            throw $ex;
-        }
-        test($ex->a == $none);
-        test($ex->b == $none);
-        test($ex->o == $none);
+        test($ex->a == Ice\None);
+        test($ex->b == Ice\None);
+        test($ex->o == Ice\None);
     }
 
     try
     {
-        $initial->opOptionalException(30, "test", new $oocls(53));
+        $initial->opOptionalException(30, "test", new Test\OneOptional(53));
     }
     catch(Exception $ex)
     {
@@ -720,33 +692,33 @@ function allTests($helper)
         //
         // Use the 1.0 encoding with an exception whose only class members are optional.
         //
-        $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test", new $oocls(53));
+        $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test", new Test\OneOptional(53));
     }
     catch(Exception $ex)
     {
-        test($ex->a == $none);
-        test($ex->b == $none);
-        test($ex->o == $none);
+        test($ex->a == Ice\None);
+        test($ex->b == Ice\None);
+        test($ex->o == Ice\None);
     }
 
     try
     {
-        $initial->opDerivedException($none, $none, $none);
+        $initial->opDerivedException(Ice\None, Ice\None, Ice\None);
     }
     catch(Exception $ex)
     {
-        test($ex->a == $none);
-        test($ex->b == $none);
-        test($ex->o == $none);
-        test($ex->ss == $none);
-        test($ex->o2 == $none);
+        test($ex->a == Ice\None);
+        test($ex->b == Ice\None);
+        test($ex->o == Ice\None);
+        test($ex->ss == Ice\None);
+        test($ex->o2 == Ice\None);
         test($ex->d1 == "d1");
         test($ex->d2 == "d2");
     }
 
     try
     {
-        $initial->opDerivedException(30, "test", new $oocls(53));
+        $initial->opDerivedException(30, "test", new Test\OneOptional(53));
     }
     catch(Exception $ex)
     {
@@ -761,20 +733,20 @@ function allTests($helper)
 
     try
     {
-        $initial->opRequiredException($none, $none, $none);
+        $initial->opRequiredException(Ice\None, Ice\None, Ice\None);
     }
     catch(Exception $ex)
     {
-        test($ex->a == $none);
-        test($ex->b == $none);
-        test($ex->o == $none);
-        test($ex->ss != $none);
-        test($ex->o2 != $none);
+        test($ex->a == Ice\None);
+        test($ex->b == Ice\None);
+        test($ex->o == Ice\None);
+        test($ex->ss != Ice\None);
+        test($ex->o2 != Ice\None);
     }
 
     try
     {
-        $initial->opRequiredException(30, "test", new $oocls(53));
+        $initial->opRequiredException(30, "test", new Test\OneOptional(53));
     }
     catch(Exception $ex)
     {
@@ -790,39 +762,38 @@ function allTests($helper)
     echo "testing optionals with marshaled results... ";
     flush();
 
-    test($initial->opMStruct1() != $none);
-    test($initial->opMDict1() != $none);
-    test($initial->opMSeq1() != $none);
-    test($initial->opMG1() != $none);
+    test($initial->opMStruct1() != Ice\None);
+    test($initial->opMDict1() != Ice\None);
+    test($initial->opMSeq1() != Ice\None);
+    test($initial->opMG1() != Ice\None);
 
-    $p3 = $initial->opMStruct2($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opMStruct2(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
 
-    $sscls = $NS ? "Test\\SmallStruct" : "Test_SmallStruct";
-    $p1 = new $sscls(56);
+    $p1 = new Test\SmallStruct(56);
     $p3 = $initial->opMStruct2($p1, $p2);
     test($p2 == $p1 && $p3 == $p1);
 
-    $p3 = $initial->opMSeq2($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opMSeq2(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
 
     $p1 = array("hello");
     $p3 = $initial->opMSeq2($p1, $p2);
     test($p2[0] == "hello" && $p3[0] == "hello");
 
-    $p3 = $initial->opMDict2($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opMDict2(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
 
     $p1 = array("test" => 54);
     $p3 = $initial->opMDict2($p1, $p2);
     test($p2["test"] == 54 && $p3["test"] == 54);
 
-    $p3 = $initial->opMG2($none, $p2);
-    test($p2 == $none && $p3 == $none);
+    $p3 = $initial->opMG2(Ice\None, $p2);
+    test($p2 == Ice\None && $p3 == Ice\None);
 
-    $p1 = new $gcls;
+    $p1 = new Test\G;
     $p3 = $initial->opMG2($p1, $p2);
-    test($p2 != $none && $p3 != $none && $p3 == $p2);
+    test($p2 != Ice\None && $p3 != Ice\None && $p3 == $p2);
 
     echo "ok\n";
 

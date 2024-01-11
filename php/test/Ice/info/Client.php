@@ -7,11 +7,9 @@ require_once('Test.php');
 
 function getTCPEndpointInfo($i)
 {
-    global $NS;
-    $tcpEndpointInfoClass = $NS ? "Ice\\TCPEndpointInfo" : "Ice_TCPEndpointInfo";
     while($i)
     {
-        if($i instanceof $tcpEndpointInfoClass)
+        if($i instanceof Ice\TCPEndpointInfo)
         {
             return $i;
         }
@@ -21,11 +19,9 @@ function getTCPEndpointInfo($i)
 
 function getTCPConnectionInfo($i)
 {
-    global $NS;
-    $ipConnectionInfoClass = $NS ? "Ice\\TCPConnectionInfo" : "Ice_TCPConnectionInfo";
     while($i)
     {
-        if($i instanceof $ipConnectionInfoClass)
+        if($i instanceof Ice\TCPConnectionInfo)
         {
             return $i;
         }
@@ -35,53 +31,38 @@ function getTCPConnectionInfo($i)
 
 function allTests($helper)
 {
-    global $NS;
-
     $communicator = $helper->communicator();
-
-    $tcpEndpointType = $NS ? constant("Ice\\TCPEndpointType") : constant("Ice_TCPEndpointType");
-    $tcpEndpointInfoClass = $NS ? "Ice\\TCPEndpointInfo" : "Ice_TCPEndpointInfo";
-    $udpEndpointType = $NS ? constant("Ice\\UDPEndpointType") : constant("Ice_UDPEndpointType");
-    $udpEndpointInfoClass = $NS ? "Ice\\UDPEndpointInfo" : "Ice_UDPEndpointInfo";
-    $sslEndpointType = $NS ? constant("Ice\\SSLEndpointType") : constant("Ice_SSLEndpointType");
-    $sslEndpointInfoClass = $NS ? "Ice\\SSLEndpointInfo" : "Ice_SSLEndpointInfo";
-    $wsEndpointType = $NS ? constant("Ice\\WSEndpointType") : constant("Ice_WSEndpointType");
-    $wsEndpointInfoClass = $NS ? "Ice\\WSEndpointInfo" : "Ice_WSEndpointInfo";
-    $wssEndpointType = $NS ? constant("Ice\\WSSEndpointType") : constant("Ice_WSSEndpointType");
-    $wssEndpointInfoClass = $NS ? "Ice\\WSSEndpointInfo" : "Ice_WSSEndpointInfo";
-    $protocolVersionClass = $NS ? "Ice\\ProtocolVersion" : "Ice_ProtocolVersion";
-    $encodingVersionClass = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
 
     echo "testing proxy endpoint information... ";
     flush();
     {
         $p1 = $communicator->stringToProxy(
-                "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" .
-                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" .
-                "opaque -e 1.8 -t 100 -v ABCD");
+            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" .
+            "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" .
+            "opaque -e 1.8 -t 100 -v ABCD");
 
         $endps = $p1->ice_getEndpoints();
         $port = $helper->getTestPort();
         $endpoint = $endps[0]->getInfo();
         $tcpEndpoint = getTCPEndpointInfo($endpoint);
-        test($tcpEndpoint instanceof $tcpEndpointInfoClass);
+        test($tcpEndpoint instanceof Ice\TCPEndpointInfo);
         test($tcpEndpoint->host == "tcphost");
         test($tcpEndpoint->port == 10000);
         test($tcpEndpoint->timeout == 1200);
         test($tcpEndpoint->sourceAddress == "10.10.10.10");
         test($tcpEndpoint->compress);
         test(!$tcpEndpoint->datagram());
-        test(($tcpEndpoint->type() == $tcpEndpointType && !$tcpEndpoint->secure()) ||
-             ($tcpEndpoint->type() == $sslEndpointType && $tcpEndpoint->secure()) ||
-             ($tcpEndpoint->type() == $wsEndpointType && !$tcpEndpoint->secure()) ||
-             ($tcpEndpoint->type() == $wssEndpointType && $tcpEndpoint->secure()));
-        test(($tcpEndpoint->type() == $tcpEndpointType && ($endpoint instanceof $tcpEndpointInfoClass)) ||
-             ($tcpEndpoint->type() == $sslEndpointType && ($endpoint instanceof $sslEndpointInfoClass)) ||
-             ($tcpEndpoint->type() == $wsEndpointType && ($endpoint instanceof $wsEndpointInfoClass)) ||
-             ($tcpEndpoint->type() == $wssEndpointType && ($endpoint instanceof $wsEndpointInfoClass)));
+        test(($tcpEndpoint->type() == Ice\TCPEndpointType && !$tcpEndpoint->secure()) ||
+             ($tcpEndpoint->type() == Ice\SSLEndpointType && $tcpEndpoint->secure()) ||
+             ($tcpEndpoint->type() == Ice\WSEndpointType && !$tcpEndpoint->secure()) ||
+             ($tcpEndpoint->type() == Ice\WSSEndpointType && $tcpEndpoint->secure()));
+        test(($tcpEndpoint->type() == Ice\TCPEndpointType && ($endpoint instanceof Ice\TCPEndpointInfo)) ||
+             ($tcpEndpoint->type() == Ice\SSLEndpointType && ($endpoint instanceof Ice\SSLEndpointInfo)) ||
+             ($tcpEndpoint->type() == Ice\WSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)) ||
+             ($tcpEndpoint->type() == Ice\WSSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)));
 
         $udpEndpoint = $endps[1]->getInfo();
-        test($udpEndpoint instanceof $udpEndpointInfoClass);
+        test($udpEndpoint instanceof Ice\UDPEndpointInfo);
         test($udpEndpoint->host == "udphost");
         test($udpEndpoint->port == 10001);
         test($udpEndpoint->sourceAddress == "10.10.10.10");
@@ -91,7 +72,7 @@ function allTests($helper)
         test(!$udpEndpoint->compress);
         test(!$udpEndpoint->secure());
         test($udpEndpoint->datagram());
-        test($udpEndpoint->type() == $udpEndpointType);
+        test($udpEndpoint->type() == Ice\UDPEndpointType);
 
         $opaqueEndpoint = $endps[2]->getInfo();
         test($opaqueEndpoint);
@@ -107,7 +88,7 @@ function allTests($helper)
     flush();
     {
         $tcpinfo = getTCPEndpointInfo($base->ice_getConnection()->getEndpoint()->getInfo());
-        test($tcpinfo instanceof $tcpEndpointInfoClass);
+        test($tcpinfo instanceof Ice\TCPEndpointInfo);
         test($tcpinfo->port == $testPort);
         test(!$tcpinfo->compress);
         test($tcpinfo->host == $defaultHost);
@@ -118,7 +99,7 @@ function allTests($helper)
         test($ctx["port"] > 0);
 
         $udpinfo = $base->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
-        test($udpinfo instanceof $udpEndpointInfoClass);
+        test($udpinfo instanceof Ice\UDPEndpointInfo);
         test($udpinfo->port == $testPort);
         test($udpinfo->host == $defaultHost);
     }
@@ -128,15 +109,13 @@ function allTests($helper)
     flush();
     {
         $port = $helper->getTestPort();
-        $ipConnectionInfoClass = $NS ? "Ice\\TCPConnectionInfo" : "Ice_TCPConnectionInfo";
-        $wsConnectionInfoClass = $NS ? "Ice\\WSConnectionInfo" : "Ice_WSConnectionInfo";
 
         $connection = $base->ice_getConnection();
         $connection->setBufferSize(1024, 2048);
 
         $info = $connection->getInfo();
         $tcpinfo = getTCPConnectionInfo($info);
-        test($tcpinfo instanceof $ipConnectionInfoClass);
+        test($tcpinfo instanceof Ice\TCPConnectionInfo);
         test(!$info->incoming);
         test(strlen($info->adapterName) == 0);
         test($tcpinfo->remotePort == $port);
@@ -158,7 +137,7 @@ function allTests($helper)
 
         if($base->ice_getConnection()->type() == "ws" || $base->ice_getConnection()->type() == "wss")
         {
-            test($info instanceof $wsConnectionInfoClass);
+            test($info instanceof Ice\WSConnectionInfo);
 
             test($info->headers["Upgrade"] == "websocket");
             test($info->headers["Connection"] == "Upgrade");

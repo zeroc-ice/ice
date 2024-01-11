@@ -1785,11 +1785,7 @@ IcePHP::communicatorInit(void)
     // Register the Communicator interface.
     //
     zend_class_entry ce;
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Communicator", _interfaceMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_Communicator", _interfaceMethods);
-#endif
     zend_class_entry* interface = zend_register_internal_interface(&ce);
 
     //
@@ -1807,11 +1803,7 @@ IcePHP::communicatorInit(void)
     //
     // Register the ValueFactoryManager interface.
     //
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ValueFactoryManager", _vfmInterfaceMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_ValueFactoryManager", _vfmInterfaceMethods);
-#endif
     zend_class_entry* vfmInterface = zend_register_internal_interface(&ce);
 
     //
