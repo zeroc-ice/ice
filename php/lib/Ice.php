@@ -4,7 +4,7 @@
 //
 
 //
-// Definitions for IcePHP with namespaces enabled
+// Definitions for IcePHP
 //
 namespace
 {
