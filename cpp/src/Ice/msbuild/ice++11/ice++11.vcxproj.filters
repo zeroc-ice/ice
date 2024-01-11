@@ -111,9 +111,6 @@
     <ClCompile Include="Win32\Debug\Process.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\ProcessF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\PropertiesAdmin.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
@@ -148,9 +145,6 @@
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Process.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\ProcessF.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\PropertiesAdmin.cpp">
@@ -189,9 +183,6 @@
     <ClCompile Include="Win32\Release\Process.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\ProcessF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\PropertiesAdmin.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
@@ -226,9 +217,6 @@
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Process.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\ProcessF.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\PropertiesAdmin.cpp">
@@ -736,9 +724,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\Process.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\ProcessF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\PropertiesAdmin.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -773,9 +758,6 @@
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\Process.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\ProcessF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Ice\PropertiesAdmin.h">
@@ -814,9 +796,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\Process.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\ProcessF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Ice\PropertiesAdmin.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
@@ -851,9 +830,6 @@
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\Process.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\ProcessF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Ice\PropertiesAdmin.h">
@@ -931,9 +907,6 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\ProcessF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesAdmin.ice">
