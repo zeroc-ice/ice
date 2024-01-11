@@ -568,32 +568,6 @@ class Instance
             });
         return promise;
     }
-
-    addObjectFactory(factory, id)
-    {
-        //
-        // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
-        // with the value factory manager. This may raise AlreadyRegisteredException.
-        //
-        this._initData.valueFactoryManager.add(typeId => factory.create(typeId), id);
-
-        if(this._objectFactoryMap === null)
-        {
-            this._objectFactoryMap = new Map();
-        }
-
-        this._objectFactoryMap.set(id, factory);
-    }
-
-    findObjectFactory(id)
-    {
-        let factory = null;
-        if(this._objectFactoryMap !== null)
-        {
-            factory = this._objectFactoryMap.get(id);
-        }
-        return factory !== undefined ? factory : null;
-    }
 }
 
 Ice.Instance = Instance;

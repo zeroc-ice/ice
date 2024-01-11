@@ -32,7 +32,6 @@
 #   include <Ice/LoggerUtil.h>
 #   include <Ice/Communicator.h>
 #   include <Ice/CommunicatorAsync.h>
-#   include <Ice/ObjectFactory.h>
 #   include <Ice/ObjectAdapter.h>
 #   include <Ice/ServantLocator.h>
 #   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0

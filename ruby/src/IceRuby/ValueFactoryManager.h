@@ -24,8 +24,6 @@ public:
 
     VALUE getObject() const;
 
-    bool isObjectFactory() const;
-
     void mark();
 
     void destroy();
@@ -33,7 +31,6 @@ public:
 protected:
 
     VALUE _factory;
-    bool _isObjectFactory;
 };
 typedef IceUtil::Handle<FactoryWrapper> FactoryWrapperPtr;
 
@@ -69,9 +66,7 @@ public:
     virtual Ice::ValueFactoryPtr find(const std::string&) const noexcept;
 
     void addValueFactory(VALUE, const std::string&);
-    VALUE findValueFactory(const std::string&) const;
-    void addObjectFactory(VALUE, const std::string&);
-    VALUE findObjectFactory(const std::string&) const;
+    VALUE findValueFactory(const std::string&) const;;
 
     void mark();
     void markSelf();

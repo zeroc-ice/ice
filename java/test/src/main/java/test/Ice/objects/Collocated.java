@@ -47,23 +47,6 @@ public class Collocated extends test.TestHelper
         }
     }
 
-    @SuppressWarnings("deprecation")
-    private static class MyObjectFactory implements com.zeroc.Ice.ObjectFactory
-    {
-        @Override
-        public com.zeroc.Ice.Value create(String type)
-        {
-            return null;
-        }
-
-        @Override
-        public void destroy()
-        {
-            //
-        }
-    }
-
-    @SuppressWarnings("deprecation")
     public void run(String[] args)
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
@@ -80,8 +63,6 @@ public class Collocated extends test.TestHelper
             communicator.getValueFactoryManager().add(factory, "::Test::F");
             communicator.getValueFactoryManager().add(factory, "::Test::I");
             communicator.getValueFactoryManager().add(factory, "::Test::J");
-
-            communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

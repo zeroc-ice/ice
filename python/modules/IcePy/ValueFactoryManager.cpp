@@ -129,23 +129,6 @@ IcePy::ValueFactoryManager::findValueFactory(const string& id) const
 }
 
 PyObject*
-IcePy::ValueFactoryManager::findObjectFactory(const string& id) const
-{
-    Ice::ValueFactoryPtr f = find(id);
-    if(f)
-    {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(f);
-        if(w)
-        {
-            return w->getObjectFactory();
-        }
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject*
 IcePy::ValueFactoryManager::getObject() const
 {
     Py_INCREF(_self);
@@ -245,13 +228,6 @@ IcePy::FactoryWrapper::getValueFactory() const
     return _valueFactory;
 }
 
-PyObject*
-IcePy::FactoryWrapper::getObjectFactory() const
-{
-    Py_INCREF(_objectFactory);
-    return _objectFactory;
-}
-
 void
 IcePy::FactoryWrapper::destroy()
 {
@@ -324,22 +300,6 @@ IcePy::DefaultValueFactory::getValueFactory() const
         if(w)
         {
             return w->getValueFactory();
-        }
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-PyObject*
-IcePy::DefaultValueFactory::getObjectFactory() const
-{
-    if(_delegate)
-    {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
-        if(w)
-        {
-            return w->getObjectFactory();
         }
     }
 

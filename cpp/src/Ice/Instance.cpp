@@ -1268,8 +1268,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _initData.valueFactoryManager = ICE_MAKE_SHARED(ValueFactoryManagerI);
         }
 
-        _objectFactoryMapHint = _objectFactoryMap.end();
-
         _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
         _objectAdapterFactory = ICE_MAKE_SHARED(ObjectAdapterFactory, this, communicator);
@@ -1677,12 +1675,6 @@ IceInternal::Instance::destroy()
         _endpointHostResolver->getThreadControl().join();
     }
 
-    for(const auto& p : _objectFactoryMap)
-    {
-        p.second->destroy();
-    }
-    _objectFactoryMap.clear();
-
     if(_routerManager)
     {
         _routerManager->destroy();
@@ -1841,82 +1833,6 @@ IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
     info.rcvWarn = true;
     info.rcvSize = size;
     _setBufSizeWarn[type] =  info;
-}
-
-void
-IceInternal::Instance::addObjectFactory(const Ice::ObjectFactoryPtr& factory, const string& id)
-{
-    Lock sync(*this);
-
-    //
-    // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
-    // with the value factory manager. This may raise AlreadyRegisteredException.
-    //
-#ifdef ICE_CPP11_MAPPING
-    _initData.valueFactoryManager->add([factory](const string& ident)
-                                       {
-                                           return factory->create(ident);
-                                       },
-                                       id);
-#else
-    class ValueFactoryWrapper: public Ice::ValueFactory
-    {
-    public:
-
-        ValueFactoryWrapper(const Ice::ObjectFactoryPtr& factory) :  _objectFactory(factory)
-        {
-        }
-
-        Ice::ValuePtr create(const std::string& id)
-        {
-            return _objectFactory->create(id);
-        }
-
-    private:
-
-        Ice::ObjectFactoryPtr _objectFactory;
-    };
-
-    _initData.valueFactoryManager->add(new ValueFactoryWrapper(factory), id);
-#endif
-
-    //
-    // Also record the object factory in our own map.
-    //
-    _objectFactoryMapHint = _objectFactoryMap.insert(_objectFactoryMapHint,
-                                                     pair<const string, Ice::ObjectFactoryPtr>(id, factory));
-}
-
-Ice::ObjectFactoryPtr
-IceInternal::Instance::findObjectFactory(const string& id) const
-{
-    Lock sync(*this);
-
-    ObjectFactoryMap& objectfactoryMap = const_cast<ObjectFactoryMap&>(_objectFactoryMap);
-
-    ObjectFactoryMap::iterator p = objectfactoryMap.end();
-    if(_objectFactoryMapHint != objectfactoryMap.end())
-    {
-        if(_objectFactoryMapHint->first == id)
-        {
-            p = _objectFactoryMapHint;
-        }
-    }
-
-    if(p == objectfactoryMap.end())
-    {
-        p = objectfactoryMap.find(id);
-    }
-
-    if(p != objectfactoryMap.end())
-    {
-        _objectFactoryMapHint = p;
-        return p->second;
-    }
-    else
-    {
-        return ICE_NULLPTR;
-    }
 }
 
 IceInternal::ProcessI::ProcessI(const CommunicatorPtr& communicator) :

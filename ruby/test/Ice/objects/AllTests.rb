@@ -47,16 +47,6 @@ class MyValueFactory
     end
 end
 
-class MyObjectFactory
-    def create(type)
-        return nil
-    end
-
-    def destroy
-        # Nothing to do
-    end
-end
-
 def test(b)
     if !b
         raise RuntimeError, 'test assertion failed'
@@ -73,8 +63,6 @@ def allTests(helper, communicator)
     communicator.getValueFactoryManager().add(factory, '::Test::F')
     communicator.getValueFactoryManager().add(factory, '::Test::I')
     communicator.getValueFactoryManager().add(factory, '::Test::J')
-
-    communicator.addObjectFactory(MyObjectFactory.new, 'TestOF')
 
     print "testing stringToProxy... "
     STDOUT.flush
@@ -336,16 +324,6 @@ def allTests(helper, communicator)
         print ex.backtrace.join("\n")
         test(false)
     end
-    puts "ok"
-
-    print "testing getting ObjectFactory... "
-    STDOUT.flush
-    test(communicator.findObjectFactory('TestOF') != nil)
-    puts "ok"
-
-    print "testing getting ObjectFactory as ValueFactory... "
-    STDOUT.flush
-    test(communicator.getValueFactoryManager().find('TestOF') != nil)
     puts "ok"
 
     print "testing class containing complex dictionary... "
