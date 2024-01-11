@@ -34,13 +34,8 @@ inline PyObject* incRef(PyObject* obj)
 //
 inline PyObject* getFalse()
 {
-#if PY_VERSION_HEX >= 0x03000000
     PyLongObject* i = &_Py_FalseStruct;
     return reinterpret_cast<PyObject*>(i);
-#else
-    PyIntObject* i = &_Py_ZeroStruct;
-    return reinterpret_cast<PyObject*>(i);
-#endif
 }
 
 //
@@ -48,13 +43,8 @@ inline PyObject* getFalse()
 //
 inline PyObject* getTrue()
 {
-#if PY_VERSION_HEX >= 0x03000000
     PyLongObject* i = &_Py_TrueStruct;
     return reinterpret_cast<PyObject*>(i);
-#else
-    PyIntObject* i = &_Py_TrueStruct;
-    return reinterpret_cast<PyObject*>(i);
-#endif
 }
 
 inline PyObject* incFalse()
@@ -72,14 +62,10 @@ inline PyObject* incTrue()
 //
 inline PyObject* createString(const std::string& str)
 {
-#if PY_VERSION_HEX >= 0x03000000
     //
     // PyUnicode_FromStringAndSize interprets the argument as UTF-8.
     //
     return PyUnicode_FromStringAndSize(str.c_str(), static_cast<Py_ssize_t>(str.size()));
-#else
-    return PyString_FromStringAndSize(str.c_str(), static_cast<Py_ssize_t>(str.size()));
-#endif
 }
 
 //
@@ -92,11 +78,7 @@ std::string getString(PyObject*);
 //
 inline bool checkString(PyObject* p)
 {
-#if PY_VERSION_HEX >= 0x03000000
     return PyUnicode_Check(p) ? true : false;
-#else
-    return PyString_Check(p) ? true : false;
-#endif
 }
 
 //

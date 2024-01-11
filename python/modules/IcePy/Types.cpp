@@ -83,7 +83,6 @@ struct BufferObject
 extern PyTypeObject TypeInfoType;
 extern PyTypeObject ExceptionInfoType;
 
-#if PY_VERSION_HEX >= 0x03000000
 bool
 writeString(PyObject* p, Ice::OutputStream* os)
 {
@@ -102,41 +101,6 @@ writeString(PyObject* p, Ice::OutputStream* os)
 
     return true;
 }
-#else
-bool
-writeString(PyObject* p, Ice::OutputStream* os)
-{
-    if(p == Py_None)
-    {
-        os->write(string(), true);
-    }
-    else if(checkString(p))
-    {
-        os->write(getString(p), true);
-    }
-#if defined(Py_USING_UNICODE)
-    else if(PyUnicode_Check(p))
-    {
-        //
-        // Convert a Unicode object to a UTF-8 string and write it without manipulation from
-        // a C++ string converter.
-        //
-        PyObjectHandle h = PyUnicode_AsUTF8String(p);
-        if(!h.get())
-        {
-            return false;
-        }
-        os->write(getString(h.get()), false);
-    }
-#endif
-    else
-    {
-        assert(false);
-    }
-
-    return true;
-}
-#endif
 
 }
 
@@ -223,11 +187,7 @@ extern "C"
 static PyObject*
 unsetRepr(PyObject* /*v*/)
 {
-#if PY_VERSION_HEX >= 0x03000000
     return PyBytes_FromString("Unset");
-#else
-    return PyString_FromString("Unset");
-#endif
 }
 
 #ifdef WIN32
@@ -529,21 +489,12 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         PyObjectHandle bytes;
         if((*p)->bytes.size() > 0)
         {
-    #if PY_VERSION_HEX >= 0x03000000
             bytes = PyBytes_FromStringAndSize((*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
                                               static_cast<Py_ssize_t>((*p)->bytes.size()));
-    #else
-            bytes = PyString_FromStringAndSize((*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
-                                               static_cast<Py_ssize_t>((*p)->bytes.size()));
-    #endif
         }
         else
         {
-    #if PY_VERSION_HEX >= 0x03000000
             bytes = PyBytes_FromStringAndSize(0, 0);
-    #else
-            bytes = PyString_FromStringAndSize(0, 0);
-    #endif
         }
         if(!bytes.get() || PyObject_SetAttrString(slice.get(), STRCAST("bytes"), bytes.get()) < 0)
         {
@@ -649,13 +600,8 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 assert(bytes.get());
                 char* str;
                 Py_ssize_t strsz;
-#if PY_VERSION_HEX >= 0x03000000
                 assert(PyBytes_Check(bytes.get()));
                 PyBytes_AsStringAndSize(bytes.get(), &str, &strsz);
-#else
-                assert(PyString_Check(bytes.get()));
-                PyString_AsStringAndSize(bytes.get(), &str, &strsz);
-#endif
                 vector<Ice::Byte> vtmp(reinterpret_cast<Ice::Byte*>(str), reinterpret_cast<Ice::Byte*>(str + strsz));
                 info->bytes.swap(vtmp);
 
@@ -833,12 +779,6 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
                     return false;
                 }
             }
-#if PY_VERSION_HEX < 0x03000000
-            else if(PyInt_Check(p))
-            {
-                return true;
-            }
-#endif
             else
             {
                 return false;
@@ -865,12 +805,6 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
                     return false;
                 }
             }
-#if PY_VERSION_HEX < 0x03000000
-            else if(PyInt_Check(p))
-            {
-                return true;
-            }
-#endif
             else
             {
                 return false;
@@ -881,11 +815,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     }
     case PrimitiveInfo::KindString:
     {
-#if defined(Py_USING_UNICODE) && PY_VERSION_HEX < 0x03000000
-        if(p != Py_None && !checkString(p) && !PyUnicode_Check(p))
-#else
         if(p != Py_None && !checkString(p))
-#endif
         {
             return false;
         }
@@ -1104,11 +1034,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     case PrimitiveInfo::KindString:
     {
         string val;
-#if PY_VERSION_HEX >= 0x03000000
         is->read(val, false); // Bypass string conversion.
-#else
-        is->read(val, true);
-#endif
         PyObjectHandle p = createString(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
@@ -1147,11 +1073,7 @@ IcePy::EnumInfo::EnumInfo(const string& ident, PyObject* t, PyObject* e) :
     PyObject* value;
     while(PyDict_Next(e, &pos, &key, &value))
     {
-#if PY_VERSION_HEX >= 0x03000000
         assert(PyLong_Check(key));
-#else
-        assert(PyInt_Check(key));
-#endif
         const Ice::Int val = static_cast<Ice::Int>(PyLong_AsLong(key));
         assert(enumerators.find(val) == enumerators.end());
 
@@ -1264,11 +1186,7 @@ IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
         assert(PyErr_Occurred());
         return -1;
     }
-#if PY_VERSION_HEX >= 0x03000000
     if(!PyLong_Check(v.get()))
-#else
-    if(!PyInt_Check(v.get()))
-#endif
     {
         PyErr_Format(PyExc_ValueError, STRCAST("value for enum %s is not an int"), id.c_str());
         return -1;
@@ -1333,11 +1251,7 @@ convertDataMembers(PyObject* members, DataMemberList& reqMembers, DataMemberList
         {
             opt = PyTuple_GET_ITEM(m, 3); // Optional?
             tag = PyTuple_GET_ITEM(m, 4);
-#if PY_VERSION_HEX < 0x03000000
-            assert(PyInt_Check(tag));
-#else
             assert(PyLong_Check(tag));
-#endif
         }
 
         DataMemberPtr member = new DataMember;
@@ -1870,7 +1784,6 @@ IcePy::SequenceInfo::getSequence(const PrimitiveInfoPtr& pi, PyObject* p)
 
     if(pi->kind == PrimitiveInfo::KindByte)
     {
-#if PY_VERSION_HEX >= 0x03000000
         //
         // For sequence<byte>, accept a bytes object or a sequence.
         //
@@ -1878,15 +1791,6 @@ IcePy::SequenceInfo::getSequence(const PrimitiveInfoPtr& pi, PyObject* p)
         {
             fs = PySequence_Fast(p, STRCAST("expected a bytes, sequence, or buffer value"));
         }
-#else
-        //
-        // For sequence<byte>, accept a string or a sequence.
-        //
-        if(!checkString(p))
-        {
-            fs = PySequence_Fast(p, STRCAST("expected a string, sequence, or buffer value"));
-        }
-#endif
     }
     else
     {
@@ -1909,7 +1813,6 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
         // With Python 3 and greater we marshal sequences of pritive types using the new
         // buffer protocol when possible, for older versions we use the old buffer protocol.
         //
-#if PY_VERSION_HEX >= 0x03000000
         Py_buffer pybuf;
         if(PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
         {
@@ -1967,13 +1870,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
             const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(pybuf.buf);
             Py_ssize_t sz = pybuf.len;
-#else
-        const void* buf = 0;
-        Py_ssize_t sz;
-        if(PyObject_AsReadBuffer(p, &buf, &sz) == 0)
-        {
-            const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(buf);
-#endif
+
             switch(pi->kind)
             {
                 case PrimitiveInfo::KindBool:
@@ -2023,9 +1920,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                     assert(false);
                 }
             }
-#if PY_VERSION_HEX >= 0x03000000
             PyBuffer_Release(&pybuf);
-#endif
             return;
         }
         else
@@ -2072,17 +1967,10 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     {
         if(!fs.get())
         {
-#if PY_VERSION_HEX >= 0x03000000
             assert(PyBytes_Check(p));
             char* str;
             PyBytes_AsStringAndSize(p, &str, &sz);
             os->write(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
-#else
-            assert(PyString_Check(p));
-            char* str;
-            PyString_AsStringAndSize(p, &str, &sz);
-            os->write(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
-#endif
         }
         else
         {
@@ -2254,11 +2142,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-#if defined(Py_USING_UNICODE) && PY_VERSION_HEX < 0x03000000
-            if(item != Py_None && !checkString(item) && !PyUnicode_Check(item))
-#else
             if(item != Py_None && !checkString(item))
-#endif
             {
                 PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"),
                              static_cast<int>(i));
@@ -2297,18 +2181,7 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
     else
     {
         char* buf = const_cast<char*>(size == 0 ? emptySeq : buffer);
-#if PY_VERSION_HEX >= 0x03030000
         memoryview = PyMemoryView_FromMemory(buf, size, PyBUF_READ);
-#else
-        Py_buffer pybuffer;
-        if(PyBuffer_FillInfo(&pybuffer, 0, buf, size, 1, PyBUF_SIMPLE) != 0)
-        {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
-        }
-
-        memoryview = PyMemoryView_FromBuffer(&pybuffer);
-#endif
     }
 
     if(!memoryview.get())
@@ -2397,11 +2270,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         }
         else if(sm->type == SequenceMapping::SEQ_DEFAULT)
         {
-#if PY_VERSION_HEX >= 0x03000000
             result = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(p.first), sz);
-#else
-            result = PyString_FromStringAndSize(reinterpret_cast<const char*>(p.first), sz);
-#endif
             if(!result.get())
             {
                 assert(PyErr_Occurred());
@@ -2602,11 +2471,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     case PrimitiveInfo::KindString:
     {
         Ice::StringSeq seq;
-#if PY_VERSION_HEX >= 0x03000000
         is->read(seq, false); // Bypass string conversion.
-#else
-        is->read(seq, true);
-#endif
         int sz = static_cast<int>(seq.size());
         result = sm->createContainer(sz);
         if(!result.get())
@@ -2930,11 +2795,7 @@ IcePy::CustomInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* /*obje
     assert(checkString(obj.get()));
     char* str;
     Py_ssize_t sz;
-#if PY_VERSION_HEX >= 0x03000000
     PyBytes_AsStringAndSize(obj.get(), &str, &sz);
-#else
-    PyString_AsStringAndSize(obj.get(), &str, &sz);
-#endif
     os->write(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
 }
 
@@ -2979,11 +2840,7 @@ IcePy::CustomInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
     //
     // Convert the seq to a string.
     //
-#if PY_VERSION_HEX >= 0x03000000
     obj = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(seq.first), sz);
-#else
-    obj = PyString_FromStringAndSize(reinterpret_cast<const char*>(seq.first), sz);
-#endif
     if(!obj.get())
     {
         assert(PyErr_Occurred());
@@ -4559,9 +4416,6 @@ static PyNumberMethods UnsetAsNumber =
     0,                          /* nb_add */
     0,                          /* nb_subtract */
     0,                          /* nb_multiply */
-#if PY_VERSION_HEX < 0x03000000
-    0,                          /* nb_divide */
-#endif
     0,                          /* nb_remainder */
     0,                          /* nb_divmod */
     0,                          /* nb_power */
@@ -4636,12 +4490,6 @@ PyObject* Unset = &UnsetValue;
 
 static PyBufferProcs BufferProcs =
 {
-#if PY_VERSION_HEX < 0x03000000
-     0,
-     0,
-     0,
-     0,
-#endif
     (getbufferproc) bufferGetBuffer,
     0
 };
@@ -4670,11 +4518,7 @@ PyTypeObject BufferType =
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     &BufferProcs,                    /* tp_as_buffer */
-#if PY_VERSION_HEX >= 0x03000000
     Py_TPFLAGS_DEFAULT,              /* tp_flags */
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_NEWBUFFER, /* tp_flags */
-#endif
     0,                               /* tp_doc */
     0,                               /* tp_traverse */
     0,                               /* tp_clear */

@@ -182,13 +182,9 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         {
             return 0;
         }
-        PyDict_SetItemString(globals.get(), "__builtins__", PyEval_GetBuiltins());
 
-#if PY_VERSION_HEX >= 0x03000000
+        PyDict_SetItemString(globals.get(), "__builtins__", PyEval_GetBuiltins());
         PyObjectHandle val = PyEval_EvalCode(src.get(), globals.get(), 0);
-#else
-        PyObjectHandle val = PyEval_EvalCode(reinterpret_cast<PyCodeObject*>(src.get()), globals.get(), 0);
-#endif
         if(!val.get())
         {
             return 0;

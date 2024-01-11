@@ -71,13 +71,8 @@ loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
 Unset = IcePy.Unset
 
-def Python35():
-    return sys.version_info[:2] >= (3, 5)
+from Ice.Py3.IceFuture import FutureBase, wrap_future
 
-if Python35():
-    from Ice.Py3.IceFuture import FutureBase, wrap_future
-else:
-    FutureBase = object
 
 class Future(FutureBase):
     def __init__(self):
@@ -415,7 +410,7 @@ Returns:
                 except:
                     cb.exception(sys.exc_info()[1])
             result.add_done_callback(handler)
-        elif Python35() and inspect.iscoroutine(result): # The iscoroutine() function was added in Python 3.5.
+        elif inspect.iscoroutine(result):
             self._iceDispatchCoroutine(cb, result)
         else:
             cb.response(result)
@@ -1948,58 +1943,22 @@ BuiltinDouble = 6
 BuiltinTypes = [BuiltinBool, BuiltinByte, BuiltinShort, BuiltinInt, BuiltinLong, BuiltinFloat, BuiltinDouble]
 BuiltinArrayTypes = ["b", "b", "h", "i", "q", "f", "d"]
 
-#
-# The array "q" type specifier is new in Python 3.3
-#
-if sys.version_info[:2] >= (3, 3):
-    def createArray(view, t, copy):
-        if t not in BuiltinTypes:
-            raise ValueError("`{0}' is not an array builtin type".format(t))
-        a = array.array(BuiltinArrayTypes[t])
-        a.frombytes(view)
-        return a
-#
-# The array.frombytes method is new in Python 3.2
-#
-elif sys.version_info[:2] >= (3, 2):
-    def createArray(view, t, copy):
-        if t not in BuiltinTypes:
-            raise ValueError("`{0}' is not an array builtin type".format(t))
-        elif t == BuiltinLong:
-            raise ValueError("array.array 'q' specifier is only supported with Python >= 3.3")
-        a = array.array(BuiltinArrayTypes[t])
-        a.frombytes(view)
-        return a
-else:
-    def createArray(view, t, copy):
-        if t not in BuiltinTypes:
-            raise ValueError("`{0}' is not an array builtin type".format(t))
-        elif t == BuiltinLong:
-            raise ValueError("array.array 'q' specifier is only supported with Python >= 3.3")
-        a = array.array(BuiltinArrayTypes[t])
-        a.fromstring(str(view.tobytes()))
-        return a
-
+def createArray(view, t, copy):
+    if t not in BuiltinTypes:
+        raise ValueError("`{0}' is not an array builtin type".format(t))
+    a = array.array(BuiltinArrayTypes[t])
+    a.frombytes(view)
+    return a
 
 try:
     import numpy
 
     BuiltinNumpyTypes = [numpy.bool_, numpy.int8, numpy.int16, numpy.int32, numpy.int64, numpy.float32, numpy.float64]
 
-    #
-    # With Python2.7 we cannot initialize numpy array from memoryview
-    # See: https://github.com/numpy/numpy/issues/5935
-    #
-    if sys.version_info[0] >= 3:
-        def createNumPyArray(view, t, copy):
-            if t not in BuiltinTypes:
-                raise ValueError("`{0}' is not an array builtin type".format(t))
-            return numpy.frombuffer(view.tobytes() if copy else view, BuiltinNumpyTypes[t])
-    else:
-        def createNumPyArray(view, t, copy):
-            if t not in BuiltinTypes:
-                raise ValueError("`{0}' is not an array builtin type".format(t))
-            return numpy.frombuffer(view.tobytes(), BuiltinNumpyTypes[t])
+    def createNumPyArray(view, t, copy):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        return numpy.frombuffer(view.tobytes() if copy else view, BuiltinNumpyTypes[t])
 
 except ImportError:
     pass

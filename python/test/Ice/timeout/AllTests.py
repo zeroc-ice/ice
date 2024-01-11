@@ -107,13 +107,7 @@ def allTestsWithController(helper, communicator, controller):
     #
     # Expect TimeoutException.
     #
-    if sys.version_info[0] == 2:
-        seq = []
-        seq[0:10000000] = range(0, 10000000) # add 10,000,000 entries.
-        seq = ['\x00' for x in seq] # set them all to \x00
-        seq = ''.join(seq) # make into a byte array
-    else:
-        seq = bytes([0 for x in range(0, 10000000)])
+    seq = bytes([0 for x in range(0, 10000000)])
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
     connect(to)
     controller.holdAdapter(-1)
@@ -130,13 +124,7 @@ def allTestsWithController(helper, communicator, controller):
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(2000))
     controller.holdAdapter(100)
     try:
-        if sys.version_info[0] == 2:
-            seq2 = []
-            seq2[0:1000000] = range(0, 1000000) # add 1,000,000 entries.
-            seq2 = ['\x00' for x in seq2] # set them all to \x00
-            seq2 = ''.join(seq2) # make into a byte array
-        else:
-            seq2 = bytes([0 for x in range(0, 1000000)])
+        seq2 = bytes([0 for x in range(0, 1000000)])
         to.sendData(seq2)
     except Ice.TimeoutException:
         test(False)
@@ -289,9 +277,9 @@ def allTestsWithController(helper, communicator, controller):
     comm = Ice.initialize(initData)
     connection = comm.stringToProxy(sref).ice_getConnection()
     controller.holdAdapter(-1)
-    s = time.perf_counter() if sys.version_info[:2] >= (3, 3) else time.clock()
+    s = time.perf_counter()
     comm.destroy()
-    e = time.perf_counter() if sys.version_info[:2] >= (3, 3) else time.clock()
+    e = time.perf_counter()
     test((s - e) < 1.0)
     controller.resumeAdapter()
 

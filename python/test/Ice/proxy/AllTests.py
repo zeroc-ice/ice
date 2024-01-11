@@ -365,7 +365,7 @@ def allTests(helper, communicator, collocated):
     #
     # Verify that ToStringMode is passed correctly
     #
-    euroStr = "\xE2\x82\xAC" if sys.version_info[0] < 3 else "\u20ac"
+    euroStr = "\u20ac"
     ident = Ice.Identity("test", "\x7F{}".format(euroStr))
 
     idStr = Ice.identityToString(ident, Ice.ToStringMode.Unicode)
