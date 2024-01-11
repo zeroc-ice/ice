@@ -10,11 +10,6 @@
 #   import <Foundation/NSGarbageCollector.h>
 #endif
 
-#if defined(__clang__)
-// For 'Ice::Communicator::addObjectFactory()' deprecation
-#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 #if defined(__clang__) && __has_feature(objc_arc)
 static ICEValueFactory factory = ^ICEValue* (NSString* type) NS_RETURNS_RETAINED
 #else
@@ -48,22 +43,6 @@ static ICEValueFactory factory = ^ICEValue* (NSString* type)
     return nil;
 };
 
-@interface ClientMyObjectFactory : NSObject<ICEObjectFactory>
-@end
-
-@implementation ClientMyObjectFactory
-
--(ICEValue*) create:(NSString*)__unused type
-{
-    return nil;
-}
-
--(void) destroy
-{
-    // Nothing to do
-}
-@end
-
 static int
 run(id<ICECommunicator> communicator)
 {
@@ -73,9 +52,6 @@ run(id<ICECommunicator> communicator)
     [manager add:factory sliceId:@"::Test::D"];
     [manager add:factory sliceId:@"::Test::E"];
     [manager add:factory sliceId:@"::Test::F"];
-
-    id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[ClientMyObjectFactory alloc] init]);
-    [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];
 
     id<TestObjectsInitialPrx> objectsAllTests(id<ICECommunicator>, bool);
     id<TestObjectsInitialPrx> initial = objectsAllTests(communicator, NO);

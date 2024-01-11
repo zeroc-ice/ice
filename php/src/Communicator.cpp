@@ -79,7 +79,7 @@ public:
 
     virtual Ice::CommunicatorPtr getCommunicator() const;
 
-    bool addFactory(zval*, const string&, bool);
+    bool addFactory(zval*, const string&);
     FactoryWrapperPtr findFactory(const string&) const;
     Ice::ValueFactoryPtr defaultFactory() const { return _defaultFactory; }
     void destroyFactories(void);
@@ -103,20 +103,17 @@ class FactoryWrapper : public Ice::ValueFactory
 {
 public:
 
-    FactoryWrapper(zval*, bool, const CommunicatorInfoIPtr&);
+    FactoryWrapper(zval*, const CommunicatorInfoIPtr&);
 
     virtual Ice::ValuePtr create(const string&);
 
     void getZval(zval*);
-
-    bool isObjectFactory() const;
 
     void destroy(void);
 
 protected:
 
     zval _factory;
-    bool _isObjectFactory;
     CommunicatorInfoIPtr _info;
 };
 
@@ -546,73 +543,6 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_addObjectFactory_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, id)
-    ZEND_ARG_INFO(0, factory)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_Communicator, addObjectFactory)
-{
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
-    assert(_this);
-
-    zend_class_entry* factoryClass = idToClass("Ice::ObjectFactory");
-    assert(factoryClass);
-
-    zval* factory;
-    char* id;
-    size_t idLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("Os!"), &factory, factoryClass, &id,
-                             &idLen) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    string type;
-    if(id)
-    {
-        type = string(id, idLen);
-    }
-
-    if(!_this->addFactory(factory, type, true))
-    {
-        RETURN_NULL();
-    }
-}
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_findObjectFactory_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, id)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_Communicator, findObjectFactory)
-{
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
-    assert(_this);
-
-    char* id;
-    size_t idLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s!"), &id, &idLen) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    string type;
-    if(id)
-    {
-        type = string(id, idLen);
-    }
-
-    FactoryWrapperPtr w = _this->findFactory(type);
-    if(w && w->isObjectFactory())
-    {
-        w->getZval(return_value);
-    }
-    else
-    {
-        RETURN_NULL();
-    }
-}
-
 ZEND_METHOD(Ice_Communicator, getValueFactoryManager)
 {
     if(ZEND_NUM_ARGS() > 0)
@@ -934,7 +864,7 @@ ZEND_METHOD(Ice_ValueFactoryManager, add)
 
     CommunicatorInfoIPtr info = p->second;
 
-    if(!info->addFactory(factory, type, false))
+    if(!info->addFactory(factory, type))
     {
         RETURN_NULL();
     }
@@ -1564,8 +1494,6 @@ static zend_function_entry _classMethods[] =
     ZEND_ME(Ice_Communicator, propertyToProxy, Ice_Communicator_propertyToProxy_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, proxyToProperty, Ice_Communicator_proxyToProperty_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, identityToString, Ice_Communicator_identityToString_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, addObjectFactory, Ice_Communicator_addObjectFactory_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, findObjectFactory, Ice_Communicator_findObjectFactory_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getValueFactoryManager, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, getProperties, ice_void_arginfo, ZEND_ACC_PUBLIC)
@@ -1945,8 +1873,7 @@ IcePHP::ActiveCommunicator::~ActiveCommunicator()
     }
 }
 
-IcePHP::FactoryWrapper::FactoryWrapper(zval* factory, bool isObjectFactory, const CommunicatorInfoIPtr& info) :
-    _isObjectFactory(isObjectFactory),
+IcePHP::FactoryWrapper::FactoryWrapper(zval* factory, const CommunicatorInfoIPtr& info) :
     _info(info)
 {
     ZVAL_COPY(&_factory, factory);
@@ -2029,23 +1956,9 @@ IcePHP::FactoryWrapper::getZval(zval* factory)
     ZVAL_COPY(factory, &_factory);
 }
 
-bool
-IcePHP::FactoryWrapper::isObjectFactory() const
-{
-    return _isObjectFactory;
-}
-
 void
 IcePHP::FactoryWrapper::destroy(void)
 {
-    if(_isObjectFactory)
-    {
-        //
-        // Invoke the destroy method on the PHP factory.
-        //
-        invokeMethod(&_factory, "destroy");
-        zend_clear_exception();
-    }
     zval_ptr_dtor(&_factory);
     _info = 0;
 }
@@ -2161,7 +2074,7 @@ IcePHP::CommunicatorInfoI::getCommunicator() const
 }
 
 bool
-IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id, bool isObjectFactory)
+IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
 {
     if(id.empty())
     {
@@ -2174,7 +2087,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id, bool isOb
             return false;
         }
 
-        _defaultFactory->setDelegate(new FactoryWrapper(factory, isObjectFactory, this));
+        _defaultFactory->setDelegate(new FactoryWrapper(factory, this));
     }
     else
     {
@@ -2187,7 +2100,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id, bool isOb
             throwException(ex);
             return false;
         }
-        _factories.insert(FactoryMap::value_type(id, new FactoryWrapper(factory, isObjectFactory, this)));
+        _factories.insert(FactoryMap::value_type(id, new FactoryWrapper(factory, this)));
     }
 
     return true;

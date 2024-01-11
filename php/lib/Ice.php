@@ -144,12 +144,6 @@ namespace Ice
     $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, true,
                                                     false, $Ice__t_Value, null);
 
-    interface ObjectFactory
-    {
-        public function create($id);
-        public function destroy();
-    }
-
     interface ValueFactory
     {
         public function create($id);
@@ -201,7 +195,6 @@ namespace
     require_once 'Ice/EndpointTypes.php';
     require_once 'IceLocal/LocalException.php';
     require_once 'Ice/Locator.php';
-    require_once 'IceLocal/ObjectFactory.php';
     require_once 'IceLocal/ValueFactory.php';
     require_once 'Ice/Process.php';
     require_once 'Ice/Router.php';

@@ -20,7 +20,6 @@ namespace
     require_once 'IceLocal/LoggerF.php';
     require_once 'IceLocal/InstrumentationF.php';
     require_once 'IceLocal/ObjectAdapterF.php';
-    require_once 'IceLocal/ObjectFactory.php';
     require_once 'IceLocal/ValueFactory.php';
     require_once 'Ice/Router.php';
     require_once 'Ice/Locator.php';

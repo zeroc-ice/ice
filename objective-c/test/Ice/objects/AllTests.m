@@ -7,11 +7,6 @@
 #import <ObjectsTest.h>
 #import <ObjectsForward.h>
 
-#if defined(__clang__)
-// For 'Ice::Communicator::findObjectFactory()' deprecation
-#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 void breakRetainCycleB(TestObjectsB* b1);
 void breakRetainCycleC(TestObjectsC* c1);
 void breakRetainCycleD(TestObjectsD* d1);
@@ -536,28 +531,10 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         tprintf("ok\n");
     }
 
-    {
-        tprintf("testing getting ObjectFactory... ");
-        test([communicator findObjectFactory:@"TestOF"] != nil);
-        tprintf("ok\n");
-
-        tprintf("testing getting ObjectFactory as ValueFactory... ");
-        test([[communicator getValueFactoryManager] find:@"TestOF"] != nil);
-        tprintf("ok\n");
-    }
-
     @try
     {
         ref = [NSString stringWithFormat:@"test:%@", getTestEndpoint(communicator, 0)];
         id<TestObjectsTestIntfPrx> q = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
-
-        {
-               tprintf("testing getting ObjectFactory registration... ");
-               TestObjectsBase *base2 = [q opDerived];
-               test(base2);
-               test([[base2 ice_id] isEqualToString:@"::Test::Derived"]);
-               tprintf("ok\n");
-        }
 
         {
             tprintf("testing getting ExceptionFactory registration... ");

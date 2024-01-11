@@ -2,14 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ObjectFactory.h>
-
 #import <ValueFactoryI.h>
 #import <LocalObjectI.h>
 #import <StreamI.h>
 #import <Util.h>
 
-#import <objc/Ice/ObjectFactory.h>
 #import <objc/Ice/SlicedData.h>
 
 #import <objc/runtime.h>

@@ -125,19 +125,6 @@ class MyValueFactory implements Ice\ValueFactory
     }
 }
 
-class MyObjectFactory implements Ice\ObjectFactory
-{
-    function create($id)
-    {
-        return null;
-    }
-
-    function destroy()
-    {
-        // Do nothing
-    }
-}
-
 function allTests($helper)
 {
     echo "testing stringToProxy... ";
@@ -488,16 +475,6 @@ function allTests($helper)
     }
     echo "ok\n";
 
-    echo "testing getting ObjectFactory... ";
-    flush();
-    test($communicator->findObjectFactory("TestOF") != null);
-    echo "ok\n";
-
-    echo "testing getting ObjectFactory as ValueFactory... ";
-    flush();
-    test($communicator->getValueFactoryManager()->find("TestOF") != null);
-    echo "ok\n";
-
     echo "testing forward declarations... ";
     $f12 = null;
     $f11 = $initial->opF1(new Test\F1("F11"), $f12);
@@ -556,7 +533,6 @@ class Client extends TestHelper
             $communicator->getValueFactoryManager()->add($factory, "::Test::F");
             $communicator->getValueFactoryManager()->add($factory, "::Test::I");
             $communicator->getValueFactoryManager()->add($factory, "::Test::J");
-            $communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
             $initial = allTests($this);
             $initial->shutdown();
             $communicator->destroy();
