@@ -7,130 +7,85 @@ require_once('Test.php');
 
 function twoways($communicator, $p, $bprx)
 {
-    global $NS;
-
-    $enum1 = $NS ? constant("Test\\MyEnum::enum1") : constant("Test_MyEnum::enum1");
-    $enum2 = $NS ? constant("Test\\MyEnum::enum2") : constant("Test_MyEnum::enum2");
-    $enum3 = $NS ? constant("Test\\MyEnum::enum3") : constant("Test_MyEnum::enum3");
-
-    $myClassPrxHelper = $NS ? "Test\\MyClassPrxHelper" : "Test_MyClassPrxHelper";
-    $myDerivedClassPrxHelper = $NS ? "Test\\MyDerivedClassPrxHelper" : "Test_MyDerivedClassPrxHelper";
-    $objectPrxHelper = $NS ? "Ice\\ObjectPrxHelper" : "Ice_ObjectPrxHelper";
-
-    $s0 = $NS ? constant("Test\\s0") : constant("Test_s0");
-    $s1 = $NS ? constant("Test\\s1") : constant("Test_s1");
-    $s2 = $NS ? constant("Test\\s2") : constant("Test_s2");
-    $s3 = $NS ? constant("Test\\s3") : constant("Test_s3");
-    $s4 = $NS ? constant("Test\\s4") : constant("Test_s4");
-    $s5 = $NS ? constant("Test\\s5") : constant("Test_s5");
-    $s6 = $NS ? constant("Test\\s6") : constant("Test_s6");
-    $s7 = $NS ? constant("Test\\s7") : constant("Test_s7");
-    $s8 = $NS ? constant("Test\\s8") : constant("Test_s8");
-    $s9 = $NS ? constant("Test\\s9") : constant("Test_s9");
-    $s10 = $NS ? constant("Test\\s10") : constant("Test_s10");
-
-    $sw0 = $NS ? constant("Test\\sw0") : constant("Test_sw0");
-    $sw1 = $NS ? constant("Test\\sw1") : constant("Test_sw1");
-    $sw2 = $NS ? constant("Test\\sw2") : constant("Test_sw2");
-    $sw3 = $NS ? constant("Test\\sw3") : constant("Test_sw3");
-    $sw4 = $NS ? constant("Test\\sw4") : constant("Test_sw4");
-    $sw5 = $NS ? constant("Test\\sw5") : constant("Test_sw5");
-    $sw6 = $NS ? constant("Test\\sw6") : constant("Test_sw6");
-    $sw7 = $NS ? constant("Test\\sw7") : constant("Test_sw7");
-    $sw8 = $NS ? constant("Test\\sw8") : constant("Test_sw8");
-    $sw9 = $NS ? constant("Test\\sw9") : constant("Test_sw9");
-    $sw10 = $NS ? constant("Test\\sw10") : constant("Test_sw10");
-
-    $ss0 = $NS ? constant("Test\\ss0") : constant("Test_ss0");
-    $ss1 = $NS ? constant("Test\\ss1") : constant("Test_ss1");
-    $ss2 = $NS ? constant("Test\\ss2") : constant("Test_ss2");
-    $ss3 = $NS ? constant("Test\\ss3") : constant("Test_ss3");
-    $ss4 = $NS ? constant("Test\\ss4") : constant("Test_ss4");
-    $ss5 = $NS ? constant("Test\\ss5") : constant("Test_ss5");
-
-    $su0 = $NS ? constant("Test\\su0") : constant("Test_su0");
-    $su1 = $NS ? constant("Test\\su1") : constant("Test_su1");
-    $su2 = $NS ? constant("Test\\su2") : constant("Test_su2");
-
     {
         $literals = $p->opStringLiterals();
 
-        test($s0 == "\\" &&
-             $s0 == $sw0 &&
-             $s0 == $literals[0] &&
-             $s0 == $literals[11]);
+        test(Test\s0 == "\\" &&
+             Test\s0 == Test\sw0 &&
+             Test\s0 == $literals[0] &&
+             Test\s0 == $literals[11]);
 
-        test($s1 == "A" &&
-             $s1 == $sw1 &&
-             $s1 == $literals[1] &&
-             $s1 == $literals[12]);
+        test(Test\s1 == "A" &&
+             Test\s1 == Test\sw1 &&
+             Test\s1 == $literals[1] &&
+             Test\s1 == $literals[12]);
 
-        test($s2 == "Ice" &&
-             $s2 == $sw2 &&
-             $s2 == $literals[2] &&
-             $s2 == $literals[13]);
+        test(Test\s2 == "Ice" &&
+             Test\s2 == Test\sw2 &&
+             Test\s2 == $literals[2] &&
+             Test\s2 == $literals[13]);
 
-        test($s3 == "A21" &&
-             $s3 == $sw3 &&
-             $s3 == $literals[3] &&
-             $s3 == $literals[14]);
+        test(Test\s3 == "A21" &&
+             Test\s3 == Test\sw3 &&
+             Test\s3 == $literals[3] &&
+             Test\s3 == $literals[14]);
 
-        test($s4 == "\\u0041 \\U00000041" &&
-             $s4 == $sw4 &&
-             $s4 == $literals[4] &&
-             $s4 == $literals[15]);
+        test(Test\s4 == "\\u0041 \\U00000041" &&
+             Test\s4 == Test\sw4 &&
+             Test\s4 == $literals[4] &&
+             Test\s4 == $literals[15]);
 
-        test($s5 == "\xc3\xbf" &&
-             $s5 == $sw5 &&
-             $s5 == $literals[5] &&
-             $s5 == $literals[16]);
+        test(Test\s5 == "\xc3\xbf" &&
+             Test\s5 == Test\sw5 &&
+             Test\s5 == $literals[5] &&
+             Test\s5 == $literals[16]);
 
-        test($s6 == "\xcf\xbf" &&
-             $s6 == $sw6 &&
-             $s6 == $literals[6] &&
-             $s6 == $literals[17]);
+        test(Test\s6 == "\xcf\xbf" &&
+             Test\s6 == Test\sw6 &&
+             Test\s6 == $literals[6] &&
+             Test\s6 == $literals[17]);
 
-        test($s7 == "\xd7\xb0" &&
-             $s7 == $sw7 &&
-             $s7 == $literals[7] &&
-             $s7 == $literals[18]);
+        test(Test\s7 == "\xd7\xb0" &&
+             Test\s7 == Test\sw7 &&
+             Test\s7 == $literals[7] &&
+             Test\s7 == $literals[18]);
 
-        test($s8 == "\xf0\x90\x80\x80" &&
-             $s8 == $sw8 &&
-             $s8 == $literals[8] &&
-             $s8 == $literals[19]);
+        test(Test\s8 == "\xf0\x90\x80\x80" &&
+             Test\s8 == Test\sw8 &&
+             Test\s8 == $literals[8] &&
+             Test\s8 == $literals[19]);
 
-        test($s9 == "\xf0\x9f\x8d\x8c" &&
-             $s9 == $sw9 &&
-             $s9 == $literals[9] &&
-             $s9 == $literals[20]);
+        test(Test\s9 == "\xf0\x9f\x8d\x8c" &&
+             Test\s9 == Test\sw9 &&
+             Test\s9 == $literals[9] &&
+             Test\s9 == $literals[20]);
 
-        test($s10 == "\xe0\xb6\xa7" &&
-             $s10 == $sw10 &&
-             $s10 == $literals[10] &&
-             $s10 == $literals[21]);
+        test(Test\s10 == "\xe0\xb6\xa7" &&
+             Test\s10 == Test\sw10 &&
+             Test\s10 == $literals[10] &&
+             Test\s10 == $literals[21]);
 
-        test($ss0 == "'\"?\\\007\010\f\n\r\t\v\6" &&
-             $ss0 == $ss1 &&
-             $ss1 == $ss2 &&
-             $ss0 == $literals[22] &&
-             $ss0 == $literals[23] &&
-             $ss0 == $literals[24]);
+        test(Test\ss0 == "'\"?\\\007\010\f\n\r\t\v\6" &&
+             Test\ss0 == Test\ss1 &&
+             Test\ss1 == Test\ss2 &&
+             Test\ss0 == $literals[22] &&
+             Test\ss0 == $literals[23] &&
+             Test\ss0 == $literals[24]);
 
-        test($ss3 == "\\\\U\\u\\" &&
-             $ss3 == $literals[25]);
+        test(Test\ss3 == "\\\\U\\u\\" &&
+             Test\ss3 == $literals[25]);
 
-        test($ss4 == "\\A\\" &&
-             $ss4 == $literals[26]);
+        test(Test\ss4 == "\\A\\" &&
+             Test\ss4 == $literals[26]);
 
-        test($ss5 == "\\u0041\\" &&
-             $ss5 == $literals[27]);
+        test(Test\ss5 == "\\u0041\\" &&
+             Test\ss5 == $literals[27]);
 
-        test($su0 == $su1 &&
-             $su0 == $su2 &&
-             $su0 == $literals[28] &&
-             $su0 == $literals[29] &&
-             $su0 == $literals[30]);
+        test(Test\su0 == Test\su1 &&
+             Test\su0 == Test\su2 &&
+             Test\su0 == $literals[28] &&
+             Test\su0 == $literals[29] &&
+             Test\su0 == $literals[30]);
     }
 
     {
@@ -138,15 +93,15 @@ function twoways($communicator, $p, $bprx)
     }
 
     {
-        test($objectPrxHelper::ice_staticId() == "::Ice::Object");
+        test(Ice\ObjectPrxHelper::ice_staticId() == "::Ice::Object");
     }
 
     {
-        test($p->ice_isA($myClassPrxHelper::ice_staticId()));
+        test($p->ice_isA(Test\MyClassPrxHelper::ice_staticId()));
     }
 
     {
-        test($p->ice_id() == $myDerivedClassPrxHelper::ice_staticId());
+        test($p->ice_id() == Test\MyDerivedClassPrxHelper::ice_staticId());
     }
 
     {
@@ -322,21 +277,19 @@ function twoways($communicator, $p, $bprx)
     }
 
     {
-        $r = $p->opMyEnum($enum2, $e);
-        test($e == $enum2);
-        test($r == $enum3);
+        $r = $p->opMyEnum(Test\MyEnum::enum2, $e);
+        test($e == Test\MyEnum::enum2);
+        test($r == Test\MyEnum::enum3);
     }
 
     {
-        $stringToIdentity = $NS ? "Ice\\stringToIdentity" : "Ice_stringToIdentity";
-
         $r = $p->opMyClass($p, $c1, $c2);
         test(Ice_proxyIdentityAndFacetEqual($c1, $p));
         test(!Ice_proxyIdentityAndFacetEqual($c2, $p));
         test(Ice_proxyIdentityAndFacetEqual($r, $p));
-        test($c1->ice_getIdentity() == $stringToIdentity("test"));
-        test($c2->ice_getIdentity() == $stringToIdentity("noSuchIdentity"));
-        test($r->ice_getIdentity() == $stringToIdentity("test"));
+        test($c1->ice_getIdentity() == Ice\stringToIdentity("test"));
+        test($c2->ice_getIdentity() == Ice\stringToIdentity("noSuchIdentity"));
+        test($r->ice_getIdentity() == Ice\stringToIdentity("test"));
         $r->opVoid();
         $c1->opVoid();
         try
@@ -344,13 +297,8 @@ function twoways($communicator, $p, $bprx)
             $c2->opVoid();
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\LocalException $ex)
         {
-            $le = $NS ? "Ice\\LocalException" : "Ice_LocalException";
-            if(!($ex instanceof $le))
-            {
-                throw $ex;
-            }
         }
 
         $r = $p->opMyClass(null, $c1, $c2);
@@ -360,36 +308,36 @@ function twoways($communicator, $p, $bprx)
     }
 
     {
-        $si1 = $NS ? eval("return new Test\\Structure;") : eval("return new Test_Structure;");
+        $si1 = new Test\Structure();
         $si1->p = $p;
-        $si1->e = $enum3;
-        $si1->s = $NS ? eval("return new Test\\AnotherStruct;") : eval("return new Test_AnotherStruct;");
+        $si1->e = Test\MyEnum::enum3;
+        $si1->s = new Test\AnotherStruct();
         $si1->s->s = "abc";
-        $si2 = $NS ? eval("return new Test\\Structure;") : eval("return new Test_Structure;");
+        $si2 = new Test\Structure();
         $si2->p = null;
-        $si2->e = $enum2;
-        $si2->s = $NS ? eval("return new Test\\AnotherStruct;") : eval("return new Test_AnotherStruct;");
+        $si2->e = Test\MyEnum::enum2;
+        $si2->s = new Test\AnotherStruct();
         $si2->s->s = "def";
 
         $rso = $p->opStruct($si1, $si2, $so);
         test($rso->p == null);
-        test($rso->e == $enum2);
+        test($rso->e == Test\MyEnum::enum2);
         test($rso->s->s == "def");
         test($so->p == $p);
-        test($so->e == $enum3);
+        test($so->e == Test\MyEnum::enum3);
         test($so->s->s == "a new string");
         $so->p->opVoid();
 
         // Test marshalling of null structs and structs with null members.
-        $si1 = $NS ? eval("return new Test\\Structure;") : eval("return new Test_Structure;");
+        $si1 = new Test\Structure();
         $si2 = null;
 
         $rso = $p->opStruct($si1, $si2, $so);
         test($rso->p == null);
-        test($rso->e == $enum1);
+        test($rso->e == Test\MyEnum::enum1);
         test($rso->s->s == "");
         test($so->p == null);
-        test($so->e == $enum1);
+        test($so->e == Test\MyEnum::enum1);
         test($so->s->s == "a new string");
     }
 
@@ -633,29 +581,29 @@ function twoways($communicator, $p, $bprx)
     }
 
     {
-        $di1 = array("abc" => $enum1, "" => $enum2);
-        $di2 = array("abc" => $enum1, "qwerty" => $enum3, "Hello!!" => $enum2);
+        $di1 = array("abc" => Test\MyEnum::enum1, "" => Test\MyEnum::enum2);
+        $di2 = array("abc" => Test\MyEnum::enum1, "qwerty" => Test\MyEnum::enum3, "Hello!!" => Test\MyEnum::enum2);
         $ro = $p->opStringMyEnumD($di1, $di2, $_do);
         test(count($_do) == 2);
         test($_do["abc"] == $di1["abc"]);
         test($_do[""] == $di1[""]);
         test(count($ro) == 4);
-        test($ro["abc"] == $enum1);
-        test($ro["qwerty"] == $enum3);
-        test($ro[""] == $enum2);
-        test($ro["Hello!!"] == $enum2);
+        test($ro["abc"] == Test\MyEnum::enum1);
+        test($ro["qwerty"] == Test\MyEnum::enum3);
+        test($ro[""] == Test\MyEnum::enum2);
+        test($ro["Hello!!"] == Test\MyEnum::enum2);
     }
 
     {
-        $di1 = array($enum1 => "abc");
-        $di2 = array($enum2 => "Hello!!", $enum3 => "qwerty");
+        $di1 = array(Test\MyEnum::enum1 => "abc");
+        $di2 = array(Test\MyEnum::enum2 => "Hello!!", Test\MyEnum::enum3 => "qwerty");
         $ro = $p->opMyEnumStringD($di1, $di2, $_do);
         test(count($_do) == 1);
-        test($_do[$enum1] == $di1[$enum1]);
+        test($_do[Test\MyEnum::enum1] == $di1[Test\MyEnum::enum1]);
         test(count($ro) == 3);
-        test($ro[$enum1] == "abc");
-        test($ro[$enum2] == "Hello!!");
-        test($ro[$enum3] == "qwerty");
+        test($ro[Test\MyEnum::enum1] == "abc");
+        test($ro[Test\MyEnum::enum2] == "Hello!!");
+        test($ro[Test\MyEnum::enum3] == "qwerty");
     }
 
     {
@@ -769,54 +717,54 @@ function twoways($communicator, $p, $bprx)
     }
 
     {
-        $dsi1 = array(array("abc" => $enum1, "" => $enum2),
-                     array("abc" => $enum1, "qwerty" => $enum3, "Hello!!" => $enum2));
-        $dsi2 = array(array("Goodbye" => $enum1));
+        $dsi1 = array(array("abc" => Test\MyEnum::enum1, "" => Test\MyEnum::enum2),
+                     array("abc" => Test\MyEnum::enum1, "qwerty" => Test\MyEnum::enum3, "Hello!!" => Test\MyEnum::enum2));
+        $dsi2 = array(array("Goodbye" => Test\MyEnum::enum1));
 
         $ro = $p->opStringMyEnumDS($dsi1, $dsi2, $_do);
 
         test(count($ro) == 2);
         test(count($ro[0]) == 3);
-        test($ro[0]["abc"] == $enum1);
-        test($ro[0]["qwerty"] == $enum3);
-        test($ro[0]["Hello!!"] == $enum2);
+        test($ro[0]["abc"] == Test\MyEnum::enum1);
+        test($ro[0]["qwerty"] == Test\MyEnum::enum3);
+        test($ro[0]["Hello!!"] == Test\MyEnum::enum2);
         test(count($ro[1]) == 2);
-        test($ro[1]["abc"] == $enum1);
-        test($ro[1][""] == $enum2);
+        test($ro[1]["abc"] == Test\MyEnum::enum1);
+        test($ro[1][""] == Test\MyEnum::enum2);
 
         test(count($_do) == 3);
         test(count($_do[0]) == 1);
-        test($_do[0]["Goodbye"] == $enum1);
+        test($_do[0]["Goodbye"] == Test\MyEnum::enum1);
         test(count($_do[1]) == 2);
-        test($_do[1]["abc"] == $enum1);
-        test($_do[1][""] == $enum2);
+        test($_do[1]["abc"] == Test\MyEnum::enum1);
+        test($_do[1][""] == Test\MyEnum::enum2);
         test(count($_do[2]) == 3);
-        test($_do[2]["abc"] == $enum1);
-        test($_do[2]["qwerty"] == $enum3);
-        test($_do[2]["Hello!!"] == $enum2);
+        test($_do[2]["abc"] == Test\MyEnum::enum1);
+        test($_do[2]["qwerty"] == Test\MyEnum::enum3);
+        test($_do[2]["Hello!!"] == Test\MyEnum::enum2);
     }
 
     {
-        $dsi1 = array(array($enum1 => 'abc'), array($enum2 => 'Hello!!', $enum3 => 'qwerty'));
-        $dsi2 = array(array($enum1 => 'Goodbye'));
+        $dsi1 = array(array(Test\MyEnum::enum1 => 'abc'), array(Test\MyEnum::enum2 => 'Hello!!', Test\MyEnum::enum3 => 'qwerty'));
+        $dsi2 = array(array(Test\MyEnum::enum1 => 'Goodbye'));
 
         $ro = $p->opMyEnumStringDS($dsi1, $dsi2, $_do);
 
         test(count($ro) == 2);
         test(count($ro[0]) == 2);
-        test($ro[0][$enum2] == "Hello!!");
-        test($ro[0][$enum3] == "qwerty");
+        test($ro[0][Test\MyEnum::enum2] == "Hello!!");
+        test($ro[0][Test\MyEnum::enum3] == "qwerty");
         test(count($ro[1]) == 1);
-        test($ro[1][$enum1] == "abc");
+        test($ro[1][Test\MyEnum::enum1] == "abc");
 
         test(count($_do) == 3);
         test(count($_do[0]) == 1);
-        test($_do[0][$enum1] == "Goodbye");
+        test($_do[0][Test\MyEnum::enum1] == "Goodbye");
         test(count($_do[1]) == 1);
-        test($_do[1][$enum1] == "abc");
+        test($_do[1][Test\MyEnum::enum1] == "abc");
         test(count($_do[2]) == 2);
-        test($_do[2][$enum2] == "Hello!!");
-        test($_do[2][$enum3] == "qwerty");
+        test($_do[2][Test\MyEnum::enum2] == "Hello!!");
+        test($_do[2][Test\MyEnum::enum3] == "qwerty");
     }
 
     {
@@ -978,23 +926,23 @@ function twoways($communicator, $p, $bprx)
     }
 
     {
-        $sdi1 = array($enum3 => array($enum1, $enum1, $enum2), $enum2 => array($enum1, $enum2));
-        $sdi2 = array($enum1 => array($enum3, $enum3));
+        $sdi1 = array(Test\MyEnum::enum3 => array(Test\MyEnum::enum1, Test\MyEnum::enum1, Test\MyEnum::enum2), Test\MyEnum::enum2 => array(Test\MyEnum::enum1, Test\MyEnum::enum2));
+        $sdi2 = array(Test\MyEnum::enum1 => array(Test\MyEnum::enum3, Test\MyEnum::enum3));
 
         $ro = $p->opMyEnumMyEnumSD($sdi1, $sdi2, $_do);
 
         test($_do == $sdi2);
         test(count($ro) == 3);
-        test(count($ro[$enum3]) == 3);
-        test($ro[$enum3][0] == $enum1);
-        test($ro[$enum3][1] == $enum1);
-        test($ro[$enum3][2] == $enum2);
-        test(count($ro[$enum2]) == 2);
-        test($ro[$enum2][0] == $enum1);
-        test($ro[$enum2][1] == $enum2);
-        test(count($ro[$enum1]) == 2);
-        test($ro[$enum1][0] == $enum3);
-        test($ro[$enum1][1] == $enum3);
+        test(count($ro[Test\MyEnum::enum3]) == 3);
+        test($ro[Test\MyEnum::enum3][0] == Test\MyEnum::enum1);
+        test($ro[Test\MyEnum::enum3][1] == Test\MyEnum::enum1);
+        test($ro[Test\MyEnum::enum3][2] == Test\MyEnum::enum2);
+        test(count($ro[Test\MyEnum::enum2]) == 2);
+        test($ro[Test\MyEnum::enum2][0] == Test\MyEnum::enum1);
+        test($ro[Test\MyEnum::enum2][1] == Test\MyEnum::enum2);
+        test(count($ro[Test\MyEnum::enum1]) == 2);
+        test($ro[Test\MyEnum::enum1][0] == Test\MyEnum::enum3);
+        test($ro[Test\MyEnum::enum1][1] == Test\MyEnum::enum3);
     }
 
     {
@@ -1037,7 +985,7 @@ function twoways($communicator, $p, $bprx)
 
     {
         $p1 = $p->opMStruct1();
-        $p1->e = $enum3;
+        $p1->e = Test\MyEnum::enum3;
         $p2 = null;
         $p3 = $p->opMStruct2($p1, $p2);
         test($p2 == $p1 && $p3 == $p1);
@@ -1062,8 +1010,6 @@ function twoways($communicator, $p, $bprx)
 
 function allTests($helper)
 {
-    global $NS;
-
     $ref = sprintf("test:%s", $helper->getTestEndpoint());
     $communicator = $helper->communicator();
     $base = $communicator->stringToProxy($ref);
@@ -1080,11 +1026,9 @@ function allTests($helper)
     echo "ok\n";
 
     # Test flush batch requests methods
-    $BasedOnProxy = $NS ? constant("Ice\\CompressBatch::BasedOnProxy") : constant("Ice_CompressBatch::BasedOnProxy");
-
     $derived->ice_flushBatchRequests();
-    $derived->ice_getConnection()->flushBatchRequests($BasedOnProxy);
-    $derived->ice_getCommunicator()->flushBatchRequests($BasedOnProxy);
+    $derived->ice_getConnection()->flushBatchRequests(Ice\CompressBatch::BasedOnProxy);
+    $derived->ice_getCommunicator()->flushBatchRequests(Ice\CompressBatch::BasedOnProxy);
 
     return $cl;
 }
@@ -1093,7 +1037,6 @@ class Client extends TestHelper
 {
     function run($args)
     {
-        global $NS;
         try
         {
             $communicator = $this->initialize($args);
@@ -1104,13 +1047,8 @@ class Client extends TestHelper
                 $proxy->opVoid();
                 test(false);
             }
-            catch(Exception $ex)
+            catch(Ice\LocalException $ex)
             {
-                $le = $NS ? "Ice\\LocalException" : "Ice_LocalException";
-                if(!($ex instanceof $le))
-                {
-                    throw $ex;
-                }
             }
             # Test multiple destroy calls
             $communicator->destroy();
@@ -1119,6 +1057,7 @@ class Client extends TestHelper
         catch(Exception $ex)
         {
             $communicator->destroy();
+            throw $ex;
         }
     }
 }
