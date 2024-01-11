@@ -24,9 +24,9 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 
 ## C++ Changes
 
-- The C++98 mapping is now called the original mapping.
+- The C++98 mapping is now called the Original mapping.
 
-- The C++11 mapping is now called the new mapping.
+- The C++11 mapping is now called the New mapping.
 
 - (Original mapping) The base class for mapped class instances is now Ice::Value, like in the new mapping. Previously,
 Ice::Object was the base class for both mapped class instances and servants.
@@ -44,6 +44,9 @@ The important differences are:
                            // a reference count to the shared instance. As of Ice 3.8, it's incorrect since c3 is a new
                            // independent SharedPtr with its own reference count.
  ```
+
+- (Original mapping) Removed all support for garbage collection (GC) of class instances. If you create or receive a
+graph of class instances with a cycle, you must break this cycle to avoid a leak.
 
 - (New mapping) Ice::optional is now an alias for std::optional.
 
