@@ -7,21 +7,11 @@ require_once('Test.php');
 
 function allTests()
 {
-    global $NS;
-
-    $red = $NS ? constant("Test\\Color::red") : constant("Test_Color::red");
-    $green = $NS ? constant("Test\\Color::green") : constant("Test_Color::green");
-    $blue = $NS ? constant("Test\\Color::blue") : constant("Test_Color::blue");
-
-    $nRed = $NS ? constant("Test\\Nested\\Color::red") : constant("Test_Nested_Color::red");
-    $nGreen = $NS ? constant("Test\\Nested\\Color::green") : constant("Test_Nested_Color::green");
-    $nBlue = $NS ? constant("Test\\Nested\\Color::blue") : constant("Test_Nested_Color::blue");
-
     echo "testing default values... ";
     flush();
 
     {
-        $v = $NS ? eval("return new Test\\Struct1;") : eval("return new Test_Struct1;");
+        $v = new Test\Struct1();
         test(!$v->boolFalse);
         test($v->boolTrue);
         test($v->b == 254);
@@ -30,13 +20,13 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
-        test($v->c1 == $red);
-        test($v->c2 == $green);
-        test($v->c3 == $blue);
-        test($v->nc1 == $nRed);
-        test($v->nc2 == $nGreen);
-        test($v->nc3 == $nBlue);
+        test($v->str == "foo \ \"bar\n \r\n\t\013\f\007\010? \007 \007");
+        test($v->c1 == Test\Color::red);
+        test($v->c2 == Test\Color::green);
+        test($v->c3 == Test\Color::blue);
+        test($v->nc1 == Test\Nested\Color::red);
+        test($v->nc2 == Test\Nested\Color::green);
+        test($v->nc3 == Test\Nested\Color::blue);
         test(strlen($v->noDefault) == 0);
         test($v->zeroI == 0);
         test($v->zeroL == 0);
@@ -47,31 +37,31 @@ function allTests()
     }
 
     {
-        $v = $NS ? eval("return new Test\\Struct2;") : eval("return new Test_Struct2;");
-        test($v->boolTrue == constant($NS ? "Test\\ConstBool" : "Test_ConstBool"));
-        test($v->b == constant($NS ? "Test\\ConstByte" : "Test_ConstByte"));
-        test($v->s == constant($NS ? "Test\\ConstShort" : "Test_ConstShort"));
-        test($v->i == constant($NS ? "Test\\ConstInt" : "Test_ConstInt"));
-        test($v->l == constant($NS ? "Test\\ConstLong" : "Test_ConstLong"));
-        test($v->f == constant($NS ? "Test\\ConstFloat" : "Test_ConstFloat"));
-        test($v->d == constant($NS ? "Test\\ConstDouble" : "Test_ConstDouble"));
-        test($v->str == constant($NS ? "Test\\ConstString" : "Test_ConstString"));
-        test($v->c1 == constant($NS ? "Test\\ConstColor1" : "Test_ConstColor1"));
-        test($v->c2 == constant($NS ? "Test\\ConstColor2" : "Test_ConstColor2"));
-        test($v->c3 == constant($NS ? "Test\\ConstColor3" : "Test_ConstColor3"));
-        test($v->nc1 == constant($NS ? "Test\\ConstNestedColor1" : "Test_ConstNestedColor1"));
-        test($v->nc2 == constant($NS ? "Test\\ConstNestedColor2" : "Test_ConstNestedColor2"));
-        test($v->nc3 == constant($NS ? "Test\\ConstNestedColor3" : "Test_ConstNestedColor3"));
-        test($v->zeroI == constant($NS ? "Test\\ConstZeroI" : "Test_ConstZeroI"));
-        test($v->zeroL == constant($NS ? "Test\\ConstZeroL" : "Test_ConstZeroL"));
-        test($v->zeroF == constant($NS ? "Test\\ConstZeroF" : "Test_ConstZeroF"));
-        test($v->zeroDotF == constant($NS ? "Test\\ConstZeroDotF" : "Test_ConstZeroDotF"));
-        test($v->zeroD == constant($NS ? "Test\\ConstZeroD" : "Test_ConstZeroD"));
-        test($v->zeroDotD == constant($NS ? "Test\\ConstZeroDotD" : "Test_ConstZeroDotD"));
+        $v = new Test\Struct2();
+        test($v->boolTrue == Test\ConstBool);
+        test($v->b == Test\ConstByte);
+        test($v->s == Test\ConstShort);
+        test($v->i == Test\ConstInt);
+        test($v->l == Test\ConstLong);
+        test($v->f == Test\ConstFloat);
+        test($v->d == Test\ConstDouble);
+        test($v->str == Test\ConstString);
+        test($v->c1 == Test\ConstColor1);
+        test($v->c2 == Test\ConstColor2);
+        test($v->c3 == Test\ConstColor3);
+        test($v->nc1 == Test\ConstNestedColor1);
+        test($v->nc2 == Test\ConstNestedColor2);
+        test($v->nc3 == Test\ConstNestedColor3);
+        test($v->zeroI == Test\ConstZeroI);
+        test($v->zeroL == Test\ConstZeroL);
+        test($v->zeroF == Test\ConstZeroF);
+        test($v->zeroDotF == Test\ConstZeroDotF);
+        test($v->zeroD == Test\ConstZeroD);
+        test($v->zeroDotD == Test\ConstZeroDotD);
     }
 
     {
-        $v = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
+        $v = new Test\Base();
         test(!$v->boolFalse);
         test($v->boolTrue);
         test($v->b == 1);
@@ -80,7 +70,7 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
+        test($v->str == "foo \ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
         test($v->zeroI == 0);
         test($v->zeroL == 0);
@@ -91,7 +81,7 @@ function allTests()
     }
 
     {
-        $v = $NS ? eval("return new Test\\Derived;") : eval("return new Test_Derived;");
+        $v = new Test\Derived();
         test(!$v->boolFalse);
         test($v->boolTrue);
         test($v->b == 1);
@@ -100,14 +90,14 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
+        test($v->str == "foo \ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
-        test($v->c1 == $red);
-        test($v->c2 == $green);
-        test($v->c3 == $blue);
-        test($v->nc1 == $nRed);
-        test($v->nc2 == $nGreen);
-        test($v->nc3 == $nBlue);
+        test($v->c1 == Test\Color::red);
+        test($v->c2 == Test\Color::green);
+        test($v->c3 == Test\Color::blue);
+        test($v->nc1 == Test\Nested\Color::red);
+        test($v->nc2 == Test\Nested\Color::green);
+        test($v->nc3 == Test\Nested\Color::blue);
         test($v->zeroI == 0);
         test($v->zeroL == 0);
         test($v->zeroF == 0);
@@ -117,7 +107,7 @@ function allTests()
     }
 
     {
-        $v = $NS ? eval("return new Test\\BaseEx;") : eval("return new Test_BaseEx;");
+        $v = new Test\BaseEx();
         test(!$v->boolFalse);
         test($v->boolTrue);
         test($v->b == 1);
@@ -126,7 +116,7 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
+        test($v->str == "foo \ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
         test($v->zeroI == 0);
         test($v->zeroL == 0);
@@ -137,7 +127,7 @@ function allTests()
     }
 
     {
-        $v = $NS ? eval("return new Test\\DerivedEx;") : eval("return new Test_DerivedEx;");
+        $v = new Test\DerivedEx();
         test(!$v->boolFalse);
         test($v->boolTrue);
         test($v->b == 1);
@@ -146,14 +136,14 @@ function allTests()
         test($v->l == 4);
         test($v->f == 5.1);
         test($v->d == 6.2);
-        test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\010? \007 \007");
+        test($v->str == "foo \ \"bar\n \r\n\t\013\f\007\010? \007 \007");
         test(strlen($v->noDefault) == 0);
-        test($v->c1 == $red);
-        test($v->c2 == $green);
-        test($v->c3 == $blue);
-        test($v->nc1 == $nRed);
-        test($v->nc2 == $nGreen);
-        test($v->nc3 == $nBlue);
+        test($v->c1 == Test\Color::red);
+        test($v->c2 == Test\Color::green);
+        test($v->c3 == Test\Color::blue);
+        test($v->nc1 == Test\Nested\Color::red);
+        test($v->nc2 == Test\Nested\Color::green);
+        test($v->nc3 == Test\Nested\Color::blue);
         test($v->zeroI == 0);
         test($v->zeroL == 0);
         test($v->zeroF == 0);
@@ -166,8 +156,7 @@ function allTests()
     echo "testing default constructor... ";
     flush();
     {
-        $v = $NS ? eval("return new Test\\StructNoDefaults;") : eval("return new Test_StructNoDefaults;");
-        $innerStructClass = $NS ? "Test\\InnerStruct" : "Test_InnerStruct";
+        $v = new Test\StructNoDefaults();
         test($v->bo == false);
         test($v->b == 0);
         test($v->s == 0);
@@ -176,24 +165,24 @@ function allTests()
         test($v->f == 0.0);
         test($v->d == 0.0);
         test($v->str == "");
-        test($v->c1 == $red);
+        test($v->c1 == Test\Color::red);
         test($v->bs == null);
         test($v->is == null);
         test($v->dict == null);
-        test($v->st instanceof $innerStructClass);
+        test($v->st instanceof Test\InnerStruct);
 
-        $e = $NS ? eval("return new Test\\ExceptionNoDefaults;") : eval("return new Test_ExceptionNoDefaults;");
+        $e = new Test\ExceptionNoDefaults();
         test($e->str == '');
-        test($e->c1 == $red);
+        test($e->c1 == Test\Color::red);
         test($e->bs == null);
-        test($e->st instanceof $innerStructClass);
+        test($e->st instanceof Test\InnerStruct);
         test($e->dict == null);
 
-        $cl = $NS ? eval("return new Test\\ClassNoDefaults;") : eval("return new Test_ClassNoDefaults;");
+        $cl = new Test\ClassNoDefaults();
         test($cl->str == '');
-        test($cl->c1 == $red);
+        test($cl->c1 == Test\Color::red);
         test($cl->bs == null);
-        test($cl->st instanceof $innerStructClass);
+        test($cl->st instanceof Test\InnerStruct);
         test($cl->dict == null);
     }
     echo "ok\n";

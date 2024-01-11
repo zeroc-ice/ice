@@ -7,22 +7,9 @@
 #
 PHP_CONFIG      ?= php-config
 
-#
-# The extension is by default built with namespaces enabled
-# it is possible to build the PHP extension with namespaces
-# disabled by setting `USE_NAMESPACES` property to `no`
-#
-USE_NAMESPACES  ?= yes
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
-
-php_major_version       = $(firstword $(subst ., ,$(shell php -r "print(PHP_VERSION);")))
-
-ifneq ($(USE_NAMESPACES),yes)
-slice2php_flags         = --no-namespace
-endif
 
 #
 # $(call make-php-test-project,$1=testdir)
@@ -64,16 +51,6 @@ $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CO
 endif
 
 php_cppflags            = -std=c++17 $(shell $(PHP_CONFIG) --includes)
-
-ifeq ($(USE_NAMESPACES),yes)
-php_cppflags            := $(php_cppflags) -DICEPHP_USE_NAMESPACES
-endif
-
-# PHP 5.3 does not compile with C++11 due to an issue with
-# user defined literals. PHP 5.4 and up do not have this issue.
-ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 50400 ] && echo 0),0)
-    php_cppflags        := -std=c++98 $(php_cppflags)
-endif
 
 ifeq ($(os),Darwin)
     php_cppflags        := $(php_cppflags) -Wno-unused-parameter -Wno-missing-field-initializers

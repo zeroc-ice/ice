@@ -551,11 +551,7 @@ IcePHP::connectionInit(void)
     // Register the Connection interface.
     //
     zend_class_entry ce;
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Connection", _interfaceMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_Connection", _interfaceMethods);
-#endif
     zend_class_entry* interface = zend_register_internal_interface(&ce);
 
     //
@@ -577,11 +573,7 @@ IcePHP::connectionInit(void)
     //
     // Register the ConnectionInfo class.
     //
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ConnectionInfo", _connectionInfoClassMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_ConnectionInfo", _connectionInfoClassMethods);
-#endif
     ce.create_object = handleConnectionInfoAlloc;
     connectionInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_connectionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
@@ -597,11 +589,7 @@ IcePHP::connectionInit(void)
     //
     // Register the IPConnectionInfo class.
     //
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", ICE_NULLPTR);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_IPConnectionInfo", ICE_NULLPTR);
-#endif
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(ipConnectionInfoClassEntry, STRCAST("localAddress"), sizeof("localAddress") - 1,
@@ -616,11 +604,7 @@ IcePHP::connectionInit(void)
     //
     // Register the TCPConnectionInfo class.
     //
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", ICE_NULLPTR);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_TCPConnectionInfo", ICE_NULLPTR);
-#endif
     ce.create_object = handleConnectionInfoAlloc;
     tcpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_long(tcpConnectionInfoClassEntry, STRCAST("rcvSize"), sizeof("rcvSize") - 1, 0,
@@ -631,11 +615,7 @@ IcePHP::connectionInit(void)
     //
     // Register the UDPConnectionInfo class.
     //
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", ICE_NULLPTR);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_UDPConnectionInfo", ICE_NULLPTR);
-#endif
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_string(udpConnectionInfoClassEntry, STRCAST("mcastAddress"), sizeof("mcastAddress") - 1,
@@ -646,11 +626,7 @@ IcePHP::connectionInit(void)
     //
     // Register the WSConnectionInfo class.
     //
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", ICE_NULLPTR);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_WSConnectionInfo", ICE_NULLPTR);
-#endif
     ce.create_object = handleConnectionInfoAlloc;
     wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(wsConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
@@ -659,11 +635,7 @@ IcePHP::connectionInit(void)
     //
     // Register the SSLConnectionInfo class.
     //
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", ICE_NULLPTR);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_SSLConnectionInfo", ICE_NULLPTR);
-#endif
     ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("cipher"), sizeof("cipher") - 1,
