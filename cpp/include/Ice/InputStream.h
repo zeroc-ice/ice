@@ -61,7 +61,7 @@ public:
      * @param addr The target address.
      * @param v The unmarshaled value.
      */
-    typedef void (*PatchFunc)(void* addr, const ValuePtr& v);
+    using PatchFunc = std::function<void(void* addr, const ValuePtr& v)>;
 
     /**
      * Constructs a stream using the latest encoding version but without a communicator.
@@ -1081,16 +1081,16 @@ public:
      * Reads a value (instance of a Slice class) from the stream.
      * @param v The instance.
      */
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
     template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
+#ifdef ICE_CPP11_MAPPING // C++11 mapping
     void read(::std::shared_ptr<T>& v)
     {
-        read(&patchHandle<T>, &v);
+        read(patchHandle<T>, &v);
     }
 #else // C++98 mapping
-    template<typename T> void read(Ice::SharedPtr<T>& v)
+    void read(Ice::SharedPtr<T>& v)
     {
-        read(&patchHandle<T>, &v);
+        read(patchHandle<T>, &v);
     }
 #endif
 

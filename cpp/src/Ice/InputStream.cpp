@@ -1806,7 +1806,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
             assert(!_stream->_instance->acceptClassCycles());
             throw MarshalException(__FILE__, __LINE__, "cycle detected during Value unmarshaling");
         }
-        (*patchFunc)(patchAddr, p->second);
+        patchFunc(patchAddr, p->second);
         return;
     }
 
@@ -1866,7 +1866,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
         //
         for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
         {
-            (*k->patchFunc)(k->patchAddr, v);
+            k->patchFunc(k->patchAddr, v);
         }
 
         //
@@ -2707,9 +2707,9 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
         for(IndexList::const_iterator p = table.begin(); p != table.end(); ++p)
         {
 #ifdef ICE_CPP11_MAPPING
-            addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
+            addPatchEntry(*p, patchHandle<Value>, &instances[j++]);
 #else
-            addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
+            addPatchEntry(*p, patchHandle<Value>, &instances[j++]);
 #endif
         }
     }
