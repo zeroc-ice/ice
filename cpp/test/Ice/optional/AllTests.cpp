@@ -449,10 +449,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->bos->push_back(true);
     mo1->bos->push_back(false);
 
-#ifndef ICE_CPP11_MAPPING
-    mo1->ice_collectable(true);
-#endif
-
     MultiOptionalPtr mo2 = ICE_MAKE_SHARED(MultiOptional, *mo1);
 
     MultiOptionalPtr mo3 = ICE_MAKE_SHARED(MultiOptional);
@@ -668,9 +664,6 @@ allTests(Test::TestHelper* helper, bool)
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = ICE_MAKE_SHARED(MultiOptional, *mo5);
-#ifndef ICE_CPP11_MAPPING
-    mo8->ice_collectable(true);
-#endif
     mo8->b = IceUtil::None;
     mo8->d = IceUtil::None;
     mo8->f = IceUtil::None;
@@ -768,17 +761,15 @@ allTests(Test::TestHelper* helper, bool)
         factory->setEnabled(false);
     }
 
-#ifdef ICE_CPP11_MAPPING
-    mo1->k = shared_ptr<MultiOptional>();
-    mo2->k = shared_ptr<MultiOptional>();
-    mo3->k = shared_ptr<MultiOptional>();
-    mo4->k = shared_ptr<MultiOptional>();
-    mo5->k = shared_ptr<MultiOptional>();
-    mo6->k = shared_ptr<MultiOptional>();
-    mo7->k = shared_ptr<MultiOptional>();
-    mo8->k = shared_ptr<MultiOptional>();
-    mo9->k = shared_ptr<MultiOptional>();
-#endif
+    mo1->k = nullptr;
+    mo2->k = nullptr;
+    mo3->k = nullptr;
+    mo4->k = nullptr;
+    mo5->k = nullptr;
+    mo6->k = nullptr;
+    mo7->k = nullptr;
+    mo8->k = nullptr;
+    mo9->k = nullptr;
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.
@@ -1493,8 +1484,8 @@ allTests(Test::TestHelper* helper, bool)
         out.write(1, Ice::make_optional(f));
         out.write(2, Ice::make_optional(f->ae));
 #else
-        out.write(1, makeOptional(f));
-        out.write(2, makeOptional(f->ae));
+        out.write(1, IceUtil::makeOptional(f));
+        out.write(2, IceUtil::makeOptional(f->ae));
 #endif
         out.endEncapsulation();
         out.finished(inEncaps);

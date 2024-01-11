@@ -201,9 +201,6 @@ private:
     private:
 
         void emitDataMember(const DataMemberPtr&);
-        void emitGCFunctions(const ClassDefPtr&);
-        void emitGCVisitCode(const TypePtr&, const std::string&, const std::string&, int);
-        void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
         bool emitBaseInitializers(const ClassDefPtr&);
         void emitOneShotConstructor(const ClassDefPtr&);
         void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);

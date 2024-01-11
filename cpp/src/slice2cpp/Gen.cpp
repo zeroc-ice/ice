@@ -2588,15 +2588,7 @@ Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "class " << name << ';';
-
-    //
-    // upCast is not _upCast nor _iceUpCast for historical reasons. IceInternal::Handle
-    // depends on this name
-    //
-    H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllExport << getUnqualified("::Ice::Value*", scope) << " upCast(" << name << "*);";
-    H << nl << "/// \\endcond";
-    H << nl << "typedef ::IceInternal::Handle< " << name << "> " << p->name() << "Ptr;";
+    H << nl << "using " << p->name() << "Ptr = ::Ice::SharedPtr<" << name << ">;";
 
     //
     // _ice prefix because this function is in the Slice module namespace, where the user
@@ -3145,8 +3137,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
 
     H << sp;
     writeDocSummary(H, p);
@@ -3159,14 +3149,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        H << "public virtual " << getUnqualified("::Ice::Value", scope);
-    }
-
-    bool override = p->canBeCyclic() && (!base || !base->canBeCyclic());
-    bool hasGCValueBaseClass = basePreserved || override || preserved;
-    if(!basePreserved && (override || preserved))
-    {
-        H << ", public ::IceInternal::GCValue";
+        H << "public " << getUnqualified("::Ice::Value", scope);
     }
 
     H.restoreIndent();
@@ -3227,11 +3210,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << name << "(const " << name << "&) = default;";
     H << nl <<  name << "& operator=(const " << name << "&) = default;";
 
-    C << sp;
-    C << nl << "/// \\cond INTERNAL";
-    C << nl << _dllExport << "::Ice::Value* " << scope.substr(2) << "upCast(" << name << "* p) { return p; }" << nl;
-    C << nl << "/// \\endcond";
-
     //
     // It would make sense to provide a covariant ice_clone(); unfortunately many compilers
     // (including VS2010) generate bad code for covariant types that use virtual inheritance
@@ -3244,31 +3222,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " */";
     H << nl << "virtual " << getUnqualified("::Ice::ValuePtr", scope) << " ice_clone() const;";
 
-    if(hasGCValueBaseClass)
-    {
-        C.zeroIndent();
-        C << sp;
-        C << nl << "#if defined(_MSC_VER)";
-        C << nl << "#   pragma warning(push)";
-        C << nl << "#   pragma warning(disable:4589)";
-        C << nl << "#endif";
-        C.restoreIndent();
-    }
     C << nl << "::Ice::ValuePtr";
     C << nl << scoped.substr(2) << "::ice_clone() const";
     C << sb;
     C << nl << getUnqualified("::Ice::Value*", scope) << " p = new " << name << "(*this);";
     C << nl << "return p;";
-
     C << eb;
-    if(hasGCValueBaseClass)
-    {
-        C.zeroIndent();
-        C << nl << "#if defined(_MSC_VER)";
-        C << nl << "#   pragma warning(pop)";
-        C << nl << "#endif";
-        C.restoreIndent();
-    }
 
     H << sp;
     H << nl << "/**";
@@ -3297,8 +3256,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
-
-    emitGCFunctions(p);
 
     return true;
 }
@@ -3529,21 +3486,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << eb;
     C << nl << "/// \\endcond";
 
-    H << sp;
-    H << nl << "/// \\cond INTERNAL";
-    H << nl << "inline bool operator==(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name()) << "& rhs)";
-    H << sb;
-    H << nl << "return static_cast<const " << getUnqualified("::Ice::Value&", scope) << ">(lhs) == static_cast<const "
-      << getUnqualified("::Ice::Value&", scope) << ">(rhs);";
-    H << eb;
-    H << sp;
-    H << nl << "inline bool operator<(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name()) << "& rhs)";
-    H << sb;
-    H << nl << "return static_cast<const " << getUnqualified("::Ice::Value&", scope) << ">(lhs) < static_cast<const "
-      << getUnqualified("::Ice::Value&", scope) << ">(rhs);";
-    H << eb;
-    H << nl << "/// \\endcond";
-
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
@@ -3561,143 +3503,6 @@ Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     const string scope = "";
     H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), typeContext) << ' '
       << name << ';';
-}
-
-void
-Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
-{
-    string scoped = fixKwd(p->scoped());
-    string scope = fixKwd(p->scope());
-    string name = fixKwd(p->name());
-    ClassDefPtr base = p->base();
-    DataMemberList dataMembers = p->dataMembers();
-
-    //
-    // A class can potentially be part of a cycle if it (recursively) contains class
-    // members.
-    //
-    bool canBeCyclic = p->canBeCyclic();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
-
-    //
-    // _iceGcVisit() is overridden by the basemost class that can be
-    // cyclic, plus all classes derived from that class.
-    //
-    // We also override these methods for the initial preserved class in a
-    // hierarchy, regardless of whether the class itself is cyclic.
-    //
-    if(canBeCyclic || (preserved && !basePreserved))
-    {
-        H << nl << "/// \\cond INTERNAL";
-        H << nl << "virtual void _iceGcVisitMembers(::IceInternal::GCVisitor&);";
-        H << nl << "/// \\endcond";
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceGcVisitMembers(::IceInternal::GCVisitor& v_)";
-        C << sb;
-
-        bool hasCyclicBase = base && base->canBeCyclic();
-        if(hasCyclicBase || basePreserved)
-        {
-            emitUpcall(base, "::_iceGcVisitMembers(v_);", scope);
-        }
-
-        if(preserved && !basePreserved)
-        {
-            C << nl << "if(_iceSlicedData)";
-            C << sb;
-            C << nl << "_iceSlicedData->_iceGcVisitMembers(v_);";
-            C << eb;
-        }
-
-        for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
-        {
-            if((*i)->type()->usesClasses())
-            {
-                if((*i)->optional())
-                {
-                    C << nl << "if(" << fixKwd((*i)->name()) << ')';
-                    C << sb;
-                    emitGCVisitCode((*i)->type(), getDataMemberRef(*i), "", 0);
-                    C << eb;
-                }
-                else
-                {
-                    emitGCVisitCode((*i)->type(), getDataMemberRef(*i), "", 0);
-                }
-            }
-        }
-        C << eb;
-    }
-}
-
-void
-Slice::Gen::ObjectVisitor::emitGCVisitCode(const TypePtr& p, const string& prefix, const string& name, int level)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    if((builtin &&
-       (BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject || BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindValue)) ||
-       ClassDeclPtr::dynamicCast(p))
-    {
-        C << nl << "if(" << prefix << name << ')';
-        C << sb;
-        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(p);
-        if(decl)
-        {
-            string scope = fixKwd(decl->scope());
-            C << nl << "if((" << scope << "upCast(" << prefix << name << ".get())->_iceGcVisit(v_)))";
-        }
-        else
-        {
-            C << nl << "if((" << prefix << name << ".get())->_iceGcVisit(v_))";
-        }
-        C << sb;
-        C << nl << prefix << name << " = 0;";
-        C << eb;
-        C << eb;
-    }
-    else if(StructPtr::dynamicCast(p))
-    {
-        StructPtr s = StructPtr::dynamicCast(p);
-        DataMemberList dml = s->dataMembers();
-        for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
-        {
-            if((*i)->type()->usesClasses())
-            {
-                emitGCVisitCode((*i)->type(), prefix + name + ".", fixKwd((*i)->name()), ++level);
-            }
-        }
-    }
-    else if(DictionaryPtr::dynamicCast(p))
-    {
-        DictionaryPtr d = DictionaryPtr::dynamicCast(p);
-        string scoped = fixKwd(d->scoped());
-        ostringstream tmp;
-        tmp << "_i" << level;
-        string iterName = tmp.str();
-        C << sb;
-        C << nl << "for(" << scoped << "::iterator " << iterName << " = " << prefix + name
-          << ".begin(); " << iterName << " != " << prefix + name << ".end(); ++" << iterName << ")";
-        C << sb;
-        emitGCVisitCode(d->valueType(), "", string("(*") + iterName + ").second", ++level);
-        C << eb;
-        C << eb;
-    }
-    else if(SequencePtr::dynamicCast(p))
-    {
-        SequencePtr s = SequencePtr::dynamicCast(p);
-        string scoped = fixKwd(s->scoped());
-        ostringstream tmp;
-        tmp << "_i" << level;
-        string iterName = tmp.str();
-        C << sb;
-        C << nl << "for(" << scoped << "::iterator " << iterName << " = " << prefix + name
-          << ".begin(); " << iterName << " != " << prefix + name << ".end(); ++" << iterName << ")";
-        C << sb;
-        emitGCVisitCode(s->type(), string("(*") + iterName + ")", "", ++level);
-        C << eb;
-        C << eb;
-    }
 }
 
 bool

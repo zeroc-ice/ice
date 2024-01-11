@@ -36,7 +36,7 @@ patchHandle(void* addr, const ValuePtr& v)
         IceInternal::Ex::throwUOE(T::ice_staticId(), v);
     }
 #else
-    IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
+    SharedPtr<T>* p = static_cast<SharedPtr<T>*>(addr);
     _icePatchValuePtr(*p, v); // Generated _icePatchValuePtr function, necessary for forward declarations.
 #endif
 }
@@ -249,16 +249,6 @@ public:
     void setCompactIdResolver(std::function<std::string(int)> r);
 #else
     void setCompactIdResolver(const CompactIdResolverPtr& r);
-#endif
-
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Indicates whether to mark instances of Slice classes as collectable. If the stream is
-     * initialized with a communicator, this setting defaults to the value of the
-     * Ice.CollectObjects property, otherwise the setting defaults to false.
-     * @param b True to mark instances as collectable, false otherwise.
-     */
-    void setCollectObjects(bool b);
 #endif
 
     /**
@@ -1094,7 +1084,7 @@ public:
         read(&patchHandle<T>, &v);
     }
 #else // C++98 mapping
-    template<typename T> void read(IceInternal::Handle<T>& v)
+    template<typename T> void read(Ice::SharedPtr<T>& v)
     {
         read(&patchHandle<T>, &v);
     }
@@ -1475,10 +1465,6 @@ private:
     void initEncaps();
 
     Encaps _preAllocatedEncaps;
-
-#ifndef ICE_CPP11_MAPPING
-    bool _collectObjects;
-#endif
 
     bool _traceSlicing;
 

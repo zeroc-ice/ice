@@ -79,13 +79,6 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _e(new EI),
     _f(new FI(_e))
 {
-#ifndef ICE_CPP11_MAPPING
-    _b1->ice_collectable(true);
-    _b2->ice_collectable(true);
-    _c->ice_collectable(true);
-    _d->ice_collectable(true);
-#endif
-
     _b1->theA = _b2; // Cyclic reference to another B
     _b1->theB = _b1; // Self reference.
     _b1->theC = 0; // Null reference.
@@ -108,8 +101,6 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 
 InitialI::~InitialI()
 {
-#ifdef ICE_CPP11_MAPPING
-    // No GC with the C++11 mapping
     _b1->theA = ICE_NULLPTR;
     _b1->theB = ICE_NULLPTR;
 
@@ -118,7 +109,6 @@ InitialI::~InitialI()
     _b2->theC = ICE_NULLPTR;
 
     _c->theB = ICE_NULLPTR;
-#endif
 }
 
 void

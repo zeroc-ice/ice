@@ -19,9 +19,6 @@ using ObjectPtr = ::std::shared_ptr<Object>;
 #else
 ICE_API Object* upCast(Object*);
 typedef IceInternal::Handle<Object> ObjectPtr;
-/// \cond INTERNAL
-ICE_API void _icePatchValuePtr(ObjectPtr&, const ObjectPtr&);
-/// \endcond
 #endif
 
 }

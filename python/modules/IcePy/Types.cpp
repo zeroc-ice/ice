@@ -3851,7 +3851,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
     {
         StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
         assert(util);
-        util->add(this);
+        util->add(ValueReaderPtr(shared_from_this()));
 
         //
         // Define the "unknownTypeId" member for an instance of UnknownSlicedObject.

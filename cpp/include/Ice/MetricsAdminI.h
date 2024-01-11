@@ -121,7 +121,7 @@ template<class MetricsType> class MetricsMapT : public MetricsMapI, private IceU
 public:
 
     typedef MetricsType T;
-    typedef ICE_INTERNAL_HANDLE<MetricsType> TPtr;
+    typedef ICE_SHARED_PTR<MetricsType> TPtr;
 
     ICE_DEFINE_PTR(MetricsMapTPtr, MetricsMapT);
 

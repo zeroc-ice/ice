@@ -716,9 +716,6 @@ TestI::SUnknownAsObject_async(const AMD_TestIntf_SUnknownAsObjectPtr& cb, const 
     SUnknownPtr su = new SUnknown;
     su->su = "SUnknown.su";
     su->cycle = su;
-#ifndef ICE_CPP11_MAPPING
-    su->ice_collectable(true);
-#endif
     cb->ice_response(su);
 }
 
@@ -746,7 +743,6 @@ TestI::oneElementCycle_async(const AMD_TestIntf_oneElementCyclePtr& cb, const ::
     BPtr b = new B;
     b->sb = "B1.sb";
     b->pb = b;
-    b->ice_collectable(true);
     cb->ice_response(b);
 }
 
@@ -759,7 +755,6 @@ TestI::twoElementCycle_async(const AMD_TestIntf_twoElementCyclePtr& cb, const ::
     b2->sb = "B2.sb";
     b2->pb = b1;
     b1->pb = b2;
-    b1->ice_collectable(true);
     cb->ice_response(b1);
 }
 
@@ -776,8 +771,6 @@ TestI::D1AsB_async(const AMD_TestIntf_D1AsBPtr& cb, const ::Ice::Current&)
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-    d1->ice_collectable(true);
-    d2->ice_collectable(true);
     cb->ice_response(d1);
 }
 
@@ -794,7 +787,6 @@ TestI::D1AsD1_async(const AMD_TestIntf_D1AsD1Ptr& cb, const ::Ice::Current&)
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-    d1->ice_collectable(true);
     cb->ice_response(d1);
 }
 
@@ -811,7 +803,6 @@ TestI::D2AsB_async(const AMD_TestIntf_D2AsBPtr& cb, const ::Ice::Current&)
     d1->pd1 = d2;
     d2->pb = d1;
     d2->pd2 = d1;
-    d2->ice_collectable(true);
     cb->ice_response(d2);
 }
 
@@ -828,8 +819,6 @@ TestI::paramTest1_async(const AMD_TestIntf_paramTest1Ptr& cb, const ::Ice::Curre
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-    d1->ice_collectable(true);
-    d2->ice_collectable(true);
     cb->ice_response(d1, d2);
 }
 
@@ -846,7 +835,6 @@ TestI::paramTest2_async(const AMD_TestIntf_paramTest2Ptr& cb, const ::Ice::Curre
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-    d1->ice_collectable(true);
     cb->ice_response(d2, d1);
 }
 
@@ -890,7 +878,6 @@ TestI::paramTest4_async(const AMD_TestIntf_paramTest4Ptr& cb, const ::Ice::Curre
     d4->p1->sb = "B.sb (1)";
     d4->p2 = new B;
     d4->p2->sb = "B.sb (2)";
-    d4->ice_collectable(true);
     cb->ice_response(d4->p2, d4);
 }
 
@@ -907,7 +894,6 @@ TestI::returnTest1_async(const AMD_TestIntf_returnTest1Ptr& cb, const ::Ice::Cur
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-    d1->ice_collectable(true);
     cb->ice_response(d2, d2, d1);
 }
 
@@ -924,8 +910,6 @@ TestI::returnTest2_async(const AMD_TestIntf_returnTest2Ptr& cb, const ::Ice::Cur
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-    d1->ice_collectable(true);
-    d2->ice_collectable(true);
     cb->ice_response(d1, d1, d2);
 }
 
@@ -958,7 +942,6 @@ TestI::dictionaryTest_async(const AMD_TestIntf_dictionaryTestPtr& cb, const BDic
         d2->pb = b->pb;
         d2->sd2 = "D2";
         d2->pd2 = d2;
-        d2->ice_collectable(true);
         bout[i * 10] = d2;
     }
     BDict r;
@@ -971,7 +954,6 @@ TestI::dictionaryTest_async(const AMD_TestIntf_dictionaryTestPtr& cb, const BDic
         d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
         d1->sd1 = s.str();
         d1->pd1 = d1;
-        d1->ice_collectable(true);
         r[i * 20] = d1;
     }
     cb->ice_response(r, bout);
@@ -1114,7 +1096,6 @@ TestI::throwBaseAsBase_async(const AMD_TestIntf_throwBaseAsBasePtr& cb, const ::
     be.pb = new B;
     be.pb->sb = "sb";
     be.pb->pb = be.pb;
-    be.pb->ice_collectable(true);
     cb->ice_exception(be);
 }
 
@@ -1132,8 +1113,6 @@ TestI::throwDerivedAsBase_async(const AMD_TestIntf_throwDerivedAsBasePtr& cb, co
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
-    de.pb->ice_collectable(true);
-    de.pd1->ice_collectable(true);
     cb->ice_exception(de);
 }
 
@@ -1151,8 +1130,6 @@ TestI::throwDerivedAsDerived_async(const AMD_TestIntf_throwDerivedAsDerivedPtr& 
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
-    de.pb->ice_collectable(true);
-    de.pd1->ice_collectable(true);
     cb->ice_exception(de);
 }
 
@@ -1164,7 +1141,6 @@ TestI::throwUnknownDerivedAsBase_async(const AMD_TestIntf_throwUnknownDerivedAsB
     d2->pb = d2;
     d2->sd2 = "sd2 d2";
     d2->pd2 = d2;
-    d2->ice_collectable(true);
 
     UnknownDerivedException ude;
     ude.sbe = "sbe";
@@ -1192,7 +1168,6 @@ TestI::useForward_async(const AMD_TestIntf_useForwardPtr& cb, const ::Ice::Curre
     ForwardPtr f = new Forward;
     f->h = new Hidden;
     f->h->f = f;
-    f->ice_collectable(true);
     cb->ice_response(f);
 }
 

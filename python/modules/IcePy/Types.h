@@ -41,7 +41,7 @@ class AbortMarshaling
 typedef std::map<PyObject*, Ice::ValuePtr> ObjectMap;
 
 class ValueReader;
-typedef IceUtil::Handle<ValueReader> ValueReaderPtr;
+typedef Ice::SharedPtr<ValueReader> ValueReaderPtr;
 
 //
 // The delayed nature of class unmarshaling in the Ice protocol requires us to
@@ -639,7 +639,7 @@ private:
 //
 // ValueReader unmarshals the state of an Ice object.
 //
-class ValueReader : public Ice::Value
+class ValueReader : public std::enable_shared_from_this<ValueReader>, public Ice::Value
 {
 public:
 

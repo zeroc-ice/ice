@@ -205,11 +205,11 @@ allTests(Test::TestHelper* helper)
     test(b2 != dynamic_pointer_cast<B>(d));
     test(c != dynamic_pointer_cast<C>(d));
 #else
-    test(b1 != c);
-    test(b1 != d);
-    test(b2 != c);
-    test(b2 != d);
-    test(c != d);
+    test(b1 != BPtr::dynamicCast(c));
+    test(b1 != BPtr::dynamicCast(d));
+    test(b2 != BPtr::dynamicCast(c));
+    test(b2 != BPtr::dynamicCast(d));
+    test(c != CPtr::dynamicCast(d));
 #endif
     test(b1->theB == b1);
     test(b1->theC == ICE_NULLPTR);
@@ -268,11 +268,11 @@ allTests(Test::TestHelper* helper)
     test(d->theC == nullptr);
 #else
     test(b1 != b2);
-    test(b1 != c);
-    test(b1 != d);
-    test(b2 != c);
-    test(b2 != d);
-    test(c != d);
+    test(b1 != BPtr::dynamicCast(c));
+    test(b1 != BPtr::dynamicCast(d));
+    test(b2 != BPtr::dynamicCast(c));
+    test(b2 != BPtr::dynamicCast(d));
+    test(c != CPtr::dynamicCast(d));
     test(b1->theA == b2);
     test(b1->theB == b1);
     test(b1->theC == ICE_NULLPTR);

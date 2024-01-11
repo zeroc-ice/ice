@@ -6,6 +6,7 @@
 #define ICE_STREAM_HELPERS_H
 
 #include <Ice/ObjectF.h>
+#include <Ice/ValueF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Exception.h>
 
@@ -421,7 +422,7 @@ struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<::std::i
 };
 #else
 template<typename T>
-struct StreamableTraits< ::IceInternal::Handle<T> >
+struct StreamableTraits<SharedPtr<T>>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryClass;
     static const int minWireSize = 1;

@@ -5,8 +5,9 @@
 #ifndef ICE_SLICED_DATA_F_H
 #define ICE_SLICED_DATA_F_H
 
-#include <IceUtil/Shared.h>
+#include <Ice/SharedPtr.h>
 #include <Ice/Handle.h>
+#include <IceUtil/Shared.h>
 
 namespace Ice
 {
@@ -28,8 +29,7 @@ typedef IceInternal::Handle<SliceInfo> SliceInfoPtr;
 ICE_API IceUtil::Shared* upCast(SlicedData*);
 typedef IceInternal::Handle<SlicedData> SlicedDataPtr;
 
-ICE_API IceUtil::Shared* upCast(UnknownSlicedValue*);
-typedef IceInternal::Handle<UnknownSlicedValue> UnknownSlicedValuePtr;
+using UnknownSlicedValuePtr = SharedPtr<UnknownSlicedValue>;
 #endif
 
 /** The slices of unknown types. */

@@ -43,7 +43,7 @@ public:
     MyClassPtr obj;
     bool called;
 };
-ICE_DEFINE_PTR(TestObjectWriterPtr, TestObjectWriter);
+ICE_DEFINE_SHARED_PTR(TestObjectWriterPtr, TestObjectWriter);
 
 #ifdef ICE_CPP11_MAPPING
 class TestObjectReader : public Ice::ValueHelper<TestObjectReader, Ice::Value>
@@ -73,7 +73,7 @@ public:
     MyClassPtr obj;
     bool called;
 };
-ICE_DEFINE_PTR(TestObjectReaderPtr, TestObjectReader);
+ICE_DEFINE_SHARED_PTR(TestObjectReaderPtr, TestObjectReader);
 
 // Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
 #ifdef ICE_CPP11_MAPPING
@@ -125,7 +125,6 @@ public:
 };
 #endif
 
-#ifdef ICE_CPP11_MAPPING
 void
 patchObject(void* addr, const Ice::ValuePtr& v)
 {
@@ -133,15 +132,6 @@ patchObject(void* addr, const Ice::ValuePtr& v)
     assert(p);
     *p = v;
 }
-#else
-void
-patchObject(void* addr, const Ice::ValuePtr& v)
-{
-    Ice::ValuePtr* p = static_cast<Ice::ValuePtr*>(addr);
-    assert(p);
-    *p = v;
-}
-#endif
 
 #ifdef ICE_CPP11_MAPPING
 class MyClassFactoryWrapper
@@ -820,12 +810,6 @@ allTests(Test::TestHelper* helper)
             c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
 
             c->d["hi"] = c;
-#ifndef ICE_CPP11_MAPPING
-            //
-            // No GC support in C++11.
-            //
-            c->ice_collectable(true);
-#endif
             arr.push_back(c);
         }
         Ice::OutputStream out(communicator);
@@ -834,9 +818,6 @@ allTests(Test::TestHelper* helper)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in.setCollectObjects(true);
-#endif
         MyClassS arr2;
         in.read(arr2);
         in.readPendingValues();
@@ -870,9 +851,6 @@ allTests(Test::TestHelper* helper)
         out2.finished(data);
 
         Ice::InputStream in2(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in2.setCollectObjects(true);
-#endif
         MyClassSS arr2S;
         in2.read(arr2S);
         in2.readPendingValues();
@@ -1034,20 +1012,11 @@ allTests(Test::TestHelper* helper)
         c->seq9.push_back(ICE_ENUM(MyEnum, enum1));
 
         ex.c = c;
-#ifndef ICE_CPP11_MAPPING
-        //
-        // No GC support in C++11.
-        //
-        ex.c->ice_collectable(true);
-#endif
 
         out.write(ex);
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-#ifndef ICE_CPP11_MAPPING
-        in.setCollectObjects(true);
-#endif
         try
         {
             in.throwException();
@@ -1066,15 +1035,12 @@ allTests(Test::TestHelper* helper)
             test(ex1.c->seq8 == c->seq8);
             test(ex1.c->seq9 == c->seq9);
 
-#ifdef ICE_CPP11_MAPPING
             ex1.c->c = nullptr;
             ex1.c->o = nullptr;
-#endif
         }
-#ifdef ICE_CPP11_MAPPING
+
         c->c = nullptr;
         c->o = nullptr;
-#endif
     }
 
     {

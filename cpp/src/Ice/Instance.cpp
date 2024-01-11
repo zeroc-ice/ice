@@ -942,7 +942,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _messageSizeMax(0),
     _batchAutoFlushSize(0),
     _classGraphDepthMax(0),
-    _collectObjects(false),
     _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
     _acceptClassCycles(false),
     _implicitContext(0),
@@ -1205,8 +1204,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(num);
             }
         }
-
-        const_cast<bool&>(_collectObjects) = _initData.properties->getPropertyAsInt("Ice.CollectObjects") > 0;
 
         string toStringModeStr = _initData.properties->getPropertyWithDefault("Ice.ToStringMode", "Unicode");
         if(toStringModeStr == "ASCII")

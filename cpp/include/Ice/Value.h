@@ -5,24 +5,13 @@
 #ifndef ICE_VALUE_H
 #define ICE_VALUE_H
 
-// TODO: temporary
-#ifdef ICE_CPP11_MAPPING
-#   include <Ice/Value.h>
-#else
-#   include <Ice/ValueF.h>
-#endif
-
+#include <Ice/ValueF.h>
 #include <Ice/SlicedDataF.h>
 
 namespace Ice
 {
     class OutputStream;
     class InputStream;
-}
-
-namespace IceInternal
-{
-    class GCVisitor;
 }
 
 namespace Ice
@@ -153,28 +142,21 @@ protected:
  * The base class for instances of Slice classes.
  * \headerfile Ice/Ice.h
  */
-class ICE_API Value : public virtual IceUtil::Shared
+class ICE_API Value
 {
 public:
 
-    virtual bool operator==(const Value&) const;
-    virtual bool operator<(const Value&) const;
+    Value() = default;
+    Value(const Value&) = default;
+    Value(Value&&) = default;
+    Value& operator=(const Value&) = default;
+    Value& operator=(Value&&) = default;
+    virtual ~Value() = default;
 
     /// \cond STREAM
     virtual void _iceWrite(Ice::OutputStream*) const;
     virtual void _iceRead(Ice::InputStream*);
     /// \endcond
-
-    /// \cond INTERNAL
-    virtual bool _iceGcVisit(IceInternal::GCVisitor&) { return false; }
-    /// \endcond
-
-    /**
-     * Determines whether this object, and by extension the graph of all objects reachable from this object,
-     * are eligible for garbage collection when all external references to the graph have been released.
-     * @param b True if the object is eligible, false otherwise.
-     */
-    virtual void ice_collectable(bool b);
 
     /**
      * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
@@ -212,15 +194,6 @@ public:
      * unmarshaling of the value, nil otherwise.
      */
     virtual SlicedDataPtr ice_getSlicedData() const;
-
-protected:
-
-    Value() = default;
-    Value(const Value&) = default;
-    Value(Value&&) = default;
-    Value& operator=(const Value&) = default;
-    Value& operator=(Value&&) = default;
-    virtual ~Value() = default;
 
 protected:
 

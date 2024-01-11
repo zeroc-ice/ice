@@ -92,9 +92,7 @@ public:
 
 private:
 
-#ifdef ICE_CPP11_MAPPING
-    std::vector<std::shared_ptr<Ice::Value>> _values;
-#endif
+    std::vector<Ice::ValuePtr> _values;
 };
 
 #endif

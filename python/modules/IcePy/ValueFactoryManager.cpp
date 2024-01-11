@@ -232,7 +232,10 @@ IcePy::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    return new ValueReader(obj.get(), info);
+    // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
+    // will fail.
+    ValueReaderPtr result = new ValueReader(obj.get(), info);
+    return result;
 }
 
 PyObject*
@@ -300,7 +303,10 @@ IcePy::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    return new ValueReader(obj.get(), info);
+    // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
+    // will fail.
+    ValueReaderPtr result = new ValueReader(obj.get(), info);
+    return result;
 }
 
 void

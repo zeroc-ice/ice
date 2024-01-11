@@ -10,9 +10,9 @@ using namespace std;
 using namespace Ice;
 
 #ifndef ICE_CPP11_MAPPING
+
 IceUtil::Shared* Ice::upCast(SliceInfo* p) { return p; }
 IceUtil::Shared* Ice::upCast(SlicedData* p) { return p; }
-IceUtil::Shared* Ice::upCast(UnknownSlicedValue* p) { return p; }
 
 Ice::SlicedData::~SlicedData()
 {
@@ -42,26 +42,6 @@ Ice::SlicedData::clear()
         }
     }
 }
-
-#ifndef ICE_CPP11_MAPPING
-void
-Ice::SlicedData::_iceGcVisitMembers(IceInternal::GCVisitor& visitor)
-{
-    //
-    // Iterate over the object references in each preserved slice.
-    //
-    for(SliceInfoSeq::const_iterator p = slices.begin(); p != slices.end(); ++p)
-    {
-        for(vector<ValuePtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
-        {
-            if(q->get()->_iceGcVisit(visitor))
-            {
-                *q = 0;
-            }
-        }
-    }
-}
-#endif
 
 Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
 {
@@ -99,15 +79,6 @@ string
 Ice::UnknownSlicedValue::ice_id() const
 {
     return _unknownTypeId;
-}
-
-void
-Ice::UnknownSlicedValue::_iceGcVisitMembers(IceInternal::GCVisitor& _v)
-{
-    if(_slicedData)
-    {
-        _slicedData->_iceGcVisitMembers(_v);
-    }
 }
 
 #endif

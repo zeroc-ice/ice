@@ -157,7 +157,6 @@ def create_platform_targets(project, platform, bindist)
                       "AsyncResult.cpp",
                       "AsyncResult.cpp",
                       "DLLMain.cpp",
-                      "GCValue.cpp",
                       "ResponseHandler.cpp",
                       "SystemdJournal.cpp",
                       "OpenSSL*",

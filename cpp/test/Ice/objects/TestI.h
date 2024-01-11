@@ -40,7 +40,7 @@ public:
 
     bool checkValues();
 };
-ICE_DEFINE_PTR(EIPtr, EI);
+ICE_DEFINE_SHARED_PTR(EIPtr, EI);
 
 class FI : public Test::F
 {
@@ -51,7 +51,7 @@ public:
 
     bool checkValues();
 };
-ICE_DEFINE_PTR(FIPtr, FI);
+ICE_DEFINE_SHARED_PTR(FIPtr, FI);
 
 class InitialI : public Test::Initial
 {
