@@ -1512,7 +1512,7 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers,
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx | TypeContextCpp11)
+        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx)
             << "&";
     }
     out << "> ice_tuple() const";

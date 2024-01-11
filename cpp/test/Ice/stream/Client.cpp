@@ -15,11 +15,7 @@ using namespace Test;
 using namespace Test::Sub;
 using namespace Test2::Sub2;
 
-#ifdef ICE_CPP11_MAPPING
 class TestObjectWriter : public Ice::ValueHelper<TestObjectWriter, Ice::Value>
-#else
-class TestObjectWriter : public Ice::Value
-#endif
 {
 public:
 
@@ -45,11 +41,7 @@ public:
 };
 ICE_DEFINE_SHARED_PTR(TestObjectWriterPtr, TestObjectWriter);
 
-#ifdef ICE_CPP11_MAPPING
 class TestObjectReader : public Ice::ValueHelper<TestObjectReader, Ice::Value>
-#else
-class TestObjectReader : public Ice::Value
-#endif
 {
 public:
 
@@ -76,7 +68,6 @@ public:
 ICE_DEFINE_SHARED_PTR(TestObjectReaderPtr, TestObjectReader);
 
 // Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
-#ifdef ICE_CPP11_MAPPING
 namespace Ice
 {
 template<class S>
@@ -100,7 +91,6 @@ struct StreamReader<TestObjectReader, S>
     static void read(S*, TestObjectReader&) { assert(false); }
 };
 }
-#endif
 
 #ifndef ICE_CPP11_MAPPING
 class TestValueFactory : public Ice::ValueFactory
@@ -172,26 +162,26 @@ public:
 
     virtual Ice::ValuePtr create(const string& type)
     {
-        return _factory->create(type);
+        return _factory(type);
     }
 
     virtual void destroy()
     {
     }
 
-    void setFactory(const Ice::ValueFactoryPtr& factory)
+    void setFactory(function<Ice::ValuePtr(const string&)> f)
     {
-        _factory = factory;
+        _factory = f;
     }
 
     void clear()
     {
-        _factory = MyClass::ice_factory();
+        _factory = [](const string&) { return MyClassPtr(new MyClass); };
     }
 
 private:
 
-    Ice::ValueFactoryPtr _factory;
+    function<Ice::ValuePtr(const string&)> _factory;
 };
 typedef IceUtil::Handle<MyClassFactoryWrapper> MyClassFactoryWrapperPtr;
 #endif
@@ -936,7 +926,7 @@ allTests(Test::TestHelper* helper)
 #ifdef ICE_CPP11_MAPPING
         factoryWrapper.setFactory([](const string&) { return ICE_MAKE_SHARED(TestObjectReader); });
 #else
-        factoryWrapper->setFactory(new TestValueFactory);
+        factoryWrapper->setFactory([](const string&) { return Ice::SharedPtr<TestObjectReader>(new TestObjectReader); });
 #endif
         Ice::InputStream in(communicator, data);
 #ifdef ICE_CPP11_MAPPING

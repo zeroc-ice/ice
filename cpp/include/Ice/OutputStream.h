@@ -7,14 +7,7 @@
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
-
-// TODO: temporary
-#ifdef ICE_CPP11_MAPPING
-#   include <Ice/ValueF.h>
-#else
-#   include <Ice/Value.h>
-#endif
-
+#include <Ice/ValueF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
 #include <Ice/Protocol.h>

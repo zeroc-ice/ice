@@ -53,18 +53,10 @@ Ice::UnknownSlicedValue::ice_getSlicedData() const
     return _slicedData;
 }
 
-#ifdef ICE_CPP11_MAPPING
-
 string
 Ice::UnknownSlicedValue::ice_id() const
 {
     return _unknownTypeId;
-}
-
-shared_ptr<Ice::UnknownSlicedValue>
-Ice::UnknownSlicedValue::ice_clone() const
-{
-    return static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
 }
 
 shared_ptr<Ice::Value>
@@ -72,16 +64,6 @@ Ice::UnknownSlicedValue::_iceCloneImpl() const
 {
     return make_shared<UnknownSlicedValue>(static_cast<const UnknownSlicedValue&>(*this));
 }
-
-#else
-
-string
-Ice::UnknownSlicedValue::ice_id() const
-{
-    return _unknownTypeId;
-}
-
-#endif
 
 void
 Ice::UnknownSlicedValue::_iceWrite(Ice::OutputStream* ostr) const

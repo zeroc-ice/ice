@@ -4,6 +4,8 @@
 
 #import <objc/Ice/SlicedData.h>
 
+#include <Ice/InputStream.h>
+#include <Ice/OutputStream.h>
 #include <Ice/SlicedData.h>
 
 @interface ICESlicedData : NSObject<ICESlicedData>

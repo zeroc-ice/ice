@@ -46,8 +46,6 @@ public:
         in->endValue(false);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -55,8 +53,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 };
 
 class BObjectReader : public Ice::Value
@@ -79,8 +75,6 @@ public:
         in->endValue(false);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -88,8 +82,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 };
 
 class CObjectReader : public Ice::Value
@@ -115,8 +107,6 @@ public:
         in->endValue(false);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -124,8 +114,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 };
 
 class DObjectWriter : public Ice::Value
@@ -164,8 +152,6 @@ public:
 
     virtual void _iceRead(Ice::InputStream*) { }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -173,9 +159,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
-
 };
 
 class DObjectReader : public Ice::Value
@@ -214,8 +197,6 @@ public:
         test((*a)->mc == 18);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -223,8 +204,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 
 private:
 
@@ -256,8 +235,6 @@ public:
         return _f;
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -265,8 +242,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 
 private:
 
