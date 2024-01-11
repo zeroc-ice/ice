@@ -23,7 +23,6 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ACM.h>
-#include <Ice/ObjectFactory.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/IPEndpointIF.h>
@@ -138,11 +137,6 @@ public:
     void setSndBufSizeWarn(Ice::Short type, int size);
     void setRcvBufSizeWarn(Ice::Short type, int size);
 
-    void addObjectFactory(const Ice::ObjectFactoryPtr&, const std::string&);
-    Ice::ObjectFactoryPtr findObjectFactory(const std::string&) const;
-
-    typedef std::map<std::string, Ice::ObjectFactoryPtr> ObjectFactoryMap;
-
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
@@ -206,8 +200,6 @@ private:
     IceInternal::MetricsAdminIPtr _metricsAdmin;
     std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
     IceUtil::Mutex _setBufSizeWarnMutex;
-    ObjectFactoryMap _objectFactoryMap;
-    mutable ObjectFactoryMap::iterator _objectFactoryMapHint;
 };
 
 class ProcessI : public Ice::Process

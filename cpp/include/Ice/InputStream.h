@@ -26,7 +26,7 @@ class UserException;
 
 /// \cond INTERNAL
 template<typename T> inline void
-patchHandle(void* addr, const ValuePtr& v)
+patchHandle(void* addr, const std::shared_ptr<Value>& v)
 {
 #ifdef ICE_CPP11_MAPPING
     ::std::shared_ptr<T>* handle = static_cast<::std::shared_ptr<T>*>(addr);
@@ -37,7 +37,7 @@ patchHandle(void* addr, const ValuePtr& v)
     }
 #else
     SharedPtr<T>* handle = static_cast<SharedPtr<T>*>(addr);
-    *handle = SharedPtr<T>::dynamicCast(v);
+    *handle = SharedPtr<T>(::std::dynamic_pointer_cast<T>(v));
     if(v && !(*handle))
     {
         IceInternal::Ex::throwUOE(T::ice_staticId(), v);
@@ -61,7 +61,7 @@ public:
      * @param addr The target address.
      * @param v The unmarshaled value.
      */
-    using PatchFunc = std::function<void(void* addr, const ValuePtr& v)>;
+    using PatchFunc = std::function<void(void* addr, const std::shared_ptr<Value>& v)>;
 
     /**
      * Constructs a stream using the latest encoding version but without a communicator.
@@ -1205,7 +1205,7 @@ private:
 
     std::string resolveCompactId(int) const;
 
-    void postUnmarshal(const ValuePtr&) const;
+    void postUnmarshal(const std::shared_ptr<Value>&) const;
 
     class Encaps;
     enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
@@ -1222,7 +1222,7 @@ private:
     CompactIdResolverPtr compactIdResolver() const;
 #endif
 
-    typedef std::vector<ValuePtr> ValueList;
+    typedef std::vector<std::shared_ptr<Value>> ValueList;
 
     class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {
@@ -1258,12 +1258,12 @@ private:
         }
 
         std::string readTypeId(bool);
-        ValuePtr newInstance(const std::string&);
+        std::shared_ptr<Value> newInstance(const std::string&);
 
         void addPatchEntry(Int, PatchFunc, void*);
-        void unmarshal(Int, const ValuePtr&);
+        void unmarshal(Int, const std::shared_ptr<Value>&);
 
-        typedef std::map<Int, ValuePtr> IndexToPtrMap;
+        typedef std::map<Int, std::shared_ptr<Value>> IndexToPtrMap;
         typedef std::map<Int, std::string> TypeIdMap;
 
         struct PatchEntry

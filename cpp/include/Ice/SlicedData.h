@@ -20,7 +20,7 @@ struct ICE_API SliceInfo
     /**
      * The Slice type ID for this slice.
      */
-    ::std::string typeId;
+    std::string typeId;
 
     /**
      * The Slice compact type ID for this slice.
@@ -30,12 +30,12 @@ struct ICE_API SliceInfo
     /**
      * The encoded bytes for this slice, including the leading size integer.
      */
-    ::std::vector<Byte> bytes;
+    std::vector<Byte> bytes;
 
     /**
      * The class instances referenced by this slice.
      */
-    ::std::vector<ValuePtr> instances;
+    std::vector<std::shared_ptr<Value>> instances;
 
     /**
      * Whether or not the slice contains optional members.

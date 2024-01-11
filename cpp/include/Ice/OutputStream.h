@@ -777,7 +777,6 @@ public:
     }
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
     /**
      * Writes a value instance to the stream.
      * @param v The value to be written.
@@ -788,26 +787,15 @@ public:
         initEncaps();
         _currentEncaps->encoder->write(v);
     }
-#else // C++98 mapping
-    /**
-     * Writes a value instance to the stream.
-     * @param v The value to be written.
-     */
-    void write(const ValuePtr& v)
-    {
-        initEncaps();
-        _currentEncaps->encoder->write(v);
-    }
-
+#
     /**
      * Writes a value instance to the stream.
      * @param v The value to be written.
      */
     template<typename T> void write(const Ice::SharedPtr<T>& v)
     {
-        write(ValuePtr(v));
+        write(v.underlying());
     }
-#endif
 
     /**
      * Writes an enumerator to the stream.
@@ -892,7 +880,7 @@ private:
     class Encaps;
     enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
 
-    typedef std::vector<ValuePtr> ValueList;
+    typedef std::vector<std::shared_ptr<Value>> ValueList;
 
     class ICE_API EncapsEncoder : private ::IceUtil::noncopyable
     {
@@ -900,7 +888,7 @@ private:
 
         virtual ~EncapsEncoder();
 
-        virtual void write(const ValuePtr&) = 0;
+        virtual void write(const std::shared_ptr<Value>&) = 0;
         virtual void write(const UserException&) = 0;
 
         virtual void startInstance(SliceType, const SlicedDataPtr&) = 0;
@@ -928,7 +916,7 @@ private:
         OutputStream* _stream;
         Encaps* _encaps;
 
-        typedef std::map<ValuePtr, Int> PtrToIndexMap;
+        typedef std::map<std::shared_ptr<Value>, Int> PtrToIndexMap;
         typedef std::map<std::string, Int> TypeIdMap;
 
         // Encapsulation attributes for value marshaling.
@@ -950,7 +938,7 @@ private:
         {
         }
 
-        virtual void write(const ValuePtr&);
+        virtual void write(const std::shared_ptr<Value>&);
         virtual void write(const UserException&);
 
         virtual void startInstance(SliceType, const SlicedDataPtr&);
@@ -962,7 +950,7 @@ private:
 
     private:
 
-        Int registerValue(const ValuePtr&);
+        Int registerValue(const std::shared_ptr<Value>&);
 
         // Instance attributes
         SliceType _sliceType;
@@ -984,7 +972,7 @@ private:
         {
         }
 
-        virtual void write(const ValuePtr&);
+        virtual void write(const std::shared_ptr<Value>&);
         virtual void write(const UserException&);
 
         virtual void startInstance(SliceType, const SlicedDataPtr&);
@@ -997,7 +985,7 @@ private:
     private:
 
         void writeSlicedData(const SlicedDataPtr&);
-        void writeInstance(const ValuePtr&);
+        void writeInstance(const std::shared_ptr<Value>&);
 
         struct InstanceData
         {

@@ -81,12 +81,7 @@ public:
      * @return The sliced data if the value has a preserved-slice base class and has been sliced during
      * unmarshaling of the value, nil otherwise.
      */
-    // TODO: replace SlicedDataPtr and friends by plain shared_ptr<SlicedData> in all mappings
-#if defined ICE_CPP11_MAPPING
-    virtual std::shared_ptr<SlicedData> ice_getSlicedData() const;
-#else
     virtual SlicedDataPtr ice_getSlicedData() const;
-#endif
 
     /// \cond STREAM
     virtual void _iceWrite(Ice::OutputStream*) const;

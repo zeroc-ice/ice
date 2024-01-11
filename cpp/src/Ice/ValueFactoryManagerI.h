@@ -11,9 +11,6 @@
 namespace IceInternal
 {
 
-class ValueFactoryManagerI;
-ICE_DEFINE_PTR(ValueFactoryManagerIPtr, ValueFactoryManagerI);
-
 class ValueFactoryManagerI : public Ice::ValueFactoryManager,
                              public IceUtil::Mutex
 {
@@ -21,16 +18,18 @@ public:
 
     ValueFactoryManagerI();
 
-    virtual void add(ICE_IN(ICE_DELEGATE(::Ice::ValueFactory)), const std::string&);
-    virtual ICE_DELEGATE(::Ice::ValueFactory) find(const std::string&) const noexcept;
+    virtual void add(Ice::ValueFactory, const std::string&);
+    virtual Ice::ValueFactory find(const std::string&) const noexcept;
 
 private:
 
-    typedef std::map<std::string, ICE_DELEGATE(::Ice::ValueFactory)> FactoryMap;
+    typedef std::map<std::string, Ice::ValueFactory> FactoryMap;
 
     FactoryMap _factoryMap;
     mutable FactoryMap::iterator _factoryMapHint;
 };
+
+using ValueFactoryManagerIPtr = ::std::shared_ptr<ValueFactoryManagerI>;
 
 }
 
