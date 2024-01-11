@@ -73,12 +73,6 @@ Ice::Value::ice_getSlicedData() const
 #else
 
 void
-Ice::_icePatchValuePtr(ValuePtr& obj, const ValuePtr& v)
-{
-    obj = v;
-}
-
-void
 Ice::Value::ice_preMarshal()
 {
 }

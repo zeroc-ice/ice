@@ -2589,15 +2589,6 @@ Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     H << sp << nl << "class " << name << ';';
     H << nl << "using " << p->name() << "Ptr = ::Ice::SharedPtr<" << name << ">;";
-
-    //
-    // _ice prefix because this function is in the Slice module namespace, where the user
-    // is allowed to define classes, functions etc. that start with _.
-    //
-    H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllExport << "void _icePatchValuePtr(" << p->name() << "Ptr&, const "
-      << getUnqualified("::Ice::ValuePtr&", scope) << ");";
-    H << nl << "/// \\endcond";
 }
 
 void
@@ -3471,20 +3462,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
           << "::ice_factory();";
         H << nl << "/// \\endcond";
     }
-
-    C << sp;
-    C << nl << "/// \\cond INTERNAL";
-    C << nl << "void";
-    C << nl << scope.substr(2) << "_icePatchValuePtr(" << p->name() << "Ptr& handle, const "
-      << getUnqualified("::Ice::ValuePtr&", scope) << " v)";
-    C << sb;
-    C << nl << "handle = " << p->name() << "Ptr::dynamicCast(v);";
-    C << nl << "if(v && !handle)";
-    C << sb;
-    C << nl << "IceInternal::Ex::throwUOE(" << name << "::ice_staticId(), v);";
-    C << eb;
-    C << eb;
-    C << nl << "/// \\endcond";
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
