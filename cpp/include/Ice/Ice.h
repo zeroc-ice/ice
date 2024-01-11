@@ -41,7 +41,6 @@
 #   endif
 #   include <Ice/Connection.h>
 #   include <Ice/ConnectionAsync.h>
-#   include <Ice/Functional.h>
 #   include <Ice/ImplicitContext.h>
 #   include <Ice/DispatchInterceptor.h>
 #   include <Ice/Plugin.h>

@@ -6,7 +6,6 @@
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/Object.h>
 #include <Ice/LocalException.h>
-#include <Ice/Functional.h>
 #include <Ice/UUID.h>
 
 using namespace std;
