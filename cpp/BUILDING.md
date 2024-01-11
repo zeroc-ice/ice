@@ -7,25 +7,25 @@ ZeroC provides [Ice binary distributions][1] for many platforms and compilers,
 including Windows and Visual Studio, so building Ice from source is usually
 unnecessary.
 
-- [C++ Build Requirements](#c---build-requirements)
+- [C++ Build Requirements](#c-build-requirements)
   - [Operating Systems and Compilers](#operating-systems-and-compilers)
   - [Third-Party Libraries](#third-party-libraries)
     - [AIX](#aix)
     - [Linux](#linux)
     - [macOS](#macos)
     - [Windows](#windows)
-- [Building Ice for AIX, Linux or macOS](#building-ice-for-aix--linux-or-macos)
+- [Building Ice for AIX, Linux or macOS](#building-ice-for-aix-linux-or-macos)
   - [Build configurations and platforms](#build-configurations-and-platforms)
-  - [C++11 mapping](#c--11-mapping)
-  - [Ice Xcode SDK (macOS only)](#ice-xcode-sdk--macos-only-)
+  - [C++11 mapping](#c11-mapping)
+  - [Ice Xcode SDK (macOS only)](#ice-xcode-sdk-macos-only)
 - [Building Ice for Windows](#building-ice-for-windows)
   - [Build Using MSBuild](#build-using-msbuild)
   - [Build Using Visual Studio](#build-using-visual-studio)
-- [Installing a C++ Source Build on AIX, Linux or macOS](#installing-a-c---source-build-on-aix--linux-or-macos)
+- [Installing a C++ Source Build on AIX, Linux or macOS](#installing-a-c-source-build-on-aix-linux-or-macos)
 - [Creating a NuGet Package on Windows](#creating-a-nuget-package-on-windows)
-- [Cleaning the source build on AIX, Linux or macOS](#cleaning-the-source-build-on-aix--linux-or-macos)
+- [Cleaning the source build on AIX, Linux or macOS](#cleaning-the-source-build-on-aix-linux-or-macos)
 - [Running the Test Suite](#running-the-test-suite)
-  - [AIX, Linux, macOS or Windows](#aix--linux--macos-or-windows)
+  - [AIX, Linux, macOS or Windows](#aix-linux-macos-or-windows)
   - [iOS](#ios)
     - [iOS Simulator](#ios-simulator)
     - [iOS Device](#ios-device)
@@ -450,7 +450,8 @@ failure, the tests abort with `failed`.
 The test scripts require Ice for Python. You can build Ice for Python from
 the [python](../python) folder of this source distribution, or install the
 Python module `zeroc-ice`,  using the following command:
-```
+
+```shell
 pip install zeroc-ice
 ```
 

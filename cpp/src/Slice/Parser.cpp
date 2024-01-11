@@ -77,18 +77,6 @@ string readWriteAttribute[] = { "read", "write" };
 string txAttribute[] = { "supports", "mandatory", "required", "never" };
 enum { Supports, Mandatory, Required, Never };
 
-string
-prependA(const string& s) // return a or an <s>
-{
-    static const string vowels = "aeiou";
-    string prefix = "a";
-    if (vowels.find_first_of(s[0]) != string::npos)
-    {
-        prefix += "n";
-    }
-    return prefix + " " + s;
-}
-
 DataMemberList
 filterOrderedOptionalDataMembers(const DataMemberList& members)
 {
@@ -2822,14 +2810,7 @@ Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct
 {
     if(dynamic_cast<Unit*>(this) && strcmp(newConstruct, "module"))
     {
-        static const string vowels = "aeiou";
-        string glottalStop;
-        if(vowels.find_first_of(newConstruct[0]) != string::npos)
-        {
-            glottalStop = "n";
-        }
-        _unit->error("`" + name + "': a" + glottalStop + " " + newConstruct +
-                     " can be defined only at module scope");
+        _unit->error("`" + name + "': " + prependA(newConstruct) + " can be defined only at module scope");
         return false;
     }
     return true;
@@ -3327,6 +3308,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
             return 0;
         }
     }
+
+    checkIdentifier(name); // Don't return here -- we create the data member anyway.
 
     //
     // Check whether any bases have defined something with the same name already.
@@ -4157,6 +4140,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         }
     }
 
+    checkIdentifier(name); // Don't return here -- we create the data member anyway.
+
     string newName = IceUtilInternal::toLower(name);
     //
     // Check whether any bases have defined a member with the same name already.
@@ -4478,6 +4463,8 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
             return 0;
         }
     }
+
+    checkIdentifier(name); // Don't return here -- we create the data member anyway.
 
     //
     // Structures cannot contain themselves.
@@ -5358,8 +5345,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
+    checkIdentifier(name); // Don't return here -- we create the parameter anyway.
 
     //
     // Check that in parameters don't follow out parameters.

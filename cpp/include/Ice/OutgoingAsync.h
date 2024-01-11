@@ -463,12 +463,7 @@ public:
                    std::function<void(bool)> sent) :
         OutgoingAsyncT<R>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
-#if ICE_CPLUSPLUS >= 201402L
-        // Move capture with C++14
         _response = [this, response = std::move(response)](bool ok)
-#else
-        _response = [this, response](bool ok)
-#endif
         {
             if(!ok)
             {
@@ -504,12 +499,7 @@ public:
                    std::function<void(bool)> sent) :
         OutgoingAsyncT<void>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
-#if ICE_CPLUSPLUS >= 201402L
-        // Move capture with C++14
         _response = [this, response = std::move(response)](bool ok)
-#else
-        _response = [this, response](bool ok)
-#endif
         {
             if(!ok)
             {
@@ -545,12 +535,7 @@ public:
                          std::function<void(bool)> sent) :
         OutgoingAsync(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
-#if ICE_CPLUSPLUS >= 201402L
-        // Move capture with C++14
         _response = [this, read = std::move(read)](bool ok)
-#else
-        _response = [this, read](bool ok)
-#endif
         {
             if(!ok)
             {

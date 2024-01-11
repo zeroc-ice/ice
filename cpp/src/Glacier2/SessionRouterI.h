@@ -7,7 +7,7 @@
 
 #include <Ice/Ice.h>
 
-#include <Glacier2/PermissionsVerifierF.h>
+#include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/Router.h>
 #include <Glacier2/Instrumentation.h>
 

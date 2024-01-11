@@ -77,7 +77,7 @@ endif
 
 ifeq ($(os),Darwin)
     php_cppflags        := $(php_cppflags) -Wno-unused-parameter -Wno-missing-field-initializers
-    php_ldflags         := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+    php_ldflags         := -undefined dynamic_lookup
 endif
 
 ifeq ($(os),Linux)
