@@ -319,7 +319,7 @@ using CommentPtr = std::shared_ptr<Comment>;
 // GrammarBase
 // ----------------------------------------------------------------------
 
-class GrammarBase
+class GrammarBase : public virtual std::enable_shared_from_this<GrammarBase>
 {
 public:
 
@@ -426,12 +426,12 @@ protected:
 // Contained
 // ----------------------------------------------------------------------
 
-class Contained : public virtual SyntaxTreeBase, public std::enable_shared_from_this<Contained>
+class Contained : public virtual SyntaxTreeBase
 {
 public:
 
     Contained(const ContainerPtr&, const std::string&);
-
+    virtual void init();
     ContainerPtr container() const;
     std::string name() const;
     std::string scoped() const;
@@ -495,12 +495,11 @@ protected:
 // Container
 // ----------------------------------------------------------------------
 
-class Container : public virtual SyntaxTreeBase,  public std::enable_shared_from_this<Container>
+class Container : public virtual SyntaxTreeBase
 {
 public:
 
     Container(const UnitPtr&);
-
     virtual void destroy();
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&);
@@ -1181,6 +1180,7 @@ public:
 
 private:
 
+    void init();
     static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
