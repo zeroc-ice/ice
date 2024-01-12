@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "JavaUtil.h"
 #include <IceUtil/StringUtil.h>
-#include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <IceUtil/FileUtil.h>

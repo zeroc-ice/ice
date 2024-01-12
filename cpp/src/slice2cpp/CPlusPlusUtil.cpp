@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/CPlusPlusUtil.h>
+#include "CPlusPlusUtil.h"
 #include <Slice/Util.h>
 #include <cstring>
 #include <functional>
