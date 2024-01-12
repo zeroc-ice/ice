@@ -7,6 +7,7 @@
 
 #include <Ice/ValueFactory.h>
 #include <IceUtil/Mutex.h>
+#include <list>
 
 namespace IceInternal
 {
@@ -18,15 +19,18 @@ public:
 
     ValueFactoryManagerI();
 
-    virtual void add(Ice::ValueFactory, const std::string&);
-    virtual Ice::ValueFactory find(const std::string&) const noexcept;
+    virtual void add(Ice::ValueFactoryFunc, const std::string&);
+    virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
+    virtual Ice::ValueFactoryFunc find(const std::string&) const noexcept;
 
 private:
 
-    typedef std::map<std::string, Ice::ValueFactory> FactoryMap;
+    using FactoryFuncMap = std::map<std::string, Ice::ValueFactoryFunc>;
 
-    FactoryMap _factoryMap;
-    mutable FactoryMap::iterator _factoryMapHint;
+    FactoryFuncMap _factoryFuncMap;
+    mutable FactoryFuncMap::iterator _factoryFuncMapHint;
+
+    std::list<Ice::ValueFactoryPtr> _factories; // keep factories to prevent them from being destroyed
 };
 
 using ValueFactoryManagerIPtr = ::std::shared_ptr<ValueFactoryManagerI>;

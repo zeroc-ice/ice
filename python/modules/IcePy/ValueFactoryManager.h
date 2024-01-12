@@ -23,7 +23,7 @@ public:
     FactoryWrapper(PyObject*, PyObject*);
     ~FactoryWrapper();
 
-    virtual Ice::ValuePtr create(const std::string&);
+    virtual std::shared_ptr<Ice::Value> create(const std::string&);
 
     PyObject* getValueFactory() const;
     void destroy();
@@ -33,13 +33,14 @@ protected:
     PyObject* _valueFactory;
     PyObject* _objectFactory;
 };
-typedef IceUtil::Handle<FactoryWrapper> FactoryWrapperPtr;
+
+using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
 class DefaultValueFactory : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ValuePtr create(const std::string&);
+    virtual std::shared_ptr<Ice::Value> create(const std::string&);
 
     void setDelegate(const Ice::ValueFactoryPtr&);
     Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
@@ -52,7 +53,8 @@ private:
 
     Ice::ValueFactoryPtr _delegate;
 };
-typedef IceUtil::Handle<DefaultValueFactory> DefaultValueFactoryPtr;
+
+using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
 class ValueFactoryManager : public Ice::ValueFactoryManager, public IceUtil::Mutex
 {
@@ -61,8 +63,9 @@ public:
     ValueFactoryManager();
     ~ValueFactoryManager();
 
+    virtual void add(Ice::ValueFactoryFunc, const std::string&);
     virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryPtr find(const std::string&) const noexcept;
+    virtual Ice::ValueFactoryFunc find(const std::string&) const noexcept;
 
     virtual void add(PyObject*, PyObject*, const std::string&);
     PyObject* findValueFactory(const std::string&) const;
@@ -75,11 +78,14 @@ private:
 
     typedef std::map<std::string, Ice::ValueFactoryPtr> FactoryMap;
 
+    Ice::ValueFactoryPtr findCore(const std::string&) const noexcept;
+
     PyObject* _self;
     FactoryMap _factories;
     DefaultValueFactoryPtr _defaultFactory;
 };
-typedef IceUtil::Handle<ValueFactoryManager> ValueFactoryManagerPtr;
+
+using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
 
 }
 

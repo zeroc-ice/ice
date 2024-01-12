@@ -647,25 +647,20 @@ public:
 
 int PNodeI::counter = 0;
 
-#ifndef ICE_CPP11_MAPPING
+// TODO: this class is not used anywhere
 class NodeFactoryI : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ValuePtr create(const string& id)
+    virtual shared_ptr<Ice::Value> create(const string& id)
     {
         if(id == PNode::ice_staticId())
         {
-            return new PNodeI;
+            return make_shared<PNodeI>();
         }
-        return 0;
-    }
-
-    virtual void destroy()
-    {
+        return nullptr;
     }
 };
-#endif
 
 class PreservedI : public virtual Preserved
 {
@@ -686,25 +681,20 @@ public:
 
 int PreservedI::counter = 0;
 
-#ifndef ICE_CPP11_MAPPING
+// TODO: this class is not used anywhere
 class PreservedFactoryI : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ValuePtr create(const string& id)
+    virtual shared_ptr<Ice::Value> create(const string& id)
     {
         if(id == Preserved::ice_staticId())
         {
-            return new PreservedI;
+            return make_shared<PreservedI>();
         }
-        return 0;
-    }
-
-    virtual void destroy()
-    {
+        return nullptr;
     }
 };
-#endif
 
 void
 testUOO(const TestIntfPrxPtr& test)

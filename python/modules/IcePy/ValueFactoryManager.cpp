@@ -16,7 +16,7 @@ namespace IcePy
 struct ValueFactoryManagerObject
 {
     PyObject_HEAD
-    ValueFactoryManagerPtr* vfm;
+    ValueFactoryManager* vfm;
 };
 
 }
@@ -41,16 +41,23 @@ IcePy::ValueFactoryManager::ValueFactoryManager()
     ValueFactoryManagerObject* obj = reinterpret_cast<ValueFactoryManagerObject*>(
         ValueFactoryManagerType.tp_alloc(&ValueFactoryManagerType, 0));
     assert(obj);
-    obj->vfm = new ValueFactoryManagerPtr(this);
+
+    obj->vfm = this;
     _self = reinterpret_cast<PyObject*>(obj);
 
-    _defaultFactory = new DefaultValueFactory;
+    _defaultFactory = make_shared<DefaultValueFactory>();
 }
 
 IcePy::ValueFactoryManager::~ValueFactoryManager()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
     Py_XDECREF(_self);
+}
+
+void
+IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
+{
+    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
 void
@@ -79,23 +86,22 @@ IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
     }
 }
 
-Ice::ValueFactoryPtr
+Ice::ValueFactoryFunc
 IcePy::ValueFactoryManager::find(const string& id) const noexcept
 {
-    Lock lock(*this);
+    Ice::ValueFactoryPtr factory = findCore(id);
 
-    if(id.empty())
+    if (factory)
     {
-        return _defaultFactory;
+        return [factory](const string& type) -> shared_ptr<Ice::Value>
+        {
+            return factory->create(type);
+        };
     }
-
-    FactoryMap::const_iterator p = _factories.find(id);
-    if(p != _factories.end())
+    else
     {
-        return p->second;
+        return nullptr;
     }
-
-    return 0;
 }
 
 void
@@ -103,7 +109,7 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, PyObject* objectFactory,
 {
     try
     {
-        add(new FactoryWrapper(valueFactory, objectFactory), id);
+        add(make_shared<FactoryWrapper>(valueFactory, objectFactory), id);
     }
     catch(const Ice::Exception& ex)
     {
@@ -114,11 +120,11 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, PyObject* objectFactory,
 PyObject*
 IcePy::ValueFactoryManager::findValueFactory(const string& id) const
 {
-    Ice::ValueFactoryPtr f = find(id);
-    if(f)
+    Ice::ValueFactoryPtr factory = findCore(id);
+    if (factory)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(f);
-        if(w)
+        auto w = dynamic_pointer_cast<FactoryWrapper>(factory);
+        if (w)
         {
             return w->getValueFactory();
         }
@@ -162,7 +168,7 @@ IcePy::ValueFactoryManager::destroy()
 
     for(FactoryMap::iterator p = factories.begin(); p != factories.end(); ++p)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(p->second);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(p->second);
         if(w)
         {
             w->destroy();
@@ -171,6 +177,29 @@ IcePy::ValueFactoryManager::destroy()
 
     _defaultFactory->destroy();
 }
+
+Ice::ValueFactoryPtr
+IcePy::ValueFactoryManager::findCore(const string& id) const noexcept
+{
+    Lock lock(*this);
+
+    Ice::ValueFactoryPtr factory;
+
+    if (id.empty())
+    {
+        return _defaultFactory;
+    }
+    else
+    {
+        FactoryMap::const_iterator p = _factories.find(id);
+        if(p != _factories.end())
+        {
+            return p->second;
+        }
+    }
+    return nullptr;
+}
+
 
 IcePy::FactoryWrapper::FactoryWrapper(PyObject* valueFactory, PyObject* objectFactory) :
     _valueFactory(valueFactory),
@@ -187,7 +216,7 @@ IcePy::FactoryWrapper::~FactoryWrapper()
     Py_DECREF(_objectFactory);
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IcePy::FactoryWrapper::create(const string& id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
@@ -217,7 +246,7 @@ IcePy::FactoryWrapper::create(const string& id)
 
     // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
     // will fail.
-    ValueReaderPtr result = new ValueReader(obj.get(), info);
+    ValueReaderPtr result = make_shared<ValueReader>(obj.get(), info);
     return result;
 }
 
@@ -238,12 +267,12 @@ IcePy::FactoryWrapper::destroy()
     }
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IcePy::DefaultValueFactory::create(const string& id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    Ice::ValuePtr v;
+    shared_ptr<Ice::Value> v;
 
     //
     // Give the application-provided default factory a chance to create the object first.
@@ -281,7 +310,7 @@ IcePy::DefaultValueFactory::create(const string& id)
 
     // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
     // will fail.
-    ValueReaderPtr result = new ValueReader(obj.get(), info);
+    ValueReaderPtr result = make_shared<ValueReader>(obj.get(), info);
     return result;
 }
 
@@ -296,7 +325,7 @@ IcePy::DefaultValueFactory::getValueFactory() const
 {
     if(_delegate)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
         if(w)
         {
             return w->getValueFactory();
@@ -312,7 +341,7 @@ IcePy::DefaultValueFactory::destroy()
 {
     if(_delegate)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
         if(w)
         {
             w->destroy();
@@ -338,7 +367,6 @@ extern "C"
 static void
 valueFactoryManagerDealloc(ValueFactoryManagerObject* self)
 {
-    delete self->vfm;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -366,7 +394,7 @@ valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
         return 0;
     }
 
-    (*self->vfm)->add(factory, Py_None, id);
+    (self->vfm)->add(factory, Py_None, id);
     if(PyErr_Occurred())
     {
         return 0;
@@ -396,7 +424,7 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
         return 0;
     }
 
-    return (*self->vfm)->findValueFactory(id);
+    return (self->vfm)->findValueFactory(id);
 }
 
 static PyMethodDef ValueFactoryManagerMethods[] =

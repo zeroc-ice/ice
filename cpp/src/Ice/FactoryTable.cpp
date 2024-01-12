@@ -71,7 +71,7 @@ IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 // Add a factory to the value factory table.
 //
 void
-IceInternal::FactoryTable::addValueFactory(const string& t, ::Ice::ValueFactory f)
+IceInternal::FactoryTable::addValueFactory(const string& t, ::Ice::ValueFactoryFunc f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -89,7 +89,7 @@ IceInternal::FactoryTable::addValueFactory(const string& t, ::Ice::ValueFactory 
 //
 // Return the value factory for a given type ID
 //
-::Ice::ValueFactory
+::Ice::ValueFactoryFunc
 IceInternal::FactoryTable::getValueFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);

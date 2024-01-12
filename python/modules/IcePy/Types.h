@@ -40,10 +40,10 @@ class AbortMarshaling
 {
 };
 
-typedef std::map<PyObject*, Ice::ValuePtr> ObjectMap;
+typedef std::map<PyObject*, std::shared_ptr<Ice::Value>> ObjectMap;
 
 class ValueReader;
-typedef Ice::SharedPtr<ValueReader> ValueReaderPtr;
+using ValueReaderPtr = std::shared_ptr<ValueReader>;
 
 //
 // The delayed nature of class unmarshaling in the Ice protocol requires us to
@@ -79,7 +79,7 @@ public:
     ReadValueCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
     ~ReadValueCallback();
 
-    void invoke(const ::Ice::ValuePtr&);
+    void invoke(const ::std::shared_ptr<Ice::Value>&);
 
 private:
 
