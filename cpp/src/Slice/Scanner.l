@@ -135,7 +135,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
-    StringTokPtr str = make_shared<StringTok>;
+    StringTokPtr str = make_shared<StringTok>();
     str->literal = "\"";
     *yylval = str;
 }
@@ -147,7 +147,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
    * new-lines, non-printable ASCII characters, and double-quotes. */
 <STRING_LITERAL>"\\\\"+               |
 <STRING_LITERAL>[^\\\n"\x0-\x1f\x7f]+ {
-    StringTokPtr str = dymamic_pointer_cast<StringTok>(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
 }
@@ -283,7 +283,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 {integer_constant} {
     setLocation(yylloc);
 
-    IntegerTokPtr itp = make_shared<IntegerTok>;
+    IntegerTokPtr itp = make_shared<IntegerTok>();
     itp->literal = string(yytext);
     *yylval = itp;
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))

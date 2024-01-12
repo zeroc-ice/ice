@@ -2117,7 +2117,7 @@ Slice::Container::enumerators(const string& scoped) const
     if(lastColon == string::npos)
     {
         // check all enclosing scopes
-        ContainerPtr container = dynamic_pointer_cast<Container>(shared_from_this());
+        ContainerPtr container = const_pointer_cast<Container>(shared_from_this());
         do
         {
             EnumList enums = container->enums();
@@ -2145,7 +2145,7 @@ Slice::Container::enumerators(const string& scoped) const
     else
     {
         // Find the referenced scope
-        ContainerPtr container = dynamic_pointer_cast<Container>(shared_from_this());
+        ContainerPtr container = const_pointer_cast<Container>(shared_from_this());
         string scope = scoped.substr(0, scoped.rfind("::"));
         ContainedList cl = container->lookupContained(scope, false);
         if(!cl.empty())
@@ -2550,7 +2550,7 @@ string
 Slice::Container::thisScope() const
 {
     string s;
-    ContainedPtr contained = dynamic_pointer_cast<Contained>(shared_from_this());
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(const_pointer_cast<Container>(shared_from_this()));
     if(contained)
     {
         s = contained->scoped();

@@ -1598,7 +1598,7 @@ YY_RULE_SETUP
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
-    StringTokPtr str = make_shared<StringTok>;
+    StringTokPtr str = make_shared<StringTok>();
     str->literal = "\"";
     *yylval = str;
 }
@@ -1613,7 +1613,7 @@ case 3:
 YY_RULE_SETUP
 #line 150 "src/Slice/Scanner.l"
 {
-    StringTokPtr str = dymamic_pointer_cast<StringTok>(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
 }
@@ -1792,7 +1792,7 @@ YY_RULE_SETUP
 {
     setLocation(yylloc);
 
-    IntegerTokPtr itp = make_shared<IntegerTok>;
+    IntegerTokPtr itp = make_shared<IntegerTok>();
     itp->literal = string(yytext);
     *yylval = itp;
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
