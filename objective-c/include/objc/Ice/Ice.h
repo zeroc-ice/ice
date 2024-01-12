@@ -23,7 +23,6 @@
 #import <objc/Ice/RemoteLogger.h>
 #import <objc/Ice/Router.h>
 #import <objc/Ice/Stream.h>
-#import <objc/Ice/ObjectFactory.h>
 #import <objc/Ice/SlicedData.h>
 #import <objc/Ice/Version.h>
 #import <objc/Ice/ImplicitContext.h>

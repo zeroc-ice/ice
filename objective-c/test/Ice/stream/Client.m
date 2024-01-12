@@ -586,43 +586,6 @@ run(id<ICECommunicator> communicator)
         test([arr2S count] == [arrS count]);
     }
 
-    //
-    // ObjectWriter/ObjectReader not supported.
-    //
-    // {
-    //     out = [ICEUtil createOutputStream:communicator];
-    //     TestStreamMyClass* obj = [TestStreamMyClass myClass];
-    //     obj.s.e = TestStreamenum2;
-    //     TestObjectWriterPtr writer = new TestObjectWriter:obj];
-    //     [out writeObject:writer];
-    //     [out writePendingValues];
-    //     data = [out finished];
-    //     test([writer called);
-    // }
-
-    // {
-    //     out = [ICEUtil createOutputStream:communicator];
-    //     TestStreamMyClassPtr obj = new TestStreamMyClass;
-    //     obj->s.e = TestStreamenum2;
-    //     TestObjectWriterPtr writer = new TestObjectWriter:obj];
-    //     [out writeObject:writer];
-    //     [out writePendingValues];
-    //     data = [out finished];
-    //     test([writer called]);
-    //     [factoryWrapper setFactory:new TestObjectFactory];
-    //     in = [ICEUtil createInputStream:communicator data:data];
-    //     TestReadObjectCallbackPtr cb = new TestReadObjectCallback;
-    //     [in readObject:cb];
-    //     [in readPendingValues];
-    //     test([cb obj]);
-    //     TestObjectReaderPtr reader = TestObjectReaderPtr::dynamicCast(cb->obj);
-    //     test(reader);
-    //     test([reader called]);
-    //     test([reader obj]);
-    //     test([reader obj]->s.e == TestStreamenum2);
-    //     [factoryWrapper setFactory:0];
-    // }
-
     {
         out = [ICEUtil createOutputStream:communicator];
         TestStreamMyException* ex = [TestStreamMyException myException];

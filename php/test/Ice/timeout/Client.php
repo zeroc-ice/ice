@@ -13,8 +13,6 @@ require_once('Test.php');
 
 function connect($prx)
 {
-    global $NS;
-    $ConnectTimeoutException = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
     $nRetry = 10;
     while(--$nRetry > 0)
     {
@@ -25,7 +23,7 @@ function connect($prx)
         }
         catch(Exception $ex)
         {
-            if(!($ex instanceof $ConnectTimeoutException))
+            if(!($ex instanceof Ice\ConnectTimeoutException))
             {
                 // Can sporadically occur with slow machines
                 throw $ex;
@@ -55,14 +53,6 @@ function allTests($helper)
 
 function allTestsWithController($helper, $controller)
 {
-    global $NS;
-    $ConnectTimeoutException = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
-    $TimeoutException = $NS ? "Ice\\TimeoutException" : "Ice_TimeoutException";
-    $InvocationTimeoutException = $NS ? "Ice\\InvocationTimeoutException" : "Ice_InvocationTimeoutException";
-    $CloseGracefullyAndWait = constant($NS ? "Ice\\ConnectionClose::GracefullyWithWait" :
-                                             "Ice_ConnectionClose::GracefullyWithWait");
-    $InitializationData = $NS ? "Ice\\InitializationData" : "Ice_InitializationData";
-
     $communicator = $helper->communicator();
     $sref = sprintf("timeout:%s", $helper->getTestEndpoint());
     $timeout = $communicator->stringToProxy($sref);
@@ -85,13 +75,8 @@ function allTestsWithController($helper, $controller)
             $to->op();
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\ConnectTimeoutException $ex)
         {
-            if(!($ex instanceof $ConnectTimeoutException))
-            {
-                echo($ex);
-                test(false);
-            }
         }
         $controller->resumeAdapter();
         $timeout->op(); // Ensure adapter is active.
@@ -129,14 +114,9 @@ function allTestsWithController($helper, $controller)
             $to->sendData($seq);
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\TimeoutException $ex)
         {
             // Expected.
-            if(!($ex instanceof $TimeoutException))
-            {
-                echo($ex);
-                test(false);
-            }
         }
         $controller->resumeAdapter();
         $timeout->op(); // Ensure adapter is active.
@@ -170,27 +150,14 @@ function allTestsWithController($helper, $controller)
             $to->sleep(500);
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\InvocationTimeoutException $ex)
         {
-            if(!($ex instanceof $InvocationTimeoutException))
-            {
-                echo($ex);
-                test(false);
-            }
         }
 
         $timeout->ice_ping();
         $to = $timeout->ice_invocationTimeout(1000)->ice_checkedCast("::Test::Timeout");
         test($connection == $to->ice_getConnection());
-        try
-        {
-            $to->sleep(100);
-        }
-        catch(Exception $ex)
-        {
-            echo($ex);
-            test(false);
-        }
+        $to->sleep(100);
         test($connection == $to->ice_getConnection());
     }
     {
@@ -204,22 +171,8 @@ function allTestsWithController($helper, $controller)
             $to->sleep(750);
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\TimeoutException $ex)
         {
-            try
-            {
-                $con->getInfo();
-                test(false);
-            }
-            catch(Exception $ex)
-            {
-                // Connection got closed as well.
-                if(!($ex instanceof $TimeoutException))
-                {
-                    echo($ex);
-                    test(false);
-                }
-            }
         }
         $timeout->ice_ping();
     }
@@ -231,15 +184,9 @@ function allTestsWithController($helper, $controller)
         $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
         $connection = connect($to);
         $controller->holdAdapter(-1);
-        $connection->close($CloseGracefullyAndWait);
-        try
-        {
-            $connection->getInfo(); // getInfo() doesn't throw in the closing state.
-        }
-        catch(Exception $ex)
-        {
-            test(false);
-        }
+        $connection->close(Ice\ConnectionClose::GracefullyWithWait);
+        $connection->getInfo(); // getInfo() doesn't throw in the closing state.
+
         while(true)
         {
             try
@@ -266,11 +213,11 @@ function allTestsWithController($helper, $controller)
         // Test Ice.Override.Timeout. This property overrides all
         // endpoint timeouts.
         //
-        $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
+        $initData = new Ice\InitializationData();
         $initData->properties = $communicator->getProperties()->clone();
         $initData->properties->setProperty("Ice.Override.ConnectTimeout", "250");
         $initData->properties->setProperty("Ice.Override.Timeout", "100");
-        $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
+        $comm = Ice\initialize($initData);
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
         $controller->holdAdapter(-1); // Use larger value, marshalling of byte arrays is much slower in PHP
@@ -279,14 +226,8 @@ function allTestsWithController($helper, $controller)
             $to->sendData($seq);
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\TimeoutException $ex)
         {
-            // Expected.
-            if(!($ex instanceof $TimeoutException))
-            {
-                echo($ex);
-                test(false);
-            }
         }
         $controller->resumeAdapter();
         $timeout->op(); // Ensure adapter is active.
@@ -301,14 +242,9 @@ function allTestsWithController($helper, $controller)
             $to->sendData($seq);
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\TimeoutException $ex)
         {
             // Expected TimeoutException.
-            if(!($ex instanceof $TimeoutException))
-            {
-                echo($ex);
-                test(false);
-            }
         }
         $controller->resumeAdapter();
         $timeout->op(); // Ensure adapter is active.
@@ -318,10 +254,10 @@ function allTestsWithController($helper, $controller)
         //
         // Test Ice.Override.ConnectTimeout.
         //
-        $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
+        $initData = new Ice\InitializationData();
         $initData->properties = $communicator->getProperties()->clone();
         $initData->properties->setProperty("Ice.Override.ConnectTimeout", "250");
-        $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
+        $comm = Ice\initialize($initData);
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
         $controller->holdAdapter(-1);
         try
@@ -329,14 +265,9 @@ function allTestsWithController($helper, $controller)
             $to->op();
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\ConnectTimeoutException $ex)
         {
             // Expected.
-            if(!($ex instanceof $ConnectTimeoutException))
-            {
-                echo($ex);
-                test(false);
-            }
         }
         $controller->resumeAdapter();
         $timeout->op(); // Ensure adapter is active.
@@ -350,14 +281,9 @@ function allTestsWithController($helper, $controller)
             $to->op();
             test(false);
         }
-        catch(Exception $ex)
+        catch(Ice\ConnectTimeoutException $ex)
         {
             // Expected.
-            if(!($ex instanceof $ConnectTimeoutException))
-            {
-                echo($ex);
-                test(false);
-            }
         }
         $controller->resumeAdapter();
         $timeout->op(); // Ensure adapter is active.
@@ -375,14 +301,8 @@ function allTestsWithController($helper, $controller)
         //     $to->sendData($seq);
         //     test(false);
         // }
-        // catch(Exception $ex)
+        // catch(Ice\TimeoutException $ex)
         // {
-        //     // Expected.
-        //     if(!($ex instanceof $TimeoutException))
-        //     {
-        //         echo($ex);
-        //         test(false);
-        //     }
         // }
         $comm->destroy();
     }
@@ -390,10 +310,10 @@ function allTestsWithController($helper, $controller)
         //
         // Test Ice.Override.CloseTimeout.
         //
-        $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
+        $initData = new Ice\InitializationData();
         $initData->properties = $communicator->getProperties()->clone();
         $initData->properties->setProperty("Ice.Override.CloseTimeout", "100");
-        $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
+        $comm = Ice\initialize($initData);
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
         $controller->holdAdapter(-1);
 

@@ -1881,11 +1881,7 @@ IcePHP::proxyInit(void)
     // Register the ObjectPrx class.
     //
     zend_class_entry ce;
-#ifdef ICEPHP_USE_NAMESPACES
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ObjectPrx", _proxyMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_ObjectPrx", _proxyMethods);
-#endif
     ce.create_object = handleAlloc;
     proxyClassEntry = zend_register_internal_class(&ce);
     //proxyClassEntry->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;

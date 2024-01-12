@@ -300,28 +300,6 @@
     return nil; // Keep the compiler happy.
 }
 
--(void) addObjectFactory:(id<ICEObjectFactory>)factory sliceId:(NSString*)sliceId
-{
-    @synchronized(objectFactories_)
-    {
-        [objectFactories_ setObject:factory forKey:sliceId];
-    }
-    ICEValueFactory valueFactoryWrapper = ^(NSString* s)
-    {
-        return [factory create:s];
-    };
-    [valueFactoryManager_ add:valueFactoryWrapper sliceId:sliceId];
-}
-
--(id<ICEObjectFactory>) findObjectFactory:(NSString*)sliceId
-{
-    @synchronized(objectFactories_)
-    {
-        return [objectFactories_ objectForKey:sliceId];
-    }
-    return nil; // Keep the compiler happy.
-}
-
 -(id<ICEValueFactoryManager>) getValueFactoryManager
 {
     return valueFactoryManager_;

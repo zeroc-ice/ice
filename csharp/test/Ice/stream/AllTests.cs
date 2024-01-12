@@ -88,7 +88,7 @@ namespace Ice
                 internal bool called = false;
             }
 
-            private static Ice.Value TestObjectFactory(string type)
+            private static Ice.Value TestValueFactory(string type)
             {
                 Debug.Assert(type.Equals(Test.MyClass.ice_staticId()));
                 return new TestValueReader();
@@ -618,7 +618,7 @@ namespace Ice
                     outS.writePendingValues();
                     var data = outS.finished();
                     test(writer.called);
-                    factoryWrapper.setFactory(TestObjectFactory);
+                    factoryWrapper.setFactory(TestValueFactory);
                     inS = new Ice.InputStream(communicator, data);
                     var cb = new TestReadValueCallback();
                     inS.readValue(cb.invoke);

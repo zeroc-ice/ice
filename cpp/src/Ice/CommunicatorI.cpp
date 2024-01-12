@@ -303,18 +303,6 @@ Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const Rout
     return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router);
 }
 
-void
-Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, const string& id)
-{
-    _instance->addObjectFactory(factory, id);
-}
-
-::Ice::ObjectFactoryPtr
-Ice::CommunicatorI::findObjectFactory(const string& id) const noexcept
-{
-    return _instance->findObjectFactory(id);
-}
-
 PropertiesPtr
 Ice::CommunicatorI::getProperties() const noexcept
 {

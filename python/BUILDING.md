@@ -4,7 +4,7 @@ This document describes how to build and install Ice for Python from source.
 You can also download and install a [binary distribution].
 
 * [Building with Pip](#building-with-pip)
-* [Building with Visual Studio 2022 and MSBuild (Python 3\.11 for Windows)](#building-with-visual-studio-2022-and-msbuild-python-311-for-windows)
+* [Building with Visual Studio 2022 and MSBuild (Python 3\.12 for Windows)](#building-with-visual-studio-2022-and-msbuild-python-312-for-windows)
 * [Building on Linux or macOS](#building-on-linux-or-macos)
 * [Configuring your Environment for Python](#configuring-your-environment-for-python)
 * [Running the Python Tests](#running-the-python-tests)

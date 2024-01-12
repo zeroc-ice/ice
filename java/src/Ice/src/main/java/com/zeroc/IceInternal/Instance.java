@@ -1508,13 +1508,6 @@ public final class Instance implements java.util.function.Function<String, Class
             // anymore. The calls below are therefore guaranteed to be
             // called once.
             //
-
-            for(com.zeroc.Ice.ObjectFactory f : _objectFactoryMap.values())
-            {
-                f.destroy();
-            }
-            _objectFactoryMap.clear();
-
             if(_routerManager != null)
             {
                 _routerManager.destroy();
@@ -1648,31 +1641,6 @@ public final class Instance implements java.util.function.Function<String, Class
             info.rcvSize = size;
             _setBufSizeWarn.put(type, info);
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    public synchronized void addObjectFactory(final com.zeroc.Ice.ObjectFactory factory, String id)
-    {
-        //
-        // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
-        // with the value factory manager. This may raise AlreadyRegisteredException.
-        //
-        _initData.valueFactoryManager.add(
-            new com.zeroc.Ice.ValueFactory()
-            {
-                public com.zeroc.Ice.Value create(String id)
-                {
-                    return factory.create(id);
-                }
-            }, id);
-
-        _objectFactoryMap.put(id, factory);
-    }
-
-    @SuppressWarnings("deprecation")
-    public synchronized com.zeroc.Ice.ObjectFactory findObjectFactory(String id)
-    {
-        return _objectFactoryMap.get(id);
     }
 
     private void
@@ -1912,7 +1880,4 @@ public final class Instance implements java.util.function.Function<String, Class
     private static boolean _oneOffDone = false;
     private QueueExecutorService _queueExecutorService;
     private QueueExecutor _queueExecutor;
-
-    @SuppressWarnings("deprecation")
-    private java.util.HashMap<String, com.zeroc.Ice.ObjectFactory> _objectFactoryMap = new java.util.HashMap<>();
 }

@@ -120,7 +120,7 @@ IceRuby::ValueFactoryManager::addValueFactory(VALUE f, const string& id)
 {
     ICE_RUBY_TRY
     {
-        add(new FactoryWrapper(f, false), id);
+        add(new FactoryWrapper(f), id);
     }
     ICE_RUBY_CATCH
 }
@@ -133,32 +133,6 @@ IceRuby::ValueFactoryManager::findValueFactory(const string& id) const
     {
         FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(f);
         if(w)
-        {
-            return w->getObject();
-        }
-    }
-
-    return Qnil;
-}
-
-void
-IceRuby::ValueFactoryManager::addObjectFactory(VALUE f, const string& id)
-{
-    ICE_RUBY_TRY
-    {
-        add(new FactoryWrapper(f, true), id);
-    }
-    ICE_RUBY_CATCH
-}
-
-VALUE
-IceRuby::ValueFactoryManager::findObjectFactory(const string& id) const
-{
-    Ice::ValueFactoryPtr f = find(id);
-    if(f)
-    {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(f);
-        if(w && w->isObjectFactory())
         {
             return w->getObject();
         }
@@ -239,9 +213,8 @@ IceRuby::ValueFactoryManager::destroy()
     _defaultFactory->destroy();
 }
 
-IceRuby::FactoryWrapper::FactoryWrapper(VALUE factory, bool isObjectFactory) :
-    _factory(factory),
-    _isObjectFactory(isObjectFactory)
+IceRuby::FactoryWrapper::FactoryWrapper(VALUE factory) :
+    _factory(factory)
 {
 }
 
@@ -279,12 +252,6 @@ IceRuby::FactoryWrapper::getObject() const
     return _factory;
 }
 
-bool
-IceRuby::FactoryWrapper::isObjectFactory() const
-{
-    return _isObjectFactory;
-}
-
 void
 IceRuby::FactoryWrapper::mark()
 {
@@ -294,10 +261,6 @@ IceRuby::FactoryWrapper::mark()
 void
 IceRuby::FactoryWrapper::destroy()
 {
-    if(_isObjectFactory)
-    {
-        callRuby(rb_funcall, _factory, rb_intern("destroy"), 0);
-    }
 }
 
 Ice::ValuePtr

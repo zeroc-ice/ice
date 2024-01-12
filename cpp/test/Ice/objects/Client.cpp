@@ -16,13 +16,6 @@
 //
 #include <DerivedEx.h>
 
-// For 'Ice::Communicator::addObjectFactory()' deprecation
-#if defined(_MSC_VER)
-#   pragma warning( disable : 4996 )
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 using namespace std;
 using namespace Test;
 
@@ -69,32 +62,6 @@ public:
 };
 #endif
 
-class MyObjectFactory : public Ice::ObjectFactory
-{
-public:
-    MyObjectFactory() : _destroyed(false)
-    {
-    }
-
-    ~MyObjectFactory()
-    {
-        assert(_destroyed);
-    }
-
-    virtual Ice::ValuePtr create(const string&)
-    {
-        return ICE_NULLPTR;
-    }
-
-    virtual void destroy()
-    {
-        _destroyed = true;
-    }
-
-private:
-    bool _destroyed;
-};
-
 class Client : public Test::TestHelper
 {
 public:
@@ -115,7 +82,6 @@ Client::run(int argc, char** argv)
     communicator->getValueFactoryManager()->add(makeFactory<DI>(), "::Test::D");
     communicator->getValueFactoryManager()->add(makeFactory<EI>(), "::Test::E");
     communicator->getValueFactoryManager()->add(makeFactory<FI>(), "::Test::F");
-    communicator->addObjectFactory(make_shared<MyObjectFactory>(), "TestOF");
 #else
     Ice::ValueFactoryPtr factory = new MyValueFactory;
     communicator->getValueFactoryManager()->add(factory, "::Test::B");
@@ -123,7 +89,6 @@ Client::run(int argc, char** argv)
     communicator->getValueFactoryManager()->add(factory, "::Test::D");
     communicator->getValueFactoryManager()->add(factory, "::Test::E");
     communicator->getValueFactoryManager()->add(factory, "::Test::F");
-    communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
 #endif
 
     InitialPrxPtr allTests(Test::TestHelper*);

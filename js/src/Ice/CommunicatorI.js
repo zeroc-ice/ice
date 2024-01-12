@@ -145,16 +145,6 @@ class Communicator
         return promise;
     }
 
-    addObjectFactory(factory, id)
-    {
-        this._instance.addObjectFactory(factory, id);
-    }
-
-    findObjectFactory(id)
-    {
-        return this._instance.findObjectFactory(id);
-    }
-
     getValueFactoryManager()
     {
         return this._instance.initializationData().valueFactoryManager;
