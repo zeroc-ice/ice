@@ -1945,9 +1945,7 @@ IcePHP::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    auto result = make_shared<ValueReader>(&obj, cls, _info);
-    return result;
+    return make_shared<ValueReader>(&obj, cls, _info);
 }
 
 void
@@ -2025,9 +2023,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    auto result = make_shared<ValueReader>(&obj, cls, _info);
-    return result;
+    return make_shared<ValueReader>(&obj, cls, _info);
 }
 
 void
@@ -2043,7 +2039,7 @@ IcePHP::DefaultValueFactory::destroy(void)
 
 IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) :
     ac(c),
-    _defaultFactory(new DefaultValueFactory(this))
+    _defaultFactory(make_shared<DefaultValueFactory>(this))
 {
     ZVAL_COPY_VALUE(&zv, z);
 }
