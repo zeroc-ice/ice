@@ -45,7 +45,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>ICE_MATLAB_API_EXPORTS;MX_COMPAT_32;MATLAB_MEX_FILE;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ICE_MATLAB_API_EXPORTS;MX_COMPAT_32;MATLAB_MEX_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -56,8 +56,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>ICE_MATLAB_API_EXPORTS;MX_COMPAT_32;MATLAB_MEX_FILE;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MatlabHome)\extern\include;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ICE_MATLAB_API_EXPORTS;MX_COMPAT_32;MATLAB_MEX_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libmx.lib;libmex.lib;libmat.lib;%(AdditionalDependencies)</AdditionalDependencies>
