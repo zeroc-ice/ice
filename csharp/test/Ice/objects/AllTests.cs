@@ -94,32 +94,6 @@ namespace Ice
                     return null;
                 }
 
-                private class MyObjectFactory : Ice.ObjectFactory
-                {
-                    public MyObjectFactory()
-                    {
-                        _destroyed = false;
-                    }
-
-                    ~MyObjectFactory()
-                    {
-                        Debug.Assert(_destroyed);
-                    }
-
-                    public Ice.Value create(string type)
-                    {
-                        return null;
-                    }
-
-                    public void
-                    destroy()
-                    {
-                        _destroyed = true;
-                    }
-
-                    private bool _destroyed;
-                }
-
                 public static Test.InitialPrx allTests(global::Test.TestHelper helper)
                 {
                     Ice.Communicator communicator = helper.communicator();
@@ -131,11 +105,6 @@ namespace Ice
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
-
-                    // Disable Obsolete warning/error
-#pragma warning disable 612, 618
-                    communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
-#pragma warning restore 612, 618
 
                     var output = helper.getWriter();
 
@@ -425,18 +394,6 @@ namespace Ice
                         test(false);
                     }
                     output.WriteLine("ok");
-
-                    // Disable Obsolete warning/error
-#pragma warning disable 612, 618
-                    output.Write("testing getting ObjectFactory...");
-                    output.Flush();
-                    test(communicator.findObjectFactory("TestOF") != null);
-                    output.WriteLine("ok");
-                    output.Write("testing getting ObjectFactory as ValueFactory...");
-                    output.Flush();
-                    test(communicator.getValueFactoryManager().find("TestOF") != null);
-                    output.WriteLine("ok");
-#pragma warning restore 612, 618
 
                     output.Write("testing partial ice_initialize...");
                     output.Flush();

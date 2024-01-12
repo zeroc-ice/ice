@@ -6,13 +6,6 @@
 #include <TestHelper.h>
 #include <TestI.h>
 
-// For 'Ice::Communicator::addObjectFactory()' deprecation
-#if defined(_MSC_VER)
-#   pragma warning( disable : 4996 )
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 using namespace std;
 using namespace Test;
 
@@ -460,13 +453,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing UnexpectedObjectException... " << flush;
     testUOE(communicator);
-    cout << "ok" << endl;
-
-    cout << "testing getting ObjectFactory... " << flush;
-    test(communicator->findObjectFactory("TestOF"));
-    cout << "ok" << endl;
-    cout << "testing getting ObjectFactory as ValueFactory... " << flush;
-    test(communicator->getValueFactoryManager()->find("TestOF"));
     cout << "ok" << endl;
 
     try

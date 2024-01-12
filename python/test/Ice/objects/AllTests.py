@@ -21,13 +21,6 @@ def MyValueFactory(type):
         return TestI.JI()
     assert(False) # Should never be reached
 
-class MyObjectFactory(Ice.ObjectFactory):
-    def create(self, type):
-        return None
-
-    def destroy():
-        pass
-
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
@@ -40,8 +33,6 @@ def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::F')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::I')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::J')
-
-    communicator.addObjectFactory(MyObjectFactory(), "TestOF")
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
@@ -284,16 +275,6 @@ def allTests(helper, communicator):
             print(sys.exc_info())
             test(False)
         print("ok")
-
-    sys.stdout.write("testing getting ObjectFactory... ")
-    sys.stdout.flush()
-    test(communicator.findObjectFactory("TestOF") != None)
-    print("ok")
-
-    sys.stdout.write("testing getting ObjectFactory as ValueFactory... ")
-    sys.stdout.flush()
-    test(communicator.getValueFactoryManager().find("TestOF") != None)
-    print("ok")
 
     sys.stdout.write("testing class containing complex dictionary... ")
     sys.stdout.flush()

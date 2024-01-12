@@ -114,16 +114,6 @@ namespace Ice
             return _instance.objectAdapterFactory().createObjectAdapter(name, router);
         }
 
-        public void addObjectFactory(ObjectFactory factory, string id)
-        {
-            _instance.addObjectFactory(factory, id);
-        }
-
-        public ObjectFactory findObjectFactory(string id)
-        {
-            return _instance.findObjectFactory(id);
-        }
-
         public ValueFactoryManager getValueFactoryManager()
         {
             return _instance.initializationData().valueFactoryManager;

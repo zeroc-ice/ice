@@ -360,14 +360,6 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("testing getting ObjectFactory...");
-        out.flush();
-        test(communicator.findObjectFactory("TestOF") != null);
-        out.println("ok");
-        out.print("testing getting ObjectFactory as ValueFactory...");
-        test(communicator.getValueFactoryManager().find("TestOF") != null);
-        out.println("ok");
-
         out.print("testing class containing complex dictionary... ");
         out.flush();
         {

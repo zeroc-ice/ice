@@ -77,9 +77,6 @@ public:
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrxPtr&);
 
-    virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
-    virtual ObjectFactoryPtr findObjectFactory(const std::string&) const noexcept;
-
     virtual ImplicitContextPtr getImplicitContext() const noexcept;
 
     virtual PropertiesPtr getProperties() const noexcept;

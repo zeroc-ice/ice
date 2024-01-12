@@ -656,9 +656,6 @@
     <ClCompile Include="..\..\ObjectAdapterF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ObjectFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

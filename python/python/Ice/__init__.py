@@ -753,7 +753,6 @@ import Ice.LocalException_local
 import Ice.Locator_ice
 import Ice.Logger_local
 import Ice.ObjectAdapter_local
-import Ice.ObjectFactory_local
 import Ice.ValueFactory_local
 import Ice.Process_ice
 import Ice.Properties_local
@@ -929,13 +928,6 @@ class CommunicatorI(Communicator):
     def createObjectAdapterWithRouter(self, name, router):
         adapter = self._impl.createObjectAdapterWithRouter(name, router)
         return ObjectAdapterI(adapter)
-
-    def addObjectFactory(self, factory, id):
-        # The extension implementation requires an extra argument that is a value factory
-        self._impl.addObjectFactory(factory, id, lambda s, factory=factory: factory.create(s))
-
-    def findObjectFactory(self, id):
-        return self._impl.findObjectFactory(id)
 
     def getValueFactoryManager(self):
         return self._impl.getValueFactoryManager()

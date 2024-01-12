@@ -182,7 +182,6 @@
     <ClCompile Include="..\..\LoggerF.cpp" />
     <ClCompile Include="..\..\ObjectAdapter.cpp" />
     <ClCompile Include="..\..\ObjectAdapterF.cpp" />
-    <ClCompile Include="..\..\ObjectFactory.cpp" />
     <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\PluginF.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
