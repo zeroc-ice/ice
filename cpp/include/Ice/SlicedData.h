@@ -98,7 +98,7 @@ public:
      * Clones this object.
      * @return A new instance.
      */
-    UnknownSlicedValuePtr ice_clone() const
+    inline UnknownSlicedValuePtr ice_clone() const
     {
 #ifdef ICE_CPP11_MAPPING
         return std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());

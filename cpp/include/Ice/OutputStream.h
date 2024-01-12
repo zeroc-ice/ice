@@ -787,12 +787,13 @@ public:
         initEncaps();
         _currentEncaps->encoder->write(v);
     }
-#
+
     /**
      * Writes a value instance to the stream.
      * @param v The value to be written.
      */
-    template<typename T> void write(const Ice::SharedPtr<T>& v)
+    template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
+    void write(const Ice::SharedPtr<T>& v)
     {
         write(v.underlying());
     }

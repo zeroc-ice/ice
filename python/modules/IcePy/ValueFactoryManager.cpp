@@ -32,7 +32,7 @@ getValueInfo(const string& id)
 
 }
 
-ValueFactoryManagerPtr
+/* static */ ValueFactoryManagerPtr
 IcePy::ValueFactoryManager::create()
 {
     // can't use make_shared because constructor is private
@@ -209,7 +209,6 @@ IcePy::ValueFactoryManager::findCore(const string& id) const noexcept
     }
     return nullptr;
 }
-
 
 IcePy::FactoryWrapper::FactoryWrapper(PyObject* valueFactory, PyObject* objectFactory) :
     _valueFactory(valueFactory),

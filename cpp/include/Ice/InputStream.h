@@ -1085,7 +1085,7 @@ public:
     template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
     void read(Ice::SharedPtr<T>& v)
     {
-        read(patchValue<T>, &v.underlying());
+        read(v.underlying());
     }
 
     /**
@@ -1216,7 +1216,7 @@ private:
     CompactIdResolverPtr compactIdResolver() const;
 #endif
 
-    typedef std::vector<std::shared_ptr<Value>> ValueList;
+    using ValueList = std::vector<std::shared_ptr<Value>>;
 
     class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {

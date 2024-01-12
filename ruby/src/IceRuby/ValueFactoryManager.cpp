@@ -54,7 +54,7 @@ IceRuby_ValueFactoryManager_free(ValueFactoryManagerPtr* p)
     delete p;
 }
 
-ValueFactoryManagerPtr
+/* static */ ValueFactoryManagerPtr
 IceRuby::ValueFactoryManager::ValueFactoryManager::create()
 {
     // can't use make_shared because constructor is private
@@ -126,7 +126,6 @@ IceRuby::ValueFactoryManager::find(const string& id) const noexcept
     }
 }
 
-
 Ice::ValueFactoryPtr
 IceRuby::ValueFactoryManager::findCore(const string& id) const noexcept
 {
@@ -147,7 +146,6 @@ IceRuby::ValueFactoryManager::findCore(const string& id) const noexcept
 
     return nullptr;
 }
-
 
 void
 IceRuby::ValueFactoryManager::addValueFactory(VALUE f, const string& id)
