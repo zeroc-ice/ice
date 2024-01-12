@@ -138,18 +138,6 @@ public final class CommunicatorI implements Communicator
         return _instance.objectAdapterFactory().createObjectAdapter(name, router);
     }
 
-    @Override @SuppressWarnings("deprecation")
-    public void addObjectFactory(ObjectFactory factory, String id)
-    {
-        _instance.addObjectFactory(factory, id);
-    }
-
-    @Override @SuppressWarnings("deprecation")
-    public ObjectFactory findObjectFactory(String id)
-    {
-        return _instance.findObjectFactory(id);
-    }
-
     @Override
     public ValueFactoryManager getValueFactoryManager()
     {

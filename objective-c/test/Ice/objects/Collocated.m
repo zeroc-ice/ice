@@ -6,11 +6,6 @@
 #import <TestCommon.h>
 #import <objects/TestI.h>
 
-#if defined(__clang__)
-// For 'Ice::Communicator::addObjectFactory()' deprecation
-#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 #if defined(__clang__) && __has_feature(objc_arc)
 ICEValueFactory factory = ^ICEValue* (NSString* type) NS_RETURNS_RETAINED
 #else
@@ -44,22 +39,6 @@ ICEValueFactory factory = ^ICEValue* (NSString* type)
     return nil;
 };
 
-@interface CollocatedMyObjectFactory : NSObject<ICEObjectFactory>
-@end
-
-@implementation CollocatedMyObjectFactory
-
--(ICEValue*) create:(NSString*)__unused type
-{
-    return nil;
-}
-
--(void) destroy
-{
-    // Nothing to do
-}
-@end
-
 static int
 run(id<ICECommunicator> communicator)
 {
@@ -69,9 +48,6 @@ run(id<ICECommunicator> communicator)
     [manager add:factory sliceId:@"::Test::D"];
     [manager add:factory sliceId:@"::Test::E"];
     [manager add:factory sliceId:@"::Test::F"];
-
-    id<ICEObjectFactory> objectFactory = ICE_AUTORELEASE([[CollocatedMyObjectFactory alloc] init]);
-    [communicator addObjectFactory:objectFactory sliceId:@"TestOF" ];
 
     [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:getTestEndpoint(communicator, 0)];
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];

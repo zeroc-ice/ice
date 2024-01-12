@@ -119,19 +119,6 @@
         return null;
     }
 
-    class MyObjectFactory
-    {
-
-        create(type)
-        {
-            return null;
-        }
-
-        destroy()
-        {
-        }
-    }
-
     class Client extends TestHelper
     {
         async allTests()
@@ -148,8 +135,6 @@
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
-
-            communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
             out.write("testing stringToProxy... ");
             let ref = "initial:" + this.getTestEndpoint();
@@ -410,14 +395,6 @@
                 test(ex instanceof Test.Inner.Sub.Ex, ex);
                 test(ex.reason == "Inner::Sub::Ex");
             }
-            out.writeLine("ok");
-
-            out.write("testing getting ObjectFactory... ");
-            test(communicator.findObjectFactory("TestOF") !== null);
-            out.writeLine("ok");
-
-            out.write("testing getting ObjectFactory as ValueFactory... ");
-            test(communicator.getValueFactoryManager().find("TestOF") !== null);
             out.writeLine("ok");
 
             out.write("testing class containing complex dictionary... ");

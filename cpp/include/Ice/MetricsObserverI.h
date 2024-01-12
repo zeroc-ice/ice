@@ -126,7 +126,6 @@ protected:
                                                                                                 memberFn)));
         }
 
-#if ICE_CPLUSPLUS >= 201703L
         //
         // Since C++17 the noexcept-specification is part of the function type and we need a separate
         // overload to handle memberFn being noexcept
@@ -138,7 +137,6 @@ protected:
                                Resolver*>::value_type(name, new MemberFunctionResolver<I, O, Y>(name, getFn,
                                                                                                 memberFn)));
         }
-#endif
 
     private:
 

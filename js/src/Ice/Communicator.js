@@ -30,7 +30,6 @@ require("../Ice/StreamHelpers");
 require("../Ice/LoggerF");
 require("../Ice/InstrumentationF");
 require("../Ice/ObjectAdapterF");
-require("../Ice/ObjectFactory");
 require("../Ice/ValueFactory");
 require("../Ice/Router");
 require("../Ice/Locator");

@@ -16,13 +16,6 @@
 //
 #include <DerivedEx.h>
 
-// For 'Ice::Communicator::addObjectFactory()' deprecation
-#if defined(_MSC_VER)
-#   pragma warning( disable : 4996 )
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 using namespace std;
 using namespace Test;
 

@@ -9,21 +9,6 @@ require_once("Test.php");
 
 function testSetACM($helper, $com)
 {
-    global $NS;
-    $CloseOnIdleForceful = constant($NS ? "Ice\\ACMClose::CloseOnIdleForceful" :
-                                          "Ice_ACMClose::CloseOnIdleForceful");
-
-    $CloseOnInvocationAndIdle = constant($NS ? "Ice\\ACMClose::CloseOnInvocationAndIdle" :
-                                               "Ice_ACMClose::CloseOnInvocationAndIdle");
-
-    $HeartbeatOnIdle = constant($NS ? "Ice\\ACMHeartbeat::HeartbeatOnIdle" :
-                                      "Ice_ACMHeartbeat::HeartbeatOnIdle");
-
-    $HeartbeatAlways = constant($NS ? "Ice\\ACMHeartbeat::HeartbeatAlways" :
-                                      "Ice_ACMHeartbeat::HeartbeatAlways");
-
-    $None = constant($NS ? "Ice\\None" : "Ice_Unset");
-
     echo "testing setACM/getACM... ";
     flush();
 
@@ -44,20 +29,20 @@ function testSetACM($helper, $com)
 
     $acm = $proxy->ice_getCachedConnection()->getACM();
     test($acm->timeout == 15);
-    test($acm->close == $CloseOnIdleForceful);
-    test($acm->heartbeat == $HeartbeatOnIdle);
+    test($acm->close == Ice\ACMClose::CloseOnIdleForceful);
+    test($acm->heartbeat == Ice\ACMHeartbeat::HeartbeatOnIdle);
 
-    $proxy->ice_getCachedConnection()->setACM($None, $None, $None);
+    $proxy->ice_getCachedConnection()->setACM(Ice\None, Ice\None, Ice\None);
     $acm = $proxy->ice_getCachedConnection()->getACM();
     test($acm->timeout == 15);
-    test($acm->close == $CloseOnIdleForceful);
-    test($acm->heartbeat == $HeartbeatOnIdle);
+    test($acm->close == Ice\ACMClose::CloseOnIdleForceful);
+    test($acm->heartbeat == Ice\ACMHeartbeat::HeartbeatOnIdle);
 
-    $proxy->ice_getCachedConnection()->setACM(1, $CloseOnInvocationAndIdle, $HeartbeatAlways);
+    $proxy->ice_getCachedConnection()->setACM(1, Ice\ACMClose::CloseOnInvocationAndIdle, Ice\ACMHeartbeat::HeartbeatAlways);
     $acm = $proxy->ice_getCachedConnection()->getACM();
     test($acm->timeout == 1);
-    test($acm->close == $CloseOnInvocationAndIdle);
-    test($acm->heartbeat == $HeartbeatAlways);
+    test($acm->close == Ice\ACMClose::CloseOnInvocationAndIdle);
+    test($acm->heartbeat == Ice\ACMHeartbeat::HeartbeatAlways);
 
     $proxy->startHeartbeatCount();
     $proxy->waitForHeartbeatCount(2);

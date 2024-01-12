@@ -1301,74 +1301,6 @@ communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
 extern "C"
 #endif
 static PyObject*
-communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
-{
-    PyObject* objectFactoryType = lookupType("Ice.ObjectFactory");
-    assert(objectFactoryType);
-    PyObject* valueFactoryType = lookupType("types.FunctionType");
-    assert(valueFactoryType);
-
-    PyObject* objectFactory;
-    PyObject* strObj;
-    PyObject* valueFactory;
-    if(!PyArg_ParseTuple(args, STRCAST("O!OO!"), objectFactoryType, &objectFactory, &strObj, valueFactoryType,
-                         &valueFactory))
-    {
-        return 0;
-    }
-
-    string id;
-    if(!getStringArg(strObj, "id", id))
-    {
-        return 0;
-    }
-
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
-    assert(vfm);
-
-    try
-    {
-        vfm->add(valueFactory, objectFactory, id);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
-{
-    PyObject* strObj;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &strObj))
-    {
-        return 0;
-    }
-
-    string id;
-    if(!getStringArg(strObj, "id", id))
-    {
-        return 0;
-    }
-
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
-    assert(vfm);
-
-    return vfm->findObjectFactory(id);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
 {
     ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
@@ -1700,10 +1632,6 @@ static PyMethodDef CommunicatorMethods[] =
     { STRCAST("createObjectAdapterWithRouter"),
         reinterpret_cast<PyCFunction>(communicatorCreateObjectAdapterWithRouter), METH_VARARGS,
         PyDoc_STR(STRCAST("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")) },
-    { STRCAST("addObjectFactory"), reinterpret_cast<PyCFunction>(communicatorAddObjectFactory), METH_VARARGS,
-        PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
-    { STRCAST("findObjectFactory"), reinterpret_cast<PyCFunction>(communicatorFindObjectFactory), METH_VARARGS,
-        PyDoc_STR(STRCAST("findObjectFactory(id) -> Ice.ObjectFactory")) },
     { STRCAST("getValueFactoryManager"), reinterpret_cast<PyCFunction>(communicatorGetValueFactoryManager), METH_NOARGS,
         PyDoc_STR(STRCAST("getValueFactoryManager() -> Ice.ValueFactoryManager")) },
     { STRCAST("getImplicitContext"), reinterpret_cast<PyCFunction>(communicatorGetImplicitContext), METH_NOARGS,

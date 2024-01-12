@@ -769,7 +769,6 @@ public:
     bool returnsData() const;
     bool returnsMultipleValues() const;
     bool sendsOptionals() const;
-    int attributes() const;
     FormatType format() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);

@@ -122,9 +122,7 @@ static void
 addClassInfoByName(const ClassInfoPtr& p)
 {
     assert(!getClassInfoByName(p->name));
-#ifdef ICEPHP_USE_NAMESPACES
     assert(p->name[0] == '\\');
-#endif
 
     ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
     if(!m)
@@ -196,7 +194,6 @@ IcePHP::getClassInfoByName(const string& name)
     {
         string s = name;
 
-#ifdef ICEPHP_USE_NAMESPACES
         //
         // PHP's class definition (zend_class_entry) does not use a leading backslash
         // in the class name.
@@ -205,7 +202,6 @@ IcePHP::getClassInfoByName(const string& name)
         {
             s.insert(0, "\\");
         }
-#endif
 
         ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
         ClassInfoMap::iterator p = m->find(s);
@@ -2424,11 +2420,7 @@ IcePHP::ClassInfo::define(const string& n, Ice::Int compact, bool pres, bool int
     }
 
     const_cast<bool&>(defined) = true;
-#ifdef ICEPHP_USE_NAMESPACES
     const string valueClass = "Ice\\Value";
-#else
-    const string valueClass = "Ice_Value";
-#endif
     const_cast<zend_class_entry*&>(zce) = nameToClass(interface ? valueClass : name);
     assert(zce || id == "::Ice::LocalObject" || interface); // LocalObject and interfaces does not have a native PHP equivalent.
 }
@@ -3994,12 +3986,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
     _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
 
-#ifdef ICEPHP_USE_NAMESPACES
     REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS|CONST_PERSISTENT);
-#else
-    REGISTER_STRING_CONSTANT("Ice_Unset", const_cast<char*>(_unsetGUID.c_str()), CONST_CS|CONST_PERSISTENT);
-#endif
-
     return true;
 }
 

@@ -7,8 +7,6 @@ require_once('Test.php');
 
 function allTests($helper)
 {
-    global $NS;
-
     echo "testing stringToProxy... ";
     flush();
     $ref = sprintf("d:%s", $helper->getTestEndpoint());
@@ -17,46 +15,43 @@ function allTests($helper)
     test($db != null);
     echo "ok\n";
 
-    $objectHelper = $NS ? "Ice\\ObjectPrxHelper" : "Ice_ObjectPrxHelper";
-    $dHelper = $NS ? "Test\\DPrxHelper" : "Test_DPrxHelper";
-
     echo "testing unchecked cast... ";
     flush();
-    $prx = $objectHelper::uncheckedCast($db);
+    $prx = Ice\ObjectPrxHelper::uncheckedCast($db);
     test($prx->ice_getFacet() == "");
-    $prx = $objectHelper::uncheckedCast($db, "facetABCD");
+    $prx = Ice\ObjectPrxHelper::uncheckedCast($db, "facetABCD");
     test($prx->ice_getFacet() == "facetABCD");
-    $prx2 = $objectHelper::uncheckedCast($prx);
+    $prx2 = Ice\ObjectPrxHelper::uncheckedCast($prx);
     test($prx2->ice_getFacet() == "facetABCD");
-    $prx3 = $objectHelper::uncheckedCast($prx, "");
+    $prx3 = Ice\ObjectPrxHelper::uncheckedCast($prx, "");
     test($prx3->ice_getFacet() == "");
-    $d = $dHelper::uncheckedCast($db);
+    $d = Test\DPrxHelper::uncheckedCast($db);
     test($d->ice_getFacet() == "");
-    $df = $dHelper::uncheckedCast($db, "facetABCD");
+    $df = Test\DPrxHelper::uncheckedCast($db, "facetABCD");
     test($df->ice_getFacet() == "facetABCD");
-    $df2 = $dHelper::uncheckedCast($df);
+    $df2 = Test\DPrxHelper::uncheckedCast($df);
     test($df2->ice_getFacet() == "facetABCD");
-    $df3 = $dHelper::uncheckedCast($df, "");
+    $df3 = Test\DPrxHelper::uncheckedCast($df, "");
     test($df3->ice_getFacet() == "");
     echo "ok\n";
 
     echo "testing checked cast... ";
     flush();
-    $prx = $objectHelper::checkedCast($db);
+    $prx = Ice\ObjectPrxHelper::checkedCast($db);
     test($prx->ice_getFacet() == "");
-    $prx = $objectHelper::checkedCast($db, "facetABCD");
+    $prx = Ice\ObjectPrxHelper::checkedCast($db, "facetABCD");
     test($prx->ice_getFacet() == "facetABCD");
-    $prx2 = $objectHelper::checkedCast($prx);
+    $prx2 = Ice\ObjectPrxHelper::checkedCast($prx);
     test($prx2->ice_getFacet() == "facetABCD");
-    $prx3 = $objectHelper::checkedCast($prx, "");
+    $prx3 = Ice\ObjectPrxHelper::checkedCast($prx, "");
     test($prx3->ice_getFacet() == "");
-    $d = $dHelper::checkedCast($db);
+    $d = Test\DPrxHelper::checkedCast($db);
     test($d->ice_getFacet() == "");
-    $df = $dHelper::checkedCast($db, "facetABCD");
+    $df = Test\DPrxHelper::checkedCast($db, "facetABCD");
     test($df->ice_getFacet() == "facetABCD");
-    $df2 = $dHelper::checkedCast($df);
+    $df2 = Test\DPrxHelper::checkedCast($df);
     test($df2->ice_getFacet() == "facetABCD");
-    $df3 = $dHelper::checkedCast($df, "");
+    $df3 = Test\DPrxHelper::checkedCast($df, "");
     test($df3->ice_getFacet() == "");
     echo "ok\n";
 

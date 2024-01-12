@@ -26,8 +26,6 @@ public:
     virtual Ice::ValuePtr create(const std::string&);
 
     PyObject* getValueFactory() const;
-    PyObject* getObjectFactory() const;
-
     void destroy();
 
 protected:
@@ -47,7 +45,6 @@ public:
     Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
 
     PyObject* getValueFactory() const;
-    PyObject* getObjectFactory() const;
 
     void destroy();
 
@@ -69,7 +66,6 @@ public:
 
     virtual void add(PyObject*, PyObject*, const std::string&);
     PyObject* findValueFactory(const std::string&) const;
-    PyObject* findObjectFactory(const std::string&) const;
 
     PyObject* getObject() const;
 

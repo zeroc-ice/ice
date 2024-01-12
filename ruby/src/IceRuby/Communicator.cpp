@@ -14,7 +14,6 @@
 #include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
 #include <Ice/Locator.h>
-#include <Ice/ObjectFactory.h>
 #include <Ice/Properties.h>
 #include <Ice/Router.h>
 
@@ -533,38 +532,6 @@ IceRuby_Communicator_identityToString(VALUE self, VALUE id)
 
 extern "C"
 VALUE
-IceRuby_Communicator_addObjectFactory(VALUE self, VALUE factory, VALUE id)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::CommunicatorPtr p = getCommunicator(self);
-        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(p->getValueFactoryManager());
-        assert(vfm);
-        string idstr = getString(id);
-        vfm->addObjectFactory(factory, idstr);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Communicator_findObjectFactory(VALUE self, VALUE id)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::CommunicatorPtr p = getCommunicator(self);
-        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(p->getValueFactoryManager());
-        assert(vfm);
-        string idstr = getString(id);
-        return vfm->findObjectFactory(idstr);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
 IceRuby_Communicator_getValueFactoryManager(VALUE self)
 {
     ICE_RUBY_TRY
@@ -743,8 +710,6 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "propertyToProxy", CAST_METHOD(IceRuby_Communicator_propertyToProxy), 1);
     rb_define_method(_communicatorClass, "proxyToProperty", CAST_METHOD(IceRuby_Communicator_proxyToProperty), 2);
     rb_define_method(_communicatorClass, "identityToString", CAST_METHOD(IceRuby_Communicator_identityToString), 1);
-    rb_define_method(_communicatorClass, "addObjectFactory", CAST_METHOD(IceRuby_Communicator_addObjectFactory), 2);
-    rb_define_method(_communicatorClass, "findObjectFactory", CAST_METHOD(IceRuby_Communicator_findObjectFactory), 1);
     rb_define_method(_communicatorClass, "getValueFactoryManager", CAST_METHOD(IceRuby_Communicator_getValueFactoryManager), 0);
     rb_define_method(_communicatorClass, "getImplicitContext", CAST_METHOD(IceRuby_Communicator_getImplicitContext), 0);
     rb_define_method(_communicatorClass, "getProperties", CAST_METHOD(IceRuby_Communicator_getProperties), 0);

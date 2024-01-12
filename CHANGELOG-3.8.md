@@ -61,6 +61,10 @@ instances and servants.
 - The slice compiler no longer generates an Objective-C protocol for Slice classes. It generates only an Objective-C
 class (interface).
 
+## PHP Changes
+
+- Removed the flattened mapping deprecated in 3.7.
+
 ## Ice Service Changes
 
 - The implementations of Glacier2, IceGrid, IceStorm and IcePatch2 were updated to use the new C++ mapping.
