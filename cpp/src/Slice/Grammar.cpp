@@ -1781,7 +1781,7 @@ yyreduce:
   case 8: /* meta_data: %empty  */
 #line 222 "src/Slice/Grammar.y"
 {
-    yyval = new StringListTok;
+    yyval = make_shared<StringListTok>();
 }
 #line 1787 "src/Slice/Grammar.cpp"
     break;
@@ -1789,7 +1789,7 @@ yyreduce:
   case 9: /* definitions: definitions global_meta_data  */
 #line 231 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[0]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[0]);
     if(!metaData->v.empty())
     {
         unit->addGlobalMetaData(metaData->v);
@@ -1801,8 +1801,8 @@ yyreduce:
   case 10: /* definitions: definitions meta_data definition  */
 #line 239 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
-    ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[0]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(yyvsp[0]);
     if(contained && !metaData->v.empty())
     {
         contained->setMetaData(metaData->v);
@@ -1821,7 +1821,7 @@ yyreduce:
   case 12: /* $@1: %empty  */
 #line 256 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ModulePtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<Module>(yyvsp[0]));
 }
 #line 1827 "src/Slice/Grammar.cpp"
     break;
@@ -1829,7 +1829,7 @@ yyreduce:
   case 14: /* $@2: %empty  */
 #line 261 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ClassDeclPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<ClassDecl>(yyvsp[0]));
 }
 #line 1835 "src/Slice/Grammar.cpp"
     break;
@@ -1845,7 +1845,7 @@ yyreduce:
   case 17: /* $@3: %empty  */
 #line 270 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ClassDefPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<ClassDef>(yyvsp[0]));
 }
 #line 1851 "src/Slice/Grammar.cpp"
     break;
@@ -1853,7 +1853,7 @@ yyreduce:
   case 19: /* $@4: %empty  */
 #line 275 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || InterfaceDeclPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<InterfaceDecl>(yyvsp[0]));
 }
 #line 1859 "src/Slice/Grammar.cpp"
     break;
@@ -1869,7 +1869,7 @@ yyreduce:
   case 22: /* $@5: %empty  */
 #line 284 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || InterfaceDefPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<InterfaceDef>(yyvsp[0]));
 }
 #line 1875 "src/Slice/Grammar.cpp"
     break;
@@ -1893,7 +1893,7 @@ yyreduce:
   case 27: /* $@7: %empty  */
 #line 298 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ExceptionPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<Exception>(yyvsp[0]));
 }
 #line 1899 "src/Slice/Grammar.cpp"
     break;
@@ -1917,7 +1917,7 @@ yyreduce:
   case 32: /* $@9: %empty  */
 #line 312 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || StructPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<Struct>(yyvsp[0]));
 }
 #line 1923 "src/Slice/Grammar.cpp"
     break;
@@ -1925,7 +1925,7 @@ yyreduce:
   case 34: /* $@10: %empty  */
 #line 317 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || SequencePtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<Sequence>(yyvsp[0]));
 }
 #line 1931 "src/Slice/Grammar.cpp"
     break;
@@ -1941,7 +1941,7 @@ yyreduce:
   case 37: /* $@11: %empty  */
 #line 326 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || DictionaryPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<Dictionary>(yyvsp[0]));
 }
 #line 1947 "src/Slice/Grammar.cpp"
     break;
@@ -1957,7 +1957,7 @@ yyreduce:
   case 40: /* $@12: %empty  */
 #line 335 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || EnumPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<Enum>(yyvsp[0]));
 }
 #line 1963 "src/Slice/Grammar.cpp"
     break;
@@ -1965,7 +1965,7 @@ yyreduce:
   case 42: /* $@13: %empty  */
 #line 340 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ConstPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == 0 || dynamic_pointer_cast<Const>(yyvsp[0]));
 }
 #line 1971 "src/Slice/Grammar.cpp"
     break;
@@ -1989,7 +1989,7 @@ yyreduce:
   case 46: /* @14: %empty  */
 #line 358 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);
     if(module)
@@ -2033,7 +2033,7 @@ yyreduce:
   case 49: /* exception_id: ICE_EXCEPTION keyword  */
 #line 395 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
     yyval = yyvsp[0]; // Dummy
 }
@@ -2052,8 +2052,8 @@ yyreduce:
   case 51: /* @15: %empty  */
 #line 416 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-1]);
-    ExceptionPtr base = ExceptionPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
+    ExceptionPtr base = dynamic_pointer_cast<Exception>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     ExceptionPtr ex = cont->createException(ident->v, base);
     if(ex)
@@ -2081,7 +2081,7 @@ yyreduce:
   case 53: /* exception_extends: extends scoped_name  */
 #line 442 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     ContainedPtr contained = cont->lookupException(scoped->v);
     cont->checkIntroduced(scoped->v);
@@ -2101,9 +2101,9 @@ yyreduce:
   case 55: /* type_id: type ICE_IDENTIFIER  */
 #line 459 "src/Slice/Grammar.y"
 {
-    TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    TypeStringTokPtr typestring = new TypeStringTok;
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[-1]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    TypeStringTokPtr typestring = make_shared<TypeStringTok>();
     typestring->v = make_pair(type, ident->v);
     yyval = typestring;
 }
@@ -2113,7 +2113,7 @@ yyreduce:
   case 56: /* tag: ICE_TAG_OPEN ICE_INTEGER_LITERAL ')'  */
 #line 472 "src/Slice/Grammar.y"
 {
-    IntegerTokPtr i = IntegerTokPtr::dynamicCast(yyvsp[-1]);
+    IntegerTokPtr i = dynamic_pointer_cast<IntegerTok>(yyvsp[-1]);
 
     int tag;
     if(i->v < 0 || i->v > Int32Max)
@@ -2126,7 +2126,7 @@ yyreduce:
         tag = static_cast<int>(i->v);
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(tag);
     yyval = m;
 }
 #line 2133 "src/Slice/Grammar.cpp"
@@ -2135,7 +2135,7 @@ yyreduce:
   case 57: /* tag: ICE_TAG_OPEN scoped_name ')'  */
 #line 490 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
@@ -2184,11 +2184,11 @@ yyreduce:
     cont->checkIntroduced(scoped->v);
 
     int tag = -1;
-    EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
-    ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+    EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(cl.front());
+    ConstPtr constant = dynamic_pointer_cast<Const>(cl.front());
     if(constant)
     {
-        BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(constant->type());
         if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
@@ -2209,7 +2209,7 @@ yyreduce:
         unit->error("invalid tag `" + scoped->v + "'");
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(tag);
     yyval = m;
 }
 #line 2216 "src/Slice/Grammar.cpp"
@@ -2219,7 +2219,7 @@ yyreduce:
 #line 569 "src/Slice/Grammar.y"
 {
     unit->error("missing tag");
-    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
 #line 2226 "src/Slice/Grammar.cpp"
@@ -2229,7 +2229,7 @@ yyreduce:
 #line 575 "src/Slice/Grammar.y"
 {
     unit->error("missing tag");
-    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
 #line 2236 "src/Slice/Grammar.cpp"
@@ -2238,7 +2238,7 @@ yyreduce:
   case 60: /* optional: ICE_OPTIONAL_OPEN ICE_INTEGER_LITERAL ')'  */
 #line 586 "src/Slice/Grammar.y"
 {
-    IntegerTokPtr i = IntegerTokPtr::dynamicCast(yyvsp[-1]);
+    IntegerTokPtr i = dynamic_pointer_cast<IntegerTok>(yyvsp[-1]);
 
     int tag;
     if(i->v < 0 || i->v > Int32Max)
@@ -2251,7 +2251,7 @@ yyreduce:
         tag = static_cast<int>(i->v);
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(tag);
     yyval = m;
 }
 #line 2258 "src/Slice/Grammar.cpp"
@@ -2260,7 +2260,7 @@ yyreduce:
   case 61: /* optional: ICE_OPTIONAL_OPEN scoped_name ')'  */
 #line 604 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
@@ -2308,11 +2308,11 @@ yyreduce:
     cont->checkIntroduced(scoped->v);
 
     int tag = -1;
-    EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
-    ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+    EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(cl.front());
+    ConstPtr constant = dynamic_pointer_cast<Const>(cl.front());
     if(constant)
     {
-        BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(constant->type());
         if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
@@ -2333,7 +2333,7 @@ yyreduce:
         unit->error("invalid tag `" + scoped->v + "'");
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(tag);
     yyval = m;
 }
 #line 2340 "src/Slice/Grammar.cpp"
@@ -2343,7 +2343,7 @@ yyreduce:
 #line 682 "src/Slice/Grammar.y"
 {
     unit->error("missing tag");
-    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
 #line 2350 "src/Slice/Grammar.cpp"
@@ -2353,7 +2353,7 @@ yyreduce:
 #line 688 "src/Slice/Grammar.y"
 {
     unit->error("missing tag");
-    TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
 #line 2360 "src/Slice/Grammar.cpp"
@@ -2362,8 +2362,8 @@ yyreduce:
   case 64: /* tagged_type_id: tag type_id  */
 #line 699 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
+    TaggedDefTokPtr m = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    TypeStringTokPtr ts = dynamic_pointer_cast<TypeStringTok>(yyvsp[0]);
 
     m->type = ts->v.first;
     m->name = ts->v.second;
@@ -2375,8 +2375,8 @@ yyreduce:
   case 65: /* tagged_type_id: optional type_id  */
 #line 708 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
+    TaggedDefTokPtr m = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    TypeStringTokPtr ts = dynamic_pointer_cast<TypeStringTok>(yyvsp[0]);
 
     m->type = ts->v.first;
     m->name = ts->v.second;
@@ -2388,8 +2388,8 @@ yyreduce:
   case 66: /* tagged_type_id: type_id  */
 #line 717 "src/Slice/Grammar.y"
 {
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
-    TaggedDefTokPtr m = new TaggedDefTok(-1);
+    TypeStringTokPtr ts = dynamic_pointer_cast<TypeStringTok>(yyvsp[0]);
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(-1);
     m->type = ts->v.first;
     m->name = ts->v.second;
     yyval = m;
@@ -2408,7 +2408,7 @@ yyreduce:
   case 68: /* struct_id: ICE_STRUCT keyword  */
 #line 734 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as struct name");
     yyval = yyvsp[0]; // Dummy
 }
@@ -2427,7 +2427,7 @@ yyreduce:
   case 70: /* @16: %empty  */
 #line 755 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     StructPtr st = cont->createStruct(ident->v);
     if(st)
@@ -2458,7 +2458,7 @@ yyreduce:
     //
     // Empty structures are not allowed
     //
-    StructPtr st = StructPtr::dynamicCast(yyval);
+    StructPtr st = dynamic_pointer_cast<Struct>(yyval);
     assert(st);
     if(st->dataMembers().empty())
     {
@@ -2479,7 +2479,7 @@ yyreduce:
   case 73: /* class_name: ICE_CLASS keyword  */
 #line 800 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as class name");
     yyval = yyvsp[0]; // Dummy
 }
@@ -2489,7 +2489,7 @@ yyreduce:
   case 74: /* class_id: ICE_CLASS ICE_IDENT_OPEN ICE_INTEGER_LITERAL ')'  */
 #line 811 "src/Slice/Grammar.y"
 {
-    IceUtil::Int64 id = IntegerTokPtr::dynamicCast(yyvsp[-1])->v;
+    IceUtil::Int64 id = dynamic_pointer_cast<IntegerTok>(yyvsp[-1])->v;
     if(id < 0)
     {
         unit->error("invalid compact id for class: id must be a positive integer");
@@ -2507,8 +2507,8 @@ yyreduce:
         }
     }
 
-    ClassIdTokPtr classId = new ClassIdTok();
-    classId->v = StringTokPtr::dynamicCast(yyvsp[-2])->v;
+    ClassIdTokPtr classId = make_shared<ClassIdTok>();
+    classId->v = dynamic_pointer_cast<StringTok>(yyvsp[-2])->v;
     classId->t = static_cast<int>(id);
     yyval = classId;
 }
@@ -2518,7 +2518,7 @@ yyreduce:
   case 75: /* class_id: ICE_CLASS ICE_IDENT_OPEN scoped_name ')'  */
 #line 836 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
@@ -2567,11 +2567,11 @@ yyreduce:
     cont->checkIntroduced(scoped->v);
 
     int id = -1;
-    EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
-    ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+    EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(cl.front());
+    ConstPtr constant = dynamic_pointer_cast<Const>(cl.front());
     if(constant)
     {
-        BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(constant->type());
         if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
@@ -2600,8 +2600,8 @@ yyreduce:
         }
     }
 
-    ClassIdTokPtr classId = new ClassIdTok();
-    classId->v = StringTokPtr::dynamicCast(yyvsp[-2])->v;
+    ClassIdTokPtr classId = make_shared<ClassIdTok>();
+    classId->v = dynamic_pointer_cast<StringTok>(yyvsp[-2])->v;
     classId->t = id;
     yyval = classId;
 
@@ -2612,8 +2612,8 @@ yyreduce:
   case 76: /* class_id: class_name  */
 #line 926 "src/Slice/Grammar.y"
 {
-    ClassIdTokPtr classId = new ClassIdTok();
-    classId->v = StringTokPtr::dynamicCast(yyvsp[0])->v;
+    ClassIdTokPtr classId = make_shared<ClassIdTok>();
+    classId->v = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
     classId->t = -1;
     yyval = classId;
 }
@@ -2623,7 +2623,7 @@ yyreduce:
   case 77: /* class_decl: class_name  */
 #line 938 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v);
     yyval = cl;
@@ -2634,9 +2634,9 @@ yyreduce:
   case 78: /* @17: %empty  */
 #line 950 "src/Slice/Grammar.y"
 {
-    ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast(yyvsp[-1]);
+    ClassIdTokPtr ident = dynamic_pointer_cast<ClassIdTok>(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
-    ClassDefPtr base = ClassDefPtr::dynamicCast(yyvsp[0]);
+    ClassDefPtr base = dynamic_pointer_cast<ClassDef>(yyvsp[0]);
     ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
     if(cl)
     {
@@ -2671,13 +2671,13 @@ yyreduce:
   case 80: /* class_extends: extends scoped_name  */
 #line 984 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     yyval = 0;
     if(!types.empty())
     {
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(types.front());
         if(!cl)
         {
             string msg = "`";
@@ -2731,8 +2731,8 @@ yyreduce:
   case 84: /* data_members: meta_data data_member ';' data_members  */
 #line 1038 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[-2]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
     if(contained && !metaData->v.empty())
     {
         contained->setMetaData(metaData->v);
@@ -2766,14 +2766,14 @@ yyreduce:
   case 88: /* data_member: tagged_type_id  */
 #line 1062 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    TaggedDefTokPtr def = dynamic_pointer_cast<TaggedDefTok>(yyvsp[0]);
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
         dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    StructPtr st = dynamic_pointer_cast<Struct>(unit->currentContainer());
     if(st)
     {
         if (def->isTagged)
@@ -2786,7 +2786,7 @@ yyreduce:
             dm = st->createDataMember(def->name, def->type, false, -1, 0, "", "");
         }
     }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    ExceptionPtr ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
     if(ex)
     {
         dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
@@ -2800,17 +2800,17 @@ yyreduce:
   case 89: /* data_member: tagged_type_id '=' const_initializer  */
 #line 1092 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[-2]);
-    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
+    TaggedDefTokPtr def = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-2]);
+    ConstDefTokPtr value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
 
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
         dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    StructPtr st = dynamic_pointer_cast<Struct>(unit->currentContainer());
     if(st)
     {
         if (def->isTagged)
@@ -2824,7 +2824,7 @@ yyreduce:
                                       value->valueAsString, value->valueAsLiteral);
         }
     }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    ExceptionPtr ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
     if(ex)
     {
         dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
@@ -2839,19 +2839,19 @@ yyreduce:
   case 90: /* data_member: type keyword  */
 #line 1127 "src/Slice/Grammar.y"
 {
-    TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
-    string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[-1]);
+    string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
     if(cl)
     {
         yyval = cl->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    StructPtr st = dynamic_pointer_cast<Struct>(unit->currentContainer());
     if(st)
     {
         yyval = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    ExceptionPtr ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
     if(ex)
     {
         yyval = ex->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
@@ -2865,18 +2865,18 @@ yyreduce:
   case 91: /* data_member: type  */
 #line 1149 "src/Slice/Grammar.y"
 {
-    TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[0]);
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
     if(cl)
     {
         yyval = cl->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    StructPtr st = dynamic_pointer_cast<Struct>(unit->currentContainer());
     if(st)
     {
         yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    ExceptionPtr ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
     if(ex)
     {
         yyval = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
@@ -2890,8 +2890,8 @@ yyreduce:
   case 92: /* return_type: tag type  */
 #line 1175 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    m->type = TypePtr::dynamicCast(yyvsp[0]);
+    TaggedDefTokPtr m = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    m->type = dynamic_pointer_cast<Type>(yyvsp[0]);
     yyval = m;
 }
 #line 2898 "src/Slice/Grammar.cpp"
@@ -2900,8 +2900,8 @@ yyreduce:
   case 93: /* return_type: optional type  */
 #line 1181 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    m->type = TypePtr::dynamicCast(yyvsp[0]);
+    TaggedDefTokPtr m = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    m->type = dynamic_pointer_cast<Type>(yyvsp[0]);
     yyval = m;
 }
 #line 2908 "src/Slice/Grammar.cpp"
@@ -2910,8 +2910,8 @@ yyreduce:
   case 94: /* return_type: type  */
 #line 1187 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr m = new TaggedDefTok(-1);
-    m->type = TypePtr::dynamicCast(yyvsp[0]);
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(-1);
+    m->type = dynamic_pointer_cast<Type>(yyvsp[0]);
     yyval = m;
 }
 #line 2918 "src/Slice/Grammar.cpp"
@@ -2920,7 +2920,7 @@ yyreduce:
   case 95: /* return_type: ICE_VOID  */
 #line 1193 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr m = new TaggedDefTok(-1);
+    TaggedDefTokPtr m = make_shared<TaggedDefTok>(-1);
     yyval = m;
 }
 #line 2927 "src/Slice/Grammar.cpp"
@@ -2929,9 +2929,9 @@ yyreduce:
   case 96: /* operation_preamble: return_type ICE_IDENT_OPEN  */
 #line 1203 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    TaggedDefTokPtr returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
+    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
@@ -2957,9 +2957,9 @@ yyreduce:
   case 97: /* operation_preamble: ICE_IDEMPOTENT return_type ICE_IDENT_OPEN  */
 #line 1227 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    TaggedDefTokPtr returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
+    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
@@ -2986,9 +2986,9 @@ yyreduce:
   case 98: /* operation_preamble: return_type ICE_KEYWORD_OPEN  */
 #line 1252 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    TaggedDefTokPtr returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
+    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
@@ -3014,9 +3014,9 @@ yyreduce:
   case 99: /* operation_preamble: ICE_IDEMPOTENT return_type ICE_KEYWORD_OPEN  */
 #line 1276 "src/Slice/Grammar.y"
 {
-    TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
-    string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    TaggedDefTokPtr returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
+    string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
+    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
@@ -3059,8 +3059,8 @@ yyreduce:
   case 101: /* operation: operation_preamble parameters ')' @18 throws  */
 #line 1318 "src/Slice/Grammar.y"
 {
-    OperationPtr op = OperationPtr::dynamicCast(yyvsp[-1]);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(yyvsp[-1]);
+    ExceptionListTokPtr el = dynamic_pointer_cast<ExceptionListTok>(yyvsp[0]);
     assert(el);
     if(op)
     {
@@ -3085,8 +3085,8 @@ yyreduce:
   case 103: /* operation: operation_preamble error ')' @19 throws  */
 #line 1336 "src/Slice/Grammar.y"
 {
-    OperationPtr op = OperationPtr::dynamicCast(yyvsp[-1]);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(yyvsp[-1]);
+    ExceptionListTokPtr el = dynamic_pointer_cast<ExceptionListTok>(yyvsp[0]);
     assert(el);
     if(op)
     {
@@ -3107,7 +3107,7 @@ yyreduce:
   case 105: /* interface_id: ICE_INTERFACE keyword  */
 #line 1355 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as interface name");
     yyval = yyvsp[0]; // Dummy
 }
@@ -3117,7 +3117,7 @@ yyreduce:
   case 106: /* interface_decl: interface_id  */
 #line 1366 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
     cont->checkIntroduced(ident->v, cl);
@@ -3129,9 +3129,9 @@ yyreduce:
   case 107: /* @20: %empty  */
 #line 1379 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-1]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
-    InterfaceListTokPtr bases = InterfaceListTokPtr::dynamicCast(yyvsp[0]);
+    InterfaceListTokPtr bases = dynamic_pointer_cast<InterfaceListTok>(yyvsp[0]);
     InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
     if(interface)
     {
@@ -3166,13 +3166,13 @@ yyreduce:
   case 109: /* interface_list: scoped_name ',' interface_list  */
 #line 1413 "src/Slice/Grammar.y"
 {
-    InterfaceListTokPtr intfs = InterfaceListTokPtr::dynamicCast(yyvsp[0]);
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-2]);
+    InterfaceListTokPtr intfs = dynamic_pointer_cast<InterfaceListTok>(yyvsp[0]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
-        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(types.front());
+        InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
         if(!interface)
         {
             string msg = "`";
@@ -3205,13 +3205,13 @@ yyreduce:
   case 110: /* interface_list: scoped_name  */
 #line 1448 "src/Slice/Grammar.y"
 {
-    InterfaceListTokPtr intfs = new InterfaceListTok;
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
+    InterfaceListTokPtr intfs = make_shared<InterfaceListTok>();
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
-        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(types.front());
+        InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
         if(!interface)
         {
             string msg = "`";
@@ -3245,7 +3245,7 @@ yyreduce:
 #line 1483 "src/Slice/Grammar.y"
 {
     unit->error("illegal inheritance from type Object");
-    yyval = new InterfaceListTok; // Dummy
+    yyval = make_shared<InterfaceListTok>(); // Dummy
 }
 #line 3251 "src/Slice/Grammar.cpp"
     break;
@@ -3254,7 +3254,7 @@ yyreduce:
 #line 1488 "src/Slice/Grammar.y"
 {
     unit->error("illegal inheritance from type Value");
-    yyval = new ClassListTok; // Dummy
+    yyval = make_shared<ClassListTok>(); // Dummy
 }
 #line 3260 "src/Slice/Grammar.cpp"
     break;
@@ -3270,7 +3270,7 @@ yyreduce:
   case 114: /* interface_extends: %empty  */
 #line 1502 "src/Slice/Grammar.y"
 {
-    yyval = new InterfaceListTok;
+    yyval = make_shared<InterfaceListTok>();
 }
 #line 3276 "src/Slice/Grammar.cpp"
     break;
@@ -3278,8 +3278,8 @@ yyreduce:
   case 115: /* operations: meta_data operation ';' operations  */
 #line 1511 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[-2]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
     if(contained && !metaData->v.empty())
     {
         contained->setMetaData(metaData->v);
@@ -3313,8 +3313,8 @@ yyreduce:
   case 119: /* exception_list: exception ',' exception_list  */
 #line 1535 "src/Slice/Grammar.y"
 {
-    ExceptionPtr exception = ExceptionPtr::dynamicCast(yyvsp[-2]);
-    ExceptionListTokPtr exceptionList = ExceptionListTokPtr::dynamicCast(yyvsp[0]);
+    ExceptionPtr exception = dynamic_pointer_cast<Exception>(yyvsp[-2]);
+    ExceptionListTokPtr exceptionList = dynamic_pointer_cast<ExceptionListTok>(yyvsp[0]);
     exceptionList->v.push_front(exception);
     yyval = exceptionList;
 }
@@ -3324,8 +3324,8 @@ yyreduce:
   case 120: /* exception_list: exception  */
 #line 1542 "src/Slice/Grammar.y"
 {
-    ExceptionPtr exception = ExceptionPtr::dynamicCast(yyvsp[0]);
-    ExceptionListTokPtr exceptionList = new ExceptionListTok;
+    ExceptionPtr exception = dynamic_pointer_cast<Exception>(yyvsp[0]);
+    ExceptionListTokPtr exceptionList = make_shared<ExceptionListTok>();
     exceptionList->v.push_front(exception);
     yyval = exceptionList;
 }
@@ -3335,7 +3335,7 @@ yyreduce:
   case 121: /* exception: scoped_name  */
 #line 1554 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
@@ -3351,7 +3351,7 @@ yyreduce:
   case 122: /* exception: keyword  */
 #line 1566 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
     yyval = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
@@ -3361,9 +3361,9 @@ yyreduce:
   case 123: /* sequence_def: ICE_SEQUENCE '<' meta_data type '>' ICE_IDENTIFIER  */
 #line 1577 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[-2]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = unit->currentContainer();
     yyval = cont->createSequence(ident->v, type, metaData->v);
 }
@@ -3373,9 +3373,9 @@ yyreduce:
   case 124: /* sequence_def: ICE_SEQUENCE '<' meta_data type '>' keyword  */
 #line 1585 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[-2]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = unit->currentContainer();
     yyval = cont->createSequence(ident->v, type, metaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
@@ -3386,11 +3386,11 @@ yyreduce:
   case 125: /* dictionary_def: ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' ICE_IDENTIFIER  */
 #line 1599 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast(yyvsp[-6]);
-    TypePtr keyType = TypePtr::dynamicCast(yyvsp[-5]);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr valueType = TypePtr::dynamicCast(yyvsp[-2]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    StringListTokPtr keyMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-6]);
+    TypePtr keyType = dynamic_pointer_cast<Type>(yyvsp[-5]);
+    StringListTokPtr valueMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+    TypePtr valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = unit->currentContainer();
     yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
 }
@@ -3400,11 +3400,11 @@ yyreduce:
   case 126: /* dictionary_def: ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword  */
 #line 1609 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast(yyvsp[-6]);
-    TypePtr keyType = TypePtr::dynamicCast(yyvsp[-5]);
-    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr valueType = TypePtr::dynamicCast(yyvsp[-2]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    StringListTokPtr keyMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-6]);
+    TypePtr keyType = dynamic_pointer_cast<Type>(yyvsp[-5]);
+    StringListTokPtr valueMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+    TypePtr valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = unit->currentContainer();
     yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
@@ -3423,7 +3423,7 @@ yyreduce:
   case 128: /* enum_id: ICE_ENUM keyword  */
 #line 1629 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
     yyval = yyvsp[0]; // Dummy
 }
@@ -3433,7 +3433,7 @@ yyreduce:
   case 129: /* @21: %empty  */
 #line 1640 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v);
     if(en)
@@ -3453,10 +3453,10 @@ yyreduce:
   case 130: /* enum_def: enum_id @21 '{' enumerator_list '}'  */
 #line 1656 "src/Slice/Grammar.y"
 {
-    EnumPtr en = EnumPtr::dynamicCast(yyvsp[-3]);
+    EnumPtr en = dynamic_pointer_cast<Enum>(yyvsp[-3]);
     if(en)
     {
-        EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast(yyvsp[-1]);
+        EnumeratorListTokPtr enumerators = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[-1]);
         if(enumerators->v.empty())
         {
             unit->error("enum `" + en->name() + "' must have at least one enumerator");
@@ -3492,8 +3492,8 @@ yyreduce:
   case 133: /* enumerator_list: enumerator ',' enumerator_list  */
 #line 1689 "src/Slice/Grammar.y"
 {
-    EnumeratorListTokPtr ens = EnumeratorListTokPtr::dynamicCast(yyvsp[-2]);
-    ens->v.splice(ens->v.end(), EnumeratorListTokPtr::dynamicCast(yyvsp[0])->v);
+    EnumeratorListTokPtr ens = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[-2]);
+    ens->v.splice(ens->v.end(), dynamic_pointer_cast<EnumeratorListTok>(yyvsp[0])->v);
     yyval = ens;
 }
 #line 3500 "src/Slice/Grammar.cpp"
@@ -3509,8 +3509,8 @@ yyreduce:
   case 135: /* enumerator: ICE_IDENTIFIER  */
 #line 1703 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    EnumeratorListTokPtr ens = make_shared<EnumeratorListTok>();
     ContainerPtr cont = unit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
@@ -3525,10 +3525,10 @@ yyreduce:
   case 136: /* enumerator: ICE_IDENTIFIER '=' enumerator_initializer  */
 #line 1715 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-2]);
-    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
+    EnumeratorListTokPtr ens = make_shared<EnumeratorListTok>();
     ContainerPtr cont = unit->currentContainer();
-    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast(yyvsp[0]);
+    IntegerTokPtr intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
     if(intVal)
     {
         if(intVal->v < 0 || intVal->v > Int32Max)
@@ -3549,9 +3549,9 @@ yyreduce:
   case 137: /* enumerator: keyword  */
 #line 1735 "src/Slice/Grammar.y"
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as enumerator");
-    EnumeratorListTokPtr ens = new EnumeratorListTok; // Dummy
+    EnumeratorListTokPtr ens = make_shared<EnumeratorListTok>(); // Dummy
     yyval = ens;
 }
 #line 3558 "src/Slice/Grammar.cpp"
@@ -3560,7 +3560,7 @@ yyreduce:
   case 138: /* enumerator: %empty  */
 #line 1742 "src/Slice/Grammar.y"
 {
-    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    EnumeratorListTokPtr ens = make_shared<EnumeratorListTok>();
     yyval = ens; // Dummy
 }
 #line 3567 "src/Slice/Grammar.cpp"
@@ -3577,22 +3577,22 @@ yyreduce:
   case 140: /* enumerator_initializer: scoped_name  */
 #line 1756 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
     IntegerTokPtr tok;
     if(!cl.empty())
     {
-        ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+        ConstPtr constant = dynamic_pointer_cast<Const>(cl.front());
         if(constant)
         {
             unit->currentContainer()->checkIntroduced(scoped->v, constant);
-            BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
+            BuiltinPtr b = dynamic_pointer_cast<Builtin>(constant->type());
             if(b && b->isIntegralType())
             {
                 IceUtil::Int64 v;
                 if(IceUtilInternal::stringToInt64(constant->value(), v))
                 {
-                    tok = new IntegerTok;
+                    tok = make_shared<IntegerTok>();
                     tok->v = v;
                     tok->literal = constant->value();
                 }
@@ -3614,7 +3614,7 @@ yyreduce:
   case 141: /* out_qualifier: ICE_OUT  */
 #line 1794 "src/Slice/Grammar.y"
 {
-    BoolTokPtr out = new BoolTok;
+    BoolTokPtr out = make_shared<BoolTok>();
     out->v = true;
     yyval = out;
 }
@@ -3624,7 +3624,7 @@ yyreduce:
   case 142: /* out_qualifier: %empty  */
 #line 1800 "src/Slice/Grammar.y"
 {
-    BoolTokPtr out = new BoolTok;
+    BoolTokPtr out = make_shared<BoolTok>();
     out->v = false;
     yyval = out;
 }
@@ -3641,14 +3641,14 @@ yyreduce:
   case 144: /* parameters: out_qualifier meta_data tagged_type_id  */
 #line 1814 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
-    TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
-    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    BoolTokPtr isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
+    TaggedDefTokPtr tsp = dynamic_pointer_cast<TaggedDefTok>(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(unit->currentContainer());
     if(op)
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
         unit->currentContainer()->checkIntroduced(tsp->name, pd);
-        StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
+        StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
         if(!metaData->v.empty())
         {
             pd->setMetaData(metaData->v);
@@ -3661,14 +3661,14 @@ yyreduce:
   case 145: /* parameters: parameters ',' out_qualifier meta_data tagged_type_id  */
 #line 1830 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
-    TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
-    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    BoolTokPtr isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
+    TaggedDefTokPtr tsp = dynamic_pointer_cast<TaggedDefTok>(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(unit->currentContainer());
     if(op)
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
         unit->currentContainer()->checkIntroduced(tsp->name, pd);
-        StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
+        StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
         if(!metaData->v.empty())
         {
             pd->setMetaData(metaData->v);
@@ -3681,10 +3681,10 @@ yyreduce:
   case 146: /* parameters: out_qualifier meta_data type keyword  */
 #line 1846 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    BoolTokPtr isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-3]);
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[-1]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(unit->currentContainer());
     if(op)
     {
         op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
@@ -3697,10 +3697,10 @@ yyreduce:
   case 147: /* parameters: parameters ',' out_qualifier meta_data type keyword  */
 #line 1858 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    BoolTokPtr isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-3]);
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[-1]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(unit->currentContainer());
     if(op)
     {
         op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
@@ -3713,9 +3713,9 @@ yyreduce:
   case 148: /* parameters: out_qualifier meta_data type  */
 #line 1870 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
-    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    BoolTokPtr isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(unit->currentContainer());
     if(op)
     {
         op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
@@ -3728,9 +3728,9 @@ yyreduce:
   case 149: /* parameters: parameters ',' out_qualifier meta_data type  */
 #line 1881 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
-    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    BoolTokPtr isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
+    TypePtr type = dynamic_pointer_cast<Type>(yyvsp[0]);
+    OperationPtr op = dynamic_pointer_cast<Operation>(unit->currentContainer());
     if(op)
     {
         op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
@@ -3751,7 +3751,7 @@ yyreduce:
   case 151: /* throws: %empty  */
 #line 1901 "src/Slice/Grammar.y"
 {
-    yyval = new ExceptionListTok;
+    yyval = make_shared<ExceptionListTok>();
 }
 #line 3757 "src/Slice/Grammar.cpp"
     break;
@@ -3841,7 +3841,7 @@ yyreduce:
   case 165: /* type: builtin  */
 #line 1939 "src/Slice/Grammar.y"
 {
-    StringTokPtr typeName = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr typeName = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     yyval = unit->builtin(Builtin::kindFromString(typeName->v).value());
 }
 #line 3848 "src/Slice/Grammar.cpp"
@@ -3850,7 +3850,7 @@ yyreduce:
   case 166: /* type: scoped_name  */
 #line 1944 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     if(cont)
     {
@@ -3861,7 +3861,7 @@ yyreduce:
         }
         TypePtr firstType = types.front();
 
-        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(firstType);
+        InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
         if(interface)
         {
             string msg = "add a '*' after the interface name to specify its proxy type: '";
@@ -3885,7 +3885,7 @@ yyreduce:
   case 167: /* type: scoped_name '*'  */
 #line 1975 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
     if(cont)
     {
@@ -3896,7 +3896,7 @@ yyreduce:
         }
         TypePtr firstType = types.front();
 
-        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(firstType);
+        InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
         if(!interface)
         {
             string msg = "`";
@@ -3920,8 +3920,8 @@ yyreduce:
   case 168: /* string_literal: ICE_STRING_LITERAL string_literal  */
 #line 2011 "src/Slice/Grammar.y"
 {
-    StringTokPtr str1 = StringTokPtr::dynamicCast(yyvsp[-1]);
-    StringTokPtr str2 = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr str1 = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
+    StringTokPtr str2 = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     str1->v += str2->v;
 }
 #line 3928 "src/Slice/Grammar.cpp"
@@ -3937,8 +3937,8 @@ yyreduce:
   case 170: /* string_list: string_list ',' string_literal  */
 #line 2025 "src/Slice/Grammar.y"
 {
-    StringTokPtr str = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr stringList = StringListTokPtr::dynamicCast(yyvsp[-2]);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    StringListTokPtr stringList = dynamic_pointer_cast<StringListTok>(yyvsp[-2]);
     stringList->v.push_back(str->v);
     yyval = stringList;
 }
@@ -3948,8 +3948,8 @@ yyreduce:
   case 171: /* string_list: string_literal  */
 #line 2032 "src/Slice/Grammar.y"
 {
-    StringTokPtr str = StringTokPtr::dynamicCast(yyvsp[0]);
-    StringListTokPtr stringList = new StringListTok;
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    StringListTokPtr stringList = make_shared<StringListTok>();
     stringList->v.push_back(str->v);
     yyval = stringList;
 }
@@ -3960,10 +3960,10 @@ yyreduce:
 #line 2044 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindLong);
-    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast(yyvsp[0]);
+    IntegerTokPtr intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
     ostringstream sstr;
     sstr << intVal->v;
-    ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), intVal->literal);
+    ConstDefTokPtr def = make_shared<ConstDefTok>(type, sstr.str(), intVal->literal);
     yyval = def;
 }
 #line 3970 "src/Slice/Grammar.cpp"
@@ -3973,10 +3973,10 @@ yyreduce:
 #line 2053 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindDouble);
-    FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast(yyvsp[0]);
+    FloatingTokPtr floatVal = dynamic_pointer_cast<FloatingTok>(yyvsp[0]);
     ostringstream sstr;
     sstr << floatVal->v;
-    ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), floatVal->literal);
+    ConstDefTokPtr def = make_shared<ConstDefTok>(type, sstr.str(), floatVal->literal);
     yyval = def;
 }
 #line 3983 "src/Slice/Grammar.cpp"
@@ -3985,31 +3985,31 @@ yyreduce:
   case 174: /* const_initializer: scoped_name  */
 #line 2062 "src/Slice/Grammar.y"
 {
-    StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
+    StringTokPtr scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ConstDefTokPtr def;
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v, false);
     if(cl.empty())
     {
         // Could be an enumerator
-        def = new ConstDefTok(SyntaxTreeBasePtr(0), scoped->v, scoped->v);
+        def = make_shared<ConstDefTok>(SyntaxTreeBasePtr(0), scoped->v, scoped->v);
     }
     else
     {
-        EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
-        ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+        EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(cl.front());
+        ConstPtr constant = dynamic_pointer_cast<Const>(cl.front());
         if(enumerator)
         {
             unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
-            def = new ConstDefTok(enumerator, scoped->v, scoped->v);
+            def = make_shared<ConstDefTok>(enumerator, scoped->v, scoped->v);
         }
         else if(constant)
         {
             unit->currentContainer()->checkIntroduced(scoped->v, constant);
-            def = new ConstDefTok(constant, constant->value(), constant->value());
+            def = make_shared<ConstDefTok>(constant, constant->value(), constant->value());
         }
         else
         {
-            def = new ConstDefTok;
+            def = make_shared<ConstDefTok>();
             string msg = "illegal initializer: `" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
             msg += prependA(kindOf);
@@ -4025,8 +4025,8 @@ yyreduce:
 #line 2097 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
-    StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
-    ConstDefTokPtr def = new ConstDefTok(type, literal->v, literal->literal);
+    StringTokPtr literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    ConstDefTokPtr def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
     yyval = def;
 }
 #line 4033 "src/Slice/Grammar.cpp"
@@ -4036,8 +4036,8 @@ yyreduce:
 #line 2104 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
-    StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
-    ConstDefTokPtr def = new ConstDefTok(type, "false", "false");
+    StringTokPtr literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    ConstDefTokPtr def = make_shared<ConstDefTok>(type, "false", "false");
     yyval = def;
 }
 #line 4044 "src/Slice/Grammar.cpp"
@@ -4047,8 +4047,8 @@ yyreduce:
 #line 2111 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
-    StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
-    ConstDefTokPtr def = new ConstDefTok(type, "true", "true");
+    StringTokPtr literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
+    ConstDefTokPtr def = make_shared<ConstDefTok>(type, "true", "true");
     yyval = def;
 }
 #line 4055 "src/Slice/Grammar.cpp"
@@ -4057,10 +4057,10 @@ yyreduce:
   case 178: /* const_def: ICE_CONST meta_data type ICE_IDENTIFIER '=' const_initializer  */
 #line 2123 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-4]);
-    TypePtr const_type = TypePtr::dynamicCast(yyvsp[-3]);
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-2]);
-    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-4]);
+    TypePtr const_type = dynamic_pointer_cast<Type>(yyvsp[-3]);
+    StringTokPtr ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
+    ConstDefTokPtr value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
     yyval = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
@@ -4070,9 +4070,9 @@ yyreduce:
   case 179: /* const_def: ICE_CONST meta_data type '=' const_initializer  */
 #line 2132 "src/Slice/Grammar.y"
 {
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr const_type = TypePtr::dynamicCast(yyvsp[-2]);
-    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
+    StringListTokPtr metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
+    TypePtr const_type = dynamic_pointer_cast<Type>(yyvsp[-2]);
+    ConstDefTokPtr value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
     unit->error("missing constant name");
     yyval = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy

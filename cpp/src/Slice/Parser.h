@@ -12,6 +12,7 @@
 #include <list>
 #include <stack>
 #include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string_view>

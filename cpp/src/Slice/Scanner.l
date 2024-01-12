@@ -135,7 +135,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
-    StringTokPtr str = new StringTok;
+    StringTokPtr str = make_shared<StringTok>;
     str->literal = "\"";
     *yylval = str;
 }
@@ -147,7 +147,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
    * new-lines, non-printable ASCII characters, and double-quotes. */
 <STRING_LITERAL>"\\\\"+               |
 <STRING_LITERAL>[^\\\n"\x0-\x1f\x7f]+ {
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dymamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
 }
@@ -156,14 +156,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <STRING_LITERAL>"\\\"" |
 <STRING_LITERAL>"\\\'" |
 <STRING_LITERAL>"\\?"  {
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext[1];
 }
 
   /* Matches an ANSI-C escape code pattern. */
 <STRING_LITERAL>"\\"[abfnrtv] {
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     char ansiCode;
     switch(yytext[1])
     {
@@ -188,7 +188,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
         unit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
     }
 
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += static_cast<char>(value);
 }
@@ -198,7 +198,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     IceUtil::Int64 value = strtoull((yytext + 2), 0, 16);
     assert(value <= 255);
 
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += static_cast<char>(value);
 }
@@ -206,7 +206,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches an empty hexadecimal escape value. */
 <STRING_LITERAL>"\\x" {
     unit->error("no hex digit in hex escape sequence");
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
 
@@ -218,7 +218,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     {
         unit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
     }
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
 }
@@ -227,7 +227,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <STRING_LITERAL>"\\u"{hex}{0,3}[g-zG-Z]* |
 <STRING_LITERAL>"\\U"{hex}{0,7}[g-zG-Z]* {
     unit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
 }
@@ -247,7 +247,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <STRING_LITERAL>"\\". {
     unit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     // Escape the entire sequence.
     str->literal += yytext;
     str->v += "\\" + string(yytext);
@@ -256,7 +256,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a dangling backslash, with nothing to escape. This rule is mostly included for grammar completeness. */
 <STRING_LITERAL>\\ {
     unit->warning(All, "dangling backslash in string literal");
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
 
@@ -266,7 +266,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_pop_state();
     endLocation(yylloc);
 
-    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     return ICE_STRING_LITERAL;
 }
@@ -283,7 +283,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 {integer_constant} {
     setLocation(yylloc);
 
-    IntegerTokPtr itp = new IntegerTok;
+    IntegerTokPtr itp = make_shared<IntegerTok>;
     itp->literal = string(yytext);
     *yylval = itp;
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
@@ -298,7 +298,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     setLocation(yylloc);
 
     errno = 0;
-    FloatingTokPtr ftp = new FloatingTok;
+    FloatingTokPtr ftp = make_shared<FloatingTok>();
     *yylval = ftp;
     string literal(yytext);
     ftp->literal = literal;
@@ -431,7 +431,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
-    StringTokPtr str = new StringTok;
+    StringTokPtr str = make_shared<StringTok>();
     str->literal = "\"";
     *yylval = str;
 }
@@ -464,7 +464,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Identifiers and Keywords ========== */
 
 {identifier}[[:space:]]*"(" {
-    StringTokPtr ident = new StringTok;
+    StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylval = ident;
@@ -501,7 +501,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
 {identifier} {
-    StringTokPtr ident = new StringTok;
+    StringTokPtr ident = make_shared<StringTok>();
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylval = ident;
     return *yytext == '\\' ? checkIsScoped(ident->v) : checkKeyword(ident->v);

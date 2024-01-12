@@ -7,6 +7,7 @@
 
 #include "Parser.h"
 #include "Util.h"
+#include <memory>
 
 namespace Slice
 {
@@ -207,12 +208,14 @@ public:
     TaggedDefTok() :
         isTagged(false),
         tag(0)
-    { 
+    {
     }
+
     TaggedDefTok(int t) :
         isTagged(t >= 0),
         tag(t)
-    { }
+    {
+    }
 
     TypePtr type;
     std::string name;
