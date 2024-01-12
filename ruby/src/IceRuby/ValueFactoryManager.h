@@ -18,7 +18,7 @@ class FactoryWrapper : public Ice::ValueFactory
 {
 public:
 
-    FactoryWrapper(VALUE, bool);
+    FactoryWrapper(VALUE);
 
     virtual Ice::ValuePtr create(const std::string&);
 

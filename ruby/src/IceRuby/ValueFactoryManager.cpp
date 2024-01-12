@@ -120,7 +120,7 @@ IceRuby::ValueFactoryManager::addValueFactory(VALUE f, const string& id)
 {
     ICE_RUBY_TRY
     {
-        add(new FactoryWrapper(f, false), id);
+        add(new FactoryWrapper(f), id);
     }
     ICE_RUBY_CATCH
 }
