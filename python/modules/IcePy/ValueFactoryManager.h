@@ -60,7 +60,8 @@ class ValueFactoryManager : public Ice::ValueFactoryManager, public IceUtil::Mut
 {
 public:
 
-    ValueFactoryManager();
+    static std::shared_ptr<ValueFactoryManager> create();
+
     ~ValueFactoryManager();
 
     virtual void add(Ice::ValueFactoryFunc, const std::string&);
@@ -78,6 +79,7 @@ private:
 
     typedef std::map<std::string, Ice::ValueFactoryPtr> FactoryMap;
 
+    ValueFactoryManager();
     Ice::ValueFactoryPtr findCore(const std::string&) const noexcept;
 
     PyObject* _self;

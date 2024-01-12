@@ -244,7 +244,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         //
         // We always supply our own implementation of ValueFactoryManager.
         //
-        data.valueFactoryManager = make_shared<ValueFactoryManager>();
+        data.valueFactoryManager = ValueFactoryManager::create();
 
         if(!data.properties)
         {

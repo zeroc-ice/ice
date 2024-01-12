@@ -275,9 +275,7 @@ IceRuby::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    auto result = make_shared<ValueReader>(obj, info);
-    return result;
+    return make_shared<ValueReader>(obj, info);
 }
 
 VALUE
@@ -341,9 +339,7 @@ IceRuby::DefaultValueFactory::create(const string& id)
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
     assert(!NIL_P(obj));
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    auto result = make_shared<ValueReader>(obj, info);
-    return result;
+    return make_shared<ValueReader>(obj, info);
 }
 
 void

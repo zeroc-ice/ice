@@ -16,7 +16,7 @@ namespace IcePy
 struct ValueFactoryManagerObject
 {
     PyObject_HEAD
-    ValueFactoryManager* vfm;
+    ValueFactoryManagerPtr* vfm;
 };
 
 }
@@ -32,8 +32,12 @@ getValueInfo(const string& id)
 
 }
 
-IcePy::ValueFactoryManager::ValueFactoryManager()
+ValueFactoryManagerPtr
+IcePy::ValueFactoryManager::create()
 {
+    // can't use make_shared because constructor is private
+    auto vfm = shared_ptr<ValueFactoryManager>(new ValueFactoryManager);
+
     //
     // Create a Python wrapper around this object. Note that this is cyclic - we clear the
     // reference in destroy().
@@ -42,9 +46,15 @@ IcePy::ValueFactoryManager::ValueFactoryManager()
         ValueFactoryManagerType.tp_alloc(&ValueFactoryManagerType, 0));
     assert(obj);
 
-    obj->vfm = this;
-    _self = reinterpret_cast<PyObject*>(obj);
+    // We're creating a shared_ptr on the heap
+    obj->vfm = new ValueFactoryManagerPtr(vfm);
+    vfm->_self = reinterpret_cast<PyObject*>(obj);
 
+    return vfm;
+}
+
+IcePy::ValueFactoryManager::ValueFactoryManager()
+{
     _defaultFactory = make_shared<DefaultValueFactory>();
 }
 
@@ -244,10 +254,7 @@ IcePy::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
-    // will fail.
-    ValueReaderPtr result = make_shared<ValueReader>(obj.get(), info);
-    return result;
+    return make_shared<ValueReader>(obj.get(), info);;
 }
 
 PyObject*
@@ -308,10 +315,7 @@ IcePy::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
-    // will fail.
-    ValueReaderPtr result = make_shared<ValueReader>(obj.get(), info);
-    return result;
+    return make_shared<ValueReader>(obj.get(), info);
 }
 
 void
@@ -367,6 +371,7 @@ extern "C"
 static void
 valueFactoryManagerDealloc(ValueFactoryManagerObject* self)
 {
+    delete self->vfm;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -394,7 +399,7 @@ valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
         return 0;
     }
 
-    (self->vfm)->add(factory, Py_None, id);
+    (*self->vfm)->add(factory, Py_None, id);
     if(PyErr_Occurred())
     {
         return 0;
@@ -424,7 +429,7 @@ valueFactoryManagerFind(ValueFactoryManagerObject* self, PyObject* args)
         return 0;
     }
 
-    return (self->vfm)->findValueFactory(id);
+    return (*self->vfm)->findValueFactory(id);
 }
 
 static PyMethodDef ValueFactoryManagerMethods[] =
