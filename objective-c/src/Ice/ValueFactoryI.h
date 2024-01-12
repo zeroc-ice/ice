@@ -9,6 +9,7 @@
 @interface ICEValueFactoryManager : NSObject<ICEValueFactoryManager>
 {
     NSMutableDictionary* valueFactories_;
+    NSDictionary* prefixTable_;
 }
 -(id) init:(Ice::Communicator*)communicator prefixTable:(NSDictionary*)prefixTable;
 @end

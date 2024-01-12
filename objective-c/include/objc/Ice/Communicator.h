@@ -15,7 +15,6 @@
 #import <objc/Ice/LoggerF.h>
 #import <objc/Ice/InstrumentationF.h>
 #import <objc/Ice/ObjectAdapterF.h>
-#import <objc/Ice/ObjectFactory.h>
 #import <objc/Ice/ValueFactory.h>
 #import <objc/Ice/Router.h>
 #import <objc/Ice/Locator.h>
@@ -51,8 +50,6 @@ ICE_API @protocol ICECommunicator <NSObject>
 -(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name;
 -(id<ICEObjectAdapter>) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints;
 -(id<ICEObjectAdapter>) createObjectAdapterWithRouter:(NSString*)name router:(id<ICERouterPrx>)rtr;
--(void) addObjectFactory:(id<ICEObjectFactory>)factory sliceId:(NSString*)id_ ICE_DEPRECATED_API("addObjectFactory() is deprecated, use ValueFactoryManager::add() instead.");
--(id<ICEObjectFactory>) findObjectFactory:(NSString*)id_ ICE_DEPRECATED_API("findObjectFactory() is deprecated, use ValueFactoryManager::find() instead.");
 -(id<ICEImplicitContext>) getImplicitContext;
 -(id<ICEProperties>) getProperties;
 -(id<ICELogger>) getLogger;
