@@ -1295,7 +1295,7 @@ operation_preamble
         }
         else
         {
-            return nullptr;
+            return 0;
         }
     }
     else
