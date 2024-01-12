@@ -6313,7 +6313,7 @@ Slice::Unit::builtin(Builtin::Kind kind)
     {
         return p->second;
     }
-    BuiltinPtr builtin = make_shared<Builtin>(shared_from_this(), kind);
+    BuiltinPtr builtin = make_shared<Builtin>(dynamic_pointer_cast<Unit>(shared_from_this()), kind);
     _builtins.insert(make_pair(kind, builtin));
     return builtin;
 }
