@@ -20,7 +20,7 @@ public:
 
     FactoryWrapper(VALUE);
 
-    virtual Ice::ValuePtr create(const std::string&);
+    virtual std::shared_ptr<Ice::Value> create(const std::string&);
 
     VALUE getObject() const;
 
@@ -32,13 +32,13 @@ protected:
 
     VALUE _factory;
 };
-typedef IceUtil::Handle<FactoryWrapper> FactoryWrapperPtr;
+using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
 class DefaultValueFactory : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ValuePtr create(const std::string&);
+    virtual std::shared_ptr<Ice::Value> create(const std::string&);
 
     void setDelegate(const Ice::ValueFactoryPtr&);
     Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
@@ -53,17 +53,22 @@ private:
 
     Ice::ValueFactoryPtr _delegate;
 };
-typedef IceUtil::Handle<DefaultValueFactory> DefaultValueFactoryPtr;
+using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
 class ValueFactoryManager : public Ice::ValueFactoryManager, public IceUtil::Mutex
 {
 public:
 
-    ValueFactoryManager();
+    static std::shared_ptr<ValueFactoryManager> create();
+
     ~ValueFactoryManager();
 
+    // Must be called immediately after construction.
+    void init(const std::shared_ptr<ValueFactoryManager>&);
+
+    virtual void add(Ice::ValueFactoryFunc, const std::string&);
     virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryPtr find(const std::string&) const noexcept;
+    virtual Ice::ValueFactoryFunc find(const std::string&) const noexcept;
 
     void addValueFactory(VALUE, const std::string&);
     VALUE findValueFactory(const std::string&) const;;
@@ -77,13 +82,18 @@ public:
 
 private:
 
+    ValueFactoryManager();
+
+    Ice::ValueFactoryPtr findCore(const std::string&) const noexcept;
+
+
     typedef std::map<std::string, Ice::ValueFactoryPtr> FactoryMap;
 
     VALUE _self;
     FactoryMap _factories;
     DefaultValueFactoryPtr _defaultFactory;
 };
-typedef IceUtil::Handle<ValueFactoryManager> ValueFactoryManagerPtr;
+using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
 
 }
 
