@@ -2678,7 +2678,7 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
         IndexList::size_type j = 0;
         for(IndexList::const_iterator p = table.begin(); p != table.end(); ++p)
         {
-            addPatchEntry(*p, patchHandle<Value>, &instances[j++]);
+            addPatchEntry(*p, patchValue<Value>, &instances[j++]);
         }
     }
     return make_shared<SlicedData>(_current->slices);

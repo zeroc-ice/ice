@@ -26,23 +26,14 @@ class UserException;
 
 /// \cond INTERNAL
 template<typename T> inline void
-patchHandle(void* addr, const std::shared_ptr<Value>& v)
+patchValue(void* addr, const std::shared_ptr<Value>& v)
 {
-#ifdef ICE_CPP11_MAPPING
-    ::std::shared_ptr<T>* handle = static_cast<::std::shared_ptr<T>*>(addr);
-    *handle = ::std::dynamic_pointer_cast<T>(v);
-    if(v && !(*handle))
+    std::shared_ptr<T>* ptr = static_cast<::std::shared_ptr<T>*>(addr);
+    *ptr = ::std::dynamic_pointer_cast<T>(v);
+    if(v && !(*ptr))
     {
         IceInternal::Ex::throwUOE(T::ice_staticId(), v);
     }
-#else
-    SharedPtr<T>* handle = static_cast<SharedPtr<T>*>(addr);
-    *handle = SharedPtr<T>(::std::dynamic_pointer_cast<T>(v));
-    if(v && !(*handle))
-    {
-        IceInternal::Ex::throwUOE(T::ice_staticId(), v);
-    }
-#endif
 }
 /// \endcond
 
@@ -1078,21 +1069,24 @@ public:
 #endif
 
     /**
-     * Reads a value (instance of a Slice class) from the stream.
+     * Reads a value (instance of a Slice class) from the stream (New mapping).
      * @param v The instance.
      */
     template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
     void read(::std::shared_ptr<T>& v)
     {
-        read(patchHandle<T>, &v);
+        read(patchValue<T>, &v);
     }
-#else // C++98 mapping
+
+    /**
+     * Reads a value (instance of a Slice class) from the stream (Original mapping).
+     * @param v The instance.
+     */
+    template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
     void read(Ice::SharedPtr<T>& v)
     {
-        read(patchHandle<T>, &v);
+        read(patchValue<T>, &v.underlying());
     }
-#endif
 
     /**
      * Reads a value (instance of a Slice class) from the stream.
