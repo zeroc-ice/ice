@@ -5,8 +5,6 @@
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <IceUtil/Exception.h>
 #include <array>
 #include <string>
@@ -118,51 +116,51 @@ class CICompare;
 class DerivedToBaseCompare;
 class ModulePartialCompare;
 
-typedef ::IceUtil::Handle<GrammarBase> GrammarBasePtr;
-typedef ::IceUtil::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
-typedef ::IceUtil::Handle<Type> TypePtr;
-typedef ::IceUtil::Handle<Builtin> BuiltinPtr;
-typedef ::IceUtil::Handle<Contained> ContainedPtr;
-typedef ::IceUtil::Handle<Container> ContainerPtr;
-typedef ::IceUtil::Handle<Module> ModulePtr;
-typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
-typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
-typedef ::IceUtil::Handle<ClassDef> ClassDefPtr;
-typedef ::IceUtil::Handle<InterfaceDecl> InterfaceDeclPtr;
-typedef ::IceUtil::Handle<InterfaceDef> InterfaceDefPtr;
-typedef ::IceUtil::Handle<Exception> ExceptionPtr;
-typedef ::IceUtil::Handle<Struct> StructPtr;
-typedef ::IceUtil::Handle<Operation> OperationPtr;
-typedef ::IceUtil::Handle<ParamDecl> ParamDeclPtr;
-typedef ::IceUtil::Handle<DataMember> DataMemberPtr;
-typedef ::IceUtil::Handle<Sequence> SequencePtr;
-typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
-typedef ::IceUtil::Handle<Enum> EnumPtr;
-typedef ::IceUtil::Handle<Enumerator> EnumeratorPtr;
-typedef ::IceUtil::Handle<Const> ConstPtr;
-typedef ::IceUtil::Handle<Unit> UnitPtr;
+using GrammarBasePtr = std::shared_ptr<GrammarBase>;
+using SyntaxTreeBasePtr = std::shared_ptr<SyntaxTreeBase>;
+using TypePtr = std::shared_ptr<Type>;
+using BuiltinPtr = std::shared_ptr<Builtin>;
+using ContainedPtr = std::shared_ptr<Contained>;
+using ContainerPtr = std::shared_ptr<Container>;
+using ModulePtr = std::shared_ptr<Module>;
+using ConstructedPtr = std::shared_ptr<Constructed>;
+using ClassDeclPtr = std::shared_ptr<ClassDecl>;
+using ClassDefPtr = std::shared_ptr<ClassDef>;
+using InterfaceDeclPtr = std::shared_ptr<InterfaceDecl>;
+using InterfaceDefPtr = std::shared_ptr<InterfaceDef>;
+using ExceptionPtr = std::shared_ptr<Exception>;
+using StructPtr = std::shared_ptr<Struct>;
+using OperationPtr = std::shared_ptr<Operation>;
+using ParamDeclPtr = std::shared_ptr<ParamDecl>;
+using DataMemberPtr = std::shared_ptr<DataMember>;
+using SequencePtr = std::shared_ptr<Sequence>;
+using DictionaryPtr = std::shared_ptr<Dictionary>;
+using EnumPtr = std::shared_ptr<Enum>;
+using EnumeratorPtr = std::shared_ptr<Enumerator>;
+using ConstPtr = std::shared_ptr<Const>;
+using UnitPtr = std::shared_ptr<Unit>;
 
-typedef std::list<TypePtr> TypeList;
-typedef std::list<ExceptionPtr> ExceptionList;
-typedef std::set<std::string> StringSet;
-typedef std::list<std::string> StringList;
-typedef std::pair<TypePtr, std::string> TypeString;
-typedef std::list<TypeString> TypeStringList;
-typedef std::list<ContainedPtr> ContainedList;
-typedef std::list<ModulePtr> ModuleList;
-typedef std::list<ConstructedPtr> ConstructedList;
-typedef std::list<ClassDefPtr> ClassList;
-typedef std::list<InterfaceDefPtr> InterfaceList;
-typedef std::list<ExceptionPtr> ExceptionList;
-typedef std::list<StructPtr> StructList;
-typedef std::list<SequencePtr> SequenceList;
-typedef std::list<DictionaryPtr> DictionaryList;
-typedef std::list<EnumPtr> EnumList;
-typedef std::list<ConstPtr> ConstList;
-typedef std::list<OperationPtr> OperationList;
-typedef std::list<DataMemberPtr> DataMemberList;
-typedef std::list<ParamDeclPtr> ParamDeclList;
-typedef std::list<EnumeratorPtr> EnumeratorList;
+using TypeList = std::list<TypePtr>;
+using ExceptionList = std::list<ExceptionPtr>;
+using StringSet = std::set<std::string>;
+using StringList = std::list<std::string>;
+using TypeString = std::pair<TypePtr, std::string>;
+using TypeStringList = std::list<TypeString>;
+using ContainedList = std::list<ContainedPtr>;
+using ModuleList = std::list<ModulePtr>;
+using ConstructedList = std::list<ConstructedPtr>;
+using ClassList = std::list<ClassDefPtr>;
+using InterfaceList = std::list<InterfaceDefPtr>;
+using ExceptionList = std::list<ExceptionPtr>;
+using StructList = std::list<StructPtr>;
+using SequenceList = std::list<SequencePtr>;
+using DictionaryList = std::list<DictionaryPtr>;
+using EnumList = std::list<EnumPtr>;
+using ConstList = std::list<ConstPtr>;
+using OperationList = std::list<OperationPtr>;
+using DataMemberList = std::list<DataMemberPtr>;
+using ParamDeclList = std::list<ParamDeclPtr>;
+using EnumeratorList = std::list<EnumeratorPtr>;
 
 struct ConstDef
 {
@@ -239,7 +237,7 @@ public:
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-class DefinitionContext : public ::IceUtil::SimpleShared
+class DefinitionContext
 {
 public:
 
@@ -278,13 +276,13 @@ private:
     bool _seenDefinition;
     std::set<WarningCategory> _suppressedWarnings;
 };
-typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
+using DefinitionContextPtr = std::shared_ptr<DefinitionContext>;
 
 // ----------------------------------------------------------------------
 // Comment
 // ----------------------------------------------------------------------
 
-class Comment : public ::IceUtil::SimpleShared
+class Comment
 {
 public:
 
@@ -315,13 +313,13 @@ private:
 
     friend class Contained;
 };
-typedef ::IceUtil::Handle<Comment> CommentPtr;
+using CommentPtr = std::shared_ptr<Comment>;
 
 // ----------------------------------------------------------------------
 // GrammarBase
 // ----------------------------------------------------------------------
 
-class GrammarBase : public ::IceUtil::SimpleShared
+class GrammarBase
 {
 };
 
@@ -340,7 +338,7 @@ public:
 
 protected:
 
-    SyntaxTreeBase(const UnitPtr&, const DefinitionContextPtr& = 0);
+    SyntaxTreeBase(const UnitPtr&);
 
     UnitPtr _unit;
     DefinitionContextPtr _definitionContext;
@@ -428,7 +426,7 @@ protected:
 // Contained
 // ----------------------------------------------------------------------
 
-class Contained : public virtual SyntaxTreeBase
+class Contained : public virtual SyntaxTreeBase, public std::enable_shared_from_this<Contained>
 {
 public:
 
@@ -496,7 +494,7 @@ protected:
 // Container
 // ----------------------------------------------------------------------
 
-class Container : public virtual SyntaxTreeBase
+class Container : public virtual SyntaxTreeBase,  public std::enable_shared_from_this<Container>
 {
 public:
 
