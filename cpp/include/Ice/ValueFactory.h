@@ -6,6 +6,7 @@
 #define ICE_VALUE_FACTORY_H
 
 #include <Ice/Config.h>
+#include <functional>
 #include <memory>
 
 namespace Ice
