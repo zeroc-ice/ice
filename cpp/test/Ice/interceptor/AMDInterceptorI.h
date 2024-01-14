@@ -31,7 +31,7 @@ private:
 
     IceUtil::Mutex _mutex;
 };
-ICE_DEFINE_PTR(AMDInterceptorIPtr, AMDInterceptorI);
+ICE_DEFINE_SHARED_PTR(AMDInterceptorIPtr, AMDInterceptorI);
 
 #ifndef ICE_CPP11_MAPPING
 class DispatchInterceptorAsyncCallbackI : public Ice::DispatchInterceptorAsyncCallback

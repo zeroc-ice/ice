@@ -145,10 +145,8 @@ private:
 ICE_DEFINE_PTR(AdapterRequestPtr, AdapterRequest);
 
 class LookupI : public Lookup,
+                public std::enable_shared_from_this<LookupI>,
                 private IceUtil::Mutex
-#ifdef ICE_CPP11_MAPPING
-              , public std::enable_shared_from_this<LookupI>
-#endif
 {
 public:
 

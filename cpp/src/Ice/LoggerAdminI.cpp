@@ -22,10 +22,8 @@ namespace
 
 const char* traceCategory = "Admin.Logger";
 
-class LoggerAdminI : public Ice::LoggerAdmin
-#ifdef ICE_CPP11_MAPPING
-                   , public std::enable_shared_from_this<LoggerAdminI>
-#endif
+class LoggerAdminI : public Ice::LoggerAdmin,
+                     public std::enable_shared_from_this<LoggerAdminI>
 {
 public:
 
@@ -117,7 +115,7 @@ private:
     CommunicatorPtr _sendLogCommunicator;
     bool _destroyed;
 };
-ICE_DEFINE_PTR(LoggerAdminIPtr, LoggerAdminI);
+ICE_DEFINE_SHARED_PTR(LoggerAdminIPtr, LoggerAdminI);
 
 class Job : public IceUtil::Shared
 {
@@ -435,7 +433,7 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
         throw;
     }
 #else
-    CallbackPtr initCompletedCb = newCallback(this, &LoggerAdminI::initCompleted);
+    CallbackPtr initCompletedCb = newCallback(LoggerAdminIPtr(shared_from_this()), &LoggerAdminI::initCompleted);
     try
     {
         remoteLogger->begin_init(logger->getPrefix(), initLogMessages, initCompletedCb, logger);

@@ -14,15 +14,18 @@
 namespace IceBox
 {
 
+class ServiceManagerI;
+ICE_DEFINE_SHARED_PTR(ServiceManagerIPtr, ServiceManagerI);
+
 class ServiceManagerI : public ServiceManager,
-                        public IceUtil::Monitor<IceUtil::Mutex>
-#ifdef ICE_CPP11_MAPPING
-                      , public std::enable_shared_from_this<ServiceManagerI>
-#endif
+                        public IceUtil::Monitor<IceUtil::Mutex>,
+                        public std::enable_shared_from_this<ServiceManagerI>
 {
 public:
 
-    ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
+    // Temporary: use public ctor once the implementation uses only the new mapping.
+    static ServiceManagerIPtr create(Ice::CommunicatorPtr, int&, char*[]);
+
     virtual ~ServiceManagerI();
 
     virtual void startService(ICE_IN(std::string), const ::Ice::Current&);
@@ -64,6 +67,8 @@ private:
         Ice::StringSeq args;
     };
 
+    ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
+
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stopAll();
 
@@ -98,7 +103,6 @@ private:
     ::Ice::CallbackPtr _observerCompletedCB;
 #endif
 };
-ICE_DEFINE_PTR(ServiceManagerIPtr, ServiceManagerI);
 
 }
 
