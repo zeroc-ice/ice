@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9FEDBE2BC73385F81D251350"
+               BlueprintIdentifier = "E47E556F6FF734E970050937"
                BuildableName = "IceImpl.framework"
                BlueprintName = "IceImpl macOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1B61C6EBFA17380F9C3CC36E"
+               BlueprintIdentifier = "8F022C46667133AF20CDD4CC"
                BuildableName = "Ice.framework"
                BlueprintName = "Ice macOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "137A22811E93D82B716007C8"
+               BlueprintIdentifier = "27BA347B00896E18F811823C"
                BuildableName = "Glacier2.framework"
                BlueprintName = "Glacier2 macOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -56,7 +56,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0763ED05481F11F83E2EE767"
+               BlueprintIdentifier = "C7C6F15DD53FB4E2316C8AA3"
                BuildableName = "IceStorm.framework"
                BlueprintName = "IceStorm macOS"
                ReferencedContainer = "container:ice.xcodeproj">
@@ -70,7 +70,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CFA7C016ADBDBC9AE9AB0FF7"
+               BlueprintIdentifier = "770013F768356B5BE1BB460C"
                BuildableName = "IceGrid.framework"
                BlueprintName = "IceGrid macOS"
                ReferencedContainer = "container:ice.xcodeproj">
