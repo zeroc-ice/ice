@@ -517,7 +517,7 @@ static NSString* ICEObject_all[4] =
 @end
 
 @implementation ICEServantWrapper
--(id) initWithCxxObject:(std::shared_ptr<Ice::Object>)arg
+-(id) initWithCxxObject:(const std::shared_ptr<Ice::Object>&)arg
 {
     self = [super init];
     if(!self)
@@ -535,7 +535,7 @@ static NSString* ICEObject_all[4] =
     cachedObjects.erase(object_);
     [super dealloc];
 }
-+(id) servantWrapperWithCxxObjectNoAutoRelease:(std::shared_ptr<Ice::Object>)arg
++(id) servantWrapperWithCxxObjectNoAutoRelease:(const std::shared_ptr<Ice::Object>&)arg
 {
     @synchronized([ICEServantWrapper class])
     {

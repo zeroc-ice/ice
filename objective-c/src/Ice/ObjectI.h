@@ -35,5 +35,5 @@ public:
 {
     std::shared_ptr<Ice::Object> object_;
 }
-+(id) servantWrapperWithCxxObjectNoAutoRelease:(std::shared_ptr<Ice::Object>)arg;
++(id) servantWrapperWithCxxObjectNoAutoRelease:(const std::shared_ptr<Ice::Object>&)arg;
 @end
