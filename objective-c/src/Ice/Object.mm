@@ -464,7 +464,9 @@ static NSString* ICEObject_all[4] =
             auto weakPtrPtr = static_cast<std::weak_ptr<Ice::Object>*>(iceObject_);
 
             result = weakPtrPtr->lock();
-            // result can be null if the C++ wrapper was released / destroyed.
+
+            // result can be null if the C++ wrapper was released / destroyed
+            // This typically occurs when the servant (really its C++ wrapper) is removed from an object adapter.
             if (!result)
             {
                 delete weakPtrPtr;
@@ -496,7 +498,9 @@ static NSString* ICEObject_all[4] =
             auto weakPtrPtr = static_cast<std::weak_ptr<Ice::Object>*>(iceObject_);
 
             result = weakPtrPtr->lock();
+
             // result can be null if the C++ wrapper was released / destroyed.
+            // This typically occurs when the servant (really its C++ wrapper) is removed from an object adapter.
             if (!result)
             {
                 delete weakPtrPtr;
