@@ -179,7 +179,7 @@ public:
                 {
                     cookie = new Cookie(co);
                 }
-                return [servant iceObject];
+                return Ice::ObjectPtr([servant iceObject]);
             }
             @catch(id e)
             {
@@ -434,7 +434,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->add([servant iceObject], [ident identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->add(Ice::ObjectPtr([servant iceObject]), [ident identity])];
     }
     catch(const std::exception& ex)
     {
@@ -449,7 +449,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addFacet([servant iceObject], [ident identity],
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addFacet(Ice::ObjectPtr([servant iceObject]), [ident identity],
                                                                               fromNSString(facet))];
     }
     catch(const std::exception& ex)
@@ -465,7 +465,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addWithUUID([servant iceObject])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addWithUUID(Ice::ObjectPtr([servant iceObject]))];
     }
     catch(const std::exception& ex)
     {
@@ -480,7 +480,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addFacetWithUUID([servant iceObject],
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addFacetWithUUID(Ice::ObjectPtr([servant iceObject]),
                                                                                       fromNSString(facet))];
     }
     catch(const std::exception& ex)
@@ -496,7 +496,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ServantLocatorPtr servantLocator = new DefaultServantLocator([servant iceObject]);
+        Ice::ServantLocatorPtr servantLocator = new DefaultServantLocator(Ice::ObjectPtr([servant iceObject]));
         OBJECTADAPTER->addServantLocator(servantLocator, fromNSString(category));
     }
     catch(const std::exception& ex)

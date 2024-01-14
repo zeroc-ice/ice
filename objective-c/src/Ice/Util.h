@@ -78,7 +78,13 @@ fromObjC(id object, std::string& s)
 NSObject<NSCopying>* toObjC(const Ice::EndpointPtr& endpoint);
 void fromObjC(id object, Ice::EndpointPtr& endpoint);
 
-ICEObject* toObjC(const Ice::ObjectPtr& object);
+ICEObject* toObjC(const std::shared_ptr<Ice::Object>& object);
+
+// TODO: temporary. We should switch completely to shared_ptr in this code.
+inline ICEObject* toObjC(const Ice::SharedPtr<Ice::Object>& object)
+{
+    return toObjC(object.underlying());
+}
 
 inline NSMutableArray*
 toNSArray(const char* arr[], size_t size)
