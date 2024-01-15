@@ -32,7 +32,7 @@ IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
     assert(p);
     try
     {
-        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*p)->getValueFactoryManager());
+        auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*p)->getValueFactoryManager());
         assert(vfm);
         vfm->markSelf();
     }
@@ -189,7 +189,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         seq.insert(seq.begin(), getString(progName));
 
         data.compactIdResolver = new IdResolver;
-        data.valueFactoryManager = new ValueFactoryManager;
+        data.valueFactoryManager = ValueFactoryManager::create();
 
         if(!data.properties)
         {
@@ -376,7 +376,7 @@ IceRuby_Communicator_destroy(VALUE self)
 {
     Ice::CommunicatorPtr p = getCommunicator(self);
 
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(p->getValueFactoryManager());
+    auto vfm = dynamic_pointer_cast<ValueFactoryManager>(p->getValueFactoryManager());
     assert(vfm);
 
     ICE_RUBY_TRY
@@ -537,7 +537,7 @@ IceRuby_Communicator_getValueFactoryManager(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(p->getValueFactoryManager());
+        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(p->getValueFactoryManager());
         assert(vfm);
         return vfm->getObject();
     }

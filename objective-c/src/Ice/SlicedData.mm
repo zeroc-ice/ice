@@ -9,7 +9,7 @@
 
 @implementation ICESlicedData
 
--(id) initWithSlicedData:(Ice::SlicedData*)slicedData
+-(id) initWithSlicedData:(Ice::SlicedDataPtr)slicedData
 {
     self = [super init];
     if(!self)
@@ -17,17 +17,10 @@
         return nil;
     }
     self->slicedData_ = slicedData;
-    self->slicedData_->__incRef();
     return self;
 }
 
--(void) dealloc
-{
-    self->slicedData_->__decRef();
-    [super dealloc];
-}
-
--(Ice::SlicedData*) slicedData
+-(Ice::SlicedDataPtr) slicedData
 {
     return slicedData_;
 }
@@ -81,7 +74,7 @@
     slicedData_ = [is endValue:YES];
 
     // Initialize unknown type ID to type ID of first slice.
-    Ice::SlicedData* slicedData = [((ICESlicedData*)slicedData_) slicedData];
+    Ice::SlicedDataPtr slicedData = [((ICESlicedData*)slicedData_) slicedData];
     assert(!slicedData->slices.empty());
     unknownTypeId_ = toNSString(slicedData->slices[0]->typeId);
 }

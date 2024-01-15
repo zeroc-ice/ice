@@ -244,7 +244,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         //
         // We always supply our own implementation of ValueFactoryManager.
         //
-        data.valueFactoryManager = new ValueFactoryManager;
+        data.valueFactoryManager = ValueFactoryManager::create();
 
         if(!data.properties)
         {
@@ -384,7 +384,7 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
 
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
+    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     assert(vfm);
 
     try
@@ -1303,8 +1303,7 @@ extern "C"
 static PyObject*
 communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
 {
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
-
+    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     return vfm->getObject();
 }
 

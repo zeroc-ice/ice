@@ -28,7 +28,7 @@
 {
     Ice::OutputStream* os_;
     Ice::OutputStream stream_;
-    std::map<ICEValue*, Ice::ValuePtr>* objectWriters_;
+    std::map<ICEValue*, std::shared_ptr<Ice::Value>>* objectWriters_;
 }
 -(id)initWithCxxCommunicator:(Ice::Communicator*)communicator;
 -(id)initWithCxxStream:(Ice::OutputStream*)stream;

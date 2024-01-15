@@ -68,12 +68,10 @@
     adminFacets_ = [[NSMutableDictionary alloc] init];
 
     valueFactoryManager_ = [[ICEValueFactoryManager alloc] init:COMMUNICATOR prefixTable:prefixTable_];
-    objectFactories_ = [[NSMutableDictionary alloc] init];
 }
 -(void) dealloc
 {
     [valueFactoryManager_ release];
-    [objectFactories_ release];
     [prefixTable_ release];
     [adminFacets_ release];
     [super dealloc];
@@ -100,13 +98,6 @@
         @synchronized(adminFacets_)
         {
             [adminFacets_ removeAllObjects];
-        }
-        @synchronized(objectFactories_)
-        {
-            for(NSString* k in objectFactories_)
-            {
-                [[objectFactories_ objectForKey:k] destroy];
-            }
         }
         return;
     }

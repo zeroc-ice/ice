@@ -1265,7 +1265,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         if(!_initData.valueFactoryManager)
         {
-            _initData.valueFactoryManager = ICE_MAKE_SHARED(ValueFactoryManagerI);
+            _initData.valueFactoryManager = make_shared<ValueFactoryManagerI>();
         }
 
         _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
