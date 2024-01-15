@@ -11,6 +11,9 @@ CONFIG ?= $(if $(filter $(OPTIMIZE),no),Debug,Release)
 PROJECT ?= ice.xcodeproj
 # PROJECT ?= $(if $(filter $(ICE_BIN_DIST), swift all),ice-test.xcodeproj,ice.xcodeproj)
 
+RAKE      ?= rake
+RAKE_TASK ?= icebdistproj
+
 # $(call make-xcodebuild-rule,$1=rule,$2=platform,$3=scheme,$4=target)
 define make-xcodebuild-rule
 $1:: $(PROJECT)
@@ -31,7 +34,10 @@ all:: tests
 carthage-bootstrap:
 	$(Q)cd .. && carthage bootstrap --cache-builds --use-xcframeworks --platform macOS,iOS
 
-tests srcs:: carthage-bootstrap
+rake: carthage-bootstrap
+	$(Q)$(RAKE) $(RAKE_TASK)
+
+tests srcs:: rake
 
 install::
 	@echo nothing to install
