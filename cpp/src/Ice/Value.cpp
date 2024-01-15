@@ -11,12 +11,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-namespace
-{
-
-const string iceObject = "::Ice::Object";
-
-}
 
 void
 Ice::Value::ice_preMarshal()

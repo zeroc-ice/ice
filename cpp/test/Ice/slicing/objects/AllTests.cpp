@@ -647,55 +647,6 @@ public:
 
 int PNodeI::counter = 0;
 
-// TODO: this class is not used anywhere
-class NodeFactoryI : public Ice::ValueFactory
-{
-public:
-
-    virtual shared_ptr<Ice::Value> create(const string& id)
-    {
-        if(id == PNode::ice_staticId())
-        {
-            return make_shared<PNodeI>();
-        }
-        return nullptr;
-    }
-};
-
-class PreservedI : public virtual Preserved
-{
-public:
-
-    PreservedI()
-    {
-        ++counter;
-    }
-
-    virtual ~PreservedI()
-    {
-        --counter;
-    }
-
-    static int counter;
-};
-
-int PreservedI::counter = 0;
-
-// TODO: this class is not used anywhere
-class PreservedFactoryI : public Ice::ValueFactory
-{
-public:
-
-    virtual shared_ptr<Ice::Value> create(const string& id)
-    {
-        if(id == Preserved::ice_staticId())
-        {
-            return make_shared<PreservedI>();
-        }
-        return nullptr;
-    }
-};
-
 void
 testUOO(const TestIntfPrxPtr& test)
 {

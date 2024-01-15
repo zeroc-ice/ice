@@ -55,7 +55,7 @@ private:
 };
 using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
-class ValueFactoryManager : public Ice::ValueFactoryManager, public IceUtil::Mutex
+class ValueFactoryManager final : public Ice::ValueFactoryManager, public IceUtil::Mutex
 {
 public:
 
@@ -63,15 +63,12 @@ public:
 
     ~ValueFactoryManager();
 
-    // Must be called immediately after construction.
-    void init(const std::shared_ptr<ValueFactoryManager>&);
-
-    virtual void add(Ice::ValueFactoryFunc, const std::string&);
-    virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryFunc find(const std::string&) const noexcept;
+    void add(Ice::ValueFactoryFunc, const std::string&) final;
+    void add(const Ice::ValueFactoryPtr&, const std::string&) final;
+    Ice::ValueFactoryFunc find(const std::string&) const noexcept final;
 
     void addValueFactory(VALUE, const std::string&);
-    VALUE findValueFactory(const std::string&) const;;
+    VALUE findValueFactory(const std::string&) const;
 
     void mark();
     void markSelf();
@@ -82,12 +79,11 @@ public:
 
 private:
 
+    using FactoryMap = std::map<std::string, Ice::ValueFactoryPtr>;
+
     ValueFactoryManager();
 
     Ice::ValueFactoryPtr findCore(const std::string&) const noexcept;
-
-
-    typedef std::map<std::string, Ice::ValueFactoryPtr> FactoryMap;
 
     VALUE _self;
     FactoryMap _factories;

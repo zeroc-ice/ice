@@ -56,7 +56,7 @@ private:
 
 using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
-class ValueFactoryManager : public Ice::ValueFactoryManager, public IceUtil::Mutex
+class ValueFactoryManager final : public Ice::ValueFactoryManager, public IceUtil::Mutex
 {
 public:
 
@@ -64,11 +64,11 @@ public:
 
     ~ValueFactoryManager();
 
-    virtual void add(Ice::ValueFactoryFunc, const std::string&);
-    virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryFunc find(const std::string&) const noexcept;
+    void add(Ice::ValueFactoryFunc, const std::string&) final;
+    void add(const Ice::ValueFactoryPtr&, const std::string&) final;
+    Ice::ValueFactoryFunc find(const std::string&) const noexcept final;
 
-    virtual void add(PyObject*, PyObject*, const std::string&);
+    void add(PyObject*, PyObject*, const std::string&);
     PyObject* findValueFactory(const std::string&) const;
 
     PyObject* getObject() const;

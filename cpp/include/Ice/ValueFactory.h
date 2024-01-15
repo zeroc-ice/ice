@@ -33,8 +33,8 @@ class ICE_API ValueFactory
 {
 public:
 
-    virtual ~ValueFactory();
     ValueFactory() = default;
+    virtual ~ValueFactory();
     ValueFactory(const ValueFactory&) = default;
     ValueFactory& operator=(const ValueFactory&) = default;
 

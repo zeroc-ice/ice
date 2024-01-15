@@ -34,7 +34,6 @@ IceInternal::ValueFactoryManagerI::add(const ValueFactoryPtr& factory, const str
         throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
     }
 
-    _factories.push_back(factory);
     ValueFactoryFunc func = [factory](const string& type) -> shared_ptr<Value>
     {
         return factory->create(type);
