@@ -32,9 +32,9 @@ bool compareTag(const T& lhs, const T& rhs)
 template <typename T>
 bool equalScoped(const T& lhs, const T& rhs) { return lhs->scoped() == rhs->scoped(); }
 
-template <typename T>
-std::function<bool(T)> makeEqualScopedPredicate(const T& value) {
-    return [scoped = value->scoped()](const T& other) {
+template <typename T, typename U>
+std::function<bool(U)> makeEqualScopedPredicate(const T& value) {
+    return [scoped = value->scoped()](const U& other) {
         return other->scoped() == scoped;
     };
 }
@@ -1110,8 +1110,8 @@ ModulePtr
 Slice::Container::createModule(const string& name)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort(compareScoped<Contained>); // Modules can occur many times...
-    matches.unique(equalScoped<Contained>); // ... but we only want one instance of each.
+    matches.sort(compareScoped<ContainedPtr>); // Modules can occur many times...
+    matches.unique(equalScoped<ContainedPtr>); // ... but we only want one instance of each.
 
     if(thisScope() == "::")
     {
@@ -2666,7 +2666,7 @@ Slice::Container::mergeModules()
 void
 Slice::Container::sort()
 {
-    _contents.sort(compareScoped<Contained>);
+    _contents.sort(compareScoped<ContainedPtr>);
 }
 
 void
@@ -3973,7 +3973,7 @@ Slice::InterfaceDef::allBases() const
     result.unique(equalScoped<InterfaceDefPtr>);
     for (const auto& p : _bases)
     {
-        result.merge(std::move(p->allBases()), compareScoped<InterfaceDefPtr>);
+        result.merge(p->allBases(), compareScoped<InterfaceDefPtr>);
         result.unique(equalScoped<InterfaceDefPtr>);
     }
     return result;
@@ -4002,7 +4002,10 @@ Slice::InterfaceDef::allOperations() const
     {
         for (const auto& q : p->allOperations())
         {
-            if(find(result.begin(), result.end(), makeEqualScopedPredicate(q)) == result.end())
+            if (find(
+                    result.begin(),
+                    result.end(),
+                    [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
             {
                 result.push_back(q);
             }
@@ -4011,7 +4014,10 @@ Slice::InterfaceDef::allOperations() const
 
     for (const auto& q : operations())
     {
-        if(find(result.begin(), result.end(), makeEqualScopedPredicate(q)) == result.end())
+        if (find(
+                result.begin(),
+                result.end(),
+                [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
         {
             result.push_back(q);
         }
@@ -5506,11 +5512,12 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
         // At least one exception appears twice.
         //
         ExceptionList tmp = el;
-        tmp.sort();
+        tmp.sort(compareScoped<ExceptionPtr>);
         ExceptionList duplicates;
         set_difference(tmp.begin(), tmp.end(),
                        uniqueExceptions.begin(), uniqueExceptions.end(),
-                       back_inserter(duplicates));
+                       back_inserter(duplicates),
+                       compareScoped<ExceptionPtr>);
         string msg = "operation `" + name() + "' has a throws clause with ";
         if(duplicates.size() == 1)
         {

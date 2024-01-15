@@ -117,11 +117,6 @@ class CICompare;
 class DerivedToBaseCompare;
 class ModulePartialCompare;
 
-template <typename T> class CompareScope
-{
-    bool operator(const T& lhs, const T& rhs) { return lhs->scoped() < rhs->scoped(); }
-};
-
 using GrammarBasePtr = std::shared_ptr<GrammarBase>;
 using SyntaxTreeBasePtr = std::shared_ptr<SyntaxTreeBase>;
 using TypePtr = std::shared_ptr<Type>;
@@ -146,7 +141,7 @@ using EnumeratorPtr = std::shared_ptr<Enumerator>;
 using ConstPtr = std::shared_ptr<Const>;
 using UnitPtr = std::shared_ptr<Unit>;
 
-using TypeList = std::list<TypePtr, CompareScope<TypePtr>>;
+using TypeList = std::list<TypePtr>;
 using ExceptionList = std::list<ExceptionPtr>;
 using StringSet = std::set<std::string>;
 using StringList = std::list<std::string>;
