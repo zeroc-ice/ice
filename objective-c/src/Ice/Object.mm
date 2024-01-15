@@ -103,7 +103,6 @@ public:
 private:
 
     ICEBlobject* _blobject;
-    id _target;
 };
 
 ObjectI::ObjectI(ICEServant* object) : _object(object)
@@ -156,7 +155,7 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     [os release];
 }
 
-BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blobject iceTarget])
+BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject)
 {
 }
 
@@ -177,7 +176,8 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                      freeWhenDone:NO];
         @try
         {
-            ok = [_target ice_invoke:inE outEncaps:&outE current:c];
+            // The application-provided implementation of class ICEBlobject must implement the ICEBlobject protocol.
+            ok = [(id)_blobject ice_invoke:inE outEncaps:&outE current:c];
             [outE retain];
         }
         @catch(ICEUserException* ex)
@@ -359,19 +359,6 @@ static NSString* ICEObject_all[4] =
         return nil;
     }
     iceObject_ = 0;
-    iceDelegate_ = 0;
-    return self;
-}
-
--(id)initWithDelegate:(id)delegate
-{
-    self = [super init];
-    if(!self)
-    {
-        return nil;
-    }
-    iceObject_ = 0;
-    iceDelegate_ = [delegate retain];
     return self;
 }
 
@@ -382,13 +369,7 @@ static NSString* ICEObject_all[4] =
         delete static_cast<IceObjC::ServantWrapper*>(iceObject_);
         iceObject_ = 0;
     }
-    [iceDelegate_ release];
     [super dealloc];
-}
-
-+(id)objectWithDelegate:(id)delegate
-{
-    return [[[self alloc] initWithDelegate:delegate] autorelease];
 }
 
 -(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)__unused current
@@ -484,11 +465,6 @@ static NSString* ICEObject_all[4] =
                                                                facet:current.facet
                                                            operation:current.operation];
     }
-}
-
--(id)iceTarget
-{
-    return (iceDelegate_ == 0) ? self : iceDelegate_;
 }
 
 -(Ice::Object*) iceObject
