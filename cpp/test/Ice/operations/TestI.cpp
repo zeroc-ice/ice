@@ -18,14 +18,10 @@ MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
 }
 
 bool
-MyDerivedClassI::ice_isA(ICE_IN(string) id, const Ice::Current& current) const
+MyDerivedClassI::ice_isA(string id, const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
     return Test::MyDerivedClass::ice_isA(std::move(id), current);
-#else
-    return Test::MyDerivedClass::ice_isA(id, current);
-#endif
 }
 
 void
@@ -42,11 +38,7 @@ MyDerivedClassI::ice_ids(const Ice::Current& current) const
     return Test::MyDerivedClass::ice_ids(current);
 }
 
-#ifdef ICE_CPP11_MAPPING
 std::string
-#else
-const std::string&
-#endif
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));

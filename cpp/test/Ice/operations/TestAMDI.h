@@ -17,14 +17,10 @@ public:
     //
     // Override the Object "pseudo" operations to verify the operation mode.
     //
-    virtual bool ice_isA(ICE_IN(std::string), const Ice::Current&) const;
+    virtual bool ice_isA(std::string, const Ice::Current&) const;
     virtual void ice_ping(const Ice::Current&) const;
     virtual std::vector<std::string> ice_ids(const Ice::Current&) const;
-#ifdef ICE_CPP11_MAPPING
     virtual std::string ice_id(const Ice::Current&) const;
-#else
-    virtual const std::string& ice_id(const Ice::Current&) const;
-#endif
 
 #ifdef ICE_CPP11_MAPPING
     virtual void shutdownAsync(::std::function<void()>,
