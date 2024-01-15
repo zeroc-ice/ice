@@ -141,6 +141,9 @@ using EnumeratorPtr = std::shared_ptr<Enumerator>;
 using ConstPtr = std::shared_ptr<Const>;
 using UnitPtr = std::shared_ptr<Unit>;
 
+bool containedCompare(const ContainedPtr& lhs, const ContainedPtr& rhs);
+bool containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs);
+
 using TypeList = std::list<TypePtr>;
 using ExceptionList = std::list<ExceptionPtr>;
 using StringSet = std::set<std::string>;
@@ -162,6 +165,7 @@ using OperationList = std::list<OperationPtr>;
 using DataMemberList = std::list<DataMemberPtr>;
 using ParamDeclList = std::list<ParamDeclPtr>;
 using EnumeratorList = std::list<EnumeratorPtr>;
+using ConstructedSet = std::set<ConstructedPtr, decltype(containedCompare)*>;
 
 struct ConstDef
 {
@@ -474,9 +478,6 @@ public:
     virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
 
-    bool operator<(const Contained&) const;
-    bool operator==(const Contained&) const;
-
 protected:
 
     friend class Container;
@@ -554,7 +555,7 @@ public:
     void sort();
     void sortContents(bool);
     virtual void visit(ParserVisitor*, bool);
-    void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    void containerRecDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
     bool checkForGlobalDef(const std::string&, const char *);
@@ -598,7 +599,7 @@ public:
     virtual std::string typeId() const;
     virtual bool isVariableLength() const = 0;
     ConstructedList dependencies();
-    virtual void recDependencies(std::set<ConstructedPtr>&) = 0; // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&) = 0; // Internal operation, don't use directly.
 };
 
 // ----------------------------------------------------------------------
@@ -620,7 +621,7 @@ public:
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
@@ -699,7 +700,7 @@ public:
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
 
@@ -879,7 +880,7 @@ public:
     bool hasDefaultValues() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     friend class Container;
 };
@@ -903,7 +904,7 @@ public:
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
@@ -935,7 +936,7 @@ public:
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     static bool legalKeyType(const TypePtr&, bool&);
 
@@ -970,7 +971,7 @@ public:
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 

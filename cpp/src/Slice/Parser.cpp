@@ -20,23 +20,22 @@
 using namespace std;
 using namespace Slice;
 
-template <typename T>
-bool compareScoped(const T& lhs, const T& rhs) { return lhs->scoped() < rhs->scoped(); }
+bool
+Slice::containedCompare(const ContainedPtr& lhs, const ContainedPtr& rhs)
+{
+    return lhs->scoped() < rhs->scoped();
+}
 
-template <typename T>
+bool
+Slice::containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs)
+{
+    return lhs->scoped() == rhs->scoped();
+}
+
+template<typename T>
 bool compareTag(const T& lhs, const T& rhs)
 {
     return lhs->tag() < rhs->tag();
-}
-
-template <typename T>
-bool equalScoped(const T& lhs, const T& rhs) { return lhs->scoped() == rhs->scoped(); }
-
-template <typename T, typename U>
-std::function<bool(U)> makeEqualScopedPredicate(const T& value) {
-    return [scoped = value->scoped()](const U& other) {
-        return other->scoped() == scoped;
-    };
 }
 
 Slice::CompilerException::CompilerException(const char* file, int line, const string& r) :
@@ -556,7 +555,7 @@ Slice::Builtin::kindAsString() const
 optional<Slice::Builtin::Kind>
 Slice::Builtin::kindFromString(string_view str)
 {
-    for(size_t i = 0; i < builtinTable.size(); i++)
+    for (size_t i = 0; i < builtinTable.size(); i++)
     {
         if(str == builtinTable[i])
         {
@@ -660,9 +659,7 @@ splitComment(const string& c, bool stripMarkup)
 
     if(stripMarkup)
     {
-        //
         // Strip HTML markup and javadoc links.
-        //
         string::size_type pos = 0;
         do
         {
@@ -983,11 +980,11 @@ Slice::Contained::hasMetaData(const string& meta) const
 bool
 Slice::Contained::findMetaData(const string& prefix, string& meta) const
 {
-    for(list<string>::const_iterator p = _metaData.begin(); p != _metaData.end(); ++p)
+    for (const auto& p : _metaData)
     {
-        if(p->find(prefix) == 0)
+        if (p.find(prefix) == 0)
         {
-            meta = *p;
+            meta = p;
             return true;
         }
     }
@@ -1007,9 +1004,7 @@ Slice::Contained::setMetaData(const list<string>& metaData)
     _metaData = metaData;
 }
 
-//
 // TODO: remove this method once "cs:" and "vb:" prefix are hard errors.
-//
 void
 Slice::Contained::addMetaData(const string& s)
 {
@@ -1023,45 +1018,33 @@ Slice::Contained::parseFormatMetaData(const list<string>& metaData)
 
     string tag;
     string prefix = "format:";
-    for(list<string>::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
+    for (const auto& p : metaData)
     {
-        if(p->find(prefix) == 0)
+        if(p.find(prefix) == 0)
         {
-            tag = *p;
+            tag = p;
             break;
         }
     }
 
-    if(!tag.empty())
+    if (!tag.empty())
     {
         tag = tag.substr(prefix.size());
-        if(tag == "compact")
+        if (tag == "compact")
         {
             result = CompactFormat;
         }
-        else if(tag == "sliced")
+        else if (tag == "sliced")
         {
             result = SlicedFormat;
         }
-        else if(tag != "default") // TODO: Allow "default" to be specified as a format value?
+        else if (tag != "default") // TODO: Allow "default" to be specified as a format value?
         {
             // TODO: How to handle invalid format?
         }
     }
 
     return result;
-}
-
-bool
-Slice::Contained::operator<(const Contained& rhs) const
-{
-    return _scoped < rhs._scoped;
-}
-
-bool
-Slice::Contained::operator==(const Contained& rhs) const
-{
-    return _scoped == rhs._scoped;
 }
 
 Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
@@ -1110,8 +1093,8 @@ ModulePtr
 Slice::Container::createModule(const string& name)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort(compareScoped<ContainedPtr>); // Modules can occur many times...
-    matches.unique(equalScoped<ContainedPtr>); // ... but we only want one instance of each.
+    matches.sort(containedCompare); // Modules can occur many times...
+    matches.unique(containedEqual); // ... but we only want one instance of each.
 
     if(thisScope() == "::")
     {
@@ -1122,9 +1105,9 @@ Slice::Container::createModule(const string& name)
     {
         bool differsOnlyInCase = matches.front()->name() != name;
         ModulePtr module = dynamic_pointer_cast<Module>(p);
-        if(module)
+        if (module)
         {
-            if(differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
+            if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
             {
                 string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
                 msg += module->name() + "'";
@@ -1132,7 +1115,7 @@ Slice::Container::createModule(const string& name)
                 return 0;
             }
         }
-        else if(!differsOnlyInCase)
+        else if (!differsOnlyInCase)
         {
             string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
             msg += "' as module";
@@ -2666,7 +2649,7 @@ Slice::Container::mergeModules()
 void
 Slice::Container::sort()
 {
-    _contents.sort(compareScoped<ContainedPtr>);
+    _contents.sort(containedCompare);
 }
 
 void
@@ -2711,7 +2694,7 @@ Slice::Container::visit(ParserVisitor* visitor, bool all)
 }
 
 void
-Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
+Slice::Container::containerRecDependencies(ConstructedSet& dependencies)
 {
     for (const auto& p : _contents)
     {
@@ -2796,7 +2779,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
     else
     {
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
-        if(it->second != namedThing)
+        if(it->second->scoped() != namedThing->scoped())
         {
             // Parameter are in its own scope.
             if((dynamic_pointer_cast<ParamDecl>(it->second) && !dynamic_pointer_cast<ParamDecl>(namedThing)) ||
@@ -3166,7 +3149,7 @@ Slice::Constructed::typeId() const
 ConstructedList
 Slice::Constructed::dependencies()
 {
-    set<ConstructedPtr> resultSet;
+    ConstructedSet resultSet(containedCompare);
     recDependencies(resultSet);
 
     return ConstructedList(resultSet.begin(), resultSet.end());
@@ -3245,7 +3228,7 @@ Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
 }
 
 void
-Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
+Slice::ClassDecl::recDependencies(ConstructedSet& dependencies)
 {
     if(_definition)
     {
@@ -3437,25 +3420,19 @@ Slice::ClassDef::orderedOptionalDataMembers() const
     return filterOrderedOptionalDataMembers(dataMembers());
 }
 
-//
 // Return the data members of this class and its parent classes, in base-to-derived order.
-//
 DataMemberList
 Slice::ClassDef::allDataMembers() const
 {
     DataMemberList result;
 
-    //
     // Check if we have a base class. If so, recursively get the data members of the base(s).
-    //
     if (_base)
     {
         result = _base->allDataMembers();
     }
 
-    //
     // Append this class's data members.
-    //
     DataMemberList myMembers = dataMembers();
     result.splice(result.end(), myMembers);
 
@@ -3486,18 +3463,14 @@ DataMemberList
 Slice::ClassDef::allClassDataMembers() const
 {
     DataMemberList result;
-
     if (_base)
     {
         result = _base->allClassDataMembers();
     }
 
-    //
     // Append this class's class members.
-    //
     DataMemberList myMembers = classDataMembers();
     result.splice(result.end(), myMembers);
-
     return result;
 }
 
@@ -3508,10 +3481,10 @@ Slice::ClassDef::canBeCyclic() const
     {
         return true;
     }
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+
+    for (const auto& i : dataMembers())
     {
-        if((*i)->type()->usesClasses())
+        if(i->type()->usesClasses())
         {
             return true;
         }
@@ -3528,10 +3501,9 @@ Slice::ClassDef::hasDataMembers() const
 bool
 Slice::ClassDef::hasDefaultValues() const
 {
-    DataMemberList dml = dataMembers();
-    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& i : dataMembers())
     {
-        if((*i)->defaultValueType())
+        if (i->defaultValueType())
         {
             return true;
         }
@@ -3574,7 +3546,7 @@ void
 Slice::ClassDef::visit(ParserVisitor* visitor, bool all)
 {
     auto self = dynamic_pointer_cast<ClassDef>(Container::shared_from_this());
-    if(visitor->visitClassDefStart(self))
+    if (visitor->visitClassDefStart(self))
     {
         Container::visit(visitor, all);
         visitor->visitClassDefEnd(self);
@@ -3667,27 +3639,26 @@ Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
 }
 
 void
-Slice::InterfaceDecl::recDependencies(set<ConstructedPtr>& dependencies)
+Slice::InterfaceDecl::recDependencies(ConstructedSet& dependencies)
 {
-    if(_definition)
+    if (_definition)
     {
         _definition->containerRecDependencies(dependencies);
-        InterfaceList bases = _definition->bases();
-        for (InterfaceList::iterator p = bases.begin(); p != bases.end(); ++p)
+        for (const auto& p : _definition->bases())
         {
-            (*p)->declaration()->recDependencies(dependencies);
+            p->declaration()->recDependencies(dependencies);
         }
     }
 }
 
 void
-Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList& bases,
-                                     const UnitPtr& ut)
+Slice::InterfaceDecl::checkBasesAreLegal(
+    const string& name,
+    const InterfaceList& bases,
+    const UnitPtr& ut)
 {
-    //
-    // Check whether, for multiple inheritance, any of the bases define
-    // the same operations.
-    //
+
+    // Check whether, for multiple inheritance, any of the bases define the same operations.
     if(bases.size() > 1)
     {
         //
@@ -3736,9 +3707,15 @@ Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string&
 bool
 Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& cdp)
 {
-    for (GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    for (const auto& i : gpl)
     {
-        if(find(i->begin(), i->end(), cdp) != i->end())
+        if (find_if(
+            i.begin(),
+            i.end(),
+            [scope = cdp->scoped()](const auto& other)
+            {
+                return other->scoped() == scope;
+            }) != i.end())
         {
             return true;
         }
@@ -3747,39 +3724,34 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
 }
 
 void
-Slice::InterfaceDecl::addPartition(GraphPartitionList& gpl,
-                               GraphPartitionList::reverse_iterator tail,
-                               const InterfaceDefPtr& base)
+Slice::InterfaceDecl::addPartition(
+    GraphPartitionList& gpl,
+    GraphPartitionList::reverse_iterator tail,
+    const InterfaceDefPtr& base)
 {
-    //
     // If this base is on one of the partition lists already, do nothing.
-    //
-    if(isInList(gpl, base))
+    if (isInList(gpl, base))
     {
         return;
     }
-    //
+
     // Put the current base at the end of the current partition.
-    //
     tail->push_back(base);
-    //
-    // If the base has bases in turn, recurse, adding the first base
-    // of base (the left-most "grandbase") to the current partition.
-    //
+
+    // If the base has bases in turn, recurse, adding the first base of base (the left-most "grandbase") to the current
+    // partition.
     if(base->bases().size())
     {
         addPartition(gpl, tail, *(base->bases().begin()));
     }
-    //
-    // If the base has multiple bases, each of the "grandbases"
-    // except for the left-most (which we just dealt with)
+
+    // If the base has multiple bases, each of the "grandbases" except for the left-most (which we just dealt with)
     // adds a new partition.
-    //
     if(base->bases().size() > 1)
     {
         InterfaceList grandBases = base->bases();
         InterfaceList::const_iterator i = grandBases.begin();
-        while(++i != grandBases.end())
+        while (++i != grandBases.end())
         {
             InterfaceList cl;
             gpl.push_back(cl);
@@ -3797,18 +3769,17 @@ Slice::InterfaceDecl::StringPartitionList
 Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& gpl)
 {
     StringPartitionList spl;
-    for (GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    for (const auto& interfaces : gpl)
     {
         StringList sl;
-        spl.push_back(sl);
-        for (InterfaceList::const_iterator j = i->begin(); j != i->end(); ++j)
+        for (const auto& interfaceDefinition : interfaces)
         {
-            OperationList operations = (*j)->operations();
-            for (OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
+            for (const auto& operation : interfaceDefinition->operations())
             {
-                spl.rbegin()->push_back((*l)->name());
+                spl.rbegin()->push_back(operation->name());
             }
         }
+        spl.push_back(std::move(sl));
     }
     return spl;
 }
@@ -3861,7 +3832,7 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
 void
 Slice::InterfaceDef::destroy()
 {
-    _declaration = 0;
+    _declaration = nullptr;
     _bases.clear();
     Container::destroy();
 }
@@ -3969,12 +3940,12 @@ InterfaceList
 Slice::InterfaceDef::allBases() const
 {
     InterfaceList result = _bases;
-    result.sort(compareScoped<InterfaceDefPtr>);
-    result.unique(equalScoped<InterfaceDefPtr>);
+    result.sort(containedCompare);
+    result.unique(containedEqual);
     for (const auto& p : _bases)
     {
-        result.merge(p->allBases(), compareScoped<InterfaceDefPtr>);
-        result.unique(equalScoped<InterfaceDefPtr>);
+        result.merge(p->allBases(), containedCompare);
+        result.unique(containedEqual);
     }
     return result;
 }
@@ -3986,7 +3957,7 @@ Slice::InterfaceDef::operations() const
     for (const auto& p : _contents)
     {
         OperationPtr q = dynamic_pointer_cast<Operation>(p);
-        if(q)
+        if (q)
         {
             result.push_back(q);
         }
@@ -4002,7 +3973,7 @@ Slice::InterfaceDef::allOperations() const
     {
         for (const auto& q : p->allOperations())
         {
-            if (find(
+            if (find_if(
                     result.begin(),
                     result.end(),
                     [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
@@ -4014,7 +3985,7 @@ Slice::InterfaceDef::allOperations() const
 
     for (const auto& q : operations())
     {
-        if (find(
+        if (find_if(
                 result.begin(),
                 result.end(),
                 [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
@@ -4032,6 +4003,7 @@ Slice::InterfaceDef::isA(const string& id) const
     {
         return true;
     }
+
     for (const auto& p : _bases)
     {
         if(p->isA(id))
@@ -4084,7 +4056,7 @@ void
 Slice::InterfaceDef::visit(ParserVisitor* visitor, bool all)
 {
     auto self = dynamic_pointer_cast<InterfaceDef>(Container::shared_from_this());
-    if(visitor->visitInterfaceDefStart(self))
+    if (visitor->visitInterfaceDefStart(self))
     {
         Container::visit(visitor, all);
         visitor->visitInterfaceDefEnd(self);
@@ -4122,7 +4094,7 @@ Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& n
 void
 Slice::Exception::destroy()
 {
-    _base = 0;
+    _base = nullptr;
     Container::destroy();
 }
 
@@ -4160,30 +4132,30 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
     checkIdentifier(name); // Don't return here -- we create the data member anyway.
 
     string newName = IceUtilInternal::toLower(name);
-    //
+
     // Check whether any bases have defined a member with the same name already.
-    //
     ExceptionList bl = allBases();
-    for(ExceptionList::const_iterator q = bl.begin(); q != bl.end(); ++q)
+    for (const auto& q : allBases())
     {
-        ContainedList cl;
-        DataMemberList dml = (*q)->dataMembers();
-        copy(dml.begin(), dml.end(), back_inserter(cl));
-        for(ContainedList::const_iterator r = cl.begin(); r != cl.end(); ++r)
+        ContainedList contents;
+        DataMemberList dml = q->dataMembers();
+        copy(dml.begin(), dml.end(), back_inserter(contents));
+
+        for (const auto& r : contents)
         {
-            if((*r)->name() == name)
+            if (r->name() == name)
             {
                 string msg = "exception member `" + name + "' is already defined in a base exception";
                 _unit->error(msg);
                 return 0;
             }
 
-            string baseName = IceUtilInternal::toLower((*r)->name());
+            string baseName = IceUtilInternal::toLower(r->name());
             string newName2 = IceUtilInternal::toLower(name);
             if(baseName == newName2)
             {
                 string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
-                msg += (*r)->name() + "', which is defined in a base exception";
+                msg += r->name() + "', which is defined in a base exception";
                 _unit->error(msg);
             }
         }
@@ -4193,31 +4165,24 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
+    if (dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
-        if(!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, dlt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dlt = nullptr;
             dv.clear();
             dl.clear();
         }
     }
 
-    if(optional)
+    if (optional)
     {
-        //
         // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& q : dataMembers())
         {
-            if((*q)->optional() && tag == (*q)->tag())
+            if(q->optional() && tag == q->tag())
             {
                 string msg = "tag for optional data member `" + name + "' is already in use";
                 _unit->error(msg);
@@ -4261,29 +4226,21 @@ Slice::Exception::orderedOptionalDataMembers() const
     return filterOrderedOptionalDataMembers(dataMembers());
 }
 
-//
 // Return the data members of this exception and its parent exceptions, in base-to-derived order.
-//
 DataMemberList
 Slice::Exception::allDataMembers() const
 {
     DataMemberList result;
 
-    //
-    // Check if we have a base exception. If so, recursively
-    // get the data members of the base exception(s).
-    //
+    // Check if we have a base exception. If so, recursively get the data members of the base exception(s).
     if(base())
     {
         result = base()->allDataMembers();
     }
 
-    //
     // Append this exceptions's data members.
-    //
     DataMemberList myMembers = dataMembers();
     result.splice(result.end(), myMembers);
-
     return result;
 }
 
@@ -4321,7 +4278,6 @@ Slice::Exception::allClassDataMembers() const
     // Append this exceptions's class data members.
     DataMemberList myMembers = classDataMembers();
     result.splice(result.end(), myMembers);
-
     return result;
 }
 
@@ -4397,7 +4353,7 @@ Slice::Exception::hasDefaultValues() const
 {
     for (const auto& i : dataMembers())
     {
-        if(i->defaultValueType())
+        if (i->defaultValueType())
         {
             return true;
         }
@@ -4433,7 +4389,7 @@ void
 Slice::Exception::visit(ParserVisitor* visitor, bool all)
 {
     auto self = dynamic_pointer_cast<Exception>(Container::shared_from_this());
-    if(visitor->visitExceptionStart(self))
+    if (visitor->visitExceptionStart(self))
     {
         Container::visit(visitor, all);
         visitor->visitExceptionEnd(self);
@@ -4545,7 +4501,7 @@ Slice::Struct::dataMembers() const
     for (const auto& p : _contents)
     {
         DataMemberPtr q = dynamic_pointer_cast<DataMember>(p);
-        if(q)
+        if (q)
         {
             result.push_back(q);
         }
@@ -4593,13 +4549,13 @@ Slice::Struct::uses(const ContainedPtr&) const
 bool
 Slice::Struct::usesClasses() const
 {
-    for(const auto& p : _contents)
+    for (const auto& p : _contents)
     {
         DataMemberPtr q = dynamic_pointer_cast<DataMember>(p);
-        if(q)
+        if (q)
         {
             TypePtr t = q->type();
-            if(t->usesClasses())
+            if (t->usesClasses())
             {
                 return true;
             }
@@ -4664,7 +4620,7 @@ Slice::Struct::visit(ParserVisitor* visitor, bool all)
 }
 
 void
-Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
+Slice::Struct::recDependencies(ConstructedSet& dependencies)
 {
     containerRecDependencies(dependencies);
 }
@@ -4704,7 +4660,7 @@ bool
 Slice::Sequence::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = dynamic_pointer_cast<Contained>(_type);
-    if(contained2 && contained2 == contained)
+    if (contained2 && contained2->scoped() == contained->scoped())
     {
         return true;
     }
@@ -4749,7 +4705,7 @@ Slice::Sequence::visit(ParserVisitor* visitor, bool)
 }
 
 void
-Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
+Slice::Sequence::recDependencies(ConstructedSet& dependencies)
 {
     ConstructedPtr constructed = dynamic_pointer_cast<Constructed>(_type);
     if(constructed && dependencies.find(constructed) != dependencies.end())
@@ -4809,7 +4765,7 @@ Slice::Dictionary::uses(const ContainedPtr& contained) const
 {
     {
         ContainedPtr contained2 = dynamic_pointer_cast<Contained>(_keyType);
-        if(contained2 && contained2 == contained)
+        if(contained2 && contained2->scoped() == contained->scoped())
         {
             return true;
         }
@@ -4817,7 +4773,7 @@ Slice::Dictionary::uses(const ContainedPtr& contained) const
 
     {
         ContainedPtr contained2 = dynamic_pointer_cast<Contained>(_valueType);
-        if(contained2 && contained2 == contained)
+        if(contained2 && contained2->scoped() == contained->scoped())
         {
             return true;
         }
@@ -4863,7 +4819,7 @@ Slice::Dictionary::visit(ParserVisitor* visitor, bool)
 }
 
 void
-Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
+Slice::Dictionary::recDependencies(ConstructedSet& dependencies)
 {
     {
         ConstructedPtr constructed = dynamic_pointer_cast<Constructed>(_keyType);
@@ -5042,7 +4998,7 @@ Slice::Enum::visit(ParserVisitor* visitor, bool)
 }
 
 void
-Slice::Enum::recDependencies(set<ConstructedPtr>&)
+Slice::Enum::recDependencies(ConstructedSet&)
 {
     // An Enum does not have any dependencies.
 }
@@ -5504,20 +5460,23 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     // Check that no exception occurs more than once in the throws clause.
     //
     ExceptionList uniqueExceptions = el;
-    uniqueExceptions.sort(compareScoped<ExceptionPtr>);
-    uniqueExceptions.unique(equalScoped<ExceptionPtr>);
+    uniqueExceptions.sort(containedCompare);
+    uniqueExceptions.unique(containedEqual);
     if(uniqueExceptions.size() != el.size())
     {
         //
         // At least one exception appears twice.
         //
         ExceptionList tmp = el;
-        tmp.sort(compareScoped<ExceptionPtr>);
+        tmp.sort(containedCompare);
         ExceptionList duplicates;
-        set_difference(tmp.begin(), tmp.end(),
-                       uniqueExceptions.begin(), uniqueExceptions.end(),
-                       back_inserter(duplicates),
-                       compareScoped<ExceptionPtr>);
+        set_difference(
+            tmp.begin(),
+            tmp.end(),
+            uniqueExceptions.begin(),
+            uniqueExceptions.end(),
+            back_inserter(duplicates),
+            containedCompare);
         string msg = "operation `" + name() + "' has a throws clause with ";
         if(duplicates.size() == 1)
         {
@@ -6182,8 +6141,8 @@ Slice::Unit::findDerivedClasses(const ClassDefPtr& cl) const
             }
         }
     }
-    derived.sort();
-    derived.unique();
+    derived.sort(containedCompare);
+    derived.unique(containedEqual);
     return derived;
 }
 
@@ -6191,9 +6150,9 @@ ExceptionList
 Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex) const
 {
     ExceptionList derived;
-    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    for(const auto& [key, contents] : _contentMap)
     {
-        for(const auto& q : p->second)
+        for(const auto& q : contents)
         {
             ExceptionPtr r = dynamic_pointer_cast<Exception>(q);
             if(r)
@@ -6206,8 +6165,8 @@ Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex) const
             }
         }
     }
-    derived.sort();
-    derived.unique();
+    derived.sort(containedCompare);
+    derived.unique(containedEqual);
     return derived;
 }
 
@@ -6215,9 +6174,9 @@ ContainedList
 Slice::Unit::findUsedBy(const ContainedPtr& contained) const
 {
     ContainedList usedBy;
-    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    for (const auto& [key, contents] : _contentMap)
     {
-        for (const auto& q : p->second)
+        for (const auto& q : contents)
         {
             if (q->uses(contained))
             {
@@ -6225,8 +6184,8 @@ Slice::Unit::findUsedBy(const ContainedPtr& contained) const
             }
         }
     }
-    usedBy.sort();
-    usedBy.unique();
+    usedBy.sort(containedCompare);
+    usedBy.unique(containedEqual);
     return usedBy;
 }
 
@@ -6293,9 +6252,9 @@ Slice::Unit::usesNonLocals() const
 bool
 Slice::Unit::usesConsts() const
 {
-    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    for(const auto& [key, contents] : _contentMap)
     {
-        for (const auto& q : p->second)
+        for (const auto& q : contents)
         {
             if (dynamic_pointer_cast<Const>(q))
             {
@@ -6317,10 +6276,9 @@ StringList
 Slice::Unit::allFiles() const
 {
     StringList result;
-    for(map<string, DefinitionContextPtr>::const_iterator p = _definitionContextMap.begin();
-        p != _definitionContextMap.end(); ++p)
+    for(const auto& [key, value] : _definitionContextMap)
     {
-        result.push_back(p->first);
+        result.push_back(key);
     }
     return result;
 }
@@ -6398,7 +6356,7 @@ Slice::Unit::builtin(Builtin::Kind kind)
     {
         return p->second;
     }
-    BuiltinPtr builtin = make_shared<Builtin>(dynamic_pointer_cast<Unit>(shared_from_this()), kind);
+    auto builtin = make_shared<Builtin>(dynamic_pointer_cast<Unit>(shared_from_this()), kind);
     _builtins.insert(make_pair(kind, builtin));
     return builtin;
 }
@@ -6418,6 +6376,7 @@ Slice::Unit::addTopLevelModule(const string& file, const string& module)
         i->second.insert(module);
     }
 }
+
 set<string>
 Slice::Unit::getTopLevelModules(const string& file) const
 {

@@ -487,7 +487,7 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
                 else
                 {
                     _out << nl << typeS << ' ' << param << ';';
-                    StructPtr st = StructPtr::dynamicCast((*pli)->type());
+                    StructPtr st = dynamic_pointer_cast<Struct>((*pli)->type());
                     if(st && isValueType(st))
                     {
                         _out << nl << param << " = new " << typeS << "();";
@@ -1035,7 +1035,7 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 {
     assert(type);
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1071,13 +1071,13 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         return typeToString(type, ns) + "." + fixId((*en->enumerators().begin())->name());
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(st->hasMetaData("cs:class"))
@@ -1096,14 +1096,14 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 void
 Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         _out << fixId(constant->scoped()) << ".value";
     }
     else
     {
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
             _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
@@ -1116,9 +1116,9 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             _out << value << "F";
         }
-        else if(EnumPtr::dynamicCast(type))
+        else if(dynamic_pointer_cast<Enum>(type))
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
             _out << fixId(lte->scoped());
         }
@@ -1142,7 +1142,7 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
         {
             return true;
         }
-        else if(BuiltinPtr::dynamicCast((*p)->type()) || StructPtr::dynamicCast((*p)->type()))
+        else if(dynamic_pointer_cast<Builtin>((*p)->type()) || dynamic_pointer_cast<Struct>((*p)->type()))
         {
             return true;
         }
@@ -1178,13 +1178,13 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
         }
         else
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>((*p)->type());
             if(builtin && builtin->kind() == Builtin::KindString)
             {
                 _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = \"\";";
             }
 
-            StructPtr st = StructPtr::dynamicCast((*p)->type());
+            StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
             if(st)
             {
                 _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString(st, ns, false)
@@ -1883,7 +1883,7 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
 void
 Slice::CsVisitor::moduleStart(const ModulePtr& p)
 {
-    if(!ContainedPtr::dynamicCast(p->container()))
+    if(!dynamic_pointer_cast<Contained>(p->container()))
     {
         string ns = getNamespacePrefix(p);
         string name = fixId(p->name());
@@ -1899,7 +1899,7 @@ Slice::CsVisitor::moduleStart(const ModulePtr& p)
 void
 Slice::CsVisitor::moduleEnd(const ModulePtr& p)
 {
-    if(!ContainedPtr::dynamicCast(p->container()))
+    if(!dynamic_pointer_cast<Contained>(p->container()))
     {
         if(!getNamespacePrefix(p).empty())
         {
@@ -2154,7 +2154,7 @@ Slice::Gen::TypeIdVisitor::visitModuleStart(const ModulePtr& p)
     if(!ns.empty() && (p->hasValueDefs() || p->hasExceptions()))
     {
         string name = fixId(p->name());
-        if(!ContainedPtr::dynamicCast(p->container()))
+        if(!dynamic_pointer_cast<Contained>(p->container()))
         {
             // Top-level module
             //
@@ -3082,12 +3082,12 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     bool isProtected = false;
     bool isPrivate = false;
     const bool isOptional = p->optional();
-    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     assert(cont);
 
-    StructPtr st = StructPtr::dynamicCast(cont);
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(cont);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(cont);
+    StructPtr st = dynamic_pointer_cast<Struct>(cont);
+    ExceptionPtr ex = dynamic_pointer_cast<Exception>(cont);
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(cont);
     string ns = getNamespace(cont);
     if(st)
     {
@@ -3248,7 +3248,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
             _out << eb;
             _out << nl << "else";
             _out << sb;
-            SequencePtr seq = SequencePtr::dynamicCast(memberType);
+            SequencePtr seq = dynamic_pointer_cast<Sequence>(memberType);
             if(seq)
             {
                 string meta;
@@ -3272,7 +3272,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, u
             }
             else
             {
-                DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
+                DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(memberType);
                 if(dict)
                 {
                     //
@@ -4145,7 +4145,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << nl << returnTypeS << " ret";
                 if(!op->returnIsOptional())
                 {
-                    StructPtr st = StructPtr::dynamicCast(ret);
+                    StructPtr st = dynamic_pointer_cast<Struct>(ret);
                     if(st && isValueType(st))
                     {
                         _out << " = " << "new " + returnTypeS + "()";
@@ -4172,7 +4172,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                      << outParams.front()->name();
                 if(!outParams.front()->optional())
                 {
-                    StructPtr st = StructPtr::dynamicCast(t);
+                    StructPtr st = dynamic_pointer_cast<Struct>(t);
                     if(st && isValueType(st))
                     {
                         _out << " = " << "new " << typeToString(t, ns) << "()";
@@ -4676,7 +4676,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "for(int i = 0; i < sz; ++i)";
     _out << sb;
     _out << nl << keyS << " k;";
-    StructPtr st = StructPtr::dynamicCast(key);
+    StructPtr st = dynamic_pointer_cast<Struct>(key);
     if(st)
     {
         if(isValueType(st))
@@ -4699,7 +4699,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     else
     {
         _out << nl << valueS << " v;";
-        StructPtr stv = StructPtr::dynamicCast(value);
+        StructPtr stv = dynamic_pointer_cast<Struct>(value);
         if(stv)
         {
             if(isValueType(stv))

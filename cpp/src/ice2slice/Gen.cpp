@@ -76,11 +76,11 @@ ParamInfoList getAllOutParams(const OperationPtr& op)
 
 bool isClassType(const TypePtr& type)
 {
-    if (ClassDeclPtr::dynamicCast(type))
+    if (dynamic_pointer_cast<ClassDecl>(type))
     {
         return true;
     }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     return builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue);
 }
 
@@ -92,9 +92,9 @@ static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamesp
     string csharpNamespace;
     while (true)
     {
-        if (ModulePtr::dynamicCast(p))
+        if (dynamic_pointer_cast<Module>(p))
         {
-            m = ModulePtr::dynamicCast(p);
+            m = dynamic_pointer_cast<Module>(p);
             if (csharpNamespace.empty())
             {
                 csharpNamespace = m->name();
@@ -106,7 +106,7 @@ static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamesp
         }
 
         ContainerPtr c = p->container();
-        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
+        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
         if (!p)
         {
             break;
@@ -197,13 +197,13 @@ string typeToString(const TypePtr& type, const string& scope, bool optional)
         "AnyClass?"                     // KindValue
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
     {
         os << builtinTable[builtin->kind()];
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if (contained)
     {
         os << getUnqualified(contained, scope);
@@ -237,20 +237,20 @@ string typeToCsString(const TypePtr& type, bool optional)
         "???"                               // KindValue
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
     {
         os << builtinTable[builtin->kind()];
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if (contained)
     {
         bool hasCSharpNamespaceAttribute;
         string csharpNamespace = getCSharpNamespace(contained, hasCSharpNamespaceAttribute);
 
         os << csharpNamespace << "." << contained->name();
-        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(contained);
+        InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(contained);
         if (interface)
         {
             os << "Proxy";
@@ -306,7 +306,7 @@ void writeComment(const ContainedPtr& contained, Output& out)
         out << nl << "/// " << (*it);
     }
 
-    OperationPtr operation = OperationPtr::dynamicCast(contained);
+    OperationPtr operation = dynamic_pointer_cast<Operation>(contained);
     if (operation)
     {
         std::map<std::string, StringList> parameterDocs = comment->parameters();
