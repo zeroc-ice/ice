@@ -25,7 +25,7 @@ class Value;
 using ValueFactoryFunc = ::std::function<::std::shared_ptr<Value>(const ::std::string& type)>;
 
 /**
- * A factory for values. Value factories are used in several places, such as when Ice receives a class instance Value
+ * A factory for values. Value factories are used in several places, such as when Ice receives a class instance. Value
  * factories must be implemented by the application writer and registered with the communicator.
  * \headerfile Ice/Ice.h
  */
