@@ -74,7 +74,7 @@ class BlobjectI : public IceObjC::ServantWrapper, public Ice::BlobjectArrayAsync
 {
 public:
 
-    BlobjectI(ICEBlobject* servant) : _blobject(servant), _target(servant)
+    BlobjectI(ICEBlobject* servant) : _blobject(servant)
     {
         // Make sure the ObjcC object is not released while the C++ object is still alive.
         CFRetain(_blobject);
@@ -97,7 +97,6 @@ public:
 private:
 
     ICEBlobject* _blobject;
-    id _target;
 };
 
 void
@@ -163,7 +162,8 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                      freeWhenDone:NO];
         @try
         {
-            ok = [_target ice_invoke:inE outEncaps:&outE current:c];
+            // The application-provided implementation of class ICEBlobject must implement the ICEBlobject protocol.
+            ok = [(id)_blobject ice_invoke:inE outEncaps:&outE current:c];
             [outE retain];
         }
         @catch(ICEUserException* ex)

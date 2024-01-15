@@ -43,8 +43,8 @@ public:
     ICE_DELEGATE(::Ice::UserExceptionFactory) getExceptionFactory(const ::std::string&) const;
     void removeExceptionFactory(const ::std::string&);
 
-    void addValueFactory(const ::std::string&, ICE_IN(ICE_DELEGATE(::Ice::ValueFactory)));
-    ICE_DELEGATE(::Ice::ValueFactory) getValueFactory(const ::std::string&) const;
+    void addValueFactory(const ::std::string&, ::Ice::ValueFactoryFunc);
+    ::Ice::ValueFactoryFunc getValueFactory(const ::std::string&) const;
     void removeValueFactory(const ::std::string&);
 
     void addTypeId(int, const ::std::string&);
@@ -59,7 +59,7 @@ private:
     typedef ::std::map< ::std::string, EFPair> EFTable;
     EFTable _eft;
 
-    typedef ::std::pair< ICE_DELEGATE(::Ice::ValueFactory), int> VFPair;
+    typedef ::std::pair<::Ice::ValueFactoryFunc, int> VFPair;
     typedef ::std::map< ::std::string, VFPair> VFTable;
     VFTable _vft;
 

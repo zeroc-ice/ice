@@ -372,7 +372,7 @@ IcePy::StreamUtil::~StreamUtil()
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
-            vector<Ice::ValuePtr> tmp;
+            vector<std::shared_ptr<Ice::Value>> tmp;
             tmp.swap((*q)->instances);
         }
     }
@@ -513,13 +513,13 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         }
 
         int j = 0;
-        for(vector<Ice::ValuePtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for(vector<std::shared_ptr<Ice::Value>>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
             // Each element in the instances list is an instance of ValueReader that wraps a Python object.
             //
             assert(*q);
-            ValueReaderPtr r = ValueReaderPtr::dynamicCast(*q);
+            auto r = dynamic_pointer_cast<ValueReader>(*q);
             assert(r);
             PyObject* pobj = r->getObject();
             assert(pobj != Py_None); // Should be non-nil.
@@ -586,7 +586,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 PyObjectHandle s = PyTuple_GET_ITEM(sl.get(), i);
                 Py_INCREF(s.get());
 
-                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
 
                 PyObjectHandle typeId = getAttr(s.get(), "typeId", false);
                 assert(typeId.get());
@@ -613,12 +613,12 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 {
                     PyObject* o = PyTuple_GET_ITEM(instances.get(), j);
 
-                    Ice::ValuePtr writer;
+                    std::shared_ptr<Ice::Value> writer;
 
                     ObjectMap::iterator k = objectMap->find(o);
                     if(k == objectMap->end())
                     {
-                        writer = new ValueWriter(o, objectMap, 0);
+                        writer = make_shared<ValueWriter>(o, objectMap, nullptr);
                         objectMap->insert(ObjectMap::value_type(o, writer));
                     }
                     else
@@ -640,7 +640,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 slices.push_back(info);
             }
 
-            slicedData = new Ice::SlicedData(slices);
+            slicedData = std::make_shared<Ice::SlicedData>(slices);
         }
     }
 
@@ -3331,7 +3331,7 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
 
     if(p == Py_None)
     {
-        Ice::ValuePtr nil;
+        std::shared_ptr<Ice::Value> nil;
         os->write(nil);
         return;
     }
@@ -3348,12 +3348,12 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
     // check the object map to see if this object is present. If so, we use the existing ValueWriter,
     // otherwise we create a new one.
     //
-    Ice::ValuePtr writer;
+    std::shared_ptr<Ice::Value> writer;
     assert(objectMap);
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        writer = new ValueWriter(p, objectMap, this);
+        writer = make_shared<ValueWriter>(p, objectMap, this);
         objectMap->insert(ObjectMap::value_type(p, writer));
     }
     else
@@ -3371,7 +3371,7 @@ namespace
 {
 
 void
-patchObject(void* addr, const Ice::ValuePtr& v)
+patchObject(void* addr, const std::shared_ptr<Ice::Value>& v)
 {
     ReadValueCallback* cb = static_cast<ReadValueCallback*>(addr);
     assert(cb);
@@ -3904,11 +3904,11 @@ IcePy::ReadValueCallback::~ReadValueCallback()
 }
 
 void
-IcePy::ReadValueCallback::invoke(const Ice::ValuePtr& p)
+IcePy::ReadValueCallback::invoke(const std::shared_ptr<Ice::Value>& p)
 {
     if(p)
     {
-        ValueReaderPtr reader = ValueReaderPtr::dynamicCast(p);
+        auto reader = dynamic_pointer_cast<ValueReader>(p);
         assert(reader);
 
         //

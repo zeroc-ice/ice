@@ -126,8 +126,6 @@ public interface Communicator extends java.lang.AutoCloseable
      * Convert an identity into a string.
      * @param ident The identity to convert into a string.
      * @return The "stringified" identity.
-     *
-     * @see #stringToIdentity
      **/
     String identityToString(Identity ident);
 
