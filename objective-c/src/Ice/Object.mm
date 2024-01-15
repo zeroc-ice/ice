@@ -103,7 +103,6 @@ public:
 private:
 
     ICEBlobject* _blobject;
-    id _target;
 };
 
 ObjectI::ObjectI(ICEServant* object) : _object(object)
@@ -156,7 +155,7 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     [os release];
 }
 
-BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target(blobject)
+BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject)
 {
 }
 
@@ -177,7 +176,8 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                      freeWhenDone:NO];
         @try
         {
-            ok = [_target ice_invoke:inE outEncaps:&outE current:c];
+            // The application-provided implementation of class ICEBlobject must implement the ICEBlobject protocol.
+            ok = [(id)_blobject ice_invoke:inE outEncaps:&outE current:c];
             [outE retain];
         }
         @catch(ICEUserException* ex)
