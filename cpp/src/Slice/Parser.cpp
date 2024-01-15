@@ -9,6 +9,8 @@
 #include <Slice/Util.h>
 #include <cstring>
 #include <iterator>
+#include <functional>
+
 // TODO: fix this warning once we no longer support VS2013 and earlier
 #if defined(_MSC_VER)
 #    pragma warning(disable:4589) // Constructor of abstract class 'Slice::Type' ignores initializer...
@@ -17,6 +19,25 @@
 
 using namespace std;
 using namespace Slice;
+
+template <typename T>
+bool compareScoped(const T& lhs, const T& rhs) { return lhs->scoped() < rhs->scoped(); }
+
+template <typename T>
+bool compareTag(const T& lhs, const T& rhs)
+{
+    return lhs->tag() < rhs->tag();
+}
+
+template <typename T>
+bool equalScoped(const T& lhs, const T& rhs) { return lhs->scoped() == rhs->scoped(); }
+
+template <typename T>
+std::function<bool(T)> makeEqualScopedPredicate(const T& value) {
+    return [scoped = value->scoped()](const T& other) {
+        return other->scoped() == scoped;
+    };
+}
 
 Slice::CompilerException::CompilerException(const char* file, int line, const string& r) :
     IceUtil::Exception(file, line),
@@ -80,24 +101,15 @@ enum { Supports, Mandatory, Required, Never };
 DataMemberList
 filterOrderedOptionalDataMembers(const DataMemberList& members)
 {
-    class SortFn
-    {
-    public:
-        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        }
-    };
-
     DataMemberList result;
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (const auto& p : members)
     {
-        if((*p)->optional())
+        if (p->optional())
         {
-            result.push_back(*p);
+            result.push_back(p);
         }
     }
-    result.sort(SortFn::compare);
+    result.sort(compareTag<DataMemberPtr>);
     return result;
 }
 
@@ -105,15 +117,7 @@ void
 sortOptionalParameters(ParamDeclList& params)
 {
     // Sort optional parameters by tag.
-    class SortFn
-    {
-    public:
-        static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        }
-    };
-    params.sort(SortFn::compare);
+    params.sort(compareTag<ParamDeclPtr>);
 }
 
 bool
@@ -122,23 +126,23 @@ isMutableAfterReturnType(const TypePtr& type)
     // Returns true if the type contains data types which can be referenced by user code and mutated after a dispatch
     // returns.
 
-    if(dynamic_pointer_cast<ClassDecl>(type))
+    if (dynamic_pointer_cast<ClassDecl>(type))
     {
         return true;
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin && builtin->usesClasses())
+    if (builtin && builtin->usesClasses())
     {
         return true;
     }
 
-    if(dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
+    if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
         return true;
     }
 
-    if(dynamic_pointer_cast<Struct>(type))
+    if (dynamic_pointer_cast<Struct>(type))
     {
         return true;
     }
@@ -160,7 +164,9 @@ Unit* unit;
 // ----------------------------------------------------------------------
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData) :
-    _includeLevel(includeLevel), _metaData(metaData), _seenDefinition(false)
+    _includeLevel(includeLevel),
+    _metaData(metaData),
+    _seenDefinition(false)
 {
     initSuppressedWarnings();
 }
@@ -217,14 +223,13 @@ Slice::DefinitionContext::setMetaData(const StringList& metaData)
 string
 Slice::DefinitionContext::findMetaData(const string& prefix) const
 {
-    for(StringList::const_iterator p = _metaData.begin(); p != _metaData.end(); ++p)
+    for (const auto& p : _metaData)
     {
-        if((*p).find(prefix) == 0)
+        if (p.find(prefix) == 0)
         {
-            return *p;
+            return p;
         }
     }
-
     return string();
 }
 
@@ -237,7 +242,7 @@ Slice::DefinitionContext::getMetaData() const
 void
 Slice::DefinitionContext::warning(WarningCategory category, const string& file, int line, const string& msg) const
 {
-    if(!suppressWarning(category))
+    if (!suppressWarning(category))
     {
         emitWarning(file, line, msg);
     }
@@ -246,7 +251,7 @@ Slice::DefinitionContext::warning(WarningCategory category, const string& file, 
 void
 Slice::DefinitionContext::warning(WarningCategory category, const string& file, const string& line, const string& msg) const
 {
-    if(!suppressWarning(category))
+    if (!suppressWarning(category))
     {
         emitWarning(file, line, msg);
     }
@@ -291,9 +296,9 @@ Slice::DefinitionContext::initSuppressedWarnings()
             value = value.substr(prefix.length() + 1);
             vector<string> result;
             IceUtilInternal::splitString(value, ",", result);
-            for(vector<string>::iterator p = result.begin(); p != result.end(); ++p)
+            for (const auto& p : result)
             {
-                string s = IceUtilInternal::trim(*p);
+                string s = IceUtilInternal::trim(p);
                 if(s == "all")
                 {
                     _suppressedWarnings.insert(All);
@@ -1105,8 +1110,8 @@ ModulePtr
 Slice::Container::createModule(const string& name)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort(); // Modules can occur many times...
-    matches.unique(); // ... but we only want one instance of each.
+    matches.sort(compareScoped<Contained>); // Modules can occur many times...
+    matches.unique(equalScoped<Contained>); // ... but we only want one instance of each.
 
     if(thisScope() == "::")
     {
@@ -2661,7 +2666,7 @@ Slice::Container::mergeModules()
 void
 Slice::Container::sort()
 {
-    _contents.sort();
+    _contents.sort(compareScoped<Contained>);
 }
 
 void
@@ -3862,11 +3867,12 @@ Slice::InterfaceDef::destroy()
 }
 
 OperationPtr
-Slice::InterfaceDef::createOperation(const string& name,
-                                 const TypePtr& returnType,
-                                 bool tagged,
-                                 int tag,
-                                 Operation::Mode mode)
+Slice::InterfaceDef::createOperation(
+    const string& name,
+    const TypePtr& returnType,
+    bool tagged,
+    int tag,
+    Operation::Mode mode)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -3963,13 +3969,12 @@ InterfaceList
 Slice::InterfaceDef::allBases() const
 {
     InterfaceList result = _bases;
-    result.sort();
-    result.unique();
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    result.sort(compareScoped<InterfaceDefPtr>);
+    result.unique(equalScoped<InterfaceDefPtr>);
+    for (const auto& p : _bases)
     {
-        InterfaceList li = (*p)->allBases();
-        result.merge(li);
-        result.unique();
+        result.merge(std::move(p->allBases()), compareScoped<InterfaceDefPtr>);
+        result.unique(equalScoped<InterfaceDefPtr>);
     }
     return result;
 }
@@ -3993,24 +3998,22 @@ OperationList
 Slice::InterfaceDef::allOperations() const
 {
     OperationList result;
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& p : _bases)
     {
-        OperationList li = (*p)->allOperations();
-        for (OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+        for (const auto& q : p->allOperations())
         {
-            if(find(result.begin(), result.end(), *q) == result.end())
+            if(find(result.begin(), result.end(), makeEqualScopedPredicate(q)) == result.end())
             {
-                result.push_back(*q);
+                result.push_back(q);
             }
         }
     }
 
-    OperationList li = operations();
-    for (OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+    for (const auto& q : operations())
     {
-        if(find(result.begin(), result.end(), *q) == result.end())
+        if(find(result.begin(), result.end(), makeEqualScopedPredicate(q)) == result.end())
         {
-            result.push_back(*q);
+            result.push_back(q);
         }
     }
     return result;
@@ -4023,9 +4026,9 @@ Slice::InterfaceDef::isA(const string& id) const
     {
         return true;
     }
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& p : _bases)
     {
-        if((*p)->isA(id))
+        if(p->isA(id))
         {
             return true;
         }
@@ -4042,14 +4045,13 @@ Slice::InterfaceDef::hasOperations() const
 bool
 Slice::InterfaceDef::inheritsMetaData(const string& meta) const
 {
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& p : _bases)
     {
-        if((*p)->hasMetaData(meta) || (*p)->inheritsMetaData(meta))
+        if (p->hasMetaData(meta) || p->inheritsMetaData(meta))
         {
             return true;
         }
     }
-
     return false;
 }
 
@@ -5496,8 +5498,8 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     // Check that no exception occurs more than once in the throws clause.
     //
     ExceptionList uniqueExceptions = el;
-    uniqueExceptions.sort();
-    uniqueExceptions.unique();
+    uniqueExceptions.sort(compareScoped<ExceptionPtr>);
+    uniqueExceptions.unique(equalScoped<ExceptionPtr>);
     if(uniqueExceptions.size() != el.size())
     {
         //
