@@ -21,7 +21,7 @@ namespace Ice
  * For example:
  *
  * \code
- * Ice::ObjectPtr obj = communicator->findAdminFacet("Properties");
+ * std::shared_ptr<Ice::Object> obj = communicator->findAdminFacet("Properties");
  * assert(obj); // May be null if the facet is not enabled
  * NativePropertiesAdminPtr facet = NativePropertiesAdminPtr::dynamicCast(obj);
  * PropertiesAdminUpdateCallbackPtr myCallback = ...;

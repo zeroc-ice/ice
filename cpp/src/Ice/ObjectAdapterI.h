@@ -29,64 +29,58 @@
 
 namespace Ice
 {
-
-class ObjectAdapterI;
-ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
-
-class ObjectAdapterI : public ObjectAdapter,
-                       public IceUtil::Monitor<IceUtil::RecMutex>
-#ifdef ICE_CPP11_MAPPING
-                     , public std::enable_shared_from_this<ObjectAdapterI>
-#endif
+class ObjectAdapterI final : public ObjectAdapter,
+                             public IceUtil::Monitor<IceUtil::RecMutex>,
+                             public std::enable_shared_from_this<ObjectAdapterI>
 
 {
 public:
 
-    virtual std::string getName() const noexcept;
+    std::string getName() const noexcept final;
 
-    virtual CommunicatorPtr getCommunicator() const noexcept;
+    CommunicatorPtr getCommunicator() const noexcept final;
 
-    virtual void activate();
-    virtual void hold();
-    virtual void waitForHold();
-    virtual void deactivate() noexcept;
-    virtual void waitForDeactivate() noexcept;
-    virtual bool isDeactivated() const noexcept;
-    virtual void destroy() noexcept;
+    void activate() final;
+    void hold() final;
+    void waitForHold() final;
+    void deactivate() noexcept;
+    void waitForDeactivate() noexcept final;
+    bool isDeactivated() const noexcept final;
+    void destroy() noexcept final;
 
-    virtual ObjectPrxPtr add(const ObjectPtr&, const Identity&);
-    virtual ObjectPrxPtr addFacet(const ObjectPtr&, const Identity&, const std::string&);
-    virtual ObjectPrxPtr addWithUUID(const ObjectPtr&);
-    virtual ObjectPrxPtr addFacetWithUUID(const ObjectPtr&, const std::string&);
-    virtual void addDefaultServant(const ObjectPtr&, const std::string&);
-    virtual ObjectPtr remove(const Identity&);
-    virtual ObjectPtr removeFacet(const Identity&, const std::string&);
-    virtual FacetMap removeAllFacets(const Identity&);
-    virtual ObjectPtr removeDefaultServant(const std::string&);
-    virtual ObjectPtr find(const Identity&) const;
-    virtual ObjectPtr findFacet(const Identity&, const std::string&) const;
-    virtual FacetMap findAllFacets(const Identity&) const;
-    virtual ObjectPtr findByProxy(const ObjectPrxPtr&) const;
-    virtual ObjectPtr findDefaultServant(const std::string&) const;
+    ObjectPrxPtr add(const std::shared_ptr<Object>&, const Identity&) final;
+    ObjectPrxPtr addFacet(const std::shared_ptr<Object>&, const Identity&, const std::string&) final;
+    ObjectPrxPtr addWithUUID(const std::shared_ptr<Object>&) final;
+    ObjectPrxPtr addFacetWithUUID(const std::shared_ptr<Object>&, const std::string&) final;
+    void addDefaultServant(const std::shared_ptr<Object>&, const std::string&) final;
+    std::shared_ptr<Object> remove(const Identity&) final;
+    std::shared_ptr<Object> removeFacet(const Identity&, const std::string&) final;
+    FacetMap removeAllFacets(const Identity&) final;
+    std::shared_ptr<Object> removeDefaultServant(const std::string&) final;
+    std::shared_ptr<Object> find(const Identity&) const final;
+    std::shared_ptr<Object> findFacet(const Identity&, const std::string&) const final;
+    FacetMap findAllFacets(const Identity&) const final;
+    std::shared_ptr<Object> findByProxy(const ObjectPrxPtr&) const final;
+    std::shared_ptr<Object> findDefaultServant(const std::string&) const final;
 
-    virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
-    virtual ServantLocatorPtr removeServantLocator(const std::string&);
-    virtual ServantLocatorPtr findServantLocator(const std::string&) const;
+    void addServantLocator(const std::shared_ptr<ServantLocator>&, const std::string&) final;
+    std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
+    std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
 
-    virtual ObjectPrxPtr createProxy(const Identity&) const;
-    virtual ObjectPrxPtr createDirectProxy(const Identity&) const;
-    virtual ObjectPrxPtr createIndirectProxy(const Identity&) const;
+    ObjectPrxPtr createProxy(const Identity&) const final;
+    ObjectPrxPtr createDirectProxy(const Identity&) const final;
+    ObjectPrxPtr createIndirectProxy(const Identity&) const final;
 
-    virtual void setLocator(const LocatorPrxPtr&);
-    virtual Ice::LocatorPrxPtr getLocator() const noexcept;
-    virtual EndpointSeq getEndpoints() const noexcept;
+    void setLocator(const LocatorPrxPtr&) final;
+    LocatorPrxPtr getLocator() const noexcept;
+    EndpointSeq getEndpoints() const noexcept;
 
-    virtual void refreshPublishedEndpoints();
-    virtual EndpointSeq getPublishedEndpoints() const noexcept;
-    virtual void setPublishedEndpoints(const EndpointSeq&);
+    void refreshPublishedEndpoints() final;
+    EndpointSeq getPublishedEndpoints() const noexcept;
+    void setPublishedEndpoints(const EndpointSeq&) final;
 
 #ifdef ICE_SWIFT
-    virtual dispatch_queue_t getDispatchQueue() const;
+    dispatch_queue_t getDispatchQueue() const final;
 #endif
 
     bool isLocal(const ObjectPrxPtr&) const;

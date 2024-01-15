@@ -33,7 +33,11 @@ public:
     {
     }
 
-    explicit SharedPtr(std::shared_ptr<T>&& r) noexcept : _ptr(std::move(r))
+    SharedPtr(std::shared_ptr<T>&& r) noexcept : _ptr(std::move(r))
+    {
+    }
+
+    SharedPtr(const std::shared_ptr<T>& r) noexcept : _ptr(r)
     {
     }
 

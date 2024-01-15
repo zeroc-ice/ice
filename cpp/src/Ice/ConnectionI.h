@@ -47,7 +47,6 @@ namespace Ice
 
 class LocalException;
 class ObjectAdapterI;
-ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
 class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
@@ -258,12 +257,12 @@ private:
 
     ConnectionI(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
                 const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
-                const IceInternal::EndpointIPtr&, const ObjectAdapterIPtr&);
+                const IceInternal::EndpointIPtr&, const std::shared_ptr<ObjectAdapterI>&);
 
     static ConnectionIPtr
     create(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ACMMonitorPtr&,
            const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
-           const IceInternal::EndpointIPtr&, const ObjectAdapterIPtr&);
+           const IceInternal::EndpointIPtr&, const std::shared_ptr<ObjectAdapterI>&);
 
     enum State
     {

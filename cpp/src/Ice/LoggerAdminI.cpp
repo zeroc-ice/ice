@@ -149,7 +149,7 @@ public:
     virtual std::string getPrefix();
     virtual LoggerPtr cloneWithPrefix(const std::string&);
 
-    virtual ObjectPtr getFacet() const;
+    virtual std::shared_ptr<Ice::Object> getFacet() const;
 
     virtual void destroy();
 
@@ -749,10 +749,14 @@ LoggerAdminLoggerI::cloneWithPrefix(const string& prefix)
     return _localLogger->cloneWithPrefix(prefix);
 }
 
-ObjectPtr
+std::shared_ptr<Ice::Object>
 LoggerAdminLoggerI::getFacet() const
 {
+#ifdef ICE_CPP11_MAPPING
     return _loggerAdmin;
+#else
+    return _loggerAdmin.underlying();
+#endif
 }
 
 void

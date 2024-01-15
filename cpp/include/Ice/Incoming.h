@@ -91,8 +91,8 @@ protected:
     void handleException(const std::string&, bool);
 
     Ice::Current _current;
-    Ice::ObjectPtr _servant;
-    Ice::ServantLocatorPtr _locator;
+    std::shared_ptr<Ice::Object> _servant;
+    std::shared_ptr<Ice::ServantLocator> _locator;
 #ifdef ICE_CPP11_MAPPING
     ::std::shared_ptr<void> _cookie;
 #else

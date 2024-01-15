@@ -9,6 +9,7 @@
 
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
+#include <memory>
 
 #include <iosfwd>
 
@@ -37,7 +38,7 @@ namespace Ice
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 class ObjectAdapter;
-typedef ::IceInternal::Handle< ::Ice::ObjectAdapter> ObjectAdapterPtr;
+using ObjectAdapterPtr = ::std::shared_ptr<ObjectAdapter>;
 
 /**
  * A request context. Context is used to transmit metadata about a

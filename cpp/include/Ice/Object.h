@@ -132,7 +132,7 @@ public:
      */
     static const std::string& ice_staticId();
 
-// TODO: temporary ifdef
+// TODO: temporary. To remove it, we need to refactor IncomingAsync that is the base class for generated AMD callbacks.
 #ifdef ICE_CPP11_MAPPING
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
