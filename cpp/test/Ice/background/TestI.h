@@ -11,7 +11,7 @@
 #include <set>
 
 class BackgroundControllerI;
-ICE_DEFINE_PTR(BackgroundControllerIPtr, BackgroundControllerI);
+ICE_DEFINE_SHARED_PTR(BackgroundControllerIPtr, BackgroundControllerI);
 
 class BackgroundI : public virtual Test::Background
 {

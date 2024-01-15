@@ -483,7 +483,7 @@
     NSException* nsex;
     try
     {
-        COMMUNICATOR->addAdminFacet([servant iceObject], fromNSString(facet));
+        COMMUNICATOR->addAdminFacet(Ice::ObjectPtr([servant iceObject]), fromNSString(facet));
         @synchronized(adminFacets_)
         {
             [adminFacets_ setObject:servant forKey:facet];

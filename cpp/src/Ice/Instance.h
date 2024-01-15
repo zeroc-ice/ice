@@ -51,7 +51,7 @@ class Timer;
 typedef IceUtil::Handle<Timer> TimerPtr;
 
 class MetricsAdminI;
-ICE_DEFINE_PTR(MetricsAdminIPtr, MetricsAdminI);
+ICE_DEFINE_SHARED_PTR(MetricsAdminIPtr, MetricsAdminI);
 
 class RequestHandlerFactory;
 typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;

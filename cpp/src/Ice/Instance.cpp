@@ -1383,7 +1383,9 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         const string processFacetName = "Process";
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(processFacetName) != _adminFacetFilter.end())
         {
-            _adminFacets.insert(make_pair(processFacetName, ICE_MAKE_SHARED(ProcessI, communicator)));
+            ProcessPtr processFacet(make_shared<ProcessI>(communicator));
+
+            _adminFacets.insert(make_pair(processFacetName, processFacet));
         }
 
         //

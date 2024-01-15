@@ -2617,7 +2617,7 @@ Slice::Gen::DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     H << nl << "typedef " << p->name() << "Prx " << p->name() << "PrxPtr;";
 
     H << sp << nl << "class " << name << ';';
-    H << nl << "typedef ::IceInternal::Handle< " << name << "> " << p->name() << "Ptr;";
+    H << nl << "using " <<  p->name() << "Ptr = ::Ice::SharedPtr< " << name << ">;";
 }
 
 void

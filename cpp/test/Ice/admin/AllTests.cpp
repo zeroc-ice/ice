@@ -110,7 +110,7 @@ private:
     Ice::LogMessageSeq _logMessages;
 };
 
-ICE_DEFINE_PTR(RemoteLoggerIPtr, RemoteLoggerI);
+ICE_DEFINE_SHARED_PTR(RemoteLoggerIPtr, RemoteLoggerI);
 
 RemoteLoggerI::RemoteLoggerI() : _receivedCalls(0)
 {
