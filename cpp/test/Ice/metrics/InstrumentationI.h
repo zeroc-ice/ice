@@ -66,7 +66,7 @@ public:
     Ice::Int current;
     Ice::Int failedCount;
 };
-ICE_DEFINE_PTR(ObserverIPtr, ObserverI);
+using ObserverIPtr = std::shared_ptr<ObserverI>;
 
 class ConnectionObserverI : public Ice::Instrumentation::ConnectionObserver, public ObserverI
 {
@@ -98,7 +98,7 @@ public:
     Ice::Int sent;
     Ice::Int received;
 };
-ICE_DEFINE_PTR(ConnectionObserverIPtr, ConnectionObserverI);
+using ConnectionObserverIPtr = std::shared_ptr<ConnectionObserverI>;
 
 class ThreadObserverI : public Ice::Instrumentation::ThreadObserver, public ObserverI
 {
@@ -121,7 +121,7 @@ public:
 
     Ice::Int states;
 };
-ICE_DEFINE_PTR(ThreadObserverIPtr, ThreadObserverI);
+using ThreadObserverIPtr = std::shared_ptr<ThreadObserverI>;
 
 class DispatchObserverI : public Ice::Instrumentation::DispatchObserver, public ObserverI
 {
@@ -152,7 +152,7 @@ public:
     Ice::Int userExceptionCount;
     Ice::Int replySize;
 };
-ICE_DEFINE_PTR(DispatchObserverIPtr, DispatchObserverI);
+using DispatchObserverIPtr = std::shared_ptr<DispatchObserverI>;
 
 class ChildInvocationObserverI : public virtual Ice::Instrumentation::ChildInvocationObserver, public ObserverI
 {
@@ -175,17 +175,17 @@ public:
 
     Ice::Int replySize;
 };
-ICE_DEFINE_PTR(ChildInvocationObserverIPtr, ChildInvocationObserverI);
+using ChildInvocationObserverIPtr = std::shared_ptr<ChildInvocationObserverI>;
 
 class RemoteObserverI : public Ice::Instrumentation::RemoteObserver, public ChildInvocationObserverI
 {
 };
-ICE_DEFINE_PTR(RemoteObserverIPtr, RemoteObserverI);
+using RemoteObserverIPtr = std::shared_ptr<RemoteObserverI>;
 
 class CollocatedObserverI : public Ice::Instrumentation::CollocatedObserver, public ChildInvocationObserverI
 {
 };
-ICE_DEFINE_PTR(CollocatedObserverIPtr, CollocatedObserverI);
+using CollocatedObserverIPtr = std::shared_ptr<CollocatedObserverI>;
 
 class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, public ObserverI
 {
@@ -227,7 +227,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!remoteObserver)
         {
-            remoteObserver = ICE_MAKE_SHARED(RemoteObserverI);
+            remoteObserver = std::make_shared<RemoteObserverI>();
             remoteObserver->reset();
         }
         return remoteObserver;
@@ -239,7 +239,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!collocatedObserver)
         {
-            collocatedObserver = ICE_MAKE_SHARED(CollocatedObserverI);
+            collocatedObserver = std::make_shared<CollocatedObserverI>();
             collocatedObserver->reset();
         }
         return collocatedObserver;
@@ -251,7 +251,7 @@ public:
     RemoteObserverIPtr remoteObserver;
     CollocatedObserverIPtr collocatedObserver;
 };
-ICE_DEFINE_PTR(InvocationObserverIPtr, InvocationObserverI);
+using InvocationObserverIPtr = std::shared_ptr<InvocationObserverI>;
 
 class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver, public IceUtil::Mutex
 {
@@ -269,7 +269,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!connectionEstablishmentObserver)
         {
-            connectionEstablishmentObserver = ICE_MAKE_SHARED(ObserverI);
+            connectionEstablishmentObserver = std::make_shared<ObserverI>();
             connectionEstablishmentObserver->reset();
         }
         return connectionEstablishmentObserver;
@@ -281,7 +281,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!endpointLookupObserver)
         {
-            endpointLookupObserver = ICE_MAKE_SHARED(ObserverI);
+            endpointLookupObserver = std::make_shared<ObserverI>();
             endpointLookupObserver->reset();
         }
         return endpointLookupObserver;
@@ -297,7 +297,7 @@ public:
         test(!old || dynamic_cast<ConnectionObserverI*>(old.get()));
         if(!connectionObserver)
         {
-            connectionObserver = ICE_MAKE_SHARED(ConnectionObserverI);
+            connectionObserver = std::make_shared<ConnectionObserverI>();
             connectionObserver->reset();
         }
         return connectionObserver;
@@ -311,7 +311,7 @@ public:
         test(!old || dynamic_cast<ThreadObserverI*>(old.get()));
         if(!threadObserver)
         {
-            threadObserver = ICE_MAKE_SHARED(ThreadObserverI);
+            threadObserver = std::make_shared<ThreadObserverI>();
             threadObserver->reset();
         }
         return threadObserver;
@@ -323,7 +323,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!invocationObserver)
         {
-            invocationObserver = ICE_MAKE_SHARED(InvocationObserverI);
+            invocationObserver = std::make_shared<InvocationObserverI>();
             invocationObserver->reset();
         }
         return invocationObserver;
@@ -335,7 +335,7 @@ public:
         IceUtil::Mutex::Lock sync(*this);
         if(!dispatchObserver)
         {
-            dispatchObserver = ICE_MAKE_SHARED(DispatchObserverI);
+            dispatchObserver = std::make_shared<DispatchObserverI>();
             dispatchObserver->reset();
         }
         return dispatchObserver;
@@ -378,6 +378,6 @@ public:
     InvocationObserverIPtr invocationObserver;
     DispatchObserverIPtr dispatchObserver;
 };
-ICE_DEFINE_PTR(CommunicatorObserverIPtr, CommunicatorObserverI);
+using CommunicatorObserverIPtr = std::shared_ptr<CommunicatorObserverI>;
 
 #endif

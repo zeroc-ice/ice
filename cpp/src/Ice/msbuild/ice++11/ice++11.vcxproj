@@ -175,7 +175,6 @@
     <ClCompile Include="..\..\ImplicitContext.cpp" />
     <ClCompile Include="..\..\ImplicitContextF.cpp" />
     <ClCompile Include="..\..\Instrumentation.cpp" />
-    <ClCompile Include="..\..\InstrumentationF.cpp" />
     <ClCompile Include="..\..\LocalException.cpp" />
     <ClCompile Include="..\..\Logger.cpp" />
     <ClCompile Include="..\..\LoggerF.cpp" />

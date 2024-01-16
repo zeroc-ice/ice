@@ -224,7 +224,7 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
     assert(obsv);
     _observer.attach(obsv->getThreadObserver("Communicator",
                                             "Ice.Timer",
-                                            Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
+                                            Instrumentation::ThreadState::ThreadStateIdle,
                                             _observer.get()));
     _hasObserver.exchange(_observer.get() ? 1 : 0);
 }
@@ -241,8 +241,8 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
-                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther));
+            threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateIdle,
+                                         Instrumentation::ThreadState::ThreadStateInUseForOther);
         }
         try
         {
@@ -252,14 +252,14 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                             Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
+                                             Instrumentation::ThreadState::ThreadStateIdle);
             }
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
+            threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
+                                         Instrumentation::ThreadState::ThreadStateIdle);
         }
     }
     else
@@ -1416,7 +1416,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         const string metricsFacetName = "Metrics";
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(metricsFacetName) != _adminFacetFilter.end())
         {
-            CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI, _initData);
+            CommunicatorObserverIPtr observer = make_shared<CommunicatorObserverI>(_initData);
             _initData.observer = observer;
             _adminFacets.insert(make_pair(metricsFacetName, observer->getFacet()));
 
@@ -1437,7 +1437,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(_initData.observer)
     {
-        _initData.observer->setObserverUpdater(ICE_MAKE_SHARED(ObserverUpdaterI, this));
+        _initData.observer->setObserverUpdater(make_shared<ObserverUpdaterI>(this));
     }
 
     //
@@ -1618,7 +1618,7 @@ IceInternal::Instance::destroy()
 
     if(_initData.observer)
     {
-        CommunicatorObserverIPtr observer = ICE_DYNAMIC_CAST(CommunicatorObserverI, _initData.observer);
+        CommunicatorObserverIPtr observer = dynamic_pointer_cast<CommunicatorObserverI>(_initData.observer);
         if(observer)
         {
             observer->destroy(); // Break cyclic reference counts. Don't clear _observer, it's immutable.

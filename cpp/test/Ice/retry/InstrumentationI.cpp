@@ -5,6 +5,8 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+using namespace std;
+
 namespace
 {
 
@@ -79,7 +81,7 @@ public:
 
 };
 
-Ice::Instrumentation::InvocationObserverPtr invocationObserver = ICE_MAKE_SHARED(InvocationObserverI);
+Ice::Instrumentation::InvocationObserverPtr invocationObserver = make_shared<InvocationObserverI>();
 
 class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
@@ -133,7 +135,7 @@ public:
     }
 };
 
-Ice::Instrumentation::CommunicatorObserverPtr communicatorObserver = ICE_MAKE_SHARED(CommunicatorObserverI);
+Ice::Instrumentation::CommunicatorObserverPtr communicatorObserver = make_shared<CommunicatorObserverI>();
 
 void
 testEqual(int& value, int expected)

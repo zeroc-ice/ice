@@ -31,13 +31,13 @@ getThreadStateMetric(ThreadState s)
 {
     switch(s)
     {
-        case ICE_ENUM(ThreadState, ThreadStateIdle):
+        case ThreadState::ThreadStateIdle:
             return 0;
-        case ICE_ENUM(ThreadState, ThreadStateInUseForIO):
+        case ThreadState::ThreadStateInUseForIO:
             return &ThreadMetrics::inUseForIO;
-        case ICE_ENUM(ThreadState, ThreadStateInUseForUser):
+        case ThreadState::ThreadStateInUseForUser:
             return &ThreadMetrics::inUseForUser;
-        case ICE_ENUM(ThreadState, ThreadStateInUseForOther):
+        case ThreadState::ThreadStateInUseForOther:
             return &ThreadMetrics::inUseForOther;
         default:
             assert(false);
@@ -53,11 +53,11 @@ struct ThreadStateChanged
 
     void operator()(const ThreadMetricsPtr& v)
     {
-        if(oldState != ICE_ENUM(ThreadState, ThreadStateIdle))
+        if(oldState != ThreadState::ThreadStateIdle)
         {
             --(v.get()->*getThreadStateMetric(oldState));
         }
-        if(newState != ICE_ENUM(ThreadState, ThreadStateIdle))
+        if(newState != ThreadState::ThreadStateIdle)
         {
             ++(v.get()->*getThreadStateMetric(newState));
         }
@@ -78,7 +78,7 @@ getIPConnectionInfo(const ConnectionInfoPtr& info)
             return ipInfo;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 class ConnectionHelper : public MetricsHelperT<ConnectionMetrics>
@@ -140,15 +140,15 @@ public:
     {
         switch(_state)
         {
-            case ICE_ENUM(ConnectionState, ConnectionStateValidating):
+            case ConnectionState::ConnectionStateValidating:
                 return "validating";
-            case ICE_ENUM(ConnectionState, ConnectionStateHolding):
+            case ConnectionState::ConnectionStateHolding:
                 return "holding";
-            case ICE_ENUM(ConnectionState, ConnectionStateActive):
+            case ConnectionState::ConnectionStateActive:
                 return "active";
-            case ICE_ENUM(ConnectionState, ConnectionStateClosing):
+            case ConnectionState::ConnectionStateClosing:
                 return "closing";
-            case ICE_ENUM(ConnectionState, ConnectionStateClosed):
+            case ConnectionState::ConnectionStateClosed:
                 return "closed";
             default:
                 assert(false);
@@ -680,7 +680,7 @@ public:
 
     virtual void initMetrics(const ThreadMetricsPtr& v) const
     {
-        if(_state != ICE_ENUM(ThreadState, ThreadStateIdle))
+        if(_state != ThreadState::ThreadStateIdle)
         {
             ++(v.get()->*getThreadStateMetric(_state));
         }
@@ -879,7 +879,7 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
     catch(const exception&)
     {
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 CollocatedObserverPtr
@@ -899,7 +899,7 @@ InvocationObserverI::getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter,
     catch(const exception&)
     {
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 CommunicatorObserverI::CommunicatorObserverI(const InitializationData& initData) :
@@ -947,7 +947,7 @@ CommunicatorObserverI::getConnectionEstablishmentObserver(const EndpointPtr& end
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 ObserverPtr
@@ -970,7 +970,7 @@ CommunicatorObserverI::getEndpointLookupObserver(const EndpointPtr& endpt)
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 ConnectionObserverPtr
@@ -997,7 +997,7 @@ CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 ThreadObserverPtr
@@ -1024,7 +1024,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 InvocationObserverPtr
@@ -1047,7 +1047,7 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrxPtr& proxy, const st
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 DispatchObserverPtr
@@ -1070,7 +1070,7 @@ CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 const IceInternal::MetricsAdminIPtr&

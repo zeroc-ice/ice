@@ -612,9 +612,6 @@
     <ClCompile Include="..\..\Instrumentation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\InstrumentationF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\LocalException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
