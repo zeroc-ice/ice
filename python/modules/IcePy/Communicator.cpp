@@ -43,18 +43,14 @@ static CommunicatorMap _communicatorMap;
 namespace IcePy
 {
 
-struct CommunicatorObject;
-
-typedef InvokeThread<Ice::Communicator> WaitForShutdownThread;
-typedef IceUtil::Handle<WaitForShutdownThread> WaitForShutdownThreadPtr;
-
 struct CommunicatorObject
 {
     PyObject_HEAD
     Ice::CommunicatorPtr* communicator;
     PyObject* wrapper;
-    IceUtil::Monitor<IceUtil::Mutex>* shutdownMonitor;
-    WaitForShutdownThreadPtr* shutdownThread;
+    std::mutex* shutdownMutex;
+    std::condition_variable* shutdownCondVar;
+    InvokeThread* shutdownThread;
     bool shutdown;
     DispatcherPtr* dispatcher;
 };
@@ -75,7 +71,8 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     }
     self->communicator = 0;
     self->wrapper = 0;
-    self->shutdownMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
+    self->shutdownMutex = new std::mutex;
+    self->shutdownCondVar = new std::condition_variable;
     self->shutdownThread = 0;
     self->shutdown = false;
     self->dispatcher = 0;
@@ -366,13 +363,10 @@ communicatorDealloc(CommunicatorObject* self)
         }
     }
 
-    if(self->shutdownThread)
-    {
-        (*self->shutdownThread)->getThreadControl().join();
-    }
     delete self->communicator;
-    delete self->shutdownMonitor;
     delete self->shutdownThread;
+    delete self->shutdownCondVar;
+    delete self->shutdownMutex;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -473,28 +467,27 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
     //
     if(PyThread_get_thread_ident() == _mainThreadId)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*self->shutdownMonitor);
+        std::unique_lock<std::mutex> lock(*self->shutdownMutex);
 
         if(!self->shutdown)
         {
             if(self->shutdownThread == 0)
             {
-                WaitForShutdownThreadPtr t = new WaitForShutdownThread(*self->communicator,
-                                                                       &Ice::Communicator::waitForShutdown,
-                                                                       *self->shutdownMonitor, self->shutdown);
-                self->shutdownThread = new WaitForShutdownThreadPtr(t);
-                t->start();
+                self->shutdownThread = new InvokeThread([self] { (*self->communicator)->waitForShutdown(); },
+                                                        self->shutdownMutex,
+                                                        self->shutdownCondVar,
+                                                        self->shutdown);
             }
 
             while(!self->shutdown)
             {
-                bool done;
+                std::cv_status status;
                 {
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
+                    status = self->shutdownCondVar->wait_for(lock, std::chrono::milliseconds(timeout));
                 }
 
-                if(!done)
+                if(status == std::cv_status::timeout)
                 {
                     PyRETURN_FALSE;
                 }
@@ -503,7 +496,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
 
         assert(self->shutdown);
 
-        Ice::Exception* ex = (*self->shutdownThread)->getException();
+        Ice::Exception* ex = self->shutdownThread->getException();
         if(ex)
         {
             setPythonException(*ex);

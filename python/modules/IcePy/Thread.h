@@ -11,6 +11,8 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 
+#include <thread>
+
 namespace IcePy
 {
 
@@ -67,38 +69,46 @@ private:
 typedef IceUtil::Handle<ThreadHook> ThreadHookPtr;
 
 //
-// This class invokes a member function in a separate thread.
+// This class invokes a function in a separate thread.
 //
-template<typename T>
-class InvokeThread : public IceUtil::Thread
+class InvokeThread
 {
 public:
 
-    InvokeThread(const IceInternal::Handle<T>& target, void (T::*func)(void),
-                 IceUtil::Monitor<IceUtil::Mutex>& monitor, bool& done) :
-        _target(target), _func(func), _monitor(monitor), _done(done), _ex(0)
+    InvokeThread(std::function<void()> func, std::mutex* mutex, std::condition_variable* cond, bool& done) :
+        _func(func),
+        _mutex(mutex),
+        _cond(cond),
+        _done(done),
+        _ex(nullptr),
+        _thread([this] { run(); })
     {
     }
 
-    ~InvokeThread()
-    {
-        delete _ex;
-    }
-
-    virtual void run()
+    void run()
     {
         try
         {
-            (_target.get() ->* _func)();
+            _func();
         }
         catch(const Ice::Exception& ex)
         {
             _ex = ex.ice_clone();
         }
-
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+        std::unique_lock lock(*_mutex);
         _done = true;
-        _monitor.notify();
+        _cond->notify_one();
+    }
+
+    ~InvokeThread()
+    {
+        _thread.join();
+        delete _ex;
+    }
+
+    void join()
+    {
+        _thread.join();
     }
 
     Ice::Exception* getException() const
@@ -107,12 +117,12 @@ public:
     }
 
 private:
-
-    IceInternal::Handle<T> _target;
-    void (T::*_func)(void);
-    IceUtil::Monitor<IceUtil::Mutex>& _monitor;
+    std::function<void()> _func;
+    std::mutex* _mutex;
+    std::condition_variable* _cond;
     bool& _done;
     Ice::Exception* _ex;
+    std::thread _thread;
 };
 
 }

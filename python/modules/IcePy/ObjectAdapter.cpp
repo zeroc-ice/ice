@@ -29,18 +29,17 @@ static unsigned long _mainThreadId;
 namespace IcePy
 {
 
-typedef InvokeThread<Ice::ObjectAdapter> AdapterInvokeThread;
-typedef IceUtil::Handle<AdapterInvokeThread> AdapterInvokeThreadPtr;
-
 struct ObjectAdapterObject
 {
     PyObject_HEAD
     Ice::ObjectAdapterPtr* adapter;
-    IceUtil::Monitor<IceUtil::Mutex>* deactivateMonitor;
-    AdapterInvokeThreadPtr* deactivateThread;
+    std::mutex* deactivateMutex;
+    std::condition_variable* deactivateCond;
+    InvokeThread* deactivateThread;
     bool deactivated;
-    IceUtil::Monitor<IceUtil::Mutex>* holdMonitor;
-    AdapterInvokeThreadPtr* holdThread;
+    std::mutex* holdMutex;
+    std::condition_variable* holdCond;
+    InvokeThread* holdThread;
     bool held;
 };
 
@@ -309,19 +308,16 @@ extern "C"
 static void
 adapterDealloc(ObjectAdapterObject* self)
 {
-    if(self->deactivateThread)
-    {
-        (*self->deactivateThread)->getThreadControl().join();
-    }
-    if(self->holdThread)
-    {
-        (*self->holdThread)->getThreadControl().join();
-    }
     delete self->adapter;
-    delete self->deactivateMonitor;
+
     delete self->deactivateThread;
-    delete self->holdMonitor;
+    delete self->deactivateMutex;
+    delete self->deactivateCond;
+
     delete self->holdThread;
+    delete self->holdMutex;
+    delete self->holdCond;
+
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -379,11 +375,11 @@ adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->activate();
 
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*self->holdMonitor);
+        std::lock_guard lock(*self->holdMutex);
         self->held = false;
         if(self->holdThread)
         {
-            (*self->holdThread)->getThreadControl().join();
+            self->holdThread->join();
             delete self->holdThread;
             self->holdThread = 0;
         }
@@ -449,34 +445,36 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
     //
     if(PyThread_get_thread_ident() == _mainThreadId)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*self->holdMonitor);
+        std::unique_lock lock(*self->holdMutex);
 
         if(!self->held)
         {
             if(self->holdThread == 0)
             {
-                AdapterInvokeThreadPtr t = new AdapterInvokeThread(*self->adapter,
-                                                                   &Ice::ObjectAdapter::waitForHold,
-                                                                   *self->holdMonitor, self->held);
-                self->holdThread = new AdapterInvokeThreadPtr(t);
-                t->start();
+                self->holdThread = new InvokeThread([self] { (*self->adapter)->waitForHold(); },
+                                                    self->holdMutex,
+                                                    self->holdCond,
+                                                    self->held);
             }
 
-            bool done;
+            while(!self->held)
             {
-                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                done = (*self->holdMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
-            }
+                std::cv_status status;
+                {
+                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                    status = self->holdCond->wait_for(lock, std::chrono::milliseconds(timeout));
+                }
 
-            if(!done)
-            {
-                PyRETURN_FALSE;
+                if(status == std::cv_status::timeout)
+                {
+                    PyRETURN_FALSE;
+                }
             }
         }
 
         assert(self->held);
 
-        Ice::Exception* ex = (*self->holdThread)->getException();
+        Ice::Exception* ex = self->holdThread->getException();
         if(ex)
         {
             setPythonException(*ex);
@@ -552,28 +550,28 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
     //
     if(PyThread_get_thread_ident() == _mainThreadId)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*self->deactivateMonitor);
+        std::unique_lock lock(*self->deactivateMutex);
 
         if(!self->deactivated)
         {
             if(self->deactivateThread == 0)
             {
-                AdapterInvokeThreadPtr t = new AdapterInvokeThread(*self->adapter,
-                                                                   &Ice::ObjectAdapter::waitForDeactivate,
-                                                                   *self->deactivateMonitor, self->deactivated);
-                self->deactivateThread = new AdapterInvokeThreadPtr(t);
-                t->start();
+                self->deactivateThread = new InvokeThread(
+                    [self] { (*self->adapter)->waitForDeactivate(); },
+                    self->deactivateMutex,
+                    self->deactivateCond,
+                    self->deactivated);
             }
 
             while(!self->deactivated)
             {
-                bool done;
+                std::cv_status status;
                 {
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    done = (*self->deactivateMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
+                    status = self->deactivateCond->wait_for(lock, std::chrono::milliseconds(timeout));
                 }
 
-                if(!done)
+                if(status == std::cv_status::timeout)
                 {
                     PyRETURN_FALSE;
                 }
@@ -582,7 +580,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
 
         assert(self->deactivated);
 
-        Ice::Exception* ex = (*self->deactivateThread)->getException();
+        Ice::Exception* ex = self->deactivateThread->getException();
         if(ex)
         {
             setPythonException(*ex);
@@ -1829,10 +1827,12 @@ IcePy::createObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     if(obj)
     {
         obj->adapter = new Ice::ObjectAdapterPtr(adapter);
-        obj->deactivateMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
+        obj->deactivateMutex = new std::mutex;
+        obj->deactivateCond = new std::condition_variable;
         obj->deactivateThread = 0;
         obj->deactivated = false;
-        obj->holdMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
+        obj->holdMutex = new std::mutex;
+        obj->holdCond = new std::condition_variable;
         obj->holdThread = 0;
         obj->held = false;
     }
