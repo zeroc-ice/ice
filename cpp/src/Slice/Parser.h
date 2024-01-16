@@ -291,7 +291,6 @@ class Comment
 {
 public:
 
-    Comment();
     bool isDeprecated() const;
     StringList deprecated() const;
 

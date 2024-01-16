@@ -7,6 +7,8 @@
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
 #include <Slice/Util.h>
+
+#include <algorithm>
 #include <cstring>
 #include <iterator>
 #include <functional>
@@ -15,7 +17,6 @@
 #if defined(_MSC_VER)
 #    pragma warning(disable:4589) // Constructor of abstract class 'Slice::Type' ignores initializer...
 #endif
-#include <algorithm>
 
 using namespace std;
 using namespace Slice;
@@ -101,13 +102,7 @@ DataMemberList
 filterOrderedOptionalDataMembers(const DataMemberList& members)
 {
     DataMemberList result;
-    for (const auto& p : members)
-    {
-        if (p->optional())
-        {
-            result.push_back(p);
-        }
-    }
+    copy_if(members.begin(), members.end(), back_inserter(result), [](const auto& p) { return p->optional(); });
     result.sort(compareTag<DataMemberPtr>);
     return result;
 }
@@ -372,10 +367,6 @@ Slice::Comment::exceptions() const
     return _exceptions;
 }
 
-Slice::Comment::Comment()
-{
-}
-
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
@@ -570,10 +561,8 @@ Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
     Type(unit),
     _kind(kind)
 {
-    //
     // Builtin types do not have a definition context.
-    //
-    _definitionContext = 0;
+    _definitionContext = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -1735,7 +1724,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the constant anyway.
@@ -1747,12 +1736,10 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
 
     SyntaxTreeBasePtr resolvedValueType = valueType;
 
-    //
     // Validate the constant and its value; for enums, find enumerator
-    //
     if(nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
     {
-        return 0;
+        return nullptr;
     }
 
     ConstPtr p = make_shared<Const>(
@@ -2151,14 +2138,7 @@ Slice::Container::enumerators(const string& scoped) const
             }
 
             ContainedPtr contained = dynamic_pointer_cast<Contained>(container);
-            if(contained)
-            {
-                container = contained->container();
-            }
-            else
-            {
-                container = 0;
-            }
+            container = contained ? contained->container() : nullptr;
         }
         while(result.empty() && container);
     }
@@ -2793,9 +2773,8 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
             {
                 return true;
             }
-            ostringstream os;
-            os << "second: " << it->second.get() << " thing: " << namedThing.get() << endl;
-            _unit->error("`" + firstComponent + "' has changed meaning: " + os.str());
+
+            _unit->error("`" + firstComponent + "' has changed meaning");
             
             return false;
         }
@@ -3168,7 +3147,7 @@ Slice::Constructed::Constructed(const ContainerPtr& container, const string& nam
 void
 Slice::ClassDecl::destroy()
 {
-    _definition = 0;
+    _definition = nullptr;
     SyntaxTreeBase::destroy();
 }
 
@@ -3256,8 +3235,8 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) :
 void
 Slice::ClassDef::destroy()
 {
-    _declaration = 0;
-    _base = 0;
+    _declaration = nullptr;
+    _base = nullptr;
     Container::destroy();
 }
 
@@ -3328,15 +3307,11 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
 
     if(dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
         if(!validateConstant(name, type, dlt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dlt = nullptr;
             dv.clear();
             dl.clear();
         }
@@ -3344,13 +3319,10 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
 
     if(optional)
     {
-        //
         // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& q : dataMembers())
         {
-            if((*q)->optional() && tag == (*q)->tag())
+            if (q->optional() && tag == q->tag())
             {
                 string msg = "tag for optional data member `" + name + "' is already in use";
                 _unit->error(msg);
@@ -3579,7 +3551,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
 void
 Slice::InterfaceDecl::destroy()
 {
-    _definition = 0;
+    _definition = nullptr;
     SyntaxTreeBase::destroy();
 }
 
@@ -4466,20 +4438,6 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
         }
     }
 
-    if(optional)
-    {
-        // Validate the tag.
-        for (const auto& q : dataMembers())
-        {
-            if(q->optional() && tag == q->tag())
-            {
-                string msg = "tag for optional data member `" + name + "' is already in use";
-                _unit->error(msg);
-                break;
-            }
-        }
-    }
-
     DataMemberPtr p = make_shared<DataMember>(
         dynamic_pointer_cast<Container>(shared_from_this()),
         name,
@@ -4489,6 +4447,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
         dlt,
         dv,
         dl);
+    p->init();
     _contents.push_back(p);
     return p;
 }
@@ -5133,7 +5092,12 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name,
 void
 Slice::Enumerator::init()
 {
-    dynamic_pointer_cast<Enum>(_container)->newEnumerator(dynamic_pointer_cast<Enumerator>(shared_from_this()));
+    int value = dynamic_pointer_cast<Enum>(_container)->newEnumerator(dynamic_pointer_cast<Enumerator>(shared_from_this()));
+    if (_value == -1)
+    {
+        _value = value;
+    }
+    Contained::init();
 }
 
 // ----------------------------------------------------------------------
