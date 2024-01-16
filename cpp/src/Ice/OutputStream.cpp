@@ -905,7 +905,7 @@ Ice::OutputStream::EncapsEncoder::registerTypeId(const string& typeId)
 }
 
 void
-Ice::OutputStream::EncapsEncoder10::write(const ValuePtr& v)
+Ice::OutputStream::EncapsEncoder10::write(const shared_ptr<Value>& v)
 {
     //
     // Object references are encoded as a negative integer in 1.0.
@@ -1051,7 +1051,7 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
 }
 
 Int
-Ice::OutputStream::EncapsEncoder10::registerValue(const ValuePtr& v)
+Ice::OutputStream::EncapsEncoder10::registerValue(const shared_ptr<Value>& v)
 {
     assert(v);
 
@@ -1082,7 +1082,7 @@ Ice::OutputStream::EncapsEncoder10::registerValue(const ValuePtr& v)
 }
 
 void
-Ice::OutputStream::EncapsEncoder11::write(const ValuePtr& v)
+Ice::OutputStream::EncapsEncoder11::write(const shared_ptr<Value>& v)
 {
     if(!v)
     {
@@ -1327,7 +1327,7 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
 }
 
 void
-Ice::OutputStream::EncapsEncoder11::writeInstance(const ValuePtr& v)
+Ice::OutputStream::EncapsEncoder11::writeInstance(const shared_ptr<Value>& v)
 {
     assert(v);
 

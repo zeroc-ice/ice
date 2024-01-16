@@ -75,29 +75,10 @@ namespace Ice
 
 using PropertiesPtr = ::std::shared_ptr<Properties>;
 
-using PropertiesAdminPtr = ::std::shared_ptr<PropertiesAdmin>;
-using PropertiesAdminPrxPtr = ::std::shared_ptr<PropertiesAdminPrx>;
-
 }
 /// \endcond
 
 #else // C++98 mapping
-
-namespace IceProxy
-{
-
-namespace Ice
-{
-
-class PropertiesAdmin;
-/// \cond INTERNAL
-ICE_API void _readProxy(::Ice::InputStream*, ::IceInternal::ProxyHandle< PropertiesAdmin>&);
-ICE_API ::IceProxy::Ice::Object* upCast(PropertiesAdmin*);
-/// \endcond
-
-}
-
-}
 
 namespace Ice
 {
@@ -108,22 +89,7 @@ ICE_API LocalObject* upCast(Properties*);
 /// \endcond
 typedef ::IceInternal::Handle< Properties> PropertiesPtr;
 
-class PropertiesAdmin;
-/// \cond INTERNAL
-ICE_API Object* upCast(PropertiesAdmin*);
-/// \endcond
-typedef ::IceInternal::Handle< PropertiesAdmin> PropertiesAdminPtr;
-typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::PropertiesAdmin> PropertiesAdminPrx;
-typedef PropertiesAdminPrx PropertiesAdminPrxPtr;
-
 }
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
 
 #endif
 

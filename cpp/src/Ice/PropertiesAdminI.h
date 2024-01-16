@@ -57,7 +57,7 @@ private:
 #endif
 
 };
-ICE_DEFINE_PTR(PropertiesAdminIPtr, PropertiesAdminI);
+ICE_DEFINE_SHARED_PTR(PropertiesAdminIPtr, PropertiesAdminI);
 
 }
 

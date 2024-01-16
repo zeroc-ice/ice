@@ -20,7 +20,7 @@
 namespace
 {
 
-std::map<Ice::Object*, ICEServantWrapper*> cachedObjects;
+std::map<std::shared_ptr<Ice::Object>, ICEServantWrapper*> cachedObjects;
 
 NSString*
 operationModeToString(ICEOperationMode mode)
@@ -45,7 +45,16 @@ class ObjectI : public IceObjC::ServantWrapper, public Ice::BlobjectArrayAsync
 {
 public:
 
-    ObjectI(ICEServant*);
+    ObjectI(ICEServant* servant) : _object(servant)
+    {
+        // Make sure the ObjcC object is not released while the C++ object is still alive.
+        CFRetain(_object);
+    }
+
+    virtual ~ObjectI()
+    {
+        CFRelease(_object);
+    }
 
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
@@ -54,18 +63,6 @@ public:
     virtual ICEObject* getServant()
     {
         return _object;
-    }
-
-    // We must explicitely CFRetain/CFRelease so that the garbage
-    // collector does not trash the _object.
-    virtual void __incRef()
-    {
-        CFRetain(_object);
-    }
-
-    virtual void __decRef()
-    {
-        CFRelease(_object);
     }
 
 private:
@@ -77,7 +74,16 @@ class BlobjectI : public IceObjC::ServantWrapper, public Ice::BlobjectArrayAsync
 {
 public:
 
-    BlobjectI(ICEBlobject*);
+    BlobjectI(ICEBlobject* servant) : _blobject(servant)
+    {
+        // Make sure the ObjcC object is not released while the C++ object is still alive.
+        CFRetain(_blobject);
+    }
+
+    virtual ~BlobjectI()
+    {
+        CFRelease(_blobject);
+    }
 
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
@@ -88,27 +94,10 @@ public:
         return _blobject;
     }
 
-    // We must explicitely CFRetain/CFRelease so that the garbage
-    // collector does not trash the _blobject.
-    virtual void __incRef()
-    {
-        CFRetain(_blobject);
-    }
-
-    virtual void __decRef()
-    {
-        CFRelease(_blobject);
-    }
-
 private:
 
     ICEBlobject* _blobject;
-    id _target;
 };
-
-ObjectI::ObjectI(ICEServant* object) : _object(object)
-{
-}
 
 void
 ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
@@ -156,10 +145,6 @@ ObjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     [os release];
 }
 
-BlobjectI::BlobjectI(ICEBlobject* blobject) : _blobject(blobject), _target([blobject iceTarget])
-{
-}
-
 void
 BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                             const std::pair<const Ice::Byte*, const Ice::Byte*>& inEncaps,
@@ -177,7 +162,8 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                      freeWhenDone:NO];
         @try
         {
-            ok = [_target ice_invoke:inE outEncaps:&outE current:c];
+            // The application-provided implementation of class ICEBlobject must implement the ICEBlobject protocol.
+            ok = [(id)_blobject ice_invoke:inE outEncaps:&outE current:c];
             [outE retain];
         }
         @catch(ICEUserException* ex)
@@ -274,7 +260,7 @@ ICEInternalCheckModeAndSelector(id target, ICEOperationMode expected, SEL sel, I
 }
 
 @implementation ICEObject (ICEInternal)
--(Ice::Object*) iceObject
+-(std::shared_ptr<Ice::Object>) iceObject
 {
     NSAssert(NO, @"iceObject requires override");
     return 0;
@@ -358,20 +344,7 @@ static NSString* ICEObject_all[4] =
     {
         return nil;
     }
-    iceObject_ = 0;
-    iceDelegate_ = 0;
-    return self;
-}
-
--(id)initWithDelegate:(id)delegate
-{
-    self = [super init];
-    if(!self)
-    {
-        return nil;
-    }
-    iceObject_ = 0;
-    iceDelegate_ = [delegate retain];
+    iceObject_ = nil;
     return self;
 }
 
@@ -379,16 +352,10 @@ static NSString* ICEObject_all[4] =
 {
     if(iceObject_)
     {
-        delete static_cast<IceObjC::ServantWrapper*>(iceObject_);
-        iceObject_ = 0;
+        delete static_cast<std::weak_ptr<Ice::Object>*>(iceObject_);
+        iceObject_ = nil;
     }
-    [iceDelegate_ release];
     [super dealloc];
-}
-
-+(id)objectWithDelegate:(id)delegate
-{
-    return [[[self alloc] initWithDelegate:delegate] autorelease];
 }
 
 -(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)__unused current
@@ -486,56 +453,75 @@ static NSString* ICEObject_all[4] =
     }
 }
 
--(id)iceTarget
-{
-    return (iceDelegate_ == 0) ? self : iceDelegate_;
-}
-
--(Ice::Object*) iceObject
+-(std::shared_ptr<Ice::Object>) iceObject
 {
     @synchronized([self class])
     {
-        if(iceObject_ == 0)
+        std::shared_ptr<Ice::Object> result;
+
+        if (iceObject_)
         {
-            //
-            // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
-            // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
-            // the same reference count (the one of the Objective-C object). This is necessary
-            // to properly release both objects when there's either no more C++ handle/ObjC
-            // reference to the object (without this, servants added to the object adapter
-            // couldn't be retained or released easily).
-            //
-            iceObject_ = static_cast<IceObjC::ServantWrapper*>(new ObjectI(self));
+            auto weakPtrPtr = static_cast<std::weak_ptr<Ice::Object>*>(iceObject_);
+
+            result = weakPtrPtr->lock();
+
+            // result can be null if the C++ wrapper was released / destroyed
+            // This typically occurs when the servant (really its C++ wrapper) is removed from an object adapter.
+            if (!result)
+            {
+                delete weakPtrPtr;
+                iceObject_ = nullptr;
+            }
         }
+
+        if (!result)
+        {
+            auto wrapper = std::make_shared<ObjectI>(self);
+            iceObject_ = new std::weak_ptr<Ice::Object>(wrapper);
+            result = wrapper;
+        }
+
+        return result;
     }
-    return static_cast<IceObjC::ServantWrapper*>(iceObject_);
 }
 @end
 
 @implementation ICEBlobject
--(Ice::Object*) iceObject
+-(std::shared_ptr<Ice::Object>) iceObject
 {
     @synchronized([self class])
     {
-        if(iceObject_ == 0)
+        std::shared_ptr<Ice::Object> result;
+
+        if (iceObject_)
         {
-            //
-            // NOTE: IceObjC::ObjectI implements it own reference counting and there's no need
-            // to call __incRef/__decRef here. The C++ object and Objective-C object are sharing
-            // the same reference count (the one of the Objective-C object). This is necessary
-            // to properly release both objects when there's either no more C++ handle/ObjC
-            // reference to the object (without this, servants added to the object adapter
-            // couldn't be retained or released easily).
-            //
-            iceObject_ = static_cast<IceObjC::ServantWrapper*>(new BlobjectI(self));
+            auto weakPtrPtr = static_cast<std::weak_ptr<Ice::Object>*>(iceObject_);
+
+            result = weakPtrPtr->lock();
+
+            // result can be null if the C++ wrapper was released / destroyed.
+            // This typically occurs when the servant (really its C++ wrapper) is removed from an object adapter.
+            if (!result)
+            {
+                delete weakPtrPtr;
+                iceObject_ = nullptr;
+            }
         }
+
+        if (!result)
+        {
+            auto wrapper = std::make_shared<BlobjectI>(self);
+            iceObject_ = new std::weak_ptr<Ice::Object>(wrapper);
+            result = wrapper;
+        }
+
+        return result;
     }
-    return static_cast<IceObjC::ServantWrapper*>(iceObject_);
 }
 @end
 
 @implementation ICEServantWrapper
--(id) initWithCxxObject:(Ice::Object*)arg
+-(id) initWithCxxObject:(const std::shared_ptr<Ice::Object>&)arg
 {
     self = [super init];
     if(!self)
@@ -544,7 +530,6 @@ static NSString* ICEObject_all[4] =
     }
 
     object_ = arg;
-    object_->__incRef();
     assert(cachedObjects.find(object_) == cachedObjects.end());
     cachedObjects.insert(std::make_pair(object_, self));
     return self;
@@ -552,14 +537,13 @@ static NSString* ICEObject_all[4] =
 -(void) dealloc
 {
     cachedObjects.erase(object_);
-    object_->__decRef();
     [super dealloc];
 }
-+(id) servantWrapperWithCxxObjectNoAutoRelease:(Ice::Object*)arg
++(id) servantWrapperWithCxxObjectNoAutoRelease:(const std::shared_ptr<Ice::Object>&)arg
 {
     @synchronized([ICEServantWrapper class])
     {
-        std::map<Ice::Object*, ICEServantWrapper*>::const_iterator p = cachedObjects.find(arg);
+        std::map<std::shared_ptr<Ice::Object>, ICEServantWrapper*>::const_iterator p = cachedObjects.find(arg);
         if(p != cachedObjects.end())
         {
             return [p->second retain];
@@ -642,7 +626,7 @@ static NSString* ICEObject_all[4] =
     @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
 }
 
--(Ice::Object*) iceObject
+-(std::shared_ptr<Ice::Object>) iceObject
 {
     return object_;
 }

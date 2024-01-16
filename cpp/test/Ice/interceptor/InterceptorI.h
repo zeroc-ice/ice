@@ -26,6 +26,6 @@ protected:
     std::string _lastOperation;
     bool _lastStatus;
 };
-ICE_DEFINE_PTR(InterceptorIPtr, InterceptorI);
+ICE_DEFINE_SHARED_PTR(InterceptorIPtr, InterceptorI);
 
 #endif

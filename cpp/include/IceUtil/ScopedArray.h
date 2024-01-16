@@ -64,7 +64,6 @@ public:
     T& operator[](size_t i) const
     {
         assert(_ptr != 0);
-        assert(i >= 0);
         return _ptr[i];
     }
 

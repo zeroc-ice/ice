@@ -680,7 +680,7 @@ private:
     const Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
 };
-ICE_DEFINE_PTR(MetricsAdminIPtr, MetricsAdminI);
+ICE_DEFINE_SHARED_PTR(MetricsAdminIPtr, MetricsAdminI);
 
 };
 

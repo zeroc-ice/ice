@@ -25,6 +25,6 @@ private:
 
     Ice::PropertyDict _changes;
 };
-ICE_DEFINE_PTR(TestFacetIPtr, TestFacetI);
+ICE_DEFINE_SHARED_PTR(TestFacetIPtr, TestFacetI);
 
 #endif

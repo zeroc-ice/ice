@@ -29,7 +29,7 @@ private:
 
     PyObject* _callback;
 };
-typedef IceUtil::Handle<UpdateCallbackWrapper> UpdateCallbackWrapperPtr;
+using UpdateCallbackWrapperPtr = Ice::SharedPtr<UpdateCallbackWrapper>;
 
 struct NativePropertiesAdminObject
 {

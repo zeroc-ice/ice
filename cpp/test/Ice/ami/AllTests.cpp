@@ -38,7 +38,7 @@ private:
     bool _received;
 };
 
-ICE_DEFINE_PTR(PingReplyIPtr, PingReplyI);
+ICE_DEFINE_SHARED_PTR(PingReplyIPtr, PingReplyI);
 
 enum ThrowType { LocalException, UserException, StandardException, OtherException };
 
