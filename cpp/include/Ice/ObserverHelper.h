@@ -16,11 +16,7 @@ template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     using TPtr = ::std::shared_ptr<T>;
-#else
-    typedef IceInternal::Handle<T> TPtr;
-#endif
 
     ObserverHelperT()
     {
@@ -61,18 +57,11 @@ public:
             _observer->attach();
         }
     }
-
-#ifdef ICE_CPP11_MAPPING
     TPtr get() const
     {
         return _observer;
     }
-#else
-    T* get() const
-    {
-        return _observer.get();
-    }
-#endif
+
     void adopt(ObserverHelperT& other)
     {
         _observer = other._observer;
