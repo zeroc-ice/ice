@@ -1404,7 +1404,12 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         PropertiesAdminIPtr propsAdmin;
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            _adminFacets.insert(make_pair(propertiesFacetName, make_shared<PropertiesAdminI>(this)));
+            propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, this);
+#ifdef ICE_CPP11_MAPPING
+            _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
+#else
+            _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin.underlying()));
+#endif
         }
 
         //
