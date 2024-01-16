@@ -18,13 +18,6 @@ const char* traceCategory = "Admin.Properties";
 
 }
 
-#ifndef ICE_CPP11_MAPPING
-PropertiesAdminUpdateCallback::~PropertiesAdminUpdateCallback()
-{
-    // Out of line to avoid weak vtable
-}
-#endif
-
 NativePropertiesAdmin::~NativePropertiesAdmin()
 {
     // Out of line to avoid weak vtable
@@ -188,21 +181,12 @@ PropertiesAdminI::setProperties(const PropertyDict& props, const Current&)
         changes.insert(removed.begin(), removed.end());
 
         // Copy callbacks to allow callbacks to update callbacks
-#ifdef ICE_CPP11_MAPPING
         auto callbacks = _updateCallbacks;
         for(const auto& cb : callbacks)
-#else
-        vector<PropertiesAdminUpdateCallbackPtr> callbacks = _updateCallbacks;
-        for(vector<PropertiesAdminUpdateCallbackPtr>::const_iterator q = callbacks.begin(); q != callbacks.end(); ++q)
-#endif
         {
             try
             {
-#ifdef ICE_CPP11_MAPPING
                 cb(changes);
-#else
-                (*q)->updated(changes);
-#endif
             }
             catch(const std::exception& ex)
             {
@@ -224,8 +208,6 @@ PropertiesAdminI::setProperties(const PropertyDict& props, const Current&)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
-
 std::function<void()>
 PropertiesAdminI::addUpdateCallback(std::function<void(const Ice::PropertyDict&)> cb)
 {
@@ -243,23 +225,5 @@ PropertiesAdminI::removeUpdateCallback(std::list<std::function<void(const Ice::P
     Lock sync(*this);
     _updateCallbacks.erase(p);
 }
-
-#else
-
-void
-PropertiesAdminI::addUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
-{
-    Lock sync(*this);
-    _updateCallbacks.push_back(cb);
-}
-
-void
-PropertiesAdminI::removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
-{
-    Lock sync(*this);
-    _updateCallbacks.erase(remove(_updateCallbacks.begin(), _updateCallbacks.end(), cb), _updateCallbacks.end());
-}
-
-#endif
 
 }

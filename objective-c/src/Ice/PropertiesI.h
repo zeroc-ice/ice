@@ -22,6 +22,6 @@
 @interface ICENativePropertiesAdmin : ICEServantWrapper<ICENativePropertiesAdmin>
 {
     IceUtil::Mutex mutex_;
-    std::vector<Ice::PropertiesAdminUpdateCallbackPtr> callbacks_;
+    std::vector<std::pair<id, std::function<void()>>> callbacks_;
 }
 @end
