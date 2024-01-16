@@ -148,14 +148,14 @@ private:
 typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
 
 ConnectionState connectionStateMap[] = {
-    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotInitialized
-    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotValidated
-    ICE_ENUM(ConnectionState, ConnectionStateActive),       // StateActive
-    ICE_ENUM(ConnectionState, ConnectionStateHolding),      // StateHolding
-    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosing
-    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosingPending
-    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateClosed
-    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateFinished
+    ConnectionState::ConnectionStateValidating,   // StateNotInitialized
+    ConnectionState::ConnectionStateValidating,   // StateNotValidated
+    ConnectionState::ConnectionStateActive,       // StateActive
+    ConnectionState::ConnectionStateHolding,      // StateHolding
+    ConnectionState::ConnectionStateClosing,      // StateClosing
+    ConnectionState::ConnectionStateClosing,      // StateClosingPending
+    ConnectionState::ConnectionStateClosed,       // StateClosed
+    ConnectionState::ConnectionStateClosed,       // StateFinished
 };
 
 }
