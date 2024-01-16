@@ -33,9 +33,8 @@ private:
 };
 
 class FileTracker;
-typedef IceUtil::Handle<FileTracker> FileTrackerPtr;
-
-class FileTracker : public ::IceUtil::SimpleShared
+using FileTrackerPtr = std::shared_ptr<FileTracker>;
+class FileTracker
 {
 public:
 

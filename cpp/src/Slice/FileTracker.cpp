@@ -65,7 +65,7 @@ Slice::FileTracker::instance()
 {
     if(!Instance)
     {
-        Instance = new FileTracker();
+        Instance = make_shared<FileTracker>();
     }
     return Instance;
 }

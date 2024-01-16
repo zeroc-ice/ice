@@ -107,13 +107,6 @@ filterOrderedOptionalDataMembers(const DataMemberList& members)
     return result;
 }
 
-void
-sortOptionalParameters(ParamDeclList& params)
-{
-    // Sort optional parameters by tag.
-    params.sort(compareTag<ParamDeclPtr>);
-}
-
 bool
 isMutableAfterReturnType(const TypePtr& type)
 {
@@ -5372,8 +5365,7 @@ Slice::Operation::inParameters(ParamDeclList& required, ParamDeclList& optional)
             required.push_back(pli);
         }
     }
-
-    sortOptionalParameters(optional);
+    optional.sort(compareTag<ParamDeclPtr>);
 }
 
 ParamDeclList
@@ -5406,8 +5398,7 @@ Slice::Operation::outParameters(ParamDeclList& required, ParamDeclList& optional
             required.push_back(pli);
         }
     }
-
-    sortOptionalParameters(optional);
+    optional.sort(compareTag<ParamDeclPtr>);
 }
 
 ExceptionList
