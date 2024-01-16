@@ -185,7 +185,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     IceUtil::Int64 value = strtoull((yytext + 1), 0, 8);
     if(value > 255)
     {
-        unit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+        currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
     }
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -205,7 +205,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches an empty hexadecimal escape value. */
 <STRING_LITERAL>"\\x" {
-    unit->error("no hex digit in hex escape sequence");
+    currentUnit->error("no hex digit in hex escape sequence");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
@@ -216,7 +216,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     IceUtil::Int64 codePoint = strtoull((yytext + 2), 0, 16);
     if(codePoint <= 0xdfff && codePoint >= 0xd800)
     {
-        unit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+        currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
     }
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -226,7 +226,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
 <STRING_LITERAL>"\\u"{hex}{0,3}[g-zG-Z]* |
 <STRING_LITERAL>"\\U"{hex}{0,7}[g-zG-Z]* {
-    unit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -238,14 +238,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     endLocation(yylloc);
     nextLine();
 
-    unit->error("encountered un-escaped EOL while scanning a string literal.");
+    currentUnit->error("encountered un-escaped EOL while scanning a string literal.");
     return ICE_STRING_LITERAL;
 }
 
   /* Matches an unknown escape value. This rule has a lower priority than all the other escape rules because
    * it only matches 2 characters (the lowest any match), and it's beneath the others. */
 <STRING_LITERAL>"\\". {
-    unit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     // Escape the entire sequence.
@@ -255,7 +255,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches a dangling backslash, with nothing to escape. This rule is mostly included for grammar completeness. */
 <STRING_LITERAL>\\ {
-    unit->warning(All, "dangling backslash in string literal");
+    currentUnit->warning(All, "dangling backslash in string literal");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
@@ -276,7 +276,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_pop_state();
     endLocation(yylloc);
 
-    unit->error("encountered EOF while scanning a string literal");
+    currentUnit->error("encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
 }
 
@@ -289,7 +289,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
     {
         assert(itp->v != 0);
-        unit->error("integer constant `" + string(yytext) + "' out of range");
+        currentUnit->error("integer constant `" + string(yytext) + "' out of range");
     }
     return ICE_INTEGER_LITERAL;
 }
@@ -310,11 +310,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     ftp->v = strtod(literal.c_str(), 0);
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        unit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
+        currentUnit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
     }
     else if(ftp->v == 0 && errno == ERANGE)
     {
-        unit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
+        currentUnit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
@@ -323,7 +323,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches and records a triple-slash style doc comment. */
 <*>"///".* {
-    unit->addToComment(yytext + 3);
+    currentUnit->addToComment(yytext + 3);
 }
 
   /* Matches and consumes a C++ style comment. */
@@ -353,15 +353,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
-    unit->setComment(comment.substr(0, yyleng - 2));
+    currentUnit->setComment(comment.substr(0, yyleng - 2));
 }
 
   /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
 <C_COMMENT><<EOF>> {
     yy_pop_state();
 
-    unit->error("encountered EOF while scanning a comment");
-    unit->setComment(yytext);
+    currentUnit->error("encountered EOF while scanning a comment");
+    currentUnit->setComment(yytext);
 }
 
   /* ========== Preprocessor Statements ========== */
@@ -374,7 +374,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a line preprocessor directive, but missing a line number. */
 <*>^{preprocessor_prefix}line {
     yy_push_state(PREPROCESS);
-    unit->error("missing line number in line preprocessor directive");
+    currentUnit->error("missing line number in line preprocessor directive");
 }
 
   /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
@@ -395,7 +395,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
    * found while scanning a preprocessor directive. */
 <PREPROCESS>[^[:space:]]+ {
-    unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
+    currentUnit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
 }
 
   /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
@@ -458,7 +458,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
 <METADATA>[^[:space:]] {
-    unit->error("invalid character between metadata");
+    currentUnit->error("invalid character between metadata");
 }
 
   /* ========== Identifiers and Keywords ========== */
@@ -472,7 +472,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     {
         if(checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
-            unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+            currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         }
         return ICE_IDENT_OPEN;
     }
@@ -483,7 +483,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     }
     else if(st == ICE_SCOPED_IDENTIFIER)
     {
-        unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
     else if(st == ICE_TAG)
@@ -532,7 +532,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
     s << "'";
 
-    unit->error(s.str());
+    currentUnit->error(s.str());
     return BAD_CHAR;
 }
 
@@ -559,7 +559,7 @@ int checkKeyword(string& id)
     {
         if(pos->first != id)
         {
-            unit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+            currentUnit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
                         "' only in capitalization");
             id = pos->first;
         }
@@ -615,11 +615,11 @@ int scanPosition(const char* s)
             }
             else
             {
-                unit->error("mismatched quotations in line directive");
+                currentUnit->error("mismatched quotations in line directive");
                 line = line.substr(1);
             }
         }
-        lineTypeCode = unit->setCurrentFile(line, yylineno);
+        lineTypeCode = currentUnit->setCurrentFile(line, yylineno);
         yyfilename = string(line);
     }
     return lineTypeCode;
