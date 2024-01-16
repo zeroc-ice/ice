@@ -9,10 +9,6 @@ ICE_API @protocol ICEPropertiesAdminUpdateCallback <NSObject>
 -(void) updated:(ICEMutablePropertyDict*)properties;
 @end
 
-ICE_DEPRECATED_API("Use NSObject instead")
-ICE_API @interface ICEPropertiesAdminUpdateCallback : NSObject
-@end
-
 ICE_API @protocol ICENativePropertiesAdmin <NSObject>
 -(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)callback;
 -(void) removeUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)callback;

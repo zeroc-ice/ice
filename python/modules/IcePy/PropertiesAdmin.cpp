@@ -14,75 +14,13 @@ using namespace IcePy;
 namespace IcePy
 {
 
-class UpdateCallbackWrapper : public Ice::PropertiesAdminUpdateCallback
-{
-public:
-
-    UpdateCallbackWrapper(PyObject*);
-    ~UpdateCallbackWrapper();
-
-    PyObject* getObject() const;
-
-    void updated(const Ice::PropertyDict&);
-
-private:
-
-    PyObject* _callback;
-};
-using UpdateCallbackWrapperPtr = Ice::SharedPtr<UpdateCallbackWrapper>;
-
 struct NativePropertiesAdminObject
 {
     PyObject_HEAD
     Ice::NativePropertiesAdminPtr* admin;
-    vector<UpdateCallbackWrapperPtr>* callbacks;
+    vector<pair<PyObject*, function<void()>>>* callbacks;
 };
 
-}
-
-IcePy::UpdateCallbackWrapper::UpdateCallbackWrapper(PyObject* callback) : _callback(callback)
-{
-    Py_INCREF(_callback);
-}
-
-IcePy::UpdateCallbackWrapper::~UpdateCallbackWrapper()
-{
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-    Py_DECREF(_callback);
-}
-
-PyObject*
-IcePy::UpdateCallbackWrapper::getObject() const
-{
-    return _callback;
-}
-
-void
-IcePy::UpdateCallbackWrapper::updated(const Ice::PropertyDict& dict)
-{
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-    PyObjectHandle result = PyDict_New();
-    if(result.get())
-    {
-        for(Ice::PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
-        {
-            PyObjectHandle key = createString(p->first);
-            PyObjectHandle val = createString(p->second);
-            if(!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
-            {
-                return;
-            }
-        }
-    }
-
-    PyObjectHandle obj = PyObject_CallMethod(_callback, STRCAST("updated"), STRCAST("O"), result.get());
-    if(!obj.get())
-    {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
-    }
 }
 
 #ifdef WIN32
@@ -119,8 +57,36 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
         return 0;
     }
 
-    (*self->callbacks).push_back(new UpdateCallbackWrapper(callback));
-    (*self->admin)->addUpdateCallback((*self->callbacks).back());
+    std::function<void()> remover = (*self->admin)->addUpdateCallback(
+        [callback](const Ice::PropertyDict& dict)
+        {
+            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+            PyObjectHandle result = PyDict_New();
+            if (result.get())
+            {
+                for (Ice::PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+                {
+                    PyObjectHandle key = createString(p->first);
+                    PyObjectHandle val = createString(p->second);
+                    if(!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            PyObjectHandle obj = PyObject_CallMethod(callback, STRCAST("updated"), STRCAST("O"), result.get());
+            if (!obj.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
+        });
+
+    (*self->callbacks).push_back(make_pair(callback, remover));
+    Py_INCREF(callback);
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -138,12 +104,13 @@ nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject*
         return 0;
     }
 
-    for(vector<UpdateCallbackWrapperPtr>::const_iterator p = (*self->callbacks).begin(); p != (*self->callbacks).end();
+    for(vector<pair<PyObject*, function<void()>>>::const_iterator p = (*self->callbacks).begin(); p != (*self->callbacks).end();
         ++p)
     {
-        if((*p)->getObject() == callback)
+        if (p->first == callback)
         {
-            (*self->admin)->removeUpdateCallback(*p);
+            p->second();
+            Py_DECREF(callback);
             break;
         }
     }
@@ -239,6 +206,6 @@ IcePy::createNativePropertiesAdmin(const Ice::NativePropertiesAdminPtr& admin)
     }
 
     p->admin = new Ice::NativePropertiesAdminPtr(admin);
-    p->callbacks = new vector<UpdateCallbackWrapperPtr>();
+    p->callbacks = new vector<pair<PyObject*, function<void()>>>();
     return (PyObject*)p;
 }
