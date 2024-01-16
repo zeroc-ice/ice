@@ -385,7 +385,7 @@ public:
      * interface can use this object to get the Ice run-time to re-obtain observers for observed objects.
      * @param updater The observer updater object.
      */
-    virtual void setObserverUpdater(const  ObserverUpdaterPtr& updater) = 0;
+    virtual void setObserverUpdater(const ObserverUpdaterPtr& updater) = 0;
 };
 
 }
