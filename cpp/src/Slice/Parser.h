@@ -996,6 +996,7 @@ public:
 
     Enumerator(const ContainerPtr&, const std::string&);
     Enumerator(const ContainerPtr&, const std::string&, int);
+    virtual void init();
     EnumPtr type() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual ContainedType containedType() const;
@@ -1201,7 +1202,7 @@ private:
     std::map< std::string, std::set<std::string> > _fileTopLevelModules;
 };
 
-extern Unit* unit; // The current parser for bison/flex
+extern Unit* currentUnit; // The current parser for bison/flex
 
 }
 

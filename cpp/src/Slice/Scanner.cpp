@@ -1662,7 +1662,7 @@ YY_RULE_SETUP
     IceUtil::Int64 value = strtoull((yytext + 1), 0, 8);
     if(value > 255)
     {
-        unit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+        currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
     }
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -1688,7 +1688,7 @@ case 10:
 YY_RULE_SETUP
 #line 208 "src/Slice/Scanner.l"
 {
-    unit->error("no hex digit in hex escape sequence");
+    currentUnit->error("no hex digit in hex escape sequence");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
@@ -1703,7 +1703,7 @@ YY_RULE_SETUP
     IceUtil::Int64 codePoint = strtoull((yytext + 2), 0, 16);
     if(codePoint <= 0xdfff && codePoint >= 0xd800)
     {
-        unit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+        currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
     }
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -1717,7 +1717,7 @@ case 14:
 YY_RULE_SETUP
 #line 229 "src/Slice/Scanner.l"
 {
-    unit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -1733,7 +1733,7 @@ YY_RULE_SETUP
     endLocation(yylloc);
     nextLine();
 
-    unit->error("encountered un-escaped EOL while scanning a string literal.");
+    currentUnit->error("encountered un-escaped EOL while scanning a string literal.");
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK
@@ -1743,7 +1743,7 @@ case 16:
 YY_RULE_SETUP
 #line 248 "src/Slice/Scanner.l"
 {
-    unit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->warning(All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     // Escape the entire sequence.
@@ -1756,7 +1756,7 @@ case 17:
 YY_RULE_SETUP
 #line 258 "src/Slice/Scanner.l"
 {
-    unit->warning(All, "dangling backslash in string literal");
+    currentUnit->warning(All, "dangling backslash in string literal");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
 }
@@ -1782,7 +1782,7 @@ case YY_STATE_EOF(STRING_LITERAL):
     yy_pop_state();
     endLocation(yylloc);
 
-    unit->error("encountered EOF while scanning a string literal");
+    currentUnit->error("encountered EOF while scanning a string literal");
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK
@@ -1798,7 +1798,7 @@ YY_RULE_SETUP
     if(!IceUtilInternal::stringToInt64(string(yytext), itp->v))
     {
         assert(itp->v != 0);
-        unit->error("integer constant `" + string(yytext) + "' out of range");
+        currentUnit->error("integer constant `" + string(yytext) + "' out of range");
     }
     return ICE_INTEGER_LITERAL;
 }
@@ -1822,11 +1822,11 @@ YY_RULE_SETUP
     ftp->v = strtod(literal.c_str(), 0);
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        unit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
+        currentUnit->error("floating-point constant `" + string(yytext) + "' too large (overflow)");
     }
     else if(ftp->v == 0 && errno == ERANGE)
     {
-        unit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
+        currentUnit->error("floating-point constant `" + string(yytext) + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
@@ -1837,7 +1837,7 @@ case 21:
 YY_RULE_SETUP
 #line 326 "src/Slice/Scanner.l"
 {
-    unit->addToComment(yytext + 3);
+    currentUnit->addToComment(yytext + 3);
 }
 	YY_BREAK
 /* Matches and consumes a C++ style comment. */
@@ -1884,7 +1884,7 @@ YY_RULE_SETUP
 
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
-    unit->setComment(comment.substr(0, yyleng - 2));
+    currentUnit->setComment(comment.substr(0, yyleng - 2));
 }
 	YY_BREAK
 /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
@@ -1893,8 +1893,8 @@ case YY_STATE_EOF(C_COMMENT):
 {
     yy_pop_state();
 
-    unit->error("encountered EOF while scanning a comment");
-    unit->setComment(yytext);
+    currentUnit->error("encountered EOF while scanning a comment");
+    currentUnit->setComment(yytext);
 }
 	YY_BREAK
 /* ========== Preprocessor Statements ========== */
@@ -1912,7 +1912,7 @@ YY_RULE_SETUP
 #line 376 "src/Slice/Scanner.l"
 {
     yy_push_state(PREPROCESS);
-    unit->error("missing line number in line preprocessor directive");
+    currentUnit->error("missing line number in line preprocessor directive");
 }
 	YY_BREAK
 /* Matches a line preprocessor directive (optionally with a file specified afterwards). */
@@ -1940,7 +1940,7 @@ case 32:
 YY_RULE_SETUP
 #line 398 "src/Slice/Scanner.l"
 {
-    unit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
+    currentUnit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
 }
 	YY_BREAK
 /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
@@ -2032,7 +2032,7 @@ case 41:
 YY_RULE_SETUP
 #line 461 "src/Slice/Scanner.l"
 {
-    unit->error("invalid character between metadata");
+    currentUnit->error("invalid character between metadata");
 }
 	YY_BREAK
 /* ========== Identifiers and Keywords ========== */
@@ -2049,7 +2049,7 @@ YY_RULE_SETUP
     {
         if(checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
-            unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+            currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         }
         return ICE_IDENT_OPEN;
     }
@@ -2060,7 +2060,7 @@ YY_RULE_SETUP
     }
     else if(st == ICE_SCOPED_IDENTIFIER)
     {
-        unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
     else if(st == ICE_TAG)
@@ -2124,7 +2124,7 @@ YY_RULE_SETUP
     s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
     s << "'";
 
-    unit->error(s.str());
+    currentUnit->error(s.str());
     return BAD_CHAR;
 }
 	YY_BREAK
@@ -3164,7 +3164,7 @@ int checkKeyword(string& id)
     {
         if(pos->first != id)
         {
-            unit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+            currentUnit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
                         "' only in capitalization");
             id = pos->first;
         }
@@ -3220,11 +3220,11 @@ int scanPosition(const char* s)
             }
             else
             {
-                unit->error("mismatched quotations in line directive");
+                currentUnit->error("mismatched quotations in line directive");
                 line = line.substr(1);
             }
         }
-        lineTypeCode = unit->setCurrentFile(line, yylineno);
+        lineTypeCode = currentUnit->setCurrentFile(line, yylineno);
         yyfilename = string(line);
     }
     return lineTypeCode;

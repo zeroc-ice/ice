@@ -107,11 +107,11 @@ slice_error(const char* s)
 
     if (strcmp(s, "parse error") == 0)
     {
-        unit->error("syntax error");
+        currentUnit->error("syntax error");
     }
     else
     {
-        unit->error(s);
+        currentUnit->error(s);
     }
 }
 
@@ -206,7 +206,7 @@ global_meta_data
 }
 | ICE_GLOBAL_METADATA_IGNORE string_list ICE_GLOBAL_METADATA_CLOSE
 {
-    unit->error("global metadata must appear before any definitions");
+    currentUnit->error("global metadata must appear before any definitions");
     $$ = $2; // Dummy
 }
 ;
@@ -232,7 +232,7 @@ definitions
     auto metaData = dynamic_pointer_cast<StringListTok>($2);
     if(!metaData->v.empty())
     {
-        unit->addGlobalMetaData(metaData->v);
+        currentUnit->addGlobalMetaData(metaData->v);
     }
 }
 | definitions meta_data definition
@@ -264,7 +264,7 @@ opt_semicolon
 ';'
 | class_decl
 {
-    unit->error("`;' missing after class forward declaration");
+    currentUnit->error("`;' missing after class forward declaration");
 }
 | class_def
 {
@@ -278,7 +278,7 @@ opt_semicolon
 ';'
 | interface_decl
 {
-    unit->error("`;' missing after interface forward declaration");
+    currentUnit->error("`;' missing after interface forward declaration");
 }
 | interface_def
 {
@@ -292,7 +292,7 @@ opt_semicolon
 ';'
 | exception_decl
 {
-    unit->error("`;' missing after exception forward declaration");
+    currentUnit->error("`;' missing after exception forward declaration");
 }
 | exception_def
 {
@@ -306,7 +306,7 @@ opt_semicolon
 ';'
 | struct_decl
 {
-    unit->error("`;' missing after struct forward declaration");
+    currentUnit->error("`;' missing after struct forward declaration");
 }
 | struct_def
 {
@@ -320,7 +320,7 @@ opt_semicolon
 ';'
 | sequence_def
 {
-    unit->error("`;' missing after sequence definition");
+    currentUnit->error("`;' missing after sequence definition");
 }
 | dictionary_def
 {
@@ -329,7 +329,7 @@ opt_semicolon
 ';'
 | dictionary_def
 {
-    unit->error("`;' missing after dictionary definition");
+    currentUnit->error("`;' missing after dictionary definition");
 }
 | enum_def
 {
@@ -343,7 +343,7 @@ opt_semicolon
 ';'
 | const_def
 {
-    unit->error("`;' missing after const definition");
+    currentUnit->error("`;' missing after const definition");
 }
 | error ';'
 {
@@ -357,12 +357,12 @@ module_def
 : ICE_MODULE ICE_IDENTIFIER
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);
     if(module)
     {
         cont->checkIntroduced(ident->v, module);
-        unit->pushContainer(module);
+        currentUnit->pushContainer(module);
         $$ = module;
     }
     else
@@ -374,7 +374,7 @@ module_def
 {
     if($3)
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         $$ = $3;
     }
     else
@@ -394,7 +394,7 @@ exception_id
 | ICE_EXCEPTION keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    unit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
     $$ = $2; // Dummy
 }
 ;
@@ -404,7 +404,7 @@ exception_decl
 // ----------------------------------------------------------------------
 : exception_id
 {
-    unit->error("exceptions cannot be forward declared");
+    currentUnit->error("exceptions cannot be forward declared");
     $$ = nullptr;
 }
 ;
@@ -416,12 +416,12 @@ exception_def
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto base = dynamic_pointer_cast<Exception>($2);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ExceptionPtr ex = cont->createException(ident->v, base);
     if(ex)
     {
         cont->checkIntroduced(ident->v, ex);
-        unit->pushContainer(ex);
+        currentUnit->pushContainer(ex);
     }
     $$ = ex;
 }
@@ -429,7 +429,7 @@ exception_def
 {
     if($3)
     {
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     $$ = $3;
 }
@@ -441,7 +441,7 @@ exception_extends
 : extends scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ContainedPtr contained = cont->lookupException(scoped->v);
     cont->checkIntroduced(scoped->v);
     $$ = contained;
@@ -475,7 +475,7 @@ tag
     int tag;
     if(i->v < 0 || i->v > Int32Max)
     {
-        unit->error("tag is out of range");
+        currentUnit->error("tag is out of range");
         tag = -1;
     }
     else
@@ -490,7 +490,7 @@ tag
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
 
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if(cl.empty())
@@ -501,7 +501,7 @@ tag
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -522,11 +522,11 @@ tag
 
                 os << " `" << (*p)->scoped() << "'";
             }
-            unit->error(os.str());
+            currentUnit->error(os.str());
         }
         else
         {
-            unit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("`") + scoped->v + "' is not defined");
         }
     }
 
@@ -547,7 +547,7 @@ tag
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
             {
-                unit->error("tag is out of range");
+                currentUnit->error("tag is out of range");
             }
             tag = static_cast<int>(l);
         }
@@ -559,7 +559,7 @@ tag
 
     if(tag < 0)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        currentUnit->error("invalid tag `" + scoped->v + "'");
     }
 
     auto m = make_shared<TaggedDefTok>(tag);
@@ -567,13 +567,13 @@ tag
 }
 | ICE_TAG_OPEN ')'
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     $$ = m;
 }
 | ICE_TAG
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     $$ = m;
 }
@@ -589,7 +589,7 @@ optional
     int tag;
     if(i->v < 0 || i->v > Int32Max)
     {
-        unit->error("tag is out of range");
+        currentUnit->error("tag is out of range");
         tag = -1;
     }
     else
@@ -603,7 +603,7 @@ optional
 | ICE_OPTIONAL_OPEN scoped_name ')'
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if(cl.empty())
@@ -614,7 +614,7 @@ optional
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -635,11 +635,11 @@ optional
 
                 os << " `" << (*p)->scoped() << "'";
             }
-            unit->error(os.str());
+            currentUnit->error(os.str());
         }
         else
         {
-            unit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("`") + scoped->v + "' is not defined");
         }
     }
 
@@ -660,7 +660,7 @@ optional
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
             {
-                unit->error("tag is out of range");
+                currentUnit->error("tag is out of range");
             }
             tag = static_cast<int>(l);
         }
@@ -672,7 +672,7 @@ optional
 
     if(tag < 0)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        currentUnit->error("invalid tag `" + scoped->v + "'");
     }
 
     auto m = make_shared<TaggedDefTok>(tag);
@@ -680,13 +680,13 @@ optional
 }
 | ICE_OPTIONAL_OPEN ')'
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     $$ = m;
 }
 | ICE_OPTIONAL
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     $$ = m;
 }
@@ -733,7 +733,7 @@ struct_id
 | ICE_STRUCT keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    unit->error("keyword `" + ident->v + "' cannot be used as struct name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as struct name");
     $$ = $2; // Dummy
 }
 ;
@@ -743,7 +743,7 @@ struct_decl
 // ----------------------------------------------------------------------
 : struct_id
 {
-    unit->error("structs cannot be forward declared");
+    currentUnit->error("structs cannot be forward declared");
     $$ = nullptr; // Dummy
 }
 ;
@@ -754,18 +754,18 @@ struct_def
 : struct_id
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     StructPtr st = cont->createStruct(ident->v);
     if(st)
     {
         cont->checkIntroduced(ident->v, st);
-        unit->pushContainer(st);
+        currentUnit->pushContainer(st);
     }
     else
     {
         st = cont->createStruct(IceUtil::generateUUID()); // Dummy
         assert(st);
-        unit->pushContainer(st);
+        currentUnit->pushContainer(st);
     }
     $$ = st;
 }
@@ -773,7 +773,7 @@ struct_def
 {
     if($2)
     {
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     $$ = $2;
 
@@ -782,7 +782,7 @@ struct_def
     assert(st);
     if(st->dataMembers().empty())
     {
-        unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
+        currentUnit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
 ;
@@ -797,7 +797,7 @@ class_name
 | ICE_CLASS keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    unit->error("keyword `" + ident->v + "' cannot be used as class name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as class name");
     $$ = $2; // Dummy
 }
 ;
@@ -810,18 +810,18 @@ class_id
     IceUtil::Int64 id = dynamic_pointer_cast<IntegerTok>($3)->v;
     if(id < 0)
     {
-        unit->error("invalid compact id for class: id must be a positive integer");
+        currentUnit->error("invalid compact id for class: id must be a positive integer");
     }
     else if(id > Int32Max)
     {
-        unit->error("invalid compact id for class: value is out of range");
+        currentUnit->error("invalid compact id for class: value is out of range");
     }
     else
     {
-        string typeId = unit->getTypeId(static_cast<int>(id));
-        if(!typeId.empty() && !unit->ignRedefs())
+        string typeId = currentUnit->getTypeId(static_cast<int>(id));
+        if(!typeId.empty() && !currentUnit->ignRedefs())
         {
-            unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
         }
     }
 
@@ -834,7 +834,7 @@ class_id
 {
     auto scoped = dynamic_pointer_cast<StringTok>($3);
 
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if(cl.empty())
@@ -845,7 +845,7 @@ class_id
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -866,11 +866,11 @@ class_id
 
                 os << " `" << (*p)->scoped() << "'";
             }
-            unit->error(os.str());
+            currentUnit->error(os.str());
         }
         else
         {
-            unit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("`") + scoped->v + "' is not defined");
         }
     }
 
@@ -891,7 +891,7 @@ class_id
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
             {
-                unit->error("compact id for class is out of range");
+                currentUnit->error("compact id for class is out of range");
             }
             id = static_cast<int>(l);
         }
@@ -903,14 +903,14 @@ class_id
 
     if(id < 0)
     {
-        unit->error("invalid compact id for class: id must be a positive integer");
+        currentUnit->error("invalid compact id for class: id must be a positive integer");
     }
     else
     {
-        string typeId = unit->getTypeId(id);
-        if(!typeId.empty() && !unit->ignRedefs())
+        string typeId = currentUnit->getTypeId(id);
+        if(!typeId.empty() && !currentUnit->ignRedefs())
         {
-            unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
         }
     }
 
@@ -935,7 +935,7 @@ class_decl
 : class_name
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v);
     $$ = cl;
 }
@@ -947,13 +947,13 @@ class_def
 : class_id class_extends
 {
     auto ident = dynamic_pointer_cast<ClassIdTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     auto base = dynamic_pointer_cast<ClassDef>($2);
     ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
     if(cl)
     {
         cont->checkIntroduced(ident->v, cl);
-        unit->pushContainer(cl);
+        currentUnit->pushContainer(cl);
         $$ = cl;
     }
     else
@@ -965,7 +965,7 @@ class_def
 {
     if($3)
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         $$ = $3;
     }
     else
@@ -981,7 +981,7 @@ class_extends
 : extends scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     $$ = nullptr;
     if(!types.empty())
@@ -992,7 +992,7 @@ class_extends
             string msg = "`";
             msg += scoped->v;
             msg += "' is not a class";
-            unit->error(msg);
+            currentUnit->error(msg);
         }
         else
         {
@@ -1002,7 +1002,7 @@ class_extends
                 string msg = "`";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
-                unit->error(msg);
+                currentUnit->error(msg);
             }
             else
             {
@@ -1046,7 +1046,7 @@ data_members
 }
 | meta_data data_member
 {
-    unit->error("`;' missing after definition");
+    currentUnit->error("`;' missing after definition");
 }
 | %empty
 {
@@ -1059,18 +1059,18 @@ data_member
 : tagged_type_id
 {
     auto def = dynamic_pointer_cast<TaggedDefTok>($1);
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
         dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         if (def->isTagged)
         {
-            unit->error("tagged data members are not supported in structs");
+            currentUnit->error("tagged data members are not supported in structs");
             dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
         }
         else
@@ -1078,31 +1078,31 @@ data_member
             dm = st->createDataMember(def->name, def->type, false, -1, 0, "", "");
         }
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
 }
 | tagged_type_id '=' const_initializer
 {
     auto def = dynamic_pointer_cast<TaggedDefTok>($1);
     auto value = dynamic_pointer_cast<ConstDefTok>($3);
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
         dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         if (def->isTagged)
         {
-            unit->error("tagged data members are not supported in structs");
+            currentUnit->error("tagged data members are not supported in structs");
             dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
         }
         else
@@ -1111,57 +1111,57 @@ data_member
                                       value->valueAsString, value->valueAsLiteral);
         }
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
 }
 | type keyword
 {
     auto type = dynamic_pointer_cast<Type>($1);
     string name = dynamic_pointer_cast<StringTok>($2)->v;
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if(cl)
     {
         $$ = cl->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         $$ = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         $$ = ex->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
     assert($$);
-    unit->error("keyword `" + name + "' cannot be used as data member name");
+    currentUnit->error("keyword `" + name + "' cannot be used as data member name");
 }
 | type
 {
     auto type = dynamic_pointer_cast<Type>($1);
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if(cl)
     {
         $$ = cl->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
     assert($$);
-    unit->error("missing data member name");
+    currentUnit->error("missing data member name");
 }
 ;
 
@@ -1200,14 +1200,14 @@ operation_preamble
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>($1);
     string name = dynamic_pointer_cast<StringTok>($2)->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
             interface->checkIntroduced(name, op);
-            unit->pushContainer(op);
+            currentUnit->pushContainer(op);
             $$ = op;
         }
         else
@@ -1224,7 +1224,7 @@ operation_preamble
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>($2);
     string name = dynamic_pointer_cast<StringTok>($3)->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if (interface)
     {
         OperationPtr op = interface->createOperation(
@@ -1237,7 +1237,7 @@ operation_preamble
         if(op)
         {
             interface->checkIntroduced(name, op);
-            unit->pushContainer(op);
+            currentUnit->pushContainer(op);
             $$ = op;
         }
         else
@@ -1254,14 +1254,14 @@ operation_preamble
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>($1);
     string name = dynamic_pointer_cast<StringTok>($2)->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
-            unit->pushContainer(op);
-            unit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->pushContainer(op);
+            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
             $$ = op; // Dummy
         }
         else
@@ -1278,7 +1278,7 @@ operation_preamble
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>($2);
     string name = dynamic_pointer_cast<StringTok>($3)->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(
@@ -1289,8 +1289,8 @@ operation_preamble
             Operation::Idempotent);
         if (op)
         {
-            unit->pushContainer(op);
-            unit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->pushContainer(op);
+            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
             $$ = op; // Dummy
         }
         else
@@ -1312,7 +1312,7 @@ operation
 {
     if($1)
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         $$ = $1;
     }
     else
@@ -1334,7 +1334,7 @@ throws
 {
     if($1)
     {
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     yyerrok;
 }
@@ -1360,7 +1360,7 @@ interface_id
 | ICE_INTERFACE keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    unit->error("keyword `" + ident->v + "' cannot be used as interface name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as interface name");
     $$ = $2; // Dummy
 }
 ;
@@ -1371,7 +1371,7 @@ interface_decl
 : interface_id
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    auto cont = unit->currentContainer();
+    auto cont = currentUnit->currentContainer();
     InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
     cont->checkIntroduced(ident->v, cl);
     $$ = cl;
@@ -1384,13 +1384,13 @@ interface_def
 : interface_id interface_extends
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     auto bases = dynamic_pointer_cast<InterfaceListTok>($2);
     InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
     if(interface)
     {
         cont->checkIntroduced(ident->v, interface);
-        unit->pushContainer(interface);
+        currentUnit->pushContainer(interface);
         $$ = interface;
     }
     else
@@ -1402,7 +1402,7 @@ interface_def
 {
     if($3)
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         $$ = $3;
     }
     else
@@ -1419,7 +1419,7 @@ interface_list
 {
     auto intfs = dynamic_pointer_cast<InterfaceListTok>($3);
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
@@ -1429,7 +1429,7 @@ interface_list
             string msg = "`";
             msg += scoped->v;
             msg += "' is not an interface";
-            unit->error(msg);
+            currentUnit->error(msg);
         }
         else
         {
@@ -1439,7 +1439,7 @@ interface_list
                 string msg = "`";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
-                unit->error(msg);
+                currentUnit->error(msg);
             }
             else
             {
@@ -1454,7 +1454,7 @@ interface_list
 {
     auto intfs = make_shared<InterfaceListTok>();
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
@@ -1464,7 +1464,7 @@ interface_list
             string msg = "`";
             msg += scoped->v;
             msg += "' is not an interface";
-            unit->error(msg); // $$ is a dummy
+            currentUnit->error(msg); // $$ is a dummy
         }
         else
         {
@@ -1474,7 +1474,7 @@ interface_list
                 string msg = "`";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
-                unit->error(msg); // $$ is a dummy
+                currentUnit->error(msg); // $$ is a dummy
             }
             else
             {
@@ -1487,12 +1487,12 @@ interface_list
 }
 | ICE_OBJECT
 {
-    unit->error("illegal inheritance from type Object");
+    currentUnit->error("illegal inheritance from type Object");
     $$ = make_shared<InterfaceListTok>(); // Dummy
 }
 | ICE_VALUE
 {
-    unit->error("illegal inheritance from type Value");
+    currentUnit->error("illegal inheritance from type Value");
     $$ = make_shared<ClassListTok>(); // Dummy
 }
 ;
@@ -1527,7 +1527,7 @@ operations
 }
 | meta_data operation
 {
-    unit->error("`;' missing after definition");
+    currentUnit->error("`;' missing after definition");
 }
 | %empty
 {
@@ -1559,7 +1559,7 @@ exception
 : scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
@@ -1571,8 +1571,8 @@ exception
 | keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    $$ = currentUnit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
 ;
 
@@ -1584,7 +1584,7 @@ sequence_def
     auto ident = dynamic_pointer_cast<StringTok>($6);
     auto metaData = dynamic_pointer_cast<StringListTok>($3);
     auto type = dynamic_pointer_cast<Type>($4);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createSequence(ident->v, type, metaData->v);
 }
 | ICE_SEQUENCE '<' meta_data type '>' keyword
@@ -1592,9 +1592,9 @@ sequence_def
     auto ident = dynamic_pointer_cast<StringTok>($6);
     auto metaData = dynamic_pointer_cast<StringListTok>($3);
     auto type = dynamic_pointer_cast<Type>($4);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createSequence(ident->v, type, metaData->v); // Dummy
-    unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 ;
 
@@ -1608,7 +1608,7 @@ dictionary_def
     auto keyType = dynamic_pointer_cast<Type>($4);
     auto valueMetaData = dynamic_pointer_cast<StringListTok>($6);
     auto valueType = dynamic_pointer_cast<Type>($7);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
 }
 | ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword
@@ -1618,9 +1618,9 @@ dictionary_def
     auto keyType = dynamic_pointer_cast<Type>($4);
     auto valueMetaData = dynamic_pointer_cast<StringListTok>($6);
     auto valueType = dynamic_pointer_cast<Type>($7);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
-    unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 ;
 
@@ -1634,7 +1634,7 @@ enum_id
 | ICE_ENUM keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
     $$ = $2; // Dummy
 }
 ;
@@ -1645,7 +1645,7 @@ enum_def
 : enum_id
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v);
     if(en)
     {
@@ -1655,7 +1655,7 @@ enum_def
     {
         en = cont->createEnum(IceUtil::generateUUID(), Dummy);
     }
-    unit->pushContainer(en);
+    currentUnit->pushContainer(en);
     $$ = en;
 }
 '{' enumerator_list '}'
@@ -1666,24 +1666,24 @@ enum_def
         auto enumerators = dynamic_pointer_cast<EnumeratorListTok>($4);
         if(enumerators->v.empty())
         {
-            unit->error("enum `" + en->name() + "' must have at least one enumerator");
+            currentUnit->error("enum `" + en->name() + "' must have at least one enumerator");
         }
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     $$ = $2;
 }
 |
 ICE_ENUM
 {
-    unit->error("missing enumeration name");
-    ContainerPtr cont = unit->currentContainer();
+    currentUnit->error("missing enumeration name");
+    ContainerPtr cont = currentUnit->currentContainer();
     EnumPtr en = cont->createEnum(IceUtil::generateUUID(), Dummy);
-    unit->pushContainer(en);
+    currentUnit->pushContainer(en);
     $$ = en;
 }
 '{' enumerator_list '}'
 {
-    unit->popContainer();
+    currentUnit->popContainer();
     $$ = $1;
 }
 ;
@@ -1709,7 +1709,7 @@ enumerator
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto ens = make_shared<EnumeratorListTok>();
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
@@ -1721,13 +1721,13 @@ enumerator
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto ens = make_shared<EnumeratorListTok>();
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     auto intVal = dynamic_pointer_cast<IntegerTok>($3);
     if(intVal)
     {
         if(intVal->v < 0 || intVal->v > Int32Max)
         {
-            unit->error("value for enumerator `" + ident->v + "' is out of range");
+            currentUnit->error("value for enumerator `" + ident->v + "' is out of range");
         }
         else
         {
@@ -1740,7 +1740,7 @@ enumerator
 | keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    unit->error("keyword `" + ident->v + "' cannot be used as enumerator");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumerator");
     auto ens = make_shared<EnumeratorListTok>(); // Dummy
     $$ = ens;
 }
@@ -1761,14 +1761,14 @@ enumerator_initializer
 | scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
+    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v);
     IntegerTokPtr tok;
     if(!cl.empty())
     {
         auto constant = dynamic_pointer_cast<Const>(cl.front());
         if(constant)
         {
-            unit->currentContainer()->checkIntroduced(scoped->v, constant);
+            currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
             auto b = dynamic_pointer_cast<Builtin>(constant->type());
             if(b && b->isIntegralType())
             {
@@ -1786,7 +1786,7 @@ enumerator_initializer
     if(!tok)
     {
         string msg = "illegal initializer: `" + scoped->v + "' is not an integer constant";
-        unit->error(msg); // $$ is dummy
+        currentUnit->error(msg); // $$ is dummy
     }
 
     $$ = tok;
@@ -1820,11 +1820,11 @@ parameters
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
     auto tsp = dynamic_pointer_cast<TaggedDefTok>($3);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metaData = dynamic_pointer_cast<StringListTok>($2);
         if(!metaData->v.empty())
         {
@@ -1836,11 +1836,11 @@ parameters
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto tsp = dynamic_pointer_cast<TaggedDefTok>($5);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if(op)
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metaData = dynamic_pointer_cast<StringListTok>($4);
         if(!metaData->v.empty())
         {
@@ -1853,11 +1853,11 @@ parameters
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
     auto type = dynamic_pointer_cast<Type>($3);
     auto ident = dynamic_pointer_cast<StringTok>($4);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
-        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
 | parameters ',' out_qualifier meta_data type keyword
@@ -1865,33 +1865,33 @@ parameters
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto type = dynamic_pointer_cast<Type>($5);
     auto ident = dynamic_pointer_cast<StringTok>($6);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
-        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
 | out_qualifier meta_data type
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($1);
     auto type = dynamic_pointer_cast<Type>($3);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-        unit->error("missing parameter name");
+        currentUnit->error("missing parameter name");
     }
 }
 | parameters ',' out_qualifier meta_data type
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>($3);
     auto type = dynamic_pointer_cast<Type>($5);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-        unit->error("missing parameter name");
+        currentUnit->error("missing parameter name");
     }
 }
 ;
@@ -1939,17 +1939,17 @@ type
 // ----------------------------------------------------------------------
 : ICE_OBJECT '*'
 {
-    $$ = unit->builtin(Builtin::KindObjectProxy);
+    $$ = currentUnit->builtin(Builtin::KindObjectProxy);
 }
 | builtin
 {
     auto typeName = dynamic_pointer_cast<StringTok>($1);
-    $$ = unit->builtin(Builtin::kindFromString(typeName->v).value());
+    $$ = currentUnit->builtin(Builtin::kindFromString(typeName->v).value());
 }
 | scoped_name
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     if(cont)
     {
         TypeList types = cont->lookupType(scoped->v);
@@ -1965,7 +1965,7 @@ type
             string msg = "add a '*' after the interface name to specify its proxy type: '";
             msg += scoped->v;
             msg += "*'";
-            unit->error(msg);
+            currentUnit->error(msg);
             YYERROR; // Can't continue, jump to next yyerrok
         }
         cont->checkIntroduced(scoped->v);
@@ -1980,7 +1980,7 @@ type
 | scoped_name '*'
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     if(cont)
     {
         TypeList types = cont->lookupType(scoped->v);
@@ -1996,7 +1996,7 @@ type
             string msg = "`";
             msg += scoped->v;
             msg += "' must be an interface";
-            unit->error(msg);
+            currentUnit->error(msg);
             YYERROR; // Can't continue, jump to next yyerrok
         }
         cont->checkIntroduced(scoped->v);
@@ -2048,7 +2048,7 @@ const_initializer
 // ----------------------------------------------------------------------
 : ICE_INTEGER_LITERAL
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindLong);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindLong);
     auto intVal = dynamic_pointer_cast<IntegerTok>($1);
     ostringstream sstr;
     sstr << intVal->v;
@@ -2057,7 +2057,7 @@ const_initializer
 }
 | ICE_FLOATING_POINT_LITERAL
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindDouble);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindDouble);
     auto floatVal = dynamic_pointer_cast<FloatingTok>($1);
     ostringstream sstr;
     sstr << floatVal->v;
@@ -2068,7 +2068,7 @@ const_initializer
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ConstDefTokPtr def;
-    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v, false);
+    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v, false);
     if(cl.empty())
     {
         // Could be an enumerator
@@ -2080,12 +2080,12 @@ const_initializer
         auto constant = dynamic_pointer_cast<Const>(cl.front());
         if(enumerator)
         {
-            unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
+            currentUnit->currentContainer()->checkIntroduced(scoped->v, enumerator);
             def = make_shared<ConstDefTok>(enumerator, scoped->v, scoped->v);
         }
         else if(constant)
         {
-            unit->currentContainer()->checkIntroduced(scoped->v, constant);
+            currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
             def = make_shared<ConstDefTok>(constant, constant->value(), constant->value());
         }
         else
@@ -2094,28 +2094,28 @@ const_initializer
             string msg = "illegal initializer: `" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
             msg += prependA(kindOf);
-            unit->error(msg); // $$ is dummy
+            currentUnit->error(msg); // $$ is dummy
         }
     }
     $$ = def;
 }
 | ICE_STRING_LITERAL
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindString);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindString);
     auto literal = dynamic_pointer_cast<StringTok>($1);
     auto def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
     $$ = def;
 }
 | ICE_FALSE
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>($1);
     auto def = make_shared<ConstDefTok>(type, "false", "false");
     $$ = def;
 }
 | ICE_TRUE
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>($1);
     auto def = make_shared<ConstDefTok>(type, "true", "true");
     $$ = def;
@@ -2131,7 +2131,7 @@ const_def
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto ident = dynamic_pointer_cast<StringTok>($4);
     auto value = dynamic_pointer_cast<ConstDefTok>($6);
-    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
+    $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
 | ICE_CONST meta_data type '=' const_initializer
@@ -2139,8 +2139,8 @@ const_def
     auto metaData = dynamic_pointer_cast<StringListTok>($2);
     auto const_type = dynamic_pointer_cast<Type>($3);
     auto value = dynamic_pointer_cast<ConstDefTok>($5);
-    unit->error("missing constant name");
-    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
+    currentUnit->error("missing constant name");
+    $$ = currentUnit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 ;

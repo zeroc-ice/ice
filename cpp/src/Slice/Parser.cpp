@@ -154,7 +154,7 @@ isMutableAfterReturnType(const TypePtr& type)
 namespace Slice
 {
 
-Unit* unit;
+Unit* currentUnit;
 
 }
 
@@ -2571,9 +2571,8 @@ string
 Slice::Container::thisScope() const
 {
     string s;
-    ContainedPtr contained = dynamic_pointer_cast<Contained>(
-        const_pointer_cast<GrammarBase>(shared_from_this()));
-    if(contained)
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(const_pointer_cast<GrammarBase>(shared_from_this()));
+    if (contained)
     {
         s = contained->scoped();
     }
@@ -3776,7 +3775,7 @@ Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& gpl)
         {
             for (const auto& operation : interfaceDefinition->operations())
             {
-                spl.rbegin()->push_back(operation->name());
+                sl.push_back(operation->name());
             }
         }
         spl.push_back(std::move(sl));
@@ -5121,8 +5120,6 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name)
     _explicitValue(false),
     _value(-1)
 {
-    _value = dynamic_pointer_cast<Enum>(container)->newEnumerator(
-        dynamic_pointer_cast<Enumerator>(shared_from_this()));
 }
 
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value) :
@@ -5131,8 +5128,12 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name,
     _explicitValue(true),
     _value(value)
 {
-    dynamic_pointer_cast<Enum>(container)->newEnumerator(
-        dynamic_pointer_cast<Enumerator>(shared_from_this()));
+}
+
+void
+Slice::Enumerator::init()
+{
+    dynamic_pointer_cast<Enum>(_container)->newEnumerator(dynamic_pointer_cast<Enumerator>(shared_from_this()));
 }
 
 // ----------------------------------------------------------------------
@@ -6289,8 +6290,8 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
     slice_debug = debug ? 1 : 0;
     slice__flex_debug = debug ? 1 : 0;
 
-    assert(!Slice::unit);
-    Slice::unit = this;
+    assert(!Slice::currentUnit);
+    Slice::currentUnit = this;
 
     _currentComment = "";
     _currentIncludeLevel = 0;
@@ -6325,7 +6326,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
         popDefinitionContext();
     }
 
-    Slice::unit = 0;
+    Slice::currentUnit = 0;
     return status;
 }
 

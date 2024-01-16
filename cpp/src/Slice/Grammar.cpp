@@ -160,11 +160,11 @@ slice_error(const char* s)
 
     if (strcmp(s, "parse error") == 0)
     {
-        unit->error("syntax error");
+        currentUnit->error("syntax error");
     }
     else
     {
-        unit->error(s);
+        currentUnit->error(s);
     }
 }
 
@@ -1764,7 +1764,7 @@ yyreduce:
   case 6: /* global_meta_data: ICE_GLOBAL_METADATA_IGNORE string_list ICE_GLOBAL_METADATA_CLOSE  */
 #line 208 "src/Slice/Grammar.y"
 {
-    unit->error("global metadata must appear before any definitions");
+    currentUnit->error("global metadata must appear before any definitions");
     yyval = yyvsp[-1]; // Dummy
 }
 #line 1771 "src/Slice/Grammar.cpp"
@@ -1792,7 +1792,7 @@ yyreduce:
     auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[0]);
     if(!metaData->v.empty())
     {
-        unit->addGlobalMetaData(metaData->v);
+        currentUnit->addGlobalMetaData(metaData->v);
     }
 }
 #line 1799 "src/Slice/Grammar.cpp"
@@ -1837,7 +1837,7 @@ yyreduce:
   case 16: /* definition: class_decl  */
 #line 266 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after class forward declaration");
+    currentUnit->error("`;' missing after class forward declaration");
 }
 #line 1843 "src/Slice/Grammar.cpp"
     break;
@@ -1861,7 +1861,7 @@ yyreduce:
   case 21: /* definition: interface_decl  */
 #line 280 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after interface forward declaration");
+    currentUnit->error("`;' missing after interface forward declaration");
 }
 #line 1867 "src/Slice/Grammar.cpp"
     break;
@@ -1885,7 +1885,7 @@ yyreduce:
   case 26: /* definition: exception_decl  */
 #line 294 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after exception forward declaration");
+    currentUnit->error("`;' missing after exception forward declaration");
 }
 #line 1891 "src/Slice/Grammar.cpp"
     break;
@@ -1909,7 +1909,7 @@ yyreduce:
   case 31: /* definition: struct_decl  */
 #line 308 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after struct forward declaration");
+    currentUnit->error("`;' missing after struct forward declaration");
 }
 #line 1915 "src/Slice/Grammar.cpp"
     break;
@@ -1933,7 +1933,7 @@ yyreduce:
   case 36: /* definition: sequence_def  */
 #line 322 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after sequence definition");
+    currentUnit->error("`;' missing after sequence definition");
 }
 #line 1939 "src/Slice/Grammar.cpp"
     break;
@@ -1949,7 +1949,7 @@ yyreduce:
   case 39: /* definition: dictionary_def  */
 #line 331 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after dictionary definition");
+    currentUnit->error("`;' missing after dictionary definition");
 }
 #line 1955 "src/Slice/Grammar.cpp"
     break;
@@ -1973,7 +1973,7 @@ yyreduce:
   case 44: /* definition: const_def  */
 #line 345 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after const definition");
+    currentUnit->error("`;' missing after const definition");
 }
 #line 1979 "src/Slice/Grammar.cpp"
     break;
@@ -1990,12 +1990,12 @@ yyreduce:
 #line 358 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);
     if(module)
     {
         cont->checkIntroduced(ident->v, module);
-        unit->pushContainer(module);
+        currentUnit->pushContainer(module);
         yyval = module;
     }
     else
@@ -2011,7 +2011,7 @@ yyreduce:
 {
     if(yyvsp[-3])
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         yyval = yyvsp[-3];
     }
     else
@@ -2034,7 +2034,7 @@ yyreduce:
 #line 395 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 2041 "src/Slice/Grammar.cpp"
@@ -2043,7 +2043,7 @@ yyreduce:
   case 50: /* exception_decl: exception_id  */
 #line 406 "src/Slice/Grammar.y"
 {
-    unit->error("exceptions cannot be forward declared");
+    currentUnit->error("exceptions cannot be forward declared");
     yyval = nullptr;
 }
 #line 2050 "src/Slice/Grammar.cpp"
@@ -2054,12 +2054,12 @@ yyreduce:
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
     auto base = dynamic_pointer_cast<Exception>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ExceptionPtr ex = cont->createException(ident->v, base);
     if(ex)
     {
         cont->checkIntroduced(ident->v, ex);
-        unit->pushContainer(ex);
+        currentUnit->pushContainer(ex);
     }
     yyval = ex;
 }
@@ -2071,7 +2071,7 @@ yyreduce:
 {
     if(yyvsp[-3])
     {
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     yyval = yyvsp[-3];
 }
@@ -2082,7 +2082,7 @@ yyreduce:
 #line 442 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ContainedPtr contained = cont->lookupException(scoped->v);
     cont->checkIntroduced(scoped->v);
     yyval = contained;
@@ -2118,7 +2118,7 @@ yyreduce:
     int tag;
     if(i->v < 0 || i->v > Int32Max)
     {
-        unit->error("tag is out of range");
+        currentUnit->error("tag is out of range");
         tag = -1;
     }
     else
@@ -2137,7 +2137,7 @@ yyreduce:
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
 
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if(cl.empty())
@@ -2148,7 +2148,7 @@ yyreduce:
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -2169,11 +2169,11 @@ yyreduce:
 
                 os << " `" << (*p)->scoped() << "'";
             }
-            unit->error(os.str());
+            currentUnit->error(os.str());
         }
         else
         {
-            unit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("`") + scoped->v + "' is not defined");
         }
     }
 
@@ -2194,7 +2194,7 @@ yyreduce:
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
             {
-                unit->error("tag is out of range");
+                currentUnit->error("tag is out of range");
             }
             tag = static_cast<int>(l);
         }
@@ -2206,7 +2206,7 @@ yyreduce:
 
     if(tag < 0)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        currentUnit->error("invalid tag `" + scoped->v + "'");
     }
 
     auto m = make_shared<TaggedDefTok>(tag);
@@ -2218,7 +2218,7 @@ yyreduce:
   case 58: /* tag: ICE_TAG_OPEN ')'  */
 #line 569 "src/Slice/Grammar.y"
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
@@ -2228,7 +2228,7 @@ yyreduce:
   case 59: /* tag: ICE_TAG  */
 #line 575 "src/Slice/Grammar.y"
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
@@ -2243,7 +2243,7 @@ yyreduce:
     int tag;
     if(i->v < 0 || i->v > Int32Max)
     {
-        unit->error("tag is out of range");
+        currentUnit->error("tag is out of range");
         tag = -1;
     }
     else
@@ -2261,7 +2261,7 @@ yyreduce:
 #line 604 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if(cl.empty())
@@ -2272,7 +2272,7 @@ yyreduce:
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -2293,11 +2293,11 @@ yyreduce:
 
                 os << " `" << (*p)->scoped() << "'";
             }
-            unit->error(os.str());
+            currentUnit->error(os.str());
         }
         else
         {
-            unit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("`") + scoped->v + "' is not defined");
         }
     }
 
@@ -2318,7 +2318,7 @@ yyreduce:
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
             {
-                unit->error("tag is out of range");
+                currentUnit->error("tag is out of range");
             }
             tag = static_cast<int>(l);
         }
@@ -2330,7 +2330,7 @@ yyreduce:
 
     if(tag < 0)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        currentUnit->error("invalid tag `" + scoped->v + "'");
     }
 
     auto m = make_shared<TaggedDefTok>(tag);
@@ -2342,7 +2342,7 @@ yyreduce:
   case 62: /* optional: ICE_OPTIONAL_OPEN ')'  */
 #line 682 "src/Slice/Grammar.y"
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
@@ -2352,7 +2352,7 @@ yyreduce:
   case 63: /* optional: ICE_OPTIONAL  */
 #line 688 "src/Slice/Grammar.y"
 {
-    unit->error("missing tag");
+    currentUnit->error("missing tag");
     auto m = make_shared<TaggedDefTok>(-1); // Dummy
     yyval = m;
 }
@@ -2409,7 +2409,7 @@ yyreduce:
 #line 734 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as struct name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as struct name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 2416 "src/Slice/Grammar.cpp"
@@ -2418,7 +2418,7 @@ yyreduce:
   case 69: /* struct_decl: struct_id  */
 #line 745 "src/Slice/Grammar.y"
 {
-    unit->error("structs cannot be forward declared");
+    currentUnit->error("structs cannot be forward declared");
     yyval = nullptr; // Dummy
 }
 #line 2425 "src/Slice/Grammar.cpp"
@@ -2428,18 +2428,18 @@ yyreduce:
 #line 755 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     StructPtr st = cont->createStruct(ident->v);
     if(st)
     {
         cont->checkIntroduced(ident->v, st);
-        unit->pushContainer(st);
+        currentUnit->pushContainer(st);
     }
     else
     {
         st = cont->createStruct(IceUtil::generateUUID()); // Dummy
         assert(st);
-        unit->pushContainer(st);
+        currentUnit->pushContainer(st);
     }
     yyval = st;
 }
@@ -2451,7 +2451,7 @@ yyreduce:
 {
     if(yyvsp[-3])
     {
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     yyval = yyvsp[-3];
 
@@ -2460,7 +2460,7 @@ yyreduce:
     assert(st);
     if(st->dataMembers().empty())
     {
-        unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
+        currentUnit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
 #line 2467 "src/Slice/Grammar.cpp"
@@ -2478,7 +2478,7 @@ yyreduce:
 #line 798 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as class name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as class name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 2485 "src/Slice/Grammar.cpp"
@@ -2490,18 +2490,18 @@ yyreduce:
     IceUtil::Int64 id = dynamic_pointer_cast<IntegerTok>(yyvsp[-1])->v;
     if(id < 0)
     {
-        unit->error("invalid compact id for class: id must be a positive integer");
+        currentUnit->error("invalid compact id for class: id must be a positive integer");
     }
     else if(id > Int32Max)
     {
-        unit->error("invalid compact id for class: value is out of range");
+        currentUnit->error("invalid compact id for class: value is out of range");
     }
     else
     {
-        string typeId = unit->getTypeId(static_cast<int>(id));
-        if(!typeId.empty() && !unit->ignRedefs())
+        string typeId = currentUnit->getTypeId(static_cast<int>(id));
+        if(!typeId.empty() && !currentUnit->ignRedefs())
         {
-            unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
         }
     }
 
@@ -2518,7 +2518,7 @@ yyreduce:
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
 
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if(cl.empty())
@@ -2529,7 +2529,7 @@ yyreduce:
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+            currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -2550,11 +2550,11 @@ yyreduce:
 
                 os << " `" << (*p)->scoped() << "'";
             }
-            unit->error(os.str());
+            currentUnit->error(os.str());
         }
         else
         {
-            unit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("`") + scoped->v + "' is not defined");
         }
     }
 
@@ -2575,7 +2575,7 @@ yyreduce:
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
             {
-                unit->error("compact id for class is out of range");
+                currentUnit->error("compact id for class is out of range");
             }
             id = static_cast<int>(l);
         }
@@ -2587,14 +2587,14 @@ yyreduce:
 
     if(id < 0)
     {
-        unit->error("invalid compact id for class: id must be a positive integer");
+        currentUnit->error("invalid compact id for class: id must be a positive integer");
     }
     else
     {
-        string typeId = unit->getTypeId(id);
-        if(!typeId.empty() && !unit->ignRedefs())
+        string typeId = currentUnit->getTypeId(id);
+        if(!typeId.empty() && !currentUnit->ignRedefs())
         {
-            unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
         }
     }
 
@@ -2622,7 +2622,7 @@ yyreduce:
 #line 936 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v);
     yyval = cl;
 }
@@ -2633,13 +2633,13 @@ yyreduce:
 #line 948 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<ClassIdTok>(yyvsp[-1]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     auto base = dynamic_pointer_cast<ClassDef>(yyvsp[0]);
     ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
     if(cl)
     {
         cont->checkIntroduced(ident->v, cl);
-        unit->pushContainer(cl);
+        currentUnit->pushContainer(cl);
         yyval = cl;
     }
     else
@@ -2655,7 +2655,7 @@ yyreduce:
 {
     if(yyvsp[-3])
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         yyval = yyvsp[-3];
     }
     else
@@ -2670,7 +2670,7 @@ yyreduce:
 #line 982 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     yyval = nullptr;
     if(!types.empty())
@@ -2681,7 +2681,7 @@ yyreduce:
             string msg = "`";
             msg += scoped->v;
             msg += "' is not a class";
-            unit->error(msg);
+            currentUnit->error(msg);
         }
         else
         {
@@ -2691,7 +2691,7 @@ yyreduce:
                 string msg = "`";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
-                unit->error(msg);
+                currentUnit->error(msg);
             }
             else
             {
@@ -2749,7 +2749,7 @@ yyreduce:
   case 86: /* data_members: meta_data data_member  */
 #line 1048 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after definition");
+    currentUnit->error("`;' missing after definition");
 }
 #line 2755 "src/Slice/Grammar.cpp"
     break;
@@ -2765,18 +2765,18 @@ yyreduce:
 #line 1060 "src/Slice/Grammar.y"
 {
     auto def = dynamic_pointer_cast<TaggedDefTok>(yyvsp[0]);
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
         dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         if (def->isTagged)
         {
-            unit->error("tagged data members are not supported in structs");
+            currentUnit->error("tagged data members are not supported in structs");
             dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
         }
         else
@@ -2784,12 +2784,12 @@ yyreduce:
             dm = st->createDataMember(def->name, def->type, false, -1, 0, "", "");
         }
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
     }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     yyval = dm;
 }
 #line 2796 "src/Slice/Grammar.cpp"
@@ -2800,19 +2800,19 @@ yyreduce:
 {
     auto def = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-2]);
     auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
         dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         if (def->isTagged)
         {
-            unit->error("tagged data members are not supported in structs");
+            currentUnit->error("tagged data members are not supported in structs");
             dm = st->createDataMember(def->name, def->type, false, 0, 0, "", ""); // Dummy
         }
         else
@@ -2821,13 +2821,13 @@ yyreduce:
                                       value->valueAsString, value->valueAsLiteral);
         }
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
-    unit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     yyval = dm;
 }
 #line 2834 "src/Slice/Grammar.cpp"
@@ -2838,23 +2838,23 @@ yyreduce:
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[-1]);
     string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if(cl)
     {
         yyval = cl->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         yyval = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         yyval = ex->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
     }
     assert(yyval);
-    unit->error("keyword `" + name + "' cannot be used as data member name");
+    currentUnit->error("keyword `" + name + "' cannot be used as data member name");
 }
 #line 2860 "src/Slice/Grammar.cpp"
     break;
@@ -2863,23 +2863,23 @@ yyreduce:
 #line 1146 "src/Slice/Grammar.y"
 {
     auto type = dynamic_pointer_cast<Type>(yyvsp[0]);
-    auto cl = dynamic_pointer_cast<ClassDef>(unit->currentContainer());
+    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if(cl)
     {
         yyval = cl->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
-    auto st = dynamic_pointer_cast<Struct>(unit->currentContainer());
+    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if(st)
     {
         yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
-    auto ex = dynamic_pointer_cast<Exception>(unit->currentContainer());
+    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if(ex)
     {
         yyval = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
     assert(yyval);
-    unit->error("missing data member name");
+    currentUnit->error("missing data member name");
 }
 #line 2885 "src/Slice/Grammar.cpp"
     break;
@@ -2928,14 +2928,14 @@ yyreduce:
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
     string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
             interface->checkIntroduced(name, op);
-            unit->pushContainer(op);
+            currentUnit->pushContainer(op);
             yyval = op;
         }
         else
@@ -2956,7 +2956,7 @@ yyreduce:
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
     string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if (interface)
     {
         OperationPtr op = interface->createOperation(
@@ -2969,7 +2969,7 @@ yyreduce:
         if(op)
         {
             interface->checkIntroduced(name, op);
-            unit->pushContainer(op);
+            currentUnit->pushContainer(op);
             yyval = op;
         }
         else
@@ -2990,14 +2990,14 @@ yyreduce:
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
     string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
-            unit->pushContainer(op);
-            unit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->pushContainer(op);
+            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
             yyval = op; // Dummy
         }
         else
@@ -3018,7 +3018,7 @@ yyreduce:
 {
     auto returnType = dynamic_pointer_cast<TaggedDefTok>(yyvsp[-1]);
     string name = dynamic_pointer_cast<StringTok>(yyvsp[0])->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(unit->currentContainer());
+    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
     if(interface)
     {
         OperationPtr op = interface->createOperation(
@@ -3029,8 +3029,8 @@ yyreduce:
             Operation::Idempotent);
         if (op)
         {
-            unit->pushContainer(op);
-            unit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->pushContainer(op);
+            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
             yyval = op; // Dummy
         }
         else
@@ -3051,7 +3051,7 @@ yyreduce:
 {
     if(yyvsp[-2])
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         yyval = yyvsp[-2];
     }
     else
@@ -3081,7 +3081,7 @@ yyreduce:
 {
     if(yyvsp[-2])
     {
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     yyerrok;
 }
@@ -3114,7 +3114,7 @@ yyreduce:
 #line 1361 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as interface name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as interface name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 3121 "src/Slice/Grammar.cpp"
@@ -3124,7 +3124,7 @@ yyreduce:
 #line 1372 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    auto cont = unit->currentContainer();
+    auto cont = currentUnit->currentContainer();
     InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
     cont->checkIntroduced(ident->v, cl);
     yyval = cl;
@@ -3136,13 +3136,13 @@ yyreduce:
 #line 1385 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     auto bases = dynamic_pointer_cast<InterfaceListTok>(yyvsp[0]);
     InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
     if(interface)
     {
         cont->checkIntroduced(ident->v, interface);
-        unit->pushContainer(interface);
+        currentUnit->pushContainer(interface);
         yyval = interface;
     }
     else
@@ -3158,7 +3158,7 @@ yyreduce:
 {
     if(yyvsp[-3])
     {
-        unit->popContainer();
+        currentUnit->popContainer();
         yyval = yyvsp[-3];
     }
     else
@@ -3174,7 +3174,7 @@ yyreduce:
 {
     auto intfs = dynamic_pointer_cast<InterfaceListTok>(yyvsp[0]);
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
@@ -3184,7 +3184,7 @@ yyreduce:
             string msg = "`";
             msg += scoped->v;
             msg += "' is not an interface";
-            unit->error(msg);
+            currentUnit->error(msg);
         }
         else
         {
@@ -3194,7 +3194,7 @@ yyreduce:
                 string msg = "`";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
-                unit->error(msg);
+                currentUnit->error(msg);
             }
             else
             {
@@ -3213,7 +3213,7 @@ yyreduce:
 {
     auto intfs = make_shared<InterfaceListTok>();
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
@@ -3223,7 +3223,7 @@ yyreduce:
             string msg = "`";
             msg += scoped->v;
             msg += "' is not an interface";
-            unit->error(msg); // $$ is a dummy
+            currentUnit->error(msg); // $$ is a dummy
         }
         else
         {
@@ -3233,7 +3233,7 @@ yyreduce:
                 string msg = "`";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
-                unit->error(msg); // $$ is a dummy
+                currentUnit->error(msg); // $$ is a dummy
             }
             else
             {
@@ -3250,7 +3250,7 @@ yyreduce:
   case 111: /* interface_list: ICE_OBJECT  */
 #line 1489 "src/Slice/Grammar.y"
 {
-    unit->error("illegal inheritance from type Object");
+    currentUnit->error("illegal inheritance from type Object");
     yyval = make_shared<InterfaceListTok>(); // Dummy
 }
 #line 3257 "src/Slice/Grammar.cpp"
@@ -3259,7 +3259,7 @@ yyreduce:
   case 112: /* interface_list: ICE_VALUE  */
 #line 1494 "src/Slice/Grammar.y"
 {
-    unit->error("illegal inheritance from type Value");
+    currentUnit->error("illegal inheritance from type Value");
     yyval = make_shared<ClassListTok>(); // Dummy
 }
 #line 3266 "src/Slice/Grammar.cpp"
@@ -3304,7 +3304,7 @@ yyreduce:
   case 117: /* operations: meta_data operation  */
 #line 1529 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after definition");
+    currentUnit->error("`;' missing after definition");
 }
 #line 3310 "src/Slice/Grammar.cpp"
     break;
@@ -3342,7 +3342,7 @@ yyreduce:
 #line 1560 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
@@ -3358,8 +3358,8 @@ yyreduce:
 #line 1572 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    yyval = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    yyval = currentUnit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
 #line 3365 "src/Slice/Grammar.cpp"
     break;
@@ -3370,7 +3370,7 @@ yyreduce:
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[-2]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createSequence(ident->v, type, metaData->v);
 }
 #line 3377 "src/Slice/Grammar.cpp"
@@ -3382,9 +3382,9 @@ yyreduce:
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[-2]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createSequence(ident->v, type, metaData->v); // Dummy
-    unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 #line 3390 "src/Slice/Grammar.cpp"
     break;
@@ -3397,7 +3397,7 @@ yyreduce:
     auto keyType = dynamic_pointer_cast<Type>(yyvsp[-5]);
     auto valueMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
     auto valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
 }
 #line 3404 "src/Slice/Grammar.cpp"
@@ -3411,9 +3411,9 @@ yyreduce:
     auto keyType = dynamic_pointer_cast<Type>(yyvsp[-5]);
     auto valueMetaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
     auto valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
-    unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 #line 3419 "src/Slice/Grammar.cpp"
     break;
@@ -3430,7 +3430,7 @@ yyreduce:
 #line 1635 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 3437 "src/Slice/Grammar.cpp"
@@ -3440,7 +3440,7 @@ yyreduce:
 #line 1646 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v);
     if(en)
     {
@@ -3450,7 +3450,7 @@ yyreduce:
     {
         en = cont->createEnum(IceUtil::generateUUID(), Dummy);
     }
-    unit->pushContainer(en);
+    currentUnit->pushContainer(en);
     yyval = en;
 }
 #line 3457 "src/Slice/Grammar.cpp"
@@ -3465,9 +3465,9 @@ yyreduce:
         auto enumerators = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[-1]);
         if(enumerators->v.empty())
         {
-            unit->error("enum `" + en->name() + "' must have at least one enumerator");
+            currentUnit->error("enum `" + en->name() + "' must have at least one enumerator");
         }
-        unit->popContainer();
+        currentUnit->popContainer();
     }
     yyval = yyvsp[-3];
 }
@@ -3477,10 +3477,10 @@ yyreduce:
   case 131: /* @22: %empty  */
 #line 1677 "src/Slice/Grammar.y"
 {
-    unit->error("missing enumeration name");
-    ContainerPtr cont = unit->currentContainer();
+    currentUnit->error("missing enumeration name");
+    ContainerPtr cont = currentUnit->currentContainer();
     EnumPtr en = cont->createEnum(IceUtil::generateUUID(), Dummy);
-    unit->pushContainer(en);
+    currentUnit->pushContainer(en);
     yyval = en;
 }
 #line 3487 "src/Slice/Grammar.cpp"
@@ -3489,7 +3489,7 @@ yyreduce:
   case 132: /* enum_def: ICE_ENUM @22 '{' enumerator_list '}'  */
 #line 1685 "src/Slice/Grammar.y"
 {
-    unit->popContainer();
+    currentUnit->popContainer();
     yyval = yyvsp[-4];
 }
 #line 3496 "src/Slice/Grammar.cpp"
@@ -3517,7 +3517,7 @@ yyreduce:
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto ens = make_shared<EnumeratorListTok>();
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
@@ -3533,13 +3533,13 @@ yyreduce:
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
     auto ens = make_shared<EnumeratorListTok>();
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
     if(intVal)
     {
         if(intVal->v < 0 || intVal->v > Int32Max)
         {
-            unit->error("value for enumerator `" + ident->v + "' is out of range");
+            currentUnit->error("value for enumerator `" + ident->v + "' is out of range");
         }
         else
         {
@@ -3556,7 +3556,7 @@ yyreduce:
 #line 1741 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as enumerator");
+    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumerator");
     auto ens = make_shared<EnumeratorListTok>(); // Dummy
     yyval = ens;
 }
@@ -3584,14 +3584,14 @@ yyreduce:
 #line 1762 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
+    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v);
     IntegerTokPtr tok;
     if(!cl.empty())
     {
         auto constant = dynamic_pointer_cast<Const>(cl.front());
         if(constant)
         {
-            unit->currentContainer()->checkIntroduced(scoped->v, constant);
+            currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
             auto b = dynamic_pointer_cast<Builtin>(constant->type());
             if(b && b->isIntegralType())
             {
@@ -3609,7 +3609,7 @@ yyreduce:
     if(!tok)
     {
         string msg = "illegal initializer: `" + scoped->v + "' is not an integer constant";
-        unit->error(msg); // $$ is dummy
+        currentUnit->error(msg); // $$ is dummy
     }
 
     yyval = tok;
@@ -3649,11 +3649,11 @@ yyreduce:
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
     auto tsp = dynamic_pointer_cast<TaggedDefTok>(yyvsp[0]);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
         if(!metaData->v.empty())
         {
@@ -3669,11 +3669,11 @@ yyreduce:
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
     auto tsp = dynamic_pointer_cast<TaggedDefTok>(yyvsp[0]);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if(op)
     {
         ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-1]);
         if(!metaData->v.empty())
         {
@@ -3690,11 +3690,11 @@ yyreduce:
     auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-3]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[-1]);
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
-        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
 #line 3701 "src/Slice/Grammar.cpp"
@@ -3706,11 +3706,11 @@ yyreduce:
     auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-3]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[-1]);
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
-        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
 #line 3717 "src/Slice/Grammar.cpp"
@@ -3721,11 +3721,11 @@ yyreduce:
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[0]);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-        unit->error("missing parameter name");
+        currentUnit->error("missing parameter name");
     }
 }
 #line 3732 "src/Slice/Grammar.cpp"
@@ -3736,11 +3736,11 @@ yyreduce:
 {
     auto isOutParam = dynamic_pointer_cast<BoolTok>(yyvsp[-2]);
     auto type = dynamic_pointer_cast<Type>(yyvsp[0]);
-    auto op = dynamic_pointer_cast<Operation>(unit->currentContainer());
+    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
         op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-        unit->error("missing parameter name");
+        currentUnit->error("missing parameter name");
     }
 }
 #line 3747 "src/Slice/Grammar.cpp"
@@ -3839,7 +3839,7 @@ yyreduce:
   case 164: /* type: ICE_OBJECT '*'  */
 #line 1941 "src/Slice/Grammar.y"
 {
-    yyval = unit->builtin(Builtin::KindObjectProxy);
+    yyval = currentUnit->builtin(Builtin::KindObjectProxy);
 }
 #line 3845 "src/Slice/Grammar.cpp"
     break;
@@ -3848,7 +3848,7 @@ yyreduce:
 #line 1945 "src/Slice/Grammar.y"
 {
     auto typeName = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    yyval = unit->builtin(Builtin::kindFromString(typeName->v).value());
+    yyval = currentUnit->builtin(Builtin::kindFromString(typeName->v).value());
 }
 #line 3854 "src/Slice/Grammar.cpp"
     break;
@@ -3857,7 +3857,7 @@ yyreduce:
 #line 1950 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     if(cont)
     {
         TypeList types = cont->lookupType(scoped->v);
@@ -3873,7 +3873,7 @@ yyreduce:
             string msg = "add a '*' after the interface name to specify its proxy type: '";
             msg += scoped->v;
             msg += "*'";
-            unit->error(msg);
+            currentUnit->error(msg);
             YYERROR; // Can't continue, jump to next yyerrok
         }
         cont->checkIntroduced(scoped->v);
@@ -3892,7 +3892,7 @@ yyreduce:
 #line 1981 "src/Slice/Grammar.y"
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[-1]);
-    ContainerPtr cont = unit->currentContainer();
+    ContainerPtr cont = currentUnit->currentContainer();
     if(cont)
     {
         TypeList types = cont->lookupType(scoped->v);
@@ -3908,7 +3908,7 @@ yyreduce:
             string msg = "`";
             msg += scoped->v;
             msg += "' must be an interface";
-            unit->error(msg);
+            currentUnit->error(msg);
             YYERROR; // Can't continue, jump to next yyerrok
         }
         cont->checkIntroduced(scoped->v);
@@ -3965,7 +3965,7 @@ yyreduce:
   case 172: /* const_initializer: ICE_INTEGER_LITERAL  */
 #line 2050 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindLong);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindLong);
     auto intVal = dynamic_pointer_cast<IntegerTok>(yyvsp[0]);
     ostringstream sstr;
     sstr << intVal->v;
@@ -3978,7 +3978,7 @@ yyreduce:
   case 173: /* const_initializer: ICE_FLOATING_POINT_LITERAL  */
 #line 2059 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindDouble);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindDouble);
     auto floatVal = dynamic_pointer_cast<FloatingTok>(yyvsp[0]);
     ostringstream sstr;
     sstr << floatVal->v;
@@ -3993,7 +3993,7 @@ yyreduce:
 {
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ConstDefTokPtr def;
-    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v, false);
+    ContainedList cl = currentUnit->currentContainer()->lookupContained(scoped->v, false);
     if(cl.empty())
     {
         // Could be an enumerator
@@ -4005,12 +4005,12 @@ yyreduce:
         auto constant = dynamic_pointer_cast<Const>(cl.front());
         if(enumerator)
         {
-            unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
+            currentUnit->currentContainer()->checkIntroduced(scoped->v, enumerator);
             def = make_shared<ConstDefTok>(enumerator, scoped->v, scoped->v);
         }
         else if(constant)
         {
-            unit->currentContainer()->checkIntroduced(scoped->v, constant);
+            currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
             def = make_shared<ConstDefTok>(constant, constant->value(), constant->value());
         }
         else
@@ -4019,7 +4019,7 @@ yyreduce:
             string msg = "illegal initializer: `" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
             msg += prependA(kindOf);
-            unit->error(msg); // $$ is dummy
+            currentUnit->error(msg); // $$ is dummy
         }
     }
     yyval = def;
@@ -4030,7 +4030,7 @@ yyreduce:
   case 175: /* const_initializer: ICE_STRING_LITERAL  */
 #line 2103 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindString);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindString);
     auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto def = make_shared<ConstDefTok>(type, literal->v, literal->literal);
     yyval = def;
@@ -4041,7 +4041,7 @@ yyreduce:
   case 176: /* const_initializer: ICE_FALSE  */
 #line 2110 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto def = make_shared<ConstDefTok>(type, "false", "false");
     yyval = def;
@@ -4052,7 +4052,7 @@ yyreduce:
   case 177: /* const_initializer: ICE_TRUE  */
 #line 2117 "src/Slice/Grammar.y"
 {
-    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    BuiltinPtr type = currentUnit->builtin(Builtin::KindBool);
     auto literal = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto def = make_shared<ConstDefTok>(type, "true", "true");
     yyval = def;
@@ -4067,7 +4067,7 @@ yyreduce:
     auto const_type = dynamic_pointer_cast<Type>(yyvsp[-3]);
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
     auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
-    yyval = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
+    yyval = currentUnit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
 #line 4074 "src/Slice/Grammar.cpp"
@@ -4079,8 +4079,8 @@ yyreduce:
     auto metaData = dynamic_pointer_cast<StringListTok>(yyvsp[-3]);
     auto const_type = dynamic_pointer_cast<Type>(yyvsp[-2]);
     auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
-    unit->error("missing constant name");
-    yyval = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
+    currentUnit->error("missing constant name");
+    yyval = currentUnit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 #line 4087 "src/Slice/Grammar.cpp"
