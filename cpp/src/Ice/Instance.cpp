@@ -1265,7 +1265,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         if(!_initData.valueFactoryManager)
         {
-            _initData.valueFactoryManager = ICE_MAKE_SHARED(ValueFactoryManagerI);
+            _initData.valueFactoryManager = make_shared<ValueFactoryManagerI>();
         }
 
         _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
@@ -1383,7 +1383,9 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         const string processFacetName = "Process";
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(processFacetName) != _adminFacetFilter.end())
         {
-            _adminFacets.insert(make_pair(processFacetName, ICE_MAKE_SHARED(ProcessI, communicator)));
+            ProcessPtr processFacet(make_shared<ProcessI>(communicator));
+
+            _adminFacets.insert(make_pair(processFacetName, processFacet));
         }
 
         //

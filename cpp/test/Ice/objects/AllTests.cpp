@@ -43,66 +43,42 @@ testUOE(const Ice::CommunicatorPtr& communicator)
 
 void clear(const CPtr&);
 
-#ifdef ICE_CPP11_MAPPING
 void
 clear(const BPtr& b)
 {
-    // No GC with the C++11 mapping
-    if(dynamic_pointer_cast<B>(b->theA))
+    if(ICE_DYNAMIC_CAST(B, b->theA))
     {
         auto tmp = b->theA;
         b->theA = nullptr;
-        clear(dynamic_pointer_cast<B>(tmp));
+        clear(ICE_DYNAMIC_CAST(B, tmp));
     }
     if(b->theB)
     {
         auto tmp = b->theB;
         b->theB = nullptr;
-        clear(dynamic_pointer_cast<B>(tmp));
+        clear(ICE_DYNAMIC_CAST(B, tmp));
     }
     b->theC = nullptr;
 }
-#else
-void
-clear(const BPtr&)
-{
-}
-#endif
 
-#ifdef ICE_CPP11_MAPPING
 void
 clear(const CPtr& c)
 {
-    // No GC with the C++11 mapping
     clear(c->theB);
     c->theB = nullptr;
 }
-#else
-void
-clear(const CPtr&)
-{
-}
-#endif
 
-#ifdef ICE_CPP11_MAPPING
 void
 clear(const DPtr& d)
 {
-    // No GC with the C++11 mapping
-    if(dynamic_pointer_cast<B>(d->theA))
+    if(ICE_DYNAMIC_CAST(B, d->theA))
     {
-        clear(dynamic_pointer_cast<B>(d->theA));
+        clear(ICE_DYNAMIC_CAST(B, d->theA));
     }
     d->theA = nullptr;
     clear(d->theB);
     d->theB = nullptr;
 }
-#else
-void
-clear(const DPtr&)
-{
-}
-#endif
 
 }
 

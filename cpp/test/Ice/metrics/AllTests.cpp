@@ -318,7 +318,7 @@ private:
     bool _updated;
     Ice::PropertiesAdminPrxPtr _serverProps;
 };
-ICE_DEFINE_PTR(UpdateCallbackIPtr, UpdateCallbackI);
+ICE_DEFINE_SHARED_PTR(UpdateCallbackIPtr, UpdateCallbackI);
 
 void
 waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName, const string& map, int value)

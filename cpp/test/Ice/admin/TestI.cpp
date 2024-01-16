@@ -99,7 +99,7 @@ RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
         _removeCallback =
             admin->addUpdateCallback([this](const Ice::PropertyDict& changes) { updated(changes); });
 #else
-        admin->addUpdateCallback(this);
+        admin->addUpdateCallback(Ice::PropertiesAdminUpdateCallbackPtr(shared_from_this()));
         _hasCallback = true;
 #endif
     }
@@ -122,7 +122,7 @@ RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
             _removeCallback = nullptr;
         }
 #else
-        admin->removeUpdateCallback(this);
+        admin->removeUpdateCallback(Ice::PropertiesAdminUpdateCallbackPtr(shared_from_this()));
         _hasCallback = false;
 #endif
     }

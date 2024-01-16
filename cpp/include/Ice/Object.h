@@ -180,12 +180,11 @@ protected:
  * The base class for servants.
  * \headerfile Ice/Ice.h
  */
-class ICE_API Object : public virtual IceUtil::Shared
+class ICE_API Object
 {
 public:
 
-    virtual bool operator==(const Object&) const;
-    virtual bool operator<(const Object&) const;
+    virtual ~Object() = default;
 
     /**
      * Tests whether this object supports a specific Slice interface.

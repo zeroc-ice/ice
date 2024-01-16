@@ -367,7 +367,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const InterfaceDefPtr& p)
         _M << sp << nl << "-(void) iceDispatch:(ICECurrent *)current is:(id<ICEInputStream>)istr "
            << "os:(id<ICEOutputStream>)ostr";
         _M << sb;
-        _M << nl << "id target = [self iceTarget];";
+        _M << nl << "id target = self;";
         _M << nl << "switch(ICEInternalLookupString(iceS_" << name << "_all, sizeof(iceS_" << name
            << "_all) / sizeof(NSString*), current.operation))";
         _M << sb;

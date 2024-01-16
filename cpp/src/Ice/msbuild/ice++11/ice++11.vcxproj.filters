@@ -603,9 +603,6 @@
     <ClCompile Include="..\..\EndpointF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\FacetMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ImplicitContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

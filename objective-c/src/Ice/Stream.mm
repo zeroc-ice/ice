@@ -84,7 +84,6 @@ private:
 
     ICEValue* _obj;
 };
-typedef Ice::SharedPtr<ValueWrapper> ValueWrapperPtr;
 
 class ReadValueBase : public IceUtil::Shared
 {
@@ -99,7 +98,7 @@ public:
     {
     }
 
-    virtual void invoke(const Ice::ValuePtr&) = 0;
+    virtual void invoke(const std::shared_ptr<Ice::Value>&) = 0;
     void checkType(ICEValue*);
 
 private:
@@ -108,7 +107,7 @@ private:
 };
 
 void
-patchFunc(void* obj, const Ice::ValuePtr& value)
+patchFunc(void* obj, const std::shared_ptr<Ice::Value>& value)
 {
     static_cast<ReadValueBase*>(obj)->invoke(value);
 }
@@ -141,13 +140,13 @@ public:
     }
 
     virtual void
-    invoke(const Ice::ValuePtr& obj)
+    invoke(const std::shared_ptr<Ice::Value>& obj)
     {
         @try
         {
             if(obj)
             {
-                ICEValue* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
+                ICEValue* o = std::dynamic_pointer_cast<ValueWrapper>(obj)->getValue();
                 checkType(o);
                 *_addr = [o retain];
                 if(_autorelease)
@@ -182,13 +181,13 @@ public:
     }
 
     virtual void
-    invoke(const Ice::ValuePtr& obj)
+    invoke(const std::shared_ptr<Ice::Value>& obj)
     {
         @try
         {
             if(obj)
             {
-                ICEValue* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
+                ICEValue* o = std::dynamic_pointer_cast<ValueWrapper>(obj)->getValue();
                 checkType(o);
                 [_array replaceObjectAtIndex:static_cast<NSUInteger>(_index) withObject:o];
             }
@@ -223,13 +222,13 @@ public:
     }
 
     virtual void
-    invoke(const Ice::ValuePtr& obj)
+    invoke(const std::shared_ptr<Ice::Value>& obj)
     {
         @try
         {
             if(obj)
             {
-                ICEValue* o = ValueWrapperPtr::dynamicCast(obj)->getValue();
+                ICEValue* o =  std::dynamic_pointer_cast<ValueWrapper>(obj)->getValue();
                 checkType(o);
                 [_dict setObject:o forKey:_key];
             }
@@ -1204,7 +1203,7 @@ private:
     try
     {
         Ice::SlicedDataPtr slicedData = is_->endValue(preserve);
-        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData.get()] : nil;
+        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -1240,7 +1239,7 @@ private:
     try
     {
         Ice::SlicedDataPtr slicedData = is_->endException(preserve);
-        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData.get()] : nil;
+        return slicedData ? [[ICESlicedData alloc] initWithSlicedData:slicedData] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -1967,11 +1966,11 @@ private:
     {
         if(v == nil)
         {
-            os_->write(Ice::ValuePtr());
+            os_->write(std::shared_ptr<Ice::Value>(nullptr));
         }
         else
         {
-            os_->write(Ice::ValuePtr([self addObject:v]));
+            os_->write([self addObject:v]);
         }
     }
     catch(const std::exception& ex)
@@ -2268,7 +2267,7 @@ private:
     }
 }
 
--(Ice::ValuePtr) addObject:(ICEValue*)object
+-(std::shared_ptr<Ice::Value>) addObject:(ICEValue*)object
 {
     //
     // Ice::ValueWrapper is a subclass of Ice::Value that wraps an Objective-C object for marshaling.
@@ -2278,41 +2277,44 @@ private:
     //
     if(!objectWriters_)
     {
-        objectWriters_ = new std::map<ICEValue*, Ice::ValuePtr>();
+        objectWriters_ = new std::map<ICEValue*, std::shared_ptr<Ice::Value>>();
     }
-    std::map<ICEValue*, Ice::ValuePtr>::const_iterator p = objectWriters_->find(object);
+    std::map<ICEValue*, std::shared_ptr<Ice::Value>>::const_iterator p = objectWriters_->find(object);
     if(p != objectWriters_->end())
     {
         return p->second;
     }
     else
     {
-        IceObjC::ValueWrapperPtr writer = new IceObjC::ValueWrapper(object);
+        auto writer = std::make_shared<IceObjC::ValueWrapper>(object);
         objectWriters_->insert(std::make_pair(object, writer));
         return writer;
     }
 }
 
--(Ice::SlicedData*) writeSlicedData:(id<ICESlicedData>)sd
+-(Ice::SlicedDataPtr) writeSlicedData:(id<ICESlicedData>)sd
 {
     NSAssert([sd isKindOfClass:[ICESlicedData class]], @"invalid sliced data object");
-    Ice::SlicedData* origSlicedData = [((ICESlicedData*)sd) slicedData];
+    Ice::SlicedDataPtr origSlicedData = [((ICESlicedData*)sd) slicedData];
     Ice::SliceInfoSeq slices;
     for(Ice::SliceInfoSeq::const_iterator p = origSlicedData->slices.begin(); p != origSlicedData->slices.end(); ++p)
     {
-        Ice::SliceInfoPtr info = new Ice::SliceInfo;
+        Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
         info->typeId = (*p)->typeId;
         info->compactId = (*p)->compactId;
         info->bytes = (*p)->bytes;
         info->hasOptionalMembers = (*p)->hasOptionalMembers;
         info->isLastSlice = (*p)->isLastSlice;
 
-        for(std::vector<Ice::ValuePtr>::const_iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for(std::vector<std::shared_ptr<Ice::Value>>::const_iterator q = (*p)->instances.begin();
+            q != (*p)->instances.end();
+            ++q)
         {
             if(*q)
             {
-                assert(IceObjC::ValueWrapperPtr::dynamicCast(*q));
-                info->instances.push_back([self addObject:IceObjC::ValueWrapperPtr::dynamicCast(*q)->getValue()]);
+                assert(std::dynamic_pointer_cast<IceObjC::ValueWrapper>(*q));
+                info->instances.push_back(
+                    [self addObject:std::dynamic_pointer_cast<IceObjC::ValueWrapper>(*q)->getValue()]);
             }
             else
             {
@@ -2321,7 +2323,7 @@ private:
         }
         slices.push_back(info);
     }
-    return new Ice::SlicedData(slices);
+    return std::make_shared<Ice::SlicedData>(slices);
 }
 
 @end

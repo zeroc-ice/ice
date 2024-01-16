@@ -125,7 +125,7 @@ private:
     bool _warnOnce;
     vector<RequestPtr> _pendingRequests;
 };
-ICE_DEFINE_PTR(LocatorIPtr, LocatorI);
+ICE_DEFINE_SHARED_PTR(LocatorIPtr, LocatorI);
 
 class LookupReplyI : public LookupReply
 {

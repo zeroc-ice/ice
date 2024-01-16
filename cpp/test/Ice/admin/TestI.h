@@ -12,6 +12,7 @@
 class RemoteCommunicatorI : public virtual Test::RemoteCommunicator,
 #ifndef ICE_CPP11_MAPPING
                             public virtual Ice::PropertiesAdminUpdateCallback,
+                            public std::enable_shared_from_this<RemoteCommunicatorI>,
 #endif
                             public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -47,7 +48,7 @@ private:
     bool _hasCallback;
 #endif
 };
-ICE_DEFINE_PTR(RemoteCommunicatorIPtr, RemoteCommunicatorI);
+ICE_DEFINE_SHARED_PTR(RemoteCommunicatorIPtr, RemoteCommunicatorI);
 
 class RemoteCommunicatorFactoryI : public Test::RemoteCommunicatorFactory
 {

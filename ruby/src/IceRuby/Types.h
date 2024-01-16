@@ -35,10 +35,9 @@ class AbortMarshaling
 {
 };
 
-typedef std::map<VALUE, Ice::ValuePtr> ValueMap;
+typedef std::map<VALUE, std::shared_ptr<Ice::Value>> ValueMap;
 
 class ValueReader;
-typedef Ice::SharedPtr<ValueReader> ValueReaderPtr;
 
 struct PrintObjectHistory
 {
@@ -79,7 +78,7 @@ public:
 
     ReadValueCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-    void invoke(const ::Ice::ValuePtr&);
+    void invoke(const ::std::shared_ptr<Ice::Value>&);
 
 private:
 
@@ -109,7 +108,7 @@ public:
     //
     // Keep track of object instances that have preserved slices.
     //
-    void add(const ValueReaderPtr&);
+    void add(const std::shared_ptr<ValueReader>&);
 
     //
     // Updated the sliced data information for all stored object instances.
@@ -122,7 +121,7 @@ public:
 private:
 
     std::vector<ReadValueCallbackPtr> _callbacks;
-    std::set<ValueReaderPtr> _readers;
+    std::set<std::shared_ptr<ValueReader>> _readers;
     static VALUE _slicedDataType;
     static VALUE _sliceInfoType;
 };

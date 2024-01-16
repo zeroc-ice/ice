@@ -18,23 +18,6 @@ namespace Ice
 const Current emptyCurrent = Current();
 }
 
-#ifndef ICE_CPP11_MAPPING
-Object* Ice::upCast(Object* p) { return p; }
-
-bool
-Ice::Object::operator==(const Object& r) const
-{
-    return this == &r;
-}
-
-bool
-Ice::Object::operator<(const Object& r) const
-{
-    return this < &r;
-}
-
-#endif
-
 namespace
 {
 

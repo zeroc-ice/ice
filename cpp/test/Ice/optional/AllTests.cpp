@@ -46,8 +46,6 @@ public:
         in->endValue(false);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -55,8 +53,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 };
 
 class BObjectReader : public Ice::Value
@@ -79,8 +75,6 @@ public:
         in->endValue(false);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -88,8 +82,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 };
 
 class CObjectReader : public Ice::Value
@@ -115,8 +107,6 @@ public:
         in->endValue(false);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -124,8 +114,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 };
 
 class DObjectWriter : public Ice::Value
@@ -164,8 +152,6 @@ public:
 
     virtual void _iceRead(Ice::InputStream*) { }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -173,9 +159,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
-
 };
 
 class DObjectReader : public Ice::Value
@@ -214,8 +197,6 @@ public:
         test((*a)->mc == 18);
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -223,8 +204,6 @@ protected:
         assert(0); // not used
         return nullptr;
     }
-
-#endif
 
 private:
 
@@ -256,8 +235,6 @@ public:
         return _f;
     }
 
-#ifdef ICE_CPP11_MAPPING
-
 protected:
 
     virtual std::shared_ptr<Value> _iceCloneImpl() const
@@ -266,18 +243,12 @@ protected:
         return nullptr;
     }
 
-#endif
-
 private:
 
     FPtr _f;
 };
 
 class FactoryI
-#ifndef ICE_CPP11_MAPPING
-               : public Ice::ValueFactory
-#endif
-
 {
     bool _enabled;
 
@@ -287,7 +258,7 @@ public:
     {
     }
 
-    Ice::ValuePtr
+    shared_ptr<Ice::Value>
     create(const string& typeId)
     {
         if(!_enabled)
@@ -297,27 +268,27 @@ public:
 
         if(typeId == "::Test::OneOptional")
         {
-           return ICE_MAKE_SHARED(TestObjectReader);
+           return make_shared<TestObjectReader>();
         }
         else if(typeId == "::Test::MultiOptional")
         {
-           return ICE_MAKE_SHARED(TestObjectReader);
+           return make_shared<TestObjectReader>();
         }
         else if(typeId == "::Test::B")
         {
-           return ICE_MAKE_SHARED(BObjectReader);
+           return make_shared<BObjectReader>();
         }
         else if(typeId == "::Test::C")
         {
-           return ICE_MAKE_SHARED(CObjectReader);
+           return make_shared<CObjectReader>();
         }
         else if(typeId == "::Test::D")
         {
-           return ICE_MAKE_SHARED(DObjectReader);
+           return make_shared<DObjectReader>();
         }
         else if(typeId == "::Test::F")
         {
-           return ICE_MAKE_SHARED(FObjectReader);
+           return make_shared<FObjectReader>();
         }
 
         return 0;
@@ -330,27 +301,17 @@ public:
     }
 };
 
-#ifdef ICE_CPP11_MAPPING
-using FactoryIPtr = shared_ptr<FactoryI>;
-#else
-typedef IceUtil::Handle<FactoryI> FactoryIPtr;
-#endif
-
 InitialPrxPtr
 allTests(Test::TestHelper* helper, bool)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    FactoryIPtr factory = ICE_MAKE_SHARED(FactoryI);
+    auto factory = make_shared<FactoryI>();
 
-#ifdef ICE_CPP11_MAPPING
     communicator->getValueFactoryManager()->add([factory](const string& typeId)
                                                 {
                                                     return factory->create(typeId);
                                                 },
                                                 "");
-#else
-    communicator->getValueFactoryManager()->add(factory, "");
-#endif
 
     cout << "testing stringToProxy... " << flush;
     string ref = "initial:" + helper->getTestEndpoint();

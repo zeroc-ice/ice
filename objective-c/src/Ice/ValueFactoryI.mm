@@ -18,13 +18,13 @@ class UnknownSlicedValueFactoryI : public Ice::ValueFactory
 {
 public:
 
-    virtual Ice::ValuePtr
+    virtual std::shared_ptr<Ice::Value>
     create(const std::string&)
     {
         ICEUnknownSlicedValue* obj = [[ICEUnknownSlicedValue alloc] init];
-        Ice::ValuePtr o = [ICEInputStream createObjectReader:obj];
+        std::shared_ptr<Ice::Value> v([ICEInputStream createObjectReader:obj]);
         [obj release];
-        return o;
+        return v;
     }
 };
 
@@ -45,7 +45,7 @@ public:
         CFRelease(_prefixTable);
     }
 
-    virtual Ice::ValuePtr
+    virtual std::shared_ptr<Ice::Value>
     create(const std::string& type)
     {
         NSString* sliceId = [[NSString alloc] initWithUTF8String:type.c_str()];
@@ -82,13 +82,13 @@ public:
                 }
             }
 
-            Ice::ValuePtr o;
+            std::shared_ptr<Ice::Value> v;
             if(obj != nil)
             {
-                o = [ICEInputStream createObjectReader:obj];
+                v.reset([ICEInputStream createObjectReader:obj]);
                 [obj release];
             }
-            return o;
+            return v;
         }
         @catch(id exc)
         {
@@ -124,8 +124,8 @@ private:
 
     valueFactories_ = [[NSMutableDictionary alloc] init];
 
-    com->getValueFactoryManager()->add(new IceObjC::UnknownSlicedValueFactoryI, "::Ice::Object");
-    com->getValueFactoryManager()->add(new IceObjC::ValueFactoryI(valueFactories_, prefixTable), "");
+    com->getValueFactoryManager()->add(std::make_shared<IceObjC::UnknownSlicedValueFactoryI>(), "::Ice::Object");
+    com->getValueFactoryManager()->add(std::make_shared<IceObjC::ValueFactoryI>(valueFactories_, prefixTable), "");
 
     return self;
 }

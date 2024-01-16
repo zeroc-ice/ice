@@ -34,14 +34,6 @@ public:
 #endif
 };
 
-#ifndef ICE_CPP11_MAPPING // C++98
-class ValueFactoryI : public virtual Ice::ValueFactory
-{
-public:
-    virtual Ice::ValuePtr create(const string&) { return 0; }
-};
-#endif
-
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -630,7 +622,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing value factory registration exception... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         communicator->getValueFactoryManager()->add(
             [](const std::string&)
             {
@@ -650,18 +641,6 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::AlreadyRegisteredException&)
         {
         }
-#else
-        Ice::ValueFactoryPtr vf = new ValueFactoryI;
-        communicator->getValueFactoryManager()->add(vf, "x");
-        try
-        {
-            communicator->getValueFactoryManager()->add(vf, "x");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException&)
-        {
-        }
-#endif
     }
     cout << "ok" << endl;
 
