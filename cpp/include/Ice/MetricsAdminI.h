@@ -597,7 +597,7 @@ public:
             }
             factory = ::std::dynamic_pointer_cast<MetricsMapFactoryT<MetricsType>>(p->second);
 
-            // TODO: what does this do?
+            // use 'template' keyword to treat 'registerSubMap' as a dependent template name
             factory->template registerSubMap<MemberMetricsType>(subMap, member);
             removeMap(map);
             updated = addOrUpdateMap(map, factory);
