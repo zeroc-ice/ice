@@ -7,7 +7,6 @@
 
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
-#include <Ice/ServantLocatorF.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
@@ -57,6 +56,11 @@ protected:
 
 #endif
 
+namespace Ice
+{
+    class ServantLocator;
+}
+
 namespace IceInternal
 {
 
@@ -93,11 +97,7 @@ protected:
     Ice::Current _current;
     std::shared_ptr<Ice::Object> _servant;
     std::shared_ptr<Ice::ServantLocator> _locator;
-#ifdef ICE_CPP11_MAPPING
     ::std::shared_ptr<void> _cookie;
-#else
-    Ice::LocalObjectPtr _cookie;
-#endif
     DispatchObserver _observer;
     bool _response;
     Ice::Byte _compress;

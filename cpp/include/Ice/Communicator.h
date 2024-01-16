@@ -872,6 +872,11 @@ public:
      */
     virtual void addAdminFacet(const std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
 
+    inline void addAdminFacet(const SharedPtr<Object>& servant, const ::std::string& facet)
+    {
+        addAdminFacet(servant.underlying(), facet);
+    }
+
     /**
      * Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
      * NotRegisteredException.

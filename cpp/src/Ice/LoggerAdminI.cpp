@@ -115,7 +115,7 @@ private:
     CommunicatorPtr _sendLogCommunicator;
     bool _destroyed;
 };
-ICE_DEFINE_SHARED_PTR(LoggerAdminIPtr, LoggerAdminI);
+using LoggerAdminIPtr = std::shared_ptr<LoggerAdminI>;
 
 class Job : public IceUtil::Shared
 {
@@ -752,11 +752,7 @@ LoggerAdminLoggerI::cloneWithPrefix(const string& prefix)
 std::shared_ptr<Ice::Object>
 LoggerAdminLoggerI::getFacet() const
 {
-#ifdef ICE_CPP11_MAPPING
     return _loggerAdmin;
-#else
-    return _loggerAdmin.underlying();
-#endif
 }
 
 void

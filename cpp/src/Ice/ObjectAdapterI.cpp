@@ -252,7 +252,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
                  factory->destroy();
              });
 
-    _instance->outgoingConnectionFactory()->removeAdapter(ICE_SHARED_FROM_THIS);
+    _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -347,7 +347,7 @@ Ice::ObjectAdapterI::destroy() noexcept
 
     if(_objectAdapterFactory)
     {
-        _objectAdapterFactory->removeObjectAdapter(ICE_SHARED_FROM_THIS);
+        _objectAdapterFactory->removeObjectAdapter(shared_from_this());
     }
 
     {
@@ -883,7 +883,7 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     checkForDeactivation();
-    connection->setAdapterAndServantManager(ICE_SHARED_FROM_THIS, _servantManager);
+    connection->setAdapterAndServantManager(shared_from_this(), _servantManager);
 }
 
 //
@@ -1014,7 +1014,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
             // Associate this object adapter with the router. This way, new outgoing connections
             // to the router's client proxy will use this object adapter for callbacks.
             //
-            _routerInfo->setAdapter(ICE_SHARED_FROM_THIS);
+            _routerInfo->setAdapter(shared_from_this());
 
             //
             // Also modify all existing outgoing connections to the router's client proxy to use
@@ -1040,7 +1040,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
                                                                            _instance,
                                                                            *q,
                                                                            publishedEndpoint,
-                                                                           ICE_SHARED_FROM_THIS);
+                                                                           shared_from_this());
                     factory->initialize();
                     _incomingConnectionFactories.push_back(factory);
                 }

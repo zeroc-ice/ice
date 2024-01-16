@@ -52,7 +52,7 @@ private:
 
 }
 
-ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(ICE_MAKE_SHARED(RouterI))
+ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(make_shared<RouterI>())
 {
 }
 
@@ -61,12 +61,8 @@ ServantLocatorI::~ServantLocatorI()
     test(_deactivated);
 }
 
-Ice::ObjectPtr
-#ifdef ICE_CPP11_MAPPING
+std::shared_ptr<Ice::Object>
 ServantLocatorI::locate(const Ice::Current& current, std::shared_ptr<void>& cookie)
-#else
-ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
-#endif
 {
     test(!_deactivated);
 
@@ -78,17 +74,13 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
     test(current.id.category == "");
     test(current.id.name == "test");
 
-    cookie = ICE_MAKE_SHARED(Cookie);
+    cookie = make_shared<Cookie>();
 
-    return ICE_MAKE_SHARED(TestI);
+    return make_shared<TestI>();
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
-ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, const std::shared_ptr<void>& cookie)
-#else
-ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, const Ice::LocalObjectPtr& cookie)
-#endif
+ServantLocatorI::finished(const Ice::Current& current, const shared_ptr<Ice::Object>&, const std::shared_ptr<void>& cookie)
 {
     test(!_deactivated);
     if(current.id.name == "router")
@@ -96,11 +88,7 @@ ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, co
         return;
     }
 
-#ifdef ICE_CPP11_MAPPING
     shared_ptr<Cookie> co = static_pointer_cast<Cookie>(cookie);
-#else
-    CookiePtr co = CookiePtr::dynamicCast(cookie);
-#endif
     test(co);
     test(co->message() == "blahblah");
 }

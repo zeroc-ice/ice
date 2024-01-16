@@ -131,7 +131,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         if(name.empty())
         {
             string uuid = Ice::generateUUID();
-            adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, uuid, true);
+            adapter = make_shared<ObjectAdapterI>(_instance, _communicator, ICE_SHARED_FROM_THIS, uuid, true);
         }
         else
         {
@@ -139,7 +139,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
             {
                 throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
             }
-            adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, name, false);
+            adapter = make_shared<ObjectAdapterI>(_instance, _communicator, ICE_SHARED_FROM_THIS, name, false);
             _adapterNamesInUse.insert(name);
         }
     }

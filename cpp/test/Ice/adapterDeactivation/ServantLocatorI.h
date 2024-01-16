@@ -7,26 +7,21 @@
 
 #include <Ice/Ice.h>
 
-class ServantLocatorI : public Ice::ServantLocator
+class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
 
     ServantLocatorI();
-    virtual ~ServantLocatorI();
+    ~ServantLocatorI() final;
 
-#ifdef ICE_CPP11_MAPPING
-    virtual Ice::ObjectPtr locate(const Ice::Current&, ::std::shared_ptr<void>&);
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const ::std::shared_ptr<void>&);
-#else
-    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-#endif
-    virtual void deactivate(const std::string&);
+    std::shared_ptr<Ice::Object> locate(const Ice::Current&, ::std::shared_ptr<void>&) final;
+    void finished(const Ice::Current&, const std::shared_ptr<Ice::Object>&, const ::std::shared_ptr<void>&) final;
+    void deactivate(const std::string&) final;
 
 public:
 
     bool _deactivated;
-    Ice::ObjectPtr _router;
+    std::shared_ptr<Ice::Object> _router;
 };
 
 #endif

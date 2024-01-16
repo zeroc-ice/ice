@@ -685,12 +685,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
             {
                 try
                 {
-// TODO: temporary. We should wrap the Original ServantLocator in a New ServantLocator
-#ifdef ICE_CPP11_MAPPING
                     _servant = _locator->locate(_current, _cookie);
-#else
-                    _servant = _locator->locate(_current, _cookie).underlying();
-#endif
                 }
                 catch(const std::exception& ex)
                 {

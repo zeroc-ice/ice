@@ -9,7 +9,6 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/ServantLocatorF.h>
 #include <Ice/Identity.h>
 #include <Ice/FacetMap.h>
 
@@ -17,6 +16,7 @@ namespace Ice
 {
 
 class ObjectAdapterI;
+class ServantLocator;
 
 }
 
