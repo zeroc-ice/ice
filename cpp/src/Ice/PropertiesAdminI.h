@@ -38,9 +38,10 @@ public:
 #endif
 
     std::function<void()> addUpdateCallback(std::function<void(const Ice::PropertyDict&)>) final;
-    void removeUpdateCallback(std::list<std::function<void(const Ice::PropertyDict&)>>::iterator);
 
 private:
+
+    void removeUpdateCallback(std::list<std::function<void(const Ice::PropertyDict&)>>::iterator);
 
     const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
