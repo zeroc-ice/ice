@@ -8,10 +8,7 @@
 #include <Test.h>
 
 class TestFacetI : public virtual ::Test::TestFacet,
-#ifndef ICE_CPP11_MAPPING
-                   public virtual Ice::PropertiesAdminUpdateCallback,
-#endif
-                   IceUtil::Monitor<IceUtil::Mutex>
+                   private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 

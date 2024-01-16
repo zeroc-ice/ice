@@ -583,9 +583,6 @@ private:
 ICE_DEFINE_PTR(MetricsViewIPtr, MetricsViewI);
 
 class ICE_API MetricsAdminI : public IceMX::MetricsAdmin,
-#ifndef ICE_CPP11_MAPPING
-                              public Ice::PropertiesAdminUpdateCallback,
-#endif
                               private IceUtil::Mutex
 {
 public:
