@@ -255,15 +255,14 @@
 -(void) removeUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
     IceUtil::Mutex::Lock sync(mutex_);
-    for (std::vector<std::pair<id, std::function<void()>>>::iterator p = callbacks_.begin(); p != callbacks_.end(); ++p)
+
+    // Each removeUpdateCallback only removes the first occurrence
+    auto p = std::find_if(callbacks_.begin(), callbacks_.end(), [cb](const auto& q) { return q.first == cb; });
+    if (p != callbacks_.end())
     {
-        if(p->first == cb)
-        {
-            p->second();
-            [cb release];
-            callbacks_.erase(p);
-            break; // each removeUpdateCallback only removes the first occurrence
-        }
+        p->second();
+        [cb release];
+        callbacks_.erase(p);
     }
 }
 @end

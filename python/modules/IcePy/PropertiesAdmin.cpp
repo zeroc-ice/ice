@@ -104,16 +104,16 @@ nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject*
         return 0;
     }
 
-    for(vector<pair<PyObject*, function<void()>>>::const_iterator p = (*self->callbacks).begin(); p != (*self->callbacks).end();
-        ++p)
+    auto& callbacks = *self->callbacks;
+
+    auto p = std::find_if(callbacks.begin(), callbacks.end(), [callback](const auto& q) { return q.first == callback; });
+    if (p != callbacks.end())
     {
-        if (p->first == callback)
-        {
-            p->second();
-            Py_DECREF(callback);
-            break;
-        }
+        p->second();
+        Py_DECREF(callback);
+        callbacks.erase(p);
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
