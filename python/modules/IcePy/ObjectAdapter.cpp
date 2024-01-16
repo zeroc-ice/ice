@@ -308,6 +308,7 @@ extern "C"
 static void
 adapterDealloc(ObjectAdapterObject* self)
 {
+
     delete self->adapter;
 
     delete self->deactivateThread;
@@ -379,7 +380,6 @@ adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
         self->held = false;
         if(self->holdThread)
         {
-            self->holdThread->join();
             delete self->holdThread;
             self->holdThread = 0;
         }

@@ -80,7 +80,7 @@ public:
         _mutex(mutex),
         _cond(cond),
         _done(done),
-        _ex(nullptr),
+        _ex(0),
         _thread([this] { run(); })
     {
     }
@@ -104,11 +104,6 @@ public:
     {
         _thread.join();
         delete _ex;
-    }
-
-    void join()
-    {
-        _thread.join();
     }
 
     Ice::Exception* getException() const

@@ -49,8 +49,8 @@ struct CommunicatorObject
     Ice::CommunicatorPtr* communicator;
     PyObject* wrapper;
     std::mutex* shutdownMutex;
-    std::condition_variable* shutdownCondVar;
-    InvokeThread* shutdownThread;
+    std::condition_variable *shutdownCond;
+    InvokeThread *shutdownThread;
     bool shutdown;
     DispatcherPtr* dispatcher;
 };
@@ -72,7 +72,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->communicator = 0;
     self->wrapper = 0;
     self->shutdownMutex = new std::mutex;
-    self->shutdownCondVar = new std::condition_variable;
+    self->shutdownCond = new std::condition_variable;
     self->shutdownThread = 0;
     self->shutdown = false;
     self->dispatcher = 0;
@@ -365,7 +365,7 @@ communicatorDealloc(CommunicatorObject* self)
 
     delete self->communicator;
     delete self->shutdownThread;
-    delete self->shutdownCondVar;
+    delete self->shutdownCond;
     delete self->shutdownMutex;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
@@ -475,7 +475,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
             {
                 self->shutdownThread = new InvokeThread([self] { (*self->communicator)->waitForShutdown(); },
                                                         self->shutdownMutex,
-                                                        self->shutdownCondVar,
+                                                        self->shutdownCond,
                                                         self->shutdown);
             }
 
@@ -484,7 +484,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                 std::cv_status status;
                 {
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    status = self->shutdownCondVar->wait_for(lock, std::chrono::milliseconds(timeout));
+                    status = self->shutdownCond->wait_for(lock, std::chrono::milliseconds(timeout));
                 }
 
                 if(status == std::cv_status::timeout)
