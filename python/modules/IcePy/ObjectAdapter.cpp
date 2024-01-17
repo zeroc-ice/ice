@@ -37,12 +37,12 @@ struct ObjectAdapterObject
     Ice::ObjectAdapterPtr* adapter;
 
     std::future<void>* deactivateFuture;
-    std::optional<Ice::Exception *>* deactivateException;
+    std::exception_ptr* deactivateException;
     bool deactivated;
 
     std::mutex* holdMutex;
     std::future<void>* holdFuture;
-    std::optional<Ice::Exception *>* holdException;
+    std::exception_ptr* holdException;
     bool held;
 };
 
@@ -314,18 +314,10 @@ adapterDealloc(ObjectAdapterObject* self)
 
     delete self->adapter;
 
-    if (self->deactivateException->has_value())
-    {
-        delete self->deactivateException->value();
-    }
     delete self->deactivateException;
     delete self->deactivateFuture;
 
     delete self->holdMutex;
-    if (self->holdException->has_value())
-    {
-        delete self->holdException->value();
-    }
     delete self->holdException;
     delete self->holdFuture;
 
@@ -484,17 +476,24 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
                 {
                     self->holdFuture->get();
                 }
-                catch(const Ice::Exception& ex)
+                catch(const Ice::Exception&)
                 {
-                    *self->holdException = ex.ice_clone();
+                    *self->holdException = current_exception();
                 }
             }
         }
 
-        assert(self->helf);
-        if(self->holdException->has_value())
+        assert(self->held);
+        if(*self->holdException)
         {
-            setPythonException(*self->holdException->value());
+            try
+            {
+                std::rethrow_exception(*self->holdException);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                setPythonException(ex);
+            }
             return 0;
         }
     }
@@ -594,17 +593,24 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
                 {
                     self->deactivateFuture->get();
                 }
-                catch(const Ice::Exception& ex)
+                catch(const Ice::Exception&)
                 {
-                    *self->deactivateException = ex.ice_clone();
+                    *self->deactivateException = current_exception();
                 }
             }
         }
 
         assert(self->shutdown);
-        if(self->deactivateException->has_value())
+        if(*self->deactivateException)
         {
-            setPythonException(*self->deactivateException->value());
+            try
+            {
+                std::rethrow_exception(*self->deactivateException);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                setPythonException(ex);
+            }
             return 0;
         }
     }
@@ -1849,12 +1855,12 @@ IcePy::createObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     {
         obj->adapter = new Ice::ObjectAdapterPtr(adapter);
 
-        obj->deactivateException = new std::optional<Ice::Exception*>();
+        obj->deactivateException = new exception_ptr;
         obj->deactivateFuture = nullptr;
         obj->deactivated = false;
 
         obj->holdMutex = new std::mutex;
-        obj->holdException = new std::optional<Ice::Exception*>();
+        obj->holdException = new exception_ptr;
         obj->holdFuture = nullptr;
         obj->held = false;
     }

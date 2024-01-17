@@ -51,7 +51,7 @@ struct CommunicatorObject
     Ice::CommunicatorPtr* communicator;
     PyObject* wrapper;
     std::future<void>* shutdownFuture;
-    std::optional<Ice::Exception *>* shutdownException;
+    std::exception_ptr* shutdownException;
     bool shutdown;
     DispatcherPtr* dispatcher;
 };
@@ -73,7 +73,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->communicator = 0;
     self->wrapper = 0;
     self->shutdownFuture = nullptr;
-    self->shutdownException = new std::optional<Ice::Exception*>();
+    self->shutdownException = new exception_ptr;
     self->shutdown = false;
     self->dispatcher = 0;
     return self;
@@ -364,10 +364,6 @@ communicatorDealloc(CommunicatorObject* self)
     }
 
     delete self->communicator;
-    if (self->shutdownException->has_value())
-    {
-        delete self->shutdownException->value();
-    }
     delete self->shutdownException;
     delete self->shutdownFuture;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject *>(self));
@@ -497,17 +493,24 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                 {
                     self->shutdownFuture->get();
                 }
-                catch(const Ice::Exception& ex)
+                catch(const Ice::Exception&)
                 {
-                    *self->shutdownException = ex.ice_clone();
+                    *self->shutdownException = current_exception();
                 }
             }
         }
 
         assert(self->shutdown);
-        if(self->shutdownException->has_value())
+        if(*self->shutdownException)
         {
-            setPythonException(*self->shutdownException->value());
+            try
+            {
+                std::rethrow_exception(*self->shutdownException);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                setPythonException(ex);
+            }
             return 0;
         }
     }
