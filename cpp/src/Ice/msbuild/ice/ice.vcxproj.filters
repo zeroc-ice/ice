@@ -101,9 +101,6 @@
     <ClCompile Include="Win32\Debug\Locator.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\LocatorF.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\Metrics.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Router.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\RouterF.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Version.cpp">
@@ -137,9 +131,6 @@
     <ClCompile Include="x64\Debug\Locator.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\LocatorF.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\Metrics.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
@@ -153,9 +144,6 @@
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Router.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\RouterF.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Version.cpp">
@@ -173,9 +161,6 @@
     <ClCompile Include="Win32\Release\Locator.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\LocatorF.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Release\Metrics.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
@@ -189,9 +174,6 @@
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Router.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\RouterF.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Version.cpp">
@@ -209,9 +191,6 @@
     <ClCompile Include="x64\Release\Locator.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\LocatorF.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\Metrics.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
@@ -225,9 +204,6 @@
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Router.cpp">
-      <Filter>Source Files\x64\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\RouterF.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\Version.cpp">
@@ -705,9 +681,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Locator.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\LocatorF.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Metrics.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -721,9 +694,6 @@
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Router.h">
-      <Filter>Header Files\Win32\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\RouterF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\Ice\Version.h">
@@ -741,9 +711,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Locator.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\LocatorF.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Metrics.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
@@ -757,9 +724,6 @@
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Router.h">
-      <Filter>Header Files\x64\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\RouterF.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\Ice\Version.h">
@@ -777,9 +741,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Locator.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\LocatorF.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Metrics.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
@@ -793,9 +754,6 @@
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Router.h">
-      <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\RouterF.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\Ice\Version.h">
@@ -813,9 +771,6 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Locator.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\LocatorF.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Metrics.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
@@ -829,9 +784,6 @@
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Router.h">
-      <Filter>Header Files\x64\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\RouterF.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\Ice\Version.h">
@@ -890,9 +842,6 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Locator.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\LocatorF.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Metrics.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
@@ -906,9 +855,6 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Router.ice">
-      <Filter>Slice Files</Filter>
-    </SliceCompile>
-    <SliceCompile Include="..\..\..\..\..\slice\Ice\RouterF.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Version.ice">
