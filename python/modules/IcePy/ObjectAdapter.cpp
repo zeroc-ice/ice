@@ -588,7 +588,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
             }
         }
 
-        assert(self->shutdown);
+        assert(self->deactivated);
         if(self->deactivateException)
         {
             setPythonException(*self->deactivateException);
