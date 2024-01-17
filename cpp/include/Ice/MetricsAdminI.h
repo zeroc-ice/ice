@@ -647,6 +647,7 @@ private:
     const Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
 };
+
 using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
 
 };
