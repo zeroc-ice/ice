@@ -37,6 +37,10 @@ public:
     {
     }
 
+    SharedPtr(const std::shared_ptr<T>& r) noexcept : _ptr(r)
+    {
+    }
+
     ~SharedPtr() = default;
 
     SharedPtr& operator=(T* p) noexcept
@@ -83,7 +87,13 @@ public:
     template<class Y>
     static SharedPtr dynamicCast(const SharedPtr<Y>& r) noexcept
     {
-        return SharedPtr(std::dynamic_pointer_cast<T>(r.underlying()));
+        return dynamicCast(r.underlying());
+    }
+
+    template<class Y>
+    static SharedPtr dynamicCast(const std::shared_ptr<Y>& r) noexcept
+    {
+        return SharedPtr(std::dynamic_pointer_cast<T>(r));
     }
 
 private:

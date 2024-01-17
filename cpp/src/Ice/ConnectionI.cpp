@@ -2251,7 +2251,7 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
                               const TransceiverPtr& transceiver,
                               const ConnectorPtr& connector,
                               const EndpointIPtr& endpoint,
-                              const ObjectAdapterIPtr& adapter) :
+                              const shared_ptr<ObjectAdapterI>& adapter) :
     _communicator(communicator),
     _instance(instance),
     _monitor(monitor),
@@ -2316,7 +2316,7 @@ Ice::ConnectionI::create(const CommunicatorPtr& communicator,
                          const TransceiverPtr& transceiver,
                          const ConnectorPtr& connector,
                          const EndpointIPtr& endpoint,
-                         const ObjectAdapterIPtr& adapter)
+                         const shared_ptr<ObjectAdapterI>& adapter)
 {
     Ice::ConnectionIPtr conn(new ConnectionI(communicator, instance, monitor, transceiver, connector,
                                              endpoint, adapter));

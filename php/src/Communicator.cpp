@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <mutex>
 #include <thread>
 
 #ifdef getcwd

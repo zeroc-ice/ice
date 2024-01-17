@@ -1074,10 +1074,10 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
         // (e.g., it could be the Process or Properties facet), in which case
         // we return None.
         //
-        Ice::ObjectPtr obj = (*self->communicator)->findAdminFacet(facet);
+        shared_ptr<Ice::Object> obj = (*self->communicator)->findAdminFacet(facet);
         if(obj)
         {
-            ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+            ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
             if(wrapper)
             {
                 return wrapper->getObject();
@@ -1136,7 +1136,7 @@ communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
 
         PyObjectHandle obj = plainObject;
 
-        ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(p->second);
+        ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         if(wrapper)
         {
             obj = wrapper->getObject();
@@ -1185,9 +1185,9 @@ communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
         // (e.g., it could be the Process or Properties facet), in which case
         // we return None.
         //
-        Ice::ObjectPtr obj = (*self->communicator)->removeAdminFacet(facet);
+        shared_ptr<Ice::Object> obj = (*self->communicator)->removeAdminFacet(facet);
         assert(obj);
-        ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+        ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
         if(wrapper)
         {
             return wrapper->getObject();

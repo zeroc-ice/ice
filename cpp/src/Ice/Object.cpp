@@ -49,11 +49,7 @@ Ice::Request::~Request()
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 Ice::Object::ice_isA(string s, const Current&) const
-#else
-Ice::Object::ice_isA(const string& s, const Current&) const
-#endif
 {
     return s == object_ids[0];
 }
@@ -70,17 +66,13 @@ Ice::Object::ice_ids(const Current&) const
     return vector<string>(&object_ids[0], &object_ids[1]);
 }
 
-#ifdef ICE_CPP11_MAPPING
 string
-#else
-const string&
-#endif
 Ice::Object::ice_id(const Current&) const
 {
     return object_ids[0];
 }
 
-const ::std::string&
+const string&
 Ice::Object::ice_staticId()
 {
     return object_ids[0];
@@ -93,11 +85,7 @@ Ice::Object::_iceD_ice_isA(Incoming& inS, const Current& current)
     string iceP_id;
     istr->read(iceP_id, false);
     inS.endReadParams();
-#ifdef ICE_CPP11_MAPPING
     bool ret = ice_isA(std::move(iceP_id), current);
-#else
-    bool ret = ice_isA(iceP_id, current);
-#endif
     OutputStream* ostr = inS.startWriteParams();
     ostr->write(ret);
     inS.endWriteParams();

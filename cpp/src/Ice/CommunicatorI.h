@@ -116,9 +116,9 @@ public:
 
     virtual ObjectPrxPtr createAdmin(const ObjectAdapterPtr&, const Identity&);
     virtual ObjectPrxPtr getAdmin() const;
-    virtual void addAdminFacet(const ObjectPtr&, const std::string&);
-    virtual ObjectPtr removeAdminFacet(const std::string&);
-    virtual ObjectPtr findAdminFacet(const std::string&);
+    virtual void addAdminFacet(const std::shared_ptr<Object>&, const std::string&);
+    virtual std::shared_ptr<Object> removeAdminFacet(const std::string&);
+    virtual std::shared_ptr<Object> findAdminFacet(const std::string&);
     virtual FacetMap findAllAdminFacets();
 
     virtual ~CommunicatorI();

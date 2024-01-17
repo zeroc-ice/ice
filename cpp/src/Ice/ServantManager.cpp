@@ -16,7 +16,7 @@ using namespace IceInternal;
 ICE_API IceUtil::Shared* IceInternal::upCast(ServantManager* p) { return p; }
 
 void
-IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
+IceInternal::ServantManager::addServant(const shared_ptr<Object>& object, const Identity& ident, const string& facet)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -50,11 +50,11 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 
     _servantMapMapHint = p;
 
-    p->second.insert(pair<const string, ObjectPtr>(facet, object));
+    p->second.insert(pair<const string, shared_ptr<Object>>(facet, object));
 }
 
 void
-IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const string& category)
+IceInternal::ServantManager::addDefaultServant(const shared_ptr<Object>& object, const string& category)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -66,10 +66,10 @@ IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const st
         throw AlreadyRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
 
-    _defaultServantMap.insert(pair<const string, ObjectPtr>(category, object));
+    _defaultServantMap.insert(pair<const string, shared_ptr<Object>>(category, object));
 }
 
-ObjectPtr
+shared_ptr<Object>
 IceInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
 {
     //
@@ -77,7 +77,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     // with *this locked. We don't want to run user code, such as the servant
     // destructor, with an internal Ice mutex locked.
     //
-    ObjectPtr servant = 0;
+    shared_ptr<Object> servant = 0;
 
     IceUtil::Mutex::Lock sync(*this);
 
@@ -121,7 +121,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     return servant;
 }
 
-ObjectPtr
+shared_ptr<Object>
 IceInternal::ServantManager::removeDefaultServant(const string& category)
 {
     //
@@ -129,7 +129,7 @@ IceInternal::ServantManager::removeDefaultServant(const string& category)
     // with *this locked. We don't want to run user code, such as the servant
     // destructor, with an internal Ice mutex locked.
     //
-    ObjectPtr servant = 0;
+    shared_ptr<Object> servant = 0;
 
     IceUtil::Mutex::Lock sync(*this);
 
@@ -182,7 +182,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     return result;
 }
 
-ObjectPtr
+shared_ptr<Object>
 IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -232,7 +232,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
     }
 }
 
-ObjectPtr
+shared_ptr<Object>
 IceInternal::ServantManager::findDefaultServant(const string& category) const
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -309,7 +309,7 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
 }
 
 void
-IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator, const string& category)
+IceInternal::ServantManager::addServantLocator(const shared_ptr<ServantLocator>& locator, const string& category)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -321,17 +321,17 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
         throw AlreadyRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
-    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
+    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, shared_ptr<ServantLocator>>(category, locator));
 }
 
-ServantLocatorPtr
+shared_ptr<ServantLocator>
 IceInternal::ServantManager::removeServantLocator(const string& category)
 {
     IceUtil::Mutex::Lock sync(*this);
 
     assert(_instance); // Must not be called after destruction.
 
-    map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
+    map<string, shared_ptr<ServantLocator>>::iterator p = _locatorMap.end();
     if(_locatorMapHint != p)
     {
         if(_locatorMapHint->first == category)
@@ -350,13 +350,13 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
         throw NotRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
-    ServantLocatorPtr locator = p->second;
+    shared_ptr<ServantLocator> locator = p->second;
     _locatorMap.erase(p);
     _locatorMapHint = _locatorMap.begin();
     return locator;
 }
 
-ServantLocatorPtr
+shared_ptr<ServantLocator>
 IceInternal::ServantManager::findServantLocator(const string& category) const
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -369,10 +369,10 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     //
     //assert(_instance); // Must not be called after destruction.
 
-    map<string, ServantLocatorPtr>& locatorMap =
-        const_cast<map<string, ServantLocatorPtr>&>(_locatorMap);
+    map<string, shared_ptr<ServantLocator>>& locatorMap =
+        const_cast<map<string, shared_ptr<ServantLocator>>&>(_locatorMap);
 
-    map<string, ServantLocatorPtr>::iterator p = locatorMap.end();
+    map<string, shared_ptr<ServantLocator>>::iterator p = locatorMap.end();
     if(_locatorMapHint != locatorMap.end())
     {
         if(_locatorMapHint->first == category)
@@ -420,7 +420,7 @@ IceInternal::ServantManager::destroy()
 {
     ServantMapMap servantMapMap;
     DefaultServantMap defaultServantMap;
-    map<string, ServantLocatorPtr> locatorMap;
+    map<string, shared_ptr<ServantLocator>> locatorMap;
     Ice::LoggerPtr logger;
 
     {
@@ -446,7 +446,7 @@ IceInternal::ServantManager::destroy()
         _instance = 0;
     }
 
-    for(map<string, ServantLocatorPtr>::const_iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
+    for(map<string, shared_ptr<ServantLocator>>::const_iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
     {
         try
         {
