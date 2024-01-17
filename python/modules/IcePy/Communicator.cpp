@@ -28,6 +28,8 @@
 
 #include <pythread.h>
 
+#include <future>
+
 using namespace std;
 using namespace IcePy;
 
@@ -49,8 +51,8 @@ struct CommunicatorObject
     Ice::CommunicatorPtr* communicator;
     PyObject* wrapper;
     std::mutex* shutdownMutex;
-    std::condition_variable *shutdownCond;
-    InvokeThread *shutdownThread;
+    std::future<void>* shutdownFuture;
+    std::optional<Ice::Exception *>* shutdownException;
     bool shutdown;
     DispatcherPtr* dispatcher;
 };
@@ -71,9 +73,9 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     }
     self->communicator = 0;
     self->wrapper = 0;
-    self->shutdownMutex = new std::mutex;
-    self->shutdownCond = new std::condition_variable;
-    self->shutdownThread = 0;
+    self->shutdownMutex = new std::mutex();
+    self->shutdownFuture = nullptr;
+    self->shutdownException = new std::optional<Ice::Exception*>();
     self->shutdown = false;
     self->dispatcher = 0;
     return self;
@@ -364,10 +366,14 @@ communicatorDealloc(CommunicatorObject* self)
     }
 
     delete self->communicator;
-    delete self->shutdownThread;
-    delete self->shutdownCond;
     delete self->shutdownMutex;
-    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
+    if (self->shutdownException->has_value())
+    {
+        delete self->shutdownException->value();
+    }
+    delete self->shutdownException;
+    delete self->shutdownFuture;
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject *>(self));
 }
 
 #ifdef WIN32
@@ -467,39 +473,47 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
     //
     if(PyThread_get_thread_ident() == _mainThreadId)
     {
-        std::unique_lock<std::mutex> lock(*self->shutdownMutex);
+        std::lock_guard<std::mutex> lock(*self->shutdownMutex);
 
         if(!self->shutdown)
         {
-            if(self->shutdownThread == 0)
+            if(self->shutdownFuture == nullptr)
             {
-                self->shutdownThread = new InvokeThread([self] { (*self->communicator)->waitForShutdown(); },
-                                                        self->shutdownMutex,
-                                                        self->shutdownCond,
-                                                        self->shutdown);
+                self->shutdownFuture = new std::future<void>();
+                *self->shutdownFuture = std::async(std::launch::async,
+                                                   [&self]
+                                                   {
+                                                       (*self->communicator)->waitForShutdown();
+                                                   });
             }
 
-            while(!self->shutdown)
+            if(!self->shutdown)
             {
-                std::cv_status status;
                 {
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    status = self->shutdownCond->wait_for(lock, std::chrono::milliseconds(timeout));
+                    if(self->shutdownFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
+                    {
+                        PyRETURN_FALSE;
+                    }
                 }
 
-                if(status == std::cv_status::timeout)
+                self->shutdown = true;
+                try
                 {
-                    PyRETURN_FALSE;
+                    self->shutdownFuture->get();
+                    assert(self->shutdownException->valid());
+                }
+                catch(const Ice::Exception& ex)
+                {
+                    *self->shutdownException = ex.ice_clone();
                 }
             }
         }
 
         assert(self->shutdown);
-
-        Ice::Exception* ex = self->shutdownThread->getException();
-        if(ex)
+        if(self->shutdownException->has_value())
         {
-            setPythonException(*ex);
+            setPythonException(*self->shutdownException->value());
             return 0;
         }
     }
