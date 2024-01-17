@@ -13,7 +13,9 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
+
 #include <fstream>
+#include <mutex>
 
 #ifdef getcwd
 #  undef getcwd
