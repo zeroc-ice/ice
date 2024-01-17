@@ -1959,14 +1959,13 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
             }
             case Slice::Builtin::KindString:
             {
-                string sv2 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", Octal, 0);
-                string sv3 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", UCN, 0);
+                const string controlChars = "\a\b\f\n\r\t\v";
+                const unsigned char cutOff = 0;
+                
+                string sv2 = toStringLiteral(value, controlChars, "", Octal, cutOff);
+                string sv3 = toStringLiteral(value, controlChars, "", UCN, cutOff);
 
-                _out << "\"" << sv2<< "\"";
-                if(sv2 != sv3)
-                {
-                    _out << " if _version_info_[0] < 3 else \"" << sv3 << "\"";
-                }
+                _out << "\"" << (sv2 == sv3 ? sv2 : sv3) << "\"";
                 break;
             }
             case Slice::Builtin::KindValue:
@@ -2843,7 +2842,6 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
 
-    out << nl << "from sys import version_info as _version_info_";
     out << nl << "import Ice, IcePy";
 
     if(!all)
