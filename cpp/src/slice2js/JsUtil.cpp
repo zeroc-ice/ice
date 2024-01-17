@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <JsUtil.h>
+#include "JsUtil.h"
 #include <Slice/Util.h>
 #include <IceUtil/StringUtil.h>
+
+#include <algorithm>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
-#endif
-
-#ifndef _WIN32
-#include <unistd.h>
+#   include <direct.h>
+#else
+#   include <unistd.h>
 #endif
 
 // TODO: fix this warning!
@@ -162,13 +162,13 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
         "ice"         // Ice.Object
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         return builtinModuleTable[builtin->kind()];
     }
 
-    return getModuleMetadata(ContainedPtr::dynamicCast(type));
+    return getModuleMetadata(dynamic_pointer_cast<Contained>(type));
 }
 
 string
@@ -187,9 +187,9 @@ Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
 bool
 Slice::JsGenerator::isClassType(const TypePtr& type)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     return (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
-        ClassDeclPtr::dynamicCast(type);
+        dynamic_pointer_cast<ClassDecl>(type);
 }
 
 //
@@ -236,33 +236,33 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
                                  const ContainedPtr& toplevel,
                                  const vector<pair<string, string> >& imports)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         return typeToString(type, toplevel, imports, true);
     }
-    else if(InterfaceDeclPtr::dynamicCast(type))
+    else if(dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
-        return importPrefix(ContainedPtr::dynamicCast(proxy), toplevel, imports);
+        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
+        return importPrefix(dynamic_pointer_cast<Contained>(proxy), toplevel, imports);
     }
-    else if(ContainedPtr::dynamicCast(type))
+    else if(dynamic_pointer_cast<Contained>(type))
     {
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         if(cl)
         {
             if(cl->definition())
             {
-                return importPrefix(ContainedPtr::dynamicCast(cl->definition()), toplevel, imports);
+                return importPrefix(dynamic_pointer_cast<Contained>(cl->definition()), toplevel, imports);
             }
             else
             {
-                return importPrefix(ContainedPtr::dynamicCast(cl), toplevel, imports, getDefinedIn(cl));
+                return importPrefix(dynamic_pointer_cast<Contained>(cl), toplevel, imports, getDefinedIn(cl));
             }
         }
         else
         {
-            return importPrefix(ContainedPtr::dynamicCast(type), toplevel, imports);
+            return importPrefix(dynamic_pointer_cast<Contained>(type), toplevel, imports);
         }
     }
     return "";
@@ -397,7 +397,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         "Ice.Value"
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         if(typescript)
@@ -417,7 +417,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         string prefix;
@@ -426,11 +426,11 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         {
             if(cl->definition())
             {
-                prefix = importPrefix(ContainedPtr::dynamicCast(cl->definition()), toplevel, imports);
+                prefix = importPrefix(dynamic_pointer_cast<Contained>(cl->definition()), toplevel, imports);
             }
             else
             {
-                prefix = importPrefix(ContainedPtr::dynamicCast(cl), toplevel, imports, getDefinedIn(cl));
+                prefix = importPrefix(dynamic_pointer_cast<Contained>(cl), toplevel, imports, getDefinedIn(cl));
             }
         }
         os << prefix;
@@ -445,7 +445,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         return os.str();
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         ostringstream os;
@@ -453,7 +453,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         string prefix;
         if(typescript)
         {
-            prefix = importPrefix(ContainedPtr::dynamicCast(proxy), toplevel, imports);
+            prefix = importPrefix(dynamic_pointer_cast<Contained>(proxy), toplevel, imports);
             os << prefix;
         }
 
@@ -471,10 +471,10 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
 
     if(!typescript || definition)
     {
-        SequencePtr seq = SequencePtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
         {
-            BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+            BuiltinPtr b = dynamic_pointer_cast<Builtin>(seq->type());
             if (b && b->kind() == Builtin::KindByte)
             {
                 return "Uint8Array";
@@ -485,13 +485,13 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
             }
         }
 
-        DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+        DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
         if(d)
         {
             const TypePtr keyType = d->keyType();
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(keyType);
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(keyType);
             ostringstream os;
-            if ((builtin && builtin->kind() == Builtin::KindLong) || StructPtr::dynamicCast(keyType))
+            if ((builtin && builtin->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
             {
                 const string prefix = importPrefix("Ice.HashMap", toplevel);
                 os << prefix << getUnqualified("Ice.HashMap", toplevel->scope(), prefix);
@@ -511,7 +511,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         }
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if(contained)
     {
         ostringstream os;
@@ -622,7 +622,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
 {
     string stream = marshal ? "ostr" : "istr";
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -744,7 +744,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         if(marshal)
         {
@@ -757,7 +757,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(InterfaceDeclPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<Struct>(type))
     {
         if(marshal)
         {
@@ -784,7 +784,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
         if(marshal)
         {
@@ -823,7 +823,7 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         if(marshal)
         {
@@ -849,7 +849,7 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
 std::string
 Slice::JsGenerator::getHelper(const TypePtr& type)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -898,30 +898,30 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return typeToString(type) + "._helper";
     }
 
-    if(StructPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Struct>(type))
     {
         return typeToString(type);
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         return typeToString(type);
     }
 
-    if(SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
         stringstream s;
-        s << getLocalScope(ContainedPtr::dynamicCast(type)->scoped()) << "Helper";
+        s << getLocalScope(dynamic_pointer_cast<Contained>(type)->scoped()) << "Helper";
         return s.str();
     }
 
-    if(ClassDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<ClassDecl>(type))
     {
         return "Ice.ObjectHelper";
     }

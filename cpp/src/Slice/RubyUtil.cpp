@@ -6,6 +6,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/InputUtil.h>
 #include <iterator>
+#include <algorithm>
 
 using namespace std;
 using namespace Slice;
@@ -95,7 +96,7 @@ private:
     {
         string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local variable.
         string fixedName;
-        bool inherited;
+        bool inherited = false;
         DataMemberPtr dataMember;
     };
     typedef list<MemberInfo> MemberInfoList;
@@ -156,11 +157,8 @@ bool
 Slice::Ruby::CodeVisitor::visitModuleStart(const ModulePtr& p)
 {
     _out << sp << nl << "module ";
-    //
-    // Ensure that Slice top-level modules are defined as top
-    // level modules in Ruby
-    //
-    if(UnitPtr::dynamicCast(p->container()))
+    // Ensure that Slice top-level modules are defined as top level modules in Ruby
+    if(dynamic_pointer_cast<Unit>(p->container()))
     {
         _out << "::";
     }
@@ -1110,7 +1108,7 @@ Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
 void
 Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1170,14 +1168,14 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(p);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
     if(prx)
     {
         _out << getAbsolute(prx, IdentToUpper, "T_") << "Prx";
         return;
     }
 
-    ContainedPtr cont = ContainedPtr::dynamicCast(p);
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
     assert(cont);
     _out << getAbsolute(cont, IdentToUpper, "T_");
 }
@@ -1186,7 +1184,7 @@ string
 Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
 {
     TypePtr p = m->type();
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1220,14 +1218,14 @@ Slice::Ruby::CodeVisitor::getInitializer(const DataMemberPtr& m)
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(p);
+    EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if(en)
     {
         EnumeratorList enums = en->enumerators();
         return getAbsolute(en, IdentToUpper) + "::" + fixIdent(enums.front()->name(), IdentToUpper);
     }
 
-    StructPtr st = StructPtr::dynamicCast(p);
+    StructPtr st = dynamic_pointer_cast<Struct>(p);
     if(st)
     {
         return getAbsolute(st, IdentToUpper) + ".new";
@@ -1246,15 +1244,15 @@ void
 Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType,
                                              const string& value)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         _out << fixIdent(constant->scoped(), IdentToUpper);
     }
     else
     {
-        Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-        Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+        Slice::BuiltinPtr b = dynamic_pointer_cast<Slice::Builtin>(type);
+        Slice::EnumPtr en = dynamic_pointer_cast<Slice::Enum>(type);
         if(b)
         {
             switch(b->kind())
@@ -1291,7 +1289,7 @@ Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTr
         }
         else if(en)
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
             _out << getAbsolute(lte, IdentToUpper);
         }

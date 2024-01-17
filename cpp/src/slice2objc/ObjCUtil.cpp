@@ -2,19 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ObjCUtil.h>
+#include "ObjCUtil.h"
 #include <Slice/Util.h>
 #include <IceUtil/StringUtil.h>
+
+#include <algorithm>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
+#   include <direct.h>
 #endif
 
 #ifndef _WIN32
-#include <unistd.h>
+#   include <unistd.h>
 #endif
 
 using namespace std;
@@ -145,13 +147,13 @@ Slice::ObjCGenerator::moduleName(const ModulePtr& m)
 ModulePtr
 Slice::ObjCGenerator::findModule(const ContainedPtr& cont, int /*baseTypes*/, bool /*mangleCasts*/)
 {
-    ModulePtr m = ModulePtr::dynamicCast(cont);
+    ModulePtr m = dynamic_pointer_cast<Module>(cont);
     ContainerPtr container = cont->container();
     while(container && !m)
     {
-        ContainedPtr contained = ContainedPtr::dynamicCast(container);
+        ContainedPtr contained = dynamic_pointer_cast<Contained>(container);
         container = contained->container();
-        m = ModulePtr::dynamicCast(contained);
+        m = dynamic_pointer_cast<Module>(contained);
     }
     assert(m);
     return m;
@@ -192,7 +194,7 @@ string
 Slice::ObjCGenerator::getParamId(const ContainedPtr& param)
 {
     string n;
-    if(ParamDeclPtr::dynamicCast(param) && param->findMetaData("objc:param:", n))
+    if(dynamic_pointer_cast<ParamDecl>(param) && param->findMetaData("objc:param:", n))
     {
         return lookupParamIdKwd(n.substr(11));
     }
@@ -218,7 +220,7 @@ Slice::ObjCGenerator::getParamName(const ContainedPtr& param, bool internal)
 string
 Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
 {
-    ClassDefPtr def = ClassDefPtr::dynamicCast(p);
+    ClassDefPtr def = dynamic_pointer_cast<ClassDef>(p);
 
     //
     // If deprecated is true, we return uDPConnectionInfo for a class
@@ -270,32 +272,32 @@ Slice::ObjCGenerator::typeToString(const TypePtr& type)
         "ICEValue"
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         return builtinTable[builtin->kind()];
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         string mName = moduleName(findModule(proxy));
         return "id<" + mName + (proxy->name()) + "Prx>";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return fixName(seq);
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         return fixName(d);
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if(contained)
     {
         return fixName(contained);
@@ -346,8 +348,8 @@ Slice::ObjCGenerator::outTypeToString(const TypePtr& type, bool optional, bool a
     }
     else
     {
-        SequencePtr seq = SequencePtr::dynamicCast(type);
-        DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+        DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
         if(isString(type))
         {
             s = "NSMutableString";
@@ -385,7 +387,7 @@ Slice::ObjCGenerator::outTypeToString(const TypePtr& type, bool optional, bool a
 string
 Slice::ObjCGenerator::typeToObjCTypeString(const TypePtr& type)
 {
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         return moduleName(findModule(proxy)) + (proxy->name()) + "Prx";
@@ -401,11 +403,11 @@ Slice::ObjCGenerator::defaultValue(const TypePtr& type, bool isOptional)
 {
     if(isValueType(type) && !isOptional)
     {
-         if(EnumPtr::dynamicCast(type))
+         if(dynamic_pointer_cast<Enum>(type))
          {
              return "0";
          }
-         BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
          if(builtin)
          {
              switch(builtin->kind())
@@ -443,7 +445,7 @@ Slice::ObjCGenerator::isValueType(const TypePtr& type)
     {
         return true;
     }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -463,7 +465,7 @@ Slice::ObjCGenerator::isValueType(const TypePtr& type)
             }
         }
     }
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return true;
     }
@@ -477,18 +479,18 @@ Slice::ObjCGenerator::isString(const TypePtr& type)
     {
         return false;
     }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     return builtin && builtin->kind() == Builtin::KindString;
 }
 bool
 Slice::ObjCGenerator::isClass(const TypePtr& type)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         return builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue;
     }
-    return ClassDeclPtr::dynamicCast(type);
+    return dynamic_pointer_cast<ClassDecl>(type) != nullptr;
 }
 
 bool
@@ -498,12 +500,12 @@ Slice::ObjCGenerator::mapsToPointerType(const TypePtr& type)
     {
         return false;
     }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
        return builtin->kind() != Builtin::KindObjectProxy;
     }
-    return !InterfaceDeclPtr::dynamicCast(type);
+    return !dynamic_pointer_cast<InterfaceDecl>(type);
 }
 
 string
@@ -565,12 +567,12 @@ Slice::ObjCGenerator::getOptionalHelperGetter(const TypePtr& type)
 {
     if(isValueType(type))
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
         if(builtin)
         {
             return "get" + getBuiltinName(builtin);
         }
-        if(EnumPtr::dynamicCast(type))
+        if(dynamic_pointer_cast<Enum>(type))
         {
             return "getInt";
         }
@@ -581,7 +583,7 @@ Slice::ObjCGenerator::getOptionalHelperGetter(const TypePtr& type)
 string
 Slice::ObjCGenerator::getOptionalFormat(const TypePtr& type)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     if(bp)
     {
         switch(bp->kind())
@@ -621,36 +623,36 @@ Slice::ObjCGenerator::getOptionalFormat(const TypePtr& type)
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return "ICEOptionalFormatSize";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return seq->type()->isVariableLength() ? "ICEOptionalFormatFSize" : "ICEOptionalFormatVSize";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
             "ICEOptionalFormatFSize" : "ICEOptionalFormatVSize";
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         return st->isVariableLength() ? "ICEOptionalFormatFSize" : "ICEOptionalFormatVSize";
     }
 
-    if(InterfaceDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return "ICEOptionalFormatFSize";
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     assert(cl);
     return "ICEOptionalFormatClass";
 }
@@ -660,7 +662,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
                                                 bool marshal, bool autoreleased) const
 {
     string stream = marshal ? "ostr" : "istr";
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
 
     if(builtin)
     {
@@ -722,7 +724,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         if(marshal)
@@ -757,7 +759,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(marshal)
@@ -789,7 +791,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         if(marshal)
@@ -805,7 +807,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         return;
     }
 
-    ContainedPtr c = ContainedPtr::dynamicCast(type);
+    ContainedPtr c = dynamic_pointer_cast<Contained>(type);
     assert(c);
     string name = moduleName(findModule(c)) + c->name() + "Helper";
     if(marshal)
@@ -814,7 +816,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
     }
     else
     {
-        if(StructPtr::dynamicCast(type))
+        if(dynamic_pointer_cast<Struct>(type))
         {
             if(autoreleased)
             {
@@ -847,7 +849,7 @@ Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const Type
     string optionalHelper;
     string helper;
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindObjectProxy)
@@ -862,28 +864,28 @@ Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const Type
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         writeMarshalUnmarshalCode(out, type, param, marshal, false);
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         writeMarshalUnmarshalCode(out, type, param, marshal, false);
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         optionalHelper = "ICEVarLengthOptionalHelper";
         helper = "objc_getClass(\"" + moduleName(findModule(prx)) + prx->name() + "PrxHelper\")";
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(st->isVariableLength())
@@ -897,7 +899,7 @@ Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const Type
         helper = "[" + typeToString(st) + "Helper class]";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         TypePtr element = seq->type();
@@ -917,7 +919,7 @@ Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const Type
         helper = "[" + moduleName(findModule(seq)) + seq->name() + "Helper class]";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
@@ -948,8 +950,8 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
                                                         int tag, bool marshal) const
 {
     string helper;
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(builtin)
     {
         helper = "ICE" + getBuiltinName(builtin) + "Helper";
@@ -963,7 +965,7 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
         helper = typeToString(type) + "Helper";
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         out << nl;
@@ -1162,7 +1164,7 @@ Slice::ObjCGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 void
 Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 {
-    ModulePtr m = ModulePtr::dynamicCast(cont);
+    ModulePtr m = dynamic_pointer_cast<Module>(cont);
     if(m)
     {
         bool error = false;
@@ -1218,7 +1220,7 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(cont);
+    EnumPtr en = dynamic_pointer_cast<Enum>(cont);
     if(en)
     {
         StringList meta = getMetaData(en);

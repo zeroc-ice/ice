@@ -66,55 +66,6 @@ private:
 };
 typedef IceUtil::Handle<ThreadHook> ThreadHookPtr;
 
-//
-// This class invokes a member function in a separate thread.
-//
-template<typename T>
-class InvokeThread : public IceUtil::Thread
-{
-public:
-
-    InvokeThread(const IceInternal::Handle<T>& target, void (T::*func)(void),
-                 IceUtil::Monitor<IceUtil::Mutex>& monitor, bool& done) :
-        _target(target), _func(func), _monitor(monitor), _done(done), _ex(0)
-    {
-    }
-
-    ~InvokeThread()
-    {
-        delete _ex;
-    }
-
-    virtual void run()
-    {
-        try
-        {
-            (_target.get() ->* _func)();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            _ex = ex.ice_clone();
-        }
-
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        _done = true;
-        _monitor.notify();
-    }
-
-    Ice::Exception* getException() const
-    {
-        return _ex;
-    }
-
-private:
-
-    IceInternal::Handle<T> _target;
-    void (T::*_func)(void);
-    IceUtil::Monitor<IceUtil::Mutex>& _monitor;
-    bool& _done;
-    Ice::Exception* _ex;
-};
-
 }
 
 #endif

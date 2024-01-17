@@ -73,7 +73,7 @@ IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
 void
 IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     if(id.empty())
     {
@@ -159,7 +159,7 @@ IcePy::ValueFactoryManager::destroy()
     FactoryMap factories;
 
     {
-        Lock lock(*this);
+        std::lock_guard lock(_mutex);
         if(_self == 0)
         {
             //
@@ -191,7 +191,7 @@ IcePy::ValueFactoryManager::destroy()
 Ice::ValueFactoryPtr
 IcePy::ValueFactoryManager::findCore(const string& id) const noexcept
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     Ice::ValueFactoryPtr factory;
 

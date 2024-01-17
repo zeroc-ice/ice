@@ -8,6 +8,7 @@
 #include <IceUtil/UUID.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
+#include <algorithm>
 #include <iterator>
 
 // TODO: fix this warning!
@@ -422,7 +423,7 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
 {
     assert(type);
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -462,13 +463,13 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         return fixId(en->scoped()) + '.' + fixId((*en->enumerators().begin())->name());
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         return "new " + typeToString(type) + "()";
@@ -482,14 +483,14 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
                                      const string& value)
 {
     ostringstream os;
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         os << fixId(constant->scoped());
     }
     else
     {
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
         EnumPtr ep;
         if(bp && bp->kind() == Builtin::KindString)
         {
@@ -516,9 +517,9 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
             os << "new Ice.Long(" << ((l >> 32) & 0xFFFFFFFF) << ", " << (l & 0xFFFFFFFF)  << ")";
 #endif
         }
-        else if((ep = EnumPtr::dynamicCast(type)))
+        else if((ep = dynamic_pointer_cast<Enum>(type)))
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
             os << fixId(ep->scoped()) << '.' << fixId(lte->name());
         }
@@ -904,7 +905,7 @@ Slice::Gen::RequireVisitor::visitExceptionStart(const ExceptionPtr&)
 void
 Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
     if(builtin)
     {
         switch(builtin->kind())
@@ -924,7 +925,7 @@ Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 void
 Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(dict->valueType());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(dict->valueType());
     if(builtin)
     {
         switch(builtin->kind())
@@ -1245,7 +1246,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
         }
 
         _seenModules.push_back(scoped);
-        const bool topLevel = UnitPtr::dynamicCast(p->container());
+        const bool topLevel = dynamic_pointer_cast<Unit>(p->container()) != nullptr;
         _out << sp;
         _out << nl;
         if(topLevel)
@@ -2019,8 +2020,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     // rather than the native comparison operators.
     //
     bool keyUseEquals = false;
-    BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
-    if((b && b->kind() == Builtin::KindLong) || StructPtr::dynamicCast(keyType))
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(keyType);
+    if((b && b->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
     {
         keyUseEquals = true;
     }
@@ -2050,7 +2051,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         _out << ", undefined";
     }
 
-    if(SequencePtr::dynamicCast(valueType))
+    if(dynamic_pointer_cast<Sequence>(valueType))
     {
         _out << ", Ice.ArrayUtil.equals";
     }
@@ -2131,43 +2132,43 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
         "10", // Ice.Value
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         return builtinTable[builtin->kind()];
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         return "\"" + fixId(proxy->scoped() + "Prx") + "\"";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return "\"" + fixId(seq->scoped() + "Helper") + "\"";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         return "\"" + fixId(d->scoped() + "Helper") + "\"";
     }
 
-    EnumPtr e = EnumPtr::dynamicCast(type);
+    EnumPtr e = dynamic_pointer_cast<Enum>(type);
     if(e)
     {
         return fixId(e->scoped()) + "._helper";
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         return fixId(st->scoped());
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         return "\"" + fixId(cl->scoped()) + "\"";
@@ -2186,7 +2187,7 @@ Slice::Gen::ExportVisitor::ExportVisitor(IceUtilInternal::Output& out, bool icej
 bool
 Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
 {
-    const bool topLevel = UnitPtr::dynamicCast(p->container());
+    const bool topLevel = dynamic_pointer_cast<Unit>(p->container()) != nullptr;
     if(topLevel)
     {
         const string localScope = getLocalScope(p->scope());
@@ -2237,7 +2238,7 @@ Slice::Gen::TypeScriptRequireVisitor::nextImportPrefix()
 void
 Slice::Gen::TypeScriptRequireVisitor::addImport(const TypePtr& definition, const ContainedPtr& toplevel)
 {
-    if(!BuiltinPtr::dynamicCast(definition))
+    if(!dynamic_pointer_cast<Builtin>(definition))
     {
         string m1 = getModuleMetadata(definition);
         const string m2 = getModuleMetadata(toplevel);
@@ -2245,7 +2246,7 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const TypePtr& definition, const
         string p1 = definition->definitionContext()->filename();
         const string p2 = toplevel->definitionContext()->filename();
 
-        InterfaceDeclPtr p = InterfaceDeclPtr::dynamicCast(definition);
+        InterfaceDeclPtr p = dynamic_pointer_cast<InterfaceDecl>(definition);
 
         if(p)
         {
@@ -2259,7 +2260,7 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const TypePtr& definition, const
             }
             else
             {
-                m1 = getModuleMetadata(ContainedPtr::dynamicCast(p->definition()));
+                m1 = getModuleMetadata(dynamic_pointer_cast<Contained>(p->definition()));
                 p1 = p->definition()->definitionContext()->filename();
             }
         }
@@ -2329,7 +2330,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Import ice module if not building Ice
     //
-    if(UnitPtr::dynamicCast(p->container()) && !_icejs && _imports.empty())
+    if(dynamic_pointer_cast<Unit>(p->container()) && !_icejs && _imports.empty())
     {
         _imports.push_back(make_pair("ice", nextImportPrefix()));
     }
@@ -2345,7 +2346,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
     if (base)
     {
-        addImport(ContainedPtr::dynamicCast(base), p);
+        addImport(dynamic_pointer_cast<Contained>(base), p);
     }
 
     //
@@ -2369,7 +2370,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitInterfaceDefStart(const InterfaceDefP
     InterfaceList bases = p->bases();
     for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
-        addImport(ContainedPtr::dynamicCast(*i), p);
+        addImport(dynamic_pointer_cast<Contained>(*i), p);
     }
 
     //
@@ -2416,7 +2417,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
     if(base)
     {
-        addImport(ContainedPtr::dynamicCast(base), p);
+        addImport(dynamic_pointer_cast<Contained>(base), p);
     }
 
     //
@@ -2457,7 +2458,7 @@ Slice::Gen::TypeScriptAliasVisitor::TypeScriptAliasVisitor(IceUtilInternal::Outp
 void
 Slice::Gen::TypeScriptAliasVisitor::addAlias(const ExceptionPtr& type, const ContainedPtr& toplevel)
 {
-    string m1 = getModuleMetadata(ContainedPtr::dynamicCast(type));
+    string m1 = getModuleMetadata(dynamic_pointer_cast<Contained>(type));
     string m2 = getModuleMetadata(toplevel);
 
     //
@@ -2468,7 +2469,7 @@ Slice::Gen::TypeScriptAliasVisitor::addAlias(const ExceptionPtr& type, const Con
         return;
     }
 
-    const string prefix = importPrefix(ContainedPtr::dynamicCast(type), toplevel, imports());
+    const string prefix = importPrefix(dynamic_pointer_cast<Contained>(type), toplevel, imports());
     const string typeS = prefix + getUnqualified(fixId(type->scoped()), toplevel->scope(), prefix);
 
     addAlias(typeS, prefix, toplevel);
@@ -2534,14 +2535,14 @@ Slice::Gen::TypeScriptAliasVisitor::visitModuleStart(const ModulePtr&)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    ModulePtr module = ModulePtr::dynamicCast(p->container());
+    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
     //
     // Add alias required for base class
     //
     ClassDefPtr base = p->base();
     if (base)
     {
-        addAlias(TypePtr::dynamicCast(base->declaration()), module);
+        addAlias(dynamic_pointer_cast<Type>(base->declaration()), module);
     }
 
     //
@@ -2559,14 +2560,14 @@ Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    ModulePtr module = ModulePtr::dynamicCast(p->container());
+    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
     //
     // Add alias required for base interfces
     //
     InterfaceList bases = p->bases();
     for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
-        addAlias(TypePtr::dynamicCast((*i)->declaration()), module);
+        addAlias(dynamic_pointer_cast<Type>((*i)->declaration()), module);
     }
 
     //
@@ -2593,7 +2594,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitInterfaceDefStart(const InterfaceDefPtr
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
 {
-    ModulePtr module = ModulePtr::dynamicCast(p->container());
+    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
     //
     // Add alias required for data members
     //
@@ -2608,7 +2609,7 @@ Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    ModulePtr module = ModulePtr::dynamicCast(p->container());
+    ModulePtr module = dynamic_pointer_cast<Module>(p->container());
     //
     // Add alias required for base exception
     //
@@ -2632,13 +2633,13 @@ Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::TypeScriptAliasVisitor::visitSequence(const SequencePtr& seq)
 {
-    addAlias(seq->type(), ModulePtr::dynamicCast(seq->container()));
+    addAlias(seq->type(), dynamic_pointer_cast<Module>(seq->container()));
 }
 
 void
 Slice::Gen::TypeScriptAliasVisitor::visitDictionary(const DictionaryPtr& dict)
 {
-    ModulePtr module = ModulePtr::dynamicCast(dict->container());
+    ModulePtr module = dynamic_pointer_cast<Module>(dict->container());
     addAlias(dict->keyType(), module);
     addAlias(dict->valueType(), module);
 }
@@ -2679,7 +2680,7 @@ Slice::Gen::TypeScriptVisitor::writeImports()
 bool
 Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 {
-    UnitPtr unit = UnitPtr::dynamicCast(p->container());
+    UnitPtr unit = dynamic_pointer_cast<Unit>(p->container());
     if(unit)
     {
         _out << sp;
@@ -2702,7 +2703,7 @@ Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     const string icePrefix = importPrefix("Ice.", p);
 
     const DataMemberList dataMembers = p->dataMembers();
@@ -2715,7 +2716,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
     if (base)
     {
-        const string prefix = importPrefix(ContainedPtr::dynamicCast(base), p, imports());
+        const string prefix = importPrefix(dynamic_pointer_cast<Contained>(base), p, imports());
         _out << prefix << getUnqualified(fixId(base->scoped()), p->scope(), prefix);
     }
     else
@@ -2753,7 +2754,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     const string icePrefix = importPrefix("Ice.", p);
     const OperationList ops = p->allOperations();
 
@@ -2949,14 +2950,14 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
-    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     const string icePrefix = importPrefix("Ice.", p);
 
     ExceptionPtr base = p->base();
     string baseRef;
     if(base)
     {
-        const string prefix = importPrefix(ContainedPtr::dynamicCast(base), p, imports());
+        const string prefix = importPrefix(dynamic_pointer_cast<Contained>(base), p, imports());
         baseRef = prefix + getUnqualified(fixId(base->scoped()), p->scope(), prefix);
     }
     else
@@ -3003,7 +3004,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     const string icePrefix = importPrefix("Ice.", p);
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
-    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     _out << sp;
     writeDocSummary(_out, p);
     _out << nl << "class " << name << sb;
@@ -3047,7 +3048,7 @@ void
 Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
     const string icePrefix = importPrefix("Ice.", p);
-    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     const string name = fixId(p->name());
     _out << sp;
     writeDocSummary(_out, p);
@@ -3070,7 +3071,7 @@ void
 Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string icePrefix = importPrefix("Ice.", p);
-    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string toplevelModule = getModuleMetadata(dynamic_pointer_cast<Contained>(p));
     const string name = fixId(p->name());
     _out << sp;
     writeDocSummary(_out, p);

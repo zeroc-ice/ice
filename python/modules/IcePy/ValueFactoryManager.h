@@ -56,7 +56,7 @@ private:
 
 using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
-class ValueFactoryManager final : public Ice::ValueFactoryManager, public IceUtil::Mutex
+class ValueFactoryManager final : public Ice::ValueFactoryManager
 {
 public:
 
@@ -85,6 +85,8 @@ private:
     PyObject* _self;
     FactoryMap _factories;
     DefaultValueFactoryPtr _defaultFactory;
+
+    mutable std::mutex _mutex;
 };
 
 using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
