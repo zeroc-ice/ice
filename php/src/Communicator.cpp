@@ -13,6 +13,8 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
+
+#include <chrono>
 #include <fstream>
 #include <thread>
 
@@ -51,7 +53,7 @@ public:
     const Ice::CommunicatorPtr communicator;
     vector<string> ids;
     int expires;
-    IceUtil::Time lastAccess;
+    std::chrono::steady_clock::time_point lastAccess;
 };
 typedef IceUtil::Handle<ActiveCommunicator> ActiveCommunicatorPtr;
 
@@ -228,13 +230,12 @@ typedef map<Ice::CommunicatorPtr, CommunicatorInfoIPtr> CommunicatorMap;
 void
 reapRegisteredCommunicators()
 {
-    // Must be called with _registeredCommunicatorsMutex locked
-
-    IceUtil::Time now = IceUtil::Time::now();
+    // This function must be called with _registeredCommunicatorsMutex locked
+    auto now = std::chrono::steady_clock::now();
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
     while(p != _registeredCommunicators.end())
     {
-        if(p->second->lastAccess + IceUtil::Time::seconds(p->second->expires * 60) <= now)
+        if(p->second->lastAccess + std::chrono::hours(p->second->expires) <= now)
         {
             try
             {
@@ -1291,7 +1292,7 @@ ZEND_FUNCTION(Ice_register)
         // always use the most recent expiration setting.
         //
         info->ac->expires = static_cast<int>(expires);
-        info->ac->lastAccess = IceUtil::Time::now();
+        info->ac->lastAccess = std::chrono::steady_clock::now();
 
         //
         // Start the timer if necessary. Reap expired communicators every five minutes.
@@ -1374,7 +1375,7 @@ ZEND_FUNCTION(Ice_find)
 
     if(p->second->expires > 0)
     {
-        p->second->lastAccess = IceUtil::Time::now();
+        p->second->lastAccess = std::chrono::steady_clock::now();
     }
 
     //
