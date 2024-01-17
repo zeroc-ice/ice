@@ -68,58 +68,6 @@ private:
 };
 typedef IceUtil::Handle<ThreadHook> ThreadHookPtr;
 
-//
-// This class invokes a function in a separate thread.
-//
-class InvokeThread
-{
-public:
-
-    InvokeThread(std::function<void()> func, std::mutex* mutex, std::condition_variable* cond, bool& done) :
-        _func(func),
-        _mutex(mutex),
-        _cond(cond),
-        _done(done),
-        _ex(0),
-        _thread([this] { run(); })
-    {
-    }
-
-    void run()
-    {
-        try
-        {
-            _func();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            _ex = ex.ice_clone();
-        }
-        std::unique_lock lock(*_mutex);
-        _done = true;
-        _cond->notify_one();
-    }
-
-    ~InvokeThread()
-    {
-        _thread.join();
-        delete _ex;
-    }
-
-    Ice::Exception* getException() const
-    {
-        return _ex;
-    }
-
-private:
-    std::function<void()> _func;
-    std::mutex* _mutex;
-    std::condition_variable* _cond;
-    bool& _done;
-    Ice::Exception* _ex;
-    std::thread _thread;
-};
-
 }
 
 #endif
