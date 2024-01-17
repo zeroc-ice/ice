@@ -218,7 +218,9 @@ const string _defaultProfileName = "";
 //
 typedef map<string, ActiveCommunicatorPtr> RegisteredCommunicatorMap;
 RegisteredCommunicatorMap _registeredCommunicators;
-IceUtil::Mutex* _registeredCommunicatorsMutex = 0;
+
+// std::mutex constructor is constexpr so it is statically initialized
+std::mutex _registeredCommunicatorsMutex;
 
 IceUtil::TimerPtr _timer;
 
@@ -228,24 +230,6 @@ IceUtil::TimerPtr _timer;
 // been used) by the request.
 //
 typedef map<Ice::CommunicatorPtr, CommunicatorInfoIPtr> CommunicatorMap;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        _registeredCommunicatorsMutex = new IceUtil::Mutex();
-    }
-
-    ~Init()
-    {
-        delete _registeredCommunicatorsMutex;
-        _registeredCommunicatorsMutex = 0;
-    }
-};
-
-Init init;
 }
 
 extern "C"
@@ -335,7 +319,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
         // Remove all registrations.
         //
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+            lock_guard lock(_registeredCommunicatorsMutex);
             for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
             {
                 _registeredCommunicators.erase(*p);
@@ -1260,7 +1244,7 @@ ZEND_FUNCTION(Ice_register)
     CommunicatorInfoIPtr info = Wrapper<CommunicatorInfoIPtr>::value(comm);
     assert(info);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p != _registeredCommunicators.end())
@@ -1312,7 +1296,7 @@ ZEND_FUNCTION(Ice_unregister)
 
     string id(s, sLen);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p == _registeredCommunicators.end())
@@ -1347,7 +1331,7 @@ ZEND_FUNCTION(Ice_find)
 
     string id(s, sLen);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p == _registeredCommunicators.end())
@@ -1802,7 +1786,7 @@ IcePHP::communicatorShutdown(void)
 {
     _profiles.clear();
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     if(_timer)
     {
@@ -2198,7 +2182,7 @@ IcePHP::ValueFactoryManager::destroy()
 void
 IcePHP::ReaperTask::runTimerTask()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     IceUtil::Time now = IceUtil::Time::now();
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
