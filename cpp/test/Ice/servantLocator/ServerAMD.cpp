@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Ice;
 
-class ServantLocatorAMDI : public Test::ServantLocatorI
+class ServantLocatorAMDI final : public Test::ServantLocatorI
 {
 public:
 
@@ -19,39 +19,20 @@ public:
 
 protected:
 
-#ifdef ICE_CPP11_MAPPING
-    virtual Ice::ObjectPtr
-    newServantAndCookie(shared_ptr<void>& cookie) const
+    shared_ptr<Ice::Object> newServantAndCookie(shared_ptr<void>& cookie) const final
     {
         cookie = make_shared<Cookie>();
         return make_shared<TestAMDI>();
     }
 
-    virtual void
-    checkCookie(const shared_ptr<void>& cookie) const
+    void checkCookie(const shared_ptr<void>& cookie) const final
     {
         auto co = static_pointer_cast<Cookie>(cookie);
         test(co);
         test(co->message() == "blahblah");
     }
-#else
-    virtual Ice::ObjectPtr
-    newServantAndCookie(Ice::LocalObjectPtr& cookie) const
-    {
-        cookie = new Cookie();
-        return new TestAMDI();
-    }
 
-    virtual void
-    checkCookie(const Ice::LocalObjectPtr& cookie) const
-    {
-        CookiePtr co = CookiePtr::dynamicCast(cookie);
-        test(co);
-        test(co->message() == "blahblah");
-    }
-#endif
-    virtual void
-    throwTestIntfUserException() const
+    void throwTestIntfUserException() const final
     {
         throw Test::TestIntfUserException();
     }
@@ -65,8 +46,8 @@ public:
     {
         if(activate)
         {
-            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, ""), "");
-            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, "category"), "category");
+            current.adapter->addServantLocator(make_shared<ServantLocatorAMDI>(""), "");
+            current.adapter->addServantLocator(make_shared<ServantLocatorAMDI>("category"), "category");
         }
         else
         {
@@ -94,8 +75,8 @@ ServerAMD::run(int argc, char** argv)
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
 
-    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, ""), "");
-    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorAMDI, "category"), "category");
+    adapter->addServantLocator(make_shared<ServantLocatorAMDI>(""), "");
+    adapter->addServantLocator(make_shared<ServantLocatorAMDI>("category"), "category");
     adapter->add(ICE_MAKE_SHARED(TestAMDI), Ice::stringToIdentity("asm"));
     adapter->add(ICE_MAKE_SHARED(TestActivationI), Ice::stringToIdentity("test/activation"));
     adapter->activate();

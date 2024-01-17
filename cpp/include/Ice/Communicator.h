@@ -870,7 +870,12 @@ public:
      * @param servant The servant that implements the new Admin facet.
      * @param facet The name of the new Admin facet.
      */
-    virtual void addAdminFacet(const ObjectPtr& servant, const ::std::string& facet) = 0;
+    virtual void addAdminFacet(const std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
+
+    inline void addAdminFacet(const SharedPtr<Object>& servant, const ::std::string& facet)
+    {
+        addAdminFacet(servant.underlying(), facet);
+    }
 
     /**
      * Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
@@ -878,14 +883,14 @@ public:
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet.
      */
-    virtual ObjectPtr removeAdminFacet(const ::std::string& facet) = 0;
+    virtual std::shared_ptr<Object> removeAdminFacet(const ::std::string& facet) = 0;
 
     /**
      * Returns a facet of the Admin object.
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
      */
-    virtual ObjectPtr findAdminFacet(const ::std::string& facet) = 0;
+    virtual std::shared_ptr<Object> findAdminFacet(const ::std::string& facet) = 0;
 
     /**
      * Returns a map of all facets of the Admin object.

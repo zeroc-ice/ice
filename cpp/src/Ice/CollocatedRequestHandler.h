@@ -19,7 +19,6 @@ namespace Ice
 {
 
 class ObjectAdapterI;
-ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
 }
 
@@ -71,7 +70,7 @@ private:
 
     void handleException(Ice::Int, const Ice::Exception&, bool);
 
-    const Ice::ObjectAdapterIPtr _adapter;
+    const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
     const bool _dispatcher;
     const Ice::LoggerPtr _logger;
     const TraceLevelsPtr _traceLevels;

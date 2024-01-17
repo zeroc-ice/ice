@@ -50,7 +50,7 @@ inline void checkIdentity(const Identity& ident)
     }
 }
 
-inline void checkServant(const ObjectPtr& servant)
+inline void checkServant(const shared_ptr<Object>& servant)
 {
     if(!servant)
     {
@@ -252,7 +252,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
                  factory->destroy();
              });
 
-    _instance->outgoingConnectionFactory()->removeAdapter(ICE_SHARED_FROM_THIS);
+    _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -347,7 +347,7 @@ Ice::ObjectAdapterI::destroy() noexcept
 
     if(_objectAdapterFactory)
     {
-        _objectAdapterFactory->removeObjectAdapter(ICE_SHARED_FROM_THIS);
+        _objectAdapterFactory->removeObjectAdapter(shared_from_this());
     }
 
     {
@@ -376,13 +376,13 @@ Ice::ObjectAdapterI::destroy() noexcept
 }
 
 ObjectPrxPtr
-Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
+Ice::ObjectAdapterI::add(const shared_ptr<Object>& object, const Identity& ident)
 {
     return addFacet(object, ident, "");
 }
 
 ObjectPrxPtr
-Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, const string& facet)
+Ice::ObjectAdapterI::addFacet(const shared_ptr<Object>& object, const Identity& ident, const string& facet)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -396,13 +396,13 @@ Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, co
 }
 
 ObjectPrxPtr
-Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
+Ice::ObjectAdapterI::addWithUUID(const shared_ptr<Object>& object)
 {
     return addFacetWithUUID(object, "");
 }
 
 ObjectPrxPtr
-Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& facet)
+Ice::ObjectAdapterI::addFacetWithUUID(const shared_ptr<Object>& object, const string& facet)
 {
     Identity ident;
     ident.name = Ice::generateUUID();
@@ -410,7 +410,7 @@ Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& fac
 }
 
 void
-Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& category)
+Ice::ObjectAdapterI::addDefaultServant(const shared_ptr<Object>& servant, const string& category)
 {
     checkServant(servant);
 
@@ -420,13 +420,13 @@ Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& c
     _servantManager->addDefaultServant(servant, category);
 }
 
-ObjectPtr
+shared_ptr<Object>
 Ice::ObjectAdapterI::remove(const Identity& ident)
 {
     return removeFacet(ident, "");
 }
 
-ObjectPtr
+shared_ptr<Object>
 Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -448,7 +448,7 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
     return _servantManager->removeAllFacets(ident);
 }
 
-ObjectPtr
+shared_ptr<Object>
 Ice::ObjectAdapterI::removeDefaultServant(const string& category)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -458,13 +458,13 @@ Ice::ObjectAdapterI::removeDefaultServant(const string& category)
     return _servantManager->removeDefaultServant(category);
 }
 
-ObjectPtr
+shared_ptr<Object>
 Ice::ObjectAdapterI::find(const Identity& ident) const
 {
     return findFacet(ident, "");
 }
 
-ObjectPtr
+shared_ptr<Object>
 Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -486,7 +486,7 @@ Ice::ObjectAdapterI::findAllFacets(const Identity& ident) const
     return _servantManager->findAllFacets(ident);
 }
 
-ObjectPtr
+shared_ptr<Object>
 Ice::ObjectAdapterI::findByProxy(const ObjectPrxPtr& proxy) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -497,7 +497,7 @@ Ice::ObjectAdapterI::findByProxy(const ObjectPrxPtr& proxy) const
     return findFacet(ref->getIdentity(), ref->getFacet());
 }
 
-ObjectPtr
+shared_ptr<Object>
 Ice::ObjectAdapterI::findDefaultServant(const string& category) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -508,7 +508,7 @@ Ice::ObjectAdapterI::findDefaultServant(const string& category) const
 }
 
 void
-Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const string& prefix)
+Ice::ObjectAdapterI::addServantLocator(const shared_ptr<ServantLocator>& locator, const string& prefix)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -517,7 +517,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
     _servantManager->addServantLocator(locator, prefix);
 }
 
-ServantLocatorPtr
+shared_ptr<ServantLocator>
 Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -527,7 +527,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
     return _servantManager->removeServantLocator(prefix);
 }
 
-ServantLocatorPtr
+shared_ptr<ServantLocator>
 Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -883,7 +883,7 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     checkForDeactivation();
-    connection->setAdapterAndServantManager(ICE_SHARED_FROM_THIS, _servantManager);
+    connection->setAdapterAndServantManager(shared_from_this(), _servantManager);
 }
 
 //
@@ -1014,7 +1014,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
             // Associate this object adapter with the router. This way, new outgoing connections
             // to the router's client proxy will use this object adapter for callbacks.
             //
-            _routerInfo->setAdapter(ICE_SHARED_FROM_THIS);
+            _routerInfo->setAdapter(shared_from_this());
 
             //
             // Also modify all existing outgoing connections to the router's client proxy to use
@@ -1040,7 +1040,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
                                                                            _instance,
                                                                            *q,
                                                                            publishedEndpoint,
-                                                                           ICE_SHARED_FROM_THIS);
+                                                                           shared_from_this());
                     factory->initialize();
                     _incomingConnectionFactories.push_back(factory);
                 }

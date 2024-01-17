@@ -92,8 +92,8 @@ allTests(Test::TestHelper* helper)
         adapter->addFacet(obj3, Ice::stringToIdentity("id2"), "");
         Ice::FacetMap fm = adapter->removeAllFacets(Ice::stringToIdentity("id1"));
         test(fm.size() == 2);
-        test(fm["f1"] == obj1);
-        test(fm["f2"] == obj2);
+        test(Ice::ObjectPtr(fm["f1"]) == obj1);
+        test(Ice::ObjectPtr(fm["f2"]) == obj2);
         try
         {
             adapter->removeAllFacets(Ice::stringToIdentity("id1"));
@@ -104,9 +104,9 @@ allTests(Test::TestHelper* helper)
         }
         fm = adapter->removeAllFacets(Ice::stringToIdentity("id2"));
         test(fm.size() == 3);
-        test(fm["f1"] == obj1);
-        test(fm["f2"] == obj2);
-        test(fm[""] == obj3);
+        test(Ice::ObjectPtr(fm["f1"]) == obj1);
+        test(Ice::ObjectPtr(fm["f2"]) == obj2);
+        test(Ice::ObjectPtr(fm[""]) == obj3);
         cout << "ok" << endl;
 
         adapter->deactivate();

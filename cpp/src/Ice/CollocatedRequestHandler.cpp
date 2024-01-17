@@ -65,7 +65,7 @@ fillInValue(OutputStream* os, int pos, Int value)
 
 CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, const ObjectAdapterPtr& adapter) :
     RequestHandler(ref),
-    _adapter(ICE_DYNAMIC_CAST(ObjectAdapterI, adapter)),
+    _adapter(dynamic_pointer_cast<ObjectAdapterI>(adapter)),
     _dispatcher(_reference->getInstance()->initializationData().dispatcher),
     _logger(_reference->getInstance()->initializationData().logger), // Cached for better performance.
     _traceLevels(_reference->getInstance()->traceLevels()), // Cached for better performance.

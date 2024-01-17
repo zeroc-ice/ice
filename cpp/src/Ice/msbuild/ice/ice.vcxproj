@@ -184,13 +184,11 @@
     <ClCompile Include="..\..\Logger.cpp" />
     <ClCompile Include="..\..\LoggerF.cpp" />
     <ClCompile Include="..\..\ObjectAdapter.cpp" />
-    <ClCompile Include="..\..\ObjectAdapterF.cpp" />
     <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\PluginF.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
     <ClCompile Include="..\..\PropertiesF.cpp" />
     <ClCompile Include="..\..\ServantLocator.cpp" />
-    <ClCompile Include="..\..\ServantLocatorF.cpp" />
     <ClCompile Include="..\..\ValueFactory.cpp" />
     <ClCompile Include="Win32\Debug\BuiltinSequences.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
