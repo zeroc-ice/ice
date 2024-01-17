@@ -14,6 +14,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
 #include <fstream>
+#include <thread>
 
 #ifdef getcwd
 #  undef getcwd
@@ -182,13 +183,18 @@ private:
 };
 using ValueFactoryManagerPtr = shared_ptr<ValueFactoryManager>;
 
-class ReaperTask : public IceUtil::TimerTask
+class ReaperTask
 {
 public:
-
-    virtual void runTimerTask();
+    void start(std::chrono::seconds);
+    void stop();
+private:
+    void reap();
+    bool _running;
+    std::mutex _mutex;
+    std::condition_variable _cond;
+    std::thread _thread;
 };
-
 }
 
 namespace
@@ -222,7 +228,7 @@ RegisteredCommunicatorMap _registeredCommunicators;
 // std::mutex constructor is constexpr so it is statically initialized
 std::mutex _registeredCommunicatorsMutex;
 
-IceUtil::TimerPtr _timer;
+ReaperTask _timer;
 
 //
 // This map is stored in the "global" variables for each PHP request and holds
@@ -1275,11 +1281,7 @@ ZEND_FUNCTION(Ice_register)
         //
         // Start the timer if necessary. Reap expired communicators every five minutes.
         //
-        if(!_timer)
-        {
-            _timer = new IceUtil::Timer;
-            _timer->scheduleRepeated(new ReaperTask, IceUtil::Time::seconds(5 * 60));
-        }
+        _timer.start(std::chrono::minutes(5));
     }
 
     RETURN_TRUE;
@@ -1788,11 +1790,7 @@ IcePHP::communicatorShutdown(void)
 
     lock_guard lock(_registeredCommunicatorsMutex);
 
-    if(_timer)
-    {
-        _timer->destroy();
-        _timer = 0;
-    }
+    _timer.stop();
 
     //
     // Clearing the map releases the last remaining reference counts of the ActiveCommunicator
@@ -2180,7 +2178,39 @@ IcePHP::ValueFactoryManager::destroy()
 }
 
 void
-IcePHP::ReaperTask::runTimerTask()
+IcePHP::ReaperTask::start(std::chrono::seconds timeout)
+{
+    std::lock_guard lock(_mutex);
+    if(!_running)
+    {
+        _running = true;
+        _thread = std::thread([this, timeout]
+        {
+            std::unique_lock lock(_mutex);
+            _cond.wait_for(lock, timeout, [&] { return !_running; });
+
+            if(_running)
+            {
+                reap();
+            }
+        });
+    }
+}
+
+void
+IcePHP::ReaperTask::stop()
+{
+    std::lock_guard lock(_mutex);
+    if(_running)
+    {
+        _running = false;
+        _cond.notify_one();
+        _thread.join();
+    }
+}
+
+void
+IcePHP::ReaperTask::reap()
 {
     lock_guard lock(_registeredCommunicatorsMutex);
 
