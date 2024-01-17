@@ -5,8 +5,6 @@
 #ifndef FILE_TRACKER_H
 #define FILE_TRACKER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <Slice/Parser.h>
 
 namespace Slice

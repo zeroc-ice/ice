@@ -8,6 +8,7 @@
 #include <IceUtil/UUID.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
+#include <algorithm>
 #include <iterator>
 
 // TODO: fix this warning!

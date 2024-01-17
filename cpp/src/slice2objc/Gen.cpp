@@ -15,6 +15,7 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <string.h>
+#include <algorithm>
 #include <iterator>
 
 using namespace std;

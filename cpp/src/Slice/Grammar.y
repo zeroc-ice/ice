@@ -819,7 +819,7 @@ class_id
     else
     {
         string typeId = currentUnit->getTypeId(static_cast<int>(id));
-        if(!typeId.empty() && !currentUnit->ignRedefs())
+        if(!typeId.empty())
         {
             currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
         }
@@ -908,7 +908,7 @@ class_id
     else
     {
         string typeId = currentUnit->getTypeId(id);
-        if(!typeId.empty() && !currentUnit->ignRedefs())
+        if(!typeId.empty())
         {
             currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
         }

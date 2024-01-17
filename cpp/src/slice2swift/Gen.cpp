@@ -9,6 +9,7 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 
+#include <algorithm>
 #include <iterator>
 
 #include "Gen.h"
