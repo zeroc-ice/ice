@@ -11,8 +11,6 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 
-#include <thread>
-
 namespace IcePy
 {
 

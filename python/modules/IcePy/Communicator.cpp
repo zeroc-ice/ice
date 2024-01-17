@@ -51,7 +51,7 @@ struct CommunicatorObject
     Ice::CommunicatorPtr* communicator;
     PyObject* wrapper;
     std::future<void>* shutdownFuture;
-    std::exception_ptr* shutdownException;
+    Ice::Exception* shutdownException;
     bool shutdown;
     DispatcherPtr* dispatcher;
 };
@@ -73,7 +73,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->communicator = 0;
     self->wrapper = 0;
     self->shutdownFuture = nullptr;
-    self->shutdownException = new exception_ptr;
+    self->shutdownException = nullptr;
     self->shutdown = false;
     self->dispatcher = 0;
     return self;
@@ -491,23 +491,16 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
             {
                 self->shutdownFuture->get();
             }
-            catch(const Ice::Exception&)
+            catch(const Ice::Exception& ex)
             {
-                *self->shutdownException = current_exception();
+                self->shutdownException = ex.ice_clone();
             }
         }
 
         assert(self->shutdown);
-        if(*self->shutdownException)
+        if(self->shutdownException)
         {
-            try
-            {
-                std::rethrow_exception(*self->shutdownException);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                setPythonException(ex);
-            }
+            setPythonException(*self->shutdownException);
             return 0;
         }
     }
