@@ -3,8 +3,9 @@
 //
 
 #include "Gen.h"
+#include "CPlusPlusUtil.h"
+
 #include <Slice/Util.h>
-#include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/FileTracker.h>
 #include <IceUtil/FileUtil.h>
@@ -23,7 +24,7 @@ namespace
 bool
 isConstexprType(const TypePtr& type)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     if(bp)
     {
         switch(bp->kind())
@@ -47,13 +48,13 @@ isConstexprType(const TypePtr& type)
             }
         }
     }
-    else if(EnumPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+    else if(dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
     {
         return true;
     }
     else
     {
-        StructPtr s = StructPtr::dynamicCast(type);
+        StructPtr s = dynamic_pointer_cast<Struct>(type);
         if(s)
         {
             DataMemberList members = s->dataMembers();
@@ -91,7 +92,7 @@ void
 writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
                    const string& value, int typeContext, const StringList& metaData, const string& scope)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         out << getUnqualified(fixKwd(constant->scoped()), scope);
@@ -99,7 +100,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     else
     {
         bool cpp11 = (typeContext & TypeContextCpp11) == TypeContextCpp11;
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
             if ((typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring") // wide strings
@@ -135,10 +136,10 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
         }
         else
         {
-            EnumPtr ep = EnumPtr::dynamicCast(type);
+            EnumPtr ep = dynamic_pointer_cast<Enum>(type);
             if(ep && valueType)
             {
-                EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
+                EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(enumerator);
 
                 bool unscoped = (cpp11 && findMetaData(ep->getMetaData(), TypeContextCpp11) == "%unscoped") ||
@@ -200,7 +201,7 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
     bool first = true;
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        ContainedPtr contained = ContainedPtr::dynamicCast((*p)->container());
+        ContainedPtr contained = dynamic_pointer_cast<Contained>((*p)->container());
         string scope = contained->scope();
         if((*p)->defaultValueType())
         {
@@ -1726,7 +1727,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string name = fixKwd(p->name());
     TypePtr type = p->type();
-    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     string scope = fixKwd(p->scope());
     string s = typeToString(type, scope, p->typeMetaData(), _useWstring);
     StringList metaData = p->getMetaData();
@@ -1750,7 +1751,7 @@ void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
-    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     string scope = fixKwd(p->scope());
     string dictType = findMetaData(p->getMetaData());
 
@@ -3368,7 +3369,7 @@ Slice::Gen::ValueVisitor::emitDataMember(const DataMemberPtr& p)
     string name = fixKwd(p->name());
     int typeContext = _useWstring;
     ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(container);
     //
     // Use empty scope to get full qualified names in types used with future declarations.
     //
@@ -3380,7 +3381,7 @@ Slice::Gen::ValueVisitor::emitDataMember(const DataMemberPtr& p)
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
         if(p->optional() && builtin && builtin->kind() == Builtin::KindString)
         {
             //
@@ -3942,7 +3943,7 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExpo
 string
 Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -3977,33 +3978,33 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
     }
     else
     {
-        InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+        InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
 
-        if(InterfaceDeclPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+        if(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
         {
             return "0";
         }
 
-        StructPtr st = StructPtr::dynamicCast(type);
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
         if(st)
         {
             return getUnqualified(fixKwd(st->scoped()), scope) + "()";
         }
 
-        EnumPtr en = EnumPtr::dynamicCast(type);
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if(en)
         {
             EnumeratorList enumerators = en->enumerators();
             return getUnqualified(fixKwd(en->scope() + enumerators.front()->name()), scope);
         }
 
-        SequencePtr seq = SequencePtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if(seq)
         {
             return typeToString(seq, scope, metaData, _useWstring | TypeContextCpp11) + "()";
         }
 
-        DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
         if(dict)
         {
             return getUnqualified(fixKwd(dict->scoped()), scope) + "()";
@@ -4546,7 +4547,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         return false;
     }
 
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -4565,7 +4566,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 void
 Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -4942,55 +4943,55 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             string ss = s.substr(prefix.size());
             if(ss == "type:wstring" || ss == "type:string")
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(cont);
-                ModulePtr module = ModulePtr::dynamicCast(cont);
-                ClassDefPtr clss = ClassDefPtr::dynamicCast(cont);
-                InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(cont);
-                StructPtr strct = StructPtr::dynamicCast(cont);
-                ExceptionPtr exception = ExceptionPtr::dynamicCast(cont);
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(cont);
+                ModulePtr module = dynamic_pointer_cast<Module>(cont);
+                ClassDefPtr clss = dynamic_pointer_cast<ClassDef>(cont);
+                InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(cont);
+                StructPtr strct = dynamic_pointer_cast<Struct>(cont);
+                ExceptionPtr exception = dynamic_pointer_cast<Exception>(cont);
                 if((builtin && builtin->kind() == Builtin::KindString) || module || clss || strct || interface || exception)
                 {
                     continue;
                 }
             }
-            if(BuiltinPtr::dynamicCast(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+            if(dynamic_pointer_cast<Builtin>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
             {
-                if(BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindString)
+                if(dynamic_pointer_cast<Builtin>(cont)->kind() == Builtin::KindString)
                 {
                     continue;
                 }
             }
-            if(SequencePtr::dynamicCast(cont))
+            if(dynamic_pointer_cast<Sequence>(cont))
             {
                 if(ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array" || ss.find("range") == 0)
                 {
                     continue;
                 }
             }
-            if(DictionaryPtr::dynamicCast(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+            if(dynamic_pointer_cast<Dictionary>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
             {
                 continue;
             }
-            if(!cpp11 && StructPtr::dynamicCast(cont) && (ss == "class" || ss == "comparable"))
-            {
-                continue;
-            }
-
-            if(ExceptionPtr::dynamicCast(cont) && ss == "ice_print")
-            {
-                continue;
-            }
-            if(!cpp11 && EnumPtr::dynamicCast(cont) && ss == "scoped")
-            {
-                continue;
-            }
-            if(!cpp98 && EnumPtr::dynamicCast(cont) && ss == "unscoped")
+            if(!cpp11 && dynamic_pointer_cast<Struct>(cont) && (ss == "class" || ss == "comparable"))
             {
                 continue;
             }
 
+            if(dynamic_pointer_cast<Exception>(cont) && ss == "ice_print")
             {
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(cont);
+                continue;
+            }
+            if(!cpp11 && dynamic_pointer_cast<Enum>(cont) && ss == "scoped")
+            {
+                continue;
+            }
+            if(!cpp98 && dynamic_pointer_cast<Enum>(cont) && ss == "unscoped")
+            {
+                continue;
+            }
+
+            {
+                ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(cont);
                 if(cl && ss.find("type:") == 0)
                 {
                     continue;
@@ -5794,7 +5795,7 @@ Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
         if(p->optional() && builtin->kind() == Builtin::KindString)
         {
             //
@@ -6524,7 +6525,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     string name = fixKwd(p->name());
     int typeContext = _useWstring | TypeContextCpp11;
     ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(container);
     //
     // Use empty scope to get full qualified names in types used with future declarations.
     //
@@ -6536,7 +6537,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
         if(p->optional() && builtin && builtin->kind() == Builtin::KindString)
         {
             //
@@ -7504,7 +7505,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
         return false;
     }
 
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -7525,7 +7526,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
 void
 Slice::Gen::Cpp11StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -7648,7 +7649,7 @@ Slice::Gen::Cpp11ImplVisitor::Cpp11ImplVisitor(Output& h, Output& c, const strin
 string
 Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -7683,31 +7684,31 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
     }
     else
     {
-        if(InterfaceDeclPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+        if(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
         {
             return "nullptr";
         }
 
-        StructPtr st = StructPtr::dynamicCast(type);
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
         if(st)
         {
             return getUnqualified(fixKwd(st->scoped()), scope) + "()";
         }
 
-        EnumPtr en = EnumPtr::dynamicCast(type);
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if(en)
         {
             EnumeratorList enumerators = en->enumerators();
             return getUnqualified(fixKwd(en->scoped() + "::" + enumerators.front()->name()), scope);
         }
 
-        SequencePtr seq = SequencePtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if(seq)
         {
             return typeToString(seq, scope, metaData, _useWstring | TypeContextCpp11) + "()";
         }
 
-        DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
         if(dict)
         {
             return getUnqualified(fixKwd(dict->scoped()), scope) + "()";

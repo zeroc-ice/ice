@@ -5,8 +5,6 @@
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <IceUtil/Exception.h>
 #include <array>
 #include <string>
@@ -14,6 +12,7 @@
 #include <list>
 #include <stack>
 #include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string_view>
@@ -118,51 +117,55 @@ class CICompare;
 class DerivedToBaseCompare;
 class ModulePartialCompare;
 
-typedef ::IceUtil::Handle<GrammarBase> GrammarBasePtr;
-typedef ::IceUtil::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
-typedef ::IceUtil::Handle<Type> TypePtr;
-typedef ::IceUtil::Handle<Builtin> BuiltinPtr;
-typedef ::IceUtil::Handle<Contained> ContainedPtr;
-typedef ::IceUtil::Handle<Container> ContainerPtr;
-typedef ::IceUtil::Handle<Module> ModulePtr;
-typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
-typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
-typedef ::IceUtil::Handle<ClassDef> ClassDefPtr;
-typedef ::IceUtil::Handle<InterfaceDecl> InterfaceDeclPtr;
-typedef ::IceUtil::Handle<InterfaceDef> InterfaceDefPtr;
-typedef ::IceUtil::Handle<Exception> ExceptionPtr;
-typedef ::IceUtil::Handle<Struct> StructPtr;
-typedef ::IceUtil::Handle<Operation> OperationPtr;
-typedef ::IceUtil::Handle<ParamDecl> ParamDeclPtr;
-typedef ::IceUtil::Handle<DataMember> DataMemberPtr;
-typedef ::IceUtil::Handle<Sequence> SequencePtr;
-typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
-typedef ::IceUtil::Handle<Enum> EnumPtr;
-typedef ::IceUtil::Handle<Enumerator> EnumeratorPtr;
-typedef ::IceUtil::Handle<Const> ConstPtr;
-typedef ::IceUtil::Handle<Unit> UnitPtr;
+using GrammarBasePtr = std::shared_ptr<GrammarBase>;
+using SyntaxTreeBasePtr = std::shared_ptr<SyntaxTreeBase>;
+using TypePtr = std::shared_ptr<Type>;
+using BuiltinPtr = std::shared_ptr<Builtin>;
+using ContainedPtr = std::shared_ptr<Contained>;
+using ContainerPtr = std::shared_ptr<Container>;
+using ModulePtr = std::shared_ptr<Module>;
+using ConstructedPtr = std::shared_ptr<Constructed>;
+using ClassDeclPtr = std::shared_ptr<ClassDecl>;
+using ClassDefPtr = std::shared_ptr<ClassDef>;
+using InterfaceDeclPtr = std::shared_ptr<InterfaceDecl>;
+using InterfaceDefPtr = std::shared_ptr<InterfaceDef>;
+using ExceptionPtr = std::shared_ptr<Exception>;
+using StructPtr = std::shared_ptr<Struct>;
+using OperationPtr = std::shared_ptr<Operation>;
+using ParamDeclPtr = std::shared_ptr<ParamDecl>;
+using DataMemberPtr = std::shared_ptr<DataMember>;
+using SequencePtr = std::shared_ptr<Sequence>;
+using DictionaryPtr = std::shared_ptr<Dictionary>;
+using EnumPtr = std::shared_ptr<Enum>;
+using EnumeratorPtr = std::shared_ptr<Enumerator>;
+using ConstPtr = std::shared_ptr<Const>;
+using UnitPtr = std::shared_ptr<Unit>;
 
-typedef std::list<TypePtr> TypeList;
-typedef std::list<ExceptionPtr> ExceptionList;
-typedef std::set<std::string> StringSet;
-typedef std::list<std::string> StringList;
-typedef std::pair<TypePtr, std::string> TypeString;
-typedef std::list<TypeString> TypeStringList;
-typedef std::list<ContainedPtr> ContainedList;
-typedef std::list<ModulePtr> ModuleList;
-typedef std::list<ConstructedPtr> ConstructedList;
-typedef std::list<ClassDefPtr> ClassList;
-typedef std::list<InterfaceDefPtr> InterfaceList;
-typedef std::list<ExceptionPtr> ExceptionList;
-typedef std::list<StructPtr> StructList;
-typedef std::list<SequencePtr> SequenceList;
-typedef std::list<DictionaryPtr> DictionaryList;
-typedef std::list<EnumPtr> EnumList;
-typedef std::list<ConstPtr> ConstList;
-typedef std::list<OperationPtr> OperationList;
-typedef std::list<DataMemberPtr> DataMemberList;
-typedef std::list<ParamDeclPtr> ParamDeclList;
-typedef std::list<EnumeratorPtr> EnumeratorList;
+bool containedCompare(const ContainedPtr& lhs, const ContainedPtr& rhs);
+bool containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs);
+
+using TypeList = std::list<TypePtr>;
+using ExceptionList = std::list<ExceptionPtr>;
+using StringSet = std::set<std::string>;
+using StringList = std::list<std::string>;
+using TypeString = std::pair<TypePtr, std::string>;
+using TypeStringList = std::list<TypeString>;
+using ContainedList = std::list<ContainedPtr>;
+using ModuleList = std::list<ModulePtr>;
+using ConstructedList = std::list<ConstructedPtr>;
+using ClassList = std::list<ClassDefPtr>;
+using InterfaceList = std::list<InterfaceDefPtr>;
+using ExceptionList = std::list<ExceptionPtr>;
+using StructList = std::list<StructPtr>;
+using SequenceList = std::list<SequencePtr>;
+using DictionaryList = std::list<DictionaryPtr>;
+using EnumList = std::list<EnumPtr>;
+using ConstList = std::list<ConstPtr>;
+using OperationList = std::list<OperationPtr>;
+using DataMemberList = std::list<DataMemberPtr>;
+using ParamDeclList = std::list<ParamDeclPtr>;
+using EnumeratorList = std::list<EnumeratorPtr>;
+using ConstructedSet = std::set<ConstructedPtr, decltype(containedCompare)*>;
 
 struct ConstDef
 {
@@ -239,7 +242,7 @@ public:
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-class DefinitionContext : public ::IceUtil::SimpleShared
+class DefinitionContext
 {
 public:
 
@@ -278,13 +281,13 @@ private:
     bool _seenDefinition;
     std::set<WarningCategory> _suppressedWarnings;
 };
-typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
+using DefinitionContextPtr = std::shared_ptr<DefinitionContext>;
 
 // ----------------------------------------------------------------------
 // Comment
 // ----------------------------------------------------------------------
 
-class Comment : public ::IceUtil::SimpleShared
+class Comment
 {
 public:
 
@@ -301,8 +304,6 @@ public:
 
 private:
 
-    Comment();
-
     bool _isDeprecated;
     StringList _deprecated;
     StringList _overview;
@@ -315,14 +316,17 @@ private:
 
     friend class Contained;
 };
-typedef ::IceUtil::Handle<Comment> CommentPtr;
+using CommentPtr = std::shared_ptr<Comment>;
 
 // ----------------------------------------------------------------------
 // GrammarBase
 // ----------------------------------------------------------------------
 
-class GrammarBase : public ::IceUtil::SimpleShared
+class GrammarBase : public virtual std::enable_shared_from_this<GrammarBase>
 {
+public:
+
+    virtual ~GrammarBase() = default;
 };
 
 // ----------------------------------------------------------------------
@@ -333,14 +337,13 @@ class SyntaxTreeBase : public GrammarBase
 {
 public:
 
+    SyntaxTreeBase(const UnitPtr&);
     virtual void destroy();
     UnitPtr unit() const;
     DefinitionContextPtr definitionContext() const; // May be nil
     virtual void visit(ParserVisitor*, bool);
 
 protected:
-
-    SyntaxTreeBase(const UnitPtr&, const DefinitionContextPtr& = 0);
 
     UnitPtr _unit;
     DefinitionContextPtr _definitionContext;
@@ -354,15 +357,12 @@ class Type : public virtual SyntaxTreeBase
 {
 public:
 
+    Type(const UnitPtr&);
     virtual std::string typeId() const = 0;
     virtual bool usesClasses() const = 0;
     virtual size_t minWireSize() const = 0;
     virtual std::string getTagFormat() const = 0;
     virtual bool isVariableLength() const = 0;
-
-protected:
-
-    Type(const UnitPtr&);
 };
 
 // ----------------------------------------------------------------------
@@ -387,6 +387,8 @@ public:
         KindObjectProxy,
         KindValue
     };
+
+    Builtin(const UnitPtr&, Kind);
 
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
@@ -418,7 +420,6 @@ public:
 
 protected:
 
-    Builtin(const UnitPtr&, Kind);
     friend class Unit;
 
     const Kind _kind;
@@ -432,6 +433,8 @@ class Contained : public virtual SyntaxTreeBase
 {
 public:
 
+    Contained(const ContainerPtr&, const std::string&);
+    virtual void init();
     ContainerPtr container() const;
     std::string name() const;
     std::string scoped() const;
@@ -474,12 +477,8 @@ public:
     virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
 
-    bool operator<(const Contained&) const;
-    bool operator==(const Contained&) const;
-
 protected:
 
-    Contained(const ContainerPtr&, const std::string&);
     friend class Container;
 
     ContainerPtr _container;
@@ -500,6 +499,7 @@ class Container : public virtual SyntaxTreeBase
 {
 public:
 
+    Container(const UnitPtr&);
     virtual void destroy();
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&);
@@ -554,14 +554,12 @@ public:
     void sort();
     void sortContents(bool);
     virtual void visit(ParserVisitor*, bool);
-    void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    void containerRecDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
     bool checkForGlobalDef(const std::string&, const char *);
 
 protected:
-
-    Container(const UnitPtr&);
 
     bool checkGlobalMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
@@ -579,14 +577,12 @@ class Module : public virtual Container, public virtual Contained
 {
 public:
 
+    Module(const ContainerPtr&, const std::string&);
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 
-protected:
-
-    Module(const ContainerPtr&, const std::string&);
     friend class Container;
 };
 
@@ -598,14 +594,11 @@ class Constructed : public virtual Type, public virtual Contained
 {
 public:
 
+    Constructed(const ContainerPtr&, const std::string&);
     virtual std::string typeId() const;
     virtual bool isVariableLength() const = 0;
     ConstructedList dependencies();
-    virtual void recDependencies(std::set<ConstructedPtr>&) = 0; // Internal operation, don't use directly.
-
-protected:
-
-    Constructed(const ContainerPtr&, const std::string&);
+    virtual void recDependencies(ConstructedSet&) = 0; // Internal operation, don't use directly.
 };
 
 // ----------------------------------------------------------------------
@@ -616,6 +609,7 @@ class ClassDecl : public virtual Constructed
 {
 public:
 
+    ClassDecl(const ContainerPtr&, const std::string&);
     virtual void destroy();
     ClassDefPtr definition() const;
     virtual ContainedType containedType() const;
@@ -626,11 +620,10 @@ public:
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
-    ClassDecl(const ContainerPtr&, const std::string&);
     friend class Container;
     friend class ClassDef;
 
@@ -652,6 +645,7 @@ class ClassDef : public virtual Container, public virtual Contained
 {
 public:
 
+    ClassDef(const ContainerPtr&, const std::string&, int, const ClassDefPtr&);
     virtual void destroy();
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                                    const std::string&, const std::string&);
@@ -678,7 +672,6 @@ public:
 
 protected:
 
-    ClassDef(const ContainerPtr&, const std::string&, int, const ClassDefPtr&);
     friend class Container;
 
     ClassDeclPtr _declaration;
@@ -695,6 +688,7 @@ class InterfaceDecl : public virtual Constructed
 {
 public:
 
+    InterfaceDecl(const ContainerPtr&, const std::string&);
     virtual void destroy();
     InterfaceDefPtr definition() const;
     virtual ContainedType containedType() const;
@@ -705,13 +699,12 @@ public:
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
 
 protected:
 
-    InterfaceDecl(const ContainerPtr&, const std::string&);
     friend class Container;
     friend class InterfaceDef;
 
@@ -747,6 +740,7 @@ public:
         Idempotent
     };
 
+    Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
     InterfaceDefPtr interface() const;
     TypePtr returnType() const;
     bool returnIsOptional() const;
@@ -775,7 +769,6 @@ public:
 
 protected:
 
-    Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
     friend class InterfaceDef;
 
     TypePtr _returnType;
@@ -800,6 +793,7 @@ class InterfaceDef : public virtual Container, public virtual Contained
 {
 public:
 
+    InterfaceDef(const ContainerPtr&, const std::string&, const InterfaceList&);
     virtual void destroy();
     OperationPtr createOperation(const std::string&, const TypePtr&, bool, int, Operation::Mode = Operation::Normal);
 
@@ -819,7 +813,6 @@ public:
 
 protected:
 
-    InterfaceDef(const ContainerPtr&, const std::string&, const InterfaceList&);
     friend class Container;
 
     InterfaceDeclPtr _declaration;
@@ -836,6 +829,7 @@ class Exception : public virtual Container, public virtual Contained
 {
 public:
 
+    Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&);
     virtual void destroy();
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                                    const std::string&, const std::string&);
@@ -858,7 +852,6 @@ public:
 
 protected:
 
-    Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&);
     friend class Container;
 
     ExceptionPtr _base;
@@ -872,6 +865,7 @@ class Struct : public virtual Container, public virtual Constructed
 {
 public:
 
+    Struct(const ContainerPtr&, const std::string&);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                                    const std::string&, const std::string&);
     DataMemberList dataMembers() const;
@@ -885,11 +879,8 @@ public:
     bool hasDefaultValues() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
-protected:
-
-    Struct(const ContainerPtr&, const std::string&);
     friend class Container;
 };
 
@@ -901,6 +892,7 @@ class Sequence : public virtual Constructed
 {
 public:
 
+    Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
     TypePtr type() const;
     StringList typeMetaData() const;
     virtual ContainedType containedType() const;
@@ -911,11 +903,10 @@ public:
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
-    Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
     friend class Container;
 
     TypePtr _type;
@@ -930,6 +921,8 @@ class Dictionary : public virtual Constructed
 {
 public:
 
+    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&,
+               const StringList&);
     TypePtr keyType() const;
     TypePtr valueType() const;
     StringList keyMetaData() const;
@@ -942,14 +935,12 @@ public:
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     static bool legalKeyType(const TypePtr&, bool&);
 
 protected:
 
-    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-               const StringList&);
     friend class Container;
 
     TypePtr _keyType;
@@ -966,6 +957,7 @@ class Enum : public virtual Container, public virtual Constructed
 {
 public:
 
+    Enum(const ContainerPtr&, const std::string&);
     virtual void destroy();
     bool explicitValue() const;
     int minValue() const;
@@ -978,11 +970,10 @@ public:
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
-    Enum(const ContainerPtr&, const std::string&);
     int newEnumerator(const EnumeratorPtr&);
 
     friend class Container;
@@ -1002,6 +993,9 @@ class Enumerator : public virtual Contained
 {
 public:
 
+    Enumerator(const ContainerPtr&, const std::string&);
+    Enumerator(const ContainerPtr&, const std::string&, int);
+    virtual void init();
     EnumPtr type() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual ContainedType containedType() const;
@@ -1012,8 +1006,6 @@ public:
 
 protected:
 
-    Enumerator(const ContainerPtr&, const std::string&);
-    Enumerator(const ContainerPtr&, const std::string&, int);
     friend class Container;
 
     bool _explicitValue;
@@ -1028,6 +1020,8 @@ class Const : public virtual Contained
 {
 public:
 
+    Const(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
+          const std::string&, const std::string&);
     TypePtr type() const;
     StringList typeMetaData() const;
     SyntaxTreeBasePtr valueType() const;
@@ -1040,8 +1034,6 @@ public:
 
 protected:
 
-    Const(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
-          const std::string&, const std::string&);
     friend class Container;
 
     TypePtr _type;
@@ -1059,6 +1051,7 @@ class ParamDecl : public virtual Contained
 {
 public:
 
+    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
     TypePtr type() const;
     bool isOutParam() const;
     bool optional() const;
@@ -1070,7 +1063,6 @@ public:
 
 protected:
 
-    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
     friend class Operation;
 
     TypePtr _type;
@@ -1087,6 +1079,8 @@ class DataMember : public virtual Contained
 {
 public:
 
+    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
+               const std::string&, const std::string&);
     TypePtr type() const;
     bool optional() const;
     int tag() const;
@@ -1100,8 +1094,6 @@ public:
 
 protected:
 
-    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-               const std::string&, const std::string&);
     friend class ClassDef;
     friend class Struct;
     friend class Exception;
@@ -1122,6 +1114,7 @@ class Unit : public virtual Container
 {
 public:
 
+    Unit(bool, bool, const StringList&);
     static UnitPtr createUnit(bool, bool, const StringList& = StringList());
 
     bool ignRedefs() const;
@@ -1188,7 +1181,7 @@ public:
 
 private:
 
-    Unit(bool, bool, const StringList&);
+    void init();
     static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
@@ -1208,7 +1201,7 @@ private:
     std::map< std::string, std::set<std::string> > _fileTopLevelModules;
 };
 
-extern Unit* unit; // The current parser for bison/flex
+extern Unit* currentUnit; // The current parser for bison/flex
 
 }
 

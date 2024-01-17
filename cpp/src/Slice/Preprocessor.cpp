@@ -45,7 +45,7 @@ extern "C" char* mcpp_get_mem_buffer(Outdest od);
 Slice::PreprocessorPtr
 Slice::Preprocessor::create(const string& path, const string& fileName, const vector<string>& args)
 {
-    return new Preprocessor(path, fileName, args);
+    return make_shared<Preprocessor>(path, fileName, args);
 }
 
 Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args) :

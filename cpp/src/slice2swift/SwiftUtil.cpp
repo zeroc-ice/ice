@@ -156,13 +156,13 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
     ContainedPtr p = cont;
     while(true)
     {
-        if(ModulePtr::dynamicCast(p))
+        if(dynamic_pointer_cast<Module>(p))
         {
-            m = ModulePtr::dynamicCast(p);
+            m = dynamic_pointer_cast<Module>(p);
         }
 
         ContainerPtr c = p->container();
-        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
+        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
         if(!p)
         {
             break;
@@ -174,11 +174,11 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
 ModulePtr
 Slice::getTopLevelModule(const TypePtr& type)
 {
-    assert(InterfaceDeclPtr::dynamicCast(type) || ContainedPtr::dynamicCast(type));
+    assert(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<Contained>(type));
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
-    return getTopLevelModule(proxy ? ContainedPtr::dynamicCast(proxy) :
-                                     ContainedPtr::dynamicCast(type));
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
+    return getTopLevelModule(proxy ? dynamic_pointer_cast<Contained>(proxy) :
+                                     dynamic_pointer_cast<Contained>(type));
 }
 
 void
@@ -925,7 +925,7 @@ getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const strin
 string
 SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -957,25 +957,25 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         return "." + fixIdent((*en->enumerators().begin())->name());
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         return getUnqualified(getAbsolute(type), swiftModule) + "()";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return getUnqualified(getAbsolute(type), swiftModule) + "()";
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         return getUnqualified(getAbsolute(type), swiftModule) + "()";
@@ -989,7 +989,7 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
                                    const SyntaxTreeBasePtr& valueType, const string& value,
                                    const StringList&, const string& swiftModule, bool optional)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         out << getUnqualified(getAbsolute(constant), swiftModule);
@@ -998,8 +998,8 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
     {
         if(valueType)
         {
-            BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-            EnumPtr ep = EnumPtr::dynamicCast(type);
+            BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
+            EnumPtr ep = dynamic_pointer_cast<Enum>(type);
             if(bp && bp->kind() == Builtin::KindString)
             {
                 out << "\"";
@@ -1009,7 +1009,7 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
             else if(ep)
             {
                 assert(valueType);
-                EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
+                EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(enumerator);
                 out << getUnqualified(getAbsolute(ep), swiftModule) << "." << enumerator->name();
             }
@@ -1061,7 +1061,7 @@ SwiftGenerator::typeToString(const TypePtr& type,
     // The current module where the type is being used
     //
     string currentModule = getSwiftModule(getTopLevelModule(toplevel));
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
 
     if(builtin)
@@ -1076,9 +1076,9 @@ SwiftGenerator::typeToString(const TypePtr& type,
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
-    ContainedPtr cont = ContainedPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
 
     if(cl)
     {
@@ -1118,19 +1118,19 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
         "Ice.Value"         // Value
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         return builtinTable[builtin->kind()];
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         return getAbsoluteImpl(proxy, "", "Prx");
     }
 
-    ContainedPtr cont = ContainedPtr::dynamicCast(type);
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
     if(cont)
     {
         return getAbsoluteImpl(cont);
@@ -1240,7 +1240,7 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
 string
 SwiftGenerator::getOptionalFormat(const TypePtr& type)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     if(bp)
     {
         switch(bp->kind())
@@ -1283,36 +1283,36 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return ".Size";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return seq->type()->isVariableLength() ? ".FSize" : ".VSize";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
             ".FSize" : ".VSize";
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         return st->isVariableLength() ? ".FSize" : ".VSize";
     }
 
-    if(InterfaceDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return ".FSize";
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     assert(cl);
     return ".Class";
 }
@@ -1320,7 +1320,7 @@ SwiftGenerator::getOptionalFormat(const TypePtr& type)
 bool
 SwiftGenerator::isNullableType(const TypePtr& type)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1338,23 +1338,23 @@ SwiftGenerator::isNullableType(const TypePtr& type)
         }
     }
 
-    return ClassDeclPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type);
+    return dynamic_pointer_cast<ClassDecl>(type) || dynamic_pointer_cast<InterfaceDecl>(type);
 }
 
 bool
 SwiftGenerator::isProxyType(const TypePtr& p)
 {
-    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    return (builtin && builtin->kind() == Builtin::KindObjectProxy) || InterfaceDeclPtr::dynamicCast(p);
+    const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
+    return (builtin && builtin->kind() == Builtin::KindObjectProxy) || dynamic_pointer_cast<InterfaceDecl>(p);
 }
 
 bool
 SwiftGenerator::isClassType(const TypePtr& p)
 {
-    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
     return (builtin && (builtin->kind() == Builtin::KindObject ||
                         builtin->kind() == Builtin::KindValue)) ||
-        ClassDeclPtr::dynamicCast(p);
+        dynamic_pointer_cast<ClassDecl>(p);
 }
 
 bool
@@ -1368,26 +1368,26 @@ SwiftGenerator::containsClassMembers(const StructPtr& s)
             return true;
         }
 
-        StructPtr st = StructPtr::dynamicCast((*i)->type());
+        StructPtr st = dynamic_pointer_cast<Struct>((*i)->type());
         if(st && containsClassMembers(st))
         {
             return true;
         }
 
-        SequencePtr seq = SequencePtr::dynamicCast((*i)->type());
+        SequencePtr seq = dynamic_pointer_cast<Sequence>((*i)->type());
         if(seq)
         {
-            st = StructPtr::dynamicCast(seq->type());
+            st = dynamic_pointer_cast<Struct>(seq->type());
             if(isClassType(seq->type()) || (st && containsClassMembers(st)))
             {
                 return true;
             }
         }
 
-        DictionaryPtr dict = DictionaryPtr::dynamicCast((*i)->type());
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>((*i)->type());
         if(dict)
         {
-            st = StructPtr::dynamicCast(dict->valueType());
+            st = dynamic_pointer_cast<Struct>(dict->valueType());
             if(isClassType(dict->valueType()) || (st && containsClassMembers(st)))
             {
                 return true;
@@ -1504,9 +1504,9 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         // to avoid ambiguity.
         //
         string alias;
-        if(!protocol && memberName == memberType && (StructPtr::dynamicCast(type) ||
-                                                     SequencePtr::dynamicCast(type) ||
-                                                     DictionaryPtr::dynamicCast(type)))
+        if(!protocol && memberName == memberType && (dynamic_pointer_cast<Struct>(type) ||
+                                                     dynamic_pointer_cast<Sequence>(type) ||
+                                                     dynamic_pointer_cast<Dictionary>(type)))
         {
             ModulePtr m = getTopLevelModule(type);
             alias =  m->name() + "_" + memberType;
@@ -1538,17 +1538,17 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
 bool
 SwiftGenerator::usesMarshalHelper(const TypePtr& type)
 {
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
         if(builtin)
         {
             return builtin->kind() > Builtin::KindString;
         }
         return true;
     }
-    return DictionaryPtr::dynamicCast(type);
+    return dynamic_pointer_cast<Dictionary>(type) != nullptr;
 }
 
 void
@@ -1560,7 +1560,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                                           int tag)
 {
     string swiftModule = getSwiftModule(getTopLevelModule(p));
-    string stream = StructPtr::dynamicCast(p) ? "self" : marshal ? "ostr" : "istr";
+    string stream = dynamic_pointer_cast<Struct>(p) ? "self" : marshal ? "ostr" : "istr";
 
     string args;
     if(tag >= 0)
@@ -1581,7 +1581,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         args += param;
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1643,9 +1643,9 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
     }
 
-    if(ClassDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<ClassDecl>(type))
     {
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         if(marshal)
         {
             out << nl << stream << ".write(" << args << ")";
@@ -1682,7 +1682,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         if(marshal)
@@ -1696,7 +1696,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         if(marshal)
@@ -1716,7 +1716,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(StructPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Struct>(type))
     {
         if(marshal)
         {
@@ -1729,10 +1729,10 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
-        BuiltinPtr seqBuiltin = BuiltinPtr::dynamicCast(seq->type());
+        BuiltinPtr seqBuiltin = dynamic_pointer_cast<Builtin>(seq->type());
         if(seqBuiltin && seqBuiltin->kind() <= Builtin::KindString)
         {
             if(marshal)
@@ -1746,7 +1746,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            string helper = getUnqualified(getAbsoluteImpl(ContainedPtr::dynamicCast(type)), swiftModule) + "Helper";
+            string helper = getUnqualified(getAbsoluteImpl(dynamic_pointer_cast<Contained>(type)), swiftModule) + "Helper";
             if(marshal)
             {
                 out << nl << helper <<".write(to: " << stream << ", " << args << ")";
@@ -1764,9 +1764,9 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(DictionaryPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Dictionary>(type))
     {
-        string helper = getUnqualified(getAbsoluteImpl(ContainedPtr::dynamicCast(type)), swiftModule) + "Helper";
+        string helper = getUnqualified(getAbsoluteImpl(dynamic_pointer_cast<Contained>(type)), swiftModule) + "Helper";
         if(marshal)
         {
             out << nl << helper <<".write(to: " << stream << ", " << args << ")";
@@ -1787,7 +1787,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
 bool
 SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(UnitPtr::dynamicCast(p->container()))
+    if(dynamic_pointer_cast<Unit>(p->container()))
     {
         // top-level module
         const UnitPtr ut = p->unit();
@@ -2385,7 +2385,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceUtilInternal::Output& out, const Ope
 void
 SwiftGenerator::writeUnmarshalUserException(::IceUtilInternal::Output& out, const OperationPtr& op)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
     ExceptionList throws = op->throws();
     throws.sort();
     throws.unique();
@@ -2429,7 +2429,7 @@ SwiftGenerator::writeProxyOperation(::IceUtilInternal::Output& out, const Operat
     const ParamInfoList allOutParams = getAllOutParams(op);
     const ExceptionList allExceptions = op->throws();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
     writeOpDocSummary(out, op, false, false);
@@ -2515,7 +2515,7 @@ SwiftGenerator::writeProxyAsyncOperation(::IceUtilInternal::Output& out, const O
     const ParamInfoList allOutParams = getAllOutParams(op);
     const ExceptionList allExceptions = op->throws();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
     writeOpDocSummary(out, op, true, false);
@@ -2606,7 +2606,7 @@ SwiftGenerator::writeDispatchOperation(::IceUtilInternal::Output& out, const Ope
     const ParamInfoList allOutParams = getAllOutParams(op);
     const ExceptionList allExceptions = op->throws();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
     out << nl << "func _iceD_" << opName;
@@ -2668,7 +2668,7 @@ SwiftGenerator::writeDispatchAsyncOperation(::IceUtilInternal::Output& out, cons
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
 
     out << sp;
     out << nl << "func _iceD_" << op->name();
@@ -2851,14 +2851,14 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
             continue;
         }
 
-        if(ModulePtr::dynamicCast(cont) && s.find("swift:module:") == 0)
+        if(dynamic_pointer_cast<Module>(cont) && s.find("swift:module:") == 0)
         {
             continue;
         }
 
         if(local)
         {
-            OperationPtr op = OperationPtr::dynamicCast(cont);
+            OperationPtr op = dynamic_pointer_cast<Operation>(cont);
             if(op)
             {
                 if(s == "swift:noexcept")
@@ -2869,7 +2869,7 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
                 if(s == "swift:nonnull")
                 {
                     TypePtr returnType = op->returnType();
-                    if(!returnType)
+                    if (!returnType)
                     {
                         dc->warning(InvalidMetaData, file, line,
                                     "ignoring invalid metadata `" + s + "' for operation with void return type");
@@ -2887,7 +2887,7 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
 
             if(operationParameter && s == "swift:nonnull")
             {
-                if(!isNullableType(TypePtr::dynamicCast(cont)))
+                if(!isNullableType(dynamic_pointer_cast<Type>(cont)))
                 {
                      dc->warning(InvalidMetaData, file, line,
                                  "ignoring invalid metadata `swift:nonnull' for non nullable type");
@@ -2901,7 +2901,7 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
                 continue;
             }
 
-            SequencePtr seq =  SequencePtr::dynamicCast(cont);
+            SequencePtr seq =  dynamic_pointer_cast<Sequence>(cont);
             if(seq && s == "swift:nonnull")
             {
                 if(!isNullableType(seq->type()))
@@ -2914,16 +2914,16 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
             }
         }
 
-        if(InterfaceDefPtr::dynamicCast(cont) && s.find("swift:inherits:") == 0)
+        if(dynamic_pointer_cast<InterfaceDef>(cont) && s.find("swift:inherits:") == 0)
         {
             continue;
         }
 
-        if((ClassDefPtr::dynamicCast(cont) ||
-            InterfaceDefPtr::dynamicCast(cont) ||
-            EnumPtr::dynamicCast(cont) ||
-            ExceptionPtr::dynamicCast(cont) ||
-            OperationPtr::dynamicCast(cont)) && s.find("swift:attribute:") == 0)
+        if((dynamic_pointer_cast<ClassDef>(cont) ||
+            dynamic_pointer_cast<InterfaceDef>(cont) ||
+            dynamic_pointer_cast<Enum>(cont) ||
+            dynamic_pointer_cast<Exception>(cont) ||
+            dynamic_pointer_cast<Operation>(cont)) && s.find("swift:attribute:") == 0)
         {
             continue;
         }
