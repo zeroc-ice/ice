@@ -40,7 +40,7 @@ zend_class_entry* valueFactoryManagerClassEntry = 0;
 // communicator is destroyed when there are no more references to this
 // object.
 //
-class ActiveCommunicator : public IceUtil::Shared
+class ActiveCommunicator
 {
 public:
 
@@ -52,7 +52,7 @@ public:
     int expires;
     IceUtil::Time lastAccess;
 };
-typedef IceUtil::Handle<ActiveCommunicator> ActiveCommunicatorPtr;
+using ActiveCommunicatorPtr = shared_ptr<ActiveCommunicator>;
 
 class FactoryWrapper;
 using FactoryWrapperPtr = shared_ptr<FactoryWrapper>;
@@ -94,7 +94,7 @@ private:
     FactoryMap _factories;
     DefaultValueFactoryPtr _defaultFactory;
 };
-typedef IceUtil::Handle<CommunicatorInfoI> CommunicatorInfoIPtr;
+using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
 
 //
 // Wraps a PHP object/value factory.
@@ -375,7 +375,7 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
 
     try
     {
-        Ice::ObjectPrx prx = _this->getCommunicator()->stringToProxy(s);
+        Ice::ObjectPrxPtr prx = _this->getCommunicator()->stringToProxy(s);
         if(!createProxy(return_value, prx, _this))
         {
             RETURN_NULL();
@@ -408,7 +408,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
         string str;
         if(zv)
         {
-            Ice::ObjectPrx prx;
+            Ice::ObjectPrxPtr prx;
             ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {
@@ -445,7 +445,7 @@ ZEND_METHOD(Ice_Communicator, propertyToProxy)
 
     try
     {
-        Ice::ObjectPrx prx = _this->getCommunicator()->propertyToProxy(s);
+        Ice::ObjectPrxPtr prx = _this->getCommunicator()->propertyToProxy(s);
         if(!createProxy(return_value, prx, _this))
         {
             RETURN_NULL();
@@ -483,7 +483,7 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
     {
         if(zv)
         {
-            Ice::ObjectPrx prx;
+            Ice::ObjectPrxPtr prx;
             ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {

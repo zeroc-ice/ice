@@ -18,14 +18,14 @@ ZEND_FUNCTION(IcePHP_defineOperation);
 namespace IcePHP
 {
 
-class Operation : public IceUtil::Shared
+class Operation
 {
 public:
 
     virtual zend_function* function() = 0;
 
 };
-typedef IceUtil::Handle<Operation> OperationPtr;
+using OperationPtr = std::shared_ptr<Operation>;
 
 }
 

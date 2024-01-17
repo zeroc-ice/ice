@@ -68,7 +68,7 @@ namespace IcePHP
 //
 // Encapsulates proxy and type information.
 //
-class Proxy : public IceUtil::Shared
+class Proxy
 {
 public:
 
@@ -85,7 +85,7 @@ public:
     zval* connection;
     zval* cachedConnection;
 };
-typedef IceUtil::Handle<Proxy> ProxyPtr;
+using ProxyPtr = std::shared_ptr<Proxy> ;
 
 } // End of namespace IcePHP
 
@@ -1900,27 +1900,27 @@ IcePHP::proxyInit(void)
 }
 
 bool
-IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const CommunicatorInfoPtr& comm)
+IcePHP::createProxy(zval* zv, const Ice::ObjectPrxPtr& p, const CommunicatorInfoPtr& comm)
 {
     return Proxy::create(zv, p, 0, comm);
 }
 
 bool
-IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm
+IcePHP::createProxy(zval* zv, const Ice::ObjectPrxPtr& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm
                    )
 {
     return Proxy::create(zv, p, info, comm);
 }
 
 bool
-IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info)
+IcePHP::fetchProxy(zval* zv, Ice::ObjectPrxPtr& prx, ProxyInfoPtr& info)
 {
     CommunicatorInfoPtr comm;
     return fetchProxy(zv, prx, info, comm);
 }
 
 bool
-IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info, CommunicatorInfoPtr& comm)
+IcePHP::fetchProxy(zval* zv, Ice::ObjectPrxPtr& prx, ProxyInfoPtr& info, CommunicatorInfoPtr& comm)
 {
     if(!ZVAL_IS_NULL(zv))
     {

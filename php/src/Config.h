@@ -22,8 +22,8 @@
 #endif
 
 #ifdef _WIN32
-#include <crtdbg.h>
-#include <math.h>
+#   include <crtdbg.h>
+#   include <math.h>
 #endif
 
 #ifdef _WIN32

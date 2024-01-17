@@ -39,10 +39,9 @@ class AbortMarshaling
 };
 
 class ClassInfo;
-typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
-typedef std::vector<ClassInfoPtr> ClassInfoList;
-
-typedef std::map<unsigned int, std::shared_ptr<Ice::Value>> ObjectMap;
+using ClassInfoPtr = std::shared_ptr<ClassInfo>;
+using ClassInfoList = std::vector<ClassInfoPtr>;
+using ObjectMap = std::map<unsigned int, std::shared_ptr<Ice::Value>>;
 
 class ValueReader;
 
@@ -60,7 +59,7 @@ struct PrintObjectHistory
 // returns. For class instances, however, the callback may not be invoked until
 // the stream's finished() function is called.
 //
-class UnmarshalCallback : public IceUtil::Shared
+class UnmarshalCallback
 {
 public:
 
@@ -73,13 +72,13 @@ public:
     //
     virtual void unmarshaled(zval*, zval*, void*) = 0;
 };
-typedef IceUtil::Handle<UnmarshalCallback> UnmarshalCallbackPtr;
+using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback> ;
 
 //
 // ReadObjectCallback retains all of the information necessary to store an unmarshaled
 // Slice value as a PHP object.
 //
-class ReadObjectCallback : public IceUtil::Shared
+class ReadObjectCallback
 {
 public:
 
@@ -95,7 +94,7 @@ private:
     zval _target;
     void* _closure;
 };
-typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
+using ReadObjectCallbackPtr = std::shared_ptr<ReadObjectCallback>;
 
 //
 // This class keeps track of PHP objects (instances of Slice classes
@@ -167,7 +166,7 @@ public:
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
 };
-typedef IceUtil::Handle<TypeInfo> TypeInfoPtr;
+using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
 //
 // Primitive type information.
@@ -204,7 +203,7 @@ public:
 
     Kind kind;
 };
-typedef IceUtil::Handle<PrimitiveInfo> PrimitiveInfoPtr;
+using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
 
 //
 // Enum information.
@@ -234,7 +233,7 @@ public:
     const Ice::Int maxValue;
 
 };
-typedef IceUtil::Handle<EnumInfo> EnumInfoPtr;
+using EnumInfoPtr = std::shared_ptr<EnumInfo>;
 
 class DataMember : public UnmarshalCallback
 {
@@ -249,8 +248,8 @@ public:
     bool optional;
     int tag;
 };
-typedef IceUtil::Handle<DataMember> DataMemberPtr;
-typedef std::vector<DataMemberPtr> DataMemberList;
+using DataMemberPtr = std::shared_ptr<DataMember>;
+using DataMemberList = std::vector<DataMemberPtr>;
 
 //
 // Struct information.
@@ -290,7 +289,7 @@ private:
     int _wireSize;
     zval _nullMarshalValue;
 };
-typedef IceUtil::Handle<StructInfo> StructInfoPtr;
+using StructInfoPtr = std::shared_ptr<StructInfo>;
 
 //
 // Sequence information.
@@ -330,7 +329,7 @@ private:
     void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
                                     zval*, void*);
 };
-typedef IceUtil::Handle<SequenceInfo> SequenceInfoPtr;
+using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
 //
 // Dictionary information.
@@ -370,7 +369,7 @@ public:
 
         zval key;
     };
-    typedef IceUtil::Handle<KeyCallback> KeyCallbackPtr;
+    using KeyCallbackPtr = std::shared_ptr<KeyCallback>;
 
     class ValueCallback : public UnmarshalCallback
     {
@@ -383,7 +382,7 @@ public:
 
         zval key;
     };
-    typedef IceUtil::Handle<ValueCallback> ValueCallbackPtr;
+    using ValueCallbackPtr = std::shared_ptr<ValueCallback>;
 
     std::string id;
     TypeInfoPtr keyType;
@@ -394,13 +393,13 @@ private:
     bool _variableLength;
     int _wireSize;
 };
-typedef IceUtil::Handle<DictionaryInfo> DictionaryInfoPtr;
+using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
 
 class ExceptionInfo;
-typedef IceUtil::Handle<ExceptionInfo> ExceptionInfoPtr;
-typedef std::vector<ExceptionInfoPtr> ExceptionInfoList;
+using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
+using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
 
-typedef std::vector<TypeInfoPtr> TypeInfoList;
+using TypeInfoList = std::vector<TypeInfoPtr>;
 
 class ClassInfo : public TypeInfo
 {
@@ -449,8 +448,8 @@ public:
 //
 
 class ProxyInfo;
-typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
-typedef std::vector<ProxyInfoPtr> ProxyInfoList;
+using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
+using ProxyInfoList = std::vector<ProxyInfoPtr>;
 
 class ProxyInfo : public TypeInfo
 {
@@ -491,7 +490,7 @@ public:
 //
 // Exception information.
 //
-class ExceptionInfo : public IceUtil::Shared
+class ExceptionInfo
 {
 public:
 

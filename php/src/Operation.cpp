@@ -21,7 +21,7 @@ ZEND_FUNCTION(IcePHP_Operation_call);
 namespace IcePHP
 {
 
-class ParamInfo : public IceUtil::Shared
+class ParamInfo
 {
 public:
 
@@ -30,8 +30,8 @@ public:
     int tag;
     int pos;
 };
-typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
-typedef list<ParamInfoPtr> ParamInfoList;
+using ParamInfoPtr = std::shared_ptr<ParamInfo>;
+using ParamInfoList = list<ParamInfoPtr>;
 
 //
 // Receives an out parameter or return value.
@@ -49,8 +49,8 @@ public:
 
     zval zv;
 };
-typedef IceUtil::Handle<ResultCallback> ResultCallbackPtr;
-typedef vector<ResultCallbackPtr> ResultCallbackList;
+using ResultCallbackPtr = std::shared_ptr<ResultCallback>;
+using ResultCallbackList = vector<ResultCallbackPtr>;
 
 //
 // Encapsulates attributes of an operation.
@@ -86,12 +86,12 @@ private:
     static ParamInfoPtr convertParam(zval*, int);
     static void getArgInfo(zend_internal_arg_info&, const ParamInfoPtr&, bool);
 };
-typedef IceUtil::Handle<OperationI> OperationIPtr;
+using OperationIPtr = std::shared_ptr<OperationI>;
 
 //
 // The base class for client-side invocations.
 //
-class Invocation : public IceUtil::Shared
+class Invocation
 {
 public:
 
@@ -104,7 +104,7 @@ protected:
     Ice::ObjectPrx _prx;
     CommunicatorInfoPtr _communicator;
 };
-typedef IceUtil::Handle<Invocation> InvocationPtr;
+using InvocationPtr = std::shared_ptr<Invocation>;
 
 //
 // TypedInvocation uses the information in the given operation to validate, marshal, and unmarshal

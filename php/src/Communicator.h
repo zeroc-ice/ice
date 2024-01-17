@@ -38,7 +38,7 @@ extern zend_class_entry* communicatorClassEntry;
 //
 // The CommunicatorInfo class represents a communicator that is in use by a PHP request.
 //
-class CommunicatorInfo : public IceUtil::Shared
+class CommunicatorInfo
 {
 public:
 
@@ -48,7 +48,7 @@ public:
 
     virtual Ice::CommunicatorPtr getCommunicator() const = 0;
 };
-typedef IceUtil::Handle<CommunicatorInfo> CommunicatorInfoPtr;
+using CommunicatorInfoPtr = std::shared_ptr<CommunicatorInfo> ;
 
 } // End of namespace IcePHP
 
