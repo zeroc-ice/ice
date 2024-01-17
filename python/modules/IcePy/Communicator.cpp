@@ -50,7 +50,6 @@ struct CommunicatorObject
     PyObject_HEAD
     Ice::CommunicatorPtr* communicator;
     PyObject* wrapper;
-    std::mutex* shutdownMutex;
     std::future<void>* shutdownFuture;
     std::optional<Ice::Exception *>* shutdownException;
     bool shutdown;
@@ -73,7 +72,6 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     }
     self->communicator = 0;
     self->wrapper = 0;
-    self->shutdownMutex = new std::mutex();
     self->shutdownFuture = nullptr;
     self->shutdownException = new std::optional<Ice::Exception*>();
     self->shutdown = false;
@@ -366,7 +364,6 @@ communicatorDealloc(CommunicatorObject* self)
     }
 
     delete self->communicator;
-    delete self->shutdownMutex;
     if (self->shutdownException->has_value())
     {
         delete self->shutdownException->value();
@@ -473,8 +470,6 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
     //
     if(PyThread_get_thread_ident() == _mainThreadId)
     {
-        std::lock_guard<std::mutex> lock(*self->shutdownMutex);
-
         if(!self->shutdown)
         {
             if(self->shutdownFuture == nullptr)
