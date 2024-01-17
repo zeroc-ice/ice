@@ -41,8 +41,8 @@ struct ObjectAdapterObject
     bool deactivated;
 
     std::mutex* holdMutex;
-    std::condition_variable* holdCond;
-    InvokeThread* holdThread;
+    std::future<void>* holdFuture;
+    std::optional<Ice::Exception *>* holdException;
     bool held;
 };
 
@@ -321,9 +321,13 @@ adapterDealloc(ObjectAdapterObject* self)
     delete self->deactivateException;
     delete self->deactivateFuture;
 
-    delete self->holdThread;
     delete self->holdMutex;
-    delete self->holdCond;
+    if (self->holdException->has_value())
+    {
+        delete self->holdException->value();
+    }
+    delete self->holdException;
+    delete self->holdFuture;
 
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
@@ -384,10 +388,10 @@ adapterActivate(ObjectAdapterObject* self, PyObject* /*args*/)
 
         std::lock_guard lock(*self->holdMutex);
         self->held = false;
-        if(self->holdThread)
+        if(self->holdFuture)
         {
-            delete self->holdThread;
-            self->holdThread = 0;
+            delete self->holdFuture;
+            self->holdFuture = nullptr;
         }
     }
     catch(const Ice::Exception& ex)
@@ -455,35 +459,42 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
 
         if(!self->held)
         {
-            if(self->holdThread == 0)
+            if(self->holdFuture == nullptr)
             {
-                self->holdThread = new InvokeThread([self] { (*self->adapter)->waitForHold(); },
-                                                    self->holdMutex,
-                                                    self->holdCond,
-                                                    self->held);
+                self->holdFuture = new std::future<void>();
+                *self->holdFuture = std::async(std::launch::async,
+                                               [&self]
+                                               {
+                                                   (*self->adapter)->waitForHold();
+                                               });
             }
 
-            while(!self->held)
+            if(!self->held)
             {
-                std::cv_status status;
                 {
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    status = self->holdCond->wait_for(lock, std::chrono::milliseconds(timeout));
+                    if(self->holdFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
+                    {
+                        PyRETURN_FALSE;
+                    }
                 }
 
-                if(status == std::cv_status::timeout)
+                self->held = true;
+                try
                 {
-                    PyRETURN_FALSE;
+                    self->holdFuture->get();
+                }
+                catch(const Ice::Exception& ex)
+                {
+                    *self->holdException = ex.ice_clone();
                 }
             }
         }
 
-        assert(self->held);
-
-        Ice::Exception* ex = self->holdThread->getException();
-        if(ex)
+        assert(self->helf);
+        if(self->holdException->has_value())
         {
-            setPythonException(*ex);
+            setPythonException(*self->holdException->value());
             return 0;
         }
     }
@@ -1843,8 +1854,8 @@ IcePy::createObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
         obj->deactivated = false;
 
         obj->holdMutex = new std::mutex;
-        obj->holdCond = new std::condition_variable;
-        obj->holdThread = 0;
+        obj->holdException = new std::optional<Ice::Exception*>();
+        obj->holdFuture = nullptr;
         obj->held = false;
     }
     return reinterpret_cast<PyObject*>(obj);
