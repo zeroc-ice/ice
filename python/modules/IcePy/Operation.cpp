@@ -4531,14 +4531,14 @@ IcePy::createServantWrapper(PyObject* servant)
     PyObject* blobjectAsyncType = lookupType("Ice.BlobjectAsync");
     if(PyObject_IsInstance(servant, blobjectType))
     {
-        return new BlobjectServantWrapper(servant);
+        return make_shared<BlobjectServantWrapper>(servant);
     }
     else if(PyObject_IsInstance(servant, blobjectAsyncType))
     {
-        return new BlobjectServantWrapper(servant);
+        return make_shared<BlobjectServantWrapper>(servant);
     }
 
-    return new TypedServantWrapper(servant);
+    return make_shared<TypedServantWrapper>(servant);
 }
 
 PyObject*
