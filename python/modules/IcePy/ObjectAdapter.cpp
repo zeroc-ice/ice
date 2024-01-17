@@ -570,7 +570,6 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
 
             if(!self->deactivated)
             {
-
                 {
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
                     if(self->deactivateFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)

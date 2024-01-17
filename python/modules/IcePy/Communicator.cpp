@@ -496,7 +496,6 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                 try
                 {
                     self->shutdownFuture->get();
-                    assert(self->shutdownException->valid());
                 }
                 catch(const Ice::Exception& ex)
                 {
