@@ -379,7 +379,7 @@ public:
      * @see #find
      * @see #findFacet
      */
-    virtual ::std::shared_ptr<::Ice::Object> findByProxy(const ObjectPrxPtr& proxy) const = 0;
+    virtual ::std::shared_ptr<Object> findByProxy(const ObjectPrxPtr& proxy) const = 0;
 
     /**
      * Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
