@@ -447,7 +447,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
     //
     if(PyThread_get_thread_ident() == _mainThreadId)
     {
-        std::unique_lock lock(*self->holdMutex);
+        std::lock_guard lock(*self->holdMutex);
 
         if(!self->held)
         {
