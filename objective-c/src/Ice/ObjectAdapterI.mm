@@ -20,8 +20,12 @@
 #include <Ice/ServantLocator.h>
 #include <Ice/OutputStream.h>
 
-// TODO: add a cache of ICEObjectAdapter instances; currently, we create a new wrapper each time we retrieve the
-// C++ object (e.g. for Current).
+namespace
+{
+
+std::map<std::shared_ptr<Ice::ObjectAdapter>, ICEObjectAdapter*> cache;
+
+}
 
 namespace
 {
@@ -290,7 +294,27 @@ using ServantLocatorWrapperPtr = std::shared_ptr<ServantLocatorWrapper>;
         return nil;
     }
     adapter_ = arg;
+
+    //
+    // No synchronization because initWithCxxObject is always called with the wrapper class object locked
+    //
+    assert(cache.find(arg) == cache.end());
+    cache.insert(std::make_pair(arg, self));
     return self;
+}
+
+-(void) dealloc
+{
+    if (adapter_)
+    {
+        //
+        // No synchronization because dealloc is always called with the wrapper class object locked
+        //
+        cache.erase(adapter_);
+        adapter_ = nullptr;
+    }
+
+    [super dealloc];
 }
 
 -(std::shared_ptr<Ice::ObjectAdapter>) cxxObject
@@ -305,7 +329,23 @@ using ServantLocatorWrapperPtr = std::shared_ptr<ServantLocatorWrapper>;
 
 +(id) objectAdapterWithCxxObjectNoAutoRelease:(const std::shared_ptr<Ice::ObjectAdapter>&)arg
 {
-    return [[ICEObjectAdapter alloc] initWithCxxObject:arg];
+    if (!arg)
+    {
+        return nil;
+    }
+
+    @synchronized([ICEObjectAdapter class])
+    {
+        auto p = cache.find(arg);
+        if(p != cache.end())
+        {
+            return [p->second retain];
+        }
+        else
+        {
+            return [[self alloc] initWithCxxObject:arg];
+        }
+    }
 }
 
 //

@@ -68,29 +68,6 @@ std::map<IceUtil::Shared*, ICELocalObject*> cachedObjects;
     [super dealloc];
 }
 
-+(id) getLocalObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg
-{
-    //
-    // Note: the returned object is NOT retained. It must be held
-    // some other way by the calling thread.
-    //
-
-    if(arg == 0)
-    {
-        return nil;
-    }
-
-    @synchronized([ICELocalObject class])
-    {
-        std::map<IceUtil::Shared*, ICELocalObject*>::const_iterator p = cachedObjects.find(arg);
-        if(p != cachedObjects.end())
-        {
-            return p->second;
-        }
-    }
-    return nil;
-}
-
 +(id) localObjectWithCxxObjectNoAutoRelease:(IceUtil::Shared*)arg
 {
     if(arg == 0)
