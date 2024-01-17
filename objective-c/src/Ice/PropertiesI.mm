@@ -225,7 +225,7 @@
 @implementation ICENativePropertiesAdmin
 -(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
-    IceUtil::Mutex::Lock sync(mutex_);
+    std::lock_guard lock(mutex_);
 
     std::function<void()> remover = std::dynamic_pointer_cast<Ice::NativePropertiesAdmin>(object_)->addUpdateCallback(
         [cb](const Ice::PropertyDict& properties)
@@ -254,7 +254,7 @@
 
 -(void) removeUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
-    IceUtil::Mutex::Lock sync(mutex_);
+    std::lock_guard lock(mutex_);
 
     // Each removeUpdateCallback only removes the first occurrence
     auto p = std::find_if(callbacks_.begin(), callbacks_.end(), [cb](const auto& q) { return q.first == cb; });
