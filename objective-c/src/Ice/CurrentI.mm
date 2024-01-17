@@ -20,11 +20,7 @@
         return nil;
     }
 
-    //
-    // TODO: Optimize: the servant blobject should cache an ICECurrent object to
-    // avoid re-creating the wrappers for each dispatched invocation.
-    //
-    adapter = [ICEObjectAdapter localObjectWithCxxObjectNoAutoRelease:current.adapter.get()];
+    adapter = [ICEObjectAdapter objectAdapterWithCxxObjectNoAutoRelease:current.adapter];
     con = [ICEConnection localObjectWithCxxObjectNoAutoRelease:current.con.get()];
     id_ = [[ICEIdentity alloc] initWithIdentity:current.id];
     facet = [[NSString alloc] initWithUTF8String:current.facet.c_str()];
