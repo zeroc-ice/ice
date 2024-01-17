@@ -7,7 +7,8 @@
 
 #include <Config.h>
 #include <Ice/ValueFactory.h>
-#include <IceUtil/Mutex.h>
+
+#include <mutex>
 
 namespace IcePy
 {

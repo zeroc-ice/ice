@@ -88,7 +88,7 @@ IceRuby::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
 void
 IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     if(id.empty())
     {
@@ -129,7 +129,7 @@ IceRuby::ValueFactoryManager::find(const string& id) const noexcept
 Ice::ValueFactoryPtr
 IceRuby::ValueFactoryManager::findCore(const string& id) const noexcept
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     if(id.empty())
     {
@@ -176,7 +176,7 @@ IceRuby::ValueFactoryManager::findValueFactory(const string& id) const
 void
 IceRuby::ValueFactoryManager::mark()
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     for(FactoryMap::iterator p = _factories.begin(); p != _factories.end(); ++p)
     {
@@ -196,7 +196,7 @@ IceRuby::ValueFactoryManager::markSelf()
     volatile VALUE self;
 
     {
-        Lock lock(*this);
+        std::lock_guard lock(_mutex);
 
         self = _self;
     }
@@ -219,7 +219,7 @@ IceRuby::ValueFactoryManager::destroy()
     FactoryMap factories;
 
     {
-        Lock lock(*this);
+        std::lock_guard lock(_mutex);
         if(_self == Qnil)
         {
             //
