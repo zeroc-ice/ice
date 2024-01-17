@@ -12,11 +12,11 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
+#   include <direct.h>
 #endif
 
 #ifndef _WIN32
-#include <unistd.h>
+#   include <unistd.h>
 #endif
 
 using namespace std;

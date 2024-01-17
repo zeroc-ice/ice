@@ -165,7 +165,6 @@ using OperationList = std::list<OperationPtr>;
 using DataMemberList = std::list<DataMemberPtr>;
 using ParamDeclList = std::list<ParamDeclPtr>;
 using EnumeratorList = std::list<EnumeratorPtr>;
-using ConstructedSet = std::set<ConstructedPtr, decltype(containedCompare)*>;
 
 struct ConstDef
 {
@@ -452,7 +451,6 @@ public:
     bool findMetaData(const std::string&, std::string&) const;
     std::list<std::string> getMetaData() const;
     void setMetaData(const std::list<std::string>&);
-    void addMetaData(const std::string&); // TODO: remove this method once "cs:" and "vb:" are hard errors.
 
     static FormatType parseFormatMetaData(const std::list<std::string>&);
 
@@ -474,7 +472,6 @@ public:
     };
     virtual ContainedType containedType() const = 0;
 
-    virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
 
 protected:
@@ -542,26 +539,21 @@ public:
     bool hasInterfaceDecls() const;
     bool hasInterfaceDefs() const;
     bool hasValueDefs() const;
-    bool hasOnlyClassDecls() const;
-    bool hasOnlyInterfaces() const;
     bool hasOperations() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     bool hasAsyncOps() const;
     bool hasContained(Contained::ContainedType) const;
     std::string thisScope() const;
-    void mergeModules();
     void sort();
     void sortContents(bool);
     virtual void visit(ParserVisitor*, bool);
-    void containerRecDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
     bool checkForGlobalDef(const std::string&, const char *);
 
 protected:
 
-    bool checkGlobalMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
     EnumeratorPtr validateEnumerator(const std::string&);
 
@@ -579,7 +571,6 @@ public:
 
     Module(const ContainerPtr&, const std::string&);
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 
@@ -597,8 +588,6 @@ public:
     Constructed(const ContainerPtr&, const std::string&);
     virtual std::string typeId() const;
     virtual bool isVariableLength() const = 0;
-    ConstructedList dependencies();
-    virtual void recDependencies(ConstructedSet&) = 0; // Internal operation, don't use directly.
 };
 
 // ----------------------------------------------------------------------
@@ -613,14 +602,12 @@ public:
     virtual void destroy();
     ClassDefPtr definition() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
-    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
@@ -664,7 +651,6 @@ public:
     bool inheritsMetaData(const std::string&) const;
     bool hasBaseDataMembers() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual void visit(ParserVisitor*, bool);
     int compactId() const;
     StringList ids() const;
@@ -692,14 +678,12 @@ public:
     virtual void destroy();
     InterfaceDefPtr definition() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
-    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
 
@@ -757,7 +741,6 @@ public:
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     bool sendsClasses(bool) const;
     bool returnsClasses(bool) const;
     bool returnsData() const;
@@ -806,7 +789,6 @@ public:
     bool hasOperations() const;
     bool inheritsMetaData(const std::string&) const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
     StringList ids() const;
@@ -842,7 +824,6 @@ public:
     ExceptionList allBases() const;
     virtual bool isBaseOf(const ExceptionPtr&) const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     bool usesClasses(bool) const;
     bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
@@ -871,7 +852,6 @@ public:
     DataMemberList dataMembers() const;
     DataMemberList classDataMembers() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
@@ -879,7 +859,6 @@ public:
     bool hasDefaultValues() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     friend class Container;
 };
@@ -896,14 +875,12 @@ public:
     TypePtr type() const;
     StringList typeMetaData() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
@@ -928,14 +905,12 @@ public:
     StringList keyMetaData() const;
     StringList valueMetaData() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
     static bool legalKeyType(const TypePtr&, bool&);
 
@@ -963,14 +938,12 @@ public:
     int minValue() const;
     int maxValue() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    virtual void recDependencies(ConstructedSet&); // Internal operation, don't use directly.
 
 protected:
 
@@ -997,7 +970,6 @@ public:
     Enumerator(const ContainerPtr&, const std::string&, int);
     virtual void init();
     EnumPtr type() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
 
@@ -1027,7 +999,6 @@ public:
     SyntaxTreeBasePtr valueType() const;
     std::string value() const;
     std::string literal() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
@@ -1057,7 +1028,6 @@ public:
     bool optional() const;
     int tag() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 
@@ -1088,7 +1058,6 @@ public:
     std::string defaultLiteral() const;
     SyntaxTreeBasePtr defaultValueType() const;
     virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 
@@ -1114,10 +1083,9 @@ class Unit : public virtual Container
 {
 public:
 
-    Unit(bool, bool, const StringList&);
-    static UnitPtr createUnit(bool, bool, const StringList& = StringList());
+    static UnitPtr createUnit(bool, const StringList& = StringList());
 
-    bool ignRedefs() const;
+    Unit(bool, const StringList&);
 
     void setComment(const std::string&);
     void addToComment(const std::string&);
@@ -1146,18 +1114,11 @@ public:
     DefinitionContextPtr findDefinitionContext(const std::string&) const;
 
     void addContent(const ContainedPtr&);
-    void removeContent(const ContainedPtr&);
     ContainedList findContents(const std::string&) const;
-    ClassList findDerivedClasses(const ClassDefPtr&) const;
-    ExceptionList findDerivedExceptions(const ExceptionPtr&) const;
-    ContainedList findUsedBy(const ContainedPtr&) const;
 
     void addTypeId(int, const std::string&);
     std::string getTypeId(int) const;
     bool hasCompactTypeId() const;
-
-    bool usesNonLocals() const;
-    bool usesConsts() const;
 
     //
     // Returns the path names of the files included directly by the top-level file.
@@ -1182,9 +1143,7 @@ public:
 private:
 
     void init();
-    static void eraseWhiteSpace(::std::string&);
 
-    bool _ignRedefs;
     bool _all;
     StringList _defaultGlobalMetaData;
     int _errors;
