@@ -182,19 +182,6 @@ private:
     Ice::CommunicatorPtr _communicator;
 };
 using ValueFactoryManagerPtr = shared_ptr<ValueFactoryManager>;
-
-class ReaperTask
-{
-public:
-    void start(std::chrono::seconds);
-    void stop();
-private:
-    void reap();
-    bool _running;
-    std::mutex _mutex;
-    std::condition_variable _cond;
-    std::thread _thread;
-};
 }
 
 namespace
@@ -227,8 +214,9 @@ RegisteredCommunicatorMap _registeredCommunicators;
 
 // std::mutex constructor is constexpr so it is statically initialized
 std::mutex _registeredCommunicatorsMutex;
-
-ReaperTask _timer;
+std::condition_variable _reapCond;
+std::thread _reapThread;
+bool _reapingFinished = true;
 
 //
 // This map is stored in the "global" variables for each PHP request and holds
@@ -236,6 +224,33 @@ ReaperTask _timer;
 // been used) by the request.
 //
 typedef map<Ice::CommunicatorPtr, CommunicatorInfoIPtr> CommunicatorMap;
+
+void
+reapRegisteredCommunicators()
+{
+    // Must be called with _registeredCommunicatorsMutex locked
+
+    IceUtil::Time now = IceUtil::Time::now();
+    RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
+    while(p != _registeredCommunicators.end())
+    {
+        if(p->second->lastAccess + IceUtil::Time::seconds(p->second->expires * 60) <= now)
+        {
+            try
+            {
+                p->second->communicator->destroy();
+            }
+            catch(...)
+            {
+            }
+            _registeredCommunicators.erase(p++);
+        }
+        else
+        {
+            ++p;
+        }
+    }
+}
 }
 
 extern "C"
@@ -1281,7 +1296,20 @@ ZEND_FUNCTION(Ice_register)
         //
         // Start the timer if necessary. Reap expired communicators every five minutes.
         //
-        _timer.start(std::chrono::minutes(5));
+        if(!_reapThread.joinable())
+        {
+            _reapThread = std::thread([&]
+            {
+                std::unique_lock lock(_registeredCommunicatorsMutex);
+                _reapCond.wait_for(lock, std::chrono::minutes(5), [&] { return _reapingFinished; });
+                if (_reapingFinished)
+                {
+                    return;
+                }
+                reapRegisteredCommunicators();
+            });
+        }
+
     }
 
     RETURN_TRUE;
@@ -1788,15 +1816,21 @@ IcePHP::communicatorShutdown(void)
 {
     _profiles.clear();
 
-    lock_guard lock(_registeredCommunicatorsMutex);
+    {
+        lock_guard lock(_registeredCommunicatorsMutex);
+        _reapingFinished = true;
+        //
+        // Clearing the map releases the last remaining reference counts of the ActiveCommunicator
+        // objects. The ActiveCommunicator destructor destroys its communicator.
+        //
+        _registeredCommunicators.clear();
+    }
 
-    _timer.stop();
-
-    //
-    // Clearing the map releases the last remaining reference counts of the ActiveCommunicator
-    // objects. The ActiveCommunicator destructor destroys its communicator.
-    //
-    _registeredCommunicators.clear();
+    _reapCond.notify_one();
+    if(_reapThread.joinable())
+    {
+        _reapThread.join();
+    }
 
     return true;
 }
@@ -2175,63 +2209,4 @@ void
 IcePHP::ValueFactoryManager::destroy()
 {
     _communicator = 0;
-}
-
-void
-IcePHP::ReaperTask::start(std::chrono::seconds timeout)
-{
-    std::lock_guard lock(_mutex);
-    if(!_running)
-    {
-        _running = true;
-        _thread = std::thread([this, timeout]
-        {
-            std::unique_lock lock(_mutex);
-            _cond.wait_for(lock, timeout, [&] { return !_running; });
-
-            if(_running)
-            {
-                reap();
-            }
-        });
-    }
-}
-
-void
-IcePHP::ReaperTask::stop()
-{
-    std::lock_guard lock(_mutex);
-    if(_running)
-    {
-        _running = false;
-        _cond.notify_one();
-        _thread.join();
-    }
-}
-
-void
-IcePHP::ReaperTask::reap()
-{
-    lock_guard lock(_registeredCommunicatorsMutex);
-
-    IceUtil::Time now = IceUtil::Time::now();
-    RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
-    while(p != _registeredCommunicators.end())
-    {
-        if(p->second->lastAccess + IceUtil::Time::seconds(p->second->expires * 60) <= now)
-        {
-            try
-            {
-                p->second->communicator->destroy();
-            }
-            catch(...)
-            {
-            }
-            _registeredCommunicators.erase(p++);
-        }
-        else
-        {
-            ++p;
-        }
-    }
 }
