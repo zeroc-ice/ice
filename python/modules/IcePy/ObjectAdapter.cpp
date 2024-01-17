@@ -461,25 +461,22 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
                                                });
             }
 
-            if(!self->held)
             {
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                if(self->holdFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
-                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    if(self->holdFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
-                    {
-                        PyRETURN_FALSE;
-                    }
+                    PyRETURN_FALSE;
                 }
+            }
 
-                self->held = true;
-                try
-                {
-                    self->holdFuture->get();
-                }
-                catch(const Ice::Exception&)
-                {
-                    *self->holdException = current_exception();
-                }
+            self->held = true;
+            try
+            {
+                self->holdFuture->get();
+            }
+            catch(const Ice::Exception&)
+            {
+                *self->holdException = current_exception();
             }
         }
 
@@ -578,25 +575,22 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
                                                    });
             }
 
-            if(!self->deactivated)
             {
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                if(self->deactivateFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
-                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    if(self->deactivateFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
-                    {
-                        PyRETURN_FALSE;
-                    }
+                    PyRETURN_FALSE;
                 }
+            }
 
-                self->deactivated = true;
-                try
-                {
-                    self->deactivateFuture->get();
-                }
-                catch(const Ice::Exception&)
-                {
-                    *self->deactivateException = current_exception();
-                }
+            self->deactivated = true;
+            try
+            {
+                self->deactivateFuture->get();
+            }
+            catch(const Ice::Exception&)
+            {
+                *self->deactivateException = current_exception();
             }
         }
 

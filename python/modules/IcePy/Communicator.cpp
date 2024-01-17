@@ -478,25 +478,22 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                                                    });
             }
 
-            if(!self->shutdown)
             {
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                if(self->shutdownFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
-                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    if(self->shutdownFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
-                    {
-                        PyRETURN_FALSE;
-                    }
+                    PyRETURN_FALSE;
                 }
+            }
 
-                self->shutdown = true;
-                try
-                {
-                    self->shutdownFuture->get();
-                }
-                catch(const Ice::Exception&)
-                {
-                    *self->shutdownException = current_exception();
-                }
+            self->shutdown = true;
+            try
+            {
+                self->shutdownFuture->get();
+            }
+            catch(const Ice::Exception&)
+            {
+                *self->shutdownException = current_exception();
             }
         }
 
