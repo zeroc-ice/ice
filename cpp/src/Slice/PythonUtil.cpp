@@ -1962,10 +1962,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
                 const string controlChars = "\a\b\f\n\r\t\v";
                 const unsigned char cutOff = 0;
                 
-                string sv2 = toStringLiteral(value, controlChars, "", Octal, cutOff);
-                string sv3 = toStringLiteral(value, controlChars, "", UCN, cutOff);
-
-                _out << "\"" << (sv2 == sv3 ? sv2 : sv3) << "\"";
+                _out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
                 break;
             }
             case Slice::Builtin::KindValue:
