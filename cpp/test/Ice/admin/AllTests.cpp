@@ -29,9 +29,9 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
     com->addAdminFacet(f2, "Facet2");
     com->addAdminFacet(f3, "Facet3");
 
-    test(com->findAdminFacet("Facet1") == f1);
-    test(com->findAdminFacet("Facet2") == f2);
-    test(com->findAdminFacet("Facet3") == f3);
+    test(Ice::ObjectPtr(com->findAdminFacet("Facet1")) == f1);
+    test(Ice::ObjectPtr(com->findAdminFacet("Facet2")) == f2);
+    test(Ice::ObjectPtr(com->findAdminFacet("Facet3")) == f3);
     test(!com->findAdminFacet("Bogus"));
 
     const Ice::FacetMap facetMap = com->findAllAdminFacets();
@@ -110,7 +110,7 @@ private:
     Ice::LogMessageSeq _logMessages;
 };
 
-ICE_DEFINE_PTR(RemoteLoggerIPtr, RemoteLoggerI);
+ICE_DEFINE_SHARED_PTR(RemoteLoggerIPtr, RemoteLoggerI);
 
 RemoteLoggerI::RemoteLoggerI() : _receivedCalls(0)
 {

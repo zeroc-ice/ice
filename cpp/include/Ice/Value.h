@@ -17,8 +17,6 @@ namespace Ice
 namespace Ice
 {
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 /**
  * The base class for instances of Slice classes.
  * \headerfile Ice/Ice.h
@@ -66,14 +64,24 @@ public:
      * Returns a shallow copy of the object.
      * @return The cloned value.
      */
-    std::shared_ptr<Value> ice_clone() const;
+#if defined ICE_CPP11_MAPPING
+    inline std::shared_ptr<Value> ice_clone() const
+    {
+        return _iceCloneImpl();
+    }
+#else
+    inline SharedPtr<Value> ice_clone() const
+    {
+        return SharedPtr<Value>(_iceCloneImpl());
+    }
+#endif
 
     /**
      * Obtains the sliced data associated with this instance.
      * @return The sliced data if the value has a preserved-slice base class and has been sliced during
      * unmarshaling of the value, nil otherwise.
      */
-    virtual std::shared_ptr<SlicedData> ice_getSlicedData() const;
+    virtual SlicedDataPtr ice_getSlicedData() const;
 
     /// \cond STREAM
     virtual void _iceWrite(Ice::OutputStream*) const;
@@ -83,7 +91,7 @@ public:
 protected:
 
     /// \cond INTERNAL
-    virtual std::shared_ptr<Value> _iceCloneImpl() const = 0;
+    virtual std::shared_ptr<Value> _iceCloneImpl() const;
     /// \endcond
 
     /// \cond STREAM
@@ -105,10 +113,17 @@ public:
 
     ValueHelper() = default;
 
+#if defined ICE_CPP11_MAPPING
     std::shared_ptr<T> ice_clone() const
     {
         return std::static_pointer_cast<T>(_iceCloneImpl());
     }
+#else
+    SharedPtr<T> ice_clone() const
+    {
+        return SharedPtr<T>(std::static_pointer_cast<T>(_iceCloneImpl()));
+    }
+#endif
 
     virtual std::string ice_id() const override
     {
@@ -138,79 +153,6 @@ protected:
         Base::_iceReadImpl(is);
     }
 };
-/// \endcond
-
-#else // end C++11 mapping
-
-/**
- * The base class for instances of Slice classes.
- * \headerfile Ice/Ice.h
- */
-class ICE_API Value
-{
-public:
-
-    Value() = default;
-    Value(const Value&) = default;
-    Value(Value&&) = default;
-    Value& operator=(const Value&) = default;
-    Value& operator=(Value&&) = default;
-    virtual ~Value() = default;
-
-    /// \cond STREAM
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
-    /// \endcond
-
-    /**
-     * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
-     * to override this method in order to validate its data members.
-     */
-    virtual void ice_preMarshal();
-
-    /**
-     * The Ice run time invokes this method after unmarshaling an object's data members. This allows a
-     * subclass to override this method in order to perform additional initialization.
-     */
-    virtual void ice_postUnmarshal();
-
-    /**
-     * Obtains the Slice type ID of the most-derived class implemented by this instance.
-     * @return The type ID.
-     */
-    virtual std::string ice_id() const;
-
-    /**
-     * Obtains the Slice type ID of this type.
-     * @return The return value is always "::Ice::Object".
-     */
-    static const std::string& ice_staticId();
-
-    /**
-     * Returns a shallow copy of the object.
-     * @return The cloned object.
-     */
-    virtual ValuePtr ice_clone() const;
-
-    /**
-     * Obtains the sliced data associated with this instance.
-     * @return The sliced data if the value has a preserved-slice base class and has been sliced during
-     * unmarshaling of the value, nil otherwise.
-     */
-    virtual SlicedDataPtr ice_getSlicedData() const;
-
-protected:
-
-    /// \cond STREAM
-    virtual void _iceWriteImpl(Ice::OutputStream*) const {}
-    virtual void _iceReadImpl(Ice::InputStream*) {}
-    /// \endcond
-
-private:
-
-    ::Ice::SlicedDataPtr _iceSlicedData;
-};
-#endif
 
 }
 

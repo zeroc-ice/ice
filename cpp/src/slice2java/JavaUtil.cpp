@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "JavaUtil.h"
 #include <IceUtil/StringUtil.h>
-#include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <IceUtil/FileUtil.h>
@@ -54,7 +54,7 @@ typeToBufferString(const TypePtr& type)
         "???"
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(!builtin)
     {
         return "???";
@@ -250,7 +250,7 @@ public:
                 // Remove from list so validateType does not try to handle as well.
                 //
                 metaData.remove(s);
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
                 if(!builtin || builtin->kind() != Builtin::KindByte)
                 {
                     dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "': " +
@@ -263,7 +263,7 @@ public:
             {
                 metaData.remove(s);
 
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
                 if(!builtin ||
                    (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
                     builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
@@ -414,17 +414,17 @@ private:
             //
             // Type metadata ("java:type:Foo") is only supported by sequences and dictionaries.
             //
-            if(i->find("java:type:", 0) == 0 && (!SequencePtr::dynamicCast(p) && !DictionaryPtr::dynamicCast(p)))
+            if(i->find("java:type:", 0) == 0 && (!dynamic_pointer_cast<Sequence>(p) && !dynamic_pointer_cast<Dictionary>(p)))
             {
                 string str;
-                ContainedPtr cont = ContainedPtr::dynamicCast(p);
+                ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
                 if(cont)
                 {
                     str = cont->kindOf();
                 }
                 else
                 {
-                    BuiltinPtr b = BuiltinPtr::dynamicCast(p);
+                    BuiltinPtr b = dynamic_pointer_cast<Builtin>(p);
                     assert(b);
                     str = b->typeId();
                 }
@@ -432,10 +432,10 @@ private:
             }
             else if(i->find("java:buffer") == 0)
             {
-                SequencePtr seq = SequencePtr::dynamicCast(p);
+                SequencePtr seq = dynamic_pointer_cast<Sequence>(p);
                 if(seq)
                 {
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
                     if(builtin &&
                        (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
                         builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
@@ -462,7 +462,7 @@ private:
             }
             else if(i->find("java:implements:") == 0)
             {
-                if(ClassDefPtr::dynamicCast(p) || StructPtr::dynamicCast(p))
+                if(dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p))
                 {
                     newMetaData.push_back(*i);
                 }
@@ -473,8 +473,8 @@ private:
             }
             else if(i->find("java:package:") == 0)
             {
-                ModulePtr m = ModulePtr::dynamicCast(p);
-                if(m && UnitPtr::dynamicCast(m->container()))
+                ModulePtr m = dynamic_pointer_cast<Module>(p);
+                if(m && dynamic_pointer_cast<Unit>(m->container()))
                 {
                     newMetaData.push_back(*i);
                 }
@@ -504,18 +504,20 @@ private:
             // The "getset" metadata can only be specified on a class, struct, exception or data member.
             //
             if((*i) == "java:getset" &&
-               (!ClassDefPtr::dynamicCast(p) && !StructPtr::dynamicCast(p) && !ExceptionPtr::dynamicCast(p) &&
-                !DataMemberPtr::dynamicCast(p)))
+               (!dynamic_pointer_cast<ClassDef>(p) &&
+                !dynamic_pointer_cast<Struct>(p) &&
+                !dynamic_pointer_cast<Slice::Exception>(p) &&
+                !dynamic_pointer_cast<DataMember>(p)))
             {
                 string str;
-                ContainedPtr cont = ContainedPtr::dynamicCast(p);
+                ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
                 if(cont)
                 {
                     str = cont->kindOf();
                 }
                 else
                 {
-                    BuiltinPtr b = BuiltinPtr::dynamicCast(p);
+                    BuiltinPtr b = dynamic_pointer_cast<Builtin>(p);
                     assert(b);
                     str = b->typeId();
                 }
@@ -621,7 +623,7 @@ Slice::isValidMethodParameterList(const DataMemberList& members, int additionalU
     int length = 1 + additionalUnits;
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>((*p)->type());
         if(builtin && (builtin->kind() == Builtin::KindLong || builtin->kind() == Builtin::KindDouble))
         {
             length += 2;
@@ -902,13 +904,13 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
     ContainedPtr p = cont;
     while(true)
     {
-        if(ModulePtr::dynamicCast(p))
+        if(dynamic_pointer_cast<Module>(p))
         {
-            m = ModulePtr::dynamicCast(p);
+            m = dynamic_pointer_cast<Module>(p);
         }
 
         ContainerPtr c = p->container();
-        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
+        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
         if(!p)
         {
             break;
@@ -1002,8 +1004,8 @@ Slice::JavaGenerator::getUnqualified(const ContainedPtr& cont,
 string
 Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) const
 {
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
 
     assert((b && b->usesClasses()) || cl);
 
@@ -1032,7 +1034,7 @@ Slice::JavaGenerator::useOptionalMapping(const OperationPtr& p)
     //
     static const string tag = "java:optional";
 
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p->container());
     assert(cl);
 
     return p->hasMetaData(tag) || cl->hasMetaData(tag);
@@ -1043,7 +1045,7 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
 {
     const string prefix = "com.zeroc.Ice.OptionalFormat.";
 
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     if(bp)
     {
         switch(bp->kind())
@@ -1086,36 +1088,36 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return prefix + "Size";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return seq->type()->isVariableLength() ? prefix + "FSize" : prefix + "VSize";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
             prefix + "FSize" : prefix + "VSize";
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         return st->isVariableLength() ? prefix + "FSize" : prefix + "VSize";
     }
 
-    if(InterfaceDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return prefix + "FSize";
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     assert(cl);
     return prefix + "Class";
 }
@@ -1164,7 +1166,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         return "void";
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         if(optional)
@@ -1203,7 +1205,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
 
     if(optional)
     {
@@ -1215,13 +1217,13 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         return getUnqualified(cl, package);
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         return getUnqualified(proxy, package, "", "Prx");
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         string instanceType, formalType;
@@ -1229,7 +1231,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         return formal ? formalType : instanceType;
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         string instanceType, formalType;
@@ -1237,7 +1239,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         return formal ? formalType : instanceType;
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if(contained)
     {
         if(mode == TypeModeOut)
@@ -1275,7 +1277,7 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
         "com.zeroc.Ice.Value"
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin && mode != TypeModeOut)
     {
         return builtinTable[builtin->kind()];
@@ -1324,7 +1326,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         "???"
     };
 
-    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1426,7 +1428,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         if(marshal)
@@ -1459,7 +1461,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(marshal)
@@ -1488,7 +1490,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         if(optionalParam || mode == OptionalMember)
@@ -1591,14 +1593,14 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         if(optionalParam || mode == OptionalMember)
         {
             string ignored;
             TypePtr elemType = seq->type();
-            BuiltinPtr eltBltin = BuiltinPtr::dynamicCast(elemType);
+            BuiltinPtr eltBltin = dynamic_pointer_cast<Builtin>(elemType);
             if(!hasTypeMetaData(seq, metaData) && eltBltin && eltBltin->kind() < Builtin::KindObject)
             {
                 string bs = builtinTable[eltBltin->kind()];
@@ -1742,8 +1744,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    StructPtr st = StructPtr::dynamicCast(type);
+    ConstructedPtr constructed = dynamic_pointer_cast<Constructed>(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     assert(constructed);
     if(marshal)
     {
@@ -1878,8 +1880,8 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "for(int i" << iterS << " = 0; i" << iterS << " < sz" << iterS << "; i" << iterS << "++)";
         out << sb;
 
-        BuiltinPtr b = BuiltinPtr::dynamicCast(value);
-        if(ClassDeclPtr::dynamicCast(value) || (b && b->usesClasses()))
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(value);
+        if(dynamic_pointer_cast<ClassDecl>(value) || (b && b->usesClasses()))
         {
             out << nl << "final " << keyS << " key;";
             writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
@@ -1898,8 +1900,8 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             out << nl << valueS << " value;";
             writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream);
 
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
-            if(!(builtin && builtin->usesClasses()) && !ClassDeclPtr::dynamicCast(value))
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(value);
+            if(!(builtin && builtin->usesClasses()) && !dynamic_pointer_cast<ClassDecl>(value))
             {
                 out << nl << "" << v << ".put(key, value);";
             }
@@ -1932,7 +1934,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     // If the sequence is a byte sequence, check if there's the serializable or protobuf metadata to
     // get rid of these two easy cases first.
     //
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
     if(builtin && builtin->kind() == Builtin::KindByte)
     {
         string meta;
@@ -2061,7 +2063,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     //
     int depth = 0;
     TypePtr origContent = seq->type();
-    SequencePtr s = SequencePtr::dynamicCast(origContent);
+    SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
     while(s)
     {
         //
@@ -2073,7 +2075,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
         depth++;
         origContent = s->type();
-        s = SequencePtr::dynamicCast(origContent);
+        s = dynamic_pointer_cast<Sequence>(origContent);
     }
     string origContentS = typeToString(origContent, TypeModeIn, package);
 
@@ -2084,7 +2086,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         //
         // Marshal/unmarshal a custom sequence type.
         //
-        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
         typeS = getUnqualified(seq, package);
         ostringstream o;
         o << origContentS;
@@ -2113,7 +2115,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         else
         {
             bool isObject = false;
-            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+            ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
             if((b && b->usesClasses()) || cl)
             {
                 isObject = true;
@@ -2148,7 +2150,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
         if(b && b->kind() != Builtin::KindObject &&
                 b->kind() != Builtin::KindValue &&
                 b->kind() != Builtin::KindObjectProxy)
@@ -2284,7 +2286,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             else
             {
                 bool isObject = false;
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
+                ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(origContent);
                 if((b && b->usesClasses()) || cl)
                 {
                     isObject = true;
@@ -2402,7 +2404,7 @@ Slice::JavaGenerator::getTypeMetaData(const StringList& metaData, string& instan
 bool
 Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& localMetaData)
 {
-    ContainedPtr cont = ContainedPtr::dynamicCast(type);
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
     if(cont)
     {
         static const string prefix = "java:type:";
@@ -2423,10 +2425,10 @@ Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& loc
         if(findMetaData("java:protobuf:", metaData, directive) ||
            findMetaData("java:serializable:", metaData, directive))
         {
-            SequencePtr seq = SequencePtr::dynamicCast(cont);
+            SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
             if(seq)
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
                 if(builtin && builtin->kind() == Builtin::KindByte)
                 {
                     return true;
@@ -2437,10 +2439,10 @@ Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& loc
         if(findMetaData("java:buffer", metaData, directive) ||
            findMetaData("java:buffer", localMetaData, directive))
         {
-            SequencePtr seq = SequencePtr::dynamicCast(cont);
+            SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
             if(seq)
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
                 if(builtin &&
                    (builtin->kind() == Builtin::KindByte || builtin->kind() == Builtin::KindShort ||
                     builtin->kind() == Builtin::KindInt || builtin->kind() == Builtin::KindLong ||
@@ -2497,7 +2499,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
                                        string& instanceType,
                                        string& formalType) const
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindByte)

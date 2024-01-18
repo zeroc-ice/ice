@@ -39,7 +39,7 @@ namespace Ex
 {
 
 void
-throwUOE(const string& expectedType, const ValuePtr& v)
+throwUOE(const string& expectedType, const shared_ptr<Ice::Value>& v)
 {
     //
     // If the object is an unknown sliced object, we didn't find an

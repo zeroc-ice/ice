@@ -153,6 +153,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
         virtual void visitOperation(const OperationPtr&);
 
@@ -187,11 +188,11 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class ObjectVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class ValueVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        ObjectVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ValueVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -209,6 +210,8 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
         bool _doneStaticSymbol;
         int _useWstring;
         std::list<int> _useWstringHist;

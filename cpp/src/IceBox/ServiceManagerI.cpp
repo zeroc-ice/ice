@@ -72,15 +72,25 @@ struct StartServiceInfo
 
 }
 
+/*static*/ ServiceManagerIPtr
+IceBox::ServiceManagerI::create(Ice::CommunicatorPtr communicator, int& argc, char* argv[])
+{
+    ServiceManagerIPtr ptr(new ServiceManagerI(communicator, argc, argv));
+
+#ifndef ICE_CPP11_MAPPING
+    const_cast<CallbackPtr&>(ptr->_observerCompletedCB) =
+        newCallback(ServiceManagerIPtr(ptr->shared_from_this()), &ServiceManagerI::observerCompleted);
+#endif
+
+    return ptr;
+}
+
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) :
     _communicator(communicator),
     _adminEnabled(false),
     _pendingStatusChanges(false),
     _traceServiceObserver(0)
 {
-#ifndef ICE_CPP11_MAPPING
-    const_cast<CallbackPtr&>(_observerCompletedCB) = newCallback(this, &ServiceManagerI::observerCompleted);
-#endif
     _logger = _communicator->getLogger();
 
     PropertiesPtr props = _communicator->getProperties();
@@ -314,7 +324,7 @@ IceBox::ServiceManagerI::start()
 {
     try
     {
-        ServiceManagerPtr obj = ICE_SHARED_FROM_THIS;
+        ServiceManagerPtr obj(shared_from_this());
         PropertiesPtr properties = _communicator->getProperties();
 
         //
@@ -453,7 +463,7 @@ IceBox::ServiceManagerI::start()
         //
         // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
         //
-        _communicator->addAdminFacet(ICE_SHARED_FROM_THIS, "IceBox.ServiceManager");
+        _communicator->addAdminFacet(shared_from_this(), "IceBox.ServiceManager");
         _communicator->getAdmin();
         if(adapter)
         {

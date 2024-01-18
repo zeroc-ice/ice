@@ -26,19 +26,14 @@ class UserException;
 
 /// \cond INTERNAL
 template<typename T> inline void
-patchHandle(void* addr, const ValuePtr& v)
+patchValue(void* addr, const std::shared_ptr<Value>& v)
 {
-#ifdef ICE_CPP11_MAPPING
-    ::std::shared_ptr<T>* handle = static_cast<::std::shared_ptr<T>*>(addr);
-    *handle = ::std::dynamic_pointer_cast<T>(v);
-    if(v && !(*handle))
+    std::shared_ptr<T>* ptr = static_cast<::std::shared_ptr<T>*>(addr);
+    *ptr = ::std::dynamic_pointer_cast<T>(v);
+    if(v && !(*ptr))
     {
         IceInternal::Ex::throwUOE(T::ice_staticId(), v);
     }
-#else
-    SharedPtr<T>* p = static_cast<SharedPtr<T>*>(addr);
-    _icePatchValuePtr(*p, v); // Generated _icePatchValuePtr function, necessary for forward declarations.
-#endif
 }
 /// \endcond
 
@@ -57,7 +52,7 @@ public:
      * @param addr The target address.
      * @param v The unmarshaled value.
      */
-    typedef void (*PatchFunc)(void* addr, const ValuePtr& v);
+    using PatchFunc = std::function<void(void* addr, const std::shared_ptr<Value>& v)>;
 
     /**
      * Constructs a stream using the latest encoding version but without a communicator.
@@ -1070,21 +1065,24 @@ public:
 #endif
 
     /**
-     * Reads a value (instance of a Slice class) from the stream.
+     * Reads a value (instance of a Slice class) from the stream (New mapping).
      * @param v The instance.
      */
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
     template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
     void read(::std::shared_ptr<T>& v)
     {
-        read(&patchHandle<T>, &v);
+        read(patchValue<T>, &v);
     }
-#else // C++98 mapping
-    template<typename T> void read(Ice::SharedPtr<T>& v)
+
+    /**
+     * Reads a value (instance of a Slice class) from the stream (Original mapping).
+     * @param v The instance.
+     */
+    template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
+    void read(Ice::SharedPtr<T>& v)
     {
-        read(&patchHandle<T>, &v);
+        read(v.underlying());
     }
-#endif
 
     /**
      * Reads a value (instance of a Slice class) from the stream.
@@ -1197,7 +1195,7 @@ private:
 
     std::string resolveCompactId(int) const;
 
-    void postUnmarshal(const ValuePtr&) const;
+    void postUnmarshal(const std::shared_ptr<Value>&) const;
 
     class Encaps;
     enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
@@ -1214,7 +1212,7 @@ private:
     CompactIdResolverPtr compactIdResolver() const;
 #endif
 
-    typedef std::vector<ValuePtr> ValueList;
+    using ValueList = std::vector<std::shared_ptr<Value>>;
 
     class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {
@@ -1250,12 +1248,12 @@ private:
         }
 
         std::string readTypeId(bool);
-        ValuePtr newInstance(const std::string&);
+        std::shared_ptr<Value> newInstance(const std::string&);
 
         void addPatchEntry(Int, PatchFunc, void*);
-        void unmarshal(Int, const ValuePtr&);
+        void unmarshal(Int, const std::shared_ptr<Value>&);
 
-        typedef std::map<Int, ValuePtr> IndexToPtrMap;
+        typedef std::map<Int, std::shared_ptr<Value>> IndexToPtrMap;
         typedef std::map<Int, std::string> TypeIdMap;
 
         struct PatchEntry

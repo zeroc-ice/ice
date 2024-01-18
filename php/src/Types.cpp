@@ -242,7 +242,7 @@ IcePHP::StreamUtil::~StreamUtil()
     //
     // Make sure we break any cycles among the ValueReaders in preserved slices.
     //
-    for(set<ValueReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for(set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         Ice::SlicedDataPtr slicedData = (*p)->getSlicedData();
         for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
@@ -253,7 +253,7 @@ IcePHP::StreamUtil::~StreamUtil()
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
-            vector<Ice::ValuePtr> tmp;
+            vector<shared_ptr<Ice::Value>> tmp;
             tmp.swap((*q)->instances);
         }
     }
@@ -266,7 +266,7 @@ IcePHP::StreamUtil::add(const ReadObjectCallbackPtr& callback)
 }
 
 void
-IcePHP::StreamUtil::add(const ValueReaderPtr& reader)
+IcePHP::StreamUtil::add(const shared_ptr<ValueReader>& reader)
 {
     assert(reader->getSlicedData());
     _readers.insert(reader);
@@ -275,7 +275,7 @@ IcePHP::StreamUtil::add(const ValueReaderPtr& reader)
 void
 IcePHP::StreamUtil::updateSlicedData(void)
 {
-    for(set<ValueReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for(set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         setSlicedDataMember((*p)->getObject(), (*p)->getSlicedData());
     }
@@ -372,13 +372,13 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         AutoDestroy instancesDestroyer(&instances);
         addPropertyZval(&slice, STRCAST("instances"), &instances);
 
-        for(vector<Ice::ValuePtr>::const_iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for(vector<shared_ptr<Ice::Value>>::const_iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
             // Each element in the instances list is an instance of ValueReader that wraps a PHP object.
             //
             assert(*q);
-            ValueReaderPtr r = ValueReaderPtr::dynamicCast(*q);
+            auto r = dynamic_pointer_cast<ValueReader>(*q);
             assert(r);
             zval* o = r->getObject();
             assert(Z_TYPE_P(o) == IS_OBJECT); // Should be non-nil.
@@ -442,7 +442,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
             {
                 assert(Z_OBJCE_P(s) == _sliceInfoType);
 
-                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+                Ice::SliceInfoPtr info = make_shared<Ice::SliceInfo>();
 
                 zval* typeId = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("typeId"), sizeof("typeId") - 1);
                 assert(Z_TYPE_P(typeId) == IS_INDIRECT);
@@ -495,12 +495,12 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 {
                     assert(Z_TYPE_P(o) == IS_OBJECT);
 
-                    Ice::ValuePtr writer;
+                    shared_ptr<Ice::Value> writer;
 
                     ObjectMap::iterator i = objectMap->find(Z_OBJ_HANDLE_P(o));
                     if(i == objectMap->end())
                     {
-                        writer = new ValueWriter(o, objectMap, 0);
+                        writer = make_shared<ValueWriter>(o, objectMap, nullptr);
                         objectMap->insert(ObjectMap::value_type(Z_OBJ_HANDLE_P(o), writer));
                     }
                     else
@@ -534,7 +534,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
             }
             ZEND_HASH_FOREACH_END();
 
-            slicedData = new Ice::SlicedData(slices);
+            slicedData = make_shared<Ice::SlicedData>(slices);
         }
     }
 
@@ -2476,7 +2476,7 @@ IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap
 
     if(Z_TYPE_P(zv) == IS_NULL)
     {
-        Ice::ValuePtr nil;
+        shared_ptr<Ice::Value> nil;
         os->write(nil);
         return;
     }
@@ -2490,12 +2490,12 @@ IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap
     // check the object map to see if this object is present. If so, we use the existing ValueWriter,
     // otherwise we create a new one. The key of the map is the object's handle.
     //
-    Ice::ValuePtr writer;
+    shared_ptr<Ice::Value> writer;
     assert(objectMap);
     ObjectMap::iterator q = objectMap->find(Z_OBJ_HANDLE_P(zv));
     if(q == objectMap->end())
     {
-        writer = new ValueWriter(zv, objectMap, this);
+        writer = make_shared<ValueWriter>(zv, objectMap, this);
         objectMap->insert(ObjectMap::value_type(Z_OBJ_HANDLE_P(zv), writer));
     }
     else
@@ -2513,7 +2513,7 @@ namespace
 {
 
 void
-patchObject(void* addr, const Ice::ValuePtr& v)
+patchObject(void* addr, const shared_ptr<Ice::Value>& v)
 {
     ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
     assert(cb);
@@ -3160,7 +3160,7 @@ IcePHP::ValueReader::_iceRead(Ice::InputStream* is)
     {
         StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
         assert(util);
-        util->add(ValueReaderPtr(shared_from_this()));
+        util->add(shared_ptr<ValueReader>(shared_from_this()));
 
         //
         // Define the "unknownTypeId" member for an instance of UnknownSlicedObject.
@@ -3218,7 +3218,7 @@ IcePHP::ReadObjectCallback::~ReadObjectCallback()
 }
 
 void
-IcePHP::ReadObjectCallback::invoke(const Ice::ValuePtr& p)
+IcePHP::ReadObjectCallback::invoke(const shared_ptr<Ice::Value>& p)
 {
 #ifdef HT_ALLOW_COW_VIOLATION
     if(!ZVAL_IS_NULL(&_target))
@@ -3228,7 +3228,7 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ValuePtr& p)
 #endif
     if(p)
     {
-        ValueReaderPtr reader = ValueReaderPtr::dynamicCast(p);
+        auto reader = dynamic_pointer_cast<ValueReader>(p);
         assert(reader);
 
         //

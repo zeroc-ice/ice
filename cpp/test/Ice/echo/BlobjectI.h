@@ -38,6 +38,6 @@ private:
     Ice::ConnectionPtr _connection;
 };
 
-ICE_DEFINE_PTR(BlobjectIPtr, BlobjectI);
+ICE_DEFINE_SHARED_PTR(BlobjectIPtr, BlobjectI);
 
 #endif

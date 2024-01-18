@@ -148,14 +148,14 @@ private:
 typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
 
 ConnectionState connectionStateMap[] = {
-    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotInitialized
-    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotValidated
-    ICE_ENUM(ConnectionState, ConnectionStateActive),       // StateActive
-    ICE_ENUM(ConnectionState, ConnectionStateHolding),      // StateHolding
-    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosing
-    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosingPending
-    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateClosed
-    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateFinished
+    ConnectionState::ConnectionStateValidating,   // StateNotInitialized
+    ConnectionState::ConnectionStateValidating,   // StateNotValidated
+    ConnectionState::ConnectionStateActive,       // StateActive
+    ConnectionState::ConnectionStateHolding,      // StateHolding
+    ConnectionState::ConnectionStateClosing,      // StateClosing
+    ConnectionState::ConnectionStateClosing,      // StateClosingPending
+    ConnectionState::ConnectionStateClosed,       // StateClosed
+    ConnectionState::ConnectionStateClosed,       // StateFinished
 };
 
 }
@@ -2251,7 +2251,7 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
                               const TransceiverPtr& transceiver,
                               const ConnectorPtr& connector,
                               const EndpointIPtr& endpoint,
-                              const ObjectAdapterIPtr& adapter) :
+                              const shared_ptr<ObjectAdapterI>& adapter) :
     _communicator(communicator),
     _instance(instance),
     _monitor(monitor),
@@ -2316,7 +2316,7 @@ Ice::ConnectionI::create(const CommunicatorPtr& communicator,
                          const TransceiverPtr& transceiver,
                          const ConnectorPtr& connector,
                          const EndpointIPtr& endpoint,
-                         const ObjectAdapterIPtr& adapter)
+                         const shared_ptr<ObjectAdapterI>& adapter)
 {
     Ice::ConnectionIPtr conn(new ConnectionI(communicator, instance, monitor, transceiver, connector,
                                              endpoint, adapter));

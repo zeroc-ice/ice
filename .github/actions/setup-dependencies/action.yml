@@ -16,6 +16,11 @@ runs:
       shell: bash
       if: runner.os == 'macOS'
 
+    - name: Install xcodeproj gem
+      run: gem install xcodeproj
+      shell: bash
+      if: runner.os == 'macOS'
+
     - name: Install apt dependencies
       run: sudo apt-get update && sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
       shell: bash

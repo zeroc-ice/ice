@@ -395,7 +395,7 @@ LookupI::findObject(const ObjectCB& cb, const Ice::Identity& id)
     if(p == _objectRequests.end())
     {
         p = _objectRequests.insert(make_pair(id, ICE_MAKE_SHARED(ObjectRequest,
-                                                                 ICE_SHARED_FROM_THIS,
+                                                                 LookupIPtr(shared_from_this()),
                                                                  id,
                                                                  _retryCount))).first;
     }
@@ -423,7 +423,7 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
     if(p == _adapterRequests.end())
     {
         p = _adapterRequests.insert(make_pair(adapterId, ICE_MAKE_SHARED(AdapterRequest,
-                                                                         ICE_SHARED_FROM_THIS,
+                                                                         LookupIPtr(shared_from_this()),
                                                                          adapterId,
                                                                          _retryCount))).first;
     }

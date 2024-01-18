@@ -222,83 +222,47 @@
 
 @end
 
-namespace
-{
-
-class UpdateCallbackI : public Ice::PropertiesAdminUpdateCallback
-{
-public:
-
-    UpdateCallbackI(id<ICEPropertiesAdminUpdateCallback> callback) : _callback(callback)
-    {
-        [_callback retain];
-    }
-
-    ~UpdateCallbackI()
-    {
-        [_callback release];
-    }
-
-    void
-    updated(const Ice::PropertyDict& properties)
-    {
-        NSException* ex = nil;
-        @autoreleasepool
-        {
-            @try
-            {
-                [_callback updated:[toNSDictionary(properties) autorelease]];
-            }
-            @catch(id e)
-            {
-                ex = [e retain];
-            }
-        }
-        if(ex != nil)
-        {
-            rethrowCxxException(ex, true); // True = release the exception.
-        }
-    }
-
-    id<ICEPropertiesAdminUpdateCallback>
-    callback()
-    {
-        return _callback;
-    }
-
-private:
-
-    id<ICEPropertiesAdminUpdateCallback> _callback;
-};
-typedef IceUtil::Handle<UpdateCallbackI> UpdateCallbackIPtr;
-
-}
-
-@implementation ICEPropertiesAdminUpdateCallback
-@end
-
-#define NATIVEPROPERTIESADMIN dynamic_cast<Ice::NativePropertiesAdmin*>(object_)
-
 @implementation ICENativePropertiesAdmin
 -(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
-    IceUtil::Mutex::Lock sync(mutex_);
-    callbacks_.push_back(new UpdateCallbackI(cb));
-    assert(Ice::NativePropertiesAdminPtr::dynamicCast(object_));
-    NATIVEPROPERTIESADMIN->addUpdateCallback(callbacks_.back());
+    std::lock_guard lock(mutex_);
+
+    std::function<void()> remover = std::dynamic_pointer_cast<Ice::NativePropertiesAdmin>(object_)->addUpdateCallback(
+        [cb](const Ice::PropertyDict& properties)
+        {
+            NSException* ex = nil;
+            @autoreleasepool
+            {
+                @try
+                {
+                    [cb updated:[toNSDictionary(properties) autorelease]];
+                }
+                @catch(id e)
+                {
+                    ex = [e retain];
+                }
+            }
+            if(ex != nil)
+            {
+                rethrowCxxException(ex, true); // True = release the exception.
+            }
+        });
+
+    callbacks_.push_back(std::make_pair(cb, remover));
+    [cb retain];
 }
 
 -(void) removeUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
-    IceUtil::Mutex::Lock sync(mutex_);
-    for(std::vector<Ice::PropertiesAdminUpdateCallbackPtr>::iterator p = callbacks_.begin(); p != callbacks_.end(); ++p)
+    std::lock_guard lock(mutex_);
+
+    // Each removeUpdateCallback only removes the first occurrence
+    auto p = std::find_if(callbacks_.begin(), callbacks_.end(), [cb](const auto& q) { return q.first == cb; });
+    if (p != callbacks_.end())
     {
-        if(UpdateCallbackIPtr::dynamicCast(*p)->callback() == cb)
-        {
-            NATIVEPROPERTIESADMIN->removeUpdateCallback(*p);
-            callbacks_.erase(p);
-            return;
-        }
+        p->second();
+        [cb release];
+        callbacks_.erase(p);
     }
 }
 @end

@@ -11,14 +11,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-namespace
-{
-
-const string iceObject = "::Ice::Object";
-
-}
-
-#ifdef ICE_CPP11_MAPPING
 
 void
 Ice::Value::ice_preMarshal()
@@ -55,77 +47,18 @@ Ice::Value::ice_id() const
 const string&
 Ice::Value::ice_staticId()
 {
-    return iceObject;
+    static const ::std::string typeId = "::Ice::Object";
+    return typeId;
 }
 
-shared_ptr<Value>
-Ice::Value::ice_clone() const
-{
-    return _iceCloneImpl();
-}
-
-shared_ptr<SlicedData>
+SlicedDataPtr
 Ice::Value::ice_getSlicedData() const
 {
     return _iceSlicedData;
 }
 
-#else
-
-void
-Ice::_icePatchValuePtr(ValuePtr& obj, const ValuePtr& v)
-{
-    obj = v;
-}
-
-void
-Ice::Value::ice_preMarshal()
-{
-}
-
-void
-Ice::Value::ice_postUnmarshal()
-{
-}
-
-void
-Ice::Value::_iceWrite(Ice::OutputStream* os) const
-{
-    os->startValue(_iceSlicedData);
-    _iceWriteImpl(os);
-    os->endValue();
-}
-
-void
-Ice::Value::_iceRead(Ice::InputStream* is)
-{
-   is->startValue();
-   _iceReadImpl(is);
-   _iceSlicedData = is->endValue();
-}
-
-string
-Ice::Value::ice_id() const
-{
-    return ice_staticId();
-}
-
-const string&
-Ice::Value::ice_staticId()
-{
-    return iceObject;
-}
-
-Ice::ValuePtr
-Ice::Value::ice_clone() const
+std::shared_ptr<Ice::Value>
+Ice::Value::_iceCloneImpl() const
 {
     throw CloneNotImplementedException(__FILE__, __LINE__);
 }
-
-Ice::SlicedDataPtr
-Ice::Value::ice_getSlicedData() const
-{
-    return _iceSlicedData;
-}
-
-#endif

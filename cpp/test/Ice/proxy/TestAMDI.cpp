@@ -41,12 +41,6 @@ MyDerivedClassI::getContextAsync(
 {
     response(_ctx);
 }
-bool
-MyDerivedClassI::ice_isA(string s, const Ice::Current& current) const
-{
-    _ctx = current.ctx;
-    return Test::MyDerivedClass::ice_isA(std::move(s), current);
-}
 #else
 void
 MyDerivedClassI::echo_async(const Test::AMD_MyDerivedClass_echoPtr& cb, const Ice::ObjectPrx& obj, const Ice::Current&)
@@ -66,12 +60,11 @@ MyDerivedClassI::getContext_async(const Test::AMD_MyClass_getContextPtr& cb, con
 {
     cb->ice_response(_ctx);
 }
+#endif
 
 bool
-MyDerivedClassI::ice_isA(const string& s, const Ice::Current& current) const
+MyDerivedClassI::ice_isA(string s, const Ice::Current& current) const
 {
     _ctx = current.ctx;
-    return Test::MyDerivedClass::ice_isA(s, current);
+    return Test::MyDerivedClass::ice_isA(std::move(s), current);
 }
-
-#endif

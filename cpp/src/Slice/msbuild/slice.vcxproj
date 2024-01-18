@@ -92,10 +92,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\CPlusPlusUtil.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
-    <ClCompile Include="..\JavaUtil.cpp" />
     <ClCompile Include="..\Parser.cpp" />
     <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
@@ -108,11 +106,9 @@
     <ClCompile Include="..\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\CPlusPlusUtil.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
-    <ClInclude Include="..\JavaUtil.h" />
     <ClInclude Include="..\Parser.h" />
     <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />

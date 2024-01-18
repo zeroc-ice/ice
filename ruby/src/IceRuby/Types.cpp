@@ -179,7 +179,7 @@ IceRuby::StreamUtil::~StreamUtil()
     //
     // Make sure we break any cycles among the ValueReaders in preserved slices.
     //
-    for(set<ValueReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for(set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         Ice::SlicedDataPtr slicedData = (*p)->getSlicedData();
         for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
@@ -190,7 +190,7 @@ IceRuby::StreamUtil::~StreamUtil()
             // the vector into a temporary and then let the temporary fall out
             // of scope.
             //
-            vector<Ice::ValuePtr> tmp;
+            vector<shared_ptr<Ice::Value>> tmp;
             tmp.swap((*q)->instances);
         }
     }
@@ -203,7 +203,7 @@ IceRuby::StreamUtil::add(const ReadValueCallbackPtr& callback)
 }
 
 void
-IceRuby::StreamUtil::add(const ValueReaderPtr& reader)
+IceRuby::StreamUtil::add(const shared_ptr<ValueReader>& reader)
 {
     assert(reader->getSlicedData());
     _readers.insert(reader);
@@ -212,7 +212,7 @@ IceRuby::StreamUtil::add(const ValueReaderPtr& reader)
 void
 IceRuby::StreamUtil::updateSlicedData()
 {
-    for(set<ValueReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for(set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         setSlicedDataMember((*p)->getObject(), (*p)->getSlicedData());
     }
@@ -282,13 +282,13 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
         callRuby(rb_iv_set, slice, "@instances", instances);
 
         int j = 0;
-        for(vector<Ice::ValuePtr>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for(vector<shared_ptr<Ice::Value>>::iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
         {
             //
             // Each element in the instances list is an instance of ValueReader that wraps a Ruby object.
             //
             assert(*q);
-            ValueReaderPtr r = ValueReaderPtr::dynamicCast(*q);
+            auto r = dynamic_pointer_cast<ValueReader>(*q);
             assert(r);
             VALUE o = r->getObject();
             assert(o != Qnil); // Should be non-nil.
@@ -338,7 +338,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
             {
                 volatile VALUE s = RARRAY_AREF(sl, i);
 
-                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+                Ice::SliceInfoPtr info = std::make_shared<Ice::SliceInfo>();
 
                 volatile VALUE typeId = callRuby(rb_iv_get, s, "@typeId");
                 info->typeId = getString(typeId);
@@ -364,12 +364,12 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 {
                     VALUE o = RARRAY_AREF(instances, j);
 
-                    Ice::ValuePtr writer;
+                    shared_ptr<Ice::Value> writer;
 
                     ValueMap::iterator k = valueMap->find(o);
                     if(k == valueMap->end())
                     {
-                        writer = new ValueWriter(o, valueMap, 0);
+                        writer = make_shared<ValueWriter>(o, valueMap, nullptr);
                         valueMap->insert(ValueMap::value_type(o, writer));
                     }
                     else
@@ -389,7 +389,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 slices.push_back(info);
             }
 
-            slicedData = new Ice::SlicedData(slices);
+            slicedData = std::make_shared<Ice::SlicedData>(slices);
         }
     }
 
@@ -2078,7 +2078,7 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
 
     if(NIL_P(p))
     {
-        Ice::ValuePtr nil;
+        shared_ptr<Ice::Value> nil;
         os->write(nil);
         return;
     }
@@ -2089,12 +2089,12 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
     // check the object map to see if this object is present. If so, we use the existing ValueWriter,
     // otherwise we create a new one.
     //
-    Ice::ValuePtr writer;
+    shared_ptr<Ice::Value> writer;
     assert(valueMap);
     ValueMap::iterator q = valueMap->find(p);
     if(q == valueMap->end())
     {
-        writer = new ValueWriter(p, valueMap, this);
+        writer = make_shared<ValueWriter>(p, valueMap, this);
         valueMap->insert(ValueMap::value_type(p, writer));
     }
     else
@@ -2112,7 +2112,7 @@ namespace
 {
 
 void
-patchObject(void* addr, const Ice::ValuePtr& v)
+patchObject(void* addr, const shared_ptr<Ice::Value>& v)
 {
     ReadValueCallback* cb = static_cast<ReadValueCallback*>(addr);
     assert(cb);
@@ -2666,7 +2666,7 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
     {
         StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
         assert(util);
-        util->add(ValueReaderPtr(shared_from_this()));
+        util->add(shared_ptr<ValueReader>(shared_from_this()));
 
         //
         // Define the "unknownTypeId" member for an instance of UnknownSlicedValue.
@@ -2730,11 +2730,11 @@ IceRuby::ReadValueCallback::ReadValueCallback(const ClassInfoPtr& info, const Un
 }
 
 void
-IceRuby::ReadValueCallback::invoke(const Ice::ValuePtr& p)
+IceRuby::ReadValueCallback::invoke(const shared_ptr<Ice::Value>& p)
 {
     if(p)
     {
-        ValueReaderPtr reader = ValueReaderPtr::dynamicCast(p);
+        auto reader = dynamic_pointer_cast<ValueReader>(p);
         assert(reader);
 
         //

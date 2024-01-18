@@ -64,11 +64,7 @@ public:
 
     DefaultValueFactoryInit(const char* tId) : typeId(tId)
     {
-#ifdef ICE_CPP11_MAPPING
         factoryTable->addValueFactory(typeId, defaultValueFactory<O>);
-#else
-        factoryTable->addValueFactory(typeId, new DefaultValueFactory<O>(typeId));
-#endif
     }
 
     ~DefaultValueFactoryInit()

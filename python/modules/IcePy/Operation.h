@@ -147,7 +147,7 @@ protected:
 
     PyObject* _servant;
 };
-typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
+using ServantWrapperPtr = std::shared_ptr<ServantWrapper>;
 
 ServantWrapperPtr createServantWrapper(PyObject*);
 

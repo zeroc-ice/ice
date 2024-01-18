@@ -13,7 +13,9 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
+
 #include <fstream>
+#include <mutex>
 
 #ifdef getcwd
 #  undef getcwd
@@ -55,10 +57,10 @@ public:
 typedef IceUtil::Handle<ActiveCommunicator> ActiveCommunicatorPtr;
 
 class FactoryWrapper;
-typedef IceUtil::Handle<FactoryWrapper> FactoryWrapperPtr;
+using FactoryWrapperPtr = shared_ptr<FactoryWrapper>;
 
 class DefaultValueFactory;
-typedef IceUtil::Handle<DefaultValueFactory> DefaultValueFactoryPtr;
+using DefaultValueFactoryPtr = shared_ptr<DefaultValueFactory>;
 
 //
 // CommunicatorInfoI encapsulates communicator-related information that
@@ -81,8 +83,8 @@ public:
 
     bool addFactory(zval*, const string&);
     FactoryWrapperPtr findFactory(const string&) const;
-    Ice::ValueFactoryPtr defaultFactory() const { return _defaultFactory; }
-    void destroyFactories(void);
+    DefaultValueFactoryPtr defaultFactory() const { return _defaultFactory; }
+    void destroyFactories();
 
     const ActiveCommunicatorPtr ac;
     zval zv;
@@ -105,7 +107,7 @@ public:
 
     FactoryWrapper(zval*, const CommunicatorInfoIPtr&);
 
-    virtual Ice::ValuePtr create(const string&);
+    virtual shared_ptr<Ice::Value> create(const string&);
 
     void getZval(zval*);
 
@@ -126,7 +128,7 @@ public:
 
     DefaultValueFactory(const CommunicatorInfoIPtr&);
 
-    virtual Ice::ValuePtr create(const string&);
+    virtual shared_ptr<Ice::Value> create(const string&);
 
     void setDelegate(const FactoryWrapperPtr& d) { _delegate = d; }
     FactoryWrapperPtr getDelegate() const { return _delegate; }
@@ -165,8 +167,9 @@ class ValueFactoryManager : public Ice::ValueFactoryManager
 {
 public:
 
+    virtual void add(Ice::ValueFactoryFunc, const string&);
     virtual void add(const Ice::ValueFactoryPtr&, const string&);
-    virtual Ice::ValueFactoryPtr find(const string&) const noexcept;
+    virtual Ice::ValueFactoryFunc find(const string&) const noexcept;
 
     void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -179,7 +182,7 @@ private:
 
     Ice::CommunicatorPtr _communicator;
 };
-typedef IceUtil::Handle<ValueFactoryManager> ValueFactoryManagerPtr;
+using ValueFactoryManagerPtr = shared_ptr<ValueFactoryManager>;
 
 class ReaperTask : public IceUtil::TimerTask
 {
@@ -217,7 +220,9 @@ const string _defaultProfileName = "";
 //
 typedef map<string, ActiveCommunicatorPtr> RegisteredCommunicatorMap;
 RegisteredCommunicatorMap _registeredCommunicators;
-IceUtil::Mutex* _registeredCommunicatorsMutex = 0;
+
+// std::mutex constructor is constexpr so it is statically initialized
+std::mutex _registeredCommunicatorsMutex;
 
 IceUtil::TimerPtr _timer;
 
@@ -227,24 +232,6 @@ IceUtil::TimerPtr _timer;
 // been used) by the request.
 //
 typedef map<Ice::CommunicatorPtr, CommunicatorInfoIPtr> CommunicatorMap;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        _registeredCommunicatorsMutex = new IceUtil::Mutex();
-    }
-
-    ~Init()
-    {
-        delete _registeredCommunicatorsMutex;
-        _registeredCommunicatorsMutex = 0;
-    }
-};
-
-Init init;
 }
 
 extern "C"
@@ -334,7 +321,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
         // Remove all registrations.
         //
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+            lock_guard lock(_registeredCommunicatorsMutex);
             for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
             {
                 _registeredCommunicators.erase(*p);
@@ -347,7 +334,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
         //
         _this->destroyFactories();
 
-        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
+        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(c->getValueFactoryManager());
         assert(vfm);
         vfm->destroy();
 
@@ -555,8 +542,7 @@ ZEND_METHOD(Ice_Communicator, getValueFactoryManager)
 
     try
     {
-        ValueFactoryManagerPtr vfm =
-            ValueFactoryManagerPtr::dynamicCast(_this->getCommunicator()->getValueFactoryManager());
+        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(_this->getCommunicator()->getValueFactoryManager());
         assert(vfm);
         if(object_init_ex(return_value, valueFactoryManagerClassEntry) != SUCCESS)
         {
@@ -1046,7 +1032,7 @@ initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, const Ice::
         }
         ActiveCommunicatorPtr ac = new ActiveCommunicator(c);
 
-        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
+        auto vfm = dynamic_pointer_cast<ValueFactoryManager>(c->getValueFactoryManager());
         assert(vfm);
         vfm->setCommunicator(c);
 
@@ -1209,7 +1195,7 @@ ZEND_FUNCTION(Ice_initialize)
     }
 
     initData.compactIdResolver = new IdResolver();
-    initData.valueFactoryManager = new ValueFactoryManager;
+    initData.valueFactoryManager = make_shared<ValueFactoryManager>();
 
     if(!initData.properties)
     {
@@ -1260,7 +1246,7 @@ ZEND_FUNCTION(Ice_register)
     CommunicatorInfoIPtr info = Wrapper<CommunicatorInfoIPtr>::value(comm);
     assert(info);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p != _registeredCommunicators.end())
@@ -1312,7 +1298,7 @@ ZEND_FUNCTION(Ice_unregister)
 
     string id(s, sLen);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p == _registeredCommunicators.end())
@@ -1347,7 +1333,7 @@ ZEND_FUNCTION(Ice_find)
 
     string id(s, sLen);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p == _registeredCommunicators.end())
@@ -1802,7 +1788,7 @@ IcePHP::communicatorShutdown(void)
 {
     _profiles.clear();
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     if(_timer)
     {
@@ -1879,7 +1865,7 @@ IcePHP::FactoryWrapper::FactoryWrapper(zval* factory, const CommunicatorInfoIPtr
     ZVAL_COPY(&_factory, factory);
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IcePHP::FactoryWrapper::create(const string& id)
 {
     //
@@ -1945,9 +1931,7 @@ IcePHP::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    ValueReaderPtr result = new ValueReader(&obj, cls, _info);
-    return result;
+    return make_shared<ValueReader>(&obj, cls, _info);
 }
 
 void
@@ -1968,7 +1952,7 @@ IcePHP::DefaultValueFactory::DefaultValueFactory(const CommunicatorInfoIPtr& inf
 {
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IcePHP::DefaultValueFactory::create(const string& id)
 {
     //
@@ -1976,7 +1960,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
     //
     if(_delegate)
     {
-        Ice::ValuePtr v = _delegate->create(id);
+        shared_ptr<Ice::Value> v = _delegate->create(id);
         if(v)
         {
             return v;
@@ -2016,7 +2000,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
     }
 
 #ifdef NDEBUG
-    // BUGFIX: releasing this object trigers an assert in PHP objects_store
+    // BUGFIX: releasing this object triggers an assert in PHP objects_store
     // https://github.com/php/php-src/issues/10593
     AutoDestroy release(&obj);
 #endif
@@ -2025,9 +2009,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    ValueReaderPtr result = new ValueReader(&obj, cls, _info);
-    return result;
+    return make_shared<ValueReader>(&obj, cls, _info);
 }
 
 void
@@ -2043,7 +2025,7 @@ IcePHP::DefaultValueFactory::destroy(void)
 
 IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) :
     ac(c),
-    _defaultFactory(new DefaultValueFactory(this))
+    _defaultFactory(make_shared<DefaultValueFactory>(this))
 {
     ZVAL_COPY_VALUE(&zv, z);
 }
@@ -2087,7 +2069,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
             return false;
         }
 
-        _defaultFactory->setDelegate(new FactoryWrapper(factory, this));
+        _defaultFactory->setDelegate(make_shared<FactoryWrapper>(factory, this));
     }
     else
     {
@@ -2100,7 +2082,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
             throwException(ex);
             return false;
         }
-        _factories.insert(FactoryMap::value_type(id, new FactoryWrapper(factory, this)));
+        _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, this)));
     }
 
     return true;
@@ -2137,6 +2119,15 @@ IcePHP::CommunicatorInfoI::destroyFactories(void)
 }
 
 void
+IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
+{
+    //
+    // We don't support factories registered in C++.
+    //
+    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
+}
+
+void
 IcePHP::ValueFactoryManager::add(const Ice::ValueFactoryPtr&, const string&)
 {
     //
@@ -2145,7 +2136,7 @@ IcePHP::ValueFactoryManager::add(const Ice::ValueFactoryPtr&, const string&)
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
 }
 
-Ice::ValueFactoryPtr
+Ice::ValueFactoryFunc
 IcePHP::ValueFactoryManager::find(const string& id) const noexcept
 {
     //
@@ -2159,14 +2150,29 @@ IcePHP::ValueFactoryManager::find(const string& id) const noexcept
 
     CommunicatorInfoIPtr info = p->second;
 
-    if(id.empty())
+    Ice::ValueFactoryPtr factory;
+
+    if (id.empty())
     {
-        return info->defaultFactory();
+        factory = info->defaultFactory();
     }
     else
     {
-        return info->findFactory(id);
+        factory = info->findFactory(id);
     }
+
+    if (factory)
+    {
+        return [factory](const string& id) -> shared_ptr<Ice::Value>
+        {
+            return factory->create(id);
+        };
+    }
+    else
+    {
+        return nullptr;
+    }
+
 }
 
 void
@@ -2178,7 +2184,7 @@ IcePHP::ValueFactoryManager::destroy()
 void
 IcePHP::ReaperTask::runTimerTask()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+    lock_guard lock(_registeredCommunicatorsMutex);
 
     IceUtil::Time now = IceUtil::Time::now();
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();

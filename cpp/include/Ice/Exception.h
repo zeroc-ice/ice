@@ -144,7 +144,7 @@ namespace IceInternal
 namespace Ex
 {
 
-ICE_API void throwUOE(const ::std::string&, const ::Ice::ValuePtr&);
+ICE_API void throwUOE(const ::std::string&, const std::shared_ptr<Ice::Value>&);
 ICE_API void throwMemoryLimitException(const char*, int, size_t, size_t);
 ICE_API void throwMarshalException(const char*, int, const std::string&);
 

@@ -105,8 +105,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         debug = opts.isSet("d") || opts.isSet("debug");
         all = opts.isSet("all");
 
-        bool ignoreRedefs = false;
-
         for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
         {
             string file = *p;
@@ -118,7 +116,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                 throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
             }
 
-            UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all);
+            UnitPtr u = Slice::Unit::createUnit(all);
             int parseStatus = u->parse(file, cppHandle, debug);
 
             if(!icecpp->close() || parseStatus == EXIT_FAILURE)

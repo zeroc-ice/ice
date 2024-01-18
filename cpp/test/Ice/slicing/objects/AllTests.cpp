@@ -644,65 +644,6 @@ public:
 
 int PNodeI::counter = 0;
 
-#ifndef ICE_CPP11_MAPPING
-class NodeFactoryI : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ValuePtr create(const string& id)
-    {
-        if(id == PNode::ice_staticId())
-        {
-            return new PNodeI;
-        }
-        return 0;
-    }
-
-    virtual void destroy()
-    {
-    }
-};
-#endif
-
-class PreservedI : public virtual Preserved
-{
-public:
-
-    PreservedI()
-    {
-        ++counter;
-    }
-
-    virtual ~PreservedI()
-    {
-        --counter;
-    }
-
-    static int counter;
-};
-
-int PreservedI::counter = 0;
-
-#ifndef ICE_CPP11_MAPPING
-class PreservedFactoryI : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ValuePtr create(const string& id)
-    {
-        if(id == Preserved::ice_staticId())
-        {
-            return new PreservedI;
-        }
-        return 0;
-    }
-
-    virtual void destroy()
-    {
-    }
-};
-#endif
-
 void
 testUOO(const TestIntfPrxPtr& test)
 {

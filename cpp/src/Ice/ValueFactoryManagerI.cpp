@@ -10,52 +10,71 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_DELEGATE(ValueFactory)) factory, const string& id)
+IceInternal::ValueFactoryManagerI::add(ValueFactoryFunc factoryFunc, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if((_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
-       || _factoryMap.find(id) != _factoryMap.end())
+    if((_factoryFuncMapHint != _factoryFuncMap.end() && _factoryFuncMapHint->first == id)
+       || _factoryFuncMap.find(id) != _factoryFuncMap.end())
     {
         throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
     }
 
-    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ICE_DELEGATE(ValueFactory)>(id, factory));
+    _factoryFuncMapHint = _factoryFuncMap.insert(_factoryFuncMapHint, make_pair(id, factoryFunc));
 }
 
-ICE_DELEGATE(ValueFactory)
+void
+IceInternal::ValueFactoryManagerI::add(const ValueFactoryPtr& factory, const string& id)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if((_factoryFuncMapHint != _factoryFuncMap.end() && _factoryFuncMapHint->first == id)
+       || _factoryFuncMap.find(id) != _factoryFuncMap.end())
+    {
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
+    }
+
+    ValueFactoryFunc func = [factory](const string& type) -> shared_ptr<Value>
+    {
+        return factory->create(type);
+    };
+
+    _factoryFuncMapHint = _factoryFuncMap.insert(_factoryFuncMapHint, make_pair(id, func));
+}
+
+ValueFactoryFunc
 IceInternal::ValueFactoryManagerI::find(const string& id) const noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    FactoryMap& factoryMap = const_cast<FactoryMap&>(_factoryMap);
+    FactoryFuncMap& factoryFuncMap = const_cast<FactoryFuncMap&>(_factoryFuncMap);
 
-    FactoryMap::iterator p = factoryMap.end();
-    if(_factoryMapHint != factoryMap.end())
+    FactoryFuncMap::iterator p = factoryFuncMap.end();
+    if(_factoryFuncMapHint != factoryFuncMap.end())
     {
-        if(_factoryMapHint->first == id)
+        if(_factoryFuncMapHint->first == id)
         {
-            p = _factoryMapHint;
+            p = _factoryFuncMapHint;
         }
     }
 
-    if(p == factoryMap.end())
+    if(p == factoryFuncMap.end())
     {
-        p = factoryMap.find(id);
+        p = factoryFuncMap.find(id);
     }
 
-    if(p != factoryMap.end())
+    if(p != factoryFuncMap.end())
     {
-        _factoryMapHint = p;
+        _factoryFuncMapHint = p;
         return p->second;
     }
     else
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 }
 
 IceInternal::ValueFactoryManagerI::ValueFactoryManagerI() :
-    _factoryMapHint(_factoryMap.end())
+    _factoryFuncMapHint(_factoryFuncMap.end())
 {
 }

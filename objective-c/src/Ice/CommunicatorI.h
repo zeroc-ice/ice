@@ -18,7 +18,6 @@
     NSDictionary* prefixTable_;
     NSMutableDictionary* adminFacets_;
     ICEValueFactoryManager* valueFactoryManager_;
-    NSMutableDictionary* objectFactories_;
 }
 -(void)setup:(ICEInitializationData*)prefixTable;
 -(Ice::Communicator*)communicator;

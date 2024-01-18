@@ -493,7 +493,7 @@ Slice::checkIdentifier(const string& id)
     {
         if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
         {
-            unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+            currentUnit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
             isValid = false;
             break;
         }
@@ -503,17 +503,17 @@ Slice::checkIdentifier(const string& id)
     size_t index = name.find('_');
     if(index == 0)
     {
-        unit->error("illegal leading underscore in identifier `" + name + "'");
+        currentUnit->error("illegal leading underscore in identifier `" + name + "'");
         isValid = false;
     }
     else if(name.rfind('_') == (name.size() - 1))
     {
-        unit->error("illegal trailing underscore in identifier `" + name + "'");
+        currentUnit->error("illegal trailing underscore in identifier `" + name + "'");
         isValid = false;
     }
     else if(name.find("__") != string::npos)
     {
-        unit->error("illegal double underscore in identifier `" + name + "'");
+        currentUnit->error("illegal double underscore in identifier `" + name + "'");
         isValid = false;
     }
 

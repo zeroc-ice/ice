@@ -109,6 +109,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Gen.cpp" />
+    <ClCompile Include="..\JavaUtil.cpp" />
     <ClCompile Include="..\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
+    <ClInclude Include="..\JavaUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">

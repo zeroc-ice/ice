@@ -674,7 +674,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             {
                 Lock sync(*this);
                 --_inUse;
-                thread->setState(ICE_ENUM(ThreadState, ThreadStateIdle));
+                thread->setState(ThreadState::ThreadStateIdle);
                 return;
             }
             catch(const exception& ex)
@@ -765,7 +765,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 current._handler = ICE_GET_SHARED_FROM_THIS(_nextHandler->first);
                 current.operation = _nextHandler->second;
                 ++_nextHandler;
-                thread->setState(ICE_ENUM(ThreadState, ThreadStateInUseForIO));
+                thread->setState(ThreadState::ThreadStateInUseForIO);
             }
             else
             {
@@ -789,7 +789,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                     _handlers.clear();
                     _selector.startSelect();
                     select = true;
-                    thread->setState(ICE_ENUM(ThreadState, ThreadStateIdle));
+                    thread->setState(ThreadState::ThreadStateIdle);
                 }
             }
             else if(_sizeMax > 1)
@@ -874,7 +874,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-            thread->setState(ICE_ENUM(ThreadState, ThreadStateInUseForIO));
+            thread->setState(ThreadState::ThreadStateInUseForIO);
         }
 
         try
@@ -904,7 +904,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 assert(_inUse > 0);
                 --_inUse;
             }
-            thread->setState(ICE_ENUM(ThreadState, ThreadStateIdle));
+            thread->setState(ThreadState::ThreadStateIdle);
         }
     }
 #endif
@@ -917,7 +917,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
     current._ioCompleted = true; // Set the IO completed flag to specifiy that ioCompleted() has been called.
 
-    current._thread->setState(ICE_ENUM(ThreadState, ThreadStateInUseForUser));
+    current._thread->setState(ThreadState::ThreadStateInUseForUser);
 
     if(_sizeMax > 1)
     {
@@ -1115,7 +1115,7 @@ IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current)
 {
     assert(!current._leader);
 
-    current._thread->setState(ICE_ENUM(ThreadState, ThreadStateIdle));
+    current._thread->setState(ThreadState::ThreadStateIdle);
 
     //
     // It's important to clear the handler before waiting to make sure that
@@ -1172,7 +1172,7 @@ IceInternal::ThreadPool::nextThreadId()
 IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool, const string& name) :
     IceUtil::Thread(name),
     _pool(pool),
-    _state(ICE_ENUM(ThreadState, ThreadStateIdle))
+    _state(ThreadState::ThreadStateIdle)
 {
     updateObserver();
 }

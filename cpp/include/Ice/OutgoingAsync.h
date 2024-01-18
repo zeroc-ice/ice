@@ -670,20 +670,19 @@ extern ICE_API CallbackBasePtr dummyCallback;
 // Generic callback template that requires the caller to down-cast the
 // proxy and the cookie that are obtained from the AsyncResult.
 //
-template<class T>
+template<class T, class TPtr>
 class AsyncCallback : public GenericCallbackBase
 {
 public:
 
     typedef T callback_type;
-    typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Callback)(const ::Ice::AsyncResultPtr&);
 
     AsyncCallback(const TPtr& instance, Callback cb, Callback sentcb = 0) :
         _callback(instance), _completed(cb), _sent(sentcb)
     {
-        checkCallback(instance, cb != 0);
+        checkCallback(instance != 0, cb != 0);
     }
 
     virtual void completed(const ::Ice::AsyncResultPtr& result) const
@@ -812,7 +811,7 @@ newCallback(const IceUtil::Handle<T>& instance,
             void (T::*cb)(const AsyncResultPtr&),
             void (T::*sentcb)(const AsyncResultPtr&) = 0)
 {
-    return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
+    return new ::IceInternal::AsyncCallback<T, IceUtil::Handle<T>>(instance, cb, sentcb);
 }
 
 /**
@@ -827,7 +826,37 @@ newCallback(T* instance,
             void (T::*cb)(const AsyncResultPtr&),
             void (T::*sentcb)(const AsyncResultPtr&) = 0)
 {
-    return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
+    return new ::IceInternal::AsyncCallback<T, IceUtil::Handle<T>>(instance, cb, sentcb);
+}
+
+/**
+ * Creates a callback wrapper instance that delegates to your object.
+ * @param instance The callback object.
+ * @param cb The completion callback.
+ * @param sentcb The sent callback.
+ * @return A callback object that can be passed to an asynchronous invocation.
+ */
+template<class T> CallbackPtr
+newCallback(const Ice::SharedPtr<T>& instance,
+            void (T::*cb)(const AsyncResultPtr&),
+            void (T::*sentcb)(const AsyncResultPtr&) = 0)
+{
+    return new ::IceInternal::AsyncCallback<T, Ice::SharedPtr<T>>(instance, cb, sentcb);
+}
+
+/**
+ * Creates a callback wrapper instance that delegates to your object.
+ * @param instance The callback object.
+ * @param cb The completion callback.
+ * @param sentcb The sent callback.
+ * @return A callback object that can be passed to an asynchronous invocation.
+ */
+template<class T> CallbackPtr
+newCallback(const std::shared_ptr<T>& instance,
+            void (T::*cb)(const AsyncResultPtr&),
+            void (T::*sentcb)(const AsyncResultPtr&) = 0)
+{
+    return new ::IceInternal::AsyncCallback<T, std::shared_ptr<T>>(instance, cb, sentcb);
 }
 
 }

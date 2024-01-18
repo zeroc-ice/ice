@@ -455,14 +455,14 @@ fromObjC(id object, Ice::EndpointPtr& endpoint)
 }
 
 ICEObject*
-toObjC(const Ice::ObjectPtr& object)
+toObjC(const std::shared_ptr<Ice::Object>& object)
 {
     if(!object)
     {
         return nil;
     }
 
-    IceObjC::ServantWrapperPtr wrapper = IceObjC::ServantWrapperPtr::dynamicCast(object);
+    auto wrapper = std::dynamic_pointer_cast<IceObjC::ServantWrapper>(object);
     if(wrapper)
     {
         //
@@ -471,19 +471,19 @@ toObjC(const Ice::ObjectPtr& object)
         //
         return [wrapper->getServant() retain];
     }
-    else if(Ice::NativePropertiesAdminPtr::dynamicCast(object))
+    else if (std::dynamic_pointer_cast<Ice::NativePropertiesAdmin>(object))
     {
         //
         // Given object is a properties admin facet, return the
         // Objective-C wrapper.
         //
-        return [ICENativePropertiesAdmin servantWrapperWithCxxObjectNoAutoRelease:object.get()];
+        return [ICENativePropertiesAdmin servantWrapperWithCxxObjectNoAutoRelease:object];
     }
     else
     {
         //
         // Given object is a C++ servant, return an Objective-C wrapper.
         //
-        return [ICEServantWrapper servantWrapperWithCxxObjectNoAutoRelease:object.get()];
+        return [ICEServantWrapper servantWrapperWithCxxObjectNoAutoRelease:object];
     }
 }

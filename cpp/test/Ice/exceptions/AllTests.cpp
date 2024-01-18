@@ -19,28 +19,14 @@ class EmptyI : public virtual Empty
 {
 };
 
-class ServantLocatorI : public virtual Ice::ServantLocator
+class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
-    virtual shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) { return nullptr; }
-    virtual void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) {}
-    virtual void deactivate(const string&) {}
-#else
-    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&) { return 0; }
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&) {}
-    virtual void deactivate(const string&) {}
-#endif
+    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final { return nullptr; }
+    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final {}
+    void deactivate(const string&) final {}
 };
-
-#ifndef ICE_CPP11_MAPPING // C++98
-class ValueFactoryI : public virtual Ice::ValueFactory
-{
-public:
-    virtual Ice::ValuePtr create(const string&) { return 0; }
-};
-#endif
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -578,7 +564,8 @@ allTests(Test::TestHelper* helper)
 
             try
             {
-                adapter->add(0, Ice::stringToIdentity("x"));
+                obj = nullptr;
+                adapter->add(obj, Ice::stringToIdentity("x"));
             }
             catch(const Ice::IllegalServantException& ex)
             {
@@ -612,7 +599,7 @@ allTests(Test::TestHelper* helper)
         {
             communicator->getProperties()->setProperty("TestAdapter2.Endpoints", localOAEndpoint);
             Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
-            Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
+            Ice::ServantLocatorPtr loc = make_shared<ServantLocatorI>();
             adapter->addServantLocator(loc, "x");
             try
             {
@@ -630,7 +617,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing value factory registration exception... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         communicator->getValueFactoryManager()->add(
             [](const std::string&)
             {
@@ -650,18 +636,6 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::AlreadyRegisteredException&)
         {
         }
-#else
-        Ice::ValueFactoryPtr vf = new ValueFactoryI;
-        communicator->getValueFactoryManager()->add(vf, "x");
-        try
-        {
-            communicator->getValueFactoryManager()->add(vf, "x");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException&)
-        {
-        }
-#endif
     }
     cout << "ok" << endl;
 

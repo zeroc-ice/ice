@@ -23,7 +23,7 @@ private:
 
     Ice::CommunicatorPtr _communicator;
 };
-ICE_DEFINE_PTR(ServerIPtr, ServerI);
+ICE_DEFINE_SHARED_PTR(ServerIPtr, ServerI);
 
 class ServerFactoryI : public Test::ServerFactory
 {

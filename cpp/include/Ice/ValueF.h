@@ -22,10 +22,8 @@ using ValuePtr = ::std::shared_ptr<Value>;
 
 using ValuePtr = SharedPtr<Value>;
 
-/// \cond INTERNAL
-ICE_API void _icePatchValuePtr(ValuePtr&, const ValuePtr&);
-/// \endcond
 #endif
+
 }
 
 #endif

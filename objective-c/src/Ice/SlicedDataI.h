@@ -4,13 +4,15 @@
 
 #import <objc/Ice/SlicedData.h>
 
+#include <Ice/InputStream.h>
+#include <Ice/OutputStream.h>
 #include <Ice/SlicedData.h>
 
 @interface ICESlicedData : NSObject<ICESlicedData>
 {
 @private
-    Ice::SlicedData* slicedData_;
+    Ice::SlicedDataPtr slicedData_;
 }
--(id) initWithSlicedData:(Ice::SlicedData*)slicedData;
--(Ice::SlicedData*) slicedData;
+-(id) initWithSlicedData:(Ice::SlicedDataPtr)slicedData;
+-(Ice::SlicedDataPtr) slicedData;
 @end

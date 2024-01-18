@@ -33,7 +33,11 @@ public:
     {
     }
 
-    explicit SharedPtr(std::shared_ptr<T>&& r) noexcept : _ptr(std::move(r))
+    SharedPtr(std::shared_ptr<T>&& r) noexcept : _ptr(std::move(r))
+    {
+    }
+
+    SharedPtr(const std::shared_ptr<T>& r) noexcept : _ptr(r)
     {
     }
 
@@ -83,7 +87,13 @@ public:
     template<class Y>
     static SharedPtr dynamicCast(const SharedPtr<Y>& r) noexcept
     {
-        return SharedPtr(std::dynamic_pointer_cast<T>(r.underlying()));
+        return dynamicCast(r.underlying());
+    }
+
+    template<class Y>
+    static SharedPtr dynamicCast(const std::shared_ptr<Y>& r) noexcept
+    {
+        return SharedPtr(std::dynamic_pointer_cast<T>(r));
     }
 
 private:

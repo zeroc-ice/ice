@@ -5,6 +5,7 @@
 #import <objc/Ice/Object.h>
 
 #include <Ice/Object.h>
+#include <memory>
 
 //
 // Forward declarations.
@@ -23,17 +24,16 @@ public:
     virtual ~ServantWrapper() { }
     virtual ICEObject* getServant() = 0;
 };
-typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
 
 };
 
 @interface ICEObject (ICEInternal)
--(Ice::Object*) iceObject;
+-(std::shared_ptr<Ice::Object>) iceObject;
 @end
 
 @interface ICEServantWrapper : ICEObject
 {
-    Ice::Object* object_;
+    std::shared_ptr<Ice::Object> object_;
 }
-+(id) servantWrapperWithCxxObjectNoAutoRelease:(Ice::Object*)arg;
++(id) servantWrapperWithCxxObjectNoAutoRelease:(const std::shared_ptr<Ice::Object>&)arg;
 @end

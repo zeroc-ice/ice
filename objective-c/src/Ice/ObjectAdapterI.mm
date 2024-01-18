@@ -22,43 +22,48 @@
 
 namespace
 {
-class DefaultServantLocator : public Ice::ServantLocator
+
+std::map<std::shared_ptr<Ice::ObjectAdapter>, ICEObjectAdapter*> cache;
+
+}
+
+namespace
+{
+class DefaultServantLocator final : public Ice::ServantLocator
 {
 public:
 
-    DefaultServantLocator(const Ice::ObjectPtr& s) :
+    DefaultServantLocator(const std::shared_ptr<Ice::Object>& s) :
         _servant(s)
     {
     }
 
-    virtual Ice::ObjectPtr
-    locate(const Ice::Current&, Ice::LocalObjectPtr&)
+    std::shared_ptr<Ice::Object> locate(const Ice::Current&, std::shared_ptr<void>&) final
     {
         return _servant;
     }
 
-    virtual void
-    finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
+    void finished(const Ice::Current&, const std::shared_ptr<Ice::Object>&, const std::shared_ptr<void>&) final
     {
     }
 
-    virtual void
-    deactivate(const std::string&)
+    void deactivate(const std::string&) final
     {
     }
 
-    const Ice::ObjectPtr&
-    servant() const
+    const std::shared_ptr<Ice::Object>& servant() const
     {
         return _servant;
     }
 
 private:
-    Ice::ObjectPtr _servant;
-};
-typedef IceUtil::Handle<DefaultServantLocator> DefaultServantLocatorPtr;
 
-class Cookie : public Ice::LocalObject
+    std::shared_ptr<Ice::Object> _servant;
+};
+
+using DefaultServantLocatorPtr = std::shared_ptr<DefaultServantLocator>;
+
+class Cookie
 {
 public:
 
@@ -81,7 +86,7 @@ private:
 
     id _cookie;
 };
-typedef IceUtil::Handle<Cookie> CookiePtr;
+using CookiePtr = std::shared_ptr<Cookie>;
 
 class ExceptionWriter : public Ice::UserException
 {
@@ -149,7 +154,7 @@ private:
     ICEUserException* _ex;
 };
 
-class ServantLocatorWrapper : public Ice::ServantLocator
+class ServantLocatorWrapper final : public Ice::ServantLocator
 {
 public:
 
@@ -159,13 +164,12 @@ public:
         [_locator retain];
     }
 
-    ~ServantLocatorWrapper()
+    ~ServantLocatorWrapper() final
     {
         [_locator release];
     }
 
-    virtual Ice::ObjectPtr
-    locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
+    std::shared_ptr<Ice::Object> locate(const Ice::Current& current, std::shared_ptr<void>& cookie) final
     {
         NSException* ex = nil;
         @autoreleasepool
@@ -177,7 +181,7 @@ public:
                 ICEObject* servant = [_locator locate:cu cookie:&co];
                 if(co != nil)
                 {
-                    cookie = new Cookie(co);
+                    cookie = std::make_shared<Cookie>(co);
                 }
                 return [servant iceObject];
             }
@@ -200,14 +204,13 @@ public:
         }
     }
 
-    virtual void
-    finished(const Ice::Current& current, const Ice::ObjectPtr& servant, const Ice::LocalObjectPtr& cookie)
+    void finished(const Ice::Current& current, const std::shared_ptr<Ice::Object>& servant, const std::shared_ptr<void>& cookie) final
     {
         NSException* ex = nil;
         @autoreleasepool
         {
             ICECurrent* cu = [[ICECurrent alloc] initWithCurrent:current];
-            id co = cookie ? CookiePtr::dynamicCast(cookie)->cookie() : nil;
+            id co = cookie ? std::static_pointer_cast<Cookie>(cookie)->cookie() : nil;
             @try
             {
                 [_locator finished:cu servant:[toObjC(servant) autorelease] cookie:co];
@@ -231,8 +234,7 @@ public:
         }
     }
 
-    virtual void
-    deactivate(const std::string& category)
+    void deactivate(const std::string& category) final
     {
         NSException* ex = nil;
         @autoreleasepool
@@ -257,8 +259,7 @@ public:
         }
     }
 
-    id<ICEServantLocator>
-    locator() const
+    id<ICEServantLocator> locator() const
     {
         return [[_locator retain] autorelease];
     }
@@ -267,17 +268,86 @@ private:
 
     id<ICEServantLocator> _locator;
 };
-typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
 
-}
+using ServantLocatorWrapperPtr = std::shared_ptr<ServantLocatorWrapper>;
 
-#define OBJECTADAPTER dynamic_cast<Ice::ObjectAdapter*>(static_cast<IceUtil::Shared*>(cxxObject_))
+} // End of anonymous namespace.
 
 @implementation ICEObjectAdapter
--(Ice::ObjectAdapter*) adapter
+
+-(id) init
 {
-    return OBJECTADAPTER;
+    self = [super init];
+    if (!self)
+    {
+        return nil;
+    }
+    adapter_ = nullptr;
+    return self;
 }
+
+-(id) initWithCxxObject:(const std::shared_ptr<Ice::ObjectAdapter>&)arg
+{
+    self = [super init];
+    if (!self)
+    {
+        return nil;
+    }
+    adapter_ = arg;
+
+    //
+    // No synchronization because initWithCxxObject is always called with the wrapper class object locked
+    //
+    assert(cache.find(arg) == cache.end());
+    cache.insert(std::make_pair(arg, self));
+    return self;
+}
+
+-(void) dealloc
+{
+    if (adapter_)
+    {
+        //
+        // No synchronization because dealloc is always called with the wrapper class object locked
+        //
+        cache.erase(adapter_);
+        adapter_ = nullptr;
+    }
+
+    [super dealloc];
+}
+
+-(std::shared_ptr<Ice::ObjectAdapter>) cxxObject
+{
+    return adapter_;
+}
+
++(id) objectAdapterWithCxxObject:(const std::shared_ptr<Ice::ObjectAdapter>&)arg
+{
+    return [[self objectAdapterWithCxxObjectNoAutoRelease:arg] autorelease];
+}
+
++(id) objectAdapterWithCxxObjectNoAutoRelease:(const std::shared_ptr<Ice::ObjectAdapter>&)arg
+{
+    if (!arg)
+    {
+        return nil;
+    }
+
+    @synchronized([ICEObjectAdapter class])
+    {
+        auto p = cache.find(arg);
+        if(p != cache.end())
+        {
+            return [p->second retain];
+        }
+        else
+        {
+            return [[self alloc] initWithCxxObject:arg];
+        }
+    }
+}
+
 //
 // @protocol ICEObjectAdapter methods.
 //
@@ -287,7 +357,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICECommunicator localObjectWithCxxObject:OBJECTADAPTER->getCommunicator().get()];
+        return [ICECommunicator localObjectWithCxxObject:adapter_->getCommunicator().get()];
     }
     catch(const std::exception& ex)
     {
@@ -302,7 +372,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toNSMutableString(OBJECTADAPTER->getName()) autorelease];
+        return [toNSMutableString(adapter_->getName()) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -317,7 +387,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->activate();
+        adapter_->activate();
     }
     catch(const std::exception& ex)
     {
@@ -334,7 +404,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->hold();
+        adapter_->hold();
     }
     catch(const std::exception& ex)
     {
@@ -351,7 +421,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->waitForHold();
+        adapter_->waitForHold();
     }
     catch(const std::exception& ex)
     {
@@ -368,7 +438,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->deactivate();
+        adapter_->deactivate();
     }
     catch(const std::exception& ex)
     {
@@ -385,7 +455,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->waitForDeactivate();
+        adapter_->waitForDeactivate();
     }
     catch(const std::exception& ex)
     {
@@ -402,7 +472,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return OBJECTADAPTER->isDeactivated();
+        return adapter_->isDeactivated();
     }
     catch(const std::exception& ex)
     {
@@ -417,7 +487,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->destroy();
+        adapter_->destroy();
     }
     catch(const std::exception& ex)
     {
@@ -434,7 +504,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->add([servant iceObject], [ident identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:adapter_->add([servant iceObject], [ident identity])];
     }
     catch(const std::exception& ex)
     {
@@ -449,7 +519,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addFacet([servant iceObject], [ident identity],
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:adapter_->addFacet([servant iceObject], [ident identity],
                                                                               fromNSString(facet))];
     }
     catch(const std::exception& ex)
@@ -465,7 +535,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addWithUUID([servant iceObject])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:adapter_->addWithUUID([servant iceObject])];
     }
     catch(const std::exception& ex)
     {
@@ -480,7 +550,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->addFacetWithUUID([servant iceObject],
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:adapter_->addFacetWithUUID([servant iceObject],
                                                                                       fromNSString(facet))];
     }
     catch(const std::exception& ex)
@@ -496,8 +566,8 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ServantLocatorPtr servantLocator = new DefaultServantLocator([servant iceObject]);
-        OBJECTADAPTER->addServantLocator(servantLocator, fromNSString(category));
+        Ice::ServantLocatorPtr servantLocator = std::make_shared<DefaultServantLocator>([servant iceObject]);
+        adapter_->addServantLocator(servantLocator, fromNSString(category));
     }
     catch(const std::exception& ex)
     {
@@ -514,7 +584,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toObjC(OBJECTADAPTER->remove([ident identity])) autorelease];
+        return [toObjC(adapter_->remove([ident identity])) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -528,7 +598,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toObjC(OBJECTADAPTER->removeFacet([ident identity], fromNSString(facet))) autorelease];
+        return [toObjC(adapter_->removeFacet([ident identity], fromNSString(facet))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -543,7 +613,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toNSDictionary(OBJECTADAPTER->removeAllFacets([ident identity])) autorelease];
+        return [toNSDictionary(adapter_->removeAllFacets([ident identity])) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -558,12 +628,12 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ServantLocatorPtr locator = OBJECTADAPTER->removeServantLocator(fromNSString(category));
+        Ice::ServantLocatorPtr locator = adapter_->removeServantLocator(fromNSString(category));
         if(!locator)
         {
             return nil;
         }
-        DefaultServantLocatorPtr defaultServantLocator = DefaultServantLocatorPtr::dynamicCast(locator);
+        DefaultServantLocatorPtr defaultServantLocator = std::dynamic_pointer_cast<DefaultServantLocator>(locator);
         if(!defaultServantLocator)
         {
             return nil;
@@ -583,7 +653,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toObjC(OBJECTADAPTER->find([ident identity])) autorelease];
+        return [toObjC(adapter_->find([ident identity])) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -598,7 +668,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toObjC(OBJECTADAPTER->findFacet([ident identity], fromNSString(facet))) autorelease];
+        return [toObjC(adapter_->findFacet([ident identity], fromNSString(facet))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -613,7 +683,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return toNSDictionary(OBJECTADAPTER->findAllFacets([ident identity]));
+        return toNSDictionary(adapter_->findAllFacets([ident identity]));
     }
     catch(const std::exception& ex)
     {
@@ -628,7 +698,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toObjC(OBJECTADAPTER->findByProxy([(ICEObjectPrx*)proxy iceObjectPrx])) autorelease];
+        return [toObjC(adapter_->findByProxy([(ICEObjectPrx*)proxy iceObjectPrx])) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -643,7 +713,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->addServantLocator(new ServantLocatorWrapper(locator), fromNSString(category));
+        adapter_->addServantLocator(std::make_shared<ServantLocatorWrapper>(locator), fromNSString(category));
         return;
     }
     catch(const std::exception& ex)
@@ -657,8 +727,8 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ServantLocatorPtr locator = OBJECTADAPTER->removeServantLocator(fromNSString(category));
-        return ServantLocatorWrapperPtr::dynamicCast(locator)->locator();
+        Ice::ServantLocatorPtr locator = adapter_->removeServantLocator(fromNSString(category));
+        return std::dynamic_pointer_cast<ServantLocatorWrapper>(locator)->locator();
     }
     catch(const std::exception& ex)
     {
@@ -671,8 +741,8 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ServantLocatorPtr locator = OBJECTADAPTER->removeServantLocator(fromNSString(category));
-        return locator ? ServantLocatorWrapperPtr::dynamicCast(locator)->locator() : nil;
+        Ice::ServantLocatorPtr locator = adapter_->removeServantLocator(fromNSString(category));
+        return locator ? std::dynamic_pointer_cast<ServantLocatorWrapper>(locator)->locator() : nil;
     }
     catch(const std::exception& ex)
     {
@@ -686,12 +756,12 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        Ice::ServantLocatorPtr servantLocator = OBJECTADAPTER->findServantLocator(fromNSString(category));
+        Ice::ServantLocatorPtr servantLocator = adapter_->findServantLocator(fromNSString(category));
         if(servantLocator == 0)
         {
             return nil;
         }
-        DefaultServantLocatorPtr defaultServantLocator = DefaultServantLocatorPtr::dynamicCast(servantLocator);
+        DefaultServantLocatorPtr defaultServantLocator = std::dynamic_pointer_cast<DefaultServantLocator>(servantLocator);
         if(defaultServantLocator == 0)
         {
             return nil; // should never happen!
@@ -714,7 +784,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->createProxy([ident identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:adapter_->createProxy([ident identity])];
     }
     catch(const std::exception& ex)
     {
@@ -729,7 +799,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->createDirectProxy([ident identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:adapter_->createDirectProxy([ident identity])];
     }
     catch(const std::exception& ex)
     {
@@ -744,7 +814,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->createIndirectProxy([ident identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:adapter_->createIndirectProxy([ident identity])];
     }
     catch(const std::exception& ex)
     {
@@ -759,7 +829,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->setLocator(Ice::LocatorPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)loc iceObjectPrx])));
+        adapter_->setLocator(Ice::LocatorPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)loc iceObjectPrx])));
     }
     catch(const std::exception& ex)
     {
@@ -776,7 +846,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return (id<ICELocatorPrx>)[ICELocatorPrx iceObjectPrxWithObjectPrx:OBJECTADAPTER->getLocator()];
+        return (id<ICELocatorPrx>)[ICELocatorPrx iceObjectPrxWithObjectPrx:adapter_->getLocator()];
     }
     catch(const std::exception& ex)
     {
@@ -794,7 +864,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toNSArray(OBJECTADAPTER->getEndpoints()) autorelease];
+        return [toNSArray(adapter_->getEndpoints()) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -812,7 +882,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        OBJECTADAPTER->refreshPublishedEndpoints();
+        adapter_->refreshPublishedEndpoints();
     }
     catch(const std::exception& ex)
     {
@@ -829,7 +899,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     NSException* nsex = nil;
     try
     {
-        return [toNSArray(OBJECTADAPTER->getPublishedEndpoints()) autorelease];
+        return [toNSArray(adapter_->getPublishedEndpoints()) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -849,7 +919,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     {
         Ice::EndpointSeq cxxNewEndpoints;
         fromNSArray(newEndpoints, cxxNewEndpoints);
-        OBJECTADAPTER->setPublishedEndpoints(cxxNewEndpoints);
+        adapter_->setPublishedEndpoints(cxxNewEndpoints);
     }
     catch(const std::exception& ex)
     {

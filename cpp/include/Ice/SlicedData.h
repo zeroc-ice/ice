@@ -16,14 +16,11 @@ namespace Ice
  * \headerfile Ice/Ice.h
  */
 struct ICE_API SliceInfo
-#ifndef ICE_CPP11_MAPPING
-    : public ::IceUtil::Shared
-#endif
 {
     /**
      * The Slice type ID for this slice.
      */
-    ::std::string typeId;
+    std::string typeId;
 
     /**
      * The Slice compact type ID for this slice.
@@ -33,12 +30,12 @@ struct ICE_API SliceInfo
     /**
      * The encoded bytes for this slice, including the leading size integer.
      */
-    ::std::vector<Byte> bytes;
+    std::vector<Byte> bytes;
 
     /**
      * The class instances referenced by this slice.
      */
-    ::std::vector<ValuePtr> instances;
+    std::vector<std::shared_ptr<Value>> instances;
 
     /**
      * Whether or not the slice contains optional members.
@@ -56,15 +53,8 @@ struct ICE_API SliceInfo
  * \headerfile Ice/Ice.h
  */
 class ICE_API SlicedData
-#ifndef ICE_CPP11_MAPPING
-    : public ::IceUtil::Shared
-#endif
 {
 public:
-
-#ifndef ICE_CPP11_MAPPING
-    virtual ~SlicedData();
-#endif
 
     SlicedData(const SliceInfoSeq&);
 
@@ -91,8 +81,6 @@ public:
      */
     UnknownSlicedValue(const std::string& unknownTypeId);
 
-#ifdef ICE_CPP11_MAPPING
-
     /**
      * Determine the Slice type ID associated with this instance.
      * @return The type ID supplied to the constructor.
@@ -103,29 +91,19 @@ public:
      * Clones this object.
      * @return A new instance.
      */
-    std::shared_ptr<UnknownSlicedValue> ice_clone() const;
+    inline UnknownSlicedValuePtr ice_clone() const
+    {
+#ifdef ICE_CPP11_MAPPING
+        return std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
+#else
+        return UnknownSlicedValuePtr(std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl()));
+#endif
+    }
 
 protected:
 
     /// \cond INTERNAL
     virtual std::shared_ptr<Value> _iceCloneImpl() const override;
-    /// \endcond
-
-#else
-
-    /**
-     * Determine the Slice type ID associated with this instance.
-     * @return The type ID supplied to the constructor.
-     */
-    virtual std::string ice_id() const;
-
-#endif
-
-protected:
-
-    /// \cond STREAM
-    virtual void _iceWriteImpl(Ice::OutputStream*) const {}
-    virtual void _iceReadImpl(Ice::InputStream*) {}
     /// \endcond
 
 private:

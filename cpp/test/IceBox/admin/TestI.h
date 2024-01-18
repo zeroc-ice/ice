@@ -8,10 +8,7 @@
 #include <Test.h>
 
 class TestFacetI : public virtual ::Test::TestFacet,
-#ifndef ICE_CPP11_MAPPING
-                   public virtual Ice::PropertiesAdminUpdateCallback,
-#endif
-                   IceUtil::Monitor<IceUtil::Mutex>
+                   private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -25,6 +22,6 @@ private:
 
     Ice::PropertyDict _changes;
 };
-ICE_DEFINE_PTR(TestFacetIPtr, TestFacetI);
+ICE_DEFINE_SHARED_PTR(TestFacetIPtr, TestFacetI);
 
 #endif

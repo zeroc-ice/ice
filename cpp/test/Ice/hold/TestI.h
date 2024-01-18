@@ -7,10 +7,8 @@
 
 #include <Test.h>
 
-class HoldI : public Test::Hold, public IceUtil::Mutex, public IceUtil::TimerTask
-#ifdef ICE_CPP11_MAPPING
-    , public std::enable_shared_from_this<HoldI>
-#endif
+class HoldI : public Test::Hold,
+              public IceUtil::Mutex
 {
 public:
 
@@ -21,8 +19,6 @@ public:
     virtual Ice::Int set(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void setOneway(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
-
-    virtual void runTimerTask();
 
 private:
 

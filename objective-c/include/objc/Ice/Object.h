@@ -42,17 +42,14 @@ ICE_API @interface ICEObject : NSObject<ICEObject, NSCopying>
 
 ICE_API @interface ICEServant : ICEObject
 {
+    // A pointer to the Ice::Object that wraps this ObjC object.
     void* iceObject_;
-    id iceDelegate_;
 }
--(id) initWithDelegate:(id)delegate;
-+(id) objectWithDelegate:(id)delegate;
 +(void) iceD_ice_isA:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
 +(void) iceD_ice_ping:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
 +(void) iceD_ice_id:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
 +(void) iceD_ice_ids:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
 -(void) iceDispatch:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
--(id) iceTarget;
 @end
 
 ICE_API @protocol ICEBlobject<ICEObject>

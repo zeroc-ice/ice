@@ -32,8 +32,12 @@ getValueInfo(const string& id)
 
 }
 
-IcePy::ValueFactoryManager::ValueFactoryManager()
+/* static */ ValueFactoryManagerPtr
+IcePy::ValueFactoryManager::create()
 {
+    // can't use make_shared because constructor is private
+    auto vfm = shared_ptr<ValueFactoryManager>(new ValueFactoryManager);
+
     //
     // Create a Python wrapper around this object. Note that this is cyclic - we clear the
     // reference in destroy().
@@ -41,10 +45,17 @@ IcePy::ValueFactoryManager::ValueFactoryManager()
     ValueFactoryManagerObject* obj = reinterpret_cast<ValueFactoryManagerObject*>(
         ValueFactoryManagerType.tp_alloc(&ValueFactoryManagerType, 0));
     assert(obj);
-    obj->vfm = new ValueFactoryManagerPtr(this);
-    _self = reinterpret_cast<PyObject*>(obj);
 
-    _defaultFactory = new DefaultValueFactory;
+    // We're creating a shared_ptr on the heap
+    obj->vfm = new ValueFactoryManagerPtr(vfm);
+    vfm->_self = reinterpret_cast<PyObject*>(obj);
+
+    return vfm;
+}
+
+IcePy::ValueFactoryManager::ValueFactoryManager()
+{
+    _defaultFactory = make_shared<DefaultValueFactory>();
 }
 
 IcePy::ValueFactoryManager::~ValueFactoryManager()
@@ -54,9 +65,15 @@ IcePy::ValueFactoryManager::~ValueFactoryManager()
 }
 
 void
+IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
+{
+    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
+}
+
+void
 IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     if(id.empty())
     {
@@ -79,23 +96,22 @@ IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
     }
 }
 
-Ice::ValueFactoryPtr
+Ice::ValueFactoryFunc
 IcePy::ValueFactoryManager::find(const string& id) const noexcept
 {
-    Lock lock(*this);
+    Ice::ValueFactoryPtr factory = findCore(id);
 
-    if(id.empty())
+    if (factory)
     {
-        return _defaultFactory;
+        return [factory](const string& type) -> shared_ptr<Ice::Value>
+        {
+            return factory->create(type);
+        };
     }
-
-    FactoryMap::const_iterator p = _factories.find(id);
-    if(p != _factories.end())
+    else
     {
-        return p->second;
+        return nullptr;
     }
-
-    return 0;
 }
 
 void
@@ -103,7 +119,7 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, PyObject* objectFactory,
 {
     try
     {
-        add(new FactoryWrapper(valueFactory, objectFactory), id);
+        add(make_shared<FactoryWrapper>(valueFactory, objectFactory), id);
     }
     catch(const Ice::Exception& ex)
     {
@@ -114,11 +130,11 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, PyObject* objectFactory,
 PyObject*
 IcePy::ValueFactoryManager::findValueFactory(const string& id) const
 {
-    Ice::ValueFactoryPtr f = find(id);
-    if(f)
+    Ice::ValueFactoryPtr factory = findCore(id);
+    if (factory)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(f);
-        if(w)
+        auto w = dynamic_pointer_cast<FactoryWrapper>(factory);
+        if (w)
         {
             return w->getValueFactory();
         }
@@ -143,7 +159,7 @@ IcePy::ValueFactoryManager::destroy()
     FactoryMap factories;
 
     {
-        Lock lock(*this);
+        std::lock_guard lock(_mutex);
         if(_self == 0)
         {
             //
@@ -162,7 +178,7 @@ IcePy::ValueFactoryManager::destroy()
 
     for(FactoryMap::iterator p = factories.begin(); p != factories.end(); ++p)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(p->second);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(p->second);
         if(w)
         {
             w->destroy();
@@ -170,6 +186,28 @@ IcePy::ValueFactoryManager::destroy()
     }
 
     _defaultFactory->destroy();
+}
+
+Ice::ValueFactoryPtr
+IcePy::ValueFactoryManager::findCore(const string& id) const noexcept
+{
+    std::lock_guard lock(_mutex);
+
+    Ice::ValueFactoryPtr factory;
+
+    if (id.empty())
+    {
+        return _defaultFactory;
+    }
+    else
+    {
+        FactoryMap::const_iterator p = _factories.find(id);
+        if(p != _factories.end())
+        {
+            return p->second;
+        }
+    }
+    return nullptr;
 }
 
 IcePy::FactoryWrapper::FactoryWrapper(PyObject* valueFactory, PyObject* objectFactory) :
@@ -187,7 +225,7 @@ IcePy::FactoryWrapper::~FactoryWrapper()
     Py_DECREF(_objectFactory);
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IcePy::FactoryWrapper::create(const string& id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
@@ -215,10 +253,7 @@ IcePy::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
-    // will fail.
-    ValueReaderPtr result = new ValueReader(obj.get(), info);
-    return result;
+    return make_shared<ValueReader>(obj.get(), info);;
 }
 
 PyObject*
@@ -238,12 +273,12 @@ IcePy::FactoryWrapper::destroy()
     }
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IcePy::DefaultValueFactory::create(const string& id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    Ice::ValuePtr v;
+    shared_ptr<Ice::Value> v;
 
     //
     // Give the application-provided default factory a chance to create the object first.
@@ -279,10 +314,7 @@ IcePy::DefaultValueFactory::create(const string& id)
         throw AbortMarshaling();
     }
 
-    // We need to create a shared_ptr that sees the enable_shared_from_this. Otherwise, shared_from_this() later on
-    // will fail.
-    ValueReaderPtr result = new ValueReader(obj.get(), info);
-    return result;
+    return make_shared<ValueReader>(obj.get(), info);
 }
 
 void
@@ -296,7 +328,7 @@ IcePy::DefaultValueFactory::getValueFactory() const
 {
     if(_delegate)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
         if(w)
         {
             return w->getValueFactory();
@@ -312,7 +344,7 @@ IcePy::DefaultValueFactory::destroy()
 {
     if(_delegate)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
         if(w)
         {
             w->destroy();

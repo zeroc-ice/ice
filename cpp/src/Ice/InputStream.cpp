@@ -1573,7 +1573,7 @@ Ice::InputStream::resolveCompactId(int id) const
 }
 
 void
-Ice::InputStream::postUnmarshal(const ValuePtr& v) const
+Ice::InputStream::postUnmarshal(const shared_ptr<Value>& v) const
 {
     try
     {
@@ -1719,16 +1719,13 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
     }
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
 {
-    Ice::ValuePtr v;
+    shared_ptr<Value> v;
 
-    //
     // Try to find a factory registered for the specific type.
-    //
-#ifdef ICE_CPP11_MAPPING
-    function<ValuePtr(const string&)> userFactory;
+    function<shared_ptr<Value>(const string&)> userFactory;
     if(_valueFactoryManager)
     {
         userFactory = _valueFactoryManager->find(typeId);
@@ -1737,17 +1734,7 @@ Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
             v = userFactory(typeId);
         }
     }
-#else
-    ValueFactoryPtr userFactory;
-    if(_valueFactoryManager)
-    {
-        userFactory = _valueFactoryManager->find(typeId);
-        if(userFactory)
-        {
-            v = userFactory->create(typeId);
-        }
-    }
-#endif
+
     //
     // If that fails, invoke the default factory if one has been registered.
     //
@@ -1756,11 +1743,7 @@ Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
         userFactory = _valueFactoryManager->find("");
         if(userFactory)
         {
-#ifdef ICE_CPP11_MAPPING
             v = userFactory(typeId);
-#else
-            v = userFactory->create(typeId);
-#endif
         }
     }
 
@@ -1770,21 +1753,12 @@ Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
     //
     if(!v)
     {
-#ifdef ICE_CPP11_MAPPING
-        function<ValuePtr(const string&)> of = IceInternal::factoryTable->getValueFactory(typeId);
+        function<shared_ptr<Value>(const string&)> of = IceInternal::factoryTable->getValueFactory(typeId);
         if(of)
         {
             v = of(typeId);
             assert(v);
         }
-#else
-        ValueFactoryPtr of = IceInternal::factoryTable->getValueFactory(typeId);
-        if(of)
-        {
-            v = of->create(typeId);
-            assert(v);
-        }
-#endif
     }
     return v;
 }
@@ -1806,7 +1780,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
             assert(!_stream->_instance->acceptClassCycles());
             throw MarshalException(__FILE__, __LINE__, "cycle detected during Value unmarshaling");
         }
-        (*patchFunc)(patchAddr, p->second);
+        patchFunc(patchAddr, p->second);
         return;
     }
 
@@ -1837,7 +1811,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
 }
 
 void
-Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
+Ice::InputStream::EncapsDecoder::unmarshal(Int index, const shared_ptr<Ice::Value>& v)
 {
     //
     // Add the object to the map of unmarshaled instances, this must
@@ -1846,7 +1820,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
     // If circular references are not allowed we insert null (for cycle detection) and add
     // the object to the map once it has been fully unmarshaled.
     //
-    _unmarshaledMap.insert(make_pair(index, _stream->_instance->acceptClassCycles() ? v : Ice::ValuePtr()));
+    _unmarshaledMap.insert(make_pair(index, _stream->_instance->acceptClassCycles() ? v : nullptr));
 
     //
     // Read the object.
@@ -1866,7 +1840,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
         //
         for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
         {
-            (*k->patchFunc)(k->patchAddr, v);
+            k->patchFunc(k->patchAddr, v);
         }
 
         //
@@ -1930,8 +1904,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
         // Calling the patch function for null instances is necessary for correct functioning of Ice for
         // Python and Ruby.
         //
-        ValuePtr nil;
-        patchFunc(patchAddr, nil);
+        patchFunc(patchAddr, nullptr);
     }
     else
     {
@@ -2153,7 +2126,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    ValuePtr v;
+    shared_ptr<Value> v;
     while(true)
     {
         //
@@ -2237,8 +2210,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
         //
         if(patchFunc)
         {
-            ValuePtr nil;
-            patchFunc(patchAddr, nil);
+            patchFunc(patchAddr, nullptr);
         }
     }
     else if(_current && _current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
@@ -2500,7 +2472,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     //
     // Preserve this slice.
     //
-    SliceInfoPtr info = ICE_MAKE_SHARED(SliceInfo);
+    SliceInfoPtr info = make_shared<SliceInfo>();
     info->typeId = _current->typeId;
     info->compactId = _current->compactId;
     info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
@@ -2583,7 +2555,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    Ice::ValuePtr v;
+    shared_ptr<Value> v;
     while(true)
     {
         if(_current->compactId >= 0)
@@ -2638,7 +2610,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
             v = newInstance(Object::ice_staticId());
             if(!v)
             {
-                v = ICE_MAKE_SHARED(UnknownSlicedValue, mostDerivedId);
+                v = make_shared<UnknownSlicedValue>(mostDerivedId);
             }
 
             break;
@@ -2697,17 +2669,13 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
         // enclosing instance.
         //
         const IndexList& table = _current->indirectionTables[n];
-        vector<ValuePtr>& instances = _current->slices[n]->instances;
+        vector<shared_ptr<Value>>& instances = _current->slices[n]->instances;
         instances.resize(table.size());
         IndexList::size_type j = 0;
         for(IndexList::const_iterator p = table.begin(); p != table.end(); ++p)
         {
-#ifdef ICE_CPP11_MAPPING
-            addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
-#else
-            addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
-#endif
+            addPatchEntry(*p, patchValue<Value>, &instances[j++]);
         }
     }
-    return ICE_MAKE_SHARED(SlicedData, _current->slices);
+    return make_shared<SlicedData>(_current->slices);
 }

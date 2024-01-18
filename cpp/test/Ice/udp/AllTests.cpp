@@ -52,7 +52,7 @@ private:
 
     int _replies;
 };
-ICE_DEFINE_PTR(PingReplyIPtr, PingReplyI);
+ICE_DEFINE_SHARED_PTR(PingReplyIPtr, PingReplyI);
 
 void
 allTests(Test::TestHelper* helper)

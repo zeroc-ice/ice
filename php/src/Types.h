@@ -42,10 +42,9 @@ class ClassInfo;
 typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
 typedef std::vector<ClassInfoPtr> ClassInfoList;
 
-typedef std::map<unsigned int, Ice::ValuePtr> ObjectMap;
+typedef std::map<unsigned int, std::shared_ptr<Ice::Value>> ObjectMap;
 
 class ValueReader;
-typedef Ice::SharedPtr<ValueReader> ValueReaderPtr;
 
 struct PrintObjectHistory
 {
@@ -87,7 +86,7 @@ public:
     ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, zval*, void*);
     ~ReadObjectCallback();
 
-    virtual void invoke(const ::Ice::ValuePtr&);
+    virtual void invoke(const ::std::shared_ptr<Ice::Value>&);
 
 private:
 
@@ -116,7 +115,7 @@ public:
     //
     // Keep track of object instances that have preserved slices.
     //
-    void add(const ValueReaderPtr&);
+    void add(const std::shared_ptr<ValueReader>&);
 
     void updateSlicedData(void);
 
@@ -126,7 +125,7 @@ public:
 private:
 
     std::vector<ReadObjectCallbackPtr> _callbacks;
-    std::set<ValueReaderPtr> _readers;
+    std::set<std::shared_ptr<ValueReader>> _readers;
     static zend_class_entry* _slicedDataType;
     static zend_class_entry* _sliceInfoType;
 };

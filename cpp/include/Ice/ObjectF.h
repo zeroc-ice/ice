@@ -5,20 +5,20 @@
 #ifndef ICE_OBJECT_F_H
 #define ICE_OBJECT_F_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
+#include <Ice/Config.h>
+#include <Ice/SharedPtr.h>
 
 namespace Ice
 {
 
 class Object;
+
 #ifdef ICE_CPP11_MAPPING
 /// \cond INTERNAL
 using ObjectPtr = ::std::shared_ptr<Object>;
 /// \endcond
 #else
-ICE_API Object* upCast(Object*);
-typedef IceInternal::Handle<Object> ObjectPtr;
+using ObjectPtr = SharedPtr<Object>;
 #endif
 
 }

@@ -47,9 +47,10 @@ createIceIAP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringS
 
 namespace
 {
-typedef std::map<int, std::string> CompactIdMap;
+using CompactIdMap = std::map<int, std::string>;
 
-IceUtil::Mutex* _compactIdMapMutex = 0;
+// The std::mutex consturctor is constexpr so this mutex is statically initialized
+std::mutex _compactIdMapMutex;
 CompactIdMap* _compactIdMap = 0;
 
 class CompactIdResolverI : public Ice::CompactIdResolver
@@ -59,10 +60,9 @@ public:
     virtual ::std::string
     resolve(::Ice::Int value) const
     {
-        assert(_compactIdMapMutex);
         assert(_compactIdMap);
 
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_compactIdMapMutex);
+        std::lock_guard lock(_compactIdMapMutex);
         CompactIdMap::iterator p = _compactIdMap->find(value);
         if(p != _compactIdMap->end())
         {
@@ -73,8 +73,7 @@ public:
 };
 
 //
-// We don't use the constructor to initialize the compactIdMap as
-// static initializtion takes place after +load is called.
+// We don't use the constructor to initialize the compactIdMap as the initializtion takes place after +load is called.
 //
 class Init
 {
@@ -87,12 +86,6 @@ public:
             delete _compactIdMap;
             _compactIdMap = 0;
         }
-
-        if(_compactIdMapMutex)
-        {
-            delete _compactIdMapMutex;
-            _compactIdMapMutex = 0;
-        }
     }
 };
 Init init;
@@ -102,18 +95,15 @@ Init init;
 @implementation CompactIdMapHelper
 +(void) initialize
 {
-    assert(!_compactIdMapMutex);
     assert(!_compactIdMap);
-    _compactIdMapMutex = new ::IceUtil::Mutex;
     _compactIdMap = new CompactIdMap;
 }
 
 +(void) registerClass:(NSString*)type value:(ICEInt)value
 {
-    assert(_compactIdMapMutex);
     assert(_compactIdMap);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_compactIdMapMutex);
+    std::lock_guard lock(_compactIdMapMutex);
     CompactIdMap::iterator p = _compactIdMap->find(value);
     if(p != _compactIdMap->end())
     {
@@ -126,7 +116,7 @@ Init init;
 namespace IceObjC
 {
 
-class ThreadNotification : public Ice::ThreadNotification, public IceUtil::Mutex
+class ThreadNotification : public Ice::ThreadNotification
 {
 public:
 
@@ -136,13 +126,13 @@ public:
 
     virtual void start()
     {
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         _pools.insert(std::make_pair(IceUtil::ThreadControl().id(), [[NSAutoreleasePool alloc] init]));
     }
 
     virtual void stop()
     {
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         std::map<IceUtil::ThreadControl::ID, NSAutoreleasePool*>::iterator p =
             _pools.find(IceUtil::ThreadControl().id());
         [p->second drain];
@@ -152,6 +142,7 @@ public:
 private:
 
     std::map<IceUtil::ThreadControl::ID, NSAutoreleasePool*> _pools;
+    std::mutex _mutex;
 };
 
 };

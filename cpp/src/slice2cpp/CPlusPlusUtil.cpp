@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/CPlusPlusUtil.h>
+#include "CPlusPlusUtil.h"
 #include <Slice/Util.h>
 #include <cstring>
 #include <functional>
+#include <algorithm>
 
 #ifndef _WIN32
 #  include <fcntl.h>
@@ -82,7 +83,7 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
     {
         if(seqType == "%array")
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
             if(typeCtx & TypeContextAMIPrivateEnd)
             {
                 if(builtin && builtin->kind() == Builtin::KindByte)
@@ -178,7 +179,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
     // If using a range or array we need to allocate the range container, or
     // array as well now to ensure they are always in the same scope.
     //
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         string seqType = findMetaData(metaData, typeCtx);
@@ -221,7 +222,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
     string paramName = objPrefix + fixedName;
     string escapedParamName = objPrefix + fixedName + "_tmp_";
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         string seqType = findMetaData(metaData, TypeContextInParam);
@@ -232,7 +233,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
 
         if(seqType == "%array")
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
             if(builtin &&
                builtin->kind() != Builtin::KindByte &&
                builtin->kind() != Builtin::KindString &&
@@ -577,7 +578,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
 bool
 Slice::isMovable(const TypePtr& type)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -595,7 +596,7 @@ Slice::isMovable(const TypePtr& type)
             }
         }
     }
-    return !EnumPtr::dynamicCast(type);
+    return !dynamic_pointer_cast<Enum>(type);
 }
 
 string
@@ -661,7 +662,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::std::shared_ptr<::Ice::Value>"
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindString)
@@ -685,7 +686,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(cpp11)
@@ -698,7 +699,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         }
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         //
@@ -714,7 +715,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         }
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         if(cpp11)
@@ -727,19 +728,19 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         return getUnqualified(fixKwd(en->scoped()), scope);
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return sequenceTypeToString(seq, scope, metaData, typeCtx);
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         return dictionaryTypeToString(dict, scope, metaData, typeCtx);
@@ -821,7 +822,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         return "const " + toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindString)
@@ -845,7 +846,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(cpp11)
@@ -858,7 +859,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         }
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(cpp11)
@@ -878,7 +879,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         }
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         if(cpp11)
@@ -891,19 +892,19 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         return getUnqualified(fixKwd(en->scoped()), scope);
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return "const " + sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         return "const " + dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
@@ -953,7 +954,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindString)
@@ -977,7 +978,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(cpp11)
@@ -990,7 +991,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         }
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(!cpp11 && findMetaData(st->getMetaData()) == "%class")
@@ -1003,7 +1004,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         }
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         if(cpp11)
@@ -1016,19 +1017,19 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         return getUnqualified(fixKwd(en->scoped()), scope) + "&";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         return dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
@@ -1189,13 +1190,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
     string func = os.str();
     if(!marshal)
     {
-        SequencePtr seq = SequencePtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if(seq && !(typeCtx & TypeContextAMIPrivateEnd))
         {
             string seqType = findMetaData(metaData, typeCtx);
             if(seqType == "%array")
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
                 if(builtin && builtin->kind() == Builtin::KindByte)
                 {
                     out << nl << func << objPrefix << param << ");";
@@ -1261,7 +1262,7 @@ string
 Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& arg)
 {
     string endArg = arg;
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         string seqType = findMetaData(metaData, TypeContextInParam);
@@ -1272,7 +1273,7 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
 
         if(seqType == "%array")
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
             if(builtin &&
                builtin->kind() != Builtin::KindByte &&
                builtin->kind() != Builtin::KindString &&
@@ -1512,7 +1513,7 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers,
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx | TypeContextCpp11)
+        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx)
             << "&";
     }
     out << "> ice_tuple() const";
@@ -1646,7 +1647,7 @@ Slice::inWstringModule(const SequencePtr& seq)
     ContainerPtr cont = seq->container();
     while(cont)
     {
-        ModulePtr mod = ModulePtr::dynamicCast(cont);
+        ModulePtr mod = dynamic_pointer_cast<Module>(cont);
         if(!mod)
         {
             break;
@@ -1674,7 +1675,7 @@ Slice::getDataMemberRef(const DataMemberPtr& p)
         return name;
     }
 
-    if(BuiltinPtr::dynamicCast(p->type()))
+    if(dynamic_pointer_cast<Builtin>(p->type()))
     {
         return "*" + name;
     }

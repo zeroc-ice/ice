@@ -28,6 +28,8 @@
 
 #include <pythread.h>
 
+#include <future>
+
 using namespace std;
 using namespace IcePy;
 
@@ -43,18 +45,13 @@ static CommunicatorMap _communicatorMap;
 namespace IcePy
 {
 
-struct CommunicatorObject;
-
-typedef InvokeThread<Ice::Communicator> WaitForShutdownThread;
-typedef IceUtil::Handle<WaitForShutdownThread> WaitForShutdownThreadPtr;
-
 struct CommunicatorObject
 {
     PyObject_HEAD
     Ice::CommunicatorPtr* communicator;
     PyObject* wrapper;
-    IceUtil::Monitor<IceUtil::Mutex>* shutdownMonitor;
-    WaitForShutdownThreadPtr* shutdownThread;
+    std::future<void>* shutdownFuture;
+    Ice::Exception* shutdownException;
     bool shutdown;
     DispatcherPtr* dispatcher;
 };
@@ -75,8 +72,8 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     }
     self->communicator = 0;
     self->wrapper = 0;
-    self->shutdownMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
-    self->shutdownThread = 0;
+    self->shutdownFuture = nullptr;
+    self->shutdownException = nullptr;
     self->shutdown = false;
     self->dispatcher = 0;
     return self;
@@ -244,7 +241,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         //
         // We always supply our own implementation of ValueFactoryManager.
         //
-        data.valueFactoryManager = new ValueFactoryManager;
+        data.valueFactoryManager = ValueFactoryManager::create();
 
         if(!data.properties)
         {
@@ -366,14 +363,10 @@ communicatorDealloc(CommunicatorObject* self)
         }
     }
 
-    if(self->shutdownThread)
-    {
-        (*self->shutdownThread)->getThreadControl().join();
-    }
     delete self->communicator;
-    delete self->shutdownMonitor;
-    delete self->shutdownThread;
-    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
+    delete self->shutdownException;
+    delete self->shutdownFuture;
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject *>(self));
 }
 
 #ifdef WIN32
@@ -384,7 +377,7 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
 
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
+    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     assert(vfm);
 
     try
@@ -473,40 +466,41 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
     //
     if(PyThread_get_thread_ident() == _mainThreadId)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*self->shutdownMonitor);
-
         if(!self->shutdown)
         {
-            if(self->shutdownThread == 0)
+            if(self->shutdownFuture == nullptr)
             {
-                WaitForShutdownThreadPtr t = new WaitForShutdownThread(*self->communicator,
-                                                                       &Ice::Communicator::waitForShutdown,
-                                                                       *self->shutdownMonitor, self->shutdown);
-                self->shutdownThread = new WaitForShutdownThreadPtr(t);
-                t->start();
+                self->shutdownFuture = new std::future<void>();
+                *self->shutdownFuture = std::async(std::launch::async,
+                                                   [&self]
+                                                   {
+                                                       (*self->communicator)->waitForShutdown();
+                                                   });
             }
 
-            while(!self->shutdown)
             {
-                bool done;
-                {
-                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
-                }
-
-                if(!done)
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                if(self->shutdownFuture->wait_for(std::chrono::milliseconds(timeout)) == std::future_status::timeout)
                 {
                     PyRETURN_FALSE;
                 }
             }
+
+            self->shutdown = true;
+            try
+            {
+                self->shutdownFuture->get();
+            }
+            catch(const Ice::Exception& ex)
+            {
+                self->shutdownException = ex.ice_clone();
+            }
         }
 
         assert(self->shutdown);
-
-        Ice::Exception* ex = (*self->shutdownThread)->getException();
-        if(ex)
+        if(self->shutdownException)
         {
-            setPythonException(*ex);
+            setPythonException(*self->shutdownException);
             return 0;
         }
     }
@@ -1080,10 +1074,10 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
         // (e.g., it could be the Process or Properties facet), in which case
         // we return None.
         //
-        Ice::ObjectPtr obj = (*self->communicator)->findAdminFacet(facet);
+        shared_ptr<Ice::Object> obj = (*self->communicator)->findAdminFacet(facet);
         if(obj)
         {
-            ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+            ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
             if(wrapper)
             {
                 return wrapper->getObject();
@@ -1142,7 +1136,7 @@ communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
 
         PyObjectHandle obj = plainObject;
 
-        ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(p->second);
+        ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         if(wrapper)
         {
             obj = wrapper->getObject();
@@ -1191,9 +1185,9 @@ communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
         // (e.g., it could be the Process or Properties facet), in which case
         // we return None.
         //
-        Ice::ObjectPtr obj = (*self->communicator)->removeAdminFacet(facet);
+        shared_ptr<Ice::Object> obj = (*self->communicator)->removeAdminFacet(facet);
         assert(obj);
-        ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+        ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
         if(wrapper)
         {
             return wrapper->getObject();
@@ -1303,8 +1297,7 @@ extern "C"
 static PyObject*
 communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
 {
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
-
+    auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*self->communicator)->getValueFactoryManager());
     return vfm->getObject();
 }
 

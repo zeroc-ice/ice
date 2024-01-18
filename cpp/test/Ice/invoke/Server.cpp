@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class ServantLocatorI : public Ice::ServantLocator
+class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
 
@@ -19,57 +19,42 @@ public:
         {
             if(async)
             {
-                _blobject = ICE_MAKE_SHARED(BlobjectArrayAsyncI);
+                _blobject = make_shared<BlobjectArrayAsyncI>();
             }
             else
             {
-                _blobject = ICE_MAKE_SHARED(BlobjectArrayI);
+                _blobject = make_shared<BlobjectArrayI>();
             }
         }
         else
         {
             if(async)
             {
-                _blobject = ICE_MAKE_SHARED(BlobjectAsyncI);
+                _blobject = make_shared<BlobjectAsyncI>();
             }
             else
             {
-                _blobject = ICE_MAKE_SHARED(BlobjectI);
+                _blobject = make_shared<BlobjectI>();
             }
         }
     }
 
-#ifdef ICE_CPP11_MAPPING
-    virtual Ice::ObjectPtr
-    locate(const Ice::Current&, shared_ptr<void>&)
+    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final
     {
         return _blobject;
     }
 
-    virtual void
-    finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&)
+    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final
     {
-    }
-#else
-    virtual Ice::ObjectPtr
-    locate(const Ice::Current&, Ice::LocalObjectPtr&)
-    {
-        return _blobject;
     }
 
-    virtual void
-    finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
-    {
-    }
-#endif
-    virtual void
-    deactivate(const string&)
+    void deactivate(const string&) final
     {
     }
 
 private:
 
-    Ice::ObjectPtr _blobject;
+    shared_ptr<Ice::Object> _blobject;
 };
 
 class Server : public Test::TestHelper
@@ -102,7 +87,7 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, array, async), "");
+    adapter->addServantLocator(make_shared<ServantLocatorI>(array, async), "");
     adapter->activate();
 
     serverReady();

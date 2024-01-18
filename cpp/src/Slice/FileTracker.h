@@ -5,7 +5,6 @@
 #ifndef FILE_TRACKER_H
 #define FILE_TRACKER_H
 
-#include <IceUtil/Shared.h>
 #include <Slice/Parser.h>
 
 namespace Slice
@@ -32,9 +31,8 @@ private:
 };
 
 class FileTracker;
-typedef IceUtil::Handle<FileTracker> FileTrackerPtr;
-
-class FileTracker : public ::IceUtil::SimpleShared
+using FileTrackerPtr = std::shared_ptr<FileTracker>;
+class FileTracker
 {
 public:
 

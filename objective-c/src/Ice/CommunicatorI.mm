@@ -68,12 +68,10 @@
     adminFacets_ = [[NSMutableDictionary alloc] init];
 
     valueFactoryManager_ = [[ICEValueFactoryManager alloc] init:COMMUNICATOR prefixTable:prefixTable_];
-    objectFactories_ = [[NSMutableDictionary alloc] init];
 }
 -(void) dealloc
 {
     [valueFactoryManager_ release];
-    [objectFactories_ release];
     [prefixTable_ release];
     [adminFacets_ release];
     [super dealloc];
@@ -100,13 +98,6 @@
         @synchronized(adminFacets_)
         {
             [adminFacets_ removeAllObjects];
-        }
-        @synchronized(objectFactories_)
-        {
-            for(NSString* k in objectFactories_)
-            {
-                [[objectFactories_ objectForKey:k] destroy];
-            }
         }
         return;
     }
@@ -250,9 +241,7 @@
     NSException* nsex = nil;
     try
     {
-        ICEObjectAdapter* adapter = [ICEObjectAdapter localObjectWithCxxObject:
-                                                          COMMUNICATOR->createObjectAdapter(
-                                                              fromNSString(name)).get()];
+        ICEObjectAdapter* adapter = [ICEObjectAdapter objectAdapterWithCxxObject: COMMUNICATOR->createObjectAdapter(fromNSString(name))];
         return adapter;
     }
     catch(const std::exception& ex)
@@ -268,9 +257,9 @@
     NSException* nsex = nil;
     try
     {
-        ICEObjectAdapter* adapter = [ICEObjectAdapter localObjectWithCxxObject:
+        ICEObjectAdapter* adapter = [ICEObjectAdapter objectAdapterWithCxxObject:
                                                           COMMUNICATOR->createObjectAdapterWithEndpoints(
-                                                              fromNSString(name), fromNSString(endpoints)).get()];
+                                                              fromNSString(name), fromNSString(endpoints))];
         return adapter;
     }
     catch(const std::exception& ex)
@@ -287,9 +276,9 @@
     try
     {
         Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr iceObjectPrx]));
-        ICEObjectAdapter* adapter = [ICEObjectAdapter localObjectWithCxxObject:
+        ICEObjectAdapter* adapter = [ICEObjectAdapter objectAdapterWithCxxObject:
                                                           COMMUNICATOR->createObjectAdapterWithRouter(
-                                                              fromNSString(name), router).get()];
+                                                              fromNSString(name), router)];
         return adapter;
     }
     catch(const std::exception& ex)
@@ -465,7 +454,7 @@
     NSException* nsex;
     try
     {
-        Ice::ObjectAdapterPtr adminAdapter = [(ICEObjectAdapter*)adapter adapter];
+        Ice::ObjectAdapterPtr adminAdapter = [(ICEObjectAdapter*)adapter cxxObject];
         return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->createAdmin(adminAdapter, [adminId identity])];
     }
     catch(const std::exception& ex)
@@ -492,7 +481,7 @@
     NSException* nsex;
     try
     {
-        COMMUNICATOR->addAdminFacet([servant iceObject], fromNSString(facet));
+        COMMUNICATOR->addAdminFacet(Ice::ObjectPtr([servant iceObject]), fromNSString(facet));
         @synchronized(adminFacets_)
         {
             [adminFacets_ setObject:servant forKey:facet];

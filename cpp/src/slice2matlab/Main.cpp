@@ -311,28 +311,28 @@ typeToString(const TypePtr& type)
         return "void";
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         return builtinTable[builtin->kind()];
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         return getAbsolute(cl);
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         return getAbsolute(proxy, "", "Prx");
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
-        if(StructPtr::dynamicCast(dict->keyType()))
+        if(dynamic_pointer_cast<Struct>(dict->keyType()))
         {
             return "struct";
         }
@@ -342,7 +342,7 @@ typeToString(const TypePtr& type)
         }
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if(contained)
     {
         return getAbsolute(contained);
@@ -356,7 +356,7 @@ dictionaryTypeToString(const TypePtr& type, bool key)
 {
     assert(type);
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -396,7 +396,7 @@ dictionaryTypeToString(const TypePtr& type, bool key)
         }
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         //
@@ -411,12 +411,12 @@ dictionaryTypeToString(const TypePtr& type, bool key)
 bool
 declarePropertyType(const TypePtr& type, bool optional)
 {
-    if(optional || SequencePtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+    if(optional || dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
     {
         return false;
     }
 
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     if(b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindObjectProxy ||
              b->kind() == Builtin::KindValue))
     {
@@ -429,7 +429,7 @@ declarePropertyType(const TypePtr& type, bool optional)
 string
 constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         return getAbsolute(constant) + ".value";
@@ -437,7 +437,7 @@ constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const str
     else
     {
         BuiltinPtr bp;
-        if((bp = BuiltinPtr::dynamicCast(type)))
+        if((bp = dynamic_pointer_cast<Builtin>(type)))
         {
             switch(bp->kind())
             {
@@ -466,9 +466,9 @@ constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const str
             }
 
         }
-        else if(EnumPtr::dynamicCast(type))
+        else if(dynamic_pointer_cast<Enum>(type))
         {
-            EnumeratorPtr e = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr e = dynamic_pointer_cast<Enumerator>(valueType);
             assert(e);
             return getAbsolute(e);
         }
@@ -492,7 +492,7 @@ defaultValue(const DataMemberPtr& m)
     }
     else
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(m->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(m->type());
         if(builtin)
         {
             switch(builtin->kind())
@@ -515,12 +515,12 @@ defaultValue(const DataMemberPtr& m)
             }
         }
 
-        DictionaryPtr dict = DictionaryPtr::dynamicCast(m->type());
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(m->type());
         if(dict)
         {
             const TypePtr key = dict->keyType();
             const TypePtr value = dict->valueType();
-            if(StructPtr::dynamicCast(key))
+            if(dynamic_pointer_cast<Struct>(key))
             {
                 //
                 // We use a struct array when the key is a structure type because we can't use containers.Map.
@@ -536,14 +536,14 @@ defaultValue(const DataMemberPtr& m)
             }
         }
 
-        EnumPtr en = EnumPtr::dynamicCast(m->type());
+        EnumPtr en = dynamic_pointer_cast<Enum>(m->type());
         if(en)
         {
             const EnumeratorList enumerators = en->enumerators();
             return getAbsolute(*enumerators.begin());
         }
 
-        StructPtr st = StructPtr::dynamicCast(m->type());
+        StructPtr st = dynamic_pointer_cast<Struct>(m->type());
         if(st)
         {
             return getAbsolute(st) + "()";
@@ -556,29 +556,29 @@ defaultValue(const DataMemberPtr& m)
 bool
 isClass(const TypePtr& type)
 {
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     return (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl;
 }
 
 bool
 isProxy(const TypePtr& type)
 {
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    InterfaceDeclPtr p = InterfaceDeclPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+    InterfaceDeclPtr p = dynamic_pointer_cast<InterfaceDecl>(type);
     return (b && b->kind() == Builtin::KindObjectProxy) || p;
 }
 
 bool
 needsConversion(const TypePtr& type)
 {
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return isClass(seq->type()) || needsConversion(seq->type());
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         const DataMemberList members = st->dataMembers();
@@ -592,7 +592,7 @@ needsConversion(const TypePtr& type)
         return false;
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         return needsConversion(d->valueType()) || isClass(d->valueType());
@@ -613,19 +613,19 @@ convertValueType(IceUtilInternal::Output& out, const string& dest, const string&
         out.inc();
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         out << nl << dest << " = " << getAbsolute(seq) << ".convert(" << src << ");";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         out << nl << dest << " = " << getAbsolute(d) << ".convert(" << src << ");";
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         out << nl << dest << " = " << src << ".ice_convert();";
@@ -1119,7 +1119,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     {
         out << nl << "%";
         out << nl << "% " << n << " Properties:";
-        EnumPtr en = EnumPtr::dynamicCast(p);
+        EnumPtr en = dynamic_pointer_cast<Enum>(p);
         const EnumeratorList el = en->enumerators();
         for(EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
         {
@@ -1136,7 +1136,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     {
         out << nl << "%";
         out << nl << "% " << n << " Properties:";
-        StructPtr st = StructPtr::dynamicCast(p);
+        StructPtr st = dynamic_pointer_cast<Struct>(p);
         const DataMemberList dml = st->dataMembers();
         for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
         {
@@ -1151,7 +1151,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     }
     else if(p->containedType() == Contained::ContainedTypeException)
     {
-        ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
+        ExceptionPtr ex = dynamic_pointer_cast<Exception>(p);
         const DataMemberList dml = ex->dataMembers();
         if(!dml.empty())
         {
@@ -1171,7 +1171,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     }
     else if(p->containedType() == Contained::ContainedTypeClass)
     {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(p);
+        ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p);
         const DataMemberList dml = cl->dataMembers();
         if(!dml.empty())
         {
@@ -1461,7 +1461,7 @@ writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
 
     string n;
 
-    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     if(cont->containedType() == Contained::ContainedTypeException)
     {
         n = fixExceptionMember(p->name());
@@ -2968,7 +2968,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 {
     const TypePtr content = p->type();
 
-    const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
+    const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
     if(b)
     {
         switch(b->kind())
@@ -2993,10 +2993,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         }
     }
 
-    EnumPtr enumContent = EnumPtr::dynamicCast(content);
-    SequencePtr seqContent = SequencePtr::dynamicCast(content);
-    StructPtr structContent = StructPtr::dynamicCast(content);
-    DictionaryPtr dictContent = DictionaryPtr::dynamicCast(content);
+    EnumPtr enumContent = dynamic_pointer_cast<Enum>(content);
+    SequencePtr seqContent = dynamic_pointer_cast<Sequence>(content);
+    StructPtr structContent = dynamic_pointer_cast<Struct>(content);
+    DictionaryPtr dictContent = dynamic_pointer_cast<Dictionary>(content);
 
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
@@ -3257,7 +3257,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const bool cls = isClass(value);
     const bool convert = needsConversion(value);
 
-    const StructPtr st = StructPtr::dynamicCast(key);
+    const StructPtr st = dynamic_pointer_cast<Struct>(key);
 
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
@@ -3396,7 +3396,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "r(i).key = k;";
         out << nl << "r(i).value = v;";
     }
-    else if (EnumPtr::dynamicCast(key))
+    else if (dynamic_pointer_cast<Enum>(key))
     {
         out << nl << "r(int32(k)) = v;";
     }
@@ -3819,7 +3819,7 @@ CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& required, Param
 string
 CodeVisitor::getOptionalFormat(const TypePtr& type)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     if(bp)
     {
         switch(bp->kind())
@@ -3862,36 +3862,36 @@ CodeVisitor::getOptionalFormat(const TypePtr& type)
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return "Ice.OptionalFormat.Size";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         return seq->type()->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
             "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         return st->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
-    if(InterfaceDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return "Ice.OptionalFormat.FSize";
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     assert(cl);
     return "Ice.OptionalFormat.Class";
 }
@@ -3918,7 +3918,7 @@ void
 CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
                      bool optional, int tag)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -4048,7 +4048,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         if(optional)
@@ -4062,7 +4062,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(optional)
@@ -4076,7 +4076,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         return;
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         const string typeS = getAbsolute(st);
@@ -4091,7 +4091,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         const string typeS = getAbsolute(en);
@@ -4106,7 +4106,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         return;
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         if(optional)
@@ -4120,11 +4120,11 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         return;
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         const TypePtr content = seq->type();
-        const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
+        const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
         if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
            b->kind() != Builtin::KindValue)
@@ -4176,7 +4176,7 @@ void
 CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
                        bool optional, int tag)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -4306,7 +4306,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         const string typeS = getAbsolute(prx, "", "Prx");
@@ -4327,7 +4327,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         const string cls = getAbsolute(cl);
@@ -4342,7 +4342,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         return;
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         const string typeS = getAbsolute(st);
@@ -4357,7 +4357,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         const string typeS = getAbsolute(en);
@@ -4372,7 +4372,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         return;
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if(dict)
     {
         if(optional)
@@ -4386,11 +4386,11 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         return;
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         const TypePtr content = seq->type();
-        const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
+        const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
         if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
            b->kind() != Builtin::KindValue)
@@ -4698,7 +4698,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false);
+            UnitPtr u = Unit::createUnit(false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -4747,7 +4747,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all);
+                UnitPtr u = Unit::createUnit(all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())

@@ -8,6 +8,7 @@
 #include <IceUtil/InputUtil.h>
 #include <cstring>
 
+#include <algorithm>
 #include <limits>
 
 using namespace std;
@@ -100,15 +101,15 @@ isDeprecated(const ContainedPtr& p1, const ContainedPtr& p2)
 
 bool isValue(const TypePtr& type)
 {
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     return (b && b->usesClasses()) || cl;
 }
 
 // Returns java.util.OptionalXXX.ofYYY depending on the type
 string ofFactory(const TypePtr& type)
 {
-    const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
 
     if(b)
     {
@@ -158,7 +159,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
     }
     else if(op->returnsMultipleValues())
     {
-        const ContainedPtr c = ContainedPtr::dynamicCast(op->container());
+        const ContainedPtr c = dynamic_pointer_cast<Contained>(op->container());
         assert(c);
         const string abs = getUnqualified(c, package);
         string name = op->name();
@@ -690,8 +691,8 @@ void
 Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const string& package, const string& name,
                                     bool optionalMapping)
 {
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     assert((b && b->usesClasses()) || cl);
 
     string clsName;
@@ -714,8 +715,8 @@ Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const stri
 string
 Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const string& dest)
 {
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     ostringstream ostr;
     if((b && b->usesClasses()) || cl)
     {
@@ -1565,7 +1566,7 @@ void
 Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
                                        const string& value, const string& package)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         out << getUnqualified(constant, package) << ".value";
@@ -1573,7 +1574,7 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
     else
     {
         BuiltinPtr bp;
-        if((bp = BuiltinPtr::dynamicCast(type)))
+        if((bp = dynamic_pointer_cast<Builtin>(type)))
         {
             switch(bp->kind())
             {
@@ -1616,9 +1617,9 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
             }
 
         }
-        else if(EnumPtr::dynamicCast(type))
+        else if(dynamic_pointer_cast<Enum>(type))
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
             out << getUnqualified(lte, package);
         }
@@ -1654,20 +1655,20 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
         }
         else
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(t);
             if(builtin && builtin->kind() == Builtin::KindString)
             {
                 out << nl << "this." << fixKwd((*p)->name()) << " = \"\";";
             }
 
-            EnumPtr en = EnumPtr::dynamicCast(t);
+            EnumPtr en = dynamic_pointer_cast<Enum>(t);
             if(en)
             {
                 string firstEnum = fixKwd(en->enumerators().front()->name());
                 out << nl << "this." << fixKwd((*p)->name()) << " = " << getUnqualified(en, package) << '.' << firstEnum << ';';
             }
 
-            StructPtr st = StructPtr::dynamicCast(t);
+            StructPtr st = dynamic_pointer_cast<Struct>(t);
             if(st)
             {
                 string memberType = typeToString(st, TypeModeMember, package, (*p)->getMetaData());
@@ -2162,7 +2163,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     }
     else
     {
-        ContainedPtr cont = ContainedPtr::dynamicCast(l.front());
+        ContainedPtr cont = dynamic_pointer_cast<Contained>(l.front());
         assert(cont);
         out << getUnqualified(cont) << rest;
     }
@@ -2607,7 +2608,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     // Generate the operation signature for a servant.
     //
 
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(p->container());
+    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(p->container());
     assert(interface);
 
     const string package = getPackage(interface);
@@ -3184,7 +3185,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
         string memberName = fixKwd((*d)->name());
-        BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>((*d)->type());
         if(b)
         {
             switch(b->kind())
@@ -3231,7 +3232,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             //
             // For all other types, we can use the native equals() method.
             //
-            SequencePtr seq = SequencePtr::dynamicCast((*d)->type());
+            SequencePtr seq = dynamic_pointer_cast<Sequence>((*d)->type());
             if(seq)
             {
                 if(hasTypeMetaData(seq, (*d)->getMetaData()))
@@ -3448,17 +3449,17 @@ void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     const ContainerPtr container = p->container();
-    const ClassDefPtr cls = ClassDefPtr::dynamicCast(container);
-    const StructPtr st = StructPtr::dynamicCast(container);
-    const ExceptionPtr ex = ExceptionPtr::dynamicCast(container);
-    const ContainedPtr contained = ContainedPtr::dynamicCast(container);
+    const ClassDefPtr cls = dynamic_pointer_cast<ClassDef>(container);
+    const StructPtr st = dynamic_pointer_cast<Struct>(container);
+    const ExceptionPtr ex = dynamic_pointer_cast<Exception>(container);
+    const ContainedPtr contained = dynamic_pointer_cast<Contained>(container);
 
     const string name = fixKwd(p->name());
     const StringList metaData = p->getMetaData();
     const bool getSet = p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData);
     const bool optional = p->optional();
     const TypePtr type = p->type();
-    const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     const bool classType = isValue(type);
 
     const string s = typeToString(type, TypeModeMember, getPackage(contained), metaData, true, false);
@@ -3686,7 +3687,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         // Check for unmodified sequence type and emit indexing methods.
         //
-        SequencePtr seq = SequencePtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if(seq)
         {
             if(!hasTypeMetaData(seq, metaData))
@@ -3954,7 +3955,7 @@ void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     string meta;
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
     if(!hasTypeMetaData(p) && builtin && builtin->kind() <= Builtin::KindString)
     {
         return; // No helpers for sequence of primitive types
@@ -4001,7 +4002,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         // Determine sequence depth.
         //
         TypePtr origContent = p->type();
-        SequencePtr s = SequencePtr::dynamicCast(origContent);
+        SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
         while(s)
         {
             //
@@ -4012,7 +4013,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
                 break;
             }
             origContent = s->type();
-            s = SequencePtr::dynamicCast(origContent);
+            s = dynamic_pointer_cast<Sequence>(origContent);
         }
 
         string origContentS = typeToString(origContent, TypeModeIn, package);
@@ -5056,7 +5057,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 string
 Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& type, bool optional)
 {
-    const BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     if(optional)
     {
         if(b && b->kind() == Builtin::KindDouble)
@@ -5129,7 +5130,7 @@ Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& t
         }
         else
         {
-            EnumPtr en = EnumPtr::dynamicCast(type);
+            EnumPtr en = dynamic_pointer_cast<Enum>(type);
             if(en)
             {
                 EnumeratorList enumerators = en->enumerators();

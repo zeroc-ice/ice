@@ -248,7 +248,7 @@ compile(const vector<string>& argv)
 
         if(depend || dependJSON || dependxml)
         {
-            UnitPtr u = Unit::createUnit(false, false);
+            UnitPtr u = Unit::createUnit(false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -301,7 +301,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr p = Unit::createUnit(false, false);
+                UnitPtr p = Unit::createUnit(false);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())

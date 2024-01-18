@@ -75,7 +75,7 @@ parseRule(const PropertiesPtr& properties, const string& name)
     {
         try
         {
-            regexps.push_back(ICE_MAKE_SHARED(MetricsMapI::RegExp, p->first.substr(name.length() + 1), p->second));
+            regexps.push_back(make_shared<MetricsMapI::RegExp>(p->first.substr(name.length() + 1), p->second));
         }
         catch(const std::exception&)
         {
@@ -91,7 +91,6 @@ MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _at
 {
     _regex = regex(regexp, std::regex_constants::extended | std::regex_constants::nosubs);
 }
-
 
 bool
 MetricsMapI::RegExp::match(const string& value)
@@ -157,11 +156,7 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
 }
 
 MetricsMapI::MetricsMapI(const MetricsMapI& map) :
-#if defined(ICE_CPP11_MAPPING)
     std::enable_shared_from_this<MetricsMapI>(),
-#elif defined(__GNUC__)
-    IceUtil::Shared(),
-#endif
     _properties(map._properties),
     _groupByAttributes(map._groupByAttributes),
     _groupBySeparators(map._groupBySeparators),
@@ -403,7 +398,7 @@ MetricsAdminI::updateViews()
             map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
             if(q == _views.end())
             {
-                q = views.insert(map<string, MetricsViewIPtr>::value_type(viewName, ICE_MAKE_SHARED(MetricsViewI, viewName))).first;
+                q = views.insert(map<string, MetricsViewIPtr>::value_type(viewName, make_shared<MetricsViewI>(viewName))).first;
             }
             else
             {

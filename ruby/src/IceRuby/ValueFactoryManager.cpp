@@ -54,15 +54,24 @@ IceRuby_ValueFactoryManager_free(ValueFactoryManagerPtr* p)
     delete p;
 }
 
-IceRuby::ValueFactoryManager::ValueFactoryManager()
+/* static */ ValueFactoryManagerPtr
+IceRuby::ValueFactoryManager::ValueFactoryManager::create()
 {
+    // can't use make_shared because constructor is private
+    auto vfm = shared_ptr<ValueFactoryManager>(new ValueFactoryManager);
+
     //
     // Create a Ruby wrapper around this object. Note that this is a cyclic reference.
     //
-    _self = Data_Wrap_Struct(_valueFactoryManagerClass, IceRuby_ValueFactoryManager_mark,
-                             IceRuby_ValueFactoryManager_free, new ValueFactoryManagerPtr(this));
+    vfm->_self = Data_Wrap_Struct(_valueFactoryManagerClass, IceRuby_ValueFactoryManager_mark,
+                             IceRuby_ValueFactoryManager_free, new ValueFactoryManagerPtr(vfm));
 
-    _defaultFactory = new DefaultValueFactory;
+    return vfm;
+}
+
+IceRuby::ValueFactoryManager::ValueFactoryManager()
+{
+    _defaultFactory = make_shared<DefaultValueFactory>();
 }
 
 IceRuby::ValueFactoryManager::~ValueFactoryManager()
@@ -71,9 +80,15 @@ IceRuby::ValueFactoryManager::~ValueFactoryManager()
 }
 
 void
+IceRuby::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
+{
+    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
+}
+
+void
 IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     if(id.empty())
     {
@@ -96,23 +111,40 @@ IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& i
     }
 }
 
-Ice::ValueFactoryPtr
+Ice::ValueFactoryFunc
 IceRuby::ValueFactoryManager::find(const string& id) const noexcept
 {
-    Lock lock(*this);
+    Ice::ValueFactoryPtr factory = findCore(id);
+
+    if (factory)
+    {
+        return [factory](const string& type) { return factory->create(type); };
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+Ice::ValueFactoryPtr
+IceRuby::ValueFactoryManager::findCore(const string& id) const noexcept
+{
+    std::lock_guard lock(_mutex);
 
     if(id.empty())
     {
         return _defaultFactory;
     }
-
-    FactoryMap::const_iterator p = _factories.find(id);
-    if(p != _factories.end())
+    else
     {
-        return p->second;
+        FactoryMap::const_iterator p = _factories.find(id);
+        if(p != _factories.end())
+        {
+            return p->second;
+        }
     }
 
-    return 0;
+    return nullptr;
 }
 
 void
@@ -120,7 +152,7 @@ IceRuby::ValueFactoryManager::addValueFactory(VALUE f, const string& id)
 {
     ICE_RUBY_TRY
     {
-        add(new FactoryWrapper(f), id);
+        add(make_shared<FactoryWrapper>(f), id);
     }
     ICE_RUBY_CATCH
 }
@@ -128,10 +160,10 @@ IceRuby::ValueFactoryManager::addValueFactory(VALUE f, const string& id)
 VALUE
 IceRuby::ValueFactoryManager::findValueFactory(const string& id) const
 {
-    Ice::ValueFactoryPtr f = find(id);
+    Ice::ValueFactoryPtr f = findCore(id);
     if(f)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(f);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(f);
         if(w)
         {
             return w->getObject();
@@ -144,11 +176,11 @@ IceRuby::ValueFactoryManager::findValueFactory(const string& id) const
 void
 IceRuby::ValueFactoryManager::mark()
 {
-    Lock lock(*this);
+    std::lock_guard lock(_mutex);
 
     for(FactoryMap::iterator p = _factories.begin(); p != _factories.end(); ++p)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(p->second);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(p->second);
         if(w)
         {
             w->mark();
@@ -164,7 +196,7 @@ IceRuby::ValueFactoryManager::markSelf()
     volatile VALUE self;
 
     {
-        Lock lock(*this);
+        std::lock_guard lock(_mutex);
 
         self = _self;
     }
@@ -187,7 +219,7 @@ IceRuby::ValueFactoryManager::destroy()
     FactoryMap factories;
 
     {
-        Lock lock(*this);
+        std::lock_guard lock(_mutex);
         if(_self == Qnil)
         {
             //
@@ -203,7 +235,7 @@ IceRuby::ValueFactoryManager::destroy()
 
     for(FactoryMap::iterator p = factories.begin(); p != factories.end(); ++p)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(p->second);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(p->second);
         if(w)
         {
             w->destroy();
@@ -218,7 +250,7 @@ IceRuby::FactoryWrapper::FactoryWrapper(VALUE factory) :
 {
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IceRuby::FactoryWrapper::create(const string& id)
 {
     //
@@ -241,9 +273,7 @@ IceRuby::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    ValueReaderPtr result = new ValueReader(obj, info);
-    return result;
+    return make_shared<ValueReader>(obj, info);
 }
 
 VALUE
@@ -263,10 +293,10 @@ IceRuby::FactoryWrapper::destroy()
 {
 }
 
-Ice::ValuePtr
+shared_ptr<Ice::Value>
 IceRuby::DefaultValueFactory::create(const string& id)
 {
-    Ice::ValuePtr v;
+    shared_ptr<Ice::Value> v;
 
     //
     // Give the application-provided default factory a chance to create the object first.
@@ -307,9 +337,7 @@ IceRuby::DefaultValueFactory::create(const string& id)
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
     assert(!NIL_P(obj));
 
-    // Create a temporary shared_ptr that sees enable_shared_from_this.
-    ValueReaderPtr result = new ValueReader(obj, info);
-    return result;
+    return make_shared<ValueReader>(obj, info);
 }
 
 void
@@ -323,7 +351,7 @@ IceRuby::DefaultValueFactory::getObject() const
 {
     if(_delegate)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
         if(w)
         {
             return w->getObject();
@@ -338,7 +366,7 @@ IceRuby::DefaultValueFactory::mark()
 {
     if(_delegate)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
         if(w)
         {
             w->mark();
@@ -351,7 +379,7 @@ IceRuby::DefaultValueFactory::destroy()
 {
     if(_delegate)
     {
-        FactoryWrapperPtr w = FactoryWrapperPtr::dynamicCast(_delegate);
+        auto w = dynamic_pointer_cast<FactoryWrapper>(_delegate);
         if(w)
         {
             w->destroy();

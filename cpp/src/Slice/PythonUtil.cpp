@@ -307,7 +307,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
             // If so, we need to emit statements to open each of the modules in the
             // package before we can open this module.
             //
-            if(UnitPtr::dynamicCast(p->container()))
+            if (dynamic_pointer_cast<Unit>(p->container()))
             {
                 string pkg = getPackageMetadata(p);
                 if(!pkg.empty())
@@ -336,9 +336,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
     return true;
 }
 
-//
 // CodeVisitor implementation.
-//
 Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory) :
     _out(out),
     _moduleHistory(moduleHistory)
@@ -371,7 +369,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
         // If so, we need to emit statements to open each of the modules in the
         // package before we can open this module.
         //
-        if(UnitPtr::dynamicCast(p->container()))
+        if(dynamic_pointer_cast<Unit>(p->container()))
         {
             string pkg = getPackageMetadata(p);
             if(!pkg.empty())
@@ -1545,24 +1543,22 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     StringList metaData = p->getMetaData();
     bool isCustom = false;
     string customType;
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for(const auto& q : metaData)
     {
-        if(q->find(protobuf) == 0)
+        if(q.find(protobuf) == 0)
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
             if(!builtin || builtin->kind() != Builtin::KindByte)
             {
                 continue;
             }
             isCustom = true;
-            customType = q->substr(protobuf.size());
+            customType = q.substr(protobuf.size());
             break;
         }
     }
 
-    //
     // Emit the type information.
-    //
     string scoped = p->scoped();
     _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
@@ -1587,9 +1583,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    //
     // Emit the type information.
-    //
     string scoped = p->scoped();
     _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
@@ -1699,7 +1693,7 @@ Slice::Python::CodeVisitor::registerName(const string& name)
 void
 Slice::Python::CodeVisitor::writeType(const TypePtr& p)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1759,14 +1753,14 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(p);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
     if(prx)
     {
         _out << "_M_" << getAbsolute(prx, "_t_", "Prx");
         return;
     }
 
-    ContainedPtr cont = ContainedPtr::dynamicCast(p);
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
     assert(cont);
     _out << "_M_" << getAbsolute(cont, "_t_");
 }
@@ -1775,7 +1769,7 @@ void
 Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
 {
     TypePtr p = m->type();
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1815,7 +1809,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(p);
+    EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if(en)
     {
         EnumeratorList enums = en->enumerators();
@@ -1823,7 +1817,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
         return;
     }
 
-    StructPtr st = StructPtr::dynamicCast(p);
+    StructPtr st = dynamic_pointer_cast<Struct>(p);
     if(st)
     {
         //
@@ -1842,7 +1836,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
 void
 Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int& iter)
 {
-    SequencePtr seq = SequencePtr::dynamicCast(p);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(p);
     if(seq)
     {
         _out << nl << "if " << name << ':';
@@ -1858,7 +1852,7 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
         return;
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(p);
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(p);
     if(dict)
     {
         _out << nl << "if " << name << ':';
@@ -1913,7 +1907,7 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     //
     // Structures are treated differently (see bug 3676).
     //
-    StructPtr st = StructPtr::dynamicCast(info.dataMember->type());
+    StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
     if(st && !info.dataMember->optional())
     {
         _out << nl << "if " << paramName << " is Ice._struct_marker:";
@@ -1935,15 +1929,15 @@ void
 Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType,
                                                const string& value)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         _out << "_M_" << getAbsolute(constant);
     }
     else
     {
-        Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-        Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+        Slice::BuiltinPtr b = dynamic_pointer_cast<Slice::Builtin>(type);
+        Slice::EnumPtr en = dynamic_pointer_cast<Slice::Enum>(type);
         if(b)
         {
             switch(b->kind())
@@ -1965,14 +1959,10 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
             }
             case Slice::Builtin::KindString:
             {
-                string sv2 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", Octal, 0);
-                string sv3 = toStringLiteral(value, "\a\b\f\n\r\t\v", "", UCN, 0);
-
-                _out << "\"" << sv2<< "\"";
-                if(sv2 != sv3)
-                {
-                    _out << " if _version_info_[0] < 3 else \"" << sv3 << "\"";
-                }
+                const string controlChars = "\a\b\f\n\r\t\v";
+                const unsigned char cutOff = 0;
+                
+                _out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
                 break;
             }
             case Slice::Builtin::KindValue:
@@ -1983,7 +1973,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
         }
         else if(en)
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
             _out << getSymbol(lte);
         }
@@ -2849,7 +2839,6 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
 
-    out << nl << "from sys import version_info as _version_info_";
     out << nl << "import Ice, IcePy";
 
     if(!all)
@@ -2923,13 +2912,13 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     ContainedPtr p = cont;
     while(true)
     {
-        if(ModulePtr::dynamicCast(p))
+        if (dynamic_pointer_cast<Module>(p))
         {
-            m = ModulePtr::dynamicCast(p);
+            m = dynamic_pointer_cast<Module>(p);
         }
 
         ContainerPtr c = p->container();
-        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
+        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
         if(!p)
         {
             break;
@@ -2938,10 +2927,8 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 
     assert(m);
 
-    //
     // The python:package metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
-    //
     static const string prefix = "python:package:";
 
     string q;
@@ -3054,7 +3041,7 @@ Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
             //
             // Must be a top-level module.
             //
-            if(UnitPtr::dynamicCast(p->container()))
+            if (dynamic_pointer_cast<Unit>(p->container()))
             {
                 continue;
             }
@@ -3154,7 +3141,7 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             // Remove from list so validateSequence does not try to handle as well.
             //
             metaData.remove(s);
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
             if(!builtin || builtin->kind() != Builtin::KindByte)
             {
                 dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + ": " +
@@ -3205,7 +3192,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
         string s = *p++;
         if(s.find(prefix) == 0)
         {
-            SequencePtr seq = SequencePtr::dynamicCast(type);
+            SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
             if(seq)
             {
                 static const string seqPrefix = "python:seq:";
@@ -3230,7 +3217,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                         // The memoryview sequence metadata is only valid for integral builtin
                         // types excluding strings.
                         //
-                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
                         if(builtin)
                         {
                             switch(builtin->kind())

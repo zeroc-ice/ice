@@ -15,11 +15,7 @@ using namespace Test;
 using namespace Test::Sub;
 using namespace Test2::Sub2;
 
-#ifdef ICE_CPP11_MAPPING
 class TestObjectWriter : public Ice::ValueHelper<TestObjectWriter, Ice::Value>
-#else
-class TestObjectWriter : public Ice::Value
-#endif
 {
 public:
 
@@ -43,13 +39,8 @@ public:
     MyClassPtr obj;
     bool called;
 };
-ICE_DEFINE_SHARED_PTR(TestObjectWriterPtr, TestObjectWriter);
 
-#ifdef ICE_CPP11_MAPPING
 class TestObjectReader : public Ice::ValueHelper<TestObjectReader, Ice::Value>
-#else
-class TestObjectReader : public Ice::Value
-#endif
 {
 public:
 
@@ -73,10 +64,8 @@ public:
     MyClassPtr obj;
     bool called;
 };
-ICE_DEFINE_SHARED_PTR(TestObjectReaderPtr, TestObjectReader);
 
 // Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
-#ifdef ICE_CPP11_MAPPING
 namespace Ice
 {
 template<class S>
@@ -100,40 +89,15 @@ struct StreamReader<TestObjectReader, S>
     static void read(S*, TestObjectReader&) { assert(false); }
 };
 }
-#endif
-
-#ifndef ICE_CPP11_MAPPING
-class TestValueFactory : public Ice::ValueFactory
-{
-public:
-
-    virtual Ice::ValuePtr
-#ifndef NDEBUG
-    create(const string& type)
-#else
-    create(const string&)
-#endif
-    {
-        assert(type == MyClass::ice_staticId());
-        return new TestObjectReader;
-    }
-
-    virtual void
-    destroy()
-    {
-    }
-};
-#endif
 
 void
-patchObject(void* addr, const Ice::ValuePtr& v)
+patchObject(void* addr, const shared_ptr<Ice::Value>& v)
 {
-    Ice::ValuePtr* p = static_cast<Ice::ValuePtr*>(addr);
+    shared_ptr<Ice::Value>* p = static_cast<shared_ptr<Ice::Value>*>(addr);
     assert(p);
     *p = v;
 }
 
-#ifdef ICE_CPP11_MAPPING
 class MyClassFactoryWrapper
 {
 public:
@@ -143,72 +107,32 @@ public:
         clear();
     }
 
-    Ice::ValuePtr create(const string& type)
+    shared_ptr<Ice::Value> create(const string& type)
     {
         return _factory(type);
     }
 
-    void setFactory(function<Ice::ValuePtr(const string&)> f)
+    void setFactory(function<shared_ptr<Ice::Value>(const string&)> f)
     {
         _factory = f;
     }
 
     void clear()
     {
-        _factory = [](const string&) { return ICE_MAKE_SHARED(MyClass); };
+        _factory = [](const string&) { return make_shared<MyClass>(); };
     }
 
-    function<Ice::ValuePtr(const string&)> _factory;
+    function<shared_ptr<Ice::Value>(const string&)> _factory;
 };
-#else
-class MyClassFactoryWrapper : public Ice::ValueFactory
-{
-public:
-
-    MyClassFactoryWrapper()
-    {
-        clear();
-    }
-
-    virtual Ice::ValuePtr create(const string& type)
-    {
-        return _factory->create(type);
-    }
-
-    virtual void destroy()
-    {
-    }
-
-    void setFactory(const Ice::ValueFactoryPtr& factory)
-    {
-        _factory = factory;
-    }
-
-    void clear()
-    {
-        _factory = MyClass::ice_factory();
-    }
-
-private:
-
-    Ice::ValueFactoryPtr _factory;
-};
-typedef IceUtil::Handle<MyClassFactoryWrapper> MyClassFactoryWrapperPtr;
-#endif
 
 void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-#ifdef ICE_CPP11_MAPPING
     MyClassFactoryWrapper factoryWrapper;
-    function<Ice::ValuePtr(const string&)> f =
+    function<shared_ptr<Ice::Value>(const string&)> f =
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
-#else
-    MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
-    communicator->getValueFactoryManager()->add(factoryWrapper, MyClass::ice_staticId());
-#endif
 
     vector<Ice::Byte> data;
 
@@ -878,7 +802,6 @@ allTests(Test::TestHelper* helper)
             }
         }
 
-#ifdef ICE_CPP11_MAPPING
         auto clearS = [](MyClassS& arr3) {
             for(MyClassS::iterator p = arr3.begin(); p != arr3.end(); ++p)
             {
@@ -900,20 +823,14 @@ allTests(Test::TestHelper* helper)
         clearS(arr2);
         clearSS(arrS);
         clearSS(arr2S);
-#endif
     }
 
     {
         Ice::OutputStream out(communicator);
         MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
         obj->s.e = ICE_ENUM(MyEnum, enum2);
-        TestObjectWriterPtr writer = ICE_MAKE_SHARED(TestObjectWriter, obj);
-#ifdef ICE_CPP11_MAPPING
-        Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
-        out.write(w);
-#else
-        out.write(Ice::ValuePtr(writer));
-#endif
+        shared_ptr<TestObjectWriter> writer = make_shared<TestObjectWriter>(obj);
+        out.write(writer);
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
@@ -923,40 +840,23 @@ allTests(Test::TestHelper* helper)
         Ice::OutputStream out(communicator);
         MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
         obj->s.e = ICE_ENUM(MyEnum, enum2);
-        TestObjectWriterPtr writer = ICE_MAKE_SHARED(TestObjectWriter, obj);
-#ifdef ICE_CPP11_MAPPING
-        Ice::ValuePtr w = ICE_DYNAMIC_CAST(Ice::Value, writer);
-        out.write(w);
-#else
-        out.write(Ice::ValuePtr(writer));
-#endif
+        shared_ptr<TestObjectWriter> writer = make_shared<TestObjectWriter>(obj);
+        out.write(writer);
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
-#ifdef ICE_CPP11_MAPPING
-        factoryWrapper.setFactory([](const string&) { return ICE_MAKE_SHARED(TestObjectReader); });
-#else
-        factoryWrapper->setFactory(new TestValueFactory);
-#endif
+        factoryWrapper.setFactory([](const string&) { return make_shared<TestObjectReader>(); });
         Ice::InputStream in(communicator, data);
-#ifdef ICE_CPP11_MAPPING
-        Ice::ValuePtr p;
-#else
-        Ice::ValuePtr p;
-#endif
+        shared_ptr<Ice::Value> p;
         in.read(&patchObject, &p);
         in.readPendingValues();
         test(p);
-        TestObjectReaderPtr reader = ICE_DYNAMIC_CAST(TestObjectReader, p);
+        shared_ptr<TestObjectReader> reader = dynamic_pointer_cast<TestObjectReader>(p);
         test(reader);
         test(reader->called);
         test(reader->obj);
         test(reader->obj->s.e == ICE_ENUM(MyEnum, enum2));
-#ifdef ICE_CPP11_MAPPING
         factoryWrapper.clear();
-#else
-        factoryWrapper->clear();
-#endif
     }
 
     {

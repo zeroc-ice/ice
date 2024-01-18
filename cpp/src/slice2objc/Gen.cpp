@@ -15,6 +15,7 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 #include <string.h>
+#include <algorithm>
 #include <iterator>
 
 using namespace std;
@@ -367,7 +368,7 @@ Slice::ObjCVisitor::writeDispatchAndMarshalling(const InterfaceDefPtr& p)
         _M << sp << nl << "-(void) iceDispatch:(ICECurrent *)current is:(id<ICEInputStream>)istr "
            << "os:(id<ICEOutputStream>)ostr";
         _M << sb;
-        _M << nl << "id target = [self iceTarget];";
+        _M << nl << "id target = self;";
         _M << nl << "switch(ICEInternalLookupString(iceS_" << name << "_all, sizeof(iceS_" << name
            << "_all) / sizeof(NSString*), current.operation))";
         _M << sb;
@@ -1551,10 +1552,10 @@ Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const
     }
     else
     {
-        EnumPtr ep = EnumPtr::dynamicCast(type);
+        EnumPtr ep = dynamic_pointer_cast<Enum>(type);
         if(ep)
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
             string enumeratorPrefix = ep->hasMetaData("objc:scoped") ? ep->name() : "";
             out << moduleName(findModule(ep)) << enumeratorPrefix << lte->name();
@@ -1708,7 +1709,7 @@ Slice::Gen::TypesVisitor::writeMembers(const DataMemberList& dataMembers, int ba
         TypePtr type = (*q)->type();
         string name = fixId((*q)->name(), baseType);
 
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         _H << nl << typeToString(type) << " ";
         if(mapsToPointerType(type))
         {
@@ -1736,7 +1737,7 @@ Slice::Gen::TypesVisitor::writeMemberSignature(const DataMemberList& dataMembers
     {
         TypePtr type = (*q)->type();
         string typeString;
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         typeString = inTypeToString(type, (*q)->optional());
 
         if(q != dataMembers.begin() || ct == LocalException)
@@ -1804,8 +1805,8 @@ Slice::Gen::TypesVisitor::requiresMemberInit(const DataMemberList& members) cons
         }
 
         TypePtr t = (*p)->type();
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
-        if((builtin && builtin->kind() == Builtin::KindString) || EnumPtr::dynamicCast(t) || StructPtr::dynamicCast(t))
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(t);
+        if((builtin && builtin->kind() == Builtin::KindString) || dynamic_pointer_cast<Enum>(t) || dynamic_pointer_cast<Struct>(t))
         {
             return true;
         }
@@ -1831,13 +1832,13 @@ Slice::Gen::TypesVisitor::writeMemberDefaultValueInit(const DataMemberList& data
         }
         else
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*p)->type());
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>((*p)->type());
             if(builtin && builtin->kind() == Builtin::KindString)
             {
                 _M << nl <<  "self->" << name << " = @\"\";";
             }
 
-            EnumPtr en = EnumPtr::dynamicCast((*p)->type());
+            EnumPtr en = dynamic_pointer_cast<Enum>((*p)->type());
             if(en)
             {
                 string firstEnum = fixName(en->enumerators().front());
@@ -1846,7 +1847,7 @@ Slice::Gen::TypesVisitor::writeMemberDefaultValueInit(const DataMemberList& data
 
             if(!(*p)->optional())
             {
-                StructPtr st = StructPtr::dynamicCast((*p)->type());
+                StructPtr st = dynamic_pointer_cast<Struct>((*p)->type());
                 if(st)
                 {
                     _M << nl <<  "self->" << name << " = [[" << typeToString(st) << " alloc] init];";
@@ -1996,7 +1997,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 
         if(isValueType(type))
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
             if(builtin)
             {
                 switch(builtin->kind())
@@ -2041,7 +2042,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
     if(!dataMembers.empty())
     {
         ContainerPtr container = (*dataMembers.begin())->container();
-        ContainedPtr contained = ContainedPtr::dynamicCast(container);
+        ContainedPtr contained = dynamic_pointer_cast<Contained>(container);
         string containerName = fixName(contained);
         _M << nl << containerName << " *obj_ = (" << containerName << " *)o_;";
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -2349,14 +2350,14 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     string name = moduleName(findModule(p)) + p->name() + "Helper";
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
     if(builtin)
     {
         _H << sp << nl << "typedef ICE" << getBuiltinName(builtin) << "SequenceHelper " << name << ";";
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(p->type());
+    EnumPtr en = dynamic_pointer_cast<Enum>(p->type());
     if(en)
     {
         _H << sp << nl << _dllExport << "@interface " << name << " : ICEEnumSequenceHelper";
@@ -2378,7 +2379,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p->type());
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(p->type());
     if(cl)
     {
         _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectSequenceHelper";
@@ -2393,8 +2394,8 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         return;
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(p->type());
-    ContainedPtr contained = ContainedPtr::dynamicCast(p->type());
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(p->type());
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(p->type());
     _H << sp << nl << _dllExport << "@interface " << name << " : ICEArraySequenceHelper";
     _H << nl << "@end";
 
@@ -2437,21 +2438,21 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     TypePtr keyType = p->keyType();
     string keyS;
-    BuiltinPtr keyBuiltin = BuiltinPtr::dynamicCast(keyType);
+    BuiltinPtr keyBuiltin = dynamic_pointer_cast<Builtin>(keyType);
     if(keyBuiltin)
     {
-        keyS = "ICE" + getBuiltinName(BuiltinPtr::dynamicCast(keyType)) + "Helper";
+        keyS = "ICE" + getBuiltinName(dynamic_pointer_cast<Builtin>(keyType)) + "Helper";
     }
     else
     {
-        ContainedPtr contained = ContainedPtr::dynamicCast(keyType);
+        ContainedPtr contained = dynamic_pointer_cast<Contained>(keyType);
         keyS = moduleName(findModule(contained)) + contained->name() + "Helper";
     }
 
     string valueS;
     TypePtr valueType = p->valueType();
-    BuiltinPtr valueBuiltin = BuiltinPtr::dynamicCast(valueType);
-    ClassDeclPtr valueClass = ClassDeclPtr::dynamicCast(valueType);
+    BuiltinPtr valueBuiltin = dynamic_pointer_cast<Builtin>(valueType);
+    ClassDeclPtr valueClass = dynamic_pointer_cast<ClassDecl>(valueType);
     if((valueBuiltin && (valueBuiltin->kind() == Builtin::KindObject || valueBuiltin->kind() == Builtin::KindValue)) ||
        valueClass)
     {
@@ -2479,10 +2480,10 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         return;
     }
 
-    InterfaceDeclPtr valueProxy = InterfaceDeclPtr::dynamicCast(valueType);
+    InterfaceDeclPtr valueProxy = dynamic_pointer_cast<InterfaceDecl>(valueType);
     if(valueBuiltin)
     {
-        valueS = "ICE" + getBuiltinName(BuiltinPtr::dynamicCast(valueType)) + "Helper";
+        valueS = "ICE" + getBuiltinName(dynamic_pointer_cast<Builtin>(valueType)) + "Helper";
     }
     else if(valueProxy)
     {
@@ -2490,7 +2491,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else
     {
-        ContainedPtr contained = ContainedPtr::dynamicCast(valueType);
+        ContainedPtr contained = dynamic_pointer_cast<Contained>(valueType);
         valueS = moduleName(findModule(contained)) + contained->name() + "Helper";
     }
     _H << sp << nl << _dllExport << "@interface " << name << " : ICEDictionaryHelper";

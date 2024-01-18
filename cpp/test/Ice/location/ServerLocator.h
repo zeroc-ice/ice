@@ -53,7 +53,7 @@ private:
     ::std::map< ::std::string, ::Ice::ObjectPrxPtr> _adapters;
     ::std::map< ::Ice::Identity, ::Ice::ObjectPrxPtr> _objects;
 };
-ICE_DEFINE_PTR(ServerLocatorRegistryPtr, ServerLocatorRegistry);
+ICE_DEFINE_SHARED_PTR(ServerLocatorRegistryPtr, ServerLocatorRegistry);
 
 class ServerLocator : public Test::TestLocator
 {

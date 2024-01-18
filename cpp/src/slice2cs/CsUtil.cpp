@@ -7,6 +7,8 @@
 #include <Slice/Util.h>
 #include <IceUtil/StringUtil.h>
 
+#include <algorithm>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -67,13 +69,13 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
     ContainedPtr p = cont;
     while(true)
     {
-        if(ModulePtr::dynamicCast(p))
+        if(dynamic_pointer_cast<Module>(p))
         {
-            m = ModulePtr::dynamicCast(p);
+            m = dynamic_pointer_cast<Module>(p);
         }
 
         ContainerPtr c = p->container();
-        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
+        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
         if(!p)
         {
             break;
@@ -205,7 +207,7 @@ string
 Slice::CsGenerator::fixId(const ContainedPtr& cont, unsigned int baseTypes, bool mangleCasts)
 {
     ContainerPtr container = cont->container();
-    ContainedPtr contained = ContainedPtr::dynamicCast(container);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(container);
     if(contained && contained->hasMetaData("cs:property") &&
        (contained->containedType() == Contained::ContainedTypeClass ||
         contained->containedType() == Contained::ContainedTypeStruct))
@@ -221,7 +223,7 @@ Slice::CsGenerator::fixId(const ContainedPtr& cont, unsigned int baseTypes, bool
 string
 Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     string prefix = getUnqualified("Ice.OptionalFormat", scope);
     if(bp)
     {
@@ -265,12 +267,12 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return prefix + ".Size";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         if(seq->type()->isVariableLength())
@@ -283,7 +285,7 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
         }
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
@@ -296,7 +298,7 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
         }
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(st->isVariableLength())
@@ -309,12 +311,12 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
         }
     }
 
-    if(InterfaceDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return prefix + ".FSize";
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     assert(cl);
     return prefix + ".Class";
 }
@@ -322,8 +324,8 @@ Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
 string
 Slice::CsGenerator::getStaticId(const TypePtr& type)
 {
-    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
 
     assert((b && b->usesClasses()) || cl);
 
@@ -365,7 +367,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "Ice.Value"
     };
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindObject)
@@ -378,19 +380,19 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         return getUnqualified(cl, package);
     }
 
-    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
         return getUnqualified(proxy, package, "", "Prx");
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         string prefix = "cs:generic:";
@@ -412,7 +414,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         return typeToString(seq->type(), package, optional) + "[]";
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         string prefix = "cs:generic:";
@@ -431,7 +433,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
             typeToString(d->valueType(), package, optional) + ">";
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if(contained)
     {
         return getUnqualified(contained, package);
@@ -499,18 +501,18 @@ Slice::CsGenerator::taskResultType(const OperationPtr& op, const string& scope, 
 bool
 Slice::CsGenerator::isClassType(const TypePtr& type)
 {
-    if(ClassDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<ClassDecl>(type))
     {
         return true;
     }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     return builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue);
 }
 
 bool
 Slice::CsGenerator::isValueType(const TypePtr& type)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -530,7 +532,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
             }
         }
     }
-    StructPtr s = StructPtr::dynamicCast(type);
+    StructPtr s = dynamic_pointer_cast<Struct>(type);
     if(s)
     {
         if(s->hasMetaData("cs:class"))
@@ -547,7 +549,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
         }
         return true;
     }
-    if(EnumPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<Enum>(type))
     {
         return true;
     }
@@ -568,7 +570,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         stream = marshal ? "ostr" : "istr";
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -699,7 +701,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         string typeS = typeToString(type, package);
@@ -714,7 +716,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(marshal)
@@ -728,7 +730,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(marshal)
@@ -756,7 +758,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         if(marshal)
@@ -771,16 +773,16 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         writeSequenceMarshalUnmarshalCode(out, seq, package, param, marshal, true, stream);
         return;
     }
 
-    assert(ConstructedPtr::dynamicCast(type));
+    assert(dynamic_pointer_cast<Constructed>(type));
     string helperName;
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if(d)
     {
         helperName = getUnqualified(d, package, "", "Helper");
@@ -815,7 +817,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         stream = marshal ? "ostr" : "istr";
     }
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -975,7 +977,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if(prx)
     {
         if(marshal)
@@ -1008,7 +1010,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(marshal)
@@ -1022,7 +1024,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(marshal)
@@ -1078,7 +1080,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         size_t sz = en->enumerators().size();
@@ -1108,14 +1110,14 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
     {
         writeOptionalSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, marshal, stream);
         return;
     }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     assert(d);
     TypePtr keyType = d->keyType();
     TypePtr valueType = d->valueType();
@@ -1181,7 +1183,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         stream = marshal ? "ostr" : "istr";
     }
 
-    ContainedPtr cont = ContainedPtr::dynamicCast(seq->container());
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(seq->container());
     assert(cont);
     if(useHelper)
     {
@@ -1238,7 +1240,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     const bool isArray = !isGeneric;
     const string limitID = isArray ? "Length" : "Count";
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
 
     if(builtin)
     {
@@ -1433,7 +1435,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
         if(marshal)
@@ -1491,7 +1493,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             out << nl << "for(int ix = 0; ix < szx; ++ix)";
             out << sb;
-            string scoped = ContainedPtr::dynamicCast(type)->scoped();
+            string scoped = dynamic_pointer_cast<Contained>(type)->scoped();
             out << nl << stream << ".readValue(" << patcherName << '<' << typeS << ">(" << param << ", ix));";
             out << eb;
             out << eb;
@@ -1499,7 +1501,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(marshal)
@@ -1638,7 +1640,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(type);
+    EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if(en)
     {
         if(marshal)
@@ -1733,13 +1735,13 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
 
     string helperName;
-    if(InterfaceDeclPtr::dynamicCast(type))
+    if(dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        helperName = getUnqualified(InterfaceDeclPtr::dynamicCast(type), scope, "", "PrxHelper");
+        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), scope, "", "PrxHelper");
     }
     else
     {
-        helperName = getUnqualified(ContainedPtr::dynamicCast(type), scope, "", "Helper");
+        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), scope, "", "Helper");
     }
 
     string func;
@@ -1854,7 +1856,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
     const bool isArray = !seq->findMetaData("cs:generic:", meta);
     const string length = isArray ? param + ".Value.Length" : param + ".Value.Count";
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1949,7 +1951,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         return;
     }
 
-    StructPtr st = StructPtr::dynamicCast(type);
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
         if(marshal)
@@ -2211,7 +2213,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         const string csPrefix = "cs:";
         if(s.find(csPrefix) == 0)
         {
-            SequencePtr seq = SequencePtr::dynamicCast(cont);
+            SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
             if(seq)
             {
                 static const string csGenericPrefix = csPrefix + "generic:";
@@ -2233,7 +2235,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     }
                 }
             }
-            else if(StructPtr::dynamicCast(cont))
+            else if(dynamic_pointer_cast<Struct>(cont))
             {
                 if(s.substr(csPrefix.size()) == "class")
                 {
@@ -2252,7 +2254,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     continue;
                 }
             }
-            else if(ClassDefPtr::dynamicCast(cont))
+            else if(dynamic_pointer_cast<ClassDef>(cont))
             {
                 if(s.substr(csPrefix.size()) == "property")
                 {
@@ -2260,7 +2262,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     continue;
                 }
             }
-            else if(InterfaceDefPtr::dynamicCast(cont))
+            else if(dynamic_pointer_cast<InterfaceDef>(cont))
             {
                 static const string csImplementsPrefix = csPrefix + "implements:";
                 if(s.find(csImplementsPrefix) == 0)
@@ -2269,7 +2271,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     continue;
                 }
             }
-            else if(DictionaryPtr::dynamicCast(cont))
+            else if(dynamic_pointer_cast<Dictionary>(cont))
             {
                 static const string csGenericPrefix = csPrefix + "generic:";
                 if(s.find(csGenericPrefix) == 0)
@@ -2282,15 +2284,15 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     }
                 }
             }
-            else if(DataMemberPtr::dynamicCast(cont))
+            else if(dynamic_pointer_cast<DataMember>(cont))
             {
-                DataMemberPtr dataMember = DataMemberPtr::dynamicCast(cont);
-                StructPtr st = StructPtr::dynamicCast(dataMember->container());
-                ExceptionPtr ex = ExceptionPtr::dynamicCast(dataMember->container());
-                ClassDefPtr cl = ClassDefPtr::dynamicCast(dataMember->container());
+                DataMemberPtr dataMember = dynamic_pointer_cast<DataMember>(cont);
+                StructPtr st = dynamic_pointer_cast<Struct>(dataMember->container());
+                ExceptionPtr ex = dynamic_pointer_cast<Exception>(dataMember->container());
+                ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(dataMember->container());
                 static const string csTypePrefix = csPrefix + "type:";
             }
-            else if(ModulePtr::dynamicCast(cont))
+            else if(dynamic_pointer_cast<Module>(cont))
             {
                 static const string csNamespacePrefix = csPrefix + "namespace:";
                 if(s.find(csNamespacePrefix) == 0 && s.size() > csNamespacePrefix.size())

@@ -3,6 +3,7 @@ name: Build Ice
 runs:
   using: "composite"
   steps:
+    # Linux / macOS
     - name: Build C++ Dependencies
       run: make -j3 V=1 -C cpp srcs
       shell: bash
@@ -16,12 +17,21 @@ runs:
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (matrix.language == 'php' || matrix.language == 'js' || matrix.language == 'ruby')
 
     - name: Build ${{ matrix.language }}
+      working-directory: ./${{ matrix.language }}
       run: |
-        make -j3 V=1 LANGUAGES="${{ matrix.language }}"
+        make -j3 V=1
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
-    - name: Build
-      run: msbuild /m /p:Platform=x64 ice.proj
+    # Windows
+    - name: Build C++ Dependencies
+      run: msbuild /m /p:Platform=x64 msbuild/ice.proj
+      working-directory: ./cpp
+      shell: powershell
+      if: runner.os == 'Windows'
+
+    - name: Build ${{ matrix.language }}
+      run: msbuild /m /p:Platform=x64 msbuild/ice.proj
+      working-directory: ./${{ matrix.language }}
       shell: powershell
       if: runner.os == 'Windows'

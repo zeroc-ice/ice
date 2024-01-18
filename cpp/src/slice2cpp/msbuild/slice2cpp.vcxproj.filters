@@ -21,6 +21,9 @@
     <ClCompile Include="..\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\CPlusPlusUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Slice2Cpp.rc">
@@ -29,6 +32,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CPlusPlusUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

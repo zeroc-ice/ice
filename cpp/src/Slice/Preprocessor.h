@@ -5,22 +5,23 @@
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace Slice
 {
 
 class Preprocessor;
-typedef IceUtil::Handle<Preprocessor> PreprocessorPtr;
+using PreprocessorPtr = std::shared_ptr<Preprocessor>;
 
-class Preprocessor : public IceUtil::SimpleShared
+class Preprocessor
 {
 public:
 
     static PreprocessorPtr create(const std::string&, const std::string&, const std::vector<std::string>&);
 
+    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
     ~Preprocessor();
 
     FILE* preprocess(bool, const std::string& = "");
@@ -43,7 +44,7 @@ public:
 
 private:
 
-    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
+
 
     bool checkInputFile();
 

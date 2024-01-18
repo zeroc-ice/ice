@@ -3,8 +3,9 @@
 //
 
 #include "Gen.h"
+#include "CPlusPlusUtil.h"
+
 #include <Slice/Util.h>
-#include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Slice/FileTracker.h>
 #include <IceUtil/FileUtil.h>
@@ -23,7 +24,7 @@ namespace
 bool
 isConstexprType(const TypePtr& type)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
     if(bp)
     {
         switch(bp->kind())
@@ -47,13 +48,13 @@ isConstexprType(const TypePtr& type)
             }
         }
     }
-    else if(EnumPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+    else if(dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
     {
         return true;
     }
     else
     {
-        StructPtr s = StructPtr::dynamicCast(type);
+        StructPtr s = dynamic_pointer_cast<Struct>(type);
         if(s)
         {
             DataMemberList members = s->dataMembers();
@@ -91,7 +92,7 @@ void
 writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
                    const string& value, int typeContext, const StringList& metaData, const string& scope)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         out << getUnqualified(fixKwd(constant->scoped()), scope);
@@ -99,7 +100,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     else
     {
         bool cpp11 = (typeContext & TypeContextCpp11) == TypeContextCpp11;
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
             if ((typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring") // wide strings
@@ -135,10 +136,10 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
         }
         else
         {
-            EnumPtr ep = EnumPtr::dynamicCast(type);
+            EnumPtr ep = dynamic_pointer_cast<Enum>(type);
             if(ep && valueType)
             {
-                EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
+                EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(enumerator);
 
                 bool unscoped = (cpp11 && findMetaData(ep->getMetaData(), TypeContextCpp11) == "%unscoped") ||
@@ -200,7 +201,7 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
     bool first = true;
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        ContainedPtr contained = ContainedPtr::dynamicCast((*p)->container());
+        ContainedPtr contained = dynamic_pointer_cast<Contained>((*p)->container());
         string scope = contained->scope();
         if((*p)->defaultValueType())
         {
@@ -1029,8 +1030,8 @@ Slice::Gen::generate(const UnitPtr& p)
         InterfaceVisitor interfaceVisitor(H, C, _dllExport);
         p->visit(&interfaceVisitor, false);
 
-        ObjectVisitor objectVisitor(H, C, _dllExport);
-        p->visit(&objectVisitor, false);
+        ValueVisitor valueVisitor(H, C, _dllExport);
+        p->visit(&valueVisitor, false);
 
         StreamVisitor streamVisitor(H, C, _dllExport);
         p->visit(&streamVisitor, false);
@@ -1393,6 +1394,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
+    string factoryName;
 
     ExceptionPtr base = p->base();
 
@@ -1671,7 +1673,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string name = fixKwd(p->name());
     TypePtr type = p->type();
-    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     string scope = fixKwd(p->scope());
     string s = typeToString(type, scope, p->typeMetaData(), _useWstring);
     StringList metaData = p->getMetaData();
@@ -1695,7 +1697,7 @@ void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
-    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     string scope = fixKwd(p->scope());
     string dictType = findMetaData(p->getMetaData());
 
@@ -2531,15 +2533,25 @@ Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     H << sp << nl << "class " << name << ';';
     H << nl << "using " << p->name() << "Ptr = ::Ice::SharedPtr<" << name << ">;";
+}
 
-    //
-    // _ice prefix because this function is in the Slice module namespace, where the user
-    // is allowed to define classes, functions etc. that start with _.
-    //
-    H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllExport << "void _icePatchValuePtr(" << p->name() << "Ptr&, const "
-      << getUnqualified("::Ice::ValuePtr&", scope) << ");";
-    H << nl << "/// \\endcond";
+bool
+Slice::Gen::DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    C << sp;
+
+    C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init"
+      << "(\"" << p->scoped() << "\");";
+
+    if(p->compactId() >= 0)
+    {
+        string n = "iceC" + p->flattenedScope() + p->name() + "_compactIdInit ";
+        C << nl << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
+          << ");";
+    }
+
+    return true;
 }
 
 void
@@ -2552,7 +2564,7 @@ Slice::Gen::DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     H << nl << "typedef " << p->name() << "Prx " << p->name() << "PrxPtr;";
 
     H << sp << nl << "class " << name << ';';
-    H << nl << "typedef ::IceInternal::Handle< " << name << "> " << p->name() << "Ptr;";
+    H << nl << "using " <<  p->name() << "Ptr = ::Ice::SharedPtr< " << name << ">;";
 }
 
 void
@@ -2671,7 +2683,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return True if this object supports the interface, false, otherwise.";
     H << nl << " */";
-    H << nl << "virtual bool ice_isA(const ::std::string& id, const " << getUnqualified("::Ice::Current&", scope)
+    H << nl << "virtual bool ice_isA(::std::string id, const " << getUnqualified("::Ice::Current&", scope)
       << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
     H << sp;
     H << nl << "/**";
@@ -2687,7 +2699,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "virtual const ::std::string& ice_id(const " << getUnqualified("::Ice::Current&", scope)
+    H << nl << "virtual ::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope)
       << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
     H << sp;
     H << nl << "/**";
@@ -2715,7 +2727,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << sp << nl << "}";
 
     C << sp;
-    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const "
+    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(::std::string s, const "
       << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
     C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", s);";
@@ -2730,7 +2742,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id(const "
+    C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const "
       << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
     C << nl << "return ice_staticId();";
@@ -3036,13 +3048,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\endcond";
 }
 
-Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
+Slice::Gen::ValueVisitor::ValueVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
+    _dllMemberExport(toDllMemberExport(dllExport)), _doneStaticSymbol(false), _useWstring(false)
 {
 }
 
 bool
-Slice::Gen::ObjectVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::ValueVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(!p->hasClassDefs())
     {
@@ -3059,7 +3072,7 @@ Slice::Gen::ObjectVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::ValueVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp;
     H << nl << '}';
@@ -3068,7 +3081,7 @@ Slice::Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
@@ -3081,115 +3094,72 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
-    if (base)
-    {
-        H << "public " << getUnqualified(fixKwd(base->scoped()), scope);
+    H << nl << "class " << _dllClassExport << name << " : public " << getUnqualified("::Ice::ValueHelper", scope)
+      << "<" << name << ", ";
 
+    if(!base)
+    {
+        H << getUnqualified("::Ice::Value", scope);
     }
     else
     {
-        H << "public " << getUnqualified("::Ice::Value", scope);
+        H << getUnqualified(fixKwd(base->scoped()), scope);
     }
-
-    H.restoreIndent();
+    H << ">";
     H << sb;
     H.dec();
     H << nl << "public:" << sp;
     H.inc();
 
-    //
-    // In C++, a nested type cannot have the same name as the enclosing type
-    //
-    if(p->name() != "PointerType")
-    {
-        H << nl << "typedef " << p->name() << "Ptr PointerType;";
-    }
-
-    H << sp << nl << "virtual ~" << name << "();";
+    // Out of line dtor to avoid weak vtable
+    H << nl << _dllMemberExport << "virtual ~" << name << "();";
     C << sp;
     C << nl << scoped.substr(2) << "::~" << name << "()";
     C << sb;
     C << eb;
 
     vector<string> params;
-    vector<string> allParamDecls;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         params.push_back(fixKwd((*q)->name()));
     }
 
-    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-    {
-        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring);
-        allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
-    }
+    H << sp << nl << name << "() = default;";
 
-    if(p->hasDefaultValues())
-    {
-        H << sp;
-        H << nl
-          << "/** Default constructor that assigns default values to members as specified in the "
-             "Slice definition. */";
-        H << nl << name << "() :";
-        H.inc();
-        writeDataMemberInitializers(H, dataMembers, _useWstring);
-        H.dec();
-        H << sb;
-        H << eb;
-    }
-    else
-    {
-        H << sp << nl << name << "()";
-        H << sb << eb;
-    }
+    H << sp << nl << name << "(const " << name << "&) = default;";
+    H << nl << name << "(" << name << "&&) = default;";
+    H << nl << name << "& operator=(const " << name << "&) = default;";
+    H << nl << name << "& operator=(" << name << "&&) = default;";
 
     emitOneShotConstructor(p);
 
-    H << nl << name << "(const " << name << "&) = default;";
-    H << nl <<  name << "& operator=(const " << name << "&) = default;";
-
-    //
-    // It would make sense to provide a covariant ice_clone(); unfortunately many compilers
-    // (including VS2010) generate bad code for covariant types that use virtual inheritance
-    //
+    H << sp;
+    H << nl << "/**";
+    H << nl << " * Obtains a tuple containing all of the value's data members.";
+    H << nl << " * @return The data members in a tuple.";
+    H << nl << " */";
+    writeIceTuple(H, p->allDataMembers(), _useWstring);
 
     H << sp;
     H << nl << "/**";
-    H << nl << " * Polymorphically clones this object.";
-    H << nl << " * @return A shallow copy of this object.";
+    H << nl << " * Obtains the Slice type ID of this value.";
+    H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "virtual " << getUnqualified("::Ice::ValuePtr", scope) << " ice_clone() const;";
+    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    return true;
+}
 
-    C << nl << "::Ice::ValuePtr";
-    C << nl << scoped.substr(2) << "::ice_clone() const";
-    C << sb;
-    C << nl << getUnqualified("::Ice::Value*", scope) << " p = new " << name << "(*this);";
-    C << nl << "return p;";
-    C << eb;
-
-    H << sp;
-    H << nl << "/**";
-    H << nl << " * Obtains the Slice type ID of the most-derived class implemented by this instance.";
-    H << nl << " * @return The type ID.";
-    H << nl << " */";
-    H << nl << "virtual ::std::string ice_id() const;";
-    H << sp;
-    H << nl << "/**";
-    H << nl << " * Obtains the Slice type ID corresponding to this class.";
-    H << nl << " * @return The type ID.";
-    H << nl << " */";
-    H << nl << "static const ::std::string& ice_staticId();";
+void
+Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    string scoped = fixKwd(p->scoped());
+    string scope = fixKwd(p->scope());
+    string name = fixKwd(p->name());
+    ClassDefPtr base = p->base();
 
     C << sp;
-    C << nl << "std::string" << nl << scoped.substr(2) << "::ice_id() const";
-    C << sb;
-    C << nl << "return ice_staticId();";
-    C << eb;
-
-    C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
     //
     // Use local static so that ice_staticId() is usable during static construction.
@@ -3198,92 +3168,15 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "return typeId;";
     C << eb;
 
-    return true;
-}
-
-void
-Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
-{
-    string scoped = fixKwd(p->scoped());
-    string scope = fixKwd(p->scope());
-    string name = fixKwd(p->name());
-    ClassDefPtr base = p->base();
-
-    H << sp;
-    H << nl << "/**";
-    H << nl << " * Obtains a value factory that instantiates this class.";
-    H << nl << " * @return The value factory.";
-    H << nl << " */";
-    H << nl << "static " << getUnqualified("::Ice::ValueFactoryPtr", scope) << " ice_factory();";
-
-    H.dec();
-    H << sp << nl << "protected:";
-    bool inProtected = true;
-    H.inc();
-
-    H << sp;
-    H << nl << "/// \\cond STREAM";
-    H << nl << "virtual void _iceWriteImpl(" << getUnqualified("::Ice::OutputStream*", scope) << ") const;";
-    H << nl << "virtual void _iceReadImpl(" << getUnqualified("::Ice::InputStream*", scope) << ");";
-    H << nl << "/// \\endcond";
-
-    C << sp;
-    C << nl << "/// \\cond STREAM";
-    C << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(" << getUnqualified("::Ice::OutputStream*", scope)
-      << " ostr) const";
-    C << sb;
-    C << nl << "ostr->startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
-    C << nl << getUnqualified("::Ice::StreamWriter", scope) << "< " << name << ", "
-      << getUnqualified("::Ice::OutputStream", scope) << ">::write(ostr, *this);";
-    C << nl << "ostr->endSlice();";
-    if(base)
-    {
-        emitUpcall(base, "::_iceWriteImpl(ostr);", scope);
-    }
-    C << eb;
-
-    C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::_iceReadImpl(" << getUnqualified("::Ice::InputStream*", scope)
-      << " istr)";
-    C << sb;
-    C << nl << "istr->startSlice();";
-    C << nl << getUnqualified("::Ice::StreamReader", scope) << "< " << name << ", "
-      << getUnqualified("::Ice::InputStream", scope) << ">::read(istr, *this);";
-    C << nl << "istr->endSlice();";
-    if(base)
-    {
-        emitUpcall(base, "::_iceReadImpl(istr);", scope);
-    }
-    C << eb;
-    C << nl << "/// \\endcond";
-
-    C << sp << nl << "namespace";
-    C << nl << "{";
-
-    string initName = "iceC" + p->flattenedScope() + p->name() + "_init";
-    C << nl << "const ::IceInternal::DefaultValueFactoryInit< " << scoped << "> " << initName << "(\"" << p->scoped()
-      << "\");";
-
-    if(p->compactId() >= 0)
-    {
-        initName = "iceC" + p->flattenedScope() + p->name() + "_compactIdInit";
-        C << nl << "const ::IceInternal::CompactIdInit " << initName << "(\"" << p->scoped() << "\", " << p->compactId()
-          << ");";
-    }
-    C << nl << "}";
-
-    C << sp << nl << "::Ice::ValueFactoryPtr" << nl << scoped.substr(2) << "::ice_factory()";
-    C << sb;
-    C << nl << "return ::IceInternal::factoryTable->getValueFactory(" << scoped << "::ice_staticId());";
-    C << eb;
-
     //
     // Emit data members. Access visibility may be specified by metadata.
     //
+    bool inProtected = false;
     bool generateFriend = false;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
     bool needSp = true;
+
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(prot || (*q)->hasMetaData("protected"))
@@ -3345,47 +3238,55 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         // But we do this only once per source file, because a single instance is sufficient to initialize
         // all of the globals in a compilation unit.
         //
+        _doneStaticSymbol = true;
+        H << sp;
         H << nl << "/// \\cond INTERNAL";
-        H << nl << "static ::Ice::ValueFactoryPtr _iceS_" << p->name() << "_init = " << fixKwd(p->scoped())
-          << "::ice_factory();";
+        H << nl << "static " << fixKwd(p->name()) << " _iceS_" << p->name() << "_init;";
         H << nl << "/// \\endcond";
     }
-
-    C << sp;
-    C << nl << "/// \\cond INTERNAL";
-    C << nl << "void";
-    C << nl << scope.substr(2) << "_icePatchValuePtr(" << p->name() << "Ptr& handle, const "
-      << getUnqualified("::Ice::ValuePtr&", scope) << " v)";
-    C << sb;
-    C << nl << "handle = " << p->name() << "Ptr::dynamicCast(v);";
-    C << nl << "if(v && !handle)";
-    C << sb;
-    C << nl << "IceInternal::Ex::throwUOE(" << name << "::ice_staticId(), v);";
-    C << eb;
-    C << eb;
-    C << nl << "/// \\endcond";
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
 void
-Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
+Slice::Gen::ValueVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     int typeContext = _useWstring;
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(container);
+    //
+    // Use empty scope to get full qualified names in types used with future declarations.
+    //
+    string scope = "";
+
     writeDocSummary(H, p);
-    //
-    // Use an empty scope to get full qualified names from calls to typeToString.
-    //
-    const string scope = "";
-    H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), typeContext) << ' '
-      << name << ';';
+    H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), typeContext) << ' ' << name;
+
+    string defaultValue = p->defaultValue();
+    if(!defaultValue.empty())
+    {
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+        if(p->optional() && builtin && builtin->kind() == Builtin::KindString)
+        {
+            //
+            // = "<string literal>" doesn't work for optional<std::string>
+            //
+            H << '{';
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), scope);
+            H << '}';
+        }
+        else
+        {
+            H << " = ";
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), scope);
+        }
+    }
+    H << ";";
 }
 
 bool
-Slice::Gen::ObjectVisitor::emitBaseInitializers(const ClassDefPtr& p)
+Slice::Gen::ValueVisitor::emitBaseInitializers(const ClassDefPtr& p)
 {
     ClassDefPtr base = p->base();
     if (!base)
@@ -3412,20 +3313,20 @@ Slice::Gen::ObjectVisitor::emitBaseInitializers(const ClassDefPtr& p)
     }
     upcall += ")";
 
-    H << nl << fixKwd(base->scoped()) << upcall;
+    H << nl << "Ice::ValueHelper<" << getUnqualified(fixKwd(p->scoped()), scope)
+        << ", " << getUnqualified(fixKwd(base->scoped()), scope) << ">" << upcall;
 
     return true;
 }
 
 void
-Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
+Slice::Gen::ValueVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     //
-    // Use an empty scope to get full qualified names from calls to typeToString.
+    // Use empty scope to get full qualified names in types used with future declarations.
     //
-    const string scope = "";
-
+    string scope = "";
     if(!allDataMembers.empty())
     {
         vector<string> allParamDecls;
@@ -3445,6 +3346,8 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
                 allComments[(*q)->name()] = comment;
             }
         }
+
+        CommentPtr comment = p->parseComment(false);
 
         H << sp;
         H << nl << "/**";
@@ -3478,6 +3381,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             H << nl;
         }
+
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if(q != dataMembers.begin())
@@ -3485,7 +3389,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
                 H << ',' << nl;
             }
             string memberName = fixKwd((*q)->name());
-            H << memberName << '(' << memberName << ')';
+            H << memberName << "(" << memberName << ')';
         }
 
         H.dec();
@@ -3495,7 +3399,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& call, const string& scope)
+Slice::Gen::ValueVisitor::emitUpcall(const ClassDefPtr& base, const string& call, const string& scope)
 {
     C << nl;
     if(base)
@@ -3924,7 +3828,7 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExpo
 string
 Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -3959,33 +3863,33 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
     }
     else
     {
-        InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(type);
+        InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
 
-        if(InterfaceDeclPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+        if(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
         {
             return "0";
         }
 
-        StructPtr st = StructPtr::dynamicCast(type);
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
         if(st)
         {
             return getUnqualified(fixKwd(st->scoped()), scope) + "()";
         }
 
-        EnumPtr en = EnumPtr::dynamicCast(type);
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if(en)
         {
             EnumeratorList enumerators = en->enumerators();
             return getUnqualified(fixKwd(en->scope() + enumerators.front()->name()), scope);
         }
 
-        SequencePtr seq = SequencePtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if(seq)
         {
             return typeToString(seq, scope, metaData, _useWstring | TypeContextCpp11) + "()";
         }
 
-        DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
         if(dict)
         {
             return getUnqualified(fixKwd(dict->scoped()), scope) + "()";
@@ -4528,7 +4432,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         return false;
     }
 
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -4547,7 +4451,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 void
 Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -4924,55 +4828,55 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             string ss = s.substr(prefix.size());
             if(ss == "type:wstring" || ss == "type:string")
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(cont);
-                ModulePtr module = ModulePtr::dynamicCast(cont);
-                ClassDefPtr clss = ClassDefPtr::dynamicCast(cont);
-                InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(cont);
-                StructPtr strct = StructPtr::dynamicCast(cont);
-                ExceptionPtr exception = ExceptionPtr::dynamicCast(cont);
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(cont);
+                ModulePtr module = dynamic_pointer_cast<Module>(cont);
+                ClassDefPtr clss = dynamic_pointer_cast<ClassDef>(cont);
+                InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(cont);
+                StructPtr strct = dynamic_pointer_cast<Struct>(cont);
+                ExceptionPtr exception = dynamic_pointer_cast<Exception>(cont);
                 if((builtin && builtin->kind() == Builtin::KindString) || module || clss || strct || interface || exception)
                 {
                     continue;
                 }
             }
-            if(BuiltinPtr::dynamicCast(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+            if(dynamic_pointer_cast<Builtin>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
             {
-                if(BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindString)
+                if(dynamic_pointer_cast<Builtin>(cont)->kind() == Builtin::KindString)
                 {
                     continue;
                 }
             }
-            if(SequencePtr::dynamicCast(cont))
+            if(dynamic_pointer_cast<Sequence>(cont))
             {
                 if(ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array" || ss.find("range") == 0)
                 {
                     continue;
                 }
             }
-            if(DictionaryPtr::dynamicCast(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+            if(dynamic_pointer_cast<Dictionary>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
             {
                 continue;
             }
-            if(!cpp11 && StructPtr::dynamicCast(cont) && (ss == "class" || ss == "comparable"))
-            {
-                continue;
-            }
-
-            if(ExceptionPtr::dynamicCast(cont) && ss == "ice_print")
-            {
-                continue;
-            }
-            if(!cpp11 && EnumPtr::dynamicCast(cont) && ss == "scoped")
-            {
-                continue;
-            }
-            if(!cpp98 && EnumPtr::dynamicCast(cont) && ss == "unscoped")
+            if(!cpp11 && dynamic_pointer_cast<Struct>(cont) && (ss == "class" || ss == "comparable"))
             {
                 continue;
             }
 
+            if(dynamic_pointer_cast<Exception>(cont) && ss == "ice_print")
             {
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(cont);
+                continue;
+            }
+            if(!cpp11 && dynamic_pointer_cast<Enum>(cont) && ss == "scoped")
+            {
+                continue;
+            }
+            if(!cpp98 && dynamic_pointer_cast<Enum>(cont) && ss == "unscoped")
+            {
+                continue;
+            }
+
+            {
+                ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(cont);
                 if(cl && ss.find("type:") == 0)
                 {
                     continue;
@@ -5603,7 +5507,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains a tuple containing all of the exception's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, p->allDataMembers(), _useWstring);
+    writeIceTuple(H, p->allDataMembers(), _useWstring | TypeContextCpp11);
 
     H << sp;
     H << nl << "/**";
@@ -5661,10 +5565,15 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    H << eb << ';';
+    string name = fixKwd(p->name());
+    string scope = fixKwd(p->scope());
+    string scoped = fixKwd(p->scoped());
+    string factoryName;
+
+    ExceptionPtr base = p->base();
 
     //
-    // We need an instance here to trigger initialization if the implementation is in a shared library.
+    // We need an instance here to trigger initialization if the implementation is in a shared libarry.
     // But we do this only once per source file, because a single instance is sufficient to initialize
     // all of the globals in a shared library.
     //
@@ -5673,7 +5582,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _doneStaticSymbol = true;
         H << sp;
         H << nl << "/// \\cond INTERNAL";
-        H << nl << "static " << fixKwd(p->name()) << " _iceS_" << p->name() << "_init;";
+        H << nl << "static " << name << " _iceS_" << p->name() << "_init;";
         H << nl << "/// \\endcond";
     }
 
@@ -5701,7 +5610,7 @@ Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
     H << nl << " * Obtains a tuple containing all of the struct's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, p->dataMembers(), _useWstring);
+    writeIceTuple(H, p->dataMembers(), _useWstring | TypeContextCpp11);
     H << eb << ';';
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -5721,7 +5630,7 @@ Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
         if(p->optional() && builtin->kind() == Builtin::KindString)
         {
             //
@@ -6451,7 +6360,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     string name = fixKwd(p->name());
     int typeContext = _useWstring | TypeContextCpp11;
     ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(container);
     //
     // Use empty scope to get full qualified names in types used with future declarations.
     //
@@ -6463,7 +6372,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
     string defaultValue = p->defaultValue();
     if(!defaultValue.empty())
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
         if(p->optional() && builtin && builtin->kind() == Builtin::KindString)
         {
             //
@@ -7129,7 +7038,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Obtains a tuple containing all of the value's data members.";
     H << nl << " * @return The data members in a tuple.";
     H << nl << " */";
-    writeIceTuple(H, p->allDataMembers(), _useWstring);
+    writeIceTuple(H, p->allDataMembers(), _useWstring | TypeContextCpp11);
 
     H << sp;
     H << nl << "/**";
@@ -7143,8 +7052,13 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
+    string scoped = fixKwd(p->scoped());
+    string scope = fixKwd(p->scope());
+    string name = fixKwd(p->name());
+    ClassDefPtr base = p->base();
+
     C << sp;
-    C << nl << "const ::std::string&" << nl << fixKwd(p->scoped()).substr(2) << "::ice_staticId()";
+    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
     //
     // Use local static so that ice_staticId() is usable during static construction.
@@ -7364,7 +7278,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
         return false;
     }
 
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -7385,7 +7299,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
 void
 Slice::Gen::Cpp11StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
-    if(UnitPtr::dynamicCast(m->container()))
+    if(dynamic_pointer_cast<Unit>(m->container()))
     {
         //
         // Only emit this for the top-level module.
@@ -7508,7 +7422,7 @@ Slice::Gen::Cpp11ImplVisitor::Cpp11ImplVisitor(Output& h, Output& c, const strin
 string
 Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
     {
         switch(builtin->kind())
@@ -7543,31 +7457,31 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
     }
     else
     {
-        if(InterfaceDeclPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+        if(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
         {
             return "nullptr";
         }
 
-        StructPtr st = StructPtr::dynamicCast(type);
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
         if(st)
         {
             return getUnqualified(fixKwd(st->scoped()), scope) + "()";
         }
 
-        EnumPtr en = EnumPtr::dynamicCast(type);
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if(en)
         {
             EnumeratorList enumerators = en->enumerators();
             return getUnqualified(fixKwd(en->scoped() + "::" + enumerators.front()->name()), scope);
         }
 
-        SequencePtr seq = SequencePtr::dynamicCast(type);
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if(seq)
         {
             return typeToString(seq, scope, metaData, _useWstring | TypeContextCpp11) + "()";
         }
 
-        DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
         if(dict)
         {
             return getUnqualified(fixKwd(dict->scoped()), scope) + "()";

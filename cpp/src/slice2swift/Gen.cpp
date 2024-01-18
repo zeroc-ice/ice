@@ -9,6 +9,7 @@
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
 
+#include <algorithm>
 #include <iterator>
 
 #include "Gen.h"
@@ -133,7 +134,7 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Always import Ice module first if not building Ice
     //
-    if(UnitPtr::dynamicCast(p->container()) && _imports.empty())
+    if (dynamic_pointer_cast<Unit>(p->container()) && _imports.empty())
     {
         string swiftModule = getSwiftModule(p);
         if(swiftModule != "Ice")
@@ -162,7 +163,7 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
     if (base)
     {
-        addImport(ContainedPtr::dynamicCast(base), p);
+        addImport(dynamic_pointer_cast<Contained>(base), p);
     }
 
     //
@@ -186,7 +187,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     InterfaceList bases = p->bases();
     for(InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
-        addImport(ContainedPtr::dynamicCast(*i), p);
+        addImport(dynamic_pointer_cast<Contained>(*i), p);
     }
 
     //
@@ -235,7 +236,7 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
     if(base)
     {
-        addImport(ContainedPtr::dynamicCast(base), p);
+        addImport(dynamic_pointer_cast<Contained>(base), p);
     }
 
     //
@@ -280,7 +281,7 @@ Gen::ImportVisitor::writeImports()
 void
 Gen::ImportVisitor::addImport(const TypePtr& definition, const ContainedPtr& toplevel)
 {
-    if(!BuiltinPtr::dynamicCast(definition))
+    if(!dynamic_pointer_cast<Builtin>(definition))
     {
         ModulePtr m1 = getTopLevelModule(definition);
         ModulePtr m2 = getTopLevelModule(toplevel);
@@ -324,7 +325,7 @@ Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& o) : out(o)
 bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
 
@@ -369,7 +370,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
 
@@ -414,7 +415,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
 
     ExceptionPtr base = p->base();
@@ -601,7 +602,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     bool containsSequence;
     bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
@@ -717,12 +718,12 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     int typeCtx = 0;
 
     const TypePtr type = p->type();
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
 
     out << sp;
     writeDocSummary(out, p);
@@ -876,7 +877,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 void
 Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     int typeCtx = 0;
 
@@ -1028,7 +1029,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const EnumeratorList enumerators = p->enumerators();
     const string enumType = p->maxValue() <= 0xFF ? "Swift.UInt8" : "Swift.Int32";
@@ -1132,7 +1133,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const string name = fixIdent(p->name());
     const TypePtr type = p->type();
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
 
     writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
@@ -1160,7 +1161,7 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     const string traits = name + "Traits";
     const string prx = name + "Prx";
@@ -1336,7 +1337,7 @@ bool
 Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string prefix = getClassResolverPrefix(p->unit());
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
     const string traits = name + "Traits";
 
@@ -1554,7 +1555,7 @@ Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string disp = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Disp");
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
     const string servant = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
@@ -1689,7 +1690,7 @@ void
 Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 {
     const bool isAmd = operationIsAmd(op);
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
     const string opName = fixIdent(op->name() + (isAmd ? "Async" : ""));
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
@@ -1740,7 +1741,7 @@ Gen::ObjectExtVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
 
     out << sp;

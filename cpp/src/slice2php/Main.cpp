@@ -851,7 +851,7 @@ void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
     TypePtr keyType = p->keyType();
-    BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
+    BuiltinPtr b = dynamic_pointer_cast<Builtin>(keyType);
 
     const UnitPtr unit = p->unit();
     const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
@@ -882,7 +882,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
                 assert(false);
         }
     }
-    else if(!EnumPtr::dynamicCast(keyType))
+    else if(!dynamic_pointer_cast<Enum>(keyType))
     {
         dc->warning(InvalidMetaData, p->file(), p->line(), "dictionary key type not supported in PHP");
     }
@@ -1005,7 +1005,7 @@ CodeVisitor::writeType(const TypePtr& p)
 string
 CodeVisitor::getType(const TypePtr& p)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1054,13 +1054,13 @@ CodeVisitor::getType(const TypePtr& p)
         }
     }
 
-    InterfaceDeclPtr prx = InterfaceDeclPtr::dynamicCast(p);
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
     if(prx)
     {
         return getTypeVar(prx, "Prx");
     }
 
-    ContainedPtr cont = ContainedPtr::dynamicCast(p);
+    ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
     assert(cont);
     return getTypeVar(cont);
 }
@@ -1069,7 +1069,7 @@ void
 CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
 {
     TypePtr p = m->type();
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
     if(builtin)
     {
         switch(builtin->kind())
@@ -1109,7 +1109,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
         return;
     }
 
-    EnumPtr en = EnumPtr::dynamicCast(p);
+    EnumPtr en = dynamic_pointer_cast<Enum>(p);
     if(en)
     {
         EnumeratorList enums = en->enumerators();
@@ -1122,7 +1122,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     // function foo($theStruct=new MyStructType)
     //
     // Instead we use null as the default value and allocate an instance in the constructor.
-    if(StructPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Struct>(p))
     {
         _out << "null";
         return;
@@ -1134,7 +1134,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
 void
 CodeVisitor::writeAssign(const MemberInfo& info)
 {
-    StructPtr st = StructPtr::dynamicCast(info.dataMember->type());
+    StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
     if(st)
     {
         _out << nl << "$this->" << info.fixedName << " = is_null($" << info.fixedName << ") ? new "
@@ -1149,15 +1149,15 @@ CodeVisitor::writeAssign(const MemberInfo& info)
 void
 CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
 {
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if(constant)
     {
         _out << getAbsolute(constant);
     }
     else
     {
-        Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-        Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+        Slice::BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+        Slice::EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if(b)
         {
             switch(b->kind())
@@ -1201,7 +1201,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
         }
         else if(en)
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
             _out << getAbsolute(en) << "::" << fixIdent(lte->name());
         }
@@ -1528,7 +1528,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false);
+            UnitPtr u = Unit::createUnit(false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -1575,7 +1575,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all);
+                UnitPtr u = Unit::createUnit(all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())

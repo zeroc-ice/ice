@@ -122,7 +122,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     debug = opts.isSet("d") || opts.isSet("debug");
     all = opts.isSet("all");
 
-    bool ignoreRedefs = false;
     bool keepComments = true;
 
     for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
@@ -137,7 +136,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return 0;
         }
 
-        UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all);
+        UnitPtr u = Slice::Unit::createUnit(all);
         int parseStatus = u->parse(file, cppHandle, debug);
 
         if(!icecpp->close() || parseStatus == EXIT_FAILURE)
