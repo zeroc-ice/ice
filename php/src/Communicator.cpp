@@ -1816,18 +1816,18 @@ IcePHP::communicatorShutdown(void)
 {
     _profiles.clear();
 
+    {
+        lock_guard lock(_reapFinishedMutex);
+        _reapingFinished = true;
+        _reapCond.notify_one();
+    }
+
     lock_guard lock(_registeredCommunicatorsMutex);
     //
     // Clearing the map releases the last remaining reference counts of the ActiveCommunicator
     // objects. The ActiveCommunicator destructor destroys its communicator.
     //
     _registeredCommunicators.clear();
-
-    {
-        lock_guard lock(_reapFinishedMutex);
-        _reapingFinished = true;
-        _reapCond.notify_one();
-    }
 
     if(_reapThread.joinable())
     {
