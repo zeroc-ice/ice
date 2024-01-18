@@ -71,7 +71,7 @@ loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
 Unset = IcePy.Unset
 
-from Ice.Py3.IceFuture import FutureBase, wrap_future
+from Ice.IceFuture import FutureBase, wrap_future
 
 
 class Future(FutureBase):
