@@ -3,7 +3,7 @@ name: Swift lint and format
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ["*"]
     paths:
       - "swift/**"
   pull_request:
