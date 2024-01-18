@@ -1,0 +1,47 @@
+name: Swift lint and format
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "swift/**"
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+    paths:
+      - "swift/**"
+
+# See https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  swift-lint:
+    name: Swift lint
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install SwiftLints
+        run: brew install swiftformat
+
+      - name: SwiftLint
+        working-directory: swift
+        run: swiftlint --config .swiftlint.yml --strict
+
+  swift-format:
+    name: Swift format
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install SwiftFormat
+        run: brew install swiftformat
+
+      - name: SwiftFormat
+        working-directory: swift
+        run: swiftformat --lint --verbose  **/*.swift

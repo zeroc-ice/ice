@@ -6,7 +6,7 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         var initData = Ice.InitializationData()
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.ThreadPool.Client.Size", value: "2")

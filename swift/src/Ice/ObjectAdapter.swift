@@ -18,7 +18,7 @@ import Foundation
 /// The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
 /// object adapter is responsible for receiving requests from endpoints, and for mapping between servants, identities,
 /// and proxies.
-public protocol ObjectAdapter:  Swift.AnyObject {
+public protocol ObjectAdapter: Swift.AnyObject {
     /// Get the name of this object adapter.
     ///
     /// - returns: `Swift.String` - This object adapter's name.
@@ -130,15 +130,15 @@ public protocol ObjectAdapter:  Swift.AnyObject {
     ///
     /// - parameter servant: `Disp` The default servant.
     ///
-    /// - parameter category: `Swift.String` The category for which the default servant is registered. An empty category means it will
-    /// handle all categories.
+    /// - parameter category: `Swift.String` The category for which the default servant is registered. An empty
+    /// category means it will handle all categories.
     func addDefaultServant(servant: Disp, category: Swift.String) throws
 
     /// Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
     ///
-    /// - parameter _: `Identity` The identity of the Ice object that is implemented by the servant. If the servant implements multiple
-    /// Ice objects, remove has to be called for all those Ice objects. Removing an identity that is not in
-    /// the map throws NotRegisteredException.
+    /// - parameter _: `Identity` The identity of the Ice object that is implemented by the servant. If the servant
+    /// implements multiple Ice objects, remove has to be called for all those Ice objects. Removing an identity
+    /// that is not in the map throws NotRegisteredException.
     ///
     /// - returns: `Disp` - The removed servant.
     @discardableResult
@@ -180,8 +180,8 @@ public protocol ObjectAdapter:  Swift.AnyObject {
     ///
     /// - parameter _: `Identity` The identity of the Ice object for which the servant should be returned.
     ///
-    /// - returns: `Disp?` - The servant that implements the Ice object with the given identity, or null if no such servant has been
-    /// found.
+    /// - returns: `Disp?` - The servant that implements the Ice object with the given identity, or null if no such
+    /// servant has been found.
     func find(_ id: Identity) -> Disp?
 
     /// Like find, but with a facet. Calling find(id) is equivalent to calling findFacet
@@ -191,16 +191,16 @@ public protocol ObjectAdapter:  Swift.AnyObject {
     ///
     /// - parameter facet: `Swift.String` The facet. An empty facet means the default facet.
     ///
-    /// - returns: `Disp?` - The servant that implements the Ice object with the given identity and facet, or null if no such
-    /// servant has been found.
+    /// - returns: `Disp?` - The servant that implements the Ice object with the given identity and facet, or null if
+    /// no such servant has been found.
     func findFacet(id: Identity, facet: Swift.String) -> Disp?
 
     /// Find all facets with the given identity in the Active Servant Map.
     ///
     /// - parameter _: `Identity` The identity of the Ice object for which the facets should be returned.
     ///
-    /// - returns: `FacetMap` - A collection containing all the facet names and servants that have been found, or an empty map if there
-    /// is no facet for the given identity.
+    /// - returns: `FacetMap` - A collection containing all the facet names and servants that have been found, or an
+    /// empty map if there is no facet for the given identity.
     func findAllFacets(_ id: Identity) -> FacetMap
 
     /// Look up a servant in this object adapter's Active Servant Map, given a proxy.
@@ -231,26 +231,27 @@ public protocol ObjectAdapter:  Swift.AnyObject {
     ///
     /// - parameter locator: `ServantLocator` The locator to add.
     ///
-    /// - parameter category: `Swift.String` The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.
+    /// - parameter category: `Swift.String` The category for which the Servant Locator can locate servants, or an
+    /// empty string if the Servant Locator does not belong to any specific category.
     func addServantLocator(locator: ServantLocator, category: Swift.String) throws
 
     /// Remove a Servant Locator from this object adapter.
     ///
-    /// - parameter _: `Swift.String` The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.
+    /// - parameter _: `Swift.String` The category for which the Servant Locator can locate servants, or an empty
+    /// string if the Servant Locator does not belong to any specific category.
     ///
-    /// - returns: `ServantLocator` - The Servant Locator, or throws NotRegisteredException if no Servant Locator was found for the
-    /// given category.
+    /// - returns: `ServantLocator` - The Servant Locator, or throws NotRegisteredException if no Servant Locator was
+    /// found for the given category.
     @discardableResult
     func removeServantLocator(_ category: Swift.String) throws -> ServantLocator
 
     /// Find a Servant Locator installed with this object adapter.
     ///
-    /// - parameter _: `Swift.String` The category for which the Servant Locator can locate servants, or an empty string if the
-    /// Servant Locator does not belong to any specific category.
+    /// - parameter _: `Swift.String` The category for which the Servant Locator can locate servants, or an empty
+    /// string if the Servant Locator does not belong to any specific category.
     ///
-    /// - returns: `ServantLocator?` - The Servant Locator, or null if no Servant Locator was found for the given category.
+    /// - returns: `ServantLocator?` - The Servant Locator, or null if no Servant Locator was found for the given
+    /// category.
     func findServantLocator(_ category: Swift.String) -> ServantLocator?
 
     /// Find the default servant for a specific category.
@@ -297,7 +298,8 @@ public protocol ObjectAdapter:  Swift.AnyObject {
 
     /// Get the Ice locator used by this object adapter.
     ///
-    /// - returns: `LocatorPrx?` - The locator used by this object adapter, or null if no locator is used by this object adapter.
+    /// - returns: `LocatorPrx?` - The locator used by this object adapter, or null if no locator is used by this
+    /// object adapter.
     func getLocator() -> LocatorPrx?
 
     /// Get the set of endpoints configured with this object adapter.

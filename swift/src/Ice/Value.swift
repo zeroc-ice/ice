@@ -67,16 +67,16 @@ open class InterfaceByValue: Value {
         self.id = id
     }
 
-    open override func ice_id() -> String {
+    override open func ice_id() -> String {
         return id
     }
 
-    open override func _iceReadImpl(from ostr: InputStream) throws {
+    override open func _iceReadImpl(from ostr: InputStream) throws {
         _ = try ostr.startSlice()
         try ostr.endSlice()
     }
 
-    open override func _iceWriteImpl(to istr: OutputStream) {
+    override open func _iceWriteImpl(to istr: OutputStream) {
         istr.startSlice(typeId: ice_id(), compactId: -1, last: true)
         istr.endSlice()
     }

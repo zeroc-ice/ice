@@ -6,7 +6,7 @@ import Ice
 import TestCommon
 
 class Server: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         var initData = Ice.InitializationData()

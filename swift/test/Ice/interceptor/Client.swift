@@ -34,8 +34,8 @@ class InterceptorI: Disp {
                 do {
                     if let p = try servantDisp.dispatch(request: request, current: current) {
                         guard let error = p.error,
-                            let errorType = error as? InterceptorError,
-                            errorType == .retry
+                              let errorType = error as? InterceptorError,
+                              errorType == .retry
                         else {
                             fatalError("Expected an error")
                         }
@@ -231,7 +231,7 @@ public class Client: TestHelperI {
         }
     }
 
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         let communicator = try initialize(properties)
@@ -241,7 +241,7 @@ public class Client: TestHelperI {
         communicator.getProperties().setProperty(key: "MyOA.AdapterId", value: "myOA")
         let oa = try communicator.createObjectAdapterWithEndpoints(name: "MyOA2", endpoints: "tcp -h localhost")
         let interceptor = InterceptorI(MyObjectDisp(MyObjectI()))
-        var prx = uncheckedCast(prx: try oa.addWithUUID(interceptor), type: MyObjectPrx.self)
+        var prx = try uncheckedCast(prx: oa.addWithUUID(interceptor), type: MyObjectPrx.self)
 
         let out = getWriter()
         out.writeLine("Collocation optimization on")

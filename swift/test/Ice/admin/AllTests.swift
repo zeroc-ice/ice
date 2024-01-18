@@ -55,7 +55,7 @@ class RemoteLoggerI: Ice.RemoteLogger {
     }
 
     func wait(calls: Int32) throws {
-        for _ in 0..<calls {
+        for _ in 0 ..< calls {
             _semaphore.wait()
         }
     }

@@ -27,7 +27,7 @@ class ServantLocatorI: Ice.ServantLocator {
 }
 
 class Server: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         let async = args.contains("--async")
 
         let properties = try createTestProperties(args)

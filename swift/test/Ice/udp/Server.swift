@@ -6,7 +6,7 @@ import Ice
 import TestCommon
 
 class Server: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         var restArgs = args
         let properties = try createTestProperties(&restArgs)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
@@ -31,7 +31,7 @@ class Server: TestHelperI {
             try adapter2.activate()
         }
 
-        var endpoint: String = ""
+        var endpoint = ""
         //
         // Use loopback to prevent other machines to answer.
         //

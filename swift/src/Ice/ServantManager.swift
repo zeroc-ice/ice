@@ -173,7 +173,7 @@ class ServantManager {
             locatorMap.removeAll()
         }
 
-        m.forEach { category, locator in
+        for (category, locator) in m {
             locator.deactivate(category)
         }
     }

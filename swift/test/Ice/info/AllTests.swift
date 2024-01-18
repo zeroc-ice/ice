@@ -217,7 +217,7 @@ func allTests(_ helper: TestHelper) throws {
         connection = try base.ice_datagram().ice_getConnection()!
         try connection.setBufferSize(rcvSize: 2048, sndSize: 1024)
 
-        let udpInfo = (try connection.getInfo() as? Ice.UDPConnectionInfo)!
+        let udpInfo = try (connection.getInfo() as? Ice.UDPConnectionInfo)!
         try test(!udpInfo.incoming)
         try test(udpInfo.adapterName == "")
         try test(udpInfo.localPort > 0)

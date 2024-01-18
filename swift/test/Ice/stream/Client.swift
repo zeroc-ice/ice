@@ -7,7 +7,7 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         let writer = getWriter()
         writer.write("testing primitive types... ")
 
@@ -154,8 +154,8 @@ public class Client: TestHelperI {
             s.d = 6.0
             s.str = "7"
             s.e = MyEnum.enum2
-            s.p = uncheckedCast(prx: try communicator.stringToProxy("test:default")!,
-                                type: MyInterfacePrx.self)
+            s.p = try uncheckedCast(prx: communicator.stringToProxy("test:default")!,
+                                    type: MyInterfacePrx.self)
             outS.write(s)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
@@ -393,8 +393,8 @@ public class Client: TestHelperI {
             smallStructArray[i].d = 6.0
             smallStructArray[i].str = "7"
             smallStructArray[i].e = MyEnum.enum2
-            smallStructArray[i].p = uncheckedCast(prx: try communicator.stringToProxy("test:default")!,
-                                                  type: MyInterfacePrx.self)
+            smallStructArray[i].p = try uncheckedCast(prx: communicator.stringToProxy("test:default")!,
+                                                      type: MyInterfacePrx.self)
         }
 
         var myClassArray = [MyClass]()
