@@ -103,7 +103,7 @@ protected:
     // Helpers for typed invocations.
     //
 
-    enum MappingType { SyncMapping, AsyncMapping, NewAsyncMapping };
+    enum MappingType { SyncMapping, NewAsyncMapping }; // TODO: rename enumerators
 
     bool prepareRequest(const OperationPtr&, PyObject*, MappingType, Ice::OutputStream*,
                         pair<const Ice::Byte*, const Ice::Byte*>&);
@@ -1646,10 +1646,6 @@ IcePy::Invocation::prepareRequest(const OperationPtr& op, PyObject* args, Mappin
         {
             opName = op->name + "Async";
         }
-        else if(mapping == AsyncMapping)
-        {
-            opName = "begin_" + op->name;
-        }
         else
         {
             opName = fixIdent(op->name);
@@ -1684,10 +1680,6 @@ IcePy::Invocation::prepareRequest(const OperationPtr& op, PyObject* args, Mappin
                     if(mapping == NewAsyncMapping)
                     {
                         name = op->name + "Async";
-                    }
-                    else if(mapping == AsyncMapping)
-                    {
-                        name = "begin_" + op->name;
                     }
                     else
                     {
@@ -2104,7 +2096,7 @@ IcePy::NewAsyncInvocation::invoke(PyObject* args, PyObject* kwds)
     catch(const Ice::Exception&)
     {
         //
-        // No other exceptions should be raised by begin_ice_invoke.
+        // No other exceptions should be raised by invoke.
         //
         assert(false);
     }
