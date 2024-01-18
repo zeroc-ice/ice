@@ -15,6 +15,7 @@
 #include <IceUtil/Timer.h>
 
 #include <chrono>
+#include <condition_variable>
 #include <fstream>
 #include <mutex>
 #include <thread>
@@ -217,7 +218,10 @@ typedef map<string, ActiveCommunicatorPtr> RegisteredCommunicatorMap;
 RegisteredCommunicatorMap _registeredCommunicators;
 
 // std::mutex constructor is constexpr so it is statically initialized
+// _registeredCommunicatorsMutex protects _registeredCommunicators and _reapThread
+// _reapFinishedMutex protects _reapingFinished
 std::mutex _registeredCommunicatorsMutex;
+std::mutex _reapFinishedMutex;
 std::condition_variable _reapCond;
 std::thread _reapThread;
 bool _reapingFinished = true;
@@ -239,13 +243,7 @@ reapRegisteredCommunicators()
     {
         if(p->second->lastAccess + std::chrono::hours(p->second->expires) <= now)
         {
-            try
-            {
-                p->second->communicator->destroy();
-            }
-            catch(...)
-            {
-            }
+            p->second->communicator->destroy();
             _registeredCommunicators.erase(p++);
         }
         else
@@ -1315,7 +1313,7 @@ ZEND_FUNCTION(Ice_register)
         {
             _reapThread = std::thread([&]
             {
-                std::unique_lock lock(_registeredCommunicatorsMutex);
+                std::unique_lock lock(_reapFinishedMutex);
                 _reapCond.wait_for(lock, std::chrono::minutes(5), [&] { return _reapingFinished; });
                 if (_reapingFinished)
                 {
@@ -1832,16 +1830,18 @@ IcePHP::communicatorShutdown(void)
     _profiles.clear();
 
     {
-        lock_guard lock(_registeredCommunicatorsMutex);
+        lock_guard lock(_reapFinishedMutex);
         _reapingFinished = true;
-        //
-        // Clearing the map releases the last remaining reference counts of the ActiveCommunicator
-        // objects. The ActiveCommunicator destructor destroys its communicator.
-        //
-        _registeredCommunicators.clear();
+        _reapCond.notify_one();
     }
 
-    _reapCond.notify_one();
+    lock_guard lock(_registeredCommunicatorsMutex);
+    //
+    // Clearing the map releases the last remaining reference counts of the ActiveCommunicator
+    // objects. The ActiveCommunicator destructor destroys its communicator.
+    //
+    _registeredCommunicators.clear();
+
     if(_reapThread.joinable())
     {
         _reapThread.join();
