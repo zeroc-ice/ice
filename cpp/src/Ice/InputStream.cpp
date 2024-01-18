@@ -2494,11 +2494,8 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
 
     //
     // Read the indirect object table. We read the instances or their
-    // IDs if the instance is a reference to an already un-marhsaled
+    // IDs if the instance is a reference to an already un-marshaled
     // object.
-    //
-    // The SliceInfo object sequence is initialized only if
-    // readSlicedData is called.
     //
     if(_current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
