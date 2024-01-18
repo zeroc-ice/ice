@@ -218,9 +218,9 @@ RegisteredCommunicatorMap _registeredCommunicators;
 
 // std::mutex constructor is constexpr so it is statically initialized
 // _registeredCommunicatorsMutex protects _registeredCommunicators and _reapThread
-// _reapMutex protects _reapingFinished
+// _reapFinishedMutex protects _reapingFinished
 std::mutex _registeredCommunicatorsMutex;
-std::mutex _reapMutex;
+std::mutex _reapFinishedMutex;
 std::condition_variable _reapCond;
 std::thread _reapThread;
 bool _reapingFinished = true;
@@ -1300,7 +1300,7 @@ ZEND_FUNCTION(Ice_register)
         {
             _reapThread = std::thread([&]
             {
-                std::unique_lock lock(_reapMutex);
+                std::unique_lock lock(_reapFinishedMutex);
                 _reapCond.wait_for(lock, std::chrono::minutes(5), [&] { return _reapingFinished; });
                 if (_reapingFinished)
                 {
@@ -1824,7 +1824,7 @@ IcePHP::communicatorShutdown(void)
     _registeredCommunicators.clear();
 
     {
-        lock_guard lock(_reapMutex);
+        lock_guard lock(_reapFinishedMutex);
         _reapingFinished = true;
         _reapCond.notify_one();
     }
