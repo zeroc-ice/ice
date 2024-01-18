@@ -5,6 +5,9 @@
 #ifndef ICE_ROUTER_F_H
 #define ICE_ROUTER_F_H
 
+// TODO: remove this include when we remove the C++98 mapping.
+#include <IceUtil/PushDisableWarnings.h>
+
 #include "Config.h"
 #include <memory>
 #include "ProxyF.h"
@@ -53,4 +56,6 @@ using RouterPtr = ::Ice::SharedPtr< Router>;
 
 #endif
 
+// TODO: remove this include when we remove the C++98 mapping.
+#include <IceUtil/PopDisableWarnings.h>
 #endif

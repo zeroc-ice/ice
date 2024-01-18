@@ -5,6 +5,9 @@
 #ifndef ICE_LOCATOR_F_H
 #define ICE_LOCATOR_F_H
 
+// TODO: remove this include when we remove the C++98 mapping.
+#include <IceUtil/PushDisableWarnings.h>
+
 #include "Config.h"
 #include <memory>
 #include "ProxyF.h"
@@ -70,4 +73,6 @@ using LocatorRegistryPtr = ::Ice::SharedPtr< LocatorRegistry>;
 
 #endif
 
+// TODO: remove this include when we remove the C++98 mapping.
+#include <IceUtil/PopDisableWarnings.h>
 #endif
