@@ -1619,7 +1619,7 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
                                                                   const EndpointIPtr& endpoint,
                                                                   const EndpointIPtr& publishedEndpoint,
-                                                                  const ObjectAdapterIPtr& adapter) :
+                                                                  const shared_ptr<ObjectAdapterI>& adapter) :
     _instance(instance),
     _monitor(new FactoryACMMonitor(instance, dynamic_cast<ObjectAdapterI*>(adapter.get())->getACM())),
     _endpoint(endpoint),

@@ -23,7 +23,7 @@ public:
     //
     // Return the associated Admin facet
     //
-    virtual Ice::ObjectPtr getFacet() const = 0;
+    virtual std::shared_ptr<Ice::Object> getFacet() const = 0;
 
     //
     // Destroy this logger, in particular join any thread

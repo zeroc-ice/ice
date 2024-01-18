@@ -296,7 +296,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        CONNECTION->setAdapter([(ICEObjectAdapter*)adapter adapter]);
+        CONNECTION->setAdapter([(ICEObjectAdapter*)adapter cxxObject]);
     }
     catch(const std::exception& ex)
     {
@@ -312,7 +312,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectAdapter localObjectWithCxxObject:CONNECTION->getAdapter().get()];
+        return [ICEObjectAdapter objectAdapterWithCxxObject:CONNECTION->getAdapter()];
     }
     catch(const std::exception& ex)
     {

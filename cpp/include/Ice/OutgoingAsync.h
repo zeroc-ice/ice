@@ -682,7 +682,7 @@ public:
     AsyncCallback(const TPtr& instance, Callback cb, Callback sentcb = 0) :
         _callback(instance), _completed(cb), _sent(sentcb)
     {
-        checkCallback(instance, cb != 0);
+        checkCallback(instance != 0, cb != 0);
     }
 
     virtual void completed(const ::Ice::AsyncResultPtr& result) const
