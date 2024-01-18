@@ -2737,7 +2737,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return True if this object supports the interface, false, otherwise.";
     H << nl << " */";
-    H << nl << "virtual bool ice_isA(const ::std::string& id, const " << getUnqualified("::Ice::Current&", scope)
+    H << nl << "virtual bool ice_isA(::std::string id, const " << getUnqualified("::Ice::Current&", scope)
       << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
     H << sp;
     H << nl << "/**";
@@ -2753,7 +2753,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "virtual const ::std::string& ice_id(const " << getUnqualified("::Ice::Current&", scope)
+    H << nl << "virtual ::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope)
       << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
     H << sp;
     H << nl << "/**";
@@ -2781,7 +2781,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << sp << nl << "}";
 
     C << sp;
-    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const "
+    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(::std::string s, const "
       << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
     C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", s);";
@@ -2796,7 +2796,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << eb;
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id(const "
+    C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const "
       << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
     C << nl << "return ice_staticId();";

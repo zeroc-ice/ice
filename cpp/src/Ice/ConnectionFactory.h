@@ -32,7 +32,6 @@ namespace Ice
 
 class LocalException;
 class ObjectAdapterI;
-ICE_DEFINE_PTR(ObjectAdapterIPtr, ObjectAdapterI);
 
 }
 
@@ -210,7 +209,7 @@ public:
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
 
     IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const EndpointIPtr&,
-                              const Ice::ObjectAdapterIPtr&);
+                              const std::shared_ptr<Ice::ObjectAdapterI>&);
     void initialize();
     virtual ~IncomingConnectionFactory();
 
@@ -249,7 +248,7 @@ private:
     bool _acceptorStarted;
     bool _acceptorStopped;
 
-    Ice::ObjectAdapterIPtr _adapter;
+    std::shared_ptr<Ice::ObjectAdapterI> _adapter;
     const bool _warn;
     std::set<Ice::ConnectionIPtr> _connections;
     State _state;

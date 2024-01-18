@@ -7,6 +7,9 @@
 
 #include <Config.h>
 #include <Ice/ValueFactory.h>
+
+#include <mutex>
+
 namespace IceRuby
 {
 

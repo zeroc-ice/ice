@@ -10,7 +10,7 @@
 using namespace std;
 using namespace Ice;
 
-class ServantLocatorI : public Test::ServantLocatorI
+class ServantLocatorI final : public Test::ServantLocatorI
 {
 public:
 
@@ -20,39 +20,20 @@ public:
 
 protected:
 
-#ifdef ICE_CPP11_MAPPING
-    virtual Ice::ObjectPtr
-    newServantAndCookie(shared_ptr<void>& cookie) const
+    shared_ptr<Ice::Object> newServantAndCookie(shared_ptr<void>& cookie) const final
     {
         cookie = make_shared<Cookie>();
         return make_shared<TestI>();
     }
 
-    virtual void
-    checkCookie(const shared_ptr<void>& cookie) const
+    void checkCookie(const shared_ptr<void>& cookie) const final
     {
         shared_ptr<Cookie> co = static_pointer_cast<Cookie>(cookie);
         test(co);
         test(co->message() == "blahblah");
     }
-#else
-    virtual Ice::ObjectPtr
-    newServantAndCookie(Ice::LocalObjectPtr& cookie) const
-    {
-        cookie = new Cookie();
-        return new TestI();
-    }
 
-    virtual void
-    checkCookie(const Ice::LocalObjectPtr& cookie) const
-    {
-        CookiePtr co = CookiePtr::dynamicCast(cookie);
-        test(co);
-        test(co->message() == "blahblah");
-    }
-#endif
-    virtual void
-    throwTestIntfUserException() const
+    void throwTestIntfUserException() const final
     {
         throw Test::TestIntfUserException();
     }

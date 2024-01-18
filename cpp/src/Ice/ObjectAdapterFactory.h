@@ -45,7 +45,7 @@ private:
     InstancePtr _instance;
     ::Ice::CommunicatorPtr _communicator;
     std::set<std::string> _adapterNamesInUse;
-    std::list<Ice::ObjectAdapterIPtr> _adapters;
+    std::list<std::shared_ptr<Ice::ObjectAdapterI>> _adapters;
 };
 
 }

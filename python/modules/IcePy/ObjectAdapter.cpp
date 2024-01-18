@@ -47,18 +47,18 @@ struct ObjectAdapterObject
     bool held;
 };
 
-class ServantLocatorWrapper : public Ice::ServantLocator
+class ServantLocatorWrapper final : public Ice::ServantLocator
 {
 public:
 
     ServantLocatorWrapper(PyObject*);
-    ~ServantLocatorWrapper();
+    ~ServantLocatorWrapper() final;
 
-    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
+    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final;
 
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
+    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final;
 
-    virtual void deactivate(const string&);
+    void deactivate(const string&) final;
 
     PyObject* getObject();
 
@@ -67,7 +67,7 @@ private:
     //
     // This object is created in locate() and destroyed after finished().
     //
-    struct Cookie : public Ice::LocalObject
+    struct Cookie
     {
         Cookie();
         ~Cookie();
@@ -76,12 +76,13 @@ private:
         ServantWrapperPtr servant;
         PyObject* cookie;
     };
-    typedef IceUtil::Handle<Cookie> CookiePtr;
+    using CookiePtr = shared_ptr<Cookie>;
 
     PyObject* _locator;
     PyObject* _objectType;
 };
-typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
+
+using ServantLocatorWrapperPtr = shared_ptr<ServantLocatorWrapper>;
 
 }
 
@@ -127,12 +128,12 @@ IcePy::ServantLocatorWrapper::~ServantLocatorWrapper()
     Py_DECREF(_locator);
 }
 
-Ice::ObjectPtr
-IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
+shared_ptr<Ice::Object>
+IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<void>& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    CookiePtr c = new Cookie;
+    CookiePtr c = make_shared<Cookie>();
     c->current = createCurrent(current);
     if(!c->current)
     {
@@ -219,15 +220,15 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
 }
 
 void
-IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr&,
-                                       const Ice::LocalObjectPtr& cookie)
+IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const shared_ptr<Ice::Object>&,
+                                       const shared_ptr<void>& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    CookiePtr c = CookiePtr::dynamicCast(cookie);
+    CookiePtr c = static_pointer_cast<Cookie>(cookie);
     assert(c);
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(c->servant);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(c->servant);
     PyObjectHandle servantObj = wrapper->getObject();
 
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("finished"), STRCAST("OOO"), c->current,
@@ -877,7 +878,7 @@ adapterRemove(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPtr obj;
+    shared_ptr<Ice::Object> obj;
     try
     {
         obj = (*self->adapter)->remove(ident);
@@ -894,7 +895,7 @@ adapterRemove(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -926,7 +927,7 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPtr obj;
+    shared_ptr<Ice::Object> obj;
     try
     {
         obj = (*self->adapter)->removeFacet(ident, facet);
@@ -943,7 +944,7 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -987,7 +988,7 @@ adapterRemoveAllFacets(ObjectAdapterObject* self, PyObject* args)
 
     for(Ice::FacetMap::iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
-        ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(p->second);
+        ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         assert(wrapper);
         PyObjectHandle obj = wrapper->getObject();
         if(PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
@@ -1018,7 +1019,7 @@ adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPtr obj;
+    shared_ptr<Ice::Object> obj;
     try
     {
         obj = (*self->adapter)->removeDefaultServant(category);
@@ -1035,7 +1036,7 @@ adapterRemoveDefaultServant(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -1060,7 +1061,7 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPtr obj;
+    shared_ptr<Ice::Object> obj;
     try
     {
         obj = (*self->adapter)->find(ident);
@@ -1077,7 +1078,7 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -1109,7 +1110,7 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPtr obj;
+    shared_ptr<Ice::Object> obj;
     try
     {
         obj = (*self->adapter)->findFacet(ident, facet);
@@ -1126,7 +1127,7 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -1170,7 +1171,7 @@ adapterFindAllFacets(ObjectAdapterObject* self, PyObject* args)
 
     for(Ice::FacetMap::iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
-        ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(p->second);
+        ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(p->second);
         assert(wrapper);
         PyObjectHandle obj = wrapper->getObject();
         if(PyDict_SetItemString(result.get(), const_cast<char*>(p->first.c_str()), obj.get()) < 0)
@@ -1201,7 +1202,7 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
     Ice::ObjectPrx prx = getProxy(proxy);
 
     assert(self->adapter);
-    Ice::ObjectPtr obj;
+    shared_ptr<Ice::Object> obj;
     try
     {
         obj = (*self->adapter)->findByProxy(prx);
@@ -1218,7 +1219,7 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -1242,7 +1243,7 @@ adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPtr obj;
+    shared_ptr<Ice::Object> obj;
     try
     {
         obj = (*self->adapter)->findDefaultServant(category);
@@ -1259,7 +1260,7 @@ adapterFindDefaultServant(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+    ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(obj);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -1278,7 +1279,7 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantLocatorWrapperPtr wrapper = new ServantLocatorWrapper(locator);
+    ServantLocatorWrapperPtr wrapper = make_shared<ServantLocatorWrapper>(locator);
 
     string category;
     if(!getStringArg(categoryObj, "category", category))
@@ -1336,7 +1337,7 @@ adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantLocatorWrapperPtr wrapper = ServantLocatorWrapperPtr::dynamicCast(locator);
+    ServantLocatorWrapperPtr wrapper = dynamic_pointer_cast<ServantLocatorWrapper>(locator);
     assert(wrapper);
     return wrapper->getObject();
 }
@@ -1377,7 +1378,7 @@ adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
         return Py_None;
     }
 
-    ServantLocatorWrapperPtr wrapper = ServantLocatorWrapperPtr::dynamicCast(locator);
+    ServantLocatorWrapperPtr wrapper = dynamic_pointer_cast<ServantLocatorWrapper>(locator);
     assert(wrapper);
     return wrapper->getObject();
 }

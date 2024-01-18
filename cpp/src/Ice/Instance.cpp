@@ -763,7 +763,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
 }
 
 void
-IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string& facet)
+IceInternal::Instance::addAdminFacet(const shared_ptr<Object>& servant, const string& facet)
 {
     Lock sync(*this);
 
@@ -785,7 +785,7 @@ IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string
     }
 }
 
-Ice::ObjectPtr
+shared_ptr<Object>
 IceInternal::Instance::removeAdminFacet(const string& facet)
 {
     Lock sync(*this);
@@ -795,7 +795,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    ObjectPtr result;
+    std::shared_ptr<Ice::Object> result;
 
     if(_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
@@ -818,7 +818,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
     return result;
 }
 
-Ice::ObjectPtr
+shared_ptr<Object>
 IceInternal::Instance::findAdminFacet(const string& facet)
 {
     Lock sync(*this);
@@ -828,7 +828,7 @@ IceInternal::Instance::findAdminFacet(const string& facet)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    ObjectPtr result;
+    std::shared_ptr<Ice::Object> result;
 
     //
     // If the _adminAdapter was not yet created, or this facet is filtered out, we check _adminFacets
@@ -1383,9 +1383,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         const string processFacetName = "Process";
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(processFacetName) != _adminFacetFilter.end())
         {
-            ProcessPtr processFacet(make_shared<ProcessI>(communicator));
-
-            _adminFacets.insert(make_pair(processFacetName, processFacet));
+            _adminFacets.insert(make_pair(processFacetName, make_shared<ProcessI>(communicator)));
         }
 
         //
@@ -1407,7 +1405,11 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
             propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, this);
+#ifdef ICE_CPP11_MAPPING
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
+#else
+            _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin.underlying()));
+#endif
         }
 
         //

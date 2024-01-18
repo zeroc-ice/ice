@@ -110,9 +110,9 @@ public:
 
     Ice::ObjectPrxPtr createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
     Ice::ObjectPrxPtr getAdmin();
-    void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
-    Ice::ObjectPtr removeAdminFacet(const std::string&);
-    Ice::ObjectPtr findAdminFacet(const std::string&);
+    void addAdminFacet(const std::shared_ptr<Ice::Object>&, const std::string&);
+    std::shared_ptr<Ice::Object> removeAdminFacet(const std::string&);
+    std::shared_ptr<Ice::Object> findAdminFacet(const std::string&);
     Ice::FacetMap findAllAdminFacets();
 
     const Ice::ImplicitContextIPtr& getImplicitContext() const

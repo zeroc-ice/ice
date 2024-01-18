@@ -73,7 +73,6 @@ public:
     virtual const Current& getCurrent() = 0;
 };
 
-#ifdef ICE_CPP11_MAPPING
 /**
  * The base class for servants.
  * \headerfile Ice/Ice.h
@@ -133,6 +132,8 @@ public:
      */
     static const std::string& ice_staticId();
 
+// TODO: temporary. To remove it, we need to refactor IncomingAsync that is the base class for generated AMD callbacks.
+#ifdef ICE_CPP11_MAPPING
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
      * to a servant (or to another interceptor).
@@ -147,6 +148,17 @@ public:
     virtual bool ice_dispatch(Ice::Request& request,
                               std::function<bool()> response = nullptr,
                               std::function<bool(std::exception_ptr)> error = nullptr);
+#else
+    /**
+     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+     * to a servant (or to another interceptor).
+     * @param request The details of the invocation.
+     * @param cb The asynchronous callback object.
+     * @return True if the request completed synchronously, false if the request will be completed asynchronously.
+     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
+     */
+    virtual bool ice_dispatch(Ice::Request& request, const DispatchInterceptorAsyncCallbackPtr& cb = 0);
+#endif
 
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -175,86 +187,6 @@ protected:
     static void _iceCheckMode(OperationMode, OperationMode);
     /// \endcond
 };
-#else
-/**
- * The base class for servants.
- * \headerfile Ice/Ice.h
- */
-class ICE_API Object
-{
-public:
-
-    virtual ~Object() = default;
-
-    /**
-     * Tests whether this object supports a specific Slice interface.
-     * @param s The type ID of the Slice interface to test against.
-     * @param current The Current object for the invocation.
-     * @return True if this object has the interface
-     * specified by s or derives from the interface
-     * specified by s.
-     */
-    virtual bool ice_isA(const std::string& s, const Current& current = Ice::emptyCurrent) const;
-    /// \cond INTERNAL
-    bool _iceD_ice_isA(IceInternal::Incoming&, const Current&);
-    /// \endcond
-
-    /**
-     * Tests whether this object can be reached.
-     * @param current The Current object for the invocation.
-     */
-    virtual void ice_ping(const Current& current = Ice::emptyCurrent) const;
-    /// \cond INTERNAL
-    bool _iceD_ice_ping(IceInternal::Incoming&, const Current&);
-    /// \endcond
-
-    /**
-     * Returns the Slice type IDs of the interfaces supported by this object.
-     * @param current The Current object for the invocation.
-     * @return The Slice type IDs of the interfaces supported by this object, in base-to-derived
-     * order. The first element of the returned array is always "::Ice::Object".
-     */
-    virtual std::vector< std::string> ice_ids(const Current& current = Ice::emptyCurrent) const;
-    /// \cond INTERNAL
-    bool _iceD_ice_ids(IceInternal::Incoming&, const Current&);
-    /// \endcond
-
-    /**
-     * Returns the Slice type ID of the most-derived interface supported by this object.
-     * @param current The Current object for the invocation.
-     * @return The Slice type ID of the most-derived interface.
-     */
-    virtual const std::string& ice_id(const Current& current = Ice::emptyCurrent) const;
-    /// \cond INTERNAL
-    bool _iceD_ice_id(IceInternal::Incoming&, const Current&);
-    /// \endcond
-
-    /**
-     * Obtains the Slice type ID of this type.
-     * @return The return value is always "::Ice::Object".
-     */
-    static const std::string& ice_staticId();
-
-    /**
-     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
-     * to a servant (or to another interceptor).
-     * @param request The details of the invocation.
-     * @param cb The asynchronous callback object.
-     * @return True if the request completed synchronously, false if the request will be completed asynchronously.
-     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
-     */
-    virtual bool ice_dispatch(Ice::Request& request, const DispatchInterceptorAsyncCallbackPtr& cb = 0);
-    /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
-    /// \endcond
-
-    protected:
-
-        /// \cond INTERNAL
-        static void _iceCheckMode(OperationMode, OperationMode);
-        /// \endcond
-};
-#endif
 
 /**
  * Base class for dynamic dispatch servants. A server application derives a concrete servant class

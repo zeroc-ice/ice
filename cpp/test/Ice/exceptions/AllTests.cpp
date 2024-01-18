@@ -19,19 +19,13 @@ class EmptyI : public virtual Empty
 {
 };
 
-class ServantLocatorI : public virtual Ice::ServantLocator
+class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
-    virtual shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) { return nullptr; }
-    virtual void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) {}
-    virtual void deactivate(const string&) {}
-#else
-    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&) { return 0; }
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&) {}
-    virtual void deactivate(const string&) {}
-#endif
+    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final { return nullptr; }
+    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final {}
+    void deactivate(const string&) final {}
 };
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
@@ -570,7 +564,8 @@ allTests(Test::TestHelper* helper)
 
             try
             {
-                adapter->add(0, Ice::stringToIdentity("x"));
+                obj = nullptr;
+                adapter->add(obj, Ice::stringToIdentity("x"));
             }
             catch(const Ice::IllegalServantException& ex)
             {
@@ -604,7 +599,7 @@ allTests(Test::TestHelper* helper)
         {
             communicator->getProperties()->setProperty("TestAdapter2.Endpoints", localOAEndpoint);
             Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
-            Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
+            Ice::ServantLocatorPtr loc = make_shared<ServantLocatorI>();
             adapter->addServantLocator(loc, "x");
             try
             {
