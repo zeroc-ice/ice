@@ -92,12 +92,6 @@ public:
     UnknownSlicedValue(const std::string& unknownTypeId);
 
 #ifdef ICE_CPP11_MAPPING
-    /**
-     * Obtains the sliced data associated with this instance.
-     * @return The sliced data if the value has a preserved-slice base class and has been sliced during
-     * unmarshaling of the value, or nil otherwise.
-     */
-    virtual SlicedDataPtr ice_getSlicedData() const override;
 
     /**
      * Determine the Slice type ID associated with this instance.
@@ -111,11 +105,6 @@ public:
      */
     std::shared_ptr<UnknownSlicedValue> ice_clone() const;
 
-    /// \cond STREAM
-    virtual void _iceWrite(::Ice::OutputStream*) const override;
-    virtual void _iceRead(::Ice::InputStream*) override;
-    /// \endcond
-
 protected:
 
     /// \cond INTERNAL
@@ -125,28 +114,23 @@ protected:
 #else
 
     /**
-     * Obtains the sliced data associated with this instance.
-     * @return The sliced data if the value has a preserved-slice base class and has been sliced during
-     * unmarshaling of the value, or nil otherwise.
-     */
-    virtual SlicedDataPtr ice_getSlicedData() const;
-
-    /**
      * Determine the Slice type ID associated with this instance.
      * @return The type ID supplied to the constructor.
      */
     virtual std::string ice_id() const;
 
-    /// \cond STREAM
-    virtual void _iceWrite(::Ice::OutputStream*) const;
-    virtual void _iceRead(::Ice::InputStream*);
-    /// \endcond
 #endif
+
+protected:
+
+    /// \cond STREAM
+    virtual void _iceWriteImpl(Ice::OutputStream*) const {}
+    virtual void _iceReadImpl(Ice::InputStream*) {}
+    /// \endcond
 
 private:
 
     const std::string _unknownTypeId;
-    SlicedDataPtr _slicedData;
 };
 
 }

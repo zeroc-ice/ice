@@ -33,7 +33,7 @@ Ice::Value::ice_postUnmarshal()
 void
 Ice::Value::_iceWrite(Ice::OutputStream* os) const
 {
-    os->startValue(0);
+    os->startValue(_iceSlicedData);
     _iceWriteImpl(os);
     os->endValue();
 }
@@ -43,7 +43,7 @@ Ice::Value::_iceRead(Ice::InputStream* is)
 {
    is->startValue();
    _iceReadImpl(is);
-   is->endValue(false);
+   _iceSlicedData = is->endValue();
 }
 
 string
@@ -67,7 +67,7 @@ Ice::Value::ice_clone() const
 shared_ptr<SlicedData>
 Ice::Value::ice_getSlicedData() const
 {
-    return nullptr;
+    return _iceSlicedData;
 }
 
 #else
@@ -91,7 +91,7 @@ Ice::Value::ice_postUnmarshal()
 void
 Ice::Value::_iceWrite(Ice::OutputStream* os) const
 {
-    os->startValue(0);
+    os->startValue(_iceSlicedData);
     _iceWriteImpl(os);
     os->endValue();
 }
@@ -101,7 +101,7 @@ Ice::Value::_iceRead(Ice::InputStream* is)
 {
    is->startValue();
    _iceReadImpl(is);
-   is->endValue(false);
+   _iceSlicedData = is->endValue();
 }
 
 string
@@ -125,7 +125,7 @@ Ice::Value::ice_clone() const
 Ice::SlicedDataPtr
 Ice::Value::ice_getSlicedData() const
 {
-    return nullptr;
+    return _iceSlicedData;
 }
 
 #endif

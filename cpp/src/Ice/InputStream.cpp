@@ -2040,7 +2040,7 @@ Ice::InputStream::EncapsDecoder10::startInstance(SliceType)
 }
 
 SlicedDataPtr
-Ice::InputStream::EncapsDecoder10::endInstance(bool)
+Ice::InputStream::EncapsDecoder10::endInstance()
 {
     //
     // Read the Ice::Value slice.
@@ -2348,13 +2348,9 @@ Ice::InputStream::EncapsDecoder11::startInstance(SliceType)
 }
 
 SlicedDataPtr
-Ice::InputStream::EncapsDecoder11::endInstance(bool preserve)
+Ice::InputStream::EncapsDecoder11::endInstance()
 {
-    SlicedDataPtr slicedData;
-    if(preserve)
-    {
-        slicedData = readSlicedData();
-    }
+    SlicedDataPtr slicedData = readSlicedData();
     _current->slices.clear();
     _current->indirectionTables.clear();
     _current = _current->previous;

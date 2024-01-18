@@ -93,6 +93,10 @@ protected:
     virtual void _writeImpl(::Ice::OutputStream*) const {}
     virtual void _readImpl(::Ice::InputStream*) {}
     /// \endcond
+
+private:
+
+    ::Ice::SlicedDataPtr _iceSlicedData;
 };
 
 /**

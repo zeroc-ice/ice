@@ -515,12 +515,8 @@ public:
     void
     response_preserved2(const PBasePtr& r)
     {
-        PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
-        test(!p2);
-        test(r->pi == 3);
+        rbase = r;
         called();
-
-        breakCycles(r);
     }
 
     void
@@ -621,6 +617,7 @@ public:
         }
     }
 
+    PBasePtr rbase;
     BPtr rb;
     SS3 rss3;
     BDict rbdict;
@@ -1639,10 +1636,19 @@ allTests(Test::TestHelper* helper)
             BPtr b2 = b1->pb;
             test(b2);
             test(b2->sb == "D3.sb");
-            test(b2->ice_id() == "::Test::B");  // Sliced by server
             test(b2->pb == b1);
             D3Ptr p3 = ICE_DYNAMIC_CAST(D3, b2);
-            test(!p3);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p3);
+            }
+            else
+            {
+                test(p3);
+                test(p3->pd3 == p1);
+                test(p3->sd3 == "D3.sd3");
+            }
+
 
             test(b1 != d1);
             test(b1 != d3);
@@ -1652,6 +1658,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(d1);
             breakCycles(d3);
+            breakCycles(p3);
         }
         catch(...)
         {
@@ -1697,10 +1704,18 @@ allTests(Test::TestHelper* helper)
             BPtr b2 = b1->pb;
             test(b2);
             test(b2->sb == "D3.sb");
-            test(b2->ice_id() == "::Test::B");  // Sliced by server
             test(b2->pb == b1);
             D3Ptr p3 = ICE_DYNAMIC_CAST(D3, b2);
-            test(!p3);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p3);
+            }
+            else
+            {
+                test(p3);
+                test(p3->pd3 == p1);
+                test(p3->sd3 == "D3.sd3");
+            }
 
             test(b1 != d1);
             test(b1 != d3);
@@ -1710,6 +1725,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(d1);
             breakCycles(d3);
+            breakCycles(p3);
         }
         catch(...)
         {
@@ -1737,10 +1753,6 @@ allTests(Test::TestHelper* helper)
 
             test(b1);
             test(b1->sb == "D3.sb");
-            test(b1->ice_id() == "::Test::B");  // Sliced by server
-
-            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
-            test(!p1);
 
             BPtr b2 = b1->pb;
             test(b2);
@@ -1753,6 +1765,18 @@ allTests(Test::TestHelper* helper)
             test(p3->sd1 == "D1.sd1");
             test(p3->pd1 == b1);
 
+            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p1);
+            }
+            else
+            {
+                test(p1);
+                test(p1->sd3 == "D3.sd3");
+                test(p1->pd3 == b2);
+            }
+
             test(b1 != d1);
             test(b1 != d3);
             test(b2 != d1);
@@ -1761,6 +1785,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(d1);
             breakCycles(d3);
+            breakCycles(p1);
         }
         catch(...)
         {
@@ -1797,10 +1822,6 @@ allTests(Test::TestHelper* helper)
 
             test(b1);
             test(b1->sb == "D3.sb");
-            test(b1->ice_id() == "::Test::B");  // Sliced by server
-            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
-            test(!p1);
-
             BPtr b2 = b1->pb;
             test(b2);
             test(b2->sb == "D1.sb");
@@ -1810,6 +1831,18 @@ allTests(Test::TestHelper* helper)
             test(p3);
             test(p3->sd1 == "D1.sd1");
             test(p3->pd1 == b1);
+
+            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p1);
+            }
+            else
+            {
+                test(p1);
+                test(p1->sd3 == "D3.sd3");
+                test(p1->pd3 == b2);
+            }
 
             test(b1 != d1);
             test(b1 != d3);
@@ -1988,13 +2021,28 @@ allTests(Test::TestHelper* helper)
             BPtr r = test->returnTest3(d3, b2);
 
             test(r);
-            test(r->ice_id() == "::Test::B");
-            test(r->sb == "D3.sb");
-            test(r->pb == r);
+
+            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p3);
+            }
+            else
+            {
+                test(p3);
+                test(p3->sb == "D3.sb");
+                test(p3->pb == r);
+                test(p3->sd3 == "D3.sd3");
+
+                test(p3->pd3->ice_id() == "::Test::B");
+                test(p3->pd3->sb == "B.sb(1)");
+                test(p3->pd3->pb = b1);
+            }
 
             breakCycles(r);
             breakCycles(b1);
             breakCycles(d3);
+            breakCycles(p3);
         }
         catch(...)
         {
@@ -2030,14 +2078,29 @@ allTests(Test::TestHelper* helper)
             cb->check();
             BPtr r = cb->rb;
 #endif
+
             test(r);
-            test(r->ice_id() == "::Test::B");
-            test(r->sb == "D3.sb");
-            test(r->pb == r);
+            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p3);
+            }
+            else
+            {
+                test(p3);
+                test(p3->sb == "D3.sb");
+                test(p3->pb == r);
+                test(p3->sd3 == "D3.sd3");
+
+                test(p3->pd3->ice_id() == "::Test::B");
+                test(p3->pd3->sb == "B.sb(1)");
+                test(p3->pd3->pb = b1);
+            }
 
             breakCycles(b1);
             breakCycles(d3);
             breakCycles(r);
+            breakCycles(p3);
         }
         catch(...)
         {
@@ -2070,14 +2133,25 @@ allTests(Test::TestHelper* helper)
 
             BPtr r = test->returnTest3(d3, d12);
             test(r);
-            test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
             test(r->pb == r);
+            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p3);
+            }
+            else
+            {
+                test(p3);
+                test(p3->sd3 == "D3.sd3");
+                test(p3->pd3->ice_id() == "::Test::D1");
+            }
 
             breakCycles(d3);
             breakCycles(d11);
             breakCycles(d12);
             breakCycles(r);
+            breakCycles(p3);
         }
         catch(...)
         {
@@ -2118,14 +2192,25 @@ allTests(Test::TestHelper* helper)
             BPtr r = cb->rb;
 #endif
             test(r);
-            test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
             test(r->pb == r);
+            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(!p3);
+            }
+            else
+            {
+                test(p3);
+                test(p3->sd3 == "D3.sd3");
+                test(p3->pd3->ice_id() == "::Test::D1");
+            }
 
             breakCycles(d3);
             breakCycles(d11);
             breakCycles(d12);
             breakCycles(r);
+            breakCycles(p3);
         }
         catch(...)
         {
@@ -2211,11 +2296,20 @@ allTests(Test::TestHelper* helper)
 
             test(ss1b->ice_id() == "::Test::B");
             test(ss1d1->ice_id() == "::Test::D1");
-            test(ss1d3->ice_id() == "::Test::B");
 
             test(ss2b->ice_id() == "::Test::B");
             test(ss2d1->ice_id() == "::Test::D1");
-            test(ss2d3->ice_id() == "::Test::B");
+
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(ss1d3->ice_id() == "::Test::B");
+                test(ss2d3->ice_id() == "::Test::B");
+            }
+            else
+            {
+                test(ss1d3->ice_id() == "::Test::D3");
+                test(ss2d3->ice_id() == "::Test::D3");
+            }
 
             breakCycles(ss.c1);
             breakCycles(ss.c2);
@@ -2312,11 +2406,20 @@ allTests(Test::TestHelper* helper)
 
             test(ss1b->ice_id() == "::Test::B");
             test(ss1d1->ice_id() == "::Test::D1");
-            test(ss1d3->ice_id() == "::Test::B");
 
             test(ss2b->ice_id() == "::Test::B");
             test(ss2d1->ice_id() == "::Test::D1");
-            test(ss2d3->ice_id() == "::Test::B");
+
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test(ss1d3->ice_id() == "::Test::B");
+                test(ss2d3->ice_id() == "::Test::B");
+            }
+            else
+            {
+                test(ss1d3->ice_id() == "::Test::D3");
+                test(ss2d3->ice_id() == "::Test::D3");
+            }
 
             breakCycles(ss.c1);
             breakCycles(ss.c2);
@@ -2706,9 +2809,8 @@ allTests(Test::TestHelper* helper)
     cout << "preserved classes... " << flush;
     try
     {
-        //
         // Server knows the most-derived class PDerived.
-        //
+
         PDerivedPtr pd = ICE_MAKE_SHARED(PDerived);
         pd->pi = 3;
         pd->ps = "preserved";
@@ -2729,16 +2831,25 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        //
-        // Server only knows the base (non-preserved) type, so the object is sliced.
-        //
+        // Server only knows the base type.
+
         PCUnknownPtr pu = ICE_MAKE_SHARED(PCUnknown);
         pu->pi = 3;
         pu->pu = "preserved";
+
         PBasePtr r = test->exchangePBase(pu);
-        PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
-        test(!p2);
+
         test(r->pi == 3);
+        PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!p2);
+        }
+        else
+        {
+            test(p2);
+            test(p2->pu == "preserved");
+        }
 
         breakCycles(r);
     }
@@ -2926,30 +3037,48 @@ allTests(Test::TestHelper* helper)
 
     {
         //
-        // Server only knows the base (non-preserved) type, so the object is sliced.
+        // Server only knows the base type.
         //
         PCUnknownPtr pu = ICE_MAKE_SHARED(PCUnknown);
         pu->pi = 3;
         pu->pu = "preserved";
 #ifdef ICE_CPP11_MAPPING
-        try
-        {
-            auto r = test->exchangePBaseAsync(pu).get();
-            auto p2 = dynamic_pointer_cast<PCUnknown>(r);
-            test(!p2);
-            test(r->pi == 3);
+        auto r = test->exchangePBaseAsync(pu).get();
 
-            breakCycles(r);
-        }
-        catch(...)
+        test(r->pi == 3);
+        auto p2 = dynamic_pointer_cast<PCUnknown>(r);
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
-            test(false);
+            test(!p2);
         }
+        else
+        {
+            test(p2);
+            test(p2->pu == "preserved");
+        }
+
+        breakCycles(r);
 #else
         CallbackPtr cb = new Callback;
         test->begin_exchangePBase(
             pu, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved2, &Callback::exception));
         cb->check();
+
+        PBasePtr r = cb->rbase;
+
+        test(r->pi == 3);
+        PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!p2);
+        }
+        else
+        {
+            test(p2);
+            test(p2->pu == "preserved");
+        }
+
+        breakCycles(r);
 #endif
     }
 
