@@ -343,7 +343,7 @@ using ServantLocatorWrapperPtr = std::shared_ptr<ServantLocatorWrapper>;
         }
         else
         {
-            return [[self alloc] initWithCxxObject:arg];
+            return [[ICEObjectAdapter alloc] initWithCxxObject:arg];
         }
     }
 }
