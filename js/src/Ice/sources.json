@@ -8,7 +8,6 @@
         "Ice/EndpointTypes.ice",
         "Ice/Identity.ice",
         "Ice/Locator.ice",
-        "Ice/LocatorF.ice",
         "Ice/Metrics.ice",
         "Ice/OperationMode.ice",
         "Ice/Process.ice",
@@ -16,7 +15,6 @@
         "Ice/PropertyDict.ice",
         "Ice/RemoteLogger.ice",
         "Ice/Router.ice",
-        "Ice/RouterF.ice",
         "Ice/Version.ice"
     ],
 

@@ -8,9 +8,11 @@
 #include "Config.h"
 #include "CommunicatorF.h"
 #include "Ice/LocatorF.h"
+#include "Endpoint.h"
 #include "FacetMap.h"
 #include "SharedPtr.h"
 #include "ServantLocator.h"
+#include "Proxy.h"
 
 namespace Ice
 {

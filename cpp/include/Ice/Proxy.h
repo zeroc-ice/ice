@@ -18,8 +18,8 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/AsyncResult.h>
-//#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
-//#include <Ice/LocatorF.h> // Can't include LocatorF.h here, otherwise we have cyclic includes
+#include <Ice/RouterF.h>
+#include <Ice/LocatorF.h>
 #include <Ice/Current.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/OutgoingAsync.h>
@@ -267,16 +267,6 @@ public:
 
 namespace Ice
 {
-
-class RouterPrx;
-/// \cond INTERNAL
-using RouterPrxPtr = ::std::shared_ptr<::Ice::RouterPrx>;
-/// \endcond
-
-class LocatorPrx;
-/// \cond INTERNAL
-using LocatorPrxPtr = ::std::shared_ptr<::Ice::LocatorPrx>;
-/// \endcond
 
 class LocalException;
 class OutputStream;
@@ -1596,31 +1586,8 @@ checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Co
 
 #else // C++98 mapping
 
-namespace IceProxy
-{
-
 namespace Ice
 {
-
-/// \cond INTERNAL
-class Locator;
-ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Locator*);
-
-class Router;
-ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Router*);
-/// \endcond
-
-}
-
-}
-
-namespace Ice
-{
-
-typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
-typedef RouterPrx RouterPrxPtr;
-typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
-typedef LocatorPrx LocatorPrxPtr;
 
 class LocalException;
 class OutputStream;
