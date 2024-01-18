@@ -626,7 +626,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
 
     try
     {
-        Ice::RouterPrx router = _this->getCommunicator()->getDefaultRouter();
+        Ice::RouterPrxPtr router = _this->getCommunicator()->getDefaultRouter();
         if(router)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Router");
@@ -667,7 +667,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
@@ -676,7 +676,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
 
     try
     {
-        Ice::RouterPrx router;
+        shared_ptr<Ice::RouterPrx> router;
         if(proxy)
         {
             if(!info || !info->isA("::Ice::Router"))
@@ -684,7 +684,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
                 invalidArgument("setDefaultRouter requires a proxy narrowed to Ice::Router");
                 RETURN_NULL();
             }
-            router = Ice::RouterPrx::uncheckedCast(proxy);
+            router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
         }
         _this->getCommunicator()->setDefaultRouter(router);
     }
@@ -707,8 +707,8 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
 
     try
     {
-        Ice::LocatorPrx locator = _this->getCommunicator()->getDefaultLocator();
-        if(locator)
+        shared_ptr<Ice::LocatorPrx> locator = _this->getCommunicator()->getDefaultLocator();
+        if (locator)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Locator");
             if(!info)
@@ -748,7 +748,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
@@ -757,7 +757,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
 
     try
     {
-        Ice::LocatorPrx locator;
+        shared_ptr<Ice::LocatorPrx> locator;
         if(proxy)
         {
             if(!info || !info->isA("::Ice::Locator"))
@@ -765,7 +765,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
                 invalidArgument("setDefaultLocator requires a proxy narrowed to Ice::Locator");
                 RETURN_NULL();
             }
-            locator = Ice::LocatorPrx::uncheckedCast(proxy);
+            locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
         }
         _this->getCommunicator()->setDefaultLocator(locator);
     }
@@ -989,9 +989,8 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 
         Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
         assert(!obj->ptr);
-
-        CommunicatorInfoIPtr info = new CommunicatorInfoI(ac, zv);
-        obj->ptr = new CommunicatorInfoIPtr(info);
+        auto info = new shared_ptr<CommunicatorInfoI>(new CommunicatorInfoI(ac, zv));
+        obj->ptr = info;
 
         CommunicatorMap* m;
         if(ICE_G(communicatorMap))
@@ -1003,9 +1002,9 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
             m = new CommunicatorMap;
             ICE_G(communicatorMap) = m;
         }
-        m->insert(CommunicatorMap::value_type(ac->communicator, info));
+        m->insert(CommunicatorMap::value_type(ac->communicator, *info));
 
-        return info;
+        return *info;
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1028,7 +1027,7 @@ initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, const Ice::
         {
             c = Ice::initialize(initData);
         }
-        ActiveCommunicatorPtr ac = new ActiveCommunicator(c);
+        ActiveCommunicatorPtr ac = make_shared<ActiveCommunicator>(c);
 
         auto vfm = dynamic_pointer_cast<ValueFactoryManager>(c->getValueFactoryManager());
         assert(vfm);
