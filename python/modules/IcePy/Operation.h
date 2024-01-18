@@ -23,16 +23,12 @@ bool initOperation(PyObject*);
 //
 PyObject* invokeBuiltin(PyObject*, const std::string&, PyObject*);
 PyObject* invokeBuiltinAsync(PyObject*, const std::string&, PyObject*);
-PyObject* beginBuiltin(PyObject*, const std::string&, PyObject*);
-PyObject* endBuiltin(PyObject*, const std::string&, PyObject*);
 
 //
 // Blobject invocations.
 //
 PyObject* iceInvoke(PyObject*, PyObject*);
 PyObject* iceInvokeAsync(PyObject*, PyObject*);
-PyObject* beginIceInvoke(PyObject*, PyObject*, PyObject*);
-PyObject* endIceInvoke(PyObject*, PyObject*);
 
 extern PyTypeObject AsyncResultType;
 PyObject* createAsyncResult(const Ice::AsyncResultPtr&, PyObject*, PyObject*, PyObject*);

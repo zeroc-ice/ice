@@ -589,50 +589,6 @@ operationInvokeAsync(OperationObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-operationBegin(OperationObject* self, PyObject* args)
-{
-    PyObject* proxy;
-    PyObject* opArgs;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O!"), &ProxyType, &proxy, &PyTuple_Type, &opArgs))
-    {
-        return 0;
-    }
-
-    Ice::ObjectPrx p = getProxy(proxy);
-    InvocationPtr i = new AsyncTypedInvocation(p, proxy, *self->op);
-    return i->invoke(opArgs);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-operationEnd(OperationObject* self, PyObject* args)
-{
-    PyObject* proxy;
-    PyObject* result;
-    if(!PyArg_ParseTuple(args, STRCAST("O!O!"), &ProxyType, &proxy, &AsyncResultType, &result))
-    {
-        return 0;
-    }
-
-    AsyncResultObject* ar = reinterpret_cast<AsyncResultObject*>(result);
-    assert(ar);
-    AsyncTypedInvocationPtr i = AsyncTypedInvocationPtr::dynamicCast(*ar->invocation);
-    if(!i)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("invalid AsyncResult object passed to end_%s"),
-                     (*self->op)->name.c_str());
-        return 0;
-    }
-    Ice::ObjectPrx p = getProxy(proxy);
-    return i->end(p, *self->op, *ar->result);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 operationDeprecate(OperationObject* self, PyObject* args)
 {
     char* msg;
@@ -1552,10 +1508,6 @@ static PyMethodDef OperationMethods[] =
     { STRCAST("invoke"), reinterpret_cast<PyCFunction>(operationInvoke), METH_VARARGS,
       PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("invokeAsync"), reinterpret_cast<PyCFunction>(operationInvokeAsync), METH_VARARGS,
-      PyDoc_STR(STRCAST("internal function")) },
-    { STRCAST("begin"), reinterpret_cast<PyCFunction>(operationBegin), METH_VARARGS,
-      PyDoc_STR(STRCAST("internal function")) },
-    { STRCAST("end"), reinterpret_cast<PyCFunction>(operationEnd), METH_VARARGS,
       PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("deprecate"), reinterpret_cast<PyCFunction>(operationDeprecate), METH_VARARGS,
       PyDoc_STR(STRCAST("internal function")) },
@@ -4027,53 +3979,6 @@ IcePy::invokeBuiltinAsync(PyObject* proxy, const string& builtin, PyObject* args
 }
 
 PyObject*
-IcePy::beginBuiltin(PyObject* proxy, const string& builtin, PyObject* args)
-{
-    string name = "_op_" + builtin;
-    PyObject* objectType = lookupType("Ice.Object");
-    assert(objectType);
-    PyObjectHandle obj = getAttr(objectType, name, false);
-    assert(obj.get());
-
-    OperationPtr op = getOperation(obj.get());
-    assert(op);
-
-    Ice::ObjectPrx p = getProxy(proxy);
-    InvocationPtr i = new AsyncTypedInvocation(p, proxy, op);
-    return i->invoke(args);
-}
-
-PyObject*
-IcePy::endBuiltin(PyObject* proxy, const string& builtin, PyObject* args)
-{
-    PyObject* result;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &AsyncResultType, &result))
-    {
-        return 0;
-    }
-
-    string name = "_op_" + builtin;
-    PyObject* objectType = lookupType("Ice.Object");
-    assert(objectType);
-    PyObjectHandle obj = getAttr(objectType, name, false);
-    assert(obj.get());
-
-    OperationPtr op = getOperation(obj.get());
-    assert(op);
-
-    AsyncResultObject* ar = reinterpret_cast<AsyncResultObject*>(result);
-    assert(ar);
-    AsyncTypedInvocationPtr i = AsyncTypedInvocationPtr::dynamicCast(*ar->invocation);
-    if(!i)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("invalid AsyncResult object passed to end_%s"), op->name.c_str());
-        return 0;
-    }
-    Ice::ObjectPrx p = getProxy(proxy);
-    return i->end(p, op, *ar->result);
-}
-
-PyObject*
 IcePy::iceInvoke(PyObject* proxy, PyObject* args)
 {
     Ice::ObjectPrx p = getProxy(proxy);
@@ -4087,35 +3992,6 @@ IcePy::iceInvokeAsync(PyObject* proxy, PyObject* args)
     Ice::ObjectPrx p = getProxy(proxy);
     InvocationPtr i = new NewAsyncBlobjectInvocation(p, proxy);
     return i->invoke(args);
-}
-
-PyObject*
-IcePy::beginIceInvoke(PyObject* proxy, PyObject* args, PyObject* kwds)
-{
-    Ice::ObjectPrx p = getProxy(proxy);
-    InvocationPtr i = new AsyncBlobjectInvocation(p, proxy);
-    return i->invoke(args, kwds);
-}
-
-PyObject*
-IcePy::endIceInvoke(PyObject* proxy, PyObject* args)
-{
-    PyObject* result;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &AsyncResultType, &result))
-    {
-        return 0;
-    }
-
-    AsyncResultObject* ar = reinterpret_cast<AsyncResultObject*>(result);
-    assert(ar);
-    AsyncBlobjectInvocationPtr i = AsyncBlobjectInvocationPtr::dynamicCast(*ar->invocation);
-    if(!i)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("invalid AsyncResult object passed to end_ice_invoke"));
-        return 0;
-    }
-    Ice::ObjectPrx p = getProxy(proxy);
-    return i->end(p, *ar->result);
 }
 
 PyObject*
