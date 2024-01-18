@@ -14,8 +14,8 @@ namespace IcePHP
 
 bool proxyInit(void);
 
-bool createProxy(zval*, const Ice::ObjectPrxPtr&, const CommunicatorInfoPtr&);
-bool createProxy(zval*, const Ice::ObjectPrxPtr&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
+bool createProxy(zval*, Ice::ObjectPrxPtr, CommunicatorInfoPtr);
+bool createProxy(zval*, Ice::ObjectPrxPtr, ProxyInfoPtr, CommunicatorInfoPtr);
 bool fetchProxy(zval*, Ice::ObjectPrxPtr&, ProxyInfoPtr&);
 bool fetchProxy(zval*, Ice::ObjectPrxPtr&, ProxyInfoPtr&, CommunicatorInfoPtr&);
 

@@ -406,30 +406,30 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
     }
 
     int status;
-    if(Ice::WSEndpointInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::WSEndpointInfo>(p))
     {
-        Ice::WSEndpointInfoPtr info = Ice::WSEndpointInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::WSEndpointInfo>(p);
         if((status = object_init_ex(zv, wsEndpointInfoClassEntry)) == SUCCESS)
         {
             add_property_string(zv, STRCAST("resource"), const_cast<char*>(info->resource.c_str()));
         }
     }
-    else if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::TCPEndpointInfo>(p))
     {
         status = object_init_ex(zv, tcpEndpointInfoClassEntry);
     }
-    else if(Ice::UDPEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::UDPEndpointInfo>(p))
     {
-        Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(p);
         if((status = object_init_ex(zv, udpEndpointInfoClassEntry)) == SUCCESS)
         {
             add_property_string(zv, STRCAST("mcastInterface"), const_cast<char*>(info->mcastInterface.c_str()));
             add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
         }
     }
-    else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p))
     {
-        Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p);
         if((status = object_init_ex(zv, opaqueEndpointInfoClassEntry)) == SUCCESS)
         {
             zval rawEncoding;
@@ -439,19 +439,19 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
 
             zval rawBytes;
             array_init(&rawBytes);
-            for(Ice::ByteSeq::iterator i = info->rawBytes.begin(); i != info->rawBytes.end(); ++i)
+            for (const auto& i : info->rawBytes)
             {
-                add_next_index_long(&rawBytes, *i & 0xff);
+                add_next_index_long(&rawBytes, i & 0xff);
             }
             add_property_zval(zv, STRCAST("rawBytes"), &rawBytes);
             zval_ptr_dtor(&rawBytes); // add_property_zval increased the refcount of rawBytes
         }
     }
-    else if(IceSSL::EndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<IceSSL::EndpointInfo>(p))
     {
         status = object_init_ex(zv, sslEndpointInfoClassEntry);
     }
-    else if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
         status = object_init_ex(zv, ipEndpointInfoClassEntry);
     }
@@ -466,9 +466,9 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         return false;
     }
 
-    if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
-        Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
         add_property_string(zv, STRCAST("host"), const_cast<char*>(info->host.c_str()));
         add_property_long(zv, STRCAST("port"), static_cast<long>(info->port));
         add_property_string(zv, STRCAST("sourceAddress"), const_cast<char*>(info->sourceAddress.c_str()));

@@ -33,9 +33,7 @@ public:
 using ParamInfoPtr = std::shared_ptr<ParamInfo>;
 using ParamInfoList = list<ParamInfoPtr>;
 
-//
 // Receives an out parameter or return value.
-//
 class ResultCallback : public UnmarshalCallback
 {
 public:
@@ -52,10 +50,9 @@ public:
 using ResultCallbackPtr = std::shared_ptr<ResultCallback>;
 using ResultCallbackList = vector<ResultCallbackPtr>;
 
-//
+
 // Encapsulates attributes of an operation.
-//
-class OperationI : public Operation
+class OperationI final : public Operation
 {
 public:
 
@@ -88,33 +85,32 @@ private:
 };
 using OperationIPtr = std::shared_ptr<OperationI>;
 
-//
 // The base class for client-side invocations.
-//
 class Invocation
 {
 public:
 
-    Invocation(const Ice::ObjectPrx&, const CommunicatorInfoPtr&);
+    virtual ~Invocation() = default;
+
+    Invocation(shared_ptr<Ice::ObjectPrx>, CommunicatorInfoPtr);
 
     virtual void invoke(INTERNAL_FUNCTION_PARAMETERS) = 0;
 
 protected:
 
-    Ice::ObjectPrx _prx;
+    shared_ptr<Ice::ObjectPrx> _prx;
     CommunicatorInfoPtr _communicator;
 };
 using InvocationPtr = std::shared_ptr<Invocation>;
 
-//
-// TypedInvocation uses the information in the given operation to validate, marshal, and unmarshal
-// parameters and exceptions.
-//
+
+// TypedInvocation uses the information in the given operation to validate, marshal, and unmarshal parameters and
+// exceptions.
 class TypedInvocation : public Invocation
 {
 public:
 
-    TypedInvocation(const Ice::ObjectPrx&, const CommunicatorInfoPtr&, const OperationIPtr&);
+    TypedInvocation(shared_ptr<Ice::ObjectPrx>, CommunicatorInfoPtr, OperationIPtr);
 
 protected:
 
@@ -124,42 +120,19 @@ protected:
     void unmarshalResults(int, zval*, zval*, const pair<const Ice::Byte*, const Ice::Byte*>&);
     void unmarshalException(zval*, const pair<const Ice::Byte*, const Ice::Byte*>&);
     bool validateException(const ExceptionInfoPtr&) const;
-    void checkTwowayOnly(const Ice::ObjectPrx&) const;
+    void checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>&) const;
 };
 
 //
 // A synchronous typed invocation.
 //
-class SyncTypedInvocation : public TypedInvocation
+class SyncTypedInvocation final : public TypedInvocation
 {
 public:
 
-    SyncTypedInvocation(const Ice::ObjectPrx&, const CommunicatorInfoPtr&, const OperationIPtr&);
+    SyncTypedInvocation(shared_ptr<Ice::ObjectPrx>, CommunicatorInfoPtr, OperationIPtr);
 
     virtual void invoke(INTERNAL_FUNCTION_PARAMETERS);
-};
-
-class UserExceptionFactory : public Ice::UserExceptionFactory
-{
-public:
-
-    UserExceptionFactory(const CommunicatorInfoPtr& communicator) :
-        _communicator(communicator)
-    {
-    }
-
-    virtual void createAndThrow(const string& id)
-    {
-        ExceptionInfoPtr info = getExceptionInfo(id);
-        if(info)
-        {
-            throw ExceptionReader(_communicator, info);
-        }
-    }
-
-private:
-
-    const CommunicatorInfoPtr _communicator;
 };
 
 }
@@ -201,13 +174,22 @@ IcePHP::ResultCallback::unset(void)
 //
 // OperationI implementation.
 //
-IcePHP::OperationI::OperationI(const char* n, Ice::OperationMode m, Ice::OperationMode sm, Ice::FormatType f, zval* in,
-                               zval* out, zval* ret, zval* ex) :
-    name(n), mode(m), sendMode(sm), format(f), _zendFunction(0)
+IcePHP::OperationI::OperationI(
+    const char* n,
+    Ice::OperationMode m,
+    Ice::OperationMode sm, 
+    Ice::FormatType f, 
+    zval* in,
+    zval* out,
+    zval* ret,
+    zval* ex) :
+    name(n),
+    mode(m), 
+    sendMode(sm),
+    format(f),
+    _zendFunction(0)
 {
-    //
     // inParams
-    //
     sendsClasses = false;
     if(in)
     {
@@ -363,7 +345,7 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
 
-    ParamInfoPtr param = new ParamInfo;
+    ParamInfoPtr param = make_shared<ParamInfo>();
 
     param->type = Wrapper<TypeInfoPtr>::value(zend_hash_index_find(arr, 0));
     param->optional = zend_hash_num_elements(arr) > 1;
@@ -381,12 +363,9 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 void
 IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& info, bool out)
 {
-#if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
-#    pragma warning(disable:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
-#endif
     const zend_uchar pass_by_ref = out ? 1 : 0;
     const zend_bool allow_null = 1;
-    if(!info->optional && (SequenceInfoPtr::dynamicCast(info->type) || DictionaryInfoPtr::dynamicCast(info->type)))
+    if(!info->optional && (dynamic_pointer_cast<SequenceInfo>(info->type) || dynamic_pointer_cast<DictionaryInfo>(info->type)))
     {
         zend_internal_arg_info ai[] =
         {
@@ -406,72 +385,64 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
         };
         arg = ai[0];
     }
-#if defined(_MSC_VER) && PHP_VERSION_ID >= 80000
-#    pragma warning(default:4838) // C4838 conversion from 'int' to 'uint32_t' requires a narrowing conversion
-#endif
 }
 
-//
 // Invocation
-//
-IcePHP::Invocation::Invocation(const Ice::ObjectPrx& prx, const CommunicatorInfoPtr& communicator) :
-    _prx(prx), _communicator(communicator)
+IcePHP::Invocation::Invocation(shared_ptr<Ice::ObjectPrx> prx, CommunicatorInfoPtr communicator) :
+    _prx(std::move(prx)),
+    _communicator(std::move(communicator))
 {
 }
 
-//
 // TypedInvocation
-//
-IcePHP::TypedInvocation::TypedInvocation(const Ice::ObjectPrx& prx, const CommunicatorInfoPtr& communicator,
-                                         const OperationIPtr& op) :
-    Invocation(prx, communicator), _op(op)
+IcePHP::TypedInvocation::TypedInvocation(
+    shared_ptr<Ice::ObjectPrx> prx,
+    CommunicatorInfoPtr communicator, 
+    OperationIPtr op) :
+    Invocation(std::move(prx), std::move(communicator)),
+    _op(std::move(op))
 {
 }
 
 bool
-IcePHP::TypedInvocation::prepareRequest(int argc, zval* args, Ice::OutputStream* os,
-                                        pair<const Ice::Byte*, const Ice::Byte*>& params)
+IcePHP::TypedInvocation::prepareRequest(
+    int argc,
+    zval* args,
+    Ice::OutputStream* os,
+    pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
-    //
     // Verify that the expected number of arguments are supplied. The context argument is optional.
-    //
     if(argc != _op->numParams && argc != _op->numParams + 1)
     {
         runtimeError("incorrect number of parameters (%d)", argc);
         return false;
     }
 
-    //
-    // The operation's configuration (zend_function) forces out parameters
-    // to be passed by reference.
-    //
+    // The operation's configuration (zend_function) forces out parameters to be passed by reference.
+#ifdef DEBUG
     for(int i = static_cast<int>(_op->inParams.size()); i < _op->numParams; ++i)
     {
         assert(Z_ISREF(args[i]));
     }
+#endif
 
     if(!_op->inParams.empty())
     {
         try
         {
-            //
             // Marshal the in parameters.
-            //
             os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
             ParamInfoList::iterator p;
 
-            //
             // Validate the supplied arguments.
-            //
-            for(p = _op->inParams.begin(); p != _op->inParams.end(); ++p)
+            for (const auto& info : _op->inParams)
             {
-                ParamInfoPtr info = *p;
                 zval* arg = &args[info->pos];
                 assert(!Z_ISREF_P(arg));
 
-                if((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
+                if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
                     invalidArgument("invalid value for argument %d in operation `%s'", info->pos + 1,
                                     _op->name.c_str());
@@ -479,13 +450,10 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval* args, Ice::OutputStream*
                 }
             }
 
-            //
             // Marshal the required parameters.
-            //
-            for(p = _op->inParams.begin(); p != _op->inParams.end(); ++p)
+            for (const auto& info : _op->inParams)
             {
-                ParamInfoPtr info = *p;
-                if(!info->optional)
+                if (!info->optional)
                 {
                     zval* arg = &args[info->pos];
                     assert(!Z_ISREF_P(arg));
@@ -494,22 +462,19 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval* args, Ice::OutputStream*
                 }
             }
 
-            //
             // Marshal the optional parameters.
-            //
-            for(p = _op->optionalInParams.begin(); p != _op->optionalInParams.end(); ++p)
+            for (const auto& info : _op->optionalInParams)
             {
-                ParamInfoPtr info = *p;
                 zval* arg = &args[info->pos];
                 assert(!Z_ISREF_P(arg));
 
-                if(!isUnset(arg) && os->writeOptional(info->tag, info->type->optionalFormat()))
+                if (!isUnset(arg) && os->writeOptional(info->tag, info->type->optionalFormat()))
                 {
                     info->type->marshal(arg, os, &objectMap, true);
                 }
             }
 
-            if(_op->sendsClasses)
+            if (_op->sendsClasses)
             {
                 os->writePendingValues();
             }
@@ -517,11 +482,11 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval* args, Ice::OutputStream*
             os->endEncapsulation();
             params = os->finished();
         }
-        catch(const AbortMarshaling&)
+        catch (const AbortMarshaling&)
         {
             return false;
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             throwException(ex);
             return false;
@@ -532,27 +497,24 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval* args, Ice::OutputStream*
 }
 
 void
-IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret,
-                                          const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
+IcePHP::TypedInvocation::unmarshalResults(
+    int argc,
+    zval* args,
+    zval* ret,
+    const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
-    //
     // Store a pointer to a local StreamUtil object as the stream's closure.
     // This is necessary to support object unmarshaling (see ValueReader).
-    //
     StreamUtil util;
     assert(!is.getClosure());
     is.setClosure(&util);
 
     is.startEncapsulation();
 
-    ParamInfoList::iterator p;
-
-    //
     // These callbacks collect references (copies for unreferenced types) to the unmarshaled values.
     // We copy them into the argument list *after* any pending objects have been unmarshaled.
-    //
     ResultCallbackList outParamCallbacks;
     ResultCallbackPtr retCallback;
 
@@ -561,34 +523,27 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval* args, zval* ret,
     //
     // Unmarshal the required out parameters.
     //
-    for(p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
+    for(const auto& info : _op->outParams)
     {
-        ParamInfoPtr info = *p;
         if(!info->optional)
         {
-            ResultCallbackPtr cb = new ResultCallback;
+            auto cb = make_shared<ResultCallback>();
             outParamCallbacks[info->pos] = cb;
             info->type->unmarshal(&is, cb, _communicator, 0, 0, false);
         }
     }
 
-    //
     // Unmarshal the required return value, if any.
-    //
     if(_op->returnType && !_op->returnType->optional)
     {
-        retCallback = new ResultCallback;
+        retCallback = make_shared<ResultCallback>();
         _op->returnType->type->unmarshal(&is, retCallback, _communicator, 0, 0, false);
     }
 
-    //
     // Unmarshal the optional results. This includes an optional return value.
-    //
-    for(p = _op->optionalOutParams.begin(); p != _op->optionalOutParams.end(); ++p)
+    for(const auto& info : _op->optionalOutParams)
     {
-        ParamInfoPtr info = *p;
-
-        ResultCallbackPtr cb = new ResultCallback;
+        auto cb = make_shared<ResultCallback>();
         if(_op->returnType && info->tag == _op->returnType->tag)
         {
             retCallback = cb;
@@ -636,10 +591,8 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
-    //
     // Store a pointer to a local StreamUtil object as the stream's closure.
     // This is necessary to support object unmarshaling (see ValueReader).
-    //
     StreamUtil util;
     assert(!is.getClosure());
     is.setClosure(&util);
@@ -648,10 +601,16 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
 
     try
     {
-        Ice::UserExceptionFactoryPtr factory = new UserExceptionFactory(_communicator);
-        is.throwException(factory);
+        is.throwException([this](const string& id)
+            {
+                ExceptionInfoPtr info = getExceptionInfo(id);
+                if(info)
+                {
+                    throw ExceptionReader(_communicator, info);
+                }
+            });
     }
-    catch(const ExceptionReader& r)
+    catch (const ExceptionReader& r)
     {
         is.endEncapsulation();
 
@@ -672,8 +631,9 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
         }
         else
         {
-            Ice::UnknownUserException uue(__FILE__, __LINE__,
-                                          "operation raised undeclared exception `" + info->id + "'");
+            ostringstream os;
+            os << "operation raised undeclared exception `" << info->id << "'";
+            Ice::UnknownUserException uue(__FILE__, __LINE__, os.str());
             convertException(zex, uue);
             return;
         }
@@ -692,9 +652,9 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
 bool
 IcePHP::TypedInvocation::validateException(const ExceptionInfoPtr& info) const
 {
-    for(ExceptionInfoList::const_iterator p = _op->exceptions.begin(); p != _op->exceptions.end(); ++p)
+    for (const auto& p : _op->exceptions)
     {
-        if(info->isA((*p)->id))
+        if (info->isA(p->id))
         {
             return true;
         }
@@ -703,7 +663,7 @@ IcePHP::TypedInvocation::validateException(const ExceptionInfoPtr& info) const
 }
 
 void
-IcePHP::TypedInvocation::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
+IcePHP::TypedInvocation::checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>& proxy) const
 {
     if((_op->returnType || !_op->outParams.empty()) && !proxy->ice_isTwoway())
     {
@@ -716,18 +676,18 @@ IcePHP::TypedInvocation::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 //
 // SyncTypedInvocation
 //
-IcePHP::SyncTypedInvocation::SyncTypedInvocation(const Ice::ObjectPrx& prx, const CommunicatorInfoPtr& communicator,
-                                                 const OperationIPtr& op) :
-    TypedInvocation(prx, communicator, op)
+IcePHP::SyncTypedInvocation::SyncTypedInvocation(
+    shared_ptr<Ice::ObjectPrx> prx,
+    CommunicatorInfoPtr communicator,
+    OperationIPtr op) :
+    TypedInvocation(std::move(prx), std::move(communicator), std::move(op))
 {
 }
 
 void
 IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 {
-    //
     // Retrieve the arguments.
-    //
     zval* args = static_cast<zval*>(ecalloc(1, ZEND_NUM_ARGS() * sizeof(zval)));
     AutoEfree autoArgs(args); // Call efree on return
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
@@ -843,21 +803,25 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     }
 
     TypeInfoPtr type = Wrapper<TypeInfoPtr>::value(cls);
-    ProxyInfoPtr c = ProxyInfoPtr::dynamicCast(type);
+    auto c = dynamic_pointer_cast<ProxyInfo>(type);
     assert(c);
 
-    OperationIPtr op = new OperationI(name,
-                                      static_cast<Ice::OperationMode>(mode),
-                                      static_cast<Ice::OperationMode>(sendMode),
-                                      static_cast<Ice::FormatType>(format),
-                                      inParams, outParams, returnType, exceptions);
+    auto op = make_shared<OperationI>(
+        name,
+        static_cast<Ice::OperationMode>(mode),
+        static_cast<Ice::OperationMode>(sendMode),
+        static_cast<Ice::FormatType>(format),
+        inParams,
+        outParams,
+        returnType,
+        exceptions);
 
     c->addOperation(name, op);
 }
 
 ZEND_FUNCTION(IcePHP_Operation_call)
 {
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     CommunicatorInfoPtr comm;
 #ifndef NDEBUG
@@ -870,9 +834,9 @@ ZEND_FUNCTION(IcePHP_Operation_call)
 
     OperationPtr op = info->getOperation(get_active_function_name());
     assert(op); // handleGetMethod should have already verified the operation's existence.
-    OperationIPtr opi = OperationIPtr::dynamicCast(op);
+    auto opi = dynamic_pointer_cast<OperationI>(op);
     assert(opi);
 
-    InvocationPtr inv = new SyncTypedInvocation(proxy, comm, opi);
+    auto inv = make_shared<SyncTypedInvocation>(proxy, comm, opi);
     inv->invoke(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }

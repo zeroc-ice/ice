@@ -72,20 +72,20 @@ class Proxy
 {
 public:
 
-    Proxy(const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
+    Proxy(shared_ptr<Ice::ObjectPrx>, ProxyInfoPtr, CommunicatorInfoPtr);
     ~Proxy();
 
-    bool clone(zval*, const Ice::ObjectPrx&);
-    bool cloneUntyped(zval*, const Ice::ObjectPrx&);
-    static bool create(zval*, const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
+    bool clone(zval*, shared_ptr<Ice::ObjectPrx>);
+    bool cloneUntyped(zval*, shared_ptr<Ice::ObjectPrx>);
+    static bool create(zval*, shared_ptr<Ice::ObjectPrx>, ProxyInfoPtr, CommunicatorInfoPtr);
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     CommunicatorInfoPtr communicator;
     zval* connection;
     zval* cachedConnection;
 };
-using ProxyPtr = std::shared_ptr<Proxy> ;
+using ProxyPtr = shared_ptr<Proxy> ;
 
 } // End of namespace IcePHP
 
@@ -569,7 +569,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpointSelection)
     try
     {
         Ice::EndpointSelectionType type = _this->proxy->ice_getEndpointSelection();
-        ZVAL_LONG(return_value, type == Ice::Random ? 0 : 1);
+        ZVAL_LONG(return_value, type == Ice::EndpointSelectionType::Random ? 0 : 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -601,7 +601,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpointSelection)
 
     try
     {
-        Ice::EndpointSelectionType type = l == 0 ? Ice::Random : Ice::Ordered;
+        auto type = l == 0 ? Ice::EndpointSelectionType::Random : Ice::EndpointSelectionType::Ordered;
         if(!_this->clone(return_value, _this->proxy->ice_endpointSelection(type)))
         {
             RETURN_NULL();
@@ -788,7 +788,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
 
     try
     {
-        Ice::RouterPrx router = _this->proxy->ice_getRouter();
+        shared_ptr<Ice::RouterPrx> router = _this->proxy->ice_getRouter();
         if(router)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Router");
@@ -799,7 +799,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
 
             assert(info);
 
-            if(!createProxy(return_value, router, info, _this->communicator))
+            if(!createProxy(return_value, std::move(router), std::move(info), _this->communicator))
             {
                 RETURN_NULL();
             }
@@ -832,14 +832,14 @@ ZEND_METHOD(Ice_ObjectPrx, ice_router)
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr def;
     if(zprx && !fetchProxy(zprx, proxy, def))
     {
         RETURN_NULL();
     }
 
-    Ice::RouterPrx router;
+    shared_ptr<Ice::RouterPrx> router;
     if(proxy)
     {
         if(!def || !def->isA("::Ice::Router"))
@@ -847,7 +847,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_router)
             runtimeError("ice_router requires a proxy narrowed to Ice::Router");
             RETURN_NULL();
         }
-        router = Ice::RouterPrx::uncheckedCast(proxy);
+        router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
     }
 
     try
@@ -876,7 +876,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
 
     try
     {
-        Ice::LocatorPrx locator = _this->proxy->ice_getLocator();
+        shared_ptr<Ice::LocatorPrx> locator = _this->proxy->ice_getLocator();
         if(locator)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Locator");
@@ -885,7 +885,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
                 RETURN_NULL();
             }
 
-            if(!createProxy(return_value, locator, info, _this->communicator))
+            if(!createProxy(return_value, std::move(locator), std::move(info), _this->communicator))
             {
                 RETURN_NULL();
             }
@@ -918,14 +918,14 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr def;
     if(zprx && !fetchProxy(zprx, proxy, def))
     {
         RETURN_NULL();
     }
 
-    Ice::LocatorPrx locator;
+    shared_ptr<Ice::LocatorPrx> locator;
     if(proxy)
     {
         if(!def || !def->isA("::Ice::Locator"))
@@ -933,12 +933,12 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
             runtimeError("ice_locator requires a proxy narrowed to Ice::Locator");
             RETURN_NULL();
         }
-        locator = Ice::LocatorPrx::uncheckedCast(proxy);
+        locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
     }
 
     try
     {
-        if(!_this->clone(return_value, _this->proxy->ice_locator(locator)))
+        if(!_this->clone(return_value, _this->proxy->ice_locator(std::move(locator))))
         {
             RETURN_NULL();
         }
@@ -1563,7 +1563,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             RETURN_NULL();
         }
 
-        Ice::ObjectPrx prx = _this->proxy;
+        shared_ptr<Ice::ObjectPrx> prx = _this->proxy;
         if(facet)
         {
             prx = prx->ice_facet(facet);
@@ -1611,19 +1611,20 @@ ZEND_METHOD(Ice_ObjectPrx, ice_checkedCast)
     do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, true);
 }
 
-IcePHP::Proxy::Proxy(const Ice::ObjectPrx& p, const ProxyInfoPtr& i, const CommunicatorInfoPtr& comm) :
-    proxy(p), info(i), communicator(comm), connection(0), cachedConnection(0)
+IcePHP::Proxy::Proxy(
+    shared_ptr<Ice::ObjectPrx> p,
+    ProxyInfoPtr i,
+    CommunicatorInfoPtr comm) :
+    proxy(std::move(p)),
+    info(std::move(i)),
+    communicator(std::move(comm)),
+    connection(0),
+    cachedConnection(0)
 {
-    //
-    // We want to ensure that the PHP object corresponding to the communicator is
-    // not destroyed until after this proxy is destroyed.
-    //
-    communicator->addRef();
 }
 
 IcePHP::Proxy::~Proxy()
 {
-    communicator->decRef();
     if(connection)
     {
         zval_ptr_dtor(connection);
@@ -1635,21 +1636,21 @@ IcePHP::Proxy::~Proxy()
 }
 
 bool
-IcePHP::Proxy::clone(zval* zv, const Ice::ObjectPrx& p)
+IcePHP::Proxy::clone(zval* zv, const shared_ptr<Ice::ObjectPrx> p)
 {
-    return create(zv, p, info, communicator);
+    return create(zv, std::move(p), info, communicator);
 }
 
 bool
-IcePHP::Proxy::cloneUntyped(zval* zv, const Ice::ObjectPrx& p)
+IcePHP::Proxy::cloneUntyped(zval* zv, shared_ptr<Ice::ObjectPrx> p)
 {
-    return create(zv, p, 0, communicator);
+    return create(zv, std::move(p), nullptr, communicator);
 }
 
 bool
-IcePHP::Proxy::create(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm)
+IcePHP::Proxy::create(zval* zv, shared_ptr<Ice::ObjectPrx> p, ProxyInfoPtr info, CommunicatorInfoPtr comm)
 {
-    ProxyInfoPtr prx = info;
+    ProxyInfoPtr prx = std::move(info);
     if(!prx)
     {
         prx = getProxyInfo("::Ice::Object");
@@ -1663,9 +1664,8 @@ IcePHP::Proxy::create(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& inf
     }
 
     Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::extract(zv);
-    ProxyPtr proxy = new Proxy(p, prx, comm);
     assert(!obj->ptr);
-    obj->ptr = new ProxyPtr(proxy);
+    obj->ptr = new ProxyPtr(new Proxy(std::move(p), std::move(prx), std::move(comm)));
     return true;
 }
 
@@ -1776,18 +1776,18 @@ handleCompare(zval* zobj1, zval* zobj2)
     Wrapper<ProxyPtr>* obj1 = Wrapper<ProxyPtr>::extract(zobj1);
     assert(obj1->ptr);
     ProxyPtr _this1 = *obj1->ptr;
-    Ice::ObjectPrx prx1 = _this1->proxy;
+    shared_ptr<Ice::ObjectPrx> prx1 = _this1->proxy;
 
     Wrapper<ProxyPtr>* obj2 = Wrapper<ProxyPtr>::extract(zobj2);
     assert(obj2->ptr);
     ProxyPtr _this2 = *obj2->ptr;
-    Ice::ObjectPrx prx2 = _this2->proxy;
+    shared_ptr<Ice::ObjectPrx> prx2 = _this2->proxy;
 
-    if(prx1 == prx2)
+    if(Ice::targetEqualTo(prx1, prx2))
     {
         return 0;
     }
-    else if(prx1 < prx2)
+    else if(Ice::targetLess(prx1, prx2))
     {
         return -1;
     }
@@ -1900,16 +1900,15 @@ IcePHP::proxyInit(void)
 }
 
 bool
-IcePHP::createProxy(zval* zv, const Ice::ObjectPrxPtr& p, const CommunicatorInfoPtr& comm)
+IcePHP::createProxy(zval* zv, Ice::ObjectPrxPtr proxy, CommunicatorInfoPtr communicatorInfo)
 {
-    return Proxy::create(zv, p, 0, comm);
+    return Proxy::create(zv, std::move(proxy), 0, std::move(communicatorInfo));
 }
 
 bool
-IcePHP::createProxy(zval* zv, const Ice::ObjectPrxPtr& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm
-                   )
+IcePHP::createProxy(zval* zv, Ice::ObjectPrxPtr proxy, ProxyInfoPtr proxyInfo, CommunicatorInfoPtr communicatorInfo)
 {
-    return Proxy::create(zv, p, info, comm);
+    return Proxy::create(zv, std::move(proxy), std::move(proxyInfo), std::move(communicatorInfo));
 }
 
 bool

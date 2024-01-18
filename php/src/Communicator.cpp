@@ -71,7 +71,7 @@ using DefaultValueFactoryPtr = shared_ptr<DefaultValueFactory>;
 // workspaces. For example, we don't want the value factories installed
 // by one request to influence the behavior of another request.
 //
-class CommunicatorInfoI : public CommunicatorInfo
+class CommunicatorInfoI final : public CommunicatorInfo, public enable_shared_from_this<CommunicatorInfoI>
 {
 public:
 
@@ -85,6 +85,7 @@ public:
 
     bool addFactory(zval*, const string&);
     FactoryWrapperPtr findFactory(const string&) const;
+    void setDefaultFactory(DefaultValueFactoryPtr defaultFactory);
     DefaultValueFactoryPtr defaultFactory() const { return _defaultFactory; }
     void destroyFactories();
 
@@ -1012,8 +1013,9 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 
         Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
         assert(!obj->ptr);
-        auto info = new shared_ptr<CommunicatorInfoI>(new CommunicatorInfoI(ac, zv));
-        obj->ptr = info;
+        obj->ptr = new shared_ptr<CommunicatorInfoI>(new CommunicatorInfoI(ac, zv));
+        shared_ptr<CommunicatorInfoI> info = *obj->ptr;
+        info->setDefaultFactory(make_shared<DefaultValueFactory>(info));
 
         CommunicatorMap* m;
         if(ICE_G(communicatorMap))
@@ -1025,9 +1027,9 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
             m = new CommunicatorMap;
             ICE_G(communicatorMap) = m;
         }
-        m->insert(CommunicatorMap::value_type(ac->communicator, *info));
+        m->insert(CommunicatorMap::value_type(ac->communicator, info));
 
-        return *info;
+        return info;
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -2068,9 +2070,15 @@ IcePHP::DefaultValueFactory::destroy(void)
 
 IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) :
     ac(c),
-    _defaultFactory(make_shared<DefaultValueFactory>(this))
+    _defaultFactory(nullptr)
 {
     ZVAL_COPY_VALUE(&zv, z);
+}
+
+void
+IcePHP::CommunicatorInfoI::setDefaultFactory(DefaultValueFactoryPtr defaultFactory)
+{
+    _defaultFactory = std::move(defaultFactory);
 }
 
 void
@@ -2112,7 +2120,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
             return false;
         }
 
-        _defaultFactory->setDelegate(make_shared<FactoryWrapper>(factory, this));
+        _defaultFactory->setDelegate(make_shared<FactoryWrapper>(factory, shared_from_this()));
     }
     else
     {
@@ -2125,7 +2133,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
             throwException(ex);
             return false;
         }
-        _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, this)));
+        _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, shared_from_this())));
     }
 
     return true;

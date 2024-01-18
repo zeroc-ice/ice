@@ -699,9 +699,9 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     }
 
     int status;
-    if(Ice::WSConnectionInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::WSConnectionInfo>(p))
     {
-        Ice::WSConnectionInfoPtr info = Ice::WSConnectionInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::WSConnectionInfo>(p);
         if((status = object_init_ex(zv, wsConnectionInfoClassEntry)) == SUCCESS)
         {
             zval zmap;
@@ -716,18 +716,18 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
             }
         }
     }
-    else if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::TCPConnectionInfo>(p))
     {
-        Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::TCPConnectionInfo>(p);
         if((status = object_init_ex(zv, tcpConnectionInfoClassEntry)) == SUCCESS)
         {
             add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(info->rcvSize));
             add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
         }
     }
-    else if(Ice::UDPConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
     {
-        Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::UDPConnectionInfo>(p);
         if((status = object_init_ex(zv, udpConnectionInfoClassEntry)) == SUCCESS)
         {
             add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()));
@@ -736,11 +736,11 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
             add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
         }
     }
-    else if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
         status = object_init_ex(zv, sslConnectionInfoClassEntry);
     }
-    else if(Ice::IPConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
         status = object_init_ex(zv, ipConnectionInfoClassEntry);
     }
@@ -755,9 +755,9 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         return false;
     }
 
-    if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
-        IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
         add_property_string(zv, STRCAST("cipher"), const_cast<char*>(info->cipher.c_str()));
         add_property_bool(zv, STRCAST("verified"), info->verified ? 1 : 0);
 
@@ -765,10 +765,11 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         AutoDestroy listDestroyer(&zarr);
 
         Ice::StringSeq encoded;
-        for(vector<IceSSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
-        {
-            encoded.push_back((*i)->encode());
-        }
+        transform(
+            info->certs.cbegin(),
+            info->certs.cend(),
+            back_inserter(encoded),
+            [](const auto& cert) { return cert->encode(); });
 
         if(createStringArray(&zarr, encoded))
         {
@@ -780,9 +781,9 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         }
     }
 
-    if(Ice::IPConnectionInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
-        Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(p);
+        auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
         add_property_string(zv, STRCAST("localAddress"), const_cast<char*>(info->localAddress.c_str()));
         add_property_long(zv, STRCAST("localPort"), static_cast<long>(info->localPort));
         add_property_string(zv, STRCAST("remoteAddress"), const_cast<char*>(info->remoteAddress.c_str()));

@@ -80,7 +80,7 @@ using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback> ;
 // ReadObjectCallback retains all of the information necessary to store an unmarshaled
 // Slice value as a PHP object.
 //
-class ReadObjectCallback
+class ReadObjectCallback final
 {
 public:
 
@@ -134,7 +134,7 @@ private:
 //
 // Base class for type information.
 //
-class TypeInfo : public UnmarshalCallback
+class TypeInfo : public UnmarshalCallback, public std::enable_shared_from_this<TypeInfo>
 {
 public:
 
@@ -492,7 +492,7 @@ public:
 //
 // Exception information.
 //
-class ExceptionInfo
+class ExceptionInfo : public std::enable_shared_from_this<ExceptionInfo>
 {
 public:
 
@@ -532,7 +532,7 @@ class ValueWriter : public Ice::Value
 {
 public:
 
-    ValueWriter(zval*, ObjectMap*, const ClassInfoPtr&);
+    ValueWriter(zval*, ObjectMap*, ClassInfoPtr);
     ~ValueWriter();
 
     virtual void ice_preMarshal();
@@ -592,7 +592,7 @@ public:
     ExceptionReader(const ExceptionReader&) = default;
 
     virtual std::string ice_id() const;
-    virtual ExceptionReader* ice_clone() const;
+    virtual ExceptionReader* ice_cloneImpl() const;
     virtual void ice_throw() const;
 
     virtual void _write(Ice::OutputStream*) const;
