@@ -2,17 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-#
-# This file should only be used in Python >= 3.5.
-#
-
 import asyncio
 
 
 #
 # This class defines an __await__ method so that coroutines can call 'await <future>'.
-#
-# Python 2.x rejects this code with a syntax error because a return statement is not allowed in a generator.
 #
 class FutureBase(object):
     def __await__(self):
