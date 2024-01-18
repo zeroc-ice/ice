@@ -15,6 +15,7 @@
 #include <IceUtil/Timer.h>
 
 #include <chrono>
+#include <condition_variable>
 #include <fstream>
 #include <mutex>
 #include <thread>
