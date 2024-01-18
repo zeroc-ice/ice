@@ -5572,6 +5572,8 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     ExceptionPtr base = p->base();
 
+    H << eb << ';';
+
     //
     // We need an instance here to trigger initialization if the implementation is in a shared libarry.
     // But we do this only once per source file, because a single instance is sufficient to initialize
