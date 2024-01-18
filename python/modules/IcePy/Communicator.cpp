@@ -827,114 +827,6 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
 extern "C"
 #endif
 static PyObject*
-communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, PyObject* kwds)
-{
-    assert(self->communicator);
-
-    static char* argNames[] =
-    {
-        const_cast<char*>("compress"),
-        const_cast<char*>("_ex"),
-        const_cast<char*>("_sent"),
-        0
-    };
-    PyObject* compressBatch;
-    PyObject* ex = Py_None;
-    PyObject* sent = Py_None;
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, STRCAST("O|OO"), argNames, &compressBatch, &ex, &sent))
-    {
-        return 0;
-    }
-
-    PyObject* compressBatchType = lookupType("Ice.CompressBatch");
-    if(!PyObject_IsInstance(compressBatch, reinterpret_cast<PyObject*>(compressBatchType)))
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("expected an Ice.CompressBatch enumerator"));
-        return 0;
-    }
-
-    PyObjectHandle v = getAttr(compressBatch, "_value", false);
-    assert(v.get());
-    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
-
-    if(ex == Py_None)
-    {
-        ex = 0;
-    }
-    if(sent == Py_None)
-    {
-        sent = 0;
-    }
-
-    if(!ex && sent)
-    {
-        PyErr_Format(PyExc_RuntimeError,
-            STRCAST("exception callback must also be provided when sent callback is used"));
-        return 0;
-    }
-
-    Ice::Callback_Communicator_flushBatchRequestsPtr callback;
-    if(ex || sent)
-    {
-        FlushCallbackPtr d = new FlushCallback(ex, sent, "flushBatchRequests");
-        callback = Ice::newCallback_Communicator_flushBatchRequests(d, &FlushCallback::exception, &FlushCallback::sent);
-    }
-
-    Ice::AsyncResultPtr result;
-    try
-    {
-        if(callback)
-        {
-            result = (*self->communicator)->begin_flushBatchRequests(cb, callback);
-        }
-        else
-        {
-            result = (*self->communicator)->begin_flushBatchRequests(cb);
-        }
-    }
-    catch(const Ice::Exception& e)
-    {
-        setPythonException(e);
-        return 0;
-    }
-
-    return createAsyncResult(result, 0, 0, self->wrapper);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-communicatorEndFlushBatchRequests(CommunicatorObject* self, PyObject* args)
-{
-    assert(self->communicator);
-
-    PyObject* result;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &AsyncResultType, &result))
-    {
-        return 0;
-    }
-
-    Ice::AsyncResultPtr r = getAsyncResult(result);
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
-        (*self->communicator)->end_flushBatchRequests(r);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
 {
     PyObject* adapter;
@@ -1645,11 +1537,6 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("flushBatchRequests(compress) -> None")) },
     { STRCAST("flushBatchRequestsAsync"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequestsAsync),
         METH_VARARGS, PyDoc_STR(STRCAST("flushBatchRequestsAsync(compress) -> Ice.Future")) },
-    { STRCAST("begin_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorBeginFlushBatchRequests),
-        METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("begin_flushBatchRequests(compress[, _ex][, _sent]) -> Ice.AsyncResult")) },
-    { STRCAST("end_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorEndFlushBatchRequests),
-        METH_VARARGS, PyDoc_STR(STRCAST("end_flushBatchRequests(Ice.AsyncResult) -> None")) },
     { STRCAST("createAdmin"), reinterpret_cast<PyCFunction>(communicatorCreateAdmin), METH_VARARGS,
         PyDoc_STR(STRCAST("createAdmin(adminAdapter, adminIdentity) -> Ice.ObjectPrx")) },
     { STRCAST("getAdmin"), reinterpret_cast<PyCFunction>(communicatorGetAdmin), METH_NOARGS,

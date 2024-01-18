@@ -817,30 +817,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << "), " << contextParamName << "))";
         _out.dec();
-
-        _out << sp;
-        writeDocstring(*oli, DocAsyncBegin);
-        _out << nl << "def begin_" << (*oli)->name() << "(self";
-        if(!inParams.empty())
-        {
-            _out << ", " << inParams;
-        }
-        _out << ", _response=None, _ex=None, _sent=None, " << contextParamName << "=None):";
-        _out.inc();
-        _out << nl << "return _M_" << classAbs << "._op_" << (*oli)->name() << ".begin(self, ((" << inParams;
-        if(!inParams.empty() && inParams.find(',') == string::npos)
-        {
-            _out << ", ";
-        }
-        _out << "), _response, _ex, _sent, " << contextParamName << "))";
-        _out.dec();
-
-        _out << sp;
-        writeDocstring(*oli, DocAsyncEnd);
-        _out << nl << "def end_" << (*oli)->name() << "(self, _r):";
-        _out.inc();
-        _out << nl << "return _M_" << classAbs << "._op_" << (*oli)->name() << ".end(self, _r)";
-        _out.dec();
     }
 
     _out << sp << nl << "@staticmethod";
@@ -1961,7 +1937,7 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
             {
                 const string controlChars = "\a\b\f\n\r\t\v";
                 const unsigned char cutOff = 0;
-                
+
                 _out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
                 break;
             }

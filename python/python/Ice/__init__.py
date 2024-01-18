@@ -974,12 +974,6 @@ class CommunicatorI(Communicator):
     def flushBatchRequestsAsync(self, compress):
         return self._impl.flushBatchRequestsAsync(compress)
 
-    def begin_flushBatchRequests(self, compress, _ex=None, _sent=None):
-        return self._impl.begin_flushBatchRequests(compress, _ex, _sent)
-
-    def end_flushBatchRequests(self, r):
-        return self._impl.end_flushBatchRequests(r)
-
     def createAdmin(self, adminAdapter, adminIdentity):
         return self._impl.createAdmin(adminAdapter, adminIdentity)
 
