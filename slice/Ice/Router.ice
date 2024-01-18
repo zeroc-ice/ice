@@ -13,8 +13,8 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
+
+
 
 [["python:pkgdir:Ice"]]
 
@@ -22,7 +22,7 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICE"]
+
 module Ice
 {
 

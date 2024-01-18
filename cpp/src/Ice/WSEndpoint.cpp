@@ -67,15 +67,6 @@ registerIceWS(bool loadOnInitialize)
 
 }
 
-//
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICE_API void
-ICEregisterIceWS(bool loadOnInitialize)
-{
-    Ice::registerIceWS(loadOnInitialize);
-}
-
 #ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(WSEndpoint* p) { return p; }
 #endif

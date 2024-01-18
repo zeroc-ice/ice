@@ -12,8 +12,8 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:GLACIER2_API"]]
-[["objc:header-dir:objc"]]
+
+
 
 [["python:pkgdir:Glacier2"]]
 
@@ -21,7 +21,7 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:GLACIER2"]
+
 module Glacier2
 {
     /// Information taken from an SSL connection used for permissions verification.

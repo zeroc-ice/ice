@@ -14,7 +14,7 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:header-dir:objc"]]
+
 
 [["python:pkgdir:IcePatch2"]]
 
@@ -24,7 +24,7 @@
 
 /// IcePatch can be used to update file hierarchies in a simple and efficient manner. Checksums ensure file integrity,
 /// and data is compressed before downloading.
-["objc:prefix:ICEPATCH2"]
+
 module IcePatch2
 {
 

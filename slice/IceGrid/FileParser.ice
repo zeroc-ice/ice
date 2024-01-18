@@ -14,8 +14,8 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICEGRID_API"]]
-[["objc:header-dir:objc"]]
+
+
 
 [["python:pkgdir:IceGrid"]]
 
@@ -23,7 +23,7 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICEGRID"]
+
 module IceGrid
 {
     /// This exception is raised if an error occurs during parsing.

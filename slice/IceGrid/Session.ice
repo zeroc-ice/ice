@@ -14,8 +14,8 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICEGRID_API"]]
-[["objc:header-dir:objc"]]
+
+
 
 [["python:pkgdir:IceGrid"]]
 
@@ -24,7 +24,7 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICEGRID"]
+
 module IceGrid
 {
     /// A session object is used by IceGrid clients to allocate and release objects. Client sessions are created either

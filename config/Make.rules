@@ -99,7 +99,7 @@ nodejs := $(shell command -v node 2> /dev/null)
 supported-languages     ?= $(strip cpp java python ruby php \
                                    $(if $(filter %/node,$(nodejs)),js) \
                                    $(if $(filter %/dotnet,$(dotnet)),csharp) \
-                                   $(if $(filter Darwin,$(os)),objective-c swift))
+                                   $(if $(filter Darwin,$(os)),swift))
 supported-configs       ?= shared
 default-configs         ?= $(firstword $(supported-configs))
 
@@ -127,12 +127,6 @@ ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 ice_cpp_cppflags        = -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
 else
 ice_cpp_cppflags        = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
-endif
-
-ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
-ice_objc_cppflags       = -I$(top_srcdir)/objective-c/include -I$(top_srcdir)/objective-c/include/generated
-else
-ice_objc_cppflags       = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
 endif
 
 ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
