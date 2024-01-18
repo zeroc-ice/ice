@@ -625,25 +625,6 @@ public:
 };
 ICE_DEFINE_PTR(CallbackPtr, Callback);
 
-class PNodeI : public virtual PNode
-{
-public:
-
-    PNodeI()
-    {
-        ++counter;
-    }
-
-    virtual ~PNodeI()
-    {
-        --counter;
-    }
-
-    static int counter;
-};
-
-int PNodeI::counter = 0;
-
 void
 testUOO(const TestIntfPrxPtr& test)
 {

@@ -27,7 +27,6 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 }
 
-["preserve-slice"]
 exception KnownPreserved extends Base
 {
     string kp;
@@ -38,7 +37,6 @@ exception KnownPreservedDerived extends KnownPreserved
     string kpd;
 }
 
-["preserve-slice"]
 class BaseClass
 {
     string bc;

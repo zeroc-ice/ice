@@ -43,7 +43,7 @@ public:
         in->startValue();
         in->startSlice();
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
 protected:
@@ -72,7 +72,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
 protected:
@@ -104,7 +104,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
 protected:
@@ -122,7 +122,7 @@ public:
 
     virtual void _iceWrite(Ice::OutputStream* out) const
     {
-        out->startValue(0);
+        out->startValue(ICE_NULLPTR);
         // ::Test::D
         out->startSlice("::Test::D", -1, false);
         string s = "test";
@@ -189,7 +189,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
     void check()
@@ -226,7 +226,7 @@ public:
         in->startSlice();
         in->read(_f->ae);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
     FPtr
@@ -903,50 +903,6 @@ allTests(Test::TestHelper* helper, bool)
 
     if(communicator->getProperties()->getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
     {
-        cout << "testing marshalling with unknown class slices... " << flush;
-        {
-            CPtr c = ICE_MAKE_SHARED(C);
-            c->ss = "test";
-            c->ms = string("testms");
-
-            {
-                Ice::OutputStream out(communicator);
-                out.startEncapsulation();
-                out.write(c);
-                out.endEncapsulation();
-                out.finished(inEncaps);
-                factory->setEnabled(true);
-                test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
-                Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-                in.startEncapsulation();
-                Ice::ValuePtr obj;
-                in.read(obj);
-                in.endEncapsulation();
-                test(dynamic_cast<CObjectReader*>(obj.get()));
-                factory->setEnabled(false);
-            }
-
-            {
-                factory->setEnabled(true);
-                Ice::OutputStream out(communicator);
-                out.startEncapsulation();
-                Ice::ValuePtr d = ICE_MAKE_SHARED(DObjectWriter);
-                out.write(d);
-                out.endEncapsulation();
-                out.finished(inEncaps);
-                test(initial->ice_invoke("pingPong", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
-                Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-                in.startEncapsulation();
-                Ice::ValuePtr obj;
-                in.read(obj);
-                in.endEncapsulation();
-                test(obj && dynamic_cast<DObjectReader*>(obj.get()));
-                dynamic_cast<DObjectReader*>(obj.get())->check();
-                factory->setEnabled(false);
-            }
-        }
-        cout << "ok" << endl;
-
         cout << "testing optionals with unknown classes..." << flush;
         {
             APtr a = ICE_MAKE_SHARED(A);

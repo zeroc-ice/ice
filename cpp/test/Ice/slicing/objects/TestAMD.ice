@@ -70,7 +70,6 @@ class PBase
 
 sequence<PBase> PBaseSeq;
 
-["preserve-slice"]
 class Preserved extends PBase
 {
     string ps;
