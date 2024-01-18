@@ -3,7 +3,7 @@ name: Swift lint and format
 on:
   workflow_dispatch:
   push:
-    branches: ["*"]
+    branches: ["main"]
     paths:
       - "swift/**"
   pull_request:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   swift-lint:
-    name: Swift lint
+    name: Swift Lint
     runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -33,7 +33,7 @@ jobs:
         run: swiftlint --config .swiftlint.yml --strict
 
   swift-format:
-    name: Swift format
+    name: Swift Format
     runs-on: macos-latest
     steps:
       - name: Checkout repository
