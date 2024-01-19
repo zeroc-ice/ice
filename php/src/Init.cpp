@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Communicator.h>
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Logger.h>
-#include <Operation.h>
-#include <Properties.h>
-#include <Proxy.h>
-#include <Types.h>
-#include <Util.h>
+#include "Communicator.h"
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Logger.h"
+#include "Operation.h"
+#include "Properties.h"
+#include "Proxy.h"
+#include "Types.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePHP;

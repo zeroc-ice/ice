@@ -2,36 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Logger.h>
-#include <Util.h>
+#include "Logger.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-//
 // Class entries represent the PHP class implementations we have registered.
-//
 namespace IcePHP
 {
 zend_class_entry* loggerClassEntry = 0;
 }
 
-//
 // Logger support.
-//
 static zend_object_handlers _loggerHandlers;
 
 extern "C"
 {
 static zend_object* handleAlloc(zend_class_entry*);
 static void handleFreeStorage(zend_object*);
-#if PHP_VERSION_ID >= 80000
 static zend_object* handleClone(zend_object*);
-#else
-static zend_object* handleClone(zval*);
-#endif
 }
 
 ZEND_METHOD(Ice_Logger, __construct)
@@ -205,23 +197,15 @@ ZEND_METHOD(Ice_Logger, cloneWithPrefix)
     }
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleAlloc(zend_class_entry* ce)
 {
     Wrapper<Ice::LoggerPtr>* obj = Wrapper<Ice::LoggerPtr>::create(ce);
     assert(obj);
-
     obj->zobj.handlers = &_loggerHandlers;
-
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleFreeStorage(zend_object* object)
 {
@@ -230,30 +214,14 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
-#if PHP_VERSION_ID >= 80000
 handleClone(zend_object*)
-#else
-handleClone(zval*)
-#endif
 {
     php_error_docref(0, E_ERROR, "loggers cannot be cloned");
     return 0;
 }
 
-//
-// Necessary to suppress warnings from zend_function_entry in php-5.2.
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
-
-//
 // Predefined methods for Logger.
-//
 static zend_function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
@@ -269,31 +237,20 @@ static zend_function_entry _classMethods[] =
     ZEND_ME(Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
-//
-// enable warning again
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wwrite-strings"
-#endif
 
 bool
 IcePHP::loggerInit(void)
 {
-    //
+    // TODO review we no longer have generated code for local Slice
     // We register an interface and a class that implements the interface. This allows
     // applications to safely include the Slice-generated code for the type.
-    //
 
-    //
     // Register the Logger interface.
-    //
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Logger", _interfaceMethods);
     zend_class_entry* interface = zend_register_internal_interface(&ce);
 
-    //
     // Register the Logger class.
-    //
     INIT_CLASS_ENTRY(ce, "IcePHP_Logger", _classMethods);
     ce.create_object = handleAlloc;
     loggerClassEntry = zend_register_internal_class(&ce);
@@ -318,7 +275,6 @@ IcePHP::createLogger(zval* zv, const Ice::LoggerPtr& p)
     Wrapper<Ice::LoggerPtr>* obj = Wrapper<Ice::LoggerPtr>::extract(zv);
     assert(!obj->ptr);
     obj->ptr = new Ice::LoggerPtr(p);
-
     return true;
 }
 
