@@ -32,14 +32,14 @@ open class InitializationException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::InitializationException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _InitializationExceptionDescription
     }
 }
@@ -61,14 +61,14 @@ open class PluginInitializationException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::PluginInitializationException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _PluginInitializationExceptionDescription
     }
 }
@@ -81,14 +81,14 @@ open class CollocationOptimizationException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::CollocationOptimizationException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _CollocationOptimizationExceptionDescription
     }
 }
@@ -116,14 +116,14 @@ open class AlreadyRegisteredException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::AlreadyRegisteredException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _AlreadyRegisteredExceptionDescription
     }
 }
@@ -153,14 +153,14 @@ open class NotRegisteredException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::NotRegisteredException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _NotRegisteredExceptionDescription
     }
 }
@@ -184,14 +184,14 @@ open class TwowayOnlyException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::TwowayOnlyException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _TwowayOnlyExceptionDescription
     }
 }
@@ -204,14 +204,14 @@ open class CloneNotImplementedException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::CloneNotImplementedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _CloneNotImplementedExceptionDescription
     }
 }
@@ -235,14 +235,14 @@ open class UnknownException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnknownException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnknownExceptionDescription
     }
 }
@@ -256,14 +256,14 @@ open class UnknownLocalException: UnknownException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnknownLocalException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnknownLocalExceptionDescription
     }
 }
@@ -277,14 +277,14 @@ open class UnknownUserException: UnknownException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnknownUserException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnknownUserExceptionDescription
     }
 }
@@ -294,14 +294,14 @@ open class VersionMismatchException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::VersionMismatchException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _VersionMismatchExceptionDescription
     }
 }
@@ -311,14 +311,14 @@ open class CommunicatorDestroyedException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::CommunicatorDestroyedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _CommunicatorDestroyedExceptionDescription
     }
 }
@@ -340,14 +340,14 @@ open class ObjectAdapterDeactivatedException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ObjectAdapterDeactivatedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ObjectAdapterDeactivatedExceptionDescription
     }
 }
@@ -370,14 +370,14 @@ open class ObjectAdapterIdInUseException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ObjectAdapterIdInUseException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ObjectAdapterIdInUseExceptionDescription
     }
 }
@@ -399,14 +399,14 @@ open class NoEndpointException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::NoEndpointException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _NoEndpointExceptionDescription
     }
 }
@@ -428,14 +428,14 @@ open class EndpointParseException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::EndpointParseException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _EndpointParseExceptionDescription
     }
 }
@@ -457,14 +457,14 @@ open class EndpointSelectionTypeParseException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::EndpointSelectionTypeParseException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _EndpointSelectionTypeParseExceptionDescription
     }
 }
@@ -486,14 +486,14 @@ open class VersionParseException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::VersionParseException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _VersionParseExceptionDescription
     }
 }
@@ -515,14 +515,14 @@ open class IdentityParseException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::IdentityParseException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _IdentityParseExceptionDescription
     }
 }
@@ -544,14 +544,14 @@ open class ProxyParseException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ProxyParseException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ProxyParseExceptionDescription
     }
 }
@@ -559,7 +559,7 @@ open class ProxyParseException: LocalException {
 /// This exception is raised if an illegal identity is encountered.
 open class IllegalIdentityException: LocalException {
     /// The illegal identity.
-    public var id: Identity = Identity()
+    public var id: Identity = .init()
 
     public required init() {
         super.init()
@@ -573,14 +573,14 @@ open class IllegalIdentityException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::IllegalIdentityException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _IllegalIdentityExceptionDescription
     }
 }
@@ -602,14 +602,14 @@ open class IllegalServantException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::IllegalServantException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _IllegalServantExceptionDescription
     }
 }
@@ -619,7 +619,7 @@ open class IllegalServantException: LocalException {
 /// local.
 open class RequestFailedException: LocalException {
     /// The identity of the Ice Object to which the request was sent.
-    public var id: Identity = Identity()
+    public var id: Identity = .init()
     /// The facet to which the request was sent.
     public var facet: Swift.String = ""
     /// The operation name of the request.
@@ -629,7 +629,11 @@ open class RequestFailedException: LocalException {
         super.init()
     }
 
-    public init(id: Identity, facet: Swift.String, operation: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+    public init(id: Identity,
+                facet: Swift.String,
+                operation: Swift.String,
+                file: Swift.String = #file,
+                line: Swift.Int = #line) {
         self.id = id
         self.facet = facet
         self.operation = operation
@@ -639,14 +643,14 @@ open class RequestFailedException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::RequestFailedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _RequestFailedExceptionDescription
     }
 }
@@ -657,14 +661,14 @@ open class ObjectNotExistException: RequestFailedException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ObjectNotExistException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ObjectNotExistExceptionDescription
     }
 }
@@ -675,14 +679,14 @@ open class FacetNotExistException: RequestFailedException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::FacetNotExistException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _FacetNotExistExceptionDescription
     }
 }
@@ -693,14 +697,14 @@ open class OperationNotExistException: RequestFailedException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::OperationNotExistException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _OperationNotExistExceptionDescription
     }
 }
@@ -725,14 +729,14 @@ open class SyscallException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::SyscallException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _SyscallExceptionDescription
     }
 }
@@ -742,14 +746,14 @@ open class SocketException: SyscallException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::SocketException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _SocketExceptionDescription
     }
 }
@@ -771,14 +775,14 @@ open class CFNetworkException: SocketException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::CFNetworkException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _CFNetworkExceptionDescription
     }
 }
@@ -800,14 +804,14 @@ open class FileException: SyscallException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::FileException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _FileExceptionDescription
     }
 }
@@ -817,14 +821,14 @@ open class ConnectFailedException: SocketException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ConnectFailedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ConnectFailedExceptionDescription
     }
 }
@@ -834,14 +838,14 @@ open class ConnectionRefusedException: ConnectFailedException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ConnectionRefusedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ConnectionRefusedExceptionDescription
     }
 }
@@ -851,14 +855,14 @@ open class ConnectionLostException: SocketException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ConnectionLostException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ConnectionLostExceptionDescription
     }
 }
@@ -884,14 +888,14 @@ open class DNSException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::DNSException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _DNSExceptionDescription
     }
 }
@@ -901,14 +905,14 @@ open class OperationInterruptedException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::OperationInterruptedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _OperationInterruptedExceptionDescription
     }
 }
@@ -918,14 +922,14 @@ open class TimeoutException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::TimeoutException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _TimeoutExceptionDescription
     }
 }
@@ -935,14 +939,14 @@ open class ConnectTimeoutException: TimeoutException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ConnectTimeoutException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ConnectTimeoutExceptionDescription
     }
 }
@@ -952,14 +956,14 @@ open class CloseTimeoutException: TimeoutException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::CloseTimeoutException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _CloseTimeoutExceptionDescription
     }
 }
@@ -969,14 +973,14 @@ open class ConnectionTimeoutException: TimeoutException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ConnectionTimeoutException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ConnectionTimeoutExceptionDescription
     }
 }
@@ -986,14 +990,14 @@ open class InvocationTimeoutException: TimeoutException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::InvocationTimeoutException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _InvocationTimeoutExceptionDescription
     }
 }
@@ -1003,14 +1007,14 @@ open class InvocationCanceledException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::InvocationCanceledException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _InvocationCanceledExceptionDescription
     }
 }
@@ -1032,14 +1036,14 @@ open class ProtocolException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ProtocolException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ProtocolExceptionDescription
     }
 }
@@ -1047,7 +1051,7 @@ open class ProtocolException: LocalException {
 /// This exception indicates that a message did not start with the expected magic number ('I', 'c', 'e', 'P').
 open class BadMagicException: ProtocolException {
     /// A sequence containing the first four bytes of the incorrect message.
-    public var badMagic: ByteSeq = ByteSeq()
+    public var badMagic: ByteSeq = .init()
 
     public required init() {
         super.init()
@@ -1061,14 +1065,14 @@ open class BadMagicException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::BadMagicException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _BadMagicExceptionDescription
     }
 }
@@ -1076,15 +1080,19 @@ open class BadMagicException: ProtocolException {
 /// This exception indicates an unsupported protocol version.
 open class UnsupportedProtocolException: ProtocolException {
     /// The version of the unsupported protocol.
-    public var bad: ProtocolVersion = ProtocolVersion()
+    public var bad: ProtocolVersion = .init()
     /// The version of the protocol that is supported.
-    public var supported: ProtocolVersion = ProtocolVersion()
+    public var supported: ProtocolVersion = .init()
 
     public required init() {
         super.init()
     }
 
-    public init(reason: Swift.String, bad: ProtocolVersion, supported: ProtocolVersion, file: Swift.String = #file, line: Swift.Int = #line) {
+    public init(reason: Swift.String,
+                bad: ProtocolVersion,
+                supported: ProtocolVersion,
+                file: Swift.String = #file,
+                line: Swift.Int = #line) {
         self.bad = bad
         self.supported = supported
         super.init(reason: reason, file: file, line: line)
@@ -1093,14 +1101,14 @@ open class UnsupportedProtocolException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnsupportedProtocolException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnsupportedProtocolExceptionDescription
     }
 }
@@ -1108,15 +1116,19 @@ open class UnsupportedProtocolException: ProtocolException {
 /// This exception indicates an unsupported data encoding version.
 open class UnsupportedEncodingException: ProtocolException {
     /// The version of the unsupported encoding.
-    public var bad: EncodingVersion = EncodingVersion()
+    public var bad: EncodingVersion = .init()
     /// The version of the encoding that is supported.
-    public var supported: EncodingVersion = EncodingVersion()
+    public var supported: EncodingVersion = .init()
 
     public required init() {
         super.init()
     }
 
-    public init(reason: Swift.String, bad: EncodingVersion, supported: EncodingVersion, file: Swift.String = #file, line: Swift.Int = #line) {
+    public init(reason: Swift.String,
+                bad: EncodingVersion,
+                supported: EncodingVersion,
+                file: Swift.String = #file,
+                line: Swift.Int = #line) {
         self.bad = bad
         self.supported = supported
         super.init(reason: reason, file: file, line: line)
@@ -1125,14 +1137,14 @@ open class UnsupportedEncodingException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnsupportedEncodingException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnsupportedEncodingExceptionDescription
     }
 }
@@ -1142,14 +1154,14 @@ open class UnknownMessageException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnknownMessageException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnknownMessageExceptionDescription
     }
 }
@@ -1159,14 +1171,14 @@ open class ConnectionNotValidatedException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ConnectionNotValidatedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ConnectionNotValidatedExceptionDescription
     }
 }
@@ -1176,14 +1188,14 @@ open class UnknownRequestIdException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnknownRequestIdException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnknownRequestIdExceptionDescription
     }
 }
@@ -1193,14 +1205,14 @@ open class UnknownReplyStatusException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnknownReplyStatusException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnknownReplyStatusExceptionDescription
     }
 }
@@ -1214,14 +1226,14 @@ open class CloseConnectionException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::CloseConnectionException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _CloseConnectionExceptionDescription
     }
 }
@@ -1244,14 +1256,14 @@ open class ConnectionManuallyClosedException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ConnectionManuallyClosedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ConnectionManuallyClosedExceptionDescription
     }
 }
@@ -1261,14 +1273,14 @@ open class IllegalMessageSizeException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::IllegalMessageSizeException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _IllegalMessageSizeExceptionDescription
     }
 }
@@ -1278,14 +1290,14 @@ open class CompressionException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::CompressionException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _CompressionExceptionDescription
     }
 }
@@ -1296,14 +1308,14 @@ open class DatagramLimitException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::DatagramLimitException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _DatagramLimitExceptionDescription
     }
 }
@@ -1313,14 +1325,14 @@ open class MarshalException: ProtocolException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::MarshalException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _MarshalExceptionDescription
     }
 }
@@ -1330,14 +1342,14 @@ open class ProxyUnmarshalException: MarshalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ProxyUnmarshalException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ProxyUnmarshalExceptionDescription
     }
 }
@@ -1347,14 +1359,14 @@ open class UnmarshalOutOfBoundsException: MarshalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnmarshalOutOfBoundsException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnmarshalOutOfBoundsExceptionDescription
     }
 }
@@ -1362,28 +1374,28 @@ open class UnmarshalOutOfBoundsException: MarshalException {
 /// This exception is raised if no suitable value factory was found during unmarshaling of a Slice class instance.
 open class NoValueFactoryException: MarshalException {
     /// The Slice type ID of the class instance for which no factory could be found.
-    public var `type`: Swift.String = ""
+    public var type: Swift.String = ""
 
     public required init() {
         super.init()
     }
 
-    public init(reason: Swift.String, `type`: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
-        self.`type` = `type`
+    public init(reason: Swift.String, type: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
+        self.type = type
         super.init(reason: reason, file: file, line: line)
     }
 
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::NoValueFactoryException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _NoValueFactoryExceptionDescription
     }
 }
@@ -1394,7 +1406,7 @@ open class NoValueFactoryException: MarshalException {
 /// used to send Slice class instances and an operation is subscribed to the wrong topic.
 open class UnexpectedObjectException: MarshalException {
     /// The Slice type ID of the class instance that was unmarshaled.
-    public var `type`: Swift.String = ""
+    public var type: Swift.String = ""
     /// The Slice type ID that was expected by the receiving operation.
     public var expectedType: Swift.String = ""
 
@@ -1402,8 +1414,12 @@ open class UnexpectedObjectException: MarshalException {
         super.init()
     }
 
-    public init(reason: Swift.String, `type`: Swift.String, expectedType: Swift.String, file: Swift.String = #file, line: Swift.Int = #line) {
-        self.`type` = `type`
+    public init(reason: Swift.String,
+                type: Swift.String,
+                expectedType: Swift.String,
+                file: Swift.String = #file,
+                line: Swift.Int = #line) {
+        self.type = type
         self.expectedType = expectedType
         super.init(reason: reason, file: file, line: line)
     }
@@ -1411,14 +1427,14 @@ open class UnexpectedObjectException: MarshalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::UnexpectedObjectException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _UnexpectedObjectExceptionDescription
     }
 }
@@ -1429,14 +1445,14 @@ open class MemoryLimitException: MarshalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::MemoryLimitException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _MemoryLimitExceptionDescription
     }
 }
@@ -1446,14 +1462,14 @@ open class StringConversionException: MarshalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::StringConversionException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _StringConversionExceptionDescription
     }
 }
@@ -1463,14 +1479,14 @@ open class EncapsulationException: MarshalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::EncapsulationException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _EncapsulationExceptionDescription
     }
 }
@@ -1493,14 +1509,14 @@ open class FeatureNotSupportedException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::FeatureNotSupportedException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _FeatureNotSupportedExceptionDescription
     }
 }
@@ -1522,14 +1538,14 @@ open class SecurityException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::SecurityException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _SecurityExceptionDescription
     }
 }
@@ -1539,14 +1555,14 @@ open class FixedProxyException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::FixedProxyException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _FixedProxyExceptionDescription
     }
 }
@@ -1556,14 +1572,14 @@ open class ResponseSentException: LocalException {
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.
-    open override class func ice_staticId() -> Swift.String {
+    override open class func ice_staticId() -> Swift.String {
         return "::Ice::ResponseSentException"
     }
 
     /// Returns a string representation of this exception
     ///
     /// - returns: `Swift.String` - The string representaton of this exception.
-    open override func ice_print() -> Swift.String {
+    override open func ice_print() -> Swift.String {
         return _ResponseSentExceptionDescription
     }
 }

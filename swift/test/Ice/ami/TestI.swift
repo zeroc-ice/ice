@@ -96,7 +96,7 @@ class TestI: TestIntf {
 
     func close(mode: CloseMode, current: Current) throws {
         if let con = current.con,
-            let closeMode = ConnectionClose(rawValue: mode.rawValue) {
+           let closeMode = ConnectionClose(rawValue: mode.rawValue) {
             try con.close(closeMode)
         }
     }

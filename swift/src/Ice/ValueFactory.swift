@@ -31,7 +31,7 @@ public typealias ValueFactory = (Swift.String) -> Value?
 
 /// A value factory manager maintains a collection of value factories. An application can supply a custom
 /// implementation during communicator initialization, otherwise Ice provides a default implementation.
-public protocol ValueFactoryManager:  Swift.AnyObject {
+public protocol ValueFactoryManager: Swift.AnyObject {
     /// Add a value factory. Attempting to add a factory with an id for which a factory is already registered throws
     /// AlreadyRegisteredException.
     /// When unmarshaling an Ice value, the Ice run time reads the most-derived type id off the wire and attempts to
@@ -52,12 +52,14 @@ public protocol ValueFactoryManager:  Swift.AnyObject {
     ///
     /// - parameter factory: `@escaping ValueFactory` The factory to add.
     ///
-    /// - parameter id: `Swift.String` The type id for which the factory can create instances, or an empty string for the default factory.
+    /// - parameter id: `Swift.String` The type id for which the factory can create instances, or an empty string for
+    /// the default factory.
     func add(factory: @escaping ValueFactory, id: Swift.String) throws
 
     /// Find an value factory registered with this communicator.
     ///
-    /// - parameter _: `Swift.String` The type id for which the factory can create instances, or an empty string for the default factory.
+    /// - parameter _: `Swift.String` The type id for which the factory can create instances, or an empty string for
+    /// the default factory.
     ///
     /// - returns: `ValueFactory?` - The value factory, or null if no value factory was found for the given id.
     func find(_ id: Swift.String) -> ValueFactory?

@@ -30,8 +30,8 @@ func allTests(_ helper: TestHelper) throws {
     let communicator = helper.communicator()
     let output = helper.getWriter()
 
-    let com = uncheckedCast(prx: try communicator.stringToProxy("communicator:\(helper.getTestEndpoint(num: 0))")!,
-                            type: RemoteCommunicatorPrx.self)
+    let com = try uncheckedCast(prx: communicator.stringToProxy("communicator:\(helper.getTestEndpoint(num: 0))")!,
+                                type: RemoteCommunicatorPrx.self)
 
     output.write("testing binding with single endpoint... ")
 
@@ -65,9 +65,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing binding with multiple endpoints... ")
     do {
-        let adapters = [try com.createObjectAdapter(name: "Adapter11", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter12", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter13", endpoints: "default")!]
+        let adapters = try [com.createObjectAdapter(name: "Adapter11", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter12", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter13", endpoints: "default")!]
 
         //
         // Ensure that when a connection is opened it's reused for new
@@ -155,11 +155,11 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing binding with multiple random endpoints... ")
     do {
-        let adapters = [try com.createObjectAdapter(name: "AdapterRandom11", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterRandom12", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterRandom13", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterRandom14", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterRandom15", endpoints: "default")!]
+        let adapters = try [com.createObjectAdapter(name: "AdapterRandom11", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterRandom12", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterRandom13", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterRandom14", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterRandom15", endpoints: "default")!]
 
         var count: Int32 = 20
         var adapterCount = adapters.count
@@ -176,7 +176,7 @@ func allTests(_ helper: TestHelper) throws {
                 for _ in 0 ..< Int.random(in: 1 ... adapters.count) {
                     adpts.append(adapters.randomElement()!)
                 }
-                proxies.append(try createTestIntfPrx(adpts))
+                try proxies.append(createTestIntfPrx(adpts))
             }
 
             for prx in proxies {
@@ -210,9 +210,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing binding with multiple endpoints and AMI... ")
     do {
-        let adapters = [try com.createObjectAdapter(name: "AdapterAMI11", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterAMI12", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterAMI13", endpoints: "default")!]
+        let adapters = try [com.createObjectAdapter(name: "AdapterAMI11", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterAMI12", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterAMI13", endpoints: "default")!]
 
         //
         // Ensure that when a connection is opened it's reused for new
@@ -296,9 +296,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing random endpoint selection... ")
     do {
-        let adapters = [try com.createObjectAdapter(name: "Adapter21", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter22", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter23", endpoints: "default")!]
+        let adapters = try [com.createObjectAdapter(name: "Adapter21", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter22", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter23", endpoints: "default")!]
 
         var obj = try createTestIntfPrx(adapters)
         try test(obj.ice_getEndpointSelection() == .Random)
@@ -329,9 +329,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing ordered endpoint selection... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "Adapter31", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter32", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter33", endpoints: "default")!]
+        var adapters = try [com.createObjectAdapter(name: "Adapter31", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter32", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter33", endpoints: "default")!]
 
         var obj = try createTestIntfPrx(adapters)
         obj = uncheckedCast(prx: obj.ice_endpointSelection(.Ordered), type: TestIntfPrx.self)
@@ -438,9 +438,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing per request binding with multiple endpoints... ")
     do {
-        let adapters = [try com.createObjectAdapter(name: "Adapter51", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter52", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter53", endpoints: "default")!]
+        let adapters = try [com.createObjectAdapter(name: "Adapter51", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter52", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter53", endpoints: "default")!]
 
         let obj = try uncheckedCast(prx: createTestIntfPrx(adapters).ice_connectionCached(false),
                                     type: TestIntfPrx.self)
@@ -471,9 +471,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing per request binding with multiple endpoints and AMI... ")
     do {
-        let adapters = [try com.createObjectAdapter(name: "AdapterAMI51", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterAMI52", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterAMI53", endpoints: "default")!]
+        let adapters = try [com.createObjectAdapter(name: "AdapterAMI51", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterAMI52", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterAMI53", endpoints: "default")!]
 
         let obj = try uncheckedCast(prx: createTestIntfPrx(adapters).ice_connectionCached(false),
                                     type: TestIntfPrx.self)
@@ -504,9 +504,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing per request binding and ordered endpoint selection... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "Adapter61", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter62", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter63", endpoints: "default")!]
+        var adapters = try [com.createObjectAdapter(name: "Adapter61", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter62", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter63", endpoints: "default")!]
 
         var obj = try createTestIntfPrx(adapters)
         obj = uncheckedCast(prx: obj.ice_endpointSelection(.Ordered),
@@ -583,9 +583,9 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing per request binding and ordered endpoint selection and AMI... ")
     do {
-        var adapters = [try com.createObjectAdapter(name: "AdapterAMI61", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterAMI62", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "AdapterAMI63", endpoints: "default")!]
+        var adapters = try [com.createObjectAdapter(name: "AdapterAMI61", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterAMI62", endpoints: "default")!,
+                            com.createObjectAdapter(name: "AdapterAMI63", endpoints: "default")!]
 
         var obj = try createTestIntfPrx(adapters)
         obj = uncheckedCast(prx: obj.ice_endpointSelection(.Ordered), type: TestIntfPrx.self)
@@ -662,8 +662,8 @@ func allTests(_ helper: TestHelper) throws {
 
     output.write("testing endpoint mode filtering... ")
     do {
-        let adapters = [try com.createObjectAdapter(name: "Adapter71", endpoints: "default")!,
-                        try com.createObjectAdapter(name: "Adapter72", endpoints: "udp")!]
+        let adapters = try [com.createObjectAdapter(name: "Adapter71", endpoints: "default")!,
+                            com.createObjectAdapter(name: "Adapter72", endpoints: "udp")!]
 
         let obj = try createTestIntfPrx(adapters)
         try test(obj.getAdapterName() == "Adapter71")
@@ -679,8 +679,8 @@ func allTests(_ helper: TestHelper) throws {
     if communicator.getProperties().getProperty("Ice.Plugin.IceSSL") != "" {
         output.write("testing unsecure vs. secure endpoints... ")
         do {
-            let adapters = [try com.createObjectAdapter(name: "Adapter81", endpoints: "ssl")!,
-                            try com.createObjectAdapter(name: "Adapter82", endpoints: "tcp")!]
+            let adapters = try [com.createObjectAdapter(name: "Adapter81", endpoints: "ssl")!,
+                                com.createObjectAdapter(name: "Adapter82", endpoints: "tcp")!]
 
             let obj = try createTestIntfPrx(adapters)
             for _ in 0 ..< 5 {

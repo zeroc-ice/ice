@@ -6,31 +6,31 @@ import Ice
 import PromiseKit
 
 public class BI: B {
-    public override func ice_preMarshal() {
+    override public func ice_preMarshal() {
         preMarshalInvoked = true
     }
 
-    public override func ice_postUnmarshal() {
+    override public func ice_postUnmarshal() {
         postUnmarshalInvoked = true
     }
 }
 
 public class CI: C {
-    public override func ice_preMarshal() {
+    override public func ice_preMarshal() {
         preMarshalInvoked = true
     }
 
-    public override func ice_postUnmarshal() {
+    override public func ice_postUnmarshal() {
         postUnmarshalInvoked = true
     }
 }
 
 public class DI: D {
-    public override func ice_preMarshal() {
+    override public func ice_preMarshal() {
         preMarshalInvoked = true
     }
 
-    public override func ice_postUnmarshal() {
+    override public func ice_postUnmarshal() {
         postUnmarshalInvoked = true
     }
 }

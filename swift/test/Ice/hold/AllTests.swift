@@ -84,7 +84,7 @@ func allTests(_ helper: TestHelper) throws {
                 }
             }
 
-            _ = completed!.done { (v: Int32) throws -> Void in
+            _ = completed!.done { (v: Int32) throws in
                 if v != expected {
                     cond.set(value: false)
                 }
@@ -121,7 +121,7 @@ func allTests(_ helper: TestHelper) throws {
                 }
             }
 
-            _ = completed!.done { (v: Int32) throws -> Void in
+            _ = completed!.done { (v: Int32) throws in
                 if v != expected {
                     cond.set(value: false)
                 }

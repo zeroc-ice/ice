@@ -86,11 +86,11 @@ open class UserException: Exception {
 public class RuntimeError: LocalException {
     private let message: String
 
-    public override var description: String {
+    override public var description: String {
         return message
     }
 
-    open override class func ice_staticId() -> String {
+    override open class func ice_staticId() -> String {
         return "::Ice::RuntimeError"
     }
 

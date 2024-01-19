@@ -7,7 +7,7 @@ import PromiseKit
 import TestCommon
 
 class Server: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.ACM.Timeout", value: "1")

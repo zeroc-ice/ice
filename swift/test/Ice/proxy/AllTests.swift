@@ -610,10 +610,10 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     try test(compObj!.ice_timeout(10).ice_getTimeout() == 10)
     try test(compObj!.ice_timeout(20).ice_getTimeout() == 20)
 
-    let loc1 = uncheckedCast(prx: try communicator.stringToProxy("loc1:default -p 10000")!,
-                             type: Ice.LocatorPrx.self)
-    let loc2 = uncheckedCast(prx: try communicator.stringToProxy("loc2:default -p 10000")!,
-                             type: Ice.LocatorPrx.self)
+    let loc1 = try uncheckedCast(prx: communicator.stringToProxy("loc1:default -p 10000")!,
+                                 type: Ice.LocatorPrx.self)
+    let loc2 = try uncheckedCast(prx: communicator.stringToProxy("loc2:default -p 10000")!,
+                                 type: Ice.LocatorPrx.self)
 
     try test(compObj!.ice_locator(nil) == compObj!.ice_locator(nil))
     try test(compObj!.ice_locator(loc1) == compObj!.ice_locator(loc1))
@@ -621,10 +621,10 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
     try test(compObj!.ice_locator(nil) != compObj!.ice_locator(loc2))
     try test(compObj!.ice_locator(loc1) != compObj!.ice_locator(loc2))
 
-    let rtr1 = uncheckedCast(prx: try communicator.stringToProxy("rtr1:default -p 10000")!,
-                             type: Ice.RouterPrx.self)
-    let rtr2 = uncheckedCast(prx: try communicator.stringToProxy("rtr2:default -p 10000")!,
-                             type: Ice.RouterPrx.self)
+    let rtr1 = try uncheckedCast(prx: communicator.stringToProxy("rtr1:default -p 10000")!,
+                                 type: Ice.RouterPrx.self)
+    let rtr2 = try uncheckedCast(prx: communicator.stringToProxy("rtr2:default -p 10000")!,
+                                 type: Ice.RouterPrx.self)
 
     try test(compObj!.ice_router(nil) == compObj!.ice_router(nil))
     try test(compObj!.ice_router(rtr1) == compObj!.ice_router(rtr1))

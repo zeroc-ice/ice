@@ -31,23 +31,23 @@ class I1: I {
         return (c1, c1)
     }
 
-    func opE1(E1: E1, current: Current) throws -> E1 {
+    func opE1(E1: E1, current _: Current) throws -> E1 {
         return E1
     }
 
-    func opS1(S1: S1, current: Current) throws -> S1 {
+    func opS1(S1: S1, current _: Current) throws -> S1 {
         return S1
     }
 
-    func opC1(C1: C1?, current: Current) throws -> C1? {
+    func opC1(C1: C1?, current _: Current) throws -> C1? {
         return C1
     }
 
-    func opS1Seq(S1Seq: S1Seq, current: Current) throws -> S1Seq {
+    func opS1Seq(S1Seq: S1Seq, current _: Current) throws -> S1Seq {
         return S1Seq
     }
 
-    func opS1Map(S1Map: S1Map, current: Current) throws -> S1Map {
+    func opS1Map(S1Map: S1Map, current _: Current) throws -> S1Map {
         return S1Map
     }
 

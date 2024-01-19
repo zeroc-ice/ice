@@ -269,7 +269,7 @@ public extension Communicator {
                                                     if let sentCB = sentCB {
                                                         sentCB($0)
                                                     }
-            })
+                                                })
         }
     }
 

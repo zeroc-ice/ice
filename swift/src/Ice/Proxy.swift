@@ -633,7 +633,7 @@ public extension ObjectPrx {
                                                      InputStream(communicator: self._impl.communicator,
                                                                  encoding: self._impl.encoding,
                                                                  bytes: Data(bytes: bytes, count: count)) // make a copy
-                                                 seal.fulfill((ok, try istr.readEncapsulation().bytes))
+                                                 try seal.fulfill((ok, istr.readEncapsulation().bytes))
                                              } catch {
                                                  seal.reject(error)
                                              }
@@ -663,7 +663,7 @@ public extension ObjectPrx {
                                              if let sentCB = sentCB {
                                                  sentCB($0)
                                              }
-                })
+                                         })
             }
         }
     }
@@ -749,9 +749,9 @@ public extension ObjectPrx {
 // generated code - this is why we give it the open access level.
 //
 open class ObjectPrxI: ObjectPrx {
-    internal let handle: ICEObjectPrx
-    internal let communicator: Communicator
-    internal let encoding: EncodingVersion
+    let handle: ICEObjectPrx
+    let communicator: Communicator
+    let encoding: EncodingVersion
     fileprivate let isTwoway: Bool
 
     public var description: String {
@@ -775,12 +775,12 @@ open class ObjectPrxI: ObjectPrx {
         isTwoway = impl.isTwoway
     }
 
-    internal func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: ObjectPrxI {
+    func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: ObjectPrxI {
         return ObjectPrxType(handle: h, communicator: communicator)
     }
 
-    internal static func fromICEObjectPrx(handle: ICEObjectPrx,
-                                          communicator c: Communicator? = nil) -> Self {
+    static func fromICEObjectPrx(handle: ICEObjectPrx,
+                                 communicator c: Communicator? = nil) -> Self {
         let communicator = c ?? handle.ice_getCommunicator().getCachedSwiftObject(CommunicatorI.self)
         return self.init(handle: handle, communicator: communicator)
     }
@@ -1123,7 +1123,7 @@ open class ObjectPrxI: ObjectPrx {
         //
 
         // The number of bytes consumed reading the proxy
-        var bytesRead: Int = 0
+        var bytesRead = 0
         let encoding = istr.currentEncoding
         let communicator = istr.communicator
 
@@ -1183,7 +1183,7 @@ open class ObjectPrxI: ObjectPrx {
                                       } catch {
                                           uex = error
                                       }
-                })
+                                  })
 
                 if let e = uex {
                     throw e
@@ -1238,7 +1238,7 @@ open class ObjectPrxI: ObjectPrx {
                                   } catch {
                                       uex = error
                                   }
-            })
+                              })
 
             if let e = uex {
                 throw e
@@ -1324,7 +1324,7 @@ open class ObjectPrxI: ObjectPrx {
                                            if let sentCB = sentCB {
                                                sentCB($0)
                                            }
-                    })
+                                       })
                 }
             }
         }

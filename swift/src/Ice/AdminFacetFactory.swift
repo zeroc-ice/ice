@@ -107,7 +107,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         return AdminFacetFacade(communicator: c,
                                 disp: ProcessDisp(handle.getSwiftObject(ProcessI.self) {
                                     ProcessI(handle: handle)
-        }))
+                                }))
     }
 
     static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEBlobjectFacade {
@@ -116,7 +116,7 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         return AdminFacetFacade(communicator: c,
                                 disp: PropertiesAdminDisp(handle.getSwiftObject(PropertiesAdminI.self) {
                                     PropertiesAdminI(communicator: c, handle: handle)
-        }))
+                                }))
     }
 
     static func createUnsupported(_ communicator: ICECommunicator,
@@ -125,6 +125,6 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         return AdminFacetFacade(communicator: c,
                                 disp: ObjectDisp(handle.getSwiftObject(UnsupportedAdminFacet.self) {
                                     UnsupportedAdminFacet(handle: handle)
-        }))
+                                }))
     }
 }

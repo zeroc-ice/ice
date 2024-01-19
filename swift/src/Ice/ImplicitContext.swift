@@ -32,7 +32,7 @@ import Foundation
 /// underlying context without first retrieving a copy of the entire context. These operations correspond to a subset
 /// of the java.util.Map methods, with java.lang.Object replaced by string and
 /// null replaced by the empty-string.
-public protocol ImplicitContext:  Swift.AnyObject {
+public protocol ImplicitContext: Swift.AnyObject {
     /// Get a copy of the underlying context.
     ///
     /// - returns: `Context` - A copy of the underlying context.
@@ -57,7 +57,7 @@ public protocol ImplicitContext:  Swift.AnyObject {
     /// - parameter _: `Swift.String` The key.
     ///
     /// - returns: `Swift.String` - The value associated with the key.
-    func `get`(_ key: Swift.String) -> Swift.String
+    func get(_ key: Swift.String) -> Swift.String
 
     /// Create or update a key/value entry in the underlying context.
     ///

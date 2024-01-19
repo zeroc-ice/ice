@@ -18,7 +18,7 @@ import Foundation
 /// A communicator plug-in. A plug-in generally adds a feature to a communicator, such as support for a protocol.
 /// The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the second stage
 /// invokes Plugin.initialize on each one.
-public protocol Plugin:  Swift.AnyObject {
+public protocol Plugin: Swift.AnyObject {
     /// Perform any necessary initialization steps.
     func initialize() throws
 
@@ -27,7 +27,7 @@ public protocol Plugin:  Swift.AnyObject {
 }
 
 /// Each communicator has a plug-in manager to administer the set of plug-ins.
-public protocol PluginManager:  Swift.AnyObject {
+public protocol PluginManager: Swift.AnyObject {
     /// Initialize the configured plug-ins. The communicator automatically initializes the plug-ins by default, but an
     /// application may need to interact directly with a plug-in prior to initialization. In this case, the application
     /// must set Ice.InitPlugins=0 and then invoke initializePlugins manually. The plug-ins are

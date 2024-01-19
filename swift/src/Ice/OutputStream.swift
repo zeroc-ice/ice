@@ -7,7 +7,7 @@ import IceImpl
 
 /// Stream class to write (marshal) Slice types into a sequence of bytes.
 public class OutputStream {
-    private var data: Data = Data(capacity: 240)
+    private var data: Data = .init(capacity: 240)
     private let communicator: Communicator
     private let encoding: EncodingVersion
     private let encoding_1_0: Bool
@@ -658,11 +658,11 @@ private final class EncapsEncoder10: EncapsEncoder {
     unowned let os: OutputStream
     unowned let encaps: Encaps
     var marshaledMap: [ValueHolder: Int32]
-    lazy var typeIdMap: [String: Int32] = [String: Int32]()
+    lazy var typeIdMap: [String: Int32] = .init()
     var typeIdIndex: Int32
 
     // Instance attributes
-    private var sliceType: SliceType = SliceType.NoSlice
+    private var sliceType: SliceType = .NoSlice
     // Slice attributes
     private var writeSlice: Int32 = 0 // Position of the slice data members
     // Encapsulation attributes for instance marshaling.
@@ -815,7 +815,7 @@ private final class EncapsEncoder11: EncapsEncoder {
     unowned let encaps: Encaps
 
     var marshaledMap: [ValueHolder: Int32]
-    lazy var typeIdMap: [String: Int32] = [String: Int32]()
+    lazy var typeIdMap: [String: Int32] = .init()
     var typeIdIndex: Int32
 
     var current: InstanceData!
@@ -953,7 +953,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         // Write the slice length if necessary.
         //
         if current.sliceFlags.contains(.FLAG_HAS_SLICE_SIZE) {
-            let sz: Int32 = Int32(os.getCount()) - current.writeSlice + 4
+            let sz = Int32(os.getCount()) - current.writeSlice + 4
             os.write(bytesOf: sz, at: Int(current.writeSlice - 4))
         }
 
@@ -1053,7 +1053,7 @@ private final class EncapsEncoder11: EncapsEncoder {
 
 private class InstanceData {
     // Instance attributes
-    var sliceType: SliceType = SliceType.NoSlice
+    var sliceType: SliceType = .NoSlice
     var firstSlice: Bool = true
 
     // Slice attributes

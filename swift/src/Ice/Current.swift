@@ -20,12 +20,12 @@ import Foundation
 /// applications ignore this parameter.
 public class Current {
     /// The object adapter.
-    public var adapter: ObjectAdapter? = nil
+    public var adapter: ObjectAdapter?
     /// Information about the connection over which the current method invocation was received. If the invocation is
     /// direct due to collocation optimization, this value is set to null.
-    public var con: Connection? = nil
+    public var con: Connection?
     /// The Ice object identity.
-    public var id: Identity = Identity()
+    public var id: Identity = .init()
     /// The facet.
     public var facet: Swift.String = ""
     /// The operation name.
@@ -33,15 +33,16 @@ public class Current {
     /// The mode of the operation.
     public var mode: OperationMode = .Normal
     /// The request context, as received from the client.
-    public var ctx: Context = Context()
+    public var ctx: Context = .init()
     /// The request id unless oneway (0).
     public var requestId: Swift.Int32 = 0
     /// The encoding version used to encode the input and output parameters.
-    public var encoding: EncodingVersion = EncodingVersion()
+    public var encoding: EncodingVersion = .init()
 
     public init() {}
 
-    public init(adapter: ObjectAdapter?, con: Connection?, id: Identity, facet: Swift.String, operation: Swift.String, mode: OperationMode, ctx: Context, requestId: Swift.Int32, encoding: EncodingVersion) {
+    public init(adapter: ObjectAdapter?, con: Connection?, id: Identity, facet: Swift.String, operation: Swift.String,
+                mode: OperationMode, ctx: Context, requestId: Swift.Int32, encoding: EncodingVersion) {
         self.adapter = adapter
         self.con = con
         self.id = id

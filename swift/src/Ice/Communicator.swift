@@ -20,14 +20,15 @@ import PromiseKit
 /// the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
 /// string.
 public enum ToStringMode: Swift.UInt8 {
-    /// Unicode Characters with ordinal values greater than 127 are kept as-is in the resulting string. Non-printable ASCII
-    /// characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
+    /// Unicode Characters with ordinal values greater than 127 are kept as-is in the resulting string. Non-printable
+    /// ASCII characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
     case Unicode = 0
     /// ASCII Characters with ordinal values greater than 127 are encoded as universal character names in the resulting
     /// string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters. Non-printable ASCII characters
     /// with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
     case ASCII = 1
-    /// Compat Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
+    /// Compat Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using octal
+    /// escapes.
     /// Characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or an octal escape. Use this mode
     /// to generate strings compatible with Ice 3.6 and earlier.
     case Compat = 2
@@ -86,7 +87,7 @@ public extension OutputStream {
 
 /// The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
 /// instantiation is language-specific, and not specified in Slice code.
-public protocol Communicator:  Swift.AnyObject {
+public protocol Communicator: Swift.AnyObject {
     /// Destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
     /// memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
     /// calls to destroy are ignored.
@@ -195,7 +196,8 @@ public protocol Communicator:  Swift.AnyObject {
 
     /// Get the implicit context associated with this communicator.
     ///
-    /// - returns: `ImplicitContext` - The implicit context associated with this communicator; returns null when the property Ice.ImplicitContext
+    /// - returns: `ImplicitContext` - The implicit context associated with this communicator; returns null when the
+    ///                                 property Ice.ImplicitContext
     /// is not set or is set to None.
     func getImplicitContext() -> ImplicitContext
 
@@ -245,16 +247,16 @@ public protocol Communicator:  Swift.AnyObject {
     /// for all connections associated with the communicator. Any errors that occur while flushing a connection are
     /// ignored.
     ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before being sent over
-    /// the wire.
+    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
+    /// being sent over the wire.
     func flushBatchRequests(_ compress: CompressBatch) throws
 
     /// Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
     /// for all connections associated with the communicator. Any errors that occur while flushing a connection are
     /// ignored.
     ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before being sent over
-    /// the wire.
+    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
+    /// being sent over the wire.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to
     ///   dispatch the sent callback.
@@ -265,15 +267,18 @@ public protocol Communicator:  Swift.AnyObject {
     /// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<>` - The result of the operation
-    func flushBatchRequestsAsync(_ compress: CompressBatch, sentOn: Dispatch.DispatchQueue?, sentFlags: Dispatch.DispatchWorkItemFlags?, sent: ((Swift.Bool) -> Swift.Void)?) -> PromiseKit.Promise<Swift.Void>
+    func flushBatchRequestsAsync(_ compress: CompressBatch,
+                                 sentOn: Dispatch.DispatchQueue?,
+                                 sentFlags: Dispatch.DispatchWorkItemFlags?,
+                                 sent: ((Swift.Bool) -> Swift.Void)?) -> PromiseKit.Promise<Swift.Void>
 
     /// Add the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
     /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with
     /// the Locator's LocatorRegistry. createAdmin must only be called once; subsequent calls raise
     /// InitializationException.
     ///
-    /// - parameter adminAdapter: `ObjectAdapter?` The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints is set,
-    /// create, activate and use the Ice.Admin object adapter.
+    /// - parameter adminAdapter: `ObjectAdapter?` The object adapter used to host the Admin object; if null and
+    /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
     ///
     /// - parameter adminId: `Identity` The identity of the Admin object.
     ///
@@ -286,7 +291,8 @@ public protocol Communicator:  Swift.AnyObject {
     /// Ice.Admin.InstanceName is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called
     /// by the communicator initialization, after initialization of all plugins.
     ///
-    /// - returns: `ObjectPrx?` - A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is configured.
+    /// - returns: `ObjectPrx?` - A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin
+    /// object is configured.
     func getAdmin() throws -> ObjectPrx?
 
     /// Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws
@@ -310,7 +316,8 @@ public protocol Communicator:  Swift.AnyObject {
     ///
     /// - parameter _: `Swift.String` The name of the Admin facet.
     ///
-    /// - returns: `Disp?` - The servant associated with this Admin facet, or null if no facet is registered with the given name.
+    /// - returns: `Disp?` - The servant associated with this Admin facet, or null if no facet is registered with the
+    /// given name.
     func findAdminFacet(_ facet: Swift.String) -> Disp?
 
     /// Returns a map of all facets of the Admin object.

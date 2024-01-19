@@ -6,7 +6,7 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    public override func run(args _: [String]) throws {
+    override public func run(args _: [String]) throws {
         let output = getWriter()
 
         output.write("testing load properties exception... ")
