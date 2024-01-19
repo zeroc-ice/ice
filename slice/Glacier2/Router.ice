@@ -12,9 +12,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Ice/Router.ice>

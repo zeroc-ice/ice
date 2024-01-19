@@ -12,9 +12,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -22,7 +19,6 @@
 #include <Glacier2/SSLInfo.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module Glacier2
 {

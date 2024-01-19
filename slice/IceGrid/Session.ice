@@ -14,16 +14,12 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:IceGrid"]]
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module IceGrid
 {

@@ -14,15 +14,11 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:IceGrid"]]
 
 #include <IceGrid/Admin.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module IceGrid
 {

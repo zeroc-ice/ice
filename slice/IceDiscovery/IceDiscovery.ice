@@ -12,8 +12,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
 [["python:pkgdir:IceDiscovery"]]
 
 #include <Ice/Identity.ice>

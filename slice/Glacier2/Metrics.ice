@@ -13,9 +13,6 @@
 
 [["js:module:ice"]]
 
-
-
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Ice/Metrics.ice>

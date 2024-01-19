@@ -14,9 +14,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:IceStorm"]]
 
 #include <Ice/Metrics.ice>
