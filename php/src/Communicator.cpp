@@ -186,7 +186,6 @@ zend_object_handlers _handlers;
 // ValueFactoryManager support.
 zend_object_handlers _vfmHandlers;
 
-
 // The profile map holds Properties objects corresponding to the "default" profile
 // (defined via the ice.config & ice.options settings in php.ini) as well as named
 // profiles defined in an external file.

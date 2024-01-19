@@ -51,7 +51,6 @@ public:
 using ResultCallbackPtr = std::shared_ptr<ResultCallback>;
 using ResultCallbackList = vector<ResultCallbackPtr>;
 
-
 // Encapsulates attributes of an operation.
 class OperationI final : public Operation
 {
@@ -103,7 +102,6 @@ protected:
     CommunicatorInfoPtr _communicator;
 };
 using InvocationPtr = std::shared_ptr<Invocation>;
-
 
 // TypedInvocation uses the information in the given operation to validate, marshal, and unmarshal parameters and
 // exceptions.
@@ -169,14 +167,14 @@ IcePHP::ResultCallback::unset(void)
 IcePHP::OperationI::OperationI(
     const char* n,
     Ice::OperationMode m,
-    Ice::OperationMode sm, 
-    Ice::FormatType f, 
+    Ice::OperationMode sm,
+    Ice::FormatType f,
     zval* in,
     zval* out,
     zval* ret,
     zval* ex) :
     name(n),
-    mode(m), 
+    mode(m),
     sendMode(sm),
     format(f),
     _zendFunction(0)
@@ -371,7 +369,7 @@ IcePHP::Invocation::Invocation(shared_ptr<Ice::ObjectPrx> prx, CommunicatorInfoP
 // TypedInvocation
 IcePHP::TypedInvocation::TypedInvocation(
     shared_ptr<Ice::ObjectPrx> prx,
-    CommunicatorInfoPtr communicator, 
+    CommunicatorInfoPtr communicator,
     OperationIPtr op) :
     Invocation(std::move(prx), std::move(communicator)),
     _op(std::move(op))

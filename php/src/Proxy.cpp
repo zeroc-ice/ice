@@ -12,7 +12,6 @@ using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-
 // Here's a brief description of how proxies are handled by this extension.
 //
 // A single PHP class, ObjectPrx, is registered. This is an "internal" class,
@@ -1664,7 +1663,6 @@ handleFreeStorage(zend_object* object)
     delete obj->ptr;
     zend_object_std_dtor(object);
 }
-
 
 static zend_object*
 handleClone(zend_object* zobj)

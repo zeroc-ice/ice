@@ -200,7 +200,6 @@ zend_function_entry ice_functions[] =
     {0, 0, 0}
 };
 
-
 zend_module_entry ice_module_entry =
 {
     STANDARD_MODULE_HEADER,

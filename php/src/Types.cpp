@@ -850,7 +850,7 @@ IcePHP::PrimitiveInfo::unmarshal(
     Ice::InputStream* is,
     const UnmarshalCallbackPtr& cb,
     const CommunicatorInfoPtr&,
-    zval* target, 
+    zval* target,
     void* closure,
     bool)
 {

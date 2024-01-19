@@ -214,7 +214,6 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-
 static zend_object*
 handleClone(zend_object*)
 {

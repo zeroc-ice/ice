@@ -14,7 +14,6 @@
 // </auto-generated>
 //
 
-
 namespace Ice
 {
     global $Ice__t_ImplicitContext;
