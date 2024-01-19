@@ -14,9 +14,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:IceGrid"]]
 
 #include <Ice/Identity.ice>
@@ -26,7 +23,6 @@
 #include <IceGrid/Descriptor.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module IceGrid
 {

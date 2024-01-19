@@ -18,13 +18,9 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:Ice"]]
 
 [["java:package:com.zeroc"]]
-
 
 module Ice
 {

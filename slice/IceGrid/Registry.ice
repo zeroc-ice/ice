@@ -14,9 +14,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:IceGrid"]]
 
 #include <IceGrid/Exception.ice>
@@ -25,7 +22,6 @@
 #include <Ice/Locator.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module IceGrid
 {

@@ -12,15 +12,11 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Glacier2/SSLInfo.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module Glacier2
 {

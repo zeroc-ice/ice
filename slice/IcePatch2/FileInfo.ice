@@ -14,14 +14,11 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
 [["python:pkgdir:IcePatch2"]]
 
 #include <Ice/BuiltinSequences.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module IcePatch2
 {

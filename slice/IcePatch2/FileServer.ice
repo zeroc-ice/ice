@@ -14,8 +14,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
 [["python:pkgdir:IcePatch2"]]
 
 #include <IcePatch2/FileInfo.ice>

@@ -13,13 +13,10 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
 [["python:pkgdir:IceGrid"]]
 
 #ifndef ICE_BUILDING_ICEGRIDDB
 [["cpp:dll-export:ICEGRID_API"]]
-
 
 #endif
 
@@ -27,7 +24,6 @@
 #include <Ice/BuiltinSequences.ice>
 
 [["java:package:com.zeroc"]]
-
 
 module IceGrid
 {

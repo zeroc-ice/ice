@@ -13,9 +13,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-
-
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/BuiltinSequences.ice>
