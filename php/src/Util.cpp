@@ -4,7 +4,7 @@
 
 #include <Util.h>
 #include <Ice/UUID.h>
-#include <Slice/PHPUtil.h>
+#include "PHPUtil.h"
 #include <algorithm>
 #include <ctype.h>
 
