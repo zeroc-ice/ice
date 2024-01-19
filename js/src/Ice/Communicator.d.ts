@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 export namespace Ice
 {
     /**
@@ -254,12 +253,12 @@ export namespace Ice
          * to generate strings compatible with Ice 3.6 and earlier.
          */
         static readonly Compat:ToStringMode;
-        
+
         static valueOf(value:number):ToStringMode;
         equals(other:any):boolean;
         hashCode():number;
         toString():string;
-        
+
         readonly name:string;
         readonly value:number;
     }

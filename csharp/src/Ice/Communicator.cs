@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -35,7 +34,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Destroy the communicator.
         /// This operation calls shutdown implicitly. Calling destroy cleans up
@@ -45,7 +43,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void destroy();
-
 
         /// <summary>
         /// Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
@@ -58,7 +55,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void shutdown();
-
 
         /// <summary>
         /// Wait until the application has called shutdown (or destroy).
@@ -73,7 +69,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void waitForShutdown();
 
-
         /// <summary>
         /// Check whether communicator has been shut down.
         /// </summary>
@@ -82,7 +77,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         bool isShutdown();
-
 
         /// <summary>
         /// Convert a stringified proxy into a proxy.
@@ -100,7 +94,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx stringToProxy(string str);
 
-
         /// <summary>
         /// Convert a proxy into a string.
         /// </summary>
@@ -112,7 +105,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string proxyToString(ObjectPrx obj);
-
 
         /// <summary>
         /// Convert a set of proxy properties into a proxy.
@@ -127,7 +119,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx propertyToProxy(string property);
-
 
         /// <summary>
         /// Convert a proxy to a set of proxy properties.
@@ -152,11 +143,10 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string identityToString(Identity ident);
 
-
         /// <summary>
         /// Create a new object adapter.
         /// The endpoints for the object adapter are taken from the property
-        ///  name.Endpoints. 
+        ///  name.Endpoints.
         ///  It is legal to create an object adapter with the empty string as its name. Such an object adapter is accessible
         ///  via bidirectional connections or by collocated invocations that originate from the same communicator as is used
         ///  by the adapter. Attempts to create a named object adapter for which no configuration can be found raise
@@ -169,7 +159,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectAdapter createObjectAdapter(string name);
-
 
         /// <summary>
         /// Create a new object adapter with endpoints.
@@ -187,7 +176,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
-
 
         /// <summary>
         /// Create a new object adapter with a router.
@@ -213,7 +201,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ImplicitContext getImplicitContext();
 
-
         /// <summary>
         /// Get the properties for this communicator.
         /// </summary>
@@ -222,7 +209,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Properties getProperties();
-
 
         /// <summary>
         /// Get the logger for this communicator.
@@ -233,7 +219,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Logger getLogger();
 
-
         /// <summary>
         /// Get the observer resolver object for this communicator.
         /// </summary>
@@ -241,7 +226,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::Ice.Instrumentation.CommunicatorObserver getObserver();
-
 
         /// <summary>
         /// Get the default router for this communicator.
@@ -251,7 +235,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         RouterPrx getDefaultRouter();
-
 
         /// <summary>
         /// Set a default router for this communicator.
@@ -266,7 +249,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setDefaultRouter(RouterPrx rtr);
 
-
         /// <summary>
         /// Get the default locator for this communicator.
         /// </summary>
@@ -275,7 +257,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         LocatorPrx getDefaultLocator();
-
 
         /// <summary>
         /// Set a default Ice locator for this communicator.
@@ -291,7 +272,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setDefaultLocator(LocatorPrx loc);
 
-
         /// <summary>
         /// Get the plug-in manager for this communicator.
         /// </summary>
@@ -301,7 +281,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         PluginManager getPluginManager();
 
-
         /// <summary>
         /// Get the value factory manager for this communicator.
         /// </summary>
@@ -310,7 +289,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ValueFactoryManager getValueFactoryManager();
-
 
         /// <summary>
         /// Flush any pending batch requests for this communicator.
@@ -333,7 +311,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void end_flushBatchRequests(AsyncResult asyncResult);
 
-
         /// <summary>
         /// Add the Admin object with all its facets to the provided object adapter.
         /// If Ice.Admin.ServerId is
@@ -352,7 +329,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId);
 
-
         /// <summary>
         /// Get a proxy to the main facet of the Admin object.
         /// getAdmin also creates the Admin object and creates and
@@ -367,7 +343,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx getAdmin();
 
-
         /// <summary>
         /// Add a new facet to the Admin object.
         /// Adding a servant with a facet that is already registered throws
@@ -379,7 +354,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void addAdminFacet(Object servant, string facet);
-
 
         /// <summary>
         /// Remove the following facet to the Admin object.
@@ -393,7 +367,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object removeAdminFacet(string facet);
 
-
         /// <summary>
         /// Returns a facet of the Admin object.
         /// </summary>
@@ -403,7 +376,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object findAdminFacet(string facet);
-
 
         /// <summary>
         /// Returns a map of all facets of the Admin object.

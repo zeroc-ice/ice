@@ -14,7 +14,6 @@
 // </auto-generated>
 //
 
-
 namespace Ice\Instrumentation
 {
     global $Ice_Instrumentation__t_Observer;

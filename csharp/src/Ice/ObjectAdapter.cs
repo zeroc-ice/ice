@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -35,7 +34,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Get the name of this object adapter.
         /// </summary>
@@ -43,7 +41,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string getName();
-
 
         /// <summary>
         /// Get the communicator this object adapter belongs to.
@@ -54,7 +51,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Communicator getCommunicator();
 
-
         /// <summary>
         /// Activate all endpoints that belong to this object adapter.
         /// After activation, the object adapter can dispatch
@@ -63,7 +59,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void activate();
-
 
         /// <summary>
         /// Temporarily hold receiving and dispatching requests.
@@ -76,7 +71,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void hold();
 
-
         /// <summary>
         /// Wait until the object adapter holds requests.
         /// Calling hold initiates holding of requests, and
@@ -85,7 +79,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void waitForHold();
-
 
         /// <summary>
         /// Deactivate all endpoints that belong to this object adapter.
@@ -103,7 +96,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void deactivate();
 
-
         /// <summary>
         /// Wait until the object adapter has deactivated.
         /// Calling deactivate initiates object adapter
@@ -113,7 +105,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void waitForDeactivate();
 
-
         /// <summary>
         /// Check whether object adapter has been deactivated.
         /// </summary>
@@ -122,7 +113,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         bool isDeactivated();
-
 
         /// <summary>
         /// Destroys the object adapter and cleans up all resources held by the object adapter.
@@ -134,7 +124,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void destroy();
-
 
         /// <summary>
         /// Add a servant to this object adapter's Active Servant Map.
@@ -151,7 +140,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx add(Object servant, Identity id);
-
 
         /// <summary>
         /// Like add, but with a facet.
@@ -170,7 +158,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx addFacet(Object servant, Identity id, string facet);
 
-
         /// <summary>
         /// Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
         ///  identity.
@@ -184,7 +171,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx addWithUUID(Object servant);
-
 
         /// <summary>
         /// Like addWithUUID, but with a facet.
@@ -201,14 +187,13 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx addFacetWithUUID(Object servant, string facet);
 
-
         /// <summary>
         /// Add a default servant to handle requests for a specific category.
         /// Adding a default servant for a category for
         ///  which a default servant is already registered throws AlreadyRegisteredException. To dispatch operation
         ///  calls on servants, the object adapter tries to find a servant for a given Ice object identity and facet in the
         ///  following order:
-        ///  
+        ///
         ///  The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
         ///  If no servant has been found in the Active Servant Map, the object adapter tries to find a default servant
         ///  for the category component of the identity.
@@ -216,7 +201,7 @@ namespace Ice
         ///  servant for an empty category, regardless of the category contained in the identity.
         ///  If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
         ///  receives ObjectNotExistException or FacetNotExistException.
-        ///  
+        ///
         /// </summary>
         ///  <param name="servant">The default servant.
         ///  </param>
@@ -226,7 +211,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void addDefaultServant(Object servant, string category);
-
 
         /// <summary>
         /// Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
@@ -240,7 +224,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object remove(Identity id);
-
 
         /// <summary>
         /// Like remove, but with a facet.
@@ -257,7 +240,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object removeFacet(Identity id, string facet);
 
-
         /// <summary>
         /// Remove all facets with the given identity from the Active Servant Map.
         /// The operation completely removes the Ice
@@ -272,7 +254,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Collections.Generic.Dictionary<string, Object> removeAllFacets(Identity id);
 
-
         /// <summary>
         /// Remove the default servant for a specific category.
         /// Attempting to remove a default servant for a category that
@@ -285,7 +266,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object removeDefaultServant(string category);
-
 
         /// <summary>
         /// Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
@@ -300,7 +280,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object find(Identity id);
-
 
         /// <summary>
         /// Like find, but with a facet.
@@ -318,7 +297,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object findFacet(Identity id, string facet);
 
-
         /// <summary>
         /// Find all facets with the given identity in the Active Servant Map.
         /// </summary>
@@ -330,7 +308,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Collections.Generic.Dictionary<string, Object> findAllFacets(Identity id);
-
 
         /// <summary>
         /// Look up a servant in this object adapter's Active Servant Map, given a proxy.
@@ -345,16 +322,15 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object findByProxy(ObjectPrx proxy);
 
-
         /// <summary>
         /// Add a Servant Locator to this object adapter.
         /// Adding a servant locator for a category for which a servant
         ///  locator is already registered throws AlreadyRegisteredException. To dispatch operation calls on
         ///  servants, the object adapter tries to find a servant for a given Ice object identity and facet in the following
         ///  order:
-        ///  
+        ///
         ///  The object adapter tries to find a servant for the identity and facet in the Active Servant Map.
-        ///  If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator 
+        ///  If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
         ///  for the category component of the identity. If a locator is found, the object adapter tries to find a servant
         ///  using this locator.
         ///  If no servant has been found by any of the preceding steps, the object adapter tries to find a locator for
@@ -362,7 +338,7 @@ namespace Ice
         ///  adapter tries to find a servant using this locator.
         ///  If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
         ///  receives ObjectNotExistException or FacetNotExistException.
-        ///  
+        ///
         ///  &lt;p class="Note"&gt;Only one locator for the empty category can be installed.
         /// </summary>
         ///  <param name="locator">The locator to add.
@@ -373,7 +349,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void addServantLocator(ServantLocator locator, string category);
-
 
         /// <summary>
         /// Remove a Servant Locator from this object adapter.
@@ -388,7 +363,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ServantLocator removeServantLocator(string category);
 
-
         /// <summary>
         /// Find a Servant Locator installed with this object adapter.
         /// </summary>
@@ -401,7 +375,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ServantLocator findServantLocator(string category);
 
-
         /// <summary>
         /// Find the default servant for a specific category.
         /// </summary>
@@ -412,7 +385,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object findDefaultServant(string category);
-
 
         /// <summary>
         /// Create a proxy for the object with the given identity.
@@ -429,7 +401,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx createProxy(Identity id);
 
-
         /// <summary>
         /// Create a direct proxy for the object with the given identity.
         /// The returned proxy contains this object adapter's
@@ -442,7 +413,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx createDirectProxy(Identity id);
-
 
         /// <summary>
         /// Create an indirect proxy for the object with the given identity.
@@ -458,7 +428,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx createIndirectProxy(Identity id);
 
-
         /// <summary>
         /// Set an Ice locator for this object adapter.
         /// By doing so, the object adapter will register itself with the
@@ -472,7 +441,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setLocator(LocatorPrx loc);
 
-
         /// <summary>
         /// Get the Ice locator used by this object adapter.
         /// </summary>
@@ -482,7 +450,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         LocatorPrx getLocator();
 
-
         /// <summary>
         /// Get the set of endpoints configured with this object adapter.
         /// </summary>
@@ -491,7 +458,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Endpoint[] getEndpoints();
-
 
         /// <summary>
         /// Refresh the set of published endpoints.
@@ -504,7 +470,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void refreshPublishedEndpoints();
 
-
         /// <summary>
         /// Get the set of endpoints that proxies created by this object adapter will contain.
         /// </summary>
@@ -513,7 +478,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Endpoint[] getPublishedEndpoints();
-
 
         /// <summary>
         /// Set of the endpoints that proxies created by this object adapter will contain.

@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -306,7 +305,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Manually close the connection using the specified closure mode.
         /// </summary>
@@ -315,7 +313,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void close(ConnectionClose mode);
-
 
         /// <summary>
         /// Create a special proxy that always uses this connection.
@@ -330,7 +327,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectPrx createProxy(Identity id);
-
 
         /// <summary>
         /// Explicitly set an object adapter that dispatches requests that are received over this connection.
@@ -347,7 +343,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setAdapter(ObjectAdapter adapter);
 
-
         /// <summary>
         /// Get the object adapter that dispatches requests for this connection.
         /// </summary>
@@ -357,7 +352,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ObjectAdapter getAdapter();
 
-
         /// <summary>
         /// Get the endpoint from which the connection was created.
         /// </summary>
@@ -365,7 +359,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Endpoint getEndpoint();
-
 
         /// <summary>
         /// Flush any pending batch requests for this connection.
@@ -387,7 +380,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void end_flushBatchRequests(AsyncResult asyncResult);
 
-
         /// <summary>
         /// Set a close callback on the connection.
         /// The callback is called by the connection when it's closed. The callback
@@ -399,7 +391,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setCloseCallback(CloseCallback callback);
 
-
         /// <summary>
         /// Set a heartbeat callback on the connection.
         /// The callback is called by the connection when a heartbeat is
@@ -409,7 +400,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setHeartbeatCallback(HeartbeatCallback callback);
-
 
         /// <summary>
         /// Send a heartbeat message.
@@ -427,7 +417,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void end_heartbeat(AsyncResult asyncResult);
 
-
         /// <summary>
         /// Set the active connection management parameters.
         /// </summary>
@@ -440,7 +429,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setACM(Optional<int> timeout, Optional<ACMClose> close, Optional<ACMHeartbeat> heartbeat);
 
-
         /// <summary>
         /// Get the ACM parameters.
         /// </summary>
@@ -448,7 +436,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ACM getACM();
-
 
         /// <summary>
         /// Return the connection type.
@@ -459,7 +446,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string type();
 
-
         /// <summary>
         /// Get the timeout for the connection.
         /// </summary>
@@ -467,7 +453,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         int timeout();
-
 
         /// <summary>
         /// Return a description of the connection as human readable text, suitable for logging or error messages.
@@ -477,7 +462,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string ice_toString_();
 
-
         /// <summary>
         /// Returns the connection information.
         /// </summary>
@@ -485,7 +469,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         ConnectionInfo getInfo();
-
 
         /// <summary>
         /// Set the connection buffer receive/send size.
@@ -496,7 +479,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setBufferSize(int rcvSize, int sndSize);
-
 
         /// <summary>
         /// Throw an exception indicating the reason for connection closure.

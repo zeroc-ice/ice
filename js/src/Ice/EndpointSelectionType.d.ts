@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 export namespace Ice
 {
     /**
@@ -29,12 +28,12 @@ export namespace Ice
          * <code>Ordered</code> forces the Ice run time to use the endpoints in the order they appeared in the proxy.
          */
         static readonly Ordered:EndpointSelectionType;
-        
+
         static valueOf(value:number):EndpointSelectionType;
         equals(other:any):boolean;
         hashCode():number;
         toString():string;
-        
+
         readonly name:string;
         readonly value:number;
     }
