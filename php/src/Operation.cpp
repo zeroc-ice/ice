@@ -35,14 +35,14 @@ using ParamInfoPtr = std::shared_ptr<ParamInfo>;
 using ParamInfoList = list<ParamInfoPtr>;
 
 // Receives an out parameter or return value.
-class ResultCallback : public UnmarshalCallback
+class ResultCallback final : public UnmarshalCallback
 {
 public:
 
     ResultCallback();
     ~ResultCallback();
 
-    virtual void unmarshaled(zval*, zval*, void*);
+    void unmarshaled(zval*, zval*, void*) final;
 
     void unset(void);
 
@@ -60,7 +60,7 @@ public:
     OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
     ~OperationI();
 
-    virtual zend_function* function();
+    zend_function* function() final;
 
     string name; // On-the-wire name.
     Ice::OperationMode mode;
@@ -131,7 +131,7 @@ public:
 
     SyncTypedInvocation(shared_ptr<Ice::ObjectPrx>, CommunicatorInfoPtr, OperationIPtr);
 
-    virtual void invoke(INTERNAL_FUNCTION_PARAMETERS);
+    void invoke(INTERNAL_FUNCTION_PARAMETERS) final;
 };
 
 }

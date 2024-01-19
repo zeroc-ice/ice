@@ -78,7 +78,7 @@ public:
     ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, zval*, void*);
     ~ReadObjectCallback();
 
-    virtual void invoke(const ::std::shared_ptr<Ice::Value>&);
+    void invoke(const ::std::shared_ptr<Ice::Value>&);
 
 private:
 
@@ -142,31 +142,39 @@ public:
 
     // The marshal and unmarshal functions can raise Ice exceptions, and may raise AbortMarshaling if an error occurs.
     virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) = 0;
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool) = 0;
-
+    virtual void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) = 0;
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
 };
 using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
 // Primitive type information.
-class PrimitiveInfo : public TypeInfo
+class PrimitiveInfo final : public TypeInfo
 {
 public:
 
-    virtual std::string getId() const;
+    std::string getId() const final;
 
-    virtual bool validate(zval*, bool);
+    bool validate(zval*, bool) final;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+    bool variableLength() const final;
+    int wireSize() const final;
+    Ice::OptionalFormat optionalFormat() const final;
 
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool);
-
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
+    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+    void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) final;
+    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
     enum Kind
     {
@@ -185,25 +193,29 @@ public:
 using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
 
 // Enum information.
-class EnumInfo : public TypeInfo
+class EnumInfo final : public TypeInfo
 {
 public:
 
     EnumInfo(const std::string&, zval*);
 
-    virtual std::string getId() const;
+    std::string getId() const final;
 
-    virtual bool validate(zval*, bool);
+    bool validate(zval*, bool) final;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+    bool variableLength() const final;
+    int wireSize() const final;
+    Ice::OptionalFormat optionalFormat() const final;
 
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool);
-
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
+    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+    void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) final;
+    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
     const std::string id;
     const std::map<Ice::Int, std::string> enumerators;
@@ -212,11 +224,11 @@ public:
 };
 using EnumInfoPtr = std::shared_ptr<EnumInfo>;
 
-class DataMember : public UnmarshalCallback
+class DataMember final : public UnmarshalCallback
 {
 public:
 
-    virtual void unmarshaled(zval*, zval*, void*);
+    void unmarshaled(zval*, zval*, void*) final;
 
     void setMember(zval*, zval*);
 
@@ -229,27 +241,31 @@ using DataMemberPtr = std::shared_ptr<DataMember>;
 using DataMemberList = std::vector<DataMemberPtr>;
 
 // Struct information.
-class StructInfo : public TypeInfo
+class StructInfo final : public TypeInfo
 {
 public:
 
     StructInfo(const std::string&, const std::string&, zval*);
 
-    virtual std::string getId() const;
+    std::string getId() const final;
+    bool validate(zval*, bool) final;
 
-    virtual bool validate(zval*, bool);
+    bool variableLength() const final;
+    int wireSize() const final;
+    Ice::OptionalFormat optionalFormat() const final;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+    bool usesClasses() const final;
 
-    virtual bool usesClasses() const;
+    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+    void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) final;
 
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool);
-
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
+    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
     virtual void destroy();
 
@@ -267,31 +283,33 @@ private:
 using StructInfoPtr = std::shared_ptr<StructInfo>;
 
 // Sequence information.
-class SequenceInfo : public TypeInfo
+class SequenceInfo final : public TypeInfo
 {
 public:
 
     SequenceInfo(const std::string&, zval*);
 
-    virtual std::string getId() const;
+    std::string getId() const final;
 
-    virtual bool validate(zval*, bool);
+    bool validate(zval*, bool) final;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+    bool variableLength() const final;
+    int wireSize() const final;
+    Ice::OptionalFormat optionalFormat() const final;
 
-    virtual bool usesClasses() const;
+    bool usesClasses() const final;
 
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool);
-
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void unmarshaled(zval*, zval*, void*);
-
-    virtual void destroy();
+    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+    void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) final;
+    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+    void unmarshaled(zval*, zval*, void*) final;
+    void destroy() final;
 
     const std::string id;
     const TypeInfoPtr elementType;
@@ -299,57 +317,63 @@ public:
 private:
 
     void marshalPrimitiveSequence(const PrimitiveInfoPtr&, zval*, Ice::OutputStream*);
-    void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
-                                    zval*, void*);
+    void unmarshalPrimitiveSequence(
+        const PrimitiveInfoPtr&,
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        zval*,
+        void*);
 };
 using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
 // Dictionary information.
-class DictionaryInfo : public TypeInfo
+class DictionaryInfo final : public TypeInfo
 {
 public:
 
     DictionaryInfo(const std::string&, zval*, zval*);
 
-    virtual std::string getId() const;
+    std::string getId() const final;
 
-    virtual bool validate(zval*, bool);
+    bool validate(zval*, bool) final;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+    bool variableLength() const final;
+    int wireSize() const final;
+    Ice::OptionalFormat optionalFormat() const final;
+    bool usesClasses() const final;
 
-    virtual bool usesClasses() const;
+    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+    void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) final;
+    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+    void destroy() final;
 
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool);
-
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void destroy();
-
-    class KeyCallback : public UnmarshalCallback
+    class KeyCallback final : public UnmarshalCallback
     {
     public:
 
         KeyCallback();
         ~KeyCallback();
 
-        virtual void unmarshaled(zval*, zval*, void*);
+        void unmarshaled(zval*, zval*, void*) final;
 
         zval key;
     };
     using KeyCallbackPtr = std::shared_ptr<KeyCallback>;
 
-    class ValueCallback : public UnmarshalCallback
+    class ValueCallback final : public UnmarshalCallback
     {
     public:
 
         ValueCallback(zval*);
         ~ValueCallback();
 
-        virtual void unmarshaled(zval*, zval*, void*);
+        void unmarshaled(zval*, zval*, void*) final;
 
         zval key;
     };
@@ -372,7 +396,7 @@ using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
 
 using TypeInfoList = std::vector<TypeInfoPtr>;
 
-class ClassInfo : public TypeInfo
+class ClassInfo final : public TypeInfo
 {
 public:
 
@@ -380,24 +404,26 @@ public:
 
     void define(const std::string&, Ice::Int, bool, bool, zval*, zval*);
 
-    virtual std::string getId() const;
+    std::string getId() const final;
 
-    virtual bool validate(zval*, bool);
+    bool validate(zval*, bool) final;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+    bool variableLength() const final;
+    int wireSize() const final;
+    Ice::OptionalFormat optionalFormat() const final;
 
-    virtual bool usesClasses() const;
+    bool usesClasses() const final;
 
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool);
-
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void destroy();
-
+    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+    void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) final;
+    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+    void destroy() final;
     void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     bool isA(const std::string&) const;
@@ -419,7 +445,7 @@ class ProxyInfo;
 using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
 using ProxyInfoList = std::vector<ProxyInfoPtr>;
 
-class ProxyInfo : public TypeInfo
+class ProxyInfo final : public TypeInfo
 {
 public:
 
@@ -427,21 +453,25 @@ public:
 
     void define(zval*, zval*);
 
-    virtual std::string getId() const;
+    std::string getId() const final;
 
-    virtual bool validate(zval*, bool);
+    bool validate(zval*, bool) final;
 
-    virtual bool variableLength() const;
-    virtual int wireSize() const;
-    virtual Ice::OptionalFormat optionalFormat() const;
+    bool variableLength() const final;
+    int wireSize() const final;
+    Ice::OptionalFormat optionalFormat() const final;
 
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool);
-    virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void*, bool);
+    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+    void unmarshal(
+        Ice::InputStream*,
+        const UnmarshalCallbackPtr&,
+        const CommunicatorInfoPtr&,
+        zval*,
+        void*,
+        bool) final;
+    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
-
-    virtual void destroy();
+    void destroy() final;
     bool isA(const std::string&) const;
 
     void addOperation(const std::string&, const OperationPtr&);
@@ -456,7 +486,7 @@ public:
 };
 
 // Exception information.
-class ExceptionInfo : public std::enable_shared_from_this<ExceptionInfo>
+class ExceptionInfo final : public std::enable_shared_from_this<ExceptionInfo>
 {
 public:
 
@@ -490,17 +520,17 @@ bool typesRequestInit(void);
 bool typesRequestShutdown(void);
 
 // ValueWriter wraps a PHP object for marshaling.
-class ValueWriter : public Ice::Value
+class ValueWriter final : public Ice::Value
 {
 public:
 
     ValueWriter(zval*, ObjectMap*, ClassInfoPtr);
     ~ValueWriter();
 
-    virtual void ice_preMarshal();
+    void ice_preMarshal() final;
 
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
+    void _iceWrite(Ice::OutputStream*) const final;
+    void _iceRead(Ice::InputStream*) final;
 
 private:
 
@@ -513,19 +543,19 @@ private:
 };
 
 // ValueReader unmarshals the state of an Ice value.
-class ValueReader : public std::enable_shared_from_this<ValueReader>, public Ice::Value
+class ValueReader final : public std::enable_shared_from_this<ValueReader>, public Ice::Value
 {
 public:
 
     ValueReader(zval*, const ClassInfoPtr&, const CommunicatorInfoPtr&);
     ~ValueReader();
 
-    virtual void ice_postUnmarshal();
+    void ice_postUnmarshal() final;
 
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
+    void _iceWrite(Ice::OutputStream*) const final;
+    void _iceRead(Ice::InputStream*) final;
 
-    virtual ClassInfoPtr getInfo() const;
+    ClassInfoPtr getInfo() const;
 
     zval* getObject() const;
 
@@ -540,7 +570,7 @@ private:
 };
 
 // ExceptionReader creates a PHP user exception and unmarshals it.
-class ExceptionReader : public Ice::UserException
+class ExceptionReader final : public Ice::UserException
 {
 public:
 
@@ -549,13 +579,13 @@ public:
 
     ExceptionReader(const ExceptionReader&) = default;
 
-    virtual std::string ice_id() const;
-    virtual ExceptionReader* ice_cloneImpl() const;
-    virtual void ice_throw() const;
+    std::string ice_id() const final;
+    ExceptionReader* ice_cloneImpl() const final;
+    void ice_throw() const final;
 
-    virtual void _write(Ice::OutputStream*) const;
-    virtual void _read(Ice::InputStream*);
-    virtual bool _usesClasses() const;
+    void _write(Ice::OutputStream*) const final;
+    void _read(Ice::InputStream*) final;
+    bool _usesClasses() const final;
 
     ExceptionInfoPtr getInfo() const;
 
@@ -565,8 +595,8 @@ public:
 
 protected:
 
-    virtual void _writeImpl(Ice::OutputStream*) const {}
-    virtual void _readImpl(Ice::InputStream*) {}
+    void _writeImpl(Ice::OutputStream*) const final {}
+    void _readImpl(Ice::InputStream*) final {}
 
 private:
 

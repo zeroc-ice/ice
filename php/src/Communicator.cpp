@@ -9,7 +9,6 @@
 #include "Types.h"
 #include "Util.h"
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
@@ -74,11 +73,11 @@ public:
 
     CommunicatorInfoI(const ActiveCommunicatorPtr&, zval*);
 
-    virtual void getZval(zval*);
-    virtual void addRef(void);
-    virtual void decRef(void);
+    void getZval(zval*) final;
+    void addRef(void) final;
+    void decRef(void) final;
 
-    virtual Ice::CommunicatorPtr getCommunicator() const;
+    Ice::CommunicatorPtr getCommunicator() const final;
 
     bool addFactory(zval*, const string&);
     FactoryWrapperPtr findFactory(const string&) const;
@@ -99,13 +98,13 @@ private:
 using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
 
 // Wraps a PHP object/value factory.
-class FactoryWrapper : public Ice::ValueFactory
+class FactoryWrapper final : public Ice::ValueFactory
 {
 public:
 
     FactoryWrapper(zval*, const CommunicatorInfoIPtr&);
 
-    virtual shared_ptr<Ice::Value> create(const string&);
+    shared_ptr<Ice::Value> create(const string&) final;
 
     void getZval(zval*);
 
@@ -118,13 +117,13 @@ protected:
 };
 
 // Implements the default value factory behavior.
-class DefaultValueFactory : public Ice::ValueFactory
+class DefaultValueFactory final : public Ice::ValueFactory
 {
 public:
 
     DefaultValueFactory(const CommunicatorInfoIPtr&);
 
-    virtual shared_ptr<Ice::Value> create(const string&);
+    shared_ptr<Ice::Value> create(const string&) final;
 
     void setDelegate(const FactoryWrapperPtr& d) { _delegate = d; }
     FactoryWrapperPtr getDelegate() const { return _delegate; }
@@ -157,13 +156,13 @@ private:
 //
 //  * For non-empty type-ids, return a wrapper around the application-supplied
 //    factory, if any.
-class ValueFactoryManager : public Ice::ValueFactoryManager
+class ValueFactoryManager final : public Ice::ValueFactoryManager
 {
 public:
 
-    virtual void add(Ice::ValueFactoryFunc, const string&);
-    virtual void add(const Ice::ValueFactoryPtr&, const string&);
-    virtual Ice::ValueFactoryFunc find(const string&) const noexcept;
+    void add(Ice::ValueFactoryFunc, const string&) final;
+    void add(const Ice::ValueFactoryPtr&, const string&) final;
+    Ice::ValueFactoryFunc find(const string&) const noexcept final;
 
     void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -955,7 +954,7 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 
         Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
         assert(!obj->ptr);
-        obj->ptr = new shared_ptr<CommunicatorInfoI>(new CommunicatorInfoI(ac, zv));
+        obj->ptr = new shared_ptr<CommunicatorInfoI>(make_shared<CommunicatorInfoI>(ac, zv));
         shared_ptr<CommunicatorInfoI> info = *obj->ptr;
         info->setDefaultFactory(make_shared<DefaultValueFactory>(info));
 
