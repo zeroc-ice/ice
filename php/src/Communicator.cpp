@@ -925,9 +925,6 @@ handleVfmAlloc(zend_class_entry* ce)
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleVfmFreeStorage(zend_object* object)
 {
@@ -938,15 +935,8 @@ handleVfmFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
-#if PHP_VERSION_ID >= 80000
 handleVfmClone(zend_object* zobj)
-#else
-handleVfmClone(zval* zv)
-#endif
 {
     php_error_docref(0, E_ERROR, "value factory managers cannot be cloned");
     return 0;
@@ -1447,12 +1437,6 @@ ZEND_FUNCTION(Ice_stringToIdentity)
         RETURN_NULL();
     }
 }
-
-// TODO: is this still required
-// Necessary to suppress warnings from zend_function_entry in php-5.2 and INI_STR macro.
-#ifdef __GNUC__
-#   pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
 
 // Predefined methods for Communicator.
 static zend_function_entry _interfaceMethods[] =
@@ -1968,9 +1952,9 @@ IcePHP::DefaultValueFactory::destroy(void)
     if(_delegate)
     {
         _delegate->destroy();
-        _delegate = 0;
+        _delegate = nullptr;
     }
-    _info = 0;
+    _info = nullptr;
 }
 
 IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) :
@@ -2078,7 +2062,7 @@ void
 IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
 {
     // We don't support factories registered in C++.
-     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
+    throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
 }
 
 void
@@ -2120,7 +2104,6 @@ IcePHP::ValueFactoryManager::find(const string& id) const noexcept
     {
         return nullptr;
     }
-
 }
 
 void
