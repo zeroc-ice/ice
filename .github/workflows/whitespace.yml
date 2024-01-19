@@ -1,0 +1,22 @@
+name: Whitespace Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  whitespace-validation:
+    name: Whitespace Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run whitespace validation
+        uses: zeroc-ice/github-actions/@main
+        with:
+          whitespace_patterns: "'*'"
