@@ -5,6 +5,4 @@
     "pylint.args": [
         "--rcfile=tox.ini"
     ],
-    "python.analysis.autoImportCompletions": true,
-    "python.analysis.typeCheckingMode": "basic"
 }
