@@ -10,7 +10,6 @@
 namespace IcePHP
 {
 
-// Class entry.
 extern zend_class_entry* connectionClassEntry;
 
 bool connectionInit(void);

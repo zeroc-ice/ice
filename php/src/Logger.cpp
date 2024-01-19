@@ -222,13 +222,6 @@ handleClone(zend_object*)
     return 0;
 }
 
-//
-// Necessary to suppress warnings from zend_function_entry in php-5.2.
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
-
 // Predefined methods for Logger.
 static zend_function_entry _interfaceMethods[] =
 {
@@ -245,12 +238,6 @@ static zend_function_entry _classMethods[] =
     ZEND_ME(Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
-//
-// enable warning again
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wwrite-strings"
-#endif
 
 bool
 IcePHP::loggerInit(void)

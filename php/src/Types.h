@@ -64,17 +64,13 @@ public:
 
     virtual ~UnmarshalCallback();
 
-    // The unmarshaled() member function receives the unmarshaled value. The
-    // last two arguments are the values passed to unmarshal() for use by
-    // UnmarshalCallback implementations.
+    // The unmarshaled() member function receives the unmarshaled value. The last two arguments are the values passed
+    // to unmarshal() for use by UnmarshalCallback implementations.
     virtual void unmarshaled(zval*, zval*, void*) = 0;
 };
 using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback> ;
 
-//
-// ReadObjectCallback retains all of the information necessary to store an unmarshaled
-// Slice value as a PHP object.
-//
+// ReadObjectCallback retains all of the information necessary to store an unmarshaled Slice value as a PHP object.
 class ReadObjectCallback final
 {
 public:
@@ -93,10 +89,7 @@ private:
 };
 using ReadObjectCallbackPtr = std::shared_ptr<ReadObjectCallback>;
 
-//
-// This class keeps track of PHP objects (instances of Slice classes
-// and exceptions) that have preserved slices.
-//
+// This class keeps track of PHP objects (instances of Slice classes and exceptions) that have preserved slices.
 class StreamUtil
 {
 public:
@@ -147,10 +140,7 @@ protected:
 
 public:
 
-    //
-    // The marshal and unmarshal functions can raise Ice exceptions, and may raise
-    // AbortMarshaling if an error occurs.
-    //
+    // The marshal and unmarshal functions can raise Ice exceptions, and may raise AbortMarshaling if an error occurs.
     virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) = 0;
     virtual void unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
                            zval*, void*, bool) = 0;
@@ -159,9 +149,7 @@ public:
 };
 using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
-//
 // Primitive type information.
-//
 class PrimitiveInfo : public TypeInfo
 {
 public:
@@ -196,9 +184,7 @@ public:
 };
 using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
 
-//
 // Enum information.
-//
 class EnumInfo : public TypeInfo
 {
 public:
@@ -242,9 +228,7 @@ public:
 using DataMemberPtr = std::shared_ptr<DataMember>;
 using DataMemberList = std::vector<DataMemberPtr>;
 
-//
 // Struct information.
-//
 class StructInfo : public TypeInfo
 {
 public:
@@ -282,9 +266,7 @@ private:
 };
 using StructInfoPtr = std::shared_ptr<StructInfo>;
 
-//
 // Sequence information.
-//
 class SequenceInfo : public TypeInfo
 {
 public:
@@ -322,9 +304,7 @@ private:
 };
 using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
-//
 // Dictionary information.
-//
 class DictionaryInfo : public TypeInfo
 {
 public:
@@ -434,10 +414,7 @@ public:
     bool defined;
 };
 
-//
 // Proxy information.
-//
-
 class ProxyInfo;
 using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
 using ProxyInfoList = std::vector<ProxyInfoPtr>;
@@ -478,9 +455,7 @@ public:
     OperationMap operations;
 };
 
-//
 // Exception information.
-//
 class ExceptionInfo : public std::enable_shared_from_this<ExceptionInfo>
 {
 public:
@@ -514,9 +489,7 @@ bool typesInit(INIT_FUNC_ARGS);
 bool typesRequestInit(void);
 bool typesRequestShutdown(void);
 
-//
 // ValueWriter wraps a PHP object for marshaling.
-//
 class ValueWriter : public Ice::Value
 {
 public:
@@ -539,9 +512,7 @@ private:
     ClassInfoPtr _formal;
 };
 
-//
 // ValueReader unmarshals the state of an Ice value.
-//
 class ValueReader : public std::enable_shared_from_this<ValueReader>, public Ice::Value
 {
 public:
@@ -568,9 +539,7 @@ private:
     Ice::SlicedDataPtr _slicedData;
 };
 
-//
 // ExceptionReader creates a PHP user exception and unmarshals it.
-//
 class ExceptionReader : public Ice::UserException
 {
 public:
@@ -605,14 +574,6 @@ private:
     ExceptionInfoPtr _info;
     zval _ex;
     Ice::SlicedDataPtr _slicedData;
-};
-
-class IdResolver : public Ice::CompactIdResolver
-{
-public:
-
-    IdResolver(void);
-    virtual std::string resolve(Ice::Int) const;
 };
 
 } // End of namespace IcePHP

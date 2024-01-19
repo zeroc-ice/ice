@@ -1737,13 +1737,6 @@ handleCompare(zval* zobj1, zval* zobj2)
     }
 }
 
-//
-// Necessary to suppress warnings from zend_function_entry in php-5.2.
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
-
 // Predefined methods for ObjectPrx.
 static zend_function_entry _proxyMethods[] =
 {
@@ -1804,13 +1797,6 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_checkedCast, Ice_Proxy_do_cast_arginfo, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
-
-//
-// enable warning again
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wwrite-strings"
-#endif
 
 bool
 IcePHP::proxyInit(void)

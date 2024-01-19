@@ -5,11 +5,8 @@
 #ifndef ICEPHP_UTIL_H
 #define ICEPHP_UTIL_H
 
-#include <Config.h>
+#include "Config.h"
 
-//
-// Global functions.
-//
 extern "C"
 {
 ZEND_FUNCTION(Ice_stringVersion);

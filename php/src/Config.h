@@ -7,17 +7,14 @@
 
 #include <Ice/Ice.h>
 
+// Surpress various warnings emitted from including the PHP headers
 #if defined(__clang__)
-    // Surpress various warnings emitted from including the PHP headers
 #   pragma clang diagnostic ignored "-Wconversion"
 #   pragma clang diagnostic ignored "-Wsign-conversion"
 #   pragma clang diagnostic ignored "-Wdocumentation"
 #   pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic warning "-Wsign-compare"
-#endif
-
-#if defined(__GNUC__)
 #   pragma GCC diagnostic warning "-Wnarrowing"
 #   pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #   pragma GCC diagnostic ignored "-Wredundant-decls"

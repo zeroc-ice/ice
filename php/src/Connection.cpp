@@ -90,8 +90,8 @@ ZEND_METHOD(Ice_Connection, close)
         invalidArgument("value for 'mode' argument must be an enumerator of ConnectionClose");
         RETURN_NULL();
     }
-    Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(Z_LVAL_P(mode));
 
+    Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(Z_LVAL_P(mode));
     try
     {
         _this->close(cc);
@@ -287,7 +287,6 @@ ZEND_METHOD(Ice_Connection, type)
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
-
     try
     {
         string str = _this->type();
@@ -309,7 +308,6 @@ ZEND_METHOD(Ice_Connection, timeout)
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
-
     try
     {
         Ice::Int timeout = _this->timeout();
@@ -336,7 +334,6 @@ ZEND_METHOD(Ice_Connection, getInfo)
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
-
     try
     {
         Ice::ConnectionInfoPtr info = _this->getInfo();
@@ -392,7 +389,6 @@ ZEND_METHOD(Ice_Connection, throwException)
 
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
-
     try
     {
         _this->throwException();
@@ -409,9 +405,7 @@ handleConnectionAlloc(zend_class_entry* ce)
 {
     Wrapper<Ice::ConnectionPtr>* obj = Wrapper<Ice::ConnectionPtr>::create(ce);
     assert(obj);
-
     obj->zobj.handlers = &_connectionHandlers;
-
     return &obj->zobj;
 }
 
@@ -445,13 +439,6 @@ handleConnectionCompare(zval* zobj1, zval* zobj2)
         return 1;
     }
 }
-
-// TODO can we remove this?
-// Necessary to suppress warnings from zend_function_entry in php-5.2.
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
 
 // Predefined methods for Connection.
 static zend_function_entry _interfaceMethods[] =
@@ -489,12 +476,6 @@ static zend_function_entry _connectionInfoClassMethods[] =
     ZEND_ME(Ice_ConnectionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     {0, 0, 0}
 };
-
-// TODO can we remove
-// enable warning again
-#if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wwrite-strings"
-#endif
 
 static zend_object*
 handleConnectionInfoAlloc(zend_class_entry* ce)

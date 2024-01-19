@@ -3323,26 +3323,6 @@ IcePHP::ExceptionReader::getSlicedData() const
     return _slicedData;
 }
 
-// IdResolver
-IcePHP::IdResolver::IdResolver(void)
-{
-}
-
-string
-IcePHP::IdResolver::resolve(Ice::Int id) const
-{
-    CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
-    if(m)
-    {
-        CompactIdMap::iterator p = m->find(id);
-        if(p != m->end())
-        {
-            return p->second->id;
-        }
-    }
-    return string();
-}
-
 static zend_object*
 handleTypeInfoAlloc(zend_class_entry* ce)
 {
@@ -3722,24 +3702,13 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
 }
 
-//
-// Necessary to suppress warnings from zend_function_entry in php-5.2.
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
-
-//
 // Predefined methods for IcePHP_TypeInfo.
-//
 static zend_function_entry _typeInfoMethods[] =
 {
     {0, 0, 0}
 };
 
-//
 // Predefined methods for IcePHP_ExceptionInfo.
-//
 static zend_function_entry _exceptionInfoMethods[] =
 {
     {0, 0, 0}
@@ -3785,13 +3754,6 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS|CONST_PERSISTENT);
     return true;
 }
-
-//
-// enable warning again
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wwrite-strings"
-#endif
 
 bool
 IcePHP::typesRequestInit(void)
