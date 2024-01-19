@@ -4,5 +4,5 @@
     ],
     "pylint.args": [
         "--rcfile=tox.ini"
-    ],
+    ]
 }
