@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-from Util import ClientServerTestCase, TestSuite, Server
+from Util import ClientServerTestCase, Server, TestSuite
 
 
 TestSuite(
