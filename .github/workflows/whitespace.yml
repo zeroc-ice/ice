@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install SwiftLints
+      - name: Run whitespace validation
         uses: zeroc-ice/github-actions/@main
         with:
-          whitespace_patterns: "*"
+          whitespace_patterns: "\*"
