@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 export namespace Ice
 {
     namespace Instrumentation

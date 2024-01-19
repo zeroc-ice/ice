@@ -1226,7 +1226,7 @@ allTests(Test::TestHelper* helper)
             try
             {
                 test(
-                    admin->getServerInfo("Server").node == "node-2" && 
+                    admin->getServerInfo("Server").node == "node-2" &&
                     admin->getServerState("Server") == ServerState::Inactive);
 
                 admin->startServer("Server");

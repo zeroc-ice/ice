@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -35,14 +34,12 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Perform any necessary initialization steps.
         /// </summary>
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void initialize();
-
 
         /// <summary>
         /// Called when the communicator is being destroyed.
@@ -69,7 +66,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Initialize the configured plug-ins.
         /// The communicator automatically initializes the plug-ins by default, but an
@@ -83,7 +79,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void initializePlugins();
 
-
         /// <summary>
         /// Get a list of plugins installed.
         /// </summary>
@@ -92,7 +87,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string[] getPlugins();
-
 
         /// <summary>
         /// Obtain a plug-in by name.
@@ -106,7 +100,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Plugin getPlugin(string name);
 
-
         /// <summary>
         /// Install a new plug-in.
         /// </summary>
@@ -118,7 +111,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void addPlugin(string name, Plugin pi);
-
 
         /// <summary>
         /// Called when the communicator is being destroyed.

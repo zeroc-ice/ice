@@ -44,8 +44,6 @@ public:
 
 private:
 
-
-
     bool checkInputFile();
 
     const std::string _path;

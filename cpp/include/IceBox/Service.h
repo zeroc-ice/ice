@@ -177,7 +177,6 @@ using ServicePtr = ::std::shared_ptr<Service>;
 
 #else // C++98 mapping
 
-
 namespace IceBox
 {
 

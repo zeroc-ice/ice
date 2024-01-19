@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -35,7 +34,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Get a property by key.
         /// If the property is not set, an empty string is returned.
@@ -47,7 +45,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string getProperty(string key);
-
 
         /// <summary>
         /// Get a property by key.
@@ -63,7 +60,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string getPropertyWithDefault(string key, string value);
 
-
         /// <summary>
         /// Get a property as an integer.
         /// If the property is not set, 0 is returned.
@@ -75,7 +71,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         int getPropertyAsInt(string key);
-
 
         /// <summary>
         /// Get a property as an integer.
@@ -90,7 +85,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         int getPropertyAsIntWithDefault(string key, int value);
-
 
         /// <summary>
         /// Get a property as a list of strings.
@@ -107,7 +101,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string[] getPropertyAsList(string key);
-
 
         /// <summary>
         /// Get a property as a list of strings.
@@ -127,7 +120,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string[] getPropertyAsListWithDefault(string key, string[] value);
 
-
         /// <summary>
         /// Get all properties whose keys begins with prefix.
         /// If prefix is an empty string, then all
@@ -139,7 +131,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Collections.Generic.Dictionary<string, string> getPropertiesForPrefix(string prefix);
-
 
         /// <summary>
         /// Set a property.
@@ -153,7 +144,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setProperty(string key, string value);
 
-
         /// <summary>
         /// Get a sequence of command-line options that is equivalent to this property set.
         /// Each element of the returned
@@ -163,7 +153,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string[] getCommandLineOptions();
-
 
         /// <summary>
         /// Convert a sequence of command-line options into properties.
@@ -180,7 +169,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string[] parseCommandLineOptions(string prefix, string[] options);
 
-
         /// <summary>
         /// Convert a sequence of command-line options into properties.
         /// All options that begin with one of the following
@@ -194,7 +182,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string[] parseIceCommandLineOptions(string[] options);
 
-
         /// <summary>
         /// Load properties from a file.
         /// </summary>
@@ -202,7 +189,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void load(string file);
-
 
         /// <summary>
         /// Create a copy of this property set.

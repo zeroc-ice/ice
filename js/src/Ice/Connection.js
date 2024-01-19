@@ -56,7 +56,6 @@ Ice.ConnectionInfo = class
     }
 };
 
-
 /**
  *  Specifies the close semantics for Active Connection Management.
  **/
@@ -105,7 +104,6 @@ Ice.IPConnectionInfo = class extends Ice.ConnectionInfo
     }
 };
 
-
 /**
  *  Provides access to the connection details of a TCP connection
  **/
@@ -118,7 +116,6 @@ Ice.TCPConnectionInfo = class extends Ice.IPConnectionInfo
         this.sndSize = sndSize;
     }
 };
-
 
 /**
  *  Provides access to the connection details of a UDP connection
@@ -134,7 +131,6 @@ Ice.UDPConnectionInfo = class extends Ice.IPConnectionInfo
         this.sndSize = sndSize;
     }
 };
-
 
 Slice.defineDictionary(Ice, "HeaderDict", "HeaderDictHelper", "Ice.StringHelper", "Ice.StringHelper", false, undefined, undefined);
 

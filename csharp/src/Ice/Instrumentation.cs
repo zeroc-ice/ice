@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -37,7 +36,6 @@ namespace Ice
         {
             #region Slice operations
 
-
             /// <summary>
             /// This method is called when the instrumented object is created or when the observer is attached to an existing
             ///  object.
@@ -46,7 +44,6 @@ namespace Ice
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             void attach();
 
-
             /// <summary>
             /// This method is called when the instrumented object is destroyed and as a result the observer detached from the
             ///  object.
@@ -54,7 +51,6 @@ namespace Ice
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             void detach();
-
 
             /// <summary>
             /// Notification of a failure.
@@ -114,7 +110,6 @@ namespace Ice
         public partial interface ThreadObserver : Observer
         {
             #region Slice operations
-
 
             /// <summary>
             /// Notification of thread state change.
@@ -179,7 +174,6 @@ namespace Ice
         {
             #region Slice operations
 
-
             /// <summary>
             /// Notification of sent bytes over the connection.
             /// </summary>
@@ -187,7 +181,6 @@ namespace Ice
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             void sentBytes(int num);
-
 
             /// <summary>
             /// Notification of received bytes over the connection.
@@ -215,14 +208,12 @@ namespace Ice
         {
             #region Slice operations
 
-
             /// <summary>
             /// Notification of a user exception.
             /// </summary>
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             void userException();
-
 
             /// <summary>
             /// Reply notification.
@@ -249,7 +240,6 @@ namespace Ice
         public partial interface ChildInvocationObserver : Observer
         {
             #region Slice operations
-
 
             /// <summary>
             /// Reply notification.
@@ -307,7 +297,6 @@ namespace Ice
         {
             #region Slice operations
 
-
             /// <summary>
             /// Notification of the invocation being retried.
             /// </summary>
@@ -315,14 +304,12 @@ namespace Ice
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             void retried();
 
-
             /// <summary>
             /// Notification of a user exception.
             /// </summary>
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             void userException();
-
 
             /// <summary>
             /// Get a remote observer for this invocation.
@@ -339,7 +326,6 @@ namespace Ice
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             RemoteObserver getRemoteObserver(global::Ice.ConnectionInfo con, global::Ice.Endpoint endpt, int requestId, int size);
-
 
             /// <summary>
             /// Get a collocated observer for this invocation.
@@ -373,7 +359,6 @@ namespace Ice
         {
             #region Slice operations
 
-
             /// <summary>
             /// Update connection observers associated with each of the Ice connection from the communicator and its object
             ///  adapters.
@@ -384,7 +369,6 @@ namespace Ice
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             void updateConnectionObservers();
-
 
             /// <summary>
             /// Update thread observers associated with each of the Ice thread from the communicator and its object adapters.
@@ -414,7 +398,6 @@ namespace Ice
         {
             #region Slice operations
 
-
             /// <summary>
             /// This method should return an observer for the given endpoint information and connector.
             /// The Ice run-time calls
@@ -430,7 +413,6 @@ namespace Ice
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             Observer getConnectionEstablishmentObserver(global::Ice.Endpoint endpt, string connector);
 
-
             /// <summary>
             /// This method should return an observer for the given endpoint information.
             /// The Ice run-time calls this method to
@@ -443,7 +425,6 @@ namespace Ice
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             Observer getEndpointLookupObserver(global::Ice.Endpoint endpt);
-
 
             /// <summary>
             /// This method should return a connection observer for the given connection.
@@ -464,7 +445,6 @@ namespace Ice
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             ConnectionObserver getConnectionObserver(global::Ice.ConnectionInfo c, global::Ice.Endpoint e, ConnectionState s, ConnectionObserver o);
 
-
             /// <summary>
             /// This method should return a thread observer for the given thread.
             /// The Ice run-time calls this method for each
@@ -484,7 +464,6 @@ namespace Ice
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             ThreadObserver getThreadObserver(string parent, string id, ThreadState s, ThreadObserver o);
 
-
             /// <summary>
             /// This method should return an invocation observer for the given invocation.
             /// The Ice run-time calls this method
@@ -501,7 +480,6 @@ namespace Ice
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             InvocationObserver getInvocationObserver(global::Ice.ObjectPrx prx, string operation, global::System.Collections.Generic.Dictionary<string, string> ctx);
 
-
             /// <summary>
             /// This method should return a dispatch observer for the given dispatch.
             /// The Ice run-time calls this method each
@@ -515,7 +493,6 @@ namespace Ice
 
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
             DispatchObserver getDispatchObserver(global::Ice.Current c, int size);
-
 
             /// <summary>
             /// The Ice run-time calls this method when the communicator is initialized.

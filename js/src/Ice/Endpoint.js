@@ -47,7 +47,6 @@ Ice.EndpointInfo = class
     }
 };
 
-
 /**
  *  Provides access to the address details of a IP endpoint.
  *  @see Endpoint
@@ -63,7 +62,6 @@ Ice.IPEndpointInfo = class extends Ice.EndpointInfo
     }
 };
 
-
 /**
  *  Provides access to a TCP endpoint information.
  *  @see Endpoint
@@ -75,7 +73,6 @@ Ice.TCPEndpointInfo = class extends Ice.IPEndpointInfo
         super(underlying, timeout, compress, host, port, sourceAddress);
     }
 };
-
 
 /**
  *  Provides access to an UDP endpoint information.
@@ -91,7 +88,6 @@ Ice.UDPEndpointInfo = class extends Ice.IPEndpointInfo
     }
 };
 
-
 /**
  *  Provides access to a WebSocket endpoint information.
  **/
@@ -103,7 +99,6 @@ Ice.WSEndpointInfo = class extends Ice.EndpointInfo
         this.resource = resource;
     }
 };
-
 
 /**
  *  Provides access to the details of an opaque endpoint.

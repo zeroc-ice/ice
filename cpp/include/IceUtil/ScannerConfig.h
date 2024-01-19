@@ -37,7 +37,6 @@
 #   pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
-
 #ifdef __GNUC__
 #  pragma GCC diagnostic ignored "-Wunused-function"
 #  pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
