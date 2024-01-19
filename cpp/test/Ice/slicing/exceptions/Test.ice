@@ -31,7 +31,9 @@ exception KnownMostDerived extends KnownIntermediate
 interface TestIntf
 {
     void baseAsBase() throws Base;
-    void unknownDerivedAsBase() throws Base;
+
+    // Test that the compact metadata is ignored (exceptions are always encoded with the sliced format).
+    ["format:compact"] void unknownDerivedAsBase() throws Base;
     void knownDerivedAsBase() throws Base;
     void knownDerivedAsKnownDerived() throws KnownDerived;
 
@@ -45,8 +47,6 @@ interface TestIntf
     void unknownMostDerived1AsBase() throws Base;
     void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
     void unknownMostDerived2AsBase() throws Base;
-
-    ["format:compact"] void exceptionIsAlwaysEncodedWithSlicedFormat() throws Base;
 
     void shutdown();
 }

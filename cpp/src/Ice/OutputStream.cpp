@@ -805,7 +805,7 @@ void
 Ice::OutputStream::writeException(const UserException& e)
 {
     initEncaps();
-    // Exceptions are always marshalled with the Sliced format.
+    // Exceptions are always encoded with the sliced format.
     _currentEncaps->format = FormatType::SlicedFormat;
     _currentEncaps->encoder->write(e);
 }
