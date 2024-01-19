@@ -148,22 +148,6 @@ def allTestsWithController(helper, communicator, controller):
     except Ice.InvocationTimeoutException:
         test(False)
     test(connection == to.ice_getConnection())
-
-    # #
-    # # Expect InvocationTimeoutException.
-    # #
-    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250))
-    # cb = new Callback()
-    # to.begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx))
-    # cb.check()
-
-    # #
-    # # Expect success.
-    # #
-    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(1000))
-    # cb = new Callback()
-    # to.begin_sleep(100, newCallback_Timeout_sleep(cb, &Callback.response, &Callback.exception))
-    # cb.check()
     print("ok")
 
     sys.stdout.write("testing close timeout... ")

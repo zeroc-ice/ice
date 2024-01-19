@@ -27,7 +27,8 @@ class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
         self._size = size
 
         if self._size + request.getSize() > 25000:
-            request.getProxy().begin_ice_flushBatchRequests()
+            f = request.getProxy().ice_flushBatchRequestsAsync()
+            f.result()
             self._size = 18 # header
 
         if self._enabled:
