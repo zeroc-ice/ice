@@ -10,35 +10,49 @@
 # send buffer size (causing the received messages to be
 # truncated). See also bug #6070.
 #
+
+import sys
+from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
+from Util import ClientServerTestCase, TestSuite
+
+
 props = {
     "IceStorm.Election.MasterTimeout": 2,
     "IceStorm.Election.ElectionTimeout": 2,
-    "IceStorm.Election.ResponseTimeout": 2
+    "IceStorm.Election.ResponseTimeout": 2,
 }
 
 icestorm = [IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]
 
 
 class IceStormRep1TestCase(IceStormTestCase):
-
     def runClientSide(self, current):
-
         def checkExpect(output, expect):
             if not expect:
                 return
 
-            if type(expect) == str:
+            if isinstance(expect, str):
                 expect = [expect]
 
             for e in expect:
                 if output.find(e) >= 0:
-                    return
+                    break
             else:
-                raise RuntimeError("unexected output `{0}' (expected `{1}')".format(output, expect))
+                raise RuntimeError(
+                    "unexected output `{0}' (expected `{1}')".format(output, expect)
+                )
 
         def adminForReplica(replica, cmd, expect):
-            checkExpect(self.runadmin(current, cmd, instance=self.icestorm[replica], quiet=True, exitstatus=1),
-                        expect)
+            checkExpect(
+                self.runadmin(
+                    current,
+                    cmd,
+                    instance=self.icestorm[replica],
+                    quiet=True,
+                    exitstatus=1,
+                ),
+                expect,
+            )
 
         def stopReplica(num):
             self.icestorm[num].shutdown(current)
@@ -48,24 +62,30 @@ class IceStormRep1TestCase(IceStormTestCase):
             self.icestorm[num].start(current)
 
         def runtest(s="", p=""):
-            ClientServerTestCase(client=Publisher(args=p.split(" ")),
-                                 server=Subscriber(args=s.split(" "))).run(current)
+            ClientServerTestCase(
+                client=Publisher(args=p.split(" ")),
+                server=Subscriber(args=s.split(" ")),
+            ).run(current)
 
         def runsub2(replica=None, expect=None):
-            subscriber = Subscriber(exe="sub",
-                                    instance=None if replica is None else self.icestorm[replica],
-                                    args=["--id", "foo"],
-                                    readyCount=0,
-                                    quiet=True)
+            subscriber = Subscriber(
+                exe="sub",
+                instance=None if replica is None else self.icestorm[replica],
+                args=["--id", "foo"],
+                readyCount=0,
+                quiet=True,
+            )
             subscriber.run(current, exitstatus=1 if expect else 0)
             checkExpect(subscriber.getOutput(current), expect)
 
         def rununsub2(replica=None, expect=None):
-            sub = Subscriber(exe="sub",
-                             instance=None if replica is None else self.icestorm[replica],
-                             args=["--id", "foo"],
-                             readyCount=0,
-                             quiet=True)
+            sub = Subscriber(
+                exe="sub",
+                instance=None if replica is None else self.icestorm[replica],
+                args=["--id", "foo"],
+                readyCount=0,
+                quiet=True,
+            )
 
             if replica is None:
                 sub.run(current, args=["--unsub"])
@@ -89,7 +109,9 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(0, 3):
-            adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
+            adminForReplica(
+                replica, "destroy single", "error: couldn't find topic `single'"
+            )
         current.writeln("ok")
 
         current.write("testing topic creation without replica... ")
@@ -136,7 +158,9 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(1, 3):
-            adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
+            adminForReplica(
+                replica, "destroy single", "error: couldn't find topic `single'"
+            )
 
         adminForReplica(0, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
@@ -154,7 +178,9 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(0, 2):
-            adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
+            adminForReplica(
+                replica, "destroy single", "error: couldn't find topic `single'"
+            )
 
         adminForReplica(2, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
@@ -284,4 +310,6 @@ class IceStormRep1TestCase(IceStormTestCase):
         current.writeln("ok")
 
 
-TestSuite(__file__, [IceStormRep1TestCase("replicated", icestorm=icestorm)], multihost=False)
+TestSuite(
+    __file__, [IceStormRep1TestCase("replicated", icestorm=icestorm)], multihost=False
+)

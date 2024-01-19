@@ -3,8 +3,14 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-class IceGridDistributionTestCase(IceGridTestCase):
 
+import os
+from IceGridUtil import IceGridTestCase
+from IcePatch2Util import IcePatch2Calc
+from Util import TestSuite, Windows, platform
+
+
+class IceGridDistributionTestCase(IceGridTestCase):
     def setupClientSide(self, current):
         IceGridTestCase.setupClientSide(self, current)
 
@@ -28,7 +34,7 @@ class IceGridDistributionTestCase(IceGridTestCase):
             file = os.path.join(datadir, file)
             if not os.path.exists(os.path.dirname(file)):
                 os.makedirs(os.path.dirname(file))
-            f = open(file, 'w')
+            f = open(file, "w")
             f.write(content)
             f.close()
 
@@ -39,4 +45,6 @@ class IceGridDistributionTestCase(IceGridTestCase):
 
 
 if isinstance(platform, Windows) or os.getuid() != 0:
-    TestSuite(__file__, [IceGridDistributionTestCase()], runOnMainThread=True, multihost=False)
+    TestSuite(
+        __file__, [IceGridDistributionTestCase()], runOnMainThread=True, multihost=False
+    )
