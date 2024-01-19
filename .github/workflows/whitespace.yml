@@ -18,3 +18,5 @@ jobs:
 
       - name: Install SwiftLints
         uses: zeroc-ice/github-actions/@main
+        with:
+          whitespace_patterns: "*"
