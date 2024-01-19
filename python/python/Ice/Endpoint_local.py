@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.Version_ice
 import Ice.BuiltinSequences_ice
 import Ice.EndpointF_local
@@ -27,6 +28,7 @@ __name__ = 'Ice'
 
 if 'EndpointInfo' not in _M_Ice.__dict__:
     _M_Ice.EndpointInfo = Ice.createTempClass()
+
     class EndpointInfo(object):
         """
          Base class providing access to the endpoint details.
@@ -35,6 +37,7 @@ if 'EndpointInfo' not in _M_Ice.__dict__:
         timeout --  The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
         compress --  Specifies whether or not compression should be used if available when using this endpoint.
         """
+
         def __init__(self, underlying=None, timeout=0, compress=False):
             if Ice.getType(self) == _M_Ice.EndpointInfo:
                 raise RuntimeError('Ice.EndpointInfo is an abstract class')
@@ -81,10 +84,12 @@ if 'EndpointInfo' not in _M_Ice.__dict__:
 
 if 'Endpoint' not in _M_Ice.__dict__:
     _M_Ice.Endpoint = Ice.createTempClass()
+
     class Endpoint(object):
         """
          The user-level interface to an endpoint.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Endpoint:
                 raise RuntimeError('Ice.Endpoint is an abstract class')
@@ -116,6 +121,7 @@ if 'Endpoint' not in _M_Ice.__dict__:
 
 if 'IPEndpointInfo' not in _M_Ice.__dict__:
     _M_Ice.IPEndpointInfo = Ice.createTempClass()
+
     class IPEndpointInfo(_M_Ice.EndpointInfo):
         """
          Provides access to the address details of a IP endpoint.
@@ -124,6 +130,7 @@ if 'IPEndpointInfo' not in _M_Ice.__dict__:
         port --  The port number.
         sourceAddress --  The source IP address.
         """
+
         def __init__(self, underlying=None, timeout=0, compress=False, host='', port=0, sourceAddress=''):
             if Ice.getType(self) == _M_Ice.IPEndpointInfo:
                 raise RuntimeError('Ice.IPEndpointInfo is an abstract class')
@@ -151,10 +158,12 @@ if 'IPEndpointInfo' not in _M_Ice.__dict__:
 
 if 'TCPEndpointInfo' not in _M_Ice.__dict__:
     _M_Ice.TCPEndpointInfo = Ice.createTempClass()
+
     class TCPEndpointInfo(_M_Ice.IPEndpointInfo):
         """
          Provides access to a TCP endpoint information.
         """
+
         def __init__(self, underlying=None, timeout=0, compress=False, host='', port=0, sourceAddress=''):
             if Ice.getType(self) == _M_Ice.TCPEndpointInfo:
                 raise RuntimeError('Ice.TCPEndpointInfo is an abstract class')
@@ -167,7 +176,8 @@ if 'TCPEndpointInfo' not in _M_Ice.__dict__:
 
     _M_Ice._t_TCPEndpointInfo = IcePy.declareValue('::Ice::TCPEndpointInfo')
 
-    _M_Ice._t_TCPEndpointInfo = IcePy.defineValue('::Ice::TCPEndpointInfo', TCPEndpointInfo, -1, (), False, False, _M_Ice._t_IPEndpointInfo, ())
+    _M_Ice._t_TCPEndpointInfo = IcePy.defineValue(
+        '::Ice::TCPEndpointInfo', TCPEndpointInfo, -1, (), False, False, _M_Ice._t_IPEndpointInfo, ())
     TCPEndpointInfo._ice_type = _M_Ice._t_TCPEndpointInfo
 
     _M_Ice.TCPEndpointInfo = TCPEndpointInfo
@@ -175,6 +185,7 @@ if 'TCPEndpointInfo' not in _M_Ice.__dict__:
 
 if 'UDPEndpointInfo' not in _M_Ice.__dict__:
     _M_Ice.UDPEndpointInfo = Ice.createTempClass()
+
     class UDPEndpointInfo(_M_Ice.IPEndpointInfo):
         """
          Provides access to an UDP endpoint information.
@@ -182,6 +193,7 @@ if 'UDPEndpointInfo' not in _M_Ice.__dict__:
         mcastInterface --  The multicast interface.
         mcastTtl --  The multicast time-to-live (or hops).
         """
+
         def __init__(self, underlying=None, timeout=0, compress=False, host='', port=0, sourceAddress='', mcastInterface='', mcastTtl=0):
             if Ice.getType(self) == _M_Ice.UDPEndpointInfo:
                 raise RuntimeError('Ice.UDPEndpointInfo is an abstract class')
@@ -207,12 +219,14 @@ if 'UDPEndpointInfo' not in _M_Ice.__dict__:
 
 if 'WSEndpointInfo' not in _M_Ice.__dict__:
     _M_Ice.WSEndpointInfo = Ice.createTempClass()
+
     class WSEndpointInfo(_M_Ice.EndpointInfo):
         """
          Provides access to a WebSocket endpoint information.
         Members:
         resource --  The URI configured with the endpoint.
         """
+
         def __init__(self, underlying=None, timeout=0, compress=False, resource=''):
             if Ice.getType(self) == _M_Ice.WSEndpointInfo:
                 raise RuntimeError('Ice.WSEndpointInfo is an abstract class')
@@ -226,7 +240,8 @@ if 'WSEndpointInfo' not in _M_Ice.__dict__:
 
     _M_Ice._t_WSEndpointInfo = IcePy.declareValue('::Ice::WSEndpointInfo')
 
-    _M_Ice._t_WSEndpointInfo = IcePy.defineValue('::Ice::WSEndpointInfo', WSEndpointInfo, -1, (), False, False, _M_Ice._t_EndpointInfo, (('resource', (), IcePy._t_string, False, 0),))
+    _M_Ice._t_WSEndpointInfo = IcePy.defineValue('::Ice::WSEndpointInfo', WSEndpointInfo, -1,
+                                                 (), False, False, _M_Ice._t_EndpointInfo, (('resource', (), IcePy._t_string, False, 0),))
     WSEndpointInfo._ice_type = _M_Ice._t_WSEndpointInfo
 
     _M_Ice.WSEndpointInfo = WSEndpointInfo
@@ -234,6 +249,7 @@ if 'WSEndpointInfo' not in _M_Ice.__dict__:
 
 if 'OpaqueEndpointInfo' not in _M_Ice.__dict__:
     _M_Ice.OpaqueEndpointInfo = Ice.createTempClass()
+
     class OpaqueEndpointInfo(_M_Ice.EndpointInfo):
         """
          Provides access to the details of an opaque endpoint.
@@ -241,6 +257,7 @@ if 'OpaqueEndpointInfo' not in _M_Ice.__dict__:
         rawEncoding --  The encoding version of the opaque endpoint (to decode or encode the rawBytes).
         rawBytes --   The raw encoding of the opaque endpoint.
         """
+
         def __init__(self, underlying=None, timeout=0, compress=False, rawEncoding=Ice._struct_marker, rawBytes=None):
             if Ice.getType(self) == _M_Ice.OpaqueEndpointInfo:
                 raise RuntimeError('Ice.OpaqueEndpointInfo is an abstract class')

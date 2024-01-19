@@ -7,7 +7,7 @@ class IceBoxAdminTestCase(ClientServerTestCase):
 
     def runClientSide(self, current):
 
-        admin = IceBoxAdmin(args = ['--Ice.Config="{testdir}/config.admin"'])
+        admin = IceBoxAdmin(args=['--Ice.Config="{testdir}/config.admin"'])
         current.write("testing service stop...")
         admin.run(current, args=['stop', 'TestService'])
         current.writeln("ok")
@@ -18,11 +18,12 @@ class IceBoxAdminTestCase(ClientServerTestCase):
         admin.run(current, args=['shutdown'])
         current.writeln("ok")
 
+
 TestSuite(__name__, [
-        ClientServerTestCase(server=IceBox("{testdir}/config.icebox")),
-        IceBoxAdminTestCase("iceboxadmin", server=IceBox("{testdir}/config.icebox")),
-    ],
+    ClientServerTestCase(server=IceBox("{testdir}/config.icebox")),
+    IceBoxAdminTestCase("iceboxadmin", server=IceBox("{testdir}/config.icebox")),
+],
     libDirs=["testservice"],
     runOnMainThread=True,
-    options={ "ipv6" : [False], "mx" : [False], "cpp11" : [False] },
+    options={"ipv6": [False], "mx": [False], "cpp11": [False]},
     multihost=False)

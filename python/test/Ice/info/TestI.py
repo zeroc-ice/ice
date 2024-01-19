@@ -2,20 +2,24 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test
+import Ice
+import Test
 import time
 
+
 def getIPEndpointInfo(info):
-    while(info):
+    while (info):
         if isinstance(info, Ice.IPEndpointInfo):
             return info
         info = info.underlying
 
+
 def getIPConnectionInfo(info):
-    while(info):
+    while (info):
         if isinstance(info, Ice.IPConnectionInfo):
             return info
         info = info.underlying
+
 
 class MyDerivedClassI(Test.TestIntf):
     def __init__(self):
@@ -31,15 +35,15 @@ class MyDerivedClassI(Test.TestIntf):
         if info.compress:
             ctx["compress"] = "true"
         else:
-            ctx["compress"] ="false"
+            ctx["compress"] = "false"
         if info.datagram():
             ctx["datagram"] = "true"
         else:
-            ctx["datagram"] ="false"
+            ctx["datagram"] = "false"
         if info.secure():
             ctx["secure"] = "true"
         else:
-            ctx["secure"] ="false"
+            ctx["secure"] = "false"
         ctx["type"] = str(info.type())
 
         ctx["host"] = info.host
@@ -63,7 +67,7 @@ class MyDerivedClassI(Test.TestIntf):
         if info.incoming:
             ctx["incoming"] = "true"
         else:
-            ctx["incoming"] ="false"
+            ctx["incoming"] = "false"
 
         ctx["localAddress"] = ipinfo.localAddress
         ctx["localPort"] = str(ipinfo.localPort)

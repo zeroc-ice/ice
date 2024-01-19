@@ -11,7 +11,7 @@ class IceGridSessionTestCase(IceGridTestCase):
 
     def setupServerSide(self, current):
         self.verifier = Server(exe="verifier", waitForShutdown=False, props={
-            "PermissionsVerifier.Endpoints" : "tcp -p 12002"
+            "PermissionsVerifier.Endpoints": "tcp -p 12002"
         })
         current.write("starting permission verifier... ")
         self.verifier.start(current)
@@ -21,36 +21,40 @@ class IceGridSessionTestCase(IceGridTestCase):
         self.verifier.stop(current, success)
         self.verifier = None
 
+
 registryProps = {
-    'Ice.Warn.Dispatch' : '0',
-    'IceGrid.Registry.DynamicRegistration' : True,
-    'IceGrid.Registry.SessionFilters' : True,
-    'IceGrid.Registry.AdminSessionFilters' : True,
-    'IceGrid.Registry.PermissionsVerifier' : 'ClientPermissionsVerifier',
-    'IceGrid.Registry.AdminPermissionsVerifier' : 'AdminPermissionsVerifier:tcp -p 12002',
-    'IceGrid.Registry.SSLPermissionsVerifier' : 'SSLPermissionsVerifier',
-    'IceGrid.Registry.AdminSSLPermissionsVerifier' : 'SSLPermissionsVerifier',
+    'Ice.Warn.Dispatch': '0',
+    'IceGrid.Registry.DynamicRegistration': True,
+    'IceGrid.Registry.SessionFilters': True,
+    'IceGrid.Registry.AdminSessionFilters': True,
+    'IceGrid.Registry.PermissionsVerifier': 'ClientPermissionsVerifier',
+    'IceGrid.Registry.AdminPermissionsVerifier': 'AdminPermissionsVerifier:tcp -p 12002',
+    'IceGrid.Registry.SSLPermissionsVerifier': 'SSLPermissionsVerifier',
+    'IceGrid.Registry.AdminSSLPermissionsVerifier': 'SSLPermissionsVerifier',
 }
 
-clientProps = lambda process, current: {
-    "IceGridNodeExe" : IceGridNode().getCommandLine(current),
-    "ServerDir" : current.getBuildDir("server"),
-    "TestDir" : "{testdir}",
+
+def clientProps(process, current): return {
+    "IceGridNodeExe": IceGridNode().getCommandLine(current),
+    "ServerDir": current.getBuildDir("server"),
+    "TestDir": "{testdir}",
 }
 
-clientProps10 = lambda process, current: {
-    "IceGridNodeExe" : IceGridNode().getCommandLine(current),
-    "ServerDir" : current.getBuildDir("server"),
-    "TestDir" : "{testdir}",
-    "Ice.Default.EncodingVersion" : "1.0"
+
+def clientProps10(process, current): return {
+    "IceGridNodeExe": IceGridNode().getCommandLine(current),
+    "ServerDir": current.getBuildDir("server"),
+    "TestDir": "{testdir}",
+    "Ice.Default.EncodingVersion": "1.0"
 }
+
 
 icegridregistry = [IceGridRegistryMaster(props=registryProps)]
 
 if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(__file__,
-          [ IceGridSessionTestCase("with default encoding", icegridregistry=icegridregistry,
-                                   client=IceGridClient(props=clientProps)),
-            IceGridSessionTestCase("with 1.0 encoding", icegridregistry=icegridregistry,
-                                   client=IceGridClient(props=clientProps10))],
-            runOnMainThread=True, multihost=False)
+              [IceGridSessionTestCase("with default encoding", icegridregistry=icegridregistry,
+                                      client=IceGridClient(props=clientProps)),
+               IceGridSessionTestCase("with 1.0 encoding", icegridregistry=icegridregistry,
+                                      client=IceGridClient(props=clientProps10))],
+              runOnMainThread=True, multihost=False)

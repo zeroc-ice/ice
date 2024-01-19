@@ -17,7 +17,7 @@ class IceGridAdminTestCase(IceGridTestCase):
 
         current.write("testing login with username/password... ")
 
-        admin=IceGridAdmin()
+        admin = IceGridAdmin()
 
         admin.start(current)
         expect(admin, '>>> ')
@@ -26,7 +26,7 @@ class IceGridAdminTestCase(IceGridTestCase):
         admin.sendline(current, 'exit')
         admin.stop(current, True)
 
-        defaultRouterProps = { "Ice.Default.Router" : self.glacier2router.getClientProxy(current) }
+        defaultRouterProps = {"Ice.Default.Router": self.glacier2router.getClientProxy(current)}
 
         admin.start(current, props=defaultRouterProps)
         expect(admin, '>>> ')
@@ -152,15 +152,17 @@ class IceGridAdminTestCase(IceGridTestCase):
             admin.stop(current, False)
             raise RuntimeError("failed!\n" + str(e))
 
-routerProps= lambda process, current: {
-    'Glacier2.SessionTimeout' : 5,
-    'Glacier2.SessionManager' : 'TestIceGrid/AdminSessionManager',
-    'Glacier2.PermissionsVerifier' : 'Glacier2/NullPermissionsVerifier',
-    'Glacier2.SSLSessionManager' : 'TestIceGrid/AdminSSLSessionManager',
-    'Glacier2.SSLPermissionsVerifier' : 'Glacier2/NullSSLPermissionsVerifier',
-    'Ice.Default.Locator' : current.testcase.getLocator(current),
-    'IceSSL.VerifyPeer' : 1
+
+def routerProps(process, current): return {
+    'Glacier2.SessionTimeout': 5,
+    'Glacier2.SessionManager': 'TestIceGrid/AdminSessionManager',
+    'Glacier2.PermissionsVerifier': 'Glacier2/NullPermissionsVerifier',
+    'Glacier2.SSLSessionManager': 'TestIceGrid/AdminSSLSessionManager',
+    'Glacier2.SSLPermissionsVerifier': 'Glacier2/NullSSLPermissionsVerifier',
+    'Ice.Default.Locator': current.testcase.getLocator(current),
+    'IceSSL.VerifyPeer': 1
 }
 
+
 if isinstance(platform, Windows) or os.getuid() != 0:
-    TestSuite(__file__, [ IceGridAdminTestCase() ], multihost=False)
+    TestSuite(__file__, [IceGridAdminTestCase()], multihost=False)

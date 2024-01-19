@@ -2,11 +2,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys
+import Ice
+import Test
+import sys
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
     sys.stdout.write("testing stringToProxy... ")
@@ -70,14 +74,14 @@ def allTests(helper, communicator):
     ss = Test.SmallStruct()
     fs = Test.FixedStruct(78)
     vs = Test.VarStruct("hello")
-    mo1 = Test.MultiOptional(15, True, 19, 78, 99, 5.5, 1.0, "test", Test.MyEnum.MyEnumMember, \
-                             Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")), \
-                             None, [5], ["test", "test2"], {4:3}, {"test":10}, fs, vs, [1], \
-                             [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember], \
-                             [ fs ], [ vs ], [ oo1 ], \
-                             [ Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")) ], \
-                             {4:Test.MyEnum.MyEnumMember}, {4:fs}, {5:vs}, {5:Test.OneOptional(15)}, \
-                             {5:Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))}, \
+    mo1 = Test.MultiOptional(15, True, 19, 78, 99, 5.5, 1.0, "test", Test.MyEnum.MyEnumMember,
+                             Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")),
+                             None, [5], ["test", "test2"], {4: 3}, {"test": 10}, fs, vs, [1],
+                             [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember],
+                             [fs], [vs], [oo1],
+                             [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))],
+                             {4: Test.MyEnum.MyEnumMember}, {4: fs}, {5: vs}, {5: Test.OneOptional(15)},
+                             {5: Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))},
                              [False, True, False])
 
     test(mo1.a == 15)
@@ -319,9 +323,9 @@ def allTests(helper, communicator):
     r = initial.ice_encodingVersion(Ice.Encoding_1_0).returnOptionalClass(True)
     test(r is Ice.Unset)
 
-    recursive1 = [ Test.Recursive() ]
-    recursive2 = [ Test.Recursive() ]
-    recursive1[0].value = recursive2;
+    recursive1 = [Test.Recursive()]
+    recursive2 = [Test.Recursive()]
+    recursive1[0].value = recursive2
 
     outer = Test.Recursive()
     outer.value = recursive1
@@ -445,8 +449,8 @@ def allTests(helper, communicator):
         d.ds = "test"
         d.seq = ["test1", "test2", "test3", "test4"]
         d.ao = Test.A(18)
-        d.requiredB = 14;
-        d.requiredA = 14;
+        d.requiredB = 14
+        d.requiredA = 14
         initial2.opClassAndUnknownOptional(Test.A(), d)
 
         print("ok")
@@ -531,7 +535,7 @@ def allTests(helper, communicator):
     p1 = Test.SmallStruct(56)
     (p2, p3) = initial.opSmallStruct(p1)
     test(p2 == p1 and p3 == p1)
-    (p2, p3) = initial.opSmallStruct(None) # Test null struct
+    (p2, p3) = initial.opSmallStruct(None)  # Test null struct
     test(p2.m == 0 and p3.m == 0)
     f = initial.opSmallStructAsync(p1)
     (p2, p3) = f.result()
@@ -699,7 +703,7 @@ def allTests(helper, communicator):
 
     (p2, p3) = initial.opIntIntDict(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = {1:2, 2:3}
+    p1 = {1: 2, 2: 3}
     (p2, p3) = initial.opIntIntDict(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opIntIntDictAsync(p1)
@@ -708,7 +712,7 @@ def allTests(helper, communicator):
 
     (p2, p3) = initial.opStringIntDict(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = {"1":2, "2":3}
+    p1 = {"1": 2, "2": 3}
     (p2, p3) = initial.opStringIntDict(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opStringIntDictAsync(p1)
@@ -717,12 +721,12 @@ def allTests(helper, communicator):
 
     (p2, p3) = initial.opIntOneOptionalDict(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
-    p1 = {1:Test.OneOptional(58), 2:Test.OneOptional(59)}
+    p1 = {1: Test.OneOptional(58), 2: Test.OneOptional(59)}
     (p2, p3) = initial.opIntOneOptionalDict(p1)
-    test(p2[1].a == 58 and p3[1].a == 58);
+    test(p2[1].a == 58 and p3[1].a == 58)
     f = initial.opIntOneOptionalDictAsync(p1)
     (p2, p3) = f.result()
-    test(p2[1].a == 58 and p3[1].a == 58);
+    test(p2[1].a == 58 and p3[1].a == 58)
 
     try:
         (p1, p2, p3) = initial.opRequiredAfterOptional(1, 2, 3)
@@ -779,8 +783,8 @@ def allTests(helper, communicator):
         test(ex.o is Ice.Unset)
         test(ex.ss is Ice.Unset)
         test(ex.o2 is Ice.Unset)
-        test(ex.d1 == "d1");
-        test(ex.d2 == "d2");
+        test(ex.d1 == "d1")
+        test(ex.d2 == "d2")
 
     try:
         initial.opDerivedException(30, "test2", Test.OneOptional(53))
@@ -790,8 +794,8 @@ def allTests(helper, communicator):
         test(ex.o.a == 53)
         test(ex.ss == "test2")
         test(ex.o2 == ex.o)
-        test(ex.d1 == "d1");
-        test(ex.d2 == "d2");
+        test(ex.d1 == "d1")
+        test(ex.d2 == "d2")
 
     try:
         initial.opRequiredException(Ice.Unset, Ice.Unset, Ice.Unset)
@@ -816,15 +820,15 @@ def allTests(helper, communicator):
     sys.stdout.write("testing optionals with marshaled results... ")
     sys.stdout.flush()
 
-    test(initial.opMStruct1() != Ice.Unset);
-    test(initial.opMDict1() != Ice.Unset);
-    test(initial.opMSeq1() != Ice.Unset);
-    test(initial.opMG1() != Ice.Unset);
+    test(initial.opMStruct1() != Ice.Unset)
+    test(initial.opMDict1() != Ice.Unset)
+    test(initial.opMSeq1() != Ice.Unset)
+    test(initial.opMG1() != Ice.Unset)
 
-    (p3, p2) = initial.opMStruct2(Ice.Unset);
-    test(p2 == Ice.Unset and p3 == Ice.Unset);
+    (p3, p2) = initial.opMStruct2(Ice.Unset)
+    test(p2 == Ice.Unset and p3 == Ice.Unset)
 
-    p1 = Test.SmallStruct();
+    p1 = Test.SmallStruct()
     (p3, p2) = initial.opMStruct2(p1)
     test(p2 == p1 and p3 == p1)
 
@@ -832,22 +836,22 @@ def allTests(helper, communicator):
     test(p2 == Ice.Unset and p3 == Ice.Unset)
 
     p1 = ["hello"]
-    (p3, p2) = initial.opMSeq2(p1);
+    (p3, p2) = initial.opMSeq2(p1)
     test(p2[0] == "hello" and p3[0] == "hello")
 
     (p3, p2) = initial.opMDict2(Ice.Unset)
     test(p2 == Ice.Unset and p3 == Ice.Unset)
 
-    p1 = {"test" : 54}
+    p1 = {"test": 54}
     (p3, p2) = initial.opMDict2(p1)
     test(p2["test"] == 54 and p3["test"] == 54)
 
     (p3, p2) = initial.opMG2(Ice.Unset)
     test(p2 == Ice.Unset and p3 == Ice.Unset)
 
-    p1 = Test.G();
-    (p3, p2) = initial.opMG2(p1);
-    test(p2 != Ice.Unset and p3 != Ice.Unset and p3 == p2);
+    p1 = Test.G()
+    (p3, p2) = initial.opMG2(p1)
+    test(p2 != Ice.Unset and p3 != Ice.Unset and p3 == p2)
 
     print("ok")
 

@@ -17,7 +17,7 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
             if not b:
                 raise RuntimeError('test assertion failed')
 
-        def hashPasswords(password, args = ""):
+        def hashPasswords(password, args=""):
             return run('"%s" "%s" %s' % (sys.executable, hashpassword, args),
                        stdin=(password + "\r\n").encode('UTF-8'),
                        stdinRepeat=False)
@@ -87,5 +87,6 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
             test(passlib.hash.sha256_crypt.verify("abc123", hash))
 
             current.writeln("ok")
+
 
 TestSuite(__name__, [Glacier2HashPasswordTestCase()])

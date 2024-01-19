@@ -2,11 +2,14 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test
+import Ice
+import Test
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def onewaysFuture(helper, proxy):
     communicator = helper.communicator()

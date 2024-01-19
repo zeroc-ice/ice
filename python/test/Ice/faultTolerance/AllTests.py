@@ -2,14 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, sys, threading
+import Ice
+import sys
+import threading
 
 Ice.loadSlice('Test.ice')
 import Test
 
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CallbackBase:
     def __init__(self):
@@ -26,6 +30,7 @@ class CallbackBase:
         with self._cond:
             self._called = True
             self._cond.notify()
+
 
 class Callback(CallbackBase):
     def opPidI(self, f):
@@ -54,6 +59,7 @@ class Callback(CallbackBase):
 
     def pid(self):
         return self._pid
+
 
 def allTests(helper, communicator, ports):
     sys.stdout.write("testing stringToProxy... ")
@@ -151,7 +157,7 @@ def allTests(helper, communicator, ports):
 
             i = i + 1
         else:
-            assert(False)
+            assert (False)
 
         i = i + 1
         j = j + 1

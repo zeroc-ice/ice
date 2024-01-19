@@ -2,11 +2,21 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, Test1, testpkg, modpkg, sys, threading, time, traceback
+import Ice
+import Test
+import Test1
+import testpkg
+import modpkg
+import sys
+import threading
+import time
+import traceback
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
 

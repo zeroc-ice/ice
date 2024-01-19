@@ -18,4 +18,5 @@ class SliceImportTestCase(ClientTestCase):
         slice2py.run(current, args=["Test1.ice"])
         slice2py.run(current, args=["Test2.ice"])
 
-TestSuite(__name__, [ SliceImportTestCase() ])
+
+TestSuite(__name__, [SliceImportTestCase()])

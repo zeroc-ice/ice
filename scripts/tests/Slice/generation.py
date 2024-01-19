@@ -29,4 +29,5 @@ class SliceGenerationTestCase(ClientTestCase):
         else:
             current.writeln("ok")
 
-TestSuite(__name__, [ SliceGenerationTestCase() ])
+
+TestSuite(__name__, [SliceGenerationTestCase()])

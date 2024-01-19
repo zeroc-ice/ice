@@ -6,7 +6,9 @@
 Glacier2 module
 """
 
-import threading, traceback, copy
+import threading
+import traceback
+import copy
 
 #
 # Import the Python extension.
@@ -20,17 +22,20 @@ import Glacier2.PermissionsVerifier_ice
 import Glacier2.SSLInfo_ice
 import Glacier2.Metrics_ice
 
+
 class SessionNotExistException(Exception):
     def __init__(self):
         pass
+
 
 class RestartSessionException(Exception):
     def __init__(self):
         pass
 
+
 class Application(Ice.Application):
 
-    def __init__(self, signalPolicy=0): # HandleSignals=0
+    def __init__(self, signalPolicy=0):  # HandleSignals=0
         '''The constructor accepts an optional argument indicating
 whether to handle signals. The value should be either
 Application.HandleSignals (the default) or
@@ -130,13 +135,13 @@ Application.NoSignalHandling.
                     acmTimeout = 0
                     try:
                         acmTimeout = Application._router.getACMTimeout()
-                    except(Ice.OperationNotExistException):
+                    except (Ice.OperationNotExistException):
                         pass
                     if acmTimeout <= 0:
                         acmTimeout = Application._router.getSessionTimeout()
                     if acmTimeout > 0:
                         connection = Application._router.ice_getCachedConnection()
-                        assert(connection)
+                        assert (connection)
                         connection.setACM(acmTimeout, Ice.Unset, Ice.ACMHeartbeat.HeartbeatAlways)
                         connection.setCloseCallback(lambda conn: self.sessionDestroyed())
                     Application._category = Application._router.getCategoryForClient()
@@ -146,10 +151,10 @@ Application.NoSignalHandling.
         # break down in communications, but not those exceptions that
         # indicate a programming logic error (ie: marshal, protocol
         # failure, etc).
-        except(RestartSessionException):
+        except (RestartSessionException):
             restart = True
-        except(Ice.ConnectionRefusedException, Ice.ConnectionLostException, Ice.UnknownLocalException, \
-               Ice.RequestFailedException, Ice.TimeoutException):
+        except (Ice.ConnectionRefusedException, Ice.ConnectionLostException, Ice.UnknownLocalException,
+                Ice.RequestFailedException, Ice.TimeoutException):
             Ice.getProcessLogger().error(traceback.format_exc())
             restart = True
         except:
@@ -184,7 +189,7 @@ Application.NoSignalHandling.
             except (Ice.ConnectionLostException, SessionNotExistException):
                 pass
             except:
-                Ice.getProcessLogger().error("unexpected exception when destroying the session " + \
+                Ice.getProcessLogger().error("unexpected exception when destroying the session " +
                                              traceback.format_exc())
             Application._router = None
 

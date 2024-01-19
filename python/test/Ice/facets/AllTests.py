@@ -2,37 +2,42 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys
+import Ice
+import Test
+import sys
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
+
 class EmptyI(Test.Empty):
     pass
+
 
 def allTests(helper, communicator):
 
     sys.stdout.write("testing Ice.Admin.Facets property... ")
     sys.stdout.flush()
     test(len(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")) == 0)
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
-    test(len(facetFilter) == 1 and facetFilter[0] == "foobar");
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
-    test(len(facetFilter) == 1 and facetFilter[0] == "foo'bar");
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar")
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
+    test(len(facetFilter) == 1 and facetFilter[0] == "foobar")
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar")
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
+    test(len(facetFilter) == 1 and facetFilter[0] == "foo'bar")
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'")
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
     test(len(facetFilter) == 3 and facetFilter[0] == "foo bar" and facetFilter[1] == "toto"
-         and facetFilter[2] == "titi");
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
-    test(len(facetFilter) == 2 and facetFilter[0] == "foo bar' toto" and facetFilter[1] == "titi");
+         and facetFilter[2] == "titi")
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'")
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
+    test(len(facetFilter) == 2 and facetFilter[0] == "foo bar' toto" and facetFilter[1] == "titi")
     # communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
     # facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
     # test(len(facetFilter) == 0);
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "");
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "")
     print("ok")
 
     sys.stdout.write("testing facet registration exceptions... ")

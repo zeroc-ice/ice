@@ -4,8 +4,8 @@
 #
 
 registryProps = {
-    "Ice.Plugin.RegistryPlugin" : "RegistryPlugin:createRegistryPlugin",
-    "IceGrid.Registry.DynamicRegistration" : 1
+    "Ice.Plugin.RegistryPlugin": "RegistryPlugin:createRegistryPlugin",
+    "IceGrid.Registry.DynamicRegistration": 1
 }
 registryTraceProps = {
     "IceGrid.Registry.Trace.Locator": 2,
@@ -16,7 +16,7 @@ registryTraceProps = {
 }
 
 clientProps = {
-    "Ice.RetryIntervals" : "0 50 100 250"
+    "Ice.RetryIntervals": "0 50 100 250"
 }
 clientTraceProps = {
     "Ice.Trace.Locator": 2,

@@ -6,33 +6,34 @@ import os
 
 from Util import *
 
+
 class Ice(Component):
 
     # Options for all transports (ran only with Ice client/server tests defined for cross testing)
     transportOptions = {
-        "protocol" : ["tcp", "ssl", "wss", "ws"],
-        "compress" : [False, True],
-        "ipv6" : [False, True],
-        "serialize" : [False, True],
-        "mx" : [False, True],
+        "protocol": ["tcp", "ssl", "wss", "ws"],
+        "compress": [False, True],
+        "ipv6": [False, True],
+        "serialize": [False, True],
+        "mx": [False, True],
     }
 
     # Options for Ice tests, run tests with ssl and ws/ipv6/serial/mx/compress
     coreOptions = {
-        "protocol" : ["ssl", "ws"],
-        "compress" : [False, True],
-        "ipv6" : [False, True],
-        "serialize" : [False, True],
-        "mx" : [False, True],
+        "protocol": ["ssl", "ws"],
+        "compress": [False, True],
+        "ipv6": [False, True],
+        "serialize": [False, True],
+        "mx": [False, True],
     }
 
     # Options for Ice services, run tests with ssl + mx
     serviceOptions = {
-        "protocol" : ["ssl"],
-        "compress" : [False],
-        "ipv6" : [False],
-        "serialize" : [False],
-        "mx" : [True],
+        "protocol": ["ssl"],
+        "compress": [False],
+        "ipv6": [False],
+        "serialize": [False],
+        "mx": [True],
     }
 
     def useBinDist(self, mapping, current):
@@ -127,7 +128,7 @@ class Ice(Component):
         return True
 
     def isMainThreadOnly(self, testId):
-        return False # By default, tests support being run concurrently
+        return False  # By default, tests support being run concurrently
 
     def getDefaultProcesses(self, mapping, processType, testId):
         if testId.startswith("IceUtil") or testId.startswith("Slice"):
@@ -190,6 +191,7 @@ class Ice(Component):
                 return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
             else:
                 return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
+
 
 component = Ice()
 

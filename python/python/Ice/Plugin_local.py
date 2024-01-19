@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.LoggerF_local
 import Ice.BuiltinSequences_ice
 
@@ -26,12 +27,14 @@ __name__ = 'Ice'
 
 if 'Plugin' not in _M_Ice.__dict__:
     _M_Ice.Plugin = Ice.createTempClass()
+
     class Plugin(object):
         """
          A communicator plug-in. A plug-in generally adds a feature to a communicator, such as support for a protocol.
          The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the second stage
          invokes Plugin#initialize on each one.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Plugin:
                 raise RuntimeError('Ice.Plugin is an abstract class')
@@ -61,10 +64,12 @@ if 'Plugin' not in _M_Ice.__dict__:
 
 if 'PluginManager' not in _M_Ice.__dict__:
     _M_Ice.PluginManager = Ice.createTempClass()
+
     class PluginManager(object):
         """
          Each communicator has a plug-in manager to administer the set of plug-ins.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.PluginManager:
                 raise RuntimeError('Ice.PluginManager is an abstract class')

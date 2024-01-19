@@ -5,6 +5,7 @@
 
 import glob
 
+
 class SliceHeadersTestCase(ClientTestCase):
 
     def runClientSide(self, current):
@@ -148,13 +149,16 @@ class SliceHeadersTestCase(ClientTestCase):
         # Device or resource busy: 'project1/.nfs00000000006216b500000024'
         #
         try:
-            if os.path.exists("project1"): shutil.rmtree("project1")
+            if os.path.exists("project1"):
+                shutil.rmtree("project1")
         except:
             pass
         try:
-            if os.path.exists("tmp"): shutil.rmtree("tmp")
+            if os.path.exists("tmp"):
+                shutil.rmtree("tmp")
         except:
             pass
 
+
 if not isinstance(platform, Windows):
-    TestSuite(__name__, [ SliceHeadersTestCase() ], chdir=True)
+    TestSuite(__name__, [SliceHeadersTestCase()], chdir=True)

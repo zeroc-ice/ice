@@ -4,15 +4,17 @@
 
 import NetworkProxy
 
+
 class NetworkProxyTestSuite(TestSuite):
 
     def setup(self, current):
         self.portNum = 30
 
+
 class NetworkProxyTestCase(ClientServerTestCase):
 
     def __init__(self, proxyName, proxyType):
-        ClientServerTestCase.__init__(self, proxyName + " client/server", client = Client(props = lambda p, c: {
+        ClientServerTestCase.__init__(self, proxyName + " client/server", client=Client(props=lambda p, c: {
             "Ice.{0}ProxyHost".format(proxyName): "localhost",
             "Ice.{0}ProxyPort".format(proxyName): "{0}".format(c.driver.getTestPort(c.testsuite.portNum))
         }))
@@ -37,7 +39,8 @@ class NetworkProxyTestCase(ClientServerTestCase):
         current.testsuite.portNum += 1
         current.writeln("ok")
 
+
 NetworkProxyTestSuite(__name__, [
     NetworkProxyTestCase("SOCKS", NetworkProxy.SocksProxy),
     NetworkProxyTestCase("HTTP", NetworkProxy.HttpProxy),
-], options = { "ipv6" : [False] })
+], options={"ipv6": [False]})

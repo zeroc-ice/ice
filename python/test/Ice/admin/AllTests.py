@@ -2,13 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, TestI
+import Ice
+import Test
+import sys
+import TestI
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def testFacets(com, builtInFacets = True):
+
+def testFacets(com, builtInFacets=True):
 
     if builtInFacets:
         test(com.findAdminFacet("Properties") != None)
@@ -38,7 +43,7 @@ def testFacets(com, builtInFacets = True):
         test("Logger" in facetMap)
         test("Metrics" in facetMap)
 
-    test(len(facetMap) >=3)
+    test(len(facetMap) >= 3)
 
     test("Facet1" in facetMap)
     test("Facet2" in facetMap)
@@ -48,13 +53,13 @@ def testFacets(com, builtInFacets = True):
         com.addAdminFacet(f1, "Facet1")
         test(False)
     except Ice.AlreadyRegisteredException:
-        pass # Expected
+        pass  # Expected
 
     try:
         com.removeAdminFacet("Bogus")
         test(False)
     except Ice.NotRegisteredException:
-        pass # Expected
+        pass  # Expected
 
     com.removeAdminFacet("Facet1")
     com.removeAdminFacet("Facet2")
@@ -64,7 +69,8 @@ def testFacets(com, builtInFacets = True):
         com.removeAdminFacet("Facet1")
         test(False)
     except Ice.NotRegisteredException:
-        pass # Expected
+        pass  # Expected
+
 
 def allTests(helper, communicator):
     sys.stdout.write("testing communicator operations... ")
@@ -198,11 +204,11 @@ def allTests(helper, communicator):
     # Test: PropertiesAdmin::setProperties()
     #
     setProps = {}
-    setProps["Prop1"] = "10" # Changed
-    setProps["Prop2"] = "20" # Changed
-    setProps["Prop3"] = "" # Removed
-    setProps["Prop4"] = "4" # Added
-    setProps["Prop5"] = "5" # Added
+    setProps["Prop1"] = "10"  # Changed
+    setProps["Prop2"] = "20"  # Changed
+    setProps["Prop3"] = ""  # Removed
+    setProps["Prop4"] = "4"  # Added
+    setProps["Prop5"] = "5"  # Added
     pa.setProperties(setProps)
     test(pa.getProperty("Prop1") == "10")
     test(pa.getProperty("Prop2") == "20")

@@ -13,11 +13,11 @@ passwords = {
 }
 
 routerProps = {
-   "Ice.Warn.Dispatch" : "0",
-   "Ice.Warn.Connections" : "0",
-   "Glacier2.Filter.Category.Accept" : "c1 c2",
-   "Glacier2.Filter.Category.AcceptUser" : "2",
-   "Glacier2.Client.ACM.Timeout" : "30",
+    "Ice.Warn.Dispatch": "0",
+    "Ice.Warn.Connections": "0",
+    "Glacier2.Filter.Category.Accept": "c1 c2",
+    "Glacier2.Filter.Category.AcceptUser": "2",
+    "Glacier2.Client.ACM.Timeout": "30",
 }
 
 traceProps = {
@@ -26,8 +26,10 @@ traceProps = {
     "Ice.Trace.Retry": 1,
 }
 
+
 def buffered(enabled):
-    return { "Glacier2.Client.Buffered": enabled, "Glacier2.Server.Buffered": enabled }
+    return {"Glacier2.Client.Buffered": enabled, "Glacier2.Server.Buffered": enabled}
+
 
 Glacier2TestSuite(__name__, routerProps, [
                   ClientServerTestCase(name="client/server with router in unbuffered mode",

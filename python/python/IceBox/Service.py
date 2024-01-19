@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.BuiltinSequences_ice
 import Ice.CommunicatorF_ice
 
@@ -31,6 +32,7 @@ _M_IceBox.__doc__ = """
 
 if 'FailureException' not in _M_IceBox.__dict__:
     _M_IceBox.FailureException = Ice.createTempClass()
+
     class FailureException(Ice.LocalException):
         """
          This exception is a general failure notification. It is thrown for errors such as a service encountering an error
@@ -38,6 +40,7 @@ if 'FailureException' not in _M_IceBox.__dict__:
         Members:
         reason --  The reason for the failure.
         """
+
         def __init__(self, reason=''):
             self.reason = reason
 
@@ -48,7 +51,8 @@ if 'FailureException' not in _M_IceBox.__dict__:
 
         _ice_id = '::IceBox::FailureException'
 
-    _M_IceBox._t_FailureException = IcePy.defineException('::IceBox::FailureException', FailureException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
+    _M_IceBox._t_FailureException = IcePy.defineException(
+        '::IceBox::FailureException', FailureException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
     FailureException._ice_type = _M_IceBox._t_FailureException
 
     _M_IceBox.FailureException = FailureException
@@ -56,10 +60,12 @@ if 'FailureException' not in _M_IceBox.__dict__:
 
 if 'Service' not in _M_IceBox.__dict__:
     _M_IceBox.Service = Ice.createTempClass()
+
     class Service(object):
         """
          An application service managed by a ServiceManager.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_IceBox.Service:
                 raise RuntimeError('IceBox.Service is an abstract class')

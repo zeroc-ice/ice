@@ -2,8 +2,10 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os
+import sys
+import os
 from Util import *
+
 
 class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
@@ -21,7 +23,7 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
             path = os.path.join(current.testsuite.getPath(), "passwords")
             with open(path, "w") as file:
                 command = "\"%s\" %s" % (sys.executable,
-                                     os.path.abspath(os.path.join(toplevel, "scripts", "icehashpassword.py")))
+                                         os.path.abspath(os.path.join(toplevel, "scripts", "icehashpassword.py")))
 
                 #
                 # For Linux ARM default rounds makes test slower (Usually runs on embedded boards)
@@ -36,10 +38,10 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     def getProps(self, current):
         props = Server.getProps(self, current)
         props.update({
-            "Glacier2.Client.Endpoints" : current.getTestEndpoint(self.portnum),
-            "Glacier2.Server.Endpoints" : "tcp",
-            "Ice.Admin.Endpoints" : current.getTestEndpoint(self.portnum + 1),
-            "Ice.Admin.InstanceName" : "Glacier2",
+            "Glacier2.Client.Endpoints": current.getTestEndpoint(self.portnum),
+            "Glacier2.Server.Endpoints": "tcp",
+            "Ice.Admin.Endpoints": current.getTestEndpoint(self.portnum + 1),
+            "Ice.Admin.InstanceName": "Glacier2",
         })
         if self.passwords:
             props["Glacier2.CryptPasswords"] = os.path.join(current.testsuite.getPath(), "passwords")
@@ -50,6 +52,7 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
     def getClientProxy(self, current):
         return "Glacier2/router:{0}".format(current.getTestEndpoint(self.portnum))
+
 
 class Glacier2TestSuite(TestSuite):
 

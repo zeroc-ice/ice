@@ -2,7 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, TestI, sys
+import Ice
+import Test
+import TestI
+import sys
+
 
 def MyValueFactory(type):
     if type == '::Test::B':
@@ -19,11 +23,13 @@ def MyValueFactory(type):
         return TestI.II()
     elif type == '::Test::J':
         return TestI.JI()
-    assert(False) # Should never be reached
+    assert (False)  # Should never be reached
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::B')
@@ -101,7 +107,7 @@ def allTests(helper, communicator):
     test(v1[0].data == "l")
     test(v2[0].data == "l")
 
-    v1, v2 = initial.opValueMap({"l":Test.L("l")})
+    v1, v2 = initial.opValueMap({"l": Test.L("l")})
     test(v1["l"].data == "l")
     test(v2["l"].data == "l")
     print("ok")
@@ -212,12 +218,12 @@ def allTests(helper, communicator):
     sys.stdout.write("testing recursive type... ")
     sys.stdout.flush()
     top = Test.Recursive()
-    p = top;
-    depth = 0;
+    p = top
+    depth = 0
     try:
         while depth <= 700:
             p.v = Test.Recursive()
-            p = p.v;
+            p = p.v
             if (depth < 10 and (depth % 10) == 0) or \
                (depth < 1000 and (depth % 100) == 0) or \
                (depth < 10000 and (depth % 1000) == 0) or \

@@ -11,13 +11,14 @@
 # truncated). See also bug #6070.
 #
 props = {
-    "IceStorm.Election.MasterTimeout" : 2,
-    "IceStorm.Election.ElectionTimeout" : 2,
-    "IceStorm.Election.ResponseTimeout" : 2,
-    "Ice.Warn.Dispatch" : 0
+    "IceStorm.Election.MasterTimeout": 2,
+    "IceStorm.Election.ElectionTimeout": 2,
+    "IceStorm.Election.ResponseTimeout": 2,
+    "Ice.Warn.Dispatch": 0
 }
 
-icestorm = [ IceStorm(replica=i, nreplicas=3, props = props) for i in range(0,3) ]
+icestorm = [IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]
+
 
 class IceStormRepStressTestCase(IceStormTestCase):
 
@@ -100,9 +101,11 @@ class IceStormRepStressTestCase(IceStormTestCase):
         subscriber.stop(current, True)
         current.writeln("ok")
 
-        current.writeln("publisher published %s events, subscriber received %s events" % (publisherCount, subscriberCount))
+        current.writeln("publisher published %s events, subscriber received %s events" %
+                        (publisherCount, subscriberCount))
+
 
 TestSuite(__file__,
-          [ IceStormRepStressTestCase("replicated", icestorm=icestorm) ],
-          options={ "ipv6" : [False] },
+          [IceStormRepStressTestCase("replicated", icestorm=icestorm)],
+          options={"ipv6": [False]},
           multihost=False, runOnMainThread=True)

@@ -3,4 +3,4 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-TestSuite(__name__, [ ClientTestCase(client=SimpleClient(args=["{testdir}"])) ])
+TestSuite(__name__, [ClientTestCase(client=SimpleClient(args=["{testdir}"]))])

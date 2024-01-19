@@ -2,11 +2,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, Ice, Test
+import sys
+import Ice
+import Test
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
     sys.stdout.write("testing stringToProxy... ")
@@ -57,13 +61,13 @@ def allTests(helper, communicator):
     communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000")
     adapter = communicator.createObjectAdapter("PAdapter")
     test(len(adapter.getPublishedEndpoints()) == 1)
-    endpt = adapter.getPublishedEndpoints()[0];
+    endpt = adapter.getPublishedEndpoints()[0]
     test(str(endpt) == "tcp -h localhost -p 12345 -t 30000")
     prx = communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000")
     adapter.setPublishedEndpoints(prx.ice_getEndpoints())
     test(len(adapter.getPublishedEndpoints()) == 2)
     ident = Ice.Identity()
-    ident.name = "dummy";
+    ident.name = "dummy"
     test(adapter.createProxy(ident).ice_getEndpoints() == prx.ice_getEndpoints())
     test(adapter.getPublishedEndpoints() == prx.ice_getEndpoints())
     adapter.refreshPublishedEndpoints()
@@ -95,7 +99,7 @@ def allTests(helper, communicator):
     sys.stdout.write("testing object adapter with router... ")
     sys.stdout.flush()
     routerId = Ice.Identity()
-    routerId.name = "router";
+    routerId.name = "router"
     router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId).ice_connectionId("rc"))
     adapter = communicator.createObjectAdapterWithRouter("", router)
     test(len(adapter.getPublishedEndpoints()) == 1)
@@ -112,7 +116,7 @@ def allTests(helper, communicator):
     adapter.destroy()
 
     try:
-        routerId.name = "test";
+        routerId.name = "test"
         router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId))
         communicator.createObjectAdapterWithRouter("", router)
         test(False)
@@ -129,7 +133,7 @@ def allTests(helper, communicator):
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
     try:
-        obj.ice_timeout(100).ice_ping() # Use timeout to speed up testing on Windows
+        obj.ice_timeout(100).ice_ping()  # Use timeout to speed up testing on Windows
         test(False)
     except Ice.LocalException:
         print("ok")

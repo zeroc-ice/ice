@@ -3,4 +3,4 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-Glacier2TestSuite(__name__, routerProps = { "Glacier2.RoutingTable.MaxSize" : 10 })
+Glacier2TestSuite(__name__, routerProps={"Glacier2.RoutingTable.MaxSize": 10})

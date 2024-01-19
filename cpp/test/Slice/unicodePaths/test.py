@@ -3,7 +3,9 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import shutil, locale
+import shutil
+import locale
+
 
 class SliceUnicodePathsTestCase(ClientTestCase):
 
@@ -20,7 +22,8 @@ class SliceUnicodePathsTestCase(ClientTestCase):
 
         srcPath = "./\u4e2d\u56fd"
 
-        if os.path.exists(srcPath): shutil.rmtree(srcPath)
+        if os.path.exists(srcPath):
+            shutil.rmtree(srcPath)
         os.mkdir(srcPath)
 
         current.createFile("%s/Test.ice" % srcPath,
@@ -55,6 +58,8 @@ class SliceUnicodePathsTestCase(ClientTestCase):
             current.writeln("ok")
 
         finally:
-            if os.path.exists(srcPath): shutil.rmtree(srcPath)
+            if os.path.exists(srcPath):
+                shutil.rmtree(srcPath)
 
-TestSuite(__name__, [ SliceUnicodePathsTestCase() ], chdir=True)
+
+TestSuite(__name__, [SliceUnicodePathsTestCase()], chdir=True)

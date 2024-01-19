@@ -12,4 +12,5 @@ def setlimits():
         import resource
         resource.setrlimit(resource.RLIMIT_NOFILE, (92, 92))
 
+
 TestSuite(__name__, [ClientServerTestCase(server=Server(preexec_fn=setlimits))])
