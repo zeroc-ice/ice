@@ -19,4 +19,4 @@ jobs:
       - name: Run whitespace validation
         uses: zeroc-ice/github-actions/@main
         with:
-          whitespace_patterns: "\*"
+          whitespace_patterns: "'*'"
