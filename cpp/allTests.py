@@ -8,6 +8,6 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
-from scripts.Util import runTestsWithPath
+from Util import runTestsWithPath
 
 runTestsWithPath(__file__)
