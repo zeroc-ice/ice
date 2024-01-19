@@ -10,20 +10,23 @@
 # send buffer size (causing the received messages to be
 # truncated). See also bug #6070.
 #
+import time
+from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
+from Util import Client, TestSuite
+
+
 props = {
     "IceStorm.Election.MasterTimeout": 2,
     "IceStorm.Election.ElectionTimeout": 2,
     "IceStorm.Election.ResponseTimeout": 2,
-    "Ice.Warn.Dispatch": 0
+    "Ice.Warn.Dispatch": 0,
 }
 
 icestorm = [IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]
 
 
 class IceStormRepStressTestCase(IceStormTestCase):
-
     def runClientSide(self, current):
-
         def stopReplica(num):
             self.icestorm[num].shutdown(current)
             self.icestorm[num].stop(current, True)
@@ -64,7 +67,7 @@ class IceStormRepStressTestCase(IceStormTestCase):
             stopReplica(0)
             current.writeln("ok")
             # This waits for the replication to startup
-            #self.runadmin(current, "list")
+            # self.runadmin(current, "list")
             time.sleep(2)
 
             # 0, 2
@@ -73,14 +76,14 @@ class IceStormRepStressTestCase(IceStormTestCase):
             stopReplica(1)
             current.writeln("ok")
             # This waits for the replication to startup
-            #self.runadmin(current, "list")
+            # self.runadmin(current, "list")
             time.sleep(2)
 
             current.write("starting 1 (all running)... ")
             startReplica(1)
             current.writeln("ok")
             # This waits for the replication to startup
-            #self.runadmin(current, "list")
+            # self.runadmin(current, "list")
             time.sleep(2)
 
         current.write("stopping publisher... ")
@@ -101,11 +104,16 @@ class IceStormRepStressTestCase(IceStormTestCase):
         subscriber.stop(current, True)
         current.writeln("ok")
 
-        current.writeln("publisher published %s events, subscriber received %s events" %
-                        (publisherCount, subscriberCount))
+        current.writeln(
+            "publisher published %s events, subscriber received %s events"
+            % (publisherCount, subscriberCount)
+        )
 
 
-TestSuite(__file__,
-          [IceStormRepStressTestCase("replicated", icestorm=icestorm)],
-          options={"ipv6": [False]},
-          multihost=False, runOnMainThread=True)
+TestSuite(
+    __file__,
+    [IceStormRepStressTestCase("replicated", icestorm=icestorm)],
+    options={"ipv6": [False]},
+    multihost=False,
+    runOnMainThread=True,
+)

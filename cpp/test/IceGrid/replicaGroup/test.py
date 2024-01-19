@@ -3,9 +3,14 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+import os
+from IceGridUtil import IceGridClient, IceGridRegistryMaster, IceGridTestCase
+from Util import TestSuite, Windows, platform
+
+
 registryProps = {
     "Ice.Plugin.RegistryPlugin": "RegistryPlugin:createRegistryPlugin",
-    "IceGrid.Registry.DynamicRegistration": 1
+    "IceGrid.Registry.DynamicRegistration": 1,
 }
 registryTraceProps = {
     "IceGrid.Registry.Trace.Locator": 2,
@@ -15,17 +20,22 @@ registryTraceProps = {
     "Ice.Trace.Protocol": 1,
 }
 
-clientProps = {
-    "Ice.RetryIntervals": "0 50 100 250"
-}
-clientTraceProps = {
-    "Ice.Trace.Locator": 2,
-    "Ice.Trace.Protocol": 1
-}
+clientProps = {"Ice.RetryIntervals": "0 50 100 250"}
+clientTraceProps = {"Ice.Trace.Locator": 2, "Ice.Trace.Protocol": 1}
 
 if isinstance(platform, Windows) or os.getuid() != 0:
-    TestSuite(__file__,
-              [IceGridTestCase(icegridregistry=[IceGridRegistryMaster(props=registryProps, traceProps=registryTraceProps)],
-                               client=IceGridClient(props=clientProps, traceProps=clientTraceProps))],
-              libDirs=["registryplugin", "testservice"],
-              multihost=False)
+    TestSuite(
+        __file__,
+        [
+            IceGridTestCase(
+                icegridregistry=[
+                    IceGridRegistryMaster(
+                        props=registryProps, traceProps=registryTraceProps
+                    )
+                ],
+                client=IceGridClient(props=clientProps, traceProps=clientTraceProps),
+            )
+        ],
+        libDirs=["registryplugin", "testservice"],
+        multihost=False,
+    )

@@ -5,11 +5,13 @@
 
 import glob
 import os
+import re
 import shutil
+
+from Util import ClientTestCase, SliceTranslator, TestSuite
 
 
 class SliceErrorDetectionTestCase(ClientTestCase):
-
     def runClientSide(self, current):
         testdir = current.testsuite.getPath()
         slice2cpp = SliceTranslator("slice2cpp")
@@ -28,7 +30,9 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                 args = ["-I.", file, "--output-dir", "tmp"]
 
                 # Don't print out slice2cpp output and expect failures
-                slice2cpp.run(current, args=args, exitstatus=0 if file.find("Warning") >= 0 else 1)
+                slice2cpp.run(
+                    current, args=args, exitstatus=0 if file.find("Warning") >= 0 else 1
+                )
                 output = slice2cpp.getOutput(current)
 
                 regex1 = re.compile("\.ice$", re.IGNORECASE)
@@ -38,7 +42,11 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                     if len(lines1) != len(lines2):
                         current.writeln("lines1 = {0}".format(lines1))
                         current.writeln("lines2 = {0}".format(lines2))
-                        raise RuntimeError("failed (lines1 = {0}, lines2 = {1})!".format(len(lines1), len(lines2)))
+                        raise RuntimeError(
+                            "failed (lines1 = {0}, lines2 = {1})!".format(
+                                len(lines1), len(lines2)
+                            )
+                        )
 
                     regex2 = re.compile("^.*(?=" + os.path.basename(file) + ")")
                     i = 0
@@ -46,17 +54,34 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                         line1 = regex2.sub("", lines1[i]).strip()
                         line2 = regex2.sub("", lines2[i]).strip()
                         if line1 != line2:
-                            raise RuntimeError("failed! (line1 = \"{0}\", line2 = \"{1}\"".format(line1, line2))
+                            raise RuntimeError(
+                                'failed! (line1 = "{0}", line2 = "{1}"'.format(
+                                    line1, line2
+                                )
+                            )
                         i = i + 1
                     else:
                         current.writeln("ok")
 
             current.write("Forward.ice... ")
-            for language in ["cpp", "cs", "html", "java", "js", "matlab", "php", "py", "rb", "swift"]:
-                compiler = SliceTranslator('slice2%s' % language)
+            for language in [
+                "cpp",
+                "cs",
+                "html",
+                "java",
+                "js",
+                "matlab",
+                "php",
+                "py",
+                "rb",
+                "swift",
+            ]:
+                compiler = SliceTranslator("slice2%s" % language)
                 if not os.path.isfile(compiler.getCommandLine(current)):
                     continue
-                compiler.run(current, args=["forward/Forward.ice", "--output-dir", "tmp"])
+                compiler.run(
+                    current, args=["forward/Forward.ice", "--output-dir", "tmp"]
+                )
             current.writeln("ok")
         finally:
             if os.path.exists(outdir):

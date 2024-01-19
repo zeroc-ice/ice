@@ -3,11 +3,22 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import glob
+import os
+import re
+import shutil
+
+from Util import (
+    AIX,
+    ClientTestCase,
+    component,
+    platform,
+    SliceTranslator,
+    TestSuite,
+    Windows,
+)
 
 
 class SliceHeadersTestCase(ClientTestCase):
-
     def runClientSide(self, current):
         self.clean()
 
@@ -25,10 +36,14 @@ class SliceHeadersTestCase(ClientTestCase):
         def runTest(args):
             slice2cpp.run(current, args=args.split(" "))
             f = open("b.h")
-            if not re.search(r'#include <dir1\/a1\.h>\n'
-                             r'#include <linktodir1\/a2\.h>\n'
-                             r'#include <linktodir1\/linktoa3\.h>\n'
-                             r'#include <Ice\/Identity\.h>\n', f.read(), re.S):
+            if not re.search(
+                r"#include <dir1\/a1\.h>\n"
+                r"#include <linktodir1\/a2\.h>\n"
+                r"#include <linktodir1\/linktoa3\.h>\n"
+                r"#include <Ice\/Identity\.h>\n",
+                f.read(),
+                re.S,
+            ):
                 raise RuntimeError("failed!")
 
             os.unlink("b.h")
@@ -54,7 +69,9 @@ class SliceHeadersTestCase(ClientTestCase):
         #
         os.system("mkdir -p project1/git/services.settings.slices")
         os.system("mkdir -p project1/src/services/settings")
-        os.system("cd project1/src/services/settings &&  ln -s ../../../git/services.settings.slices slices")
+        os.system(
+            "cd project1/src/services/settings &&  ln -s ../../../git/services.settings.slices slices"
+        )
 
         f = open("project1/git/services.settings.slices/A.ice", "w")
         f.write("// dumy file")
@@ -63,9 +80,13 @@ class SliceHeadersTestCase(ClientTestCase):
         f.write("#include <services/settings/slices/A.ice>")
         f.close()
 
-        os.system("cd project1 && %s -Isrc src/services/settings/slices/B.ice" % slice2cpp)
+        os.system(
+            "cd project1 && %s -Isrc src/services/settings/slices/B.ice" % slice2cpp
+        )
         f = open("project1/B.h")
-        if not re.search(re.escape('#include <services/settings/slices/A.h>'), f.read()):
+        if not re.search(
+            re.escape("#include <services/settings/slices/A.h>"), f.read()
+        ):
             raise RuntimeError("failed!")
 
         self.clean()
@@ -83,7 +104,7 @@ class SliceHeadersTestCase(ClientTestCase):
         f.close()
         os.system("cd project1 && %s -Ishare/slice A.ice" % slice2cpp)
         f = open("project1/A.h")
-        if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
+        if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
             raise RuntimeError("failed!")
 
         self.clean()
@@ -100,9 +121,11 @@ class SliceHeadersTestCase(ClientTestCase):
         f = open("project1/A.ice", "w")
         f.write("#include <Ice/Identity.ice>")
         f.close()
-        os.system("cd project1 && %s -I%s/tmp/Ice-x.y/slice A.ice" % (slice2cpp, basedir))
+        os.system(
+            "cd project1 && %s -I%s/tmp/Ice-x.y/slice A.ice" % (slice2cpp, basedir)
+        )
         f = open("project1/A.h")
-        if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
+        if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
             raise RuntimeError("failed!")
 
         self.clean()
@@ -122,9 +145,11 @@ class SliceHeadersTestCase(ClientTestCase):
             f = open("project1/A.ice", "w")
             f.write("#include <Ice/Identity.ice>")
             f.close()
-            os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir))
+            os.system(
+                "cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir)
+            )
             f = open("project1/A.h")
-            if not re.search(re.escape('#include <Ice/Identity.h>'), f.read()):
+            if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
                 raise RuntimeError("failed!")
             self.clean()
 
@@ -134,16 +159,18 @@ class SliceHeadersTestCase(ClientTestCase):
         self.clean()
 
     def clean(self):
-        for f in ["iceslices",
-                  "linktoslices",
-                  os.path.join("slices", "linktodir2"),
-                  os.path.join("slices", "linktodir1"),
-                  os.path.join("slices", "dir1", "linktoa3.ice")]:
+        for f in [
+            "iceslices",
+            "linktoslices",
+            os.path.join("slices", "linktodir2"),
+            os.path.join("slices", "linktodir1"),
+            os.path.join("slices", "dir1", "linktoa3.ice"),
+        ]:
             if os.path.lexists(f):
                 os.unlink(f)
 
         #
-        # rmtree can fail when tests are running from a NFS volumen
+        # rmtree can fail when tests are running from a NFS volume
         # with an error like:
         #
         # Device or resource busy: 'project1/.nfs00000000006216b500000024'
@@ -151,12 +178,12 @@ class SliceHeadersTestCase(ClientTestCase):
         try:
             if os.path.exists("project1"):
                 shutil.rmtree("project1")
-        except:
+        except IOError:
             pass
         try:
             if os.path.exists("tmp"):
                 shutil.rmtree("tmp")
-        except:
+        except IOError:
             pass
 
 
