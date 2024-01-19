@@ -75,15 +75,6 @@ registerIceIAP(bool loadOnInitialize)
 
 }
 
-//
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICEIAP_API void
-ICEregisterIceIAP(bool loadOnInitialize)
-{
-    Ice::registerIceIAP(loadOnInitialize);
-}
-
 IceObjC::iAPEndpointI::iAPEndpointI(const ProtocolInstancePtr& instance, const string& m,
                                     const string& o, const string& n, const string& p, Int ti,
                                     const string& conId, bool co) :

@@ -14,8 +14,8 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICESTORM_API"]]
-[["objc:header-dir:objc"]]
+
+
 
 [["python:pkgdir:IceStorm"]]
 
@@ -23,7 +23,7 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICEMX", "swift:module:IceStorm:MX"]
+["swift:module:IceStorm:MX"]
 module IceMX
 {
     /// Provides information on IceStorm topics.

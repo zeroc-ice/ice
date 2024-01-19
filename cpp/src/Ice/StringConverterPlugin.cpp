@@ -181,12 +181,3 @@ registerIceStringConverter(bool loadOnInitialize)
 }
 
 }
-
-//
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICE_API void
-ICEregisterIceStringConverter(bool loadOnInitialize)
-{
-    Ice::registerIceStringConverter(loadOnInitialize);
-}

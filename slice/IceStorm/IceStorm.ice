@@ -14,8 +14,8 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICESTORM_API"]]
-[["objc:header-dir:objc"]]
+
+
 
 [["python:pkgdir:IceStorm"]]
 
@@ -28,7 +28,7 @@
 /// A messaging service with support for federation. In contrast to most other messaging or event services, IceStorm
 /// supports typed events, meaning that broadcasting a message over a federation is as easy as invoking a method on an
 /// interface.
-["objc:prefix:ICESTORM"]
+
 module IceStorm
 {
 

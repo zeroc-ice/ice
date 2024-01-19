@@ -1969,10 +1969,6 @@ class TestSuite(object):
         if isinstance(self.mapping, MatlabMapping):
             return True
 
-        # Only Objective-C mapping cross test support workers.
-        if isinstance(self.mapping, ObjCMapping) and not driver.getComponent().isCross(self.id):
-            return True
-
         config = driver.configs[self.mapping]
         if "iphone" in config.buildPlatform or config.browser or config.android:
             return True # Not supported yet for tests that require a remote process controller
@@ -2074,10 +2070,7 @@ class LocalProcessController(ProcessController):
                     programName = process.exe or current.testcase.getProcessType(process)
                 traceFile = os.path.join(current.testsuite.getPath(),
                                          "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")))
-                if isinstance(process.getMapping(current), ObjCMapping):
-                    traceProps["Ice.StdErr"] = traceFile
-                else:
-                    traceProps["Ice.LogFile"] = traceFile
+                traceProps["Ice.LogFile"] = traceFile
             props.update(traceProps)
 
         args = ["--{0}={1}".format(k, val(v)) for k,v in props.items()] + [val(a) for a in args]
@@ -3383,38 +3376,6 @@ class CppBasedMapping(Mapping):
             # the C++ library directory to the library path
             env[platform.getLdPathEnvName()] = self.component.getLibDir(process, Mapping.getByName("cpp"), current)
         return env
-
-class ObjCMapping(CppBasedMapping):
-
-    class Config(CppBasedMapping.Config):
-        mappingName = "objc"
-        mappingDesc = "Objective-C"
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-            self.arc = self.buildConfig.lower().find("arc") >= 0
-
-    def _getDefaultSource(self, processType):
-        return {
-            "client" : "Client.m",
-            "server" : "Server.m",
-            "collocated" : "Collocated.m",
-        }[processType]
-
-    def _getDefaultExe(self, processType):
-        return Mapping._getDefaultExe(self, processType).lower()
-
-    def getIOSControllerIdentity(self, current):
-        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
-        mapping = "ObjC-ARC" if current.config.arc else "ObjC"
-        return "{0}/com.zeroc.{1}-Test-Controller".format(category, mapping)
-
-    def getIOSAppFullPath(self, current):
-        appName = "Objective-C ARC Test Controller.app" if current.config.arc else "Objective-C Test Controller.app"
-        path = os.path.join(self.component.getTestDir(self), "ios", "controller")
-        path = os.path.join(path, "build-{0}-{1}".format(current.config.buildPlatform, current.config.buildConfig))
-        build = "Debug" if os.path.exists(os.path.join(path, "Debug-{0}".format(current.config.buildPlatform))) else "Release"
-        return os.path.join(path, "{0}-{1}".format(build, current.config.buildPlatform), appName)
 
 class PythonMapping(CppBasedMapping):
 

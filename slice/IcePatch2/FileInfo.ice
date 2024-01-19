@@ -14,7 +14,7 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:header-dir:objc"]]
+
 
 [["python:pkgdir:IcePatch2"]]
 
@@ -22,7 +22,7 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICEPATCH2"]
+
 module IcePatch2
 {
 

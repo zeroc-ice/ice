@@ -13,8 +13,8 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
+
+
 
 [["python:pkgdir:Ice"]]
 
@@ -24,7 +24,7 @@
 /// to retrieve metrics from Ice applications.
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICEMX", "swift:module:Ice:MX"]
+["swift:module:Ice:MX"]
 module IceMX
 {
 
