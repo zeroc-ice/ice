@@ -6,9 +6,7 @@ runs:
     # Python3 is already installed though Homebrew
     - name: Install brew dependencies
       run: |
-        brew unlink python3
-        brew link --overwrite python3
-        brew install ruby openjdk node php lmdb mcpp
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install ruby openjdk node php lmdb mcpp
       shell: bash
       if: runner.os == 'macOS'
 
