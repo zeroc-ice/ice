@@ -46,7 +46,6 @@
 namespace Glacier2
 {
 
-
 namespace Instrumentation
 {
 

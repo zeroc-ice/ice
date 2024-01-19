@@ -806,7 +806,6 @@ function allTests($helper)
             test($e->pb->sb == "sb d2");
             test($e->pb->pb === $e->pb);
 
-
             // Break cyclic dependencies - helps in detecting leaks.
             $e->pb->pb = null;
         }

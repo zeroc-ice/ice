@@ -14,7 +14,6 @@
 // </auto-generated>
 //
 
-
 namespace
 {
     require_once 'IceLocal/ObjectAdapterF.php';

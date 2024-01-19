@@ -82,7 +82,7 @@ IcePatch2Internal::writeFileInfo(FILE* fp, const LargeFileInfo& info)
         "%s\t%s\t" ICE_INT64_FORMAT "\t%d\n",
 #endif
         IceUtilInternal::escapeString(
-            info.path, "", 
+            info.path, "",
 #ifdef ICE_CPP11_MAPPING
             IceUtilInternal::ToStringMode::Compat
 #else

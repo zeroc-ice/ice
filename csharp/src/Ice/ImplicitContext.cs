@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -35,7 +34,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Get a copy of the underlying context.
         /// </summary>
@@ -44,7 +42,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Collections.Generic.Dictionary<string, string> getContext();
 
-
         /// <summary>
         /// Set the underlying context.
         /// </summary>
@@ -52,7 +49,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void setContext(global::System.Collections.Generic.Dictionary<string, string> newContext);
-
 
         /// <summary>
         /// Check if this key has an associated value in the underlying context.
@@ -63,7 +59,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         bool containsKey(string key);
-
 
         /// <summary>
         /// Get the value associated with the given key in the underlying context.
@@ -78,7 +73,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string get(string key);
 
-
         /// <summary>
         /// Create or update a key/value entry in the underlying context.
         /// </summary>
@@ -90,7 +84,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string put(string key, string value);
-
 
         /// <summary>
         /// Remove the entry for the given key in the underlying context.

@@ -14,7 +14,6 @@
 // </auto-generated>
 //
 
-
 namespace
 {
     require_once 'IceLocal/LoggerF.php';

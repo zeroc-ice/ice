@@ -1131,7 +1131,7 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
             if(differsOnlyInCase)
             {
                 ostringstream os;
-                os << "class definition `" << name << "' is capitalized inconsistently with its previous name: `" 
+                os << "class definition `" << name << "' is capitalized inconsistently with its previous name: `"
                    << def->name() << "'";
                 _unit->error(os.str());
             }
@@ -2563,7 +2563,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
             }
 
             _unit->error("`" + firstComponent + "' has changed meaning");
-            
+
             return false;
         }
     }
@@ -4944,7 +4944,7 @@ ParamDeclList
 Slice::Operation::outParameters() const
 {
     ParamDeclList result;
-    
+
     for(const auto& p : _contents)
     {
         ParamDeclPtr q = dynamic_pointer_cast<ParamDecl>(p);
