@@ -30,9 +30,7 @@ namespace IcePHP
 void* createWrapper(zend_class_entry*, size_t);
 void* extractWrapper(zval*);
 
-//
 // Wraps a C++ pointer inside a PHP object.
-//
 template<typename T>
 struct Wrapper
 {
@@ -85,64 +83,40 @@ bool extractStringMap(zval*, std::map<std::string, std::string>&);
 bool createStringArray(zval*, const Ice::StringSeq&);
 bool extractStringArray(zval*, Ice::StringSeq&);
 
-//
 // Create a PHP instance of Ice_ProtocolVersion.
-//
 bool createProtocolVersion(zval*, const Ice::ProtocolVersion&);
 
-//
 // Create a PHP instance of Ice_EncodingVersion.
-//
 bool createEncodingVersion(zval*, const Ice::EncodingVersion&);
 
-//
 // Extracts the members of an encoding version.
-//
 bool extractEncodingVersion(zval*, Ice::EncodingVersion&);
 
-//
 // Convert the given exception into its PHP equivalent.
-//
 void convertException(zval*, const Ice::Exception&);
 
-//
 // Convert the exception and "throw" it.
-//
 void throwException(const Ice::Exception&);
 
-//
 // Convert a Zend type (e.g., IS_BOOL, etc.) to a string for use in error messages.
-//
 std::string zendTypeToString(int);
 
-//
 // Raise RuntimeException with the given message.
-//
 void runtimeError(const char*, ...);
 
-//
 // Raise InvalidArgumentException with the given message.
-//
 void invalidArgument(const char*, ...);
 
-//
 // Invoke a method on a PHP object. The method must not take any arguments.
-//
 bool invokeMethod(zval*, const std::string&);
 
-//
 // Invoke a method on a PHP object. The method must take one string argument.
-//
 bool invokeMethod(zval*, const std::string&, const std::string&);
 
-//
 // Check inheritance.
-//
 bool checkClass(zend_class_entry*, zend_class_entry*);
 
-//
 // Exception-safe efree.
-//
 class AutoEfree
 {
 public:
@@ -153,9 +127,7 @@ private:
     void* _p;
 };
 
-//
 // Exception-safe zval destroy.
-//
 class AutoDestroy
 {
 public:

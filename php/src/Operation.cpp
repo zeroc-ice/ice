@@ -2,12 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Operation.h>
-#include <Communicator.h>
-#include <Proxy.h>
-#include <Types.h>
-#include <Util.h>
-#include <Slice/PHPUtil.h>
+#include "Operation.h"
+#include "Communicator.h"
+#include "Proxy.h"
+#include "Types.h"
+#include "Util.h"
+
+#include "Slice/PHPUtil.h"
 
 using namespace std;
 using namespace IcePHP;
@@ -123,9 +124,7 @@ protected:
     void checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>&) const;
 };
 
-//
 // A synchronous typed invocation.
-//
 class SyncTypedInvocation final : public TypedInvocation
 {
 public:
@@ -137,9 +136,7 @@ public:
 
 }
 
-//
 // ResultCallback implementation.
-//
 IcePHP::ResultCallback::ResultCallback()
 {
     ZVAL_UNDEF(&zv);
@@ -157,11 +154,8 @@ IcePHP::ResultCallback::~ResultCallback()
 void
 IcePHP::ResultCallback::unmarshaled(zval* val, zval*, void*)
 {
-    //
-    // Copy the unmarshaled value into this result callback
-    // This increases the refcount for refcounted values and
-    // coppies non-refcound values
-    //
+    // Copy the unmarshaled value into this result callback. This increases the refcount for refcounted values and
+    // coppies non-refcound values.
     ZVAL_COPY(&zv, val);
 }
 
@@ -171,9 +165,7 @@ IcePHP::ResultCallback::unset(void)
     assignUnset(&zv);
 }
 
-//
 // OperationI implementation.
-//
 IcePHP::OperationI::OperationI(
     const char* n,
     Ice::OperationMode m,
@@ -191,27 +183,23 @@ IcePHP::OperationI::OperationI(
 {
     // inParams
     sendsClasses = false;
-    if(in)
+    if (in)
     {
         convertParams(in, inParams, sendsClasses);
     }
 
-    //
     // outParams
-    //
     returnsClasses = false;
-    if(out)
+    if (out)
     {
         convertParams(out, outParams, returnsClasses);
     }
 
-    //
     // returnType
-    //
-    if(ret)
+    if (ret)
     {
         returnType = convertParam(ret, 0);
-        if(!returnsClasses)
+        if (!returnsClasses)
         {
             returnsClasses = returnType->type->usesClasses();
         }
@@ -233,19 +221,14 @@ IcePHP::OperationI::OperationI(
         }
     };
 
-    //
-    // The inParams list represents the parameters in the order of declaration.
-    // We also need a sorted list of optional parameters.
-    //
+    // The inParams list represents the parameters in the order of declaration. We also need a sorted list of optional
+    // parameters.
     ParamInfoList l = inParams;
     copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(optionalInParams));
     optionalInParams.sort(SortFn::compare);
 
-    //
-    // The outParams list represents the parameters in the order of declaration.
-    // We also need a sorted list of optional parameters. If the return value is
-    // optional, we must include it in this list.
-    //
+    // The outParams list represents the parameters in the order of declaration. We also need a sorted list of optional
+    // parameters. If the return value is optional, we must include it in this list.
     l = outParams;
     copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(optionalOutParams));
     if(returnType && returnType->optional)
@@ -254,9 +237,7 @@ IcePHP::OperationI::OperationI(
     }
     optionalOutParams.sort(SortFn::compare);
 
-    //
     // exceptions
-    //
     if(ex)
     {
         HashTable* arr = Z_ARRVAL_P(ex);
@@ -286,18 +267,16 @@ IcePHP::OperationI::function()
 {
     if(!_zendFunction)
     {
-        //
         // Create an array that indicates how arguments are passed to the operation.
-        //
         zend_internal_arg_info* argInfo = new zend_internal_arg_info[numParams];
 
         int i = 0;
-        ParamInfoList::const_iterator p;
-        for(p = inParams.begin(); p != inParams.end(); ++p, ++i)
+        for (ParamInfoList::const_iterator p = inParams.begin(); p != inParams.end(); ++p, ++i)
         {
             getArgInfo(argInfo[i], *p, false);
         }
-        for(p = outParams.begin(); p != outParams.end(); ++p, ++i)
+
+        for (ParamInfoList::const_iterator p = outParams.begin(); p != outParams.end(); ++p, ++i)
         {
             getArgInfo(argInfo[i], *p, true);
         }
@@ -331,7 +310,7 @@ IcePHP::OperationI::convertParams(zval* p, ParamInfoList& params, bool& usesClas
     {
         ParamInfoPtr param = convertParam(val, i++);
         params.push_back(param);
-        if(!param->optional && !usesClasses)
+        if (!param->optional && !usesClasses)
         {
             usesClasses = param->type->usesClasses();
         }
@@ -350,7 +329,7 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
     param->type = Wrapper<TypeInfoPtr>::value(zend_hash_index_find(arr, 0));
     param->optional = zend_hash_num_elements(arr) > 1;
 
-    if(param->optional)
+    if (param->optional)
     {
         assert(Z_TYPE_P(zend_hash_index_find(arr, 1)) == IS_LONG);
         param->tag = static_cast<int>(Z_LVAL_P(zend_hash_index_find(arr, 1)));
@@ -369,9 +348,7 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_ARRAY_INFO(pass_by_ref,
-                                static_cast<uint32_t>(0),
-                                static_cast<uint32_t>(allow_null))
+            ZEND_ARG_ARRAY_INFO(pass_by_ref, static_cast<uint32_t>(0), static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
@@ -379,9 +356,7 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
     {
         zend_internal_arg_info ai[] =
         {
-            ZEND_ARG_CALLABLE_INFO(pass_by_ref,
-                                   static_cast<uint32_t>(0),
-                                   static_cast<uint32_t>(allow_null))
+            ZEND_ARG_CALLABLE_INFO(pass_by_ref, static_cast<uint32_t>(0), static_cast<uint32_t>(allow_null))
         };
         arg = ai[0];
     }
@@ -444,8 +419,10 @@ IcePHP::TypedInvocation::prepareRequest(
 
                 if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
-                    invalidArgument("invalid value for argument %d in operation `%s'", info->pos + 1,
-                                    _op->name.c_str());
+                    invalidArgument(
+                        "invalid value for argument %d in operation `%s'",
+                        info->pos + 1,
+                        _op->name.c_str());
                     return false;
                 }
             }
@@ -505,27 +482,25 @@ IcePHP::TypedInvocation::unmarshalResults(
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
-    // Store a pointer to a local StreamUtil object as the stream's closure.
-    // This is necessary to support object unmarshaling (see ValueReader).
+    // Store a pointer to a local StreamUtil object as the stream's closure. This is necessary to support object
+    // unmarshaling (see ValueReader).
     StreamUtil util;
     assert(!is.getClosure());
     is.setClosure(&util);
 
     is.startEncapsulation();
 
-    // These callbacks collect references (copies for unreferenced types) to the unmarshaled values.
-    // We copy them into the argument list *after* any pending objects have been unmarshaled.
+    // These callbacks collect references (copies for unreferenced types) to the unmarshaled values. We copy them into
+    // the argument list *after* any pending objects have been unmarshaled.
     ResultCallbackList outParamCallbacks;
     ResultCallbackPtr retCallback;
 
     outParamCallbacks.resize(_op->outParams.size());
 
-    //
     // Unmarshal the required out parameters.
-    //
-    for(const auto& info : _op->outParams)
+    for (const auto& info : _op->outParams)
     {
-        if(!info->optional)
+        if (!info->optional)
         {
             auto cb = make_shared<ResultCallback>();
             outParamCallbacks[info->pos] = cb;
@@ -534,7 +509,7 @@ IcePHP::TypedInvocation::unmarshalResults(
     }
 
     // Unmarshal the required return value, if any.
-    if(_op->returnType && !_op->returnType->optional)
+    if (_op->returnType && !_op->returnType->optional)
     {
         retCallback = make_shared<ResultCallback>();
         _op->returnType->type->unmarshal(&is, retCallback, _communicator, 0, 0, false);
@@ -544,7 +519,7 @@ IcePHP::TypedInvocation::unmarshalResults(
     for(const auto& info : _op->optionalOutParams)
     {
         auto cb = make_shared<ResultCallback>();
-        if(_op->returnType && info->tag == _op->returnType->tag)
+        if (_op->returnType && info->tag == _op->returnType->tag)
         {
             retCallback = cb;
         }
@@ -553,7 +528,7 @@ IcePHP::TypedInvocation::unmarshalResults(
             outParamCallbacks[info->pos] = cb;
         }
 
-        if(is.readOptional(info->tag, info->type->optionalFormat()))
+        if (is.readOptional(info->tag, info->type->optionalFormat()))
         {
             info->type->unmarshal(&is, cb, _communicator, 0, 0, true);
         }
@@ -563,7 +538,7 @@ IcePHP::TypedInvocation::unmarshalResults(
         }
     }
 
-    if(_op->returnsClasses)
+    if (_op->returnsClasses)
     {
         is.readPendingValues();
     }
@@ -573,14 +548,14 @@ IcePHP::TypedInvocation::unmarshalResults(
     util.updateSlicedData();
 
     int i = static_cast<int>(_op->inParams.size());
-    for(ResultCallbackList::iterator q = outParamCallbacks.begin(); q != outParamCallbacks.end(); ++q, ++i)
+    for (ResultCallbackList::iterator q = outParamCallbacks.begin(); q != outParamCallbacks.end(); ++q, ++i)
     {
         assert(Z_ISREF(args[i]));
         zval* arg = Z_REFVAL_P(&args[i]);
         ZVAL_COPY(arg, &(*q)->zv);
     }
 
-    if(_op->returnType)
+    if (_op->returnType)
     {
         ZVAL_COPY(ret, &retCallback->zv);
     }
@@ -591,8 +566,8 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
-    // Store a pointer to a local StreamUtil object as the stream's closure.
-    // This is necessary to support object unmarshaling (see ValueReader).
+    // Store a pointer to a local StreamUtil object as the stream's closure. This is necessary to support object
+    // unmarshaling (see ValueReader).
     StreamUtil util;
     assert(!is.getClosure());
     is.setClosure(&util);
@@ -639,12 +614,9 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
         }
     }
 
-    //
-    // Getting here should be impossible: we can get here only if the
-    // sender has marshaled a sequence of type IDs, none of which we
-    // have a factory for. This means that sender and receiver disagree
-    // about the Slice definitions they use.
-    //
+    // Getting here should be impossible: we can get here only if the sender has marshaled a sequence of type IDs, none
+    // of which we have a factory for. This means that sender and receiver disagree about the Slice definitions they
+    // use.
     Ice::UnknownUserException uue(__FILE__, __LINE__, "unknown exception");
     convertException(zex, uue);
 }
@@ -667,15 +639,11 @@ IcePHP::TypedInvocation::checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>& proxy
 {
     if((_op->returnType || !_op->outParams.empty()) && !proxy->ice_isTwoway())
     {
-        Ice::TwowayOnlyException ex(__FILE__, __LINE__);
-        ex.operation = _op->name;
-        throw ex;
+        throw Ice::TwowayOnlyException(__FILE__, __LINE__, _op->name);
     }
 }
 
-//
 // SyncTypedInvocation
-//
 IcePHP::SyncTypedInvocation::SyncTypedInvocation(
     shared_ptr<Ice::ObjectPrx> prx,
     CommunicatorInfoPtr communicator,
@@ -690,7 +658,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     // Retrieve the arguments.
     zval* args = static_cast<zval*>(ecalloc(1, ZEND_NUM_ARGS() * sizeof(zval)));
     AutoEfree autoArgs(args); // Call efree on return
-    if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
+    if (zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {
         runtimeError("unable to get arguments");
         return;
@@ -698,16 +666,16 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 
     Ice::OutputStream os(_prx->ice_getCommunicator());
     pair<const Ice::Byte*, const Ice::Byte*> params;
-    if(!prepareRequest(ZEND_NUM_ARGS(), args, &os, params))
+    if (!prepareRequest(ZEND_NUM_ARGS(), args, &os, params))
     {
         return;
     }
 
     bool hasCtx = false;
     Ice::Context ctx;
-    if(ZEND_NUM_ARGS() == static_cast<uint32_t>(_op->numParams) + 1)
+    if (ZEND_NUM_ARGS() == static_cast<uint32_t>(_op->numParams) + 1)
     {
-        if(!extractStringMap(&args[ZEND_NUM_ARGS() - 1], ctx))
+        if (!extractStringMap(&args[ZEND_NUM_ARGS() - 1], ctx))
         {
             return;
         }
@@ -718,9 +686,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     {
         checkTwowayOnly(_prx);
 
-        //
         // Invoke the operation.
-        //
         vector<Ice::Byte> result;
         bool status;
         {
@@ -734,16 +700,12 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             }
         }
 
-        //
         // Process the reply.
-        //
         if(_prx->ice_isTwoway())
         {
             if(!status)
             {
-                //
                 // Unmarshal a user exception.
-                //
                 pair<const Ice::Byte*, const Ice::Byte*> rb(0, 0);
                 if(!result.empty())
                 {
@@ -761,9 +723,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             }
             else if(!_op->outParams.empty() || _op->returnType)
             {
-                //
                 // Unmarshal the results.
-                //
                 pair<const Ice::Byte*, const Ice::Byte*> rb(0, 0);
                 if(!result.empty())
                 {

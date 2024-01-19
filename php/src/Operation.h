@@ -5,11 +5,9 @@
 #ifndef ICEPHP_OPERATION_H
 #define ICEPHP_OPERATION_H
 
-#include <Config.h>
+#include "Config.h"
 
-//
 // Global functions.
-//
 extern "C"
 {
 ZEND_FUNCTION(IcePHP_defineOperation);

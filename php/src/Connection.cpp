@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Types.h>
-#include <Util.h>
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Types.h"
+#include "Util.h"
+
 #include <IceSSL/IceSSL.h>
 
 using namespace std;
@@ -13,9 +14,7 @@ using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-//
 // Class entries represent the PHP class implementations we have registered.
-//
 namespace IcePHP
 {
 
@@ -30,9 +29,7 @@ static zend_class_entry* udpConnectionInfoClassEntry = 0;
 static zend_class_entry* wsConnectionInfoClassEntry = 0;
 static zend_class_entry* sslConnectionInfoClassEntry = 0;
 
-//
 // Ice::Connection support.
-//
 static zend_object_handlers _connectionHandlers;
 static zend_object_handlers _connectionInfoHandlers;
 
@@ -407,9 +404,6 @@ ZEND_METHOD(Ice_Connection, throwException)
     }
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleConnectionAlloc(zend_class_entry* ce)
 {
@@ -421,9 +415,6 @@ handleConnectionAlloc(zend_class_entry* ce)
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleConnectionFreeStorage(zend_object* object)
 {
@@ -432,26 +423,20 @@ handleConnectionFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static int
 handleConnectionCompare(zval* zobj1, zval* zobj2)
 {
-    //
     // PHP guarantees that the objects have the same class.
-    //
-
     Ice::ConnectionPtr con1 = Wrapper<Ice::ConnectionPtr>::value(zobj1);
     assert(con1);
     Ice::ConnectionPtr con2 = Wrapper<Ice::ConnectionPtr>::value(zobj2);
     assert(con2);
 
-    if(con1 == con2)
+    if (con1 == con2)
     {
         return 0;
     }
-    else if(con1 < con2)
+    else if (con1 < con2)
     {
         return -1;
     }
@@ -461,20 +446,19 @@ handleConnectionCompare(zval* zobj1, zval* zobj2)
     }
 }
 
-//
+// TODO can we remove this?
 // Necessary to suppress warnings from zend_function_entry in php-5.2.
 //
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wwrite-strings"
 #endif
 
-//
 // Predefined methods for Connection.
-//
 static zend_function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
 };
+
 static zend_function_entry _connectionClassMethods[] =
 {
     ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -499,24 +483,19 @@ ZEND_METHOD(Ice_ConnectionInfo, __construct)
     runtimeError("ConnectionInfo cannot be instantiated");
 }
 
-//
 // Predefined methods for ConnectionInfo.
-//
 static zend_function_entry _connectionInfoClassMethods[] =
 {
     ZEND_ME(Ice_ConnectionInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     {0, 0, 0}
 };
-//
+
+// TODO can we remove
 // enable warning again
-//
 #if defined(__GNUC__)
 #  pragma GCC diagnostic error "-Wwrite-strings"
 #endif
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleConnectionInfoAlloc(zend_class_entry* ce)
 {
@@ -528,9 +507,6 @@ handleConnectionInfoAlloc(zend_class_entry* ce)
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleConnectionInfoFreeStorage(zend_object* object)
 {
@@ -542,37 +518,25 @@ handleConnectionInfoFreeStorage(zend_object* object)
 bool
 IcePHP::connectionInit(void)
 {
-    //
-    // We register an interface and a class that implements the interface. This allows
-    // applications to safely include the Slice-generated code for the type.
-    //
+    // We register an interface and a class that implements the interface. This allows  applications to safely include
+    // the Slice-generated code for the type.
 
-    //
     // Register the Connection interface.
-    //
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Connection", _interfaceMethods);
     zend_class_entry* interface = zend_register_internal_interface(&ce);
 
-    //
     // Register the Connection class.
-    //
     INIT_CLASS_ENTRY(ce, "IcePHP_Connection", _connectionClassMethods);
     ce.create_object = handleConnectionAlloc;
     connectionClassEntry = zend_register_internal_class(&ce);
     memcpy(&_connectionHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-#if PHP_VERSION_ID >= 80000
     _connectionHandlers.compare = handleConnectionCompare;
-#else
-    _connectionHandlers.compare_objects = handleConnectionCompare;
-#endif
     _connectionHandlers.free_obj = handleConnectionFreeStorage;
     _connectionHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionPtr>, zobj);
     zend_class_implements(connectionClassEntry, 1, interface);
 
-    //
     // Register the ConnectionInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ConnectionInfo", _connectionInfoClassMethods);
     ce.create_object = handleConnectionInfoAlloc;
     connectionInfoClassEntry = zend_register_internal_class(&ce);
@@ -586,9 +550,7 @@ IcePHP::connectionInit(void)
     zend_declare_property_null(connectionInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
                                ZEND_ACC_PUBLIC);
 
-    //
     // Register the IPConnectionInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
@@ -601,9 +563,7 @@ IcePHP::connectionInit(void)
     zend_declare_property_long(ipConnectionInfoClassEntry, STRCAST("remotePort"), sizeof("remotePort") - 1, 0,
                                ZEND_ACC_PUBLIC);
 
-    //
     // Register the TCPConnectionInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     tcpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
@@ -612,9 +572,7 @@ IcePHP::connectionInit(void)
     zend_declare_property_long(tcpConnectionInfoClassEntry, STRCAST("sndSize"), sizeof("sndSize") - 1, 0,
                                ZEND_ACC_PUBLIC);
 
-    //
     // Register the UDPConnectionInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
@@ -623,18 +581,14 @@ IcePHP::connectionInit(void)
     zend_declare_property_long(udpConnectionInfoClassEntry, STRCAST("mcastPort"), sizeof("mcastPort") - 1, 0,
                                ZEND_ACC_PUBLIC);
 
-    //
     // Register the WSConnectionInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(wsConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
 
-    //
     // Register the SSLConnectionInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);

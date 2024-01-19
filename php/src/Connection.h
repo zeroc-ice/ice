@@ -5,14 +5,12 @@
 #ifndef ICEPHP_CONNECTION_H
 #define ICEPHP_CONNECTION_H
 
-#include <Config.h>
+#include "Config.h"
 
 namespace IcePHP
 {
 
-//
 // Class entry.
-//
 extern zend_class_entry* connectionClassEntry;
 
 bool connectionInit(void);

@@ -5,7 +5,7 @@
 #ifndef ICEPHP_COMMUNICATOR_H
 #define ICEPHP_COMMUNICATOR_H
 
-#include <Config.h>
+#include "Config.h"
 #include <Ice/CommunicatorF.h>
 
 //
@@ -30,14 +30,10 @@ bool communicatorShutdown(void);
 bool communicatorRequestInit(void);
 bool communicatorRequestShutdown(void);
 
-//
 // Class entry.
-//
 extern zend_class_entry* communicatorClassEntry;
 
-//
 // The CommunicatorInfo class represents a communicator that is in use by a PHP request.
-//
 class CommunicatorInfo
 {
 public:

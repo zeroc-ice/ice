@@ -2,17 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Proxy.h>
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Util.h>
+#include "Proxy.h"
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-//
+
 // Here's a brief description of how proxies are handled by this extension.
 //
 // A single PHP class, ObjectPrx, is registered. This is an "internal" class,
@@ -27,37 +27,28 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // In order to perform a checked or unchecked cast, the generated code invokes
 // ice_checkedCast or ice_uncheckedCast on the proxy to be narrowed, supplying a scoped
 // name for the desired type. Internally, the proxy validates the scoped name and returns
-// a new proxy containing the class or interface definition. This proxy is considered
+// a new proxy containing the interface definition. This proxy is considered
 // to be narrowed to that interface and therefore supports user-defined operations.
 //
 // Naturally, there are many predefined proxy methods (e.g., ice_getIdentity, etc.), but
 // the proxy also needs to support user-defined operations (if it has type information).
 // We use a Zend API hook that allows us to intercept the invocation of unknown methods
 // on the proxy object.
-//
 
-//
 // Class entries represent the PHP class implementations we have registered.
-//
 namespace IcePHP
 {
 zend_class_entry* proxyClassEntry = 0;
 }
 
-//
 // Ice::ObjectPrx support.
-//
 static zend_object_handlers _handlers;
 
 extern "C"
 {
 static zend_object* handleAlloc(zend_class_entry*);
 static void handleFreeStorage(zend_object*);
-#if PHP_VERSION_ID >= 80000
 static zend_object* handleClone(zend_object*);
-#else
-static zend_object* handleClone(zval*);
-#endif
 static union _zend_function* handleGetMethod(zend_object**, zend_string*, const zval*);
 static int handleCompare(zval*, zval*);
 }
@@ -65,9 +56,7 @@ static int handleCompare(zval*, zval*);
 namespace IcePHP
 {
 
-//
 // Encapsulates proxy and type information.
-//
 class Proxy
 {
 public:
@@ -168,7 +157,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_identity)
     }
 
     Ice::Identity id;
-    if(extractIdentity(zid, id))
+    if (extractIdentity(zid, id))
     {
         try
         {
@@ -214,18 +203,15 @@ ZEND_METHOD(Ice_ObjectPrx, ice_context)
         RETURN_NULL();
     }
 
-    //
     // Populate the context.
-    //
     Ice::Context ctx;
-    if(arr && !extractStringMap(arr, ctx))
+    if (arr && !extractStringMap(arr, ctx))
     {
         RETURN_NULL();
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
-
     try
     {
         if(!_this->clone(return_value, _this->proxy->ice_context(ctx)))
@@ -362,18 +348,18 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpoints)
 
         array_init(return_value);
         uint32_t idx = 0;
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++idx)
+        for (const auto& p : endpoints)
         {
             zval elem;
-            if(!createEndpoint(&elem, *p))
+            if (!createEndpoint(&elem, p))
             {
                 zval_ptr_dtor(&elem);
                 RETURN_NULL();
             }
-            add_index_zval(return_value, idx, &elem);
+            add_index_zval(return_value, idx++, &elem);
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -912,8 +898,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
     assert(_this);
 
     zval* zprx;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zprx, proxyClassEntry) !=
-        SUCCESS)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zprx, proxyClassEntry) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1221,7 +1206,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
 
     try
     {
-        IceUtil::Optional<bool> compress = _this->proxy->ice_getCompress();
+        optional<bool> compress = _this->proxy->ice_getCompress();
         if(compress)
         {
             RETURN_BOOL(*compress ? 1 : 0);
@@ -1515,10 +1500,8 @@ ZEND_END_ARG_INFO()
 static void
 do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 {
-    //
-    // First argument is required and should be a scoped name. The second and third arguments
-    // are optional and represent a facet name, a context, or a facet name followed by a context.
-    //
+    // First argument is required and should be a scoped name. The second and third arguments are optional and
+    // represent a facet name, a context, or a facet name followed by a context.
     if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 3)
     {
         WRONG_PARAM_COUNT;
@@ -1546,9 +1529,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    //
     // Populate the context.
-    //
     Ice::Context ctx;
     if(arr && !extractStringMap(arr, ctx))
     {
@@ -1576,16 +1557,14 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(check)
         {
-            //
             // Verify that the object supports the requested type.
-            //
-            if(!prx->ice_isA(info->id))
+            if (!prx->ice_isA(info->id))
             {
                 RETURN_NULL();
             }
         }
 
-        if(!createProxy(return_value, prx, info, _this->communicator))
+        if (!createProxy(return_value, std::move(prx), std::move(info), _this->communicator))
         {
             RETURN_NULL();
         }
@@ -1669,23 +1648,15 @@ IcePHP::Proxy::create(zval* zv, shared_ptr<Ice::ObjectPrx> p, ProxyInfoPtr info,
     return true;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleAlloc(zend_class_entry* ce)
 {
     Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::create(ce);
     assert(obj);
-
     obj->zobj.handlers = &_handlers;
-
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleFreeStorage(zend_object* object)
 {
@@ -1694,52 +1665,29 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 
 static zend_object*
-#if PHP_VERSION_ID >= 80000
 handleClone(zend_object* zobj)
-#else
-handleClone(zval* zv)
-#endif
 {
-    //
     // Create a new object that shares a C++ proxy instance with this object.
-    //
-
-#if PHP_VERSION_ID >= 80000
     ProxyPtr obj = *Wrapper<ProxyPtr>::fetch(zobj)->ptr;
-#else
-    ProxyPtr obj = Wrapper<ProxyPtr>::value(zv);
-#endif
-
     assert(obj);
-
     zval clone;
     if(!obj->clone(&clone, obj->proxy))
     {
         return 0;
     }
-
     return Z_OBJ(clone);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static union _zend_function*
 handleGetMethod(zend_object **object, zend_string *name, const zval *key )
 {
     zend_function* result;
-    //
-    // First delegate to the standard implementation of get_method. This will find
-    // any of our predefined proxy methods. If it returns 0, then we return a
-    // function that will check the class definition.
-    //
+    // First delegate to the standard implementation of get_method. This will find any of our predefined proxy methods.
+    // If it returns 0, then we return a function that will check the class definition.
     result = zend_get_std_object_handlers()->get_method(object, name, key);
-    if(!result)
+    if (!result)
     {
         Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::fetch(*object);
         assert(obj->ptr);
@@ -1749,11 +1697,9 @@ handleGetMethod(zend_object **object, zend_string *name, const zval *key )
         assert(info);
 
         OperationPtr op = info->getOperation(name->val);
-        if(!op)
+        if (!op)
         {
-            //
             // Returning 0 causes PHP to report an "undefined method" error.
-            //
             return 0;
         }
 
@@ -1763,16 +1709,10 @@ handleGetMethod(zend_object **object, zend_string *name, const zval *key )
     return result;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static int
 handleCompare(zval* zobj1, zval* zobj2)
 {
-    //
     // PHP guarantees that the objects have the same class.
-    //
-
     Wrapper<ProxyPtr>* obj1 = Wrapper<ProxyPtr>::extract(zobj1);
     assert(obj1->ptr);
     ProxyPtr _this1 = *obj1->ptr;
@@ -1804,9 +1744,7 @@ handleCompare(zval* zobj1, zval* zobj2)
 #  pragma GCC diagnostic ignored "-Wwrite-strings"
 #endif
 
-//
 // Predefined methods for ObjectPrx.
-//
 static zend_function_entry _proxyMethods[] =
 {
     ZEND_ME(Ice_ObjectPrx, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -1877,9 +1815,7 @@ static zend_function_entry _proxyMethods[] =
 bool
 IcePHP::proxyInit(void)
 {
-    //
     // Register the ObjectPrx class.
-    //
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ObjectPrx", _proxyMethods);
     ce.create_object = handleAlloc;
@@ -1888,21 +1824,16 @@ IcePHP::proxyInit(void)
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _handlers.clone_obj = handleClone;
     _handlers.get_method = handleGetMethod;
-#if PHP_VERSION_ID >= 80000
     _handlers.compare = handleCompare;
-#else
-    _handlers.compare_objects = handleCompare;
-#endif
     _handlers.free_obj = handleFreeStorage;
     _handlers.offset =  XtOffsetOf(Wrapper<ProxyPtr>, zobj);
-
     return true;
 }
 
 bool
 IcePHP::createProxy(zval* zv, Ice::ObjectPrxPtr proxy, CommunicatorInfoPtr communicatorInfo)
 {
-    return Proxy::create(zv, std::move(proxy), 0, std::move(communicatorInfo));
+    return Proxy::create(zv, std::move(proxy), nullptr, std::move(communicatorInfo));
 }
 
 bool

@@ -2,8 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Endpoint.h>
-#include <Util.h>
+#include "Endpoint.h"
+#include "Util.h"
+
 #include <IceSSL/EndpointInfo.h>
 
 using namespace std;
@@ -11,9 +12,7 @@ using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-//
 // Class entries representing the PHP class implementations we have registered.
-//
 static zend_class_entry* endpointClassEntry = 0;
 
 static zend_class_entry* endpointInfoClassEntry = 0;
@@ -24,9 +23,7 @@ static zend_class_entry* wsEndpointInfoClassEntry = 0;
 static zend_class_entry* opaqueEndpointInfoClassEntry = 0;
 static zend_class_entry* sslEndpointInfoClassEntry = 0;
 
-//
 // Ice::Endpoint support.
-//
 static zend_object_handlers _endpointHandlers;
 static zend_object_handlers _endpointInfoHandlers;
 
@@ -87,9 +84,6 @@ ZEND_METHOD(Ice_Endpoint, getInfo)
     }
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleEndpointAlloc(zend_class_entry* ce)
 {
@@ -101,9 +95,6 @@ handleEndpointAlloc(zend_class_entry* ce)
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleEndpointFreeStorage(zend_object* object)
 {
@@ -181,23 +172,15 @@ ZEND_METHOD(Ice_EndpointInfo, secure)
     }
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleEndpointInfoAlloc(zend_class_entry* ce)
 {
     Wrapper<Ice::EndpointInfoPtr>* obj = Wrapper<Ice::EndpointInfoPtr>::create(ce);
     assert(obj);
-
     obj->zobj.handlers = &_endpointInfoHandlers;
-
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleEndpointInfoFreeStorage(zend_object* object)
 {
@@ -218,9 +201,7 @@ static zend_function_entry _interfaceMethods[] =
 #  pragma GCC diagnostic ignored "-Wwrite-strings"
 #endif
 
-//
 // Predefined methods for Endpoint.
-//
 static zend_function_entry _endpointMethods[] =
 {
     ZEND_ME(Ice_Endpoint, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -230,9 +211,7 @@ static zend_function_entry _endpointMethods[] =
     {0, 0, 0}
 };
 
-//
 // Predefined methods for EndpointInfo.
-//
 static zend_function_entry _endpointInfoMethods[] =
 {
     ZEND_ME(Ice_EndpointInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -242,9 +221,7 @@ static zend_function_entry _endpointInfoMethods[] =
     {0, 0, 0}
 };
 
-//
 // enable warning again
-//
 #if defined(__GNUC__)
 #  pragma GCC diagnostic error "-Wwrite-strings"
 #endif
@@ -252,7 +229,7 @@ static zend_function_entry _endpointInfoMethods[] =
 bool
 IcePHP::endpointInit(void)
 {
-    //
+    // TODO review the comment is no longer accurate, the code is no longer generated in Slice
     // Although the Endpoint and EndpointInfo types are defined in Slice, we need to
     // define implementations at the time the PHP extension is loaded; we can't wait
     // to do this until after the generated code has been loaded. Consequently, we
@@ -260,16 +237,12 @@ IcePHP::endpointInit(void)
     // them. This essentially means that the generated code for these types is ignored.
     //
 
-    //
     // Define the Endpoint interface.
-    //
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Endpoint", _interfaceMethods);
     zend_class_entry* endpointInterface = zend_register_internal_interface(&ce);
 
-    //
     // Define a concrete Endpoint implementation class.
-    //
     INIT_CLASS_ENTRY(ce, "IcePHP_Endpoint", _endpointMethods);
     ce.create_object = handleEndpointAlloc;
     endpointClassEntry = zend_register_internal_class(&ce);
@@ -278,9 +251,7 @@ IcePHP::endpointInit(void)
     _endpointHandlers.offset   = XtOffsetOf(Wrapper<Ice::EndpointPtr>, zobj);
     zend_class_implements(endpointClassEntry, 1, endpointInterface);
 
-    //
     // Define the EndpointInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "EndpointInfo", _endpointInfoMethods);
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce);
@@ -294,9 +265,7 @@ IcePHP::endpointInit(void)
     zend_declare_property_null(endpointInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
                                ZEND_ACC_PUBLIC);
 
-    //
     // Define the IPEndpointInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     ipEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
@@ -307,16 +276,12 @@ IcePHP::endpointInit(void)
     zend_declare_property_string(ipEndpointInfoClassEntry, STRCAST("sourceAddress"), sizeof("sourceAddress") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
 
-    //
     // Define the TCPEndpointInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     tcpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
 
-    //
     // Define the UDPEndpointInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     udpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
@@ -325,18 +290,14 @@ IcePHP::endpointInit(void)
     zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("mcastTtl"), sizeof("mcastTtl") - 1, 0,
                                ZEND_ACC_PUBLIC);
 
-    //
     // Define the WSEndpointInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     wsEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
     zend_declare_property_string(wsEndpointInfoClassEntry, STRCAST("resource"), sizeof("resource") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC);
 
-    //
     // Define the OpaqueEndpointInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "OpaqueEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     opaqueEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
@@ -345,9 +306,7 @@ IcePHP::endpointInit(void)
     zend_declare_property_null(opaqueEndpointInfoClassEntry, STRCAST("rawBytes"), sizeof("rawBytes") - 1,
                                ZEND_ACC_PUBLIC);
 
-    //
     // Define the SSLEndpointInfo class.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     sslEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);

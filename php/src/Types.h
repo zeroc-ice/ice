@@ -5,9 +5,10 @@
 #ifndef ICEPHP_TYPES_H
 #define ICEPHP_TYPES_H
 
-#include <Config.h>
-#include <Communicator.h>
-#include <Operation.h>
+#include "Config.h"
+#include "Communicator.h"
+#include "Operation.h"
+
 #include <IceUtil/OutputUtil.h>
 
 //
@@ -31,9 +32,7 @@ ZEND_FUNCTION(IcePHP_stringifyException);
 namespace IcePHP
 {
 
-//
 // This class is raised as an exception when object marshaling needs to be aborted.
-//
 class AbortMarshaling
 {
 };
@@ -53,25 +52,21 @@ struct PrintObjectHistory
     std::map<unsigned int, int> objects;
 };
 
-//
 // The delayed nature of class unmarshaling in the Ice protocol requires us to
 // handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
 // is supplied to each type's unmarshal() member function. For all types except
 // classes, the callback is invoked with the unmarshaled value before unmarshal()
 // returns. For class instances, however, the callback may not be invoked until
 // the stream's finished() function is called.
-//
 class UnmarshalCallback
 {
 public:
 
     virtual ~UnmarshalCallback();
 
-    //
     // The unmarshaled() member function receives the unmarshaled value. The
     // last two arguments are the values passed to unmarshal() for use by
     // UnmarshalCallback implementations.
-    //
     virtual void unmarshaled(zval*, zval*, void*) = 0;
 };
 using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback> ;
@@ -108,14 +103,10 @@ public:
 
     ~StreamUtil();
 
-    //
     // Keep a reference to a ReadObjectCallback for patching purposes.
-    //
     void add(const ReadObjectCallbackPtr&);
 
-    //
     // Keep track of object instances that have preserved slices.
-    //
     void add(const std::shared_ptr<ValueReader>&);
 
     void updateSlicedData(void);
@@ -131,9 +122,7 @@ private:
     static zend_class_entry* _sliceInfoType;
 };
 
-//
 // Base class for type information.
-//
 class TypeInfo : public UnmarshalCallback, public std::enable_shared_from_this<TypeInfo>
 {
 public:
@@ -438,7 +427,7 @@ public:
     const Ice::Int compactId;
     const bool preserve;
     const bool interface;
-    const ClassInfoPtr base;
+    ClassInfoPtr base;
     const DataMemberList members;
     const DataMemberList optionalMembers;
     const zend_class_entry* zce;
@@ -482,8 +471,8 @@ public:
     OperationPtr getOperation(const std::string&) const;
 
     const std::string id;
-    const ProxyInfoPtr base;
-    const ProxyInfoList interfaces;
+    ProxyInfoPtr base;
+    ProxyInfoList interfaces;
     bool defined;
     typedef std::map<std::string, OperationPtr> OperationMap;
     OperationMap operations;
