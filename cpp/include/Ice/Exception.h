@@ -11,7 +11,6 @@
 #include <Ice/Handle.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
-#include <Ice/SlicedDataF.h>
 
 namespace Ice
 {
@@ -72,7 +71,6 @@ public:
 #else
     virtual UserException* ice_clone() const = 0;
 #endif
-    virtual Ice::SlicedDataPtr ice_getSlicedData() const;
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -93,10 +91,6 @@ protected:
     virtual void _writeImpl(::Ice::OutputStream*) const {}
     virtual void _readImpl(::Ice::InputStream*) {}
     /// \endcond
-
-private:
-
-    ::Ice::SlicedDataPtr _iceSlicedData;
 };
 
 /**

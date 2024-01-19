@@ -34,30 +34,9 @@ exception KnownMostDerived extends KnownIntermediate
 }
 
 ["preserve-slice"]
-exception KnownPreserved extends Base
-{
-    string kp;
-}
-
-exception KnownPreservedDerived extends KnownPreserved
-{
-    string kpd;
-}
-
-["preserve-slice"]
 class BaseClass
 {
     string bc;
-}
-
-["format:sliced"]
-interface Relay
-{
-    void knownPreservedAsBase() throws Base;
-    void knownPreservedAsKnownPreserved() throws KnownPreserved;
-
-    void unknownPreservedAsBase() throws Base;
-    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
 }
 
 ["format:sliced"]

@@ -337,13 +337,11 @@ public:
 
     /**
      * Marks the end of a user exception.
-     *
-     * @return An object that encapsulates the unknown slice data.
      */
-    SlicedDataPtr endException()
+    void endException()
     {
         assert(_currentEncaps && _currentEncaps->decoder);
-        return _currentEncaps->decoder->endInstance();
+        _currentEncaps->decoder->endInstance();
     }
 
     /**

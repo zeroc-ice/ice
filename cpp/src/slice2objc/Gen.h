@@ -144,7 +144,7 @@ private:
         void writeOptionalDataMemberSelectors(const DataMemberList&, int) const;
         void writeMemberHashCode(const DataMemberList&, int) const;
         void writeMemberEquals(const DataMemberList&, int) const;
-        void writeMemberDealloc(const DataMemberList&, int, const std::string& = "") const;
+        void writeMemberDealloc(const DataMemberList&, int) const;
         void writeMemberMarshal(const DataMemberList&, const DataMemberList&, int) const;
         void writeMemberUnmarshal(const DataMemberList&, const DataMemberList&, int) const;
     };

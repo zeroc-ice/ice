@@ -35,8 +35,8 @@ endif
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
 cppflags        = -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-uncaptured-local -Wno-shadow-field \
-                -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -pthread \
-                  $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
+                -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wno-implicit-int-float-conversion -Wdocumentation \
+                -pthread $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 
 ifeq ($(MAXWARN),yes)
     cppflags	+=  -Wweak-vtables

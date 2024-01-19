@@ -775,10 +775,6 @@ Slice::Gen::generate(const UnitPtr& p)
     _H << nl << "#import <objc/Ice/Exception.h>";
     _M << nl << "#import <objc/Ice/LocalException.h>";
     _M << nl << "#import <objc/Ice/Stream.h>";
-    if(p->hasContentsWithMetaData("preserve-slice"))
-    {
-        _H << nl << "#import <objc/Ice/SlicedData.h>";
-    }
     _M << nl << "#import <";
     if(!_include.empty())
     {
@@ -998,8 +994,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string name = fixName(p);
     ClassDefPtr base = p->base();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
 
     string baseName = base ? fixName(base) : "ICEValue";
     DataMemberList baseDataMembers;
@@ -1013,7 +1007,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _H << sp << nl << _dllExport << "@interface " << name << " : " << baseName;
 
-    if(!dataMembers.empty() || (preserved && !basePreserved))
+    if(!dataMembers.empty())
     {
         //
         // Data member declarations.
@@ -1023,11 +1017,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(!dataMembers.empty())
         {
             writeMembers(dataMembers, BaseTypeObject);
-        }
-
-        if(preserved && !basePreserved)
-        {
-            _H << nl << "id<ICESlicedData> iceSlicedData_;";
         }
 
         _H << eb;
@@ -1048,7 +1037,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     writeInit(p, dataMembers, baseDataMembers, allDataMembers, requiresMemberInit(dataMembers), BaseTypeObject, Other);
     writeFactory(p, allDataMembers, BaseTypeObject, Other);
     writeCopyWithZone(p, allDataMembers, BaseTypeObject, Other);
-    writeMemberDealloc(dataMembers, BaseTypeObject, preserved && !basePreserved ? "iceSlicedData_" : "");
+    writeMemberDealloc(dataMembers, BaseTypeObject);
 
     //
     // Setter, has, clear selectors for optionals
@@ -1106,28 +1095,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _M << sb;
     _M << nl << "return @\"" << p->scoped() << "\";";
     _M << eb;
-
-    if(preserved && !basePreserved)
-    {
-        _M << nl << "-(id<ICESlicedData>) ice_getSlicedData";
-        _M << sb;
-        _M << nl << "return ICE_AUTORELEASE(ICE_RETAIN(iceSlicedData_));";
-        _M << eb;
-
-        _M << nl << "-(void) iceWrite:(id<ICEOutputStream>)ostr";
-        _M << sb;
-        _M << nl << "[ostr startValue:iceSlicedData_];";
-        _M << nl << "[self iceWriteImpl:ostr];";
-        _M << nl << "[ostr endValue];";
-        _M << eb;
-
-        _M << nl << "-(void) iceRead:(id<ICEInputStream>)istr";
-        _M << sb;
-        _M << nl << "[istr startValue];";
-        _M << nl << "[self iceReadImpl:istr];";
-        _M << nl << "iceSlicedData_ = [istr endValue:YES];";
-        _M << eb;
-    }
 
     _H << nl << "@end";
     _M << nl << "@end";
@@ -1236,8 +1203,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string name = fixName(p);
     ExceptionPtr base = p->base();
     DataMemberList dataMembers = p->dataMembers();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
 
     _H << sp;
 
@@ -1250,7 +1215,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         _H << "ICEUserException";
     }
-    if(!dataMembers.empty() || (preserved && !basePreserved))
+    if(!dataMembers.empty())
     {
         _H << sb;
     }
@@ -1265,8 +1230,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     string name = fixName(p);
 
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
@@ -1278,7 +1241,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         baseDataMembers = p->base()->allDataMembers();
     }
 
-    if(!dataMembers.empty() || (preserved && !basePreserved))
+    if(!dataMembers.empty())
     {
         //
         // Data member declarations.
@@ -1286,11 +1249,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if(!dataMembers.empty())
         {
             writeMembers(dataMembers, BaseTypeException);
-        }
-
-        if(preserved && !basePreserved)
-        {
-            _H << nl << "id<ICESlicedData> slicedData_;";
         }
 
         _H << eb;
@@ -1321,7 +1279,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     writeInit(p, dataMembers, baseDataMembers, allDataMembers, requiresMemberInit(dataMembers), BaseTypeException, ct);
     writeFactory(p, allDataMembers, BaseTypeException, ct);
     writeCopyWithZone(p, allDataMembers, BaseTypeException, ct);
-    writeMemberDealloc(dataMembers, BaseTypeException, preserved && !basePreserved ? "slicedData_" : "");
+    writeMemberDealloc(dataMembers, BaseTypeException);
 
     //
     // Setter, has, clear selectors for optionals
@@ -1364,28 +1322,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _M << nl << "[super iceReadImpl:istr];";
     }
     _M << eb;
-
-    if(preserved && !basePreserved)
-    {
-        _M << nl << nl << "-(id<ICESlicedData>) ice_getSlicedData";
-        _M << sb;
-        _M << nl << "return ICE_AUTORELEASE(ICE_RETAIN(slicedData_));";
-        _M << eb;
-
-        _M << nl << nl << "-(void) iceWrite:(id<ICEOutputStream>)ostr";
-        _M << sb;
-        _M << nl << "[ostr startException:slicedData_];";
-        _M << nl << "[self iceWriteImpl:ostr];";
-        _M << nl << "[ostr endException];";
-        _M << eb;
-
-        _M << nl << nl << "-(void) iceRead:(id<ICEInputStream>)istr";
-        _M << sb;
-        _M << nl << "[istr startException];";
-        _M << nl << "[self iceReadImpl:istr];";
-        _M << nl << "slicedData_ = [istr endException:YES];";
-        _M << eb;
-    }
 
     _H << nl << "@end";
     _M << nl << "@end";
@@ -2082,9 +2018,9 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberDealloc(const DataMemberList& dataMembers, int baseType, const string& slicedData) const
+Slice::Gen::TypesVisitor::writeMemberDealloc(const DataMemberList& dataMembers, int baseType) const
 {
-    bool needsDealloc = !slicedData.empty();
+    bool needsDealloc = false;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(!isValueType((*q)->type()))
@@ -2110,10 +2046,6 @@ Slice::Gen::TypesVisitor::writeMemberDealloc(const DataMemberList& dataMembers, 
         {
             _M << nl << "[self->" << fixId((*q)->name(), baseType) << " release];";
         }
-    }
-    if(!slicedData.empty())
-    {
-        _M << nl << "[(NSObject*)" << slicedData << " release];";
     }
     _M << nl << "[super dealloc];";
     _M << eb;

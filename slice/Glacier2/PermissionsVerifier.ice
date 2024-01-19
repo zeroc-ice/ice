@@ -25,7 +25,6 @@
 module Glacier2
 {
     /// This exception is raised if a client is denied the ability to create a session with the router.
-    ["preserve-slice"]
     exception PermissionDeniedException
     {
         /// The reason why permission was denied.
