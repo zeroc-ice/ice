@@ -5,9 +5,12 @@
 from Util import *
 
 # This is used for the trace file
-props = lambda process, current: {
+
+
+def props(process, current): return {
     "Ice.ProgramName": "server{}".format(process.args[0])
 }
+
 
 # Enable some tracing to allow investigating test failures
 traceProps = {
@@ -19,7 +22,7 @@ traceProps = {
 #
 # Start 12 servers
 #
-servers=range(1, 13)
+servers = range(1, 13)
 
 TestSuite(__name__, [
     ClientServerTestCase(client=Client(args=[i for i in servers]),

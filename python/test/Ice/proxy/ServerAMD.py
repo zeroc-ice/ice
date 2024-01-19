@@ -9,6 +9,7 @@ TestHelper.loadSlice("Test.ice")
 import Test
 import TestI
 
+
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
         self.ctx = None

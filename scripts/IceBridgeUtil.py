@@ -4,6 +4,7 @@
 
 from Util import *
 
+
 class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
     def __init__(self, *args, **kargs):
@@ -13,13 +14,13 @@ class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
     def getProps(self, current):
-        props = Server.getProps(self, current);
+        props = Server.getProps(self, current)
         props.update({
-            'Ice.Warn.Dispatch' : 0,
-            'IceBridge.Target.Endpoints' : current.getTestEndpoint(0) + ":" + current.getTestEndpoint(0, "udp"),
-            'IceBridge.Source.Endpoints' : current.getTestEndpoint(1) + ":" + current.getTestEndpoint(1, "udp"),
-            'Ice.Admin.Endpoints' : current.getTestEndpoint(2, "tcp"),
-            'Ice.Admin.InstanceName' : "IceBridge",
+            'Ice.Warn.Dispatch': 0,
+            'IceBridge.Target.Endpoints': current.getTestEndpoint(0) + ":" + current.getTestEndpoint(0, "udp"),
+            'IceBridge.Source.Endpoints': current.getTestEndpoint(1) + ":" + current.getTestEndpoint(1, "udp"),
+            'Ice.Admin.Endpoints': current.getTestEndpoint(2, "tcp"),
+            'Ice.Admin.InstanceName': "IceBridge",
 
         })
         del props['Ice.ThreadPool.Server.Size']

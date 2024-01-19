@@ -21,14 +21,15 @@ class IceStormFederationTestCase(IceStormTestCase):
         self.runadmin(current, "destroy fed1 fed2 fed3")
         self.shutdown(current)
 
+
 # Override ReplicatedPublishEndpoints property to empty for testing without replicated publisher
-props = {'IceStorm.ReplicatedPublishEndpoints' : ''}
+props = {'IceStorm.ReplicatedPublishEndpoints': ''}
 
 TestSuite(__file__, [
     IceStormFederationTestCase("persistent", icestorm=IceStorm()),
     IceStormFederationTestCase("transient", icestorm=IceStorm(transient=True)),
     IceStormFederationTestCase("replicated with non-replicated publisher",
-                               icestorm=[IceStorm(replica=i, nreplicas=3, props=props) for i in range(0,3)]),
+                               icestorm=[IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]),
     IceStormFederationTestCase("replicated with replicated publisher",
-                               icestorm=[IceStorm(replica=i, nreplicas=3) for i in range(0,3)]),
+                               icestorm=[IceStorm(replica=i, nreplicas=3) for i in range(0, 3)]),
 ], multihost=False)

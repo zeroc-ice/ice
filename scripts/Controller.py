@@ -3,8 +3,10 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys
+import os
+import sys
 from Util import *
+
 
 class ControllerDriver(Driver):
 
@@ -37,7 +39,7 @@ class ControllerDriver(Driver):
         self.id = "controller"
         self.endpoints = ""
         self.clean = False
-        parseOptions(self, options, { "clean" : "clean" })
+        parseOptions(self, options, {"clean": "clean"})
 
         if not self.endpoints:
             self.endpoints = ("tcp -h " + self.interface) if self.interface else "tcp"
@@ -90,7 +92,8 @@ class ControllerDriver(Driver):
                     return self.current.serverTestCase._startServerSide(self.current)
                 except Exception as ex:
                     self.serverSideRunning = False
-                    raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + traceback.format_exc())
+                    raise Test.Common.TestCaseFailedException(
+                        self.current.result.getOutput() + "\n" + traceback.format_exc())
 
             def stopServerSide(self, success, c):
                 if self.serverSideRunning:
@@ -140,7 +143,8 @@ class ControllerDriver(Driver):
 
                 current = self.driver.getCurrent(mapping, testsuite, testcase, cross)
                 prx = c.adapter.addWithUUID(TestCaseI(self.driver, current))
-                self.testcase = Test.Common.TestCasePrx.uncheckedCast(c.adapter.createDirectProxy(prx.ice_getIdentity()))
+                self.testcase = Test.Common.TestCasePrx.uncheckedCast(
+                    c.adapter.createDirectProxy(prx.ice_getIdentity()))
                 return self.testcase
 
             def getTestSuites(self, mapping, c):
@@ -194,6 +198,7 @@ class ControllerDriver(Driver):
 
     def isInterrupted(self):
         return False
+
 
 Driver.add("controller", ControllerDriver, default=True)
 

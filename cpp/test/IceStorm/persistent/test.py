@@ -47,6 +47,7 @@ class IceStormPersistentTestCase(TestCase):
 
         self.icestorm.shutdown(current)
 
+
 class PersistentClient(IceStormProcess, Client):
 
     processType = "client"
@@ -55,7 +56,8 @@ class PersistentClient(IceStormProcess, Client):
         Client.__init__(self, *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
-    getParentProps = Client.getProps # Used by IceStormProcess to get the client properties
+    getParentProps = Client.getProps  # Used by IceStormProcess to get the client properties
+
 
 TestSuite(__file__, [
     IceStormPersistentTestCase("persistent create", icestorm1,

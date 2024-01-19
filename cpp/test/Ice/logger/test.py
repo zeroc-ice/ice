@@ -5,6 +5,7 @@
 
 import glob
 
+
 def test(process, current, match, enc, mapping):
     cmd = process.getCommandLine(current)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=mapping.getEnv(process, current))
@@ -14,6 +15,7 @@ def test(process, current, match, enc, mapping):
         raise RuntimeError("%s failed! status %s " % (cmd, ret))
     if out.decode(enc).find(match.decode(enc)) == -1:
         raise RuntimeError("test failed")
+
 
 class IceLoggerTestCase(ClientTestCase):
 
@@ -67,7 +69,7 @@ class IceLoggerTestCase(ClientTestCase):
 
         if (not os.path.isfile("client5-0.log") or
             not os.stat("client5-0.log").st_size == 512 or
-            len(glob.glob("client5-0-*.log")) != 19):
+                len(glob.glob("client5-0-*.log")) != 19):
             raise RuntimeError("failed!")
 
         for f in glob.glob("client5-0-*.log"):
@@ -77,12 +79,12 @@ class IceLoggerTestCase(ClientTestCase):
 
         if (not os.path.isfile("client5-1.log") or
             not os.stat("client5-1.log").st_size == 1024 or
-            len(glob.glob("client5-1-*.log")) != 0):
+                len(glob.glob("client5-1-*.log")) != 0):
             raise RuntimeError("failed!")
 
         if (not os.path.isfile("client5-2.log") or
             not os.stat("client5-2.log").st_size == 128 or
-            len(glob.glob("client5-2-*.log")) != 7):
+                len(glob.glob("client5-2-*.log")) != 7):
             raise RuntimeError("failed!")
 
         for f in glob.glob("client5-2-*.log"):
@@ -92,7 +94,7 @@ class IceLoggerTestCase(ClientTestCase):
 
         if (not os.path.isfile("client5-3.log") or
             not os.stat("client5-2.log").st_size == 128 or
-            len(glob.glob("client5-2-*.log")) != 7):
+                len(glob.glob("client5-2-*.log")) != 7):
             raise RuntimeError("failed!")
 
         for f in glob.glob("client5-3-*.log"):
@@ -107,7 +109,7 @@ class IceLoggerTestCase(ClientTestCase):
         if isinstance(platform, Windows) or os.getuid() != 0:
             if (not os.path.isfile("log/client5-4.log") or
                 os.stat("log/client5-4.log").st_size < 1024 or
-                len(glob.glob("log/client5-4-*.log")) > 0):
+                    len(glob.glob("log/client5-4-*.log")) > 0):
                 raise RuntimeError("failed!")
 
             with open("log/client5-4.log", 'r') as f:
@@ -131,4 +133,5 @@ class IceLoggerTestCase(ClientTestCase):
                 os.remove(f)
             os.rmdir("log")
 
-TestSuite(__name__, [ IceLoggerTestCase() ], chdir=True)
+
+TestSuite(__name__, [IceLoggerTestCase()], chdir=True)

@@ -53,12 +53,12 @@ class BaseConnection(threading.Thread):
                 return
 
             try:
-                while(not self.closed):
+                while (not self.closed):
                     readables, writeables, exceptions = select.select([self.socket, self.remoteSocket], [], [])
                     for r in readables:
                         w = self.remoteSocket if r == self.socket else self.socket
                         data = r.recv(4096)
-                        if(len(data) == 0):
+                        if (len(data) == 0):
                             self.closed = True
                             break
                         w.send(data)
@@ -198,7 +198,7 @@ class HttpConnection(BaseConnection):
             return c[0] if sys.version_info[0] == 2 else chr(c[0])
 
         data = ""
-        while(len(data) < 4 or data[len(data) - 4:] != "\r\n\r\n"):
+        while (len(data) < 4 or data[len(data) - 4:] != "\r\n\r\n"):
             data += decode(s.recv(1))
 
         if data.find("CONNECT ") != 0:
@@ -217,7 +217,7 @@ class HttpConnection(BaseConnection):
         return (host, port)
 
     def response(self, success):
-        if(success):
+        if (success):
             s = "HTTP/1.1 200 OK\r\nServer: CERN/3.0 libwww/2.17\r\n\r\n"
         else:
             s = "HTTP/1.1 404\r\n\r\n"

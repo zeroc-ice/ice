@@ -135,7 +135,7 @@ def allTests(communicator):
     #
     # Define some default values.
     #
-    def_s3 = Test.S3(Test.C("name"), {"1":"2"}, communicator.stringToProxy("test"))
+    def_s3 = Test.S3(Test.C("name"), {"1": "2"}, communicator.stringToProxy("test"))
 
     #
     # Compare default-constructed structures.
@@ -161,7 +161,7 @@ def allTests(communicator):
     v1.sd = None
     test(v1 != def_s3)
 
-    v1.sd = {"1":"3"}
+    v1.sd = {"1": "3"}
     test(v1 != def_s3)
 
     v1 = copy.copy(def_s3)

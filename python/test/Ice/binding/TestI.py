@@ -2,7 +2,9 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test
+import Ice
+import Test
+
 
 class RemoteCommunicatorI(Test.RemoteCommunicator):
 
@@ -27,6 +29,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
+
 class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
     def __init__(self, adapter):
         self._adapter = adapter
@@ -41,6 +44,7 @@ class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
             self._adapter.destroy()
         except Ice.ObjectAdapterDeactivatedException:
             pass
+
 
 class TestI(Test.TestIntf):
     def getAdapterName(self, current=None):

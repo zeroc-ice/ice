@@ -75,7 +75,7 @@ class ServerManagerI(Test.ServerManager):
         self._communicators = []
         self._initData = initData
         self._nextPort = 1
-        self._helper = helper;
+        self._helper = helper
         self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
         self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")

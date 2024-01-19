@@ -2,7 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, threading, time
+import Ice
+import Test
+import threading
+import time
+
 
 class TestIntfI(Test.TestIntf):
     def __init__(self):
@@ -63,7 +67,7 @@ class TestIntfI(Test.TestIntf):
         with self._cond:
             if self._shutdown:
                 return
-            elif self._pending: # Pending might not be set yet if startDispatch is dispatch out-of-order
+            elif self._pending:  # Pending might not be set yet if startDispatch is dispatch out-of-order
                 self._pending.set_result(None)
                 self._pending = None
 
@@ -85,9 +89,11 @@ class TestIntfI(Test.TestIntf):
         # TODO: verify correct thread with add_done_callback_async
         reply.ice_fixed(current.con).replyAsync().result()
 
+
 class TestIntfII(Test.Outer.Inner.TestIntf):
     def op(self, i, current):
         return (i, i)
+
 
 class TestIntfControllerI(Test.TestIntfController):
     def __init__(self, adapter):

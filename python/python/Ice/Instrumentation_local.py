@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.EndpointF_local
 import Ice.ConnectionF_local
 import Ice.Current_local
@@ -35,10 +36,12 @@ _M_Ice.Instrumentation.__doc__ = """
 
 if 'Observer' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.Observer = Ice.createTempClass()
+
     class Observer(object):
         """
          The object observer interface used by instrumented objects to notify the observer of their existence.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.Observer:
                 raise RuntimeError('Ice.Instrumentation.Observer is an abstract class')
@@ -70,7 +73,8 @@ if 'Observer' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_Observer = IcePy.defineValue('::Ice::Instrumentation::Observer', Observer, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_Observer = IcePy.defineValue(
+        '::Ice::Instrumentation::Observer', Observer, -1, (), False, True, None, ())
     Observer._ice_type = _M_Ice.Instrumentation._t_Observer
 
     _M_Ice.Instrumentation.Observer = Observer
@@ -78,6 +82,7 @@ if 'Observer' not in _M_Ice.Instrumentation.__dict__:
 
 if 'ThreadState' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.ThreadState = Ice.createTempClass()
+
     class ThreadState(Ice.EnumBase):
         """
          The thread state enumeration keeps track of the different possible states of Ice threads.
@@ -103,20 +108,24 @@ if 'ThreadState' not in _M_Ice.Instrumentation.__dict__:
     ThreadState.ThreadStateInUseForIO = ThreadState("ThreadStateInUseForIO", 1)
     ThreadState.ThreadStateInUseForUser = ThreadState("ThreadStateInUseForUser", 2)
     ThreadState.ThreadStateInUseForOther = ThreadState("ThreadStateInUseForOther", 3)
-    ThreadState._enumerators = { 0:ThreadState.ThreadStateIdle, 1:ThreadState.ThreadStateInUseForIO, 2:ThreadState.ThreadStateInUseForUser, 3:ThreadState.ThreadStateInUseForOther }
+    ThreadState._enumerators = {0: ThreadState.ThreadStateIdle, 1: ThreadState.ThreadStateInUseForIO,
+                                2: ThreadState.ThreadStateInUseForUser, 3: ThreadState.ThreadStateInUseForOther}
 
-    _M_Ice.Instrumentation._t_ThreadState = IcePy.defineEnum('::Ice::Instrumentation::ThreadState', ThreadState, (), ThreadState._enumerators)
+    _M_Ice.Instrumentation._t_ThreadState = IcePy.defineEnum(
+        '::Ice::Instrumentation::ThreadState', ThreadState, (), ThreadState._enumerators)
 
     _M_Ice.Instrumentation.ThreadState = ThreadState
     del ThreadState
 
 if 'ThreadObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.ThreadObserver = Ice.createTempClass()
+
     class ThreadObserver(_M_Ice.Instrumentation.Observer):
         """
          The thread observer interface to instrument Ice threads. This can be threads from the Ice thread pool or utility
          threads used by the Ice core.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.ThreadObserver:
                 raise RuntimeError('Ice.Instrumentation.ThreadObserver is an abstract class')
@@ -135,7 +144,8 @@ if 'ThreadObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_ThreadObserver = IcePy.defineValue('::Ice::Instrumentation::ThreadObserver', ThreadObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_ThreadObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::ThreadObserver', ThreadObserver, -1, (), False, True, None, ())
     ThreadObserver._ice_type = _M_Ice.Instrumentation._t_ThreadObserver
 
     _M_Ice.Instrumentation.ThreadObserver = ThreadObserver
@@ -143,6 +153,7 @@ if 'ThreadObserver' not in _M_Ice.Instrumentation.__dict__:
 
 if 'ConnectionState' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.ConnectionState = Ice.createTempClass()
+
     class ConnectionState(Ice.EnumBase):
         """
          The state of an Ice connection.
@@ -169,19 +180,23 @@ if 'ConnectionState' not in _M_Ice.Instrumentation.__dict__:
     ConnectionState.ConnectionStateActive = ConnectionState("ConnectionStateActive", 2)
     ConnectionState.ConnectionStateClosing = ConnectionState("ConnectionStateClosing", 3)
     ConnectionState.ConnectionStateClosed = ConnectionState("ConnectionStateClosed", 4)
-    ConnectionState._enumerators = { 0:ConnectionState.ConnectionStateValidating, 1:ConnectionState.ConnectionStateHolding, 2:ConnectionState.ConnectionStateActive, 3:ConnectionState.ConnectionStateClosing, 4:ConnectionState.ConnectionStateClosed }
+    ConnectionState._enumerators = {0: ConnectionState.ConnectionStateValidating, 1: ConnectionState.ConnectionStateHolding,
+                                    2: ConnectionState.ConnectionStateActive, 3: ConnectionState.ConnectionStateClosing, 4: ConnectionState.ConnectionStateClosed}
 
-    _M_Ice.Instrumentation._t_ConnectionState = IcePy.defineEnum('::Ice::Instrumentation::ConnectionState', ConnectionState, (), ConnectionState._enumerators)
+    _M_Ice.Instrumentation._t_ConnectionState = IcePy.defineEnum(
+        '::Ice::Instrumentation::ConnectionState', ConnectionState, (), ConnectionState._enumerators)
 
     _M_Ice.Instrumentation.ConnectionState = ConnectionState
     del ConnectionState
 
 if 'ConnectionObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.ConnectionObserver = Ice.createTempClass()
+
     class ConnectionObserver(_M_Ice.Instrumentation.Observer):
         """
          The connection observer interface to instrument Ice connections.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.ConnectionObserver:
                 raise RuntimeError('Ice.Instrumentation.ConnectionObserver is an abstract class')
@@ -207,7 +222,8 @@ if 'ConnectionObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_ConnectionObserver = IcePy.defineValue('::Ice::Instrumentation::ConnectionObserver', ConnectionObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_ConnectionObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::ConnectionObserver', ConnectionObserver, -1, (), False, True, None, ())
     ConnectionObserver._ice_type = _M_Ice.Instrumentation._t_ConnectionObserver
 
     _M_Ice.Instrumentation.ConnectionObserver = ConnectionObserver
@@ -215,10 +231,12 @@ if 'ConnectionObserver' not in _M_Ice.Instrumentation.__dict__:
 
 if 'DispatchObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.DispatchObserver = Ice.createTempClass()
+
     class DispatchObserver(_M_Ice.Instrumentation.Observer):
         """
          The dispatch observer to instrument servant dispatch.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.DispatchObserver:
                 raise RuntimeError('Ice.Instrumentation.DispatchObserver is an abstract class')
@@ -242,7 +260,8 @@ if 'DispatchObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_DispatchObserver = IcePy.defineValue('::Ice::Instrumentation::DispatchObserver', DispatchObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_DispatchObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::DispatchObserver', DispatchObserver, -1, (), False, True, None, ())
     DispatchObserver._ice_type = _M_Ice.Instrumentation._t_DispatchObserver
 
     _M_Ice.Instrumentation.DispatchObserver = DispatchObserver
@@ -250,10 +269,12 @@ if 'DispatchObserver' not in _M_Ice.Instrumentation.__dict__:
 
 if 'ChildInvocationObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.ChildInvocationObserver = Ice.createTempClass()
+
     class ChildInvocationObserver(_M_Ice.Instrumentation.Observer):
         """
          The child invocation observer to instrument remote or collocated invocations.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.ChildInvocationObserver:
                 raise RuntimeError('Ice.Instrumentation.ChildInvocationObserver is an abstract class')
@@ -271,7 +292,8 @@ if 'ChildInvocationObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_ChildInvocationObserver = IcePy.defineValue('::Ice::Instrumentation::ChildInvocationObserver', ChildInvocationObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_ChildInvocationObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::ChildInvocationObserver', ChildInvocationObserver, -1, (), False, True, None, ())
     ChildInvocationObserver._ice_type = _M_Ice.Instrumentation._t_ChildInvocationObserver
 
     _M_Ice.Instrumentation.ChildInvocationObserver = ChildInvocationObserver
@@ -279,10 +301,12 @@ if 'ChildInvocationObserver' not in _M_Ice.Instrumentation.__dict__:
 
 if 'RemoteObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.RemoteObserver = Ice.createTempClass()
+
     class RemoteObserver(_M_Ice.Instrumentation.ChildInvocationObserver):
         """
          The remote observer to instrument invocations that are sent over the wire.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.RemoteObserver:
                 raise RuntimeError('Ice.Instrumentation.RemoteObserver is an abstract class')
@@ -292,7 +316,8 @@ if 'RemoteObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_RemoteObserver = IcePy.defineValue('::Ice::Instrumentation::RemoteObserver', RemoteObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_RemoteObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::RemoteObserver', RemoteObserver, -1, (), False, True, None, ())
     RemoteObserver._ice_type = _M_Ice.Instrumentation._t_RemoteObserver
 
     _M_Ice.Instrumentation.RemoteObserver = RemoteObserver
@@ -300,10 +325,12 @@ if 'RemoteObserver' not in _M_Ice.Instrumentation.__dict__:
 
 if 'CollocatedObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.CollocatedObserver = Ice.createTempClass()
+
     class CollocatedObserver(_M_Ice.Instrumentation.ChildInvocationObserver):
         """
          The collocated observer to instrument invocations that are collocated.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.CollocatedObserver:
                 raise RuntimeError('Ice.Instrumentation.CollocatedObserver is an abstract class')
@@ -313,7 +340,8 @@ if 'CollocatedObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_CollocatedObserver = IcePy.defineValue('::Ice::Instrumentation::CollocatedObserver', CollocatedObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_CollocatedObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::CollocatedObserver', CollocatedObserver, -1, (), False, True, None, ())
     CollocatedObserver._ice_type = _M_Ice.Instrumentation._t_CollocatedObserver
 
     _M_Ice.Instrumentation.CollocatedObserver = CollocatedObserver
@@ -321,11 +349,13 @@ if 'CollocatedObserver' not in _M_Ice.Instrumentation.__dict__:
 
 if 'InvocationObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.InvocationObserver = Ice.createTempClass()
+
     class InvocationObserver(_M_Ice.Instrumentation.Observer):
         """
          The invocation observer to instrument invocations on proxies. A proxy invocation can either result in a collocated
          or remote invocation. If it results in a remote invocation, a sub-observer is requested for the remote invocation.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.InvocationObserver:
                 raise RuntimeError('Ice.Instrumentation.InvocationObserver is an abstract class')
@@ -370,7 +400,8 @@ if 'InvocationObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_InvocationObserver = IcePy.defineValue('::Ice::Instrumentation::InvocationObserver', InvocationObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_InvocationObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::InvocationObserver', InvocationObserver, -1, (), False, True, None, ())
     InvocationObserver._ice_type = _M_Ice.Instrumentation._t_InvocationObserver
 
     _M_Ice.Instrumentation.InvocationObserver = InvocationObserver
@@ -378,6 +409,7 @@ if 'InvocationObserver' not in _M_Ice.Instrumentation.__dict__:
 
 if 'ObserverUpdater' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.ObserverUpdater = Ice.createTempClass()
+
     class ObserverUpdater(object):
         """
          The observer updater interface. This interface is implemented by the Ice run-time and an instance of this interface
@@ -387,6 +419,7 @@ if 'ObserverUpdater' not in _M_Ice.Instrumentation.__dict__:
          This interface can be used by add-ins implementing the CommunicatorObserver interface to update the
          observers of connections and threads.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.ObserverUpdater:
                 raise RuntimeError('Ice.Instrumentation.ObserverUpdater is an abstract class')
@@ -415,7 +448,8 @@ if 'ObserverUpdater' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_ObserverUpdater = IcePy.defineValue('::Ice::Instrumentation::ObserverUpdater', ObserverUpdater, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_ObserverUpdater = IcePy.defineValue(
+        '::Ice::Instrumentation::ObserverUpdater', ObserverUpdater, -1, (), False, True, None, ())
     ObserverUpdater._ice_type = _M_Ice.Instrumentation._t_ObserverUpdater
 
     _M_Ice.Instrumentation.ObserverUpdater = ObserverUpdater
@@ -423,6 +457,7 @@ if 'ObserverUpdater' not in _M_Ice.Instrumentation.__dict__:
 
 if 'CommunicatorObserver' not in _M_Ice.Instrumentation.__dict__:
     _M_Ice.Instrumentation.CommunicatorObserver = Ice.createTempClass()
+
     class CommunicatorObserver(object):
         """
          The communicator observer interface used by the Ice run-time to obtain and update observers for its observable
@@ -430,6 +465,7 @@ if 'CommunicatorObserver' not in _M_Ice.Instrumentation.__dict__:
          statistics. An instance of this interface can be provided to the Ice run-time through the Ice communicator
          initialization data.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Instrumentation.CommunicatorObserver:
                 raise RuntimeError('Ice.Instrumentation.CommunicatorObserver is an abstract class')
@@ -521,7 +557,8 @@ if 'CommunicatorObserver' not in _M_Ice.Instrumentation.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice.Instrumentation._t_CommunicatorObserver = IcePy.defineValue('::Ice::Instrumentation::CommunicatorObserver', CommunicatorObserver, -1, (), False, True, None, ())
+    _M_Ice.Instrumentation._t_CommunicatorObserver = IcePy.defineValue(
+        '::Ice::Instrumentation::CommunicatorObserver', CommunicatorObserver, -1, (), False, True, None, ())
     CommunicatorObserver._ice_type = _M_Ice.Instrumentation._t_CommunicatorObserver
 
     _M_Ice.Instrumentation.CommunicatorObserver = CommunicatorObserver

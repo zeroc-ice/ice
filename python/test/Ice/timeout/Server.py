@@ -21,6 +21,7 @@ class ActivateAdapterThread(threading.Thread):
         time.sleep(self._timeout / 1000.0)
         self._adapter.activate()
 
+
 class TimeoutI(Test.Timeout):
     def op(self, current=None):
         pass
@@ -31,6 +32,7 @@ class TimeoutI(Test.Timeout):
     def sleep(self, timeout, current=None):
         if timeout != 0:
             time.sleep(timeout / 1000.0)
+
 
 class ControllerI(Test.Controller):
 

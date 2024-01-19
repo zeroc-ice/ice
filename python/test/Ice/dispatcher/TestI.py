@@ -2,11 +2,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, Dispatcher, time
+import Ice
+import Test
+import Dispatcher
+import time
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class TestIntfI(Test.TestIntf):
     def op(self, current=None):
@@ -21,6 +26,7 @@ class TestIntfI(Test.TestIntf):
     def shutdown(self, current=None):
         test(Dispatcher.Dispatcher.isDispatcherThread())
         current.adapter.getCommunicator().shutdown()
+
 
 class TestIntfControllerI(Test.TestIntfController):
     def __init__(self, adapter):

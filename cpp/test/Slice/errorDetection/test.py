@@ -62,4 +62,5 @@ class SliceErrorDetectionTestCase(ClientTestCase):
             if os.path.exists(outdir):
                 shutil.rmtree(outdir)
 
-TestSuite(__name__, [ SliceErrorDetectionTestCase() ])
+
+TestSuite(__name__, [SliceErrorDetectionTestCase()])

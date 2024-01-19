@@ -2,14 +2,21 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, threading, sys, array
+import Ice
+import Test
+import threading
+import sys
+import array
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
+
 class EmptyI(Test.Empty):
     pass
+
 
 class ServantLocatorI(Ice.ServantLocator):
     def locate(self, current):
@@ -21,8 +28,10 @@ class ServantLocatorI(Ice.ServantLocator):
     def deactivate(self, category):
         pass
 
+
 def ValueFactory(type):
     return None
+
 
 class CallbackBase:
     def __init__(self):
@@ -39,6 +48,7 @@ class CallbackBase:
         with self._cond:
             self._called = True
             self._cond.notify()
+
 
 class Callback(CallbackBase):
     def __init__(self, communicator=None):
@@ -206,6 +216,7 @@ class Callback(CallbackBase):
         except:
             test(False)
         self.called()
+
 
 def allTests(helper, communicator):
     sys.stdout.write("testing servant registration exceptions... ")
@@ -459,11 +470,11 @@ def allTests(helper, communicator):
         print("ok")
 
     if thrower.ice_getConnection():
-        sys.stdout.write("testing memory limit marshal exception...");
-        sys.stdout.flush();
+        sys.stdout.write("testing memory limit marshal exception...")
+        sys.stdout.flush()
 
         try:
-            thrower.throwMemoryLimitException(array.array('B'));
+            thrower.throwMemoryLimitException(array.array('B'))
             test(False)
         except Ice.MemoryLimitException:
             pass
@@ -472,7 +483,7 @@ def allTests(helper, communicator):
             test(False)
 
         try:
-            thrower.throwMemoryLimitException(bytearray(20 * 1024)) # 20KB
+            thrower.throwMemoryLimitException(bytearray(20 * 1024))  # 20KB
             test(False)
         except Ice.ConnectionLostException:
             pass
@@ -481,7 +492,7 @@ def allTests(helper, communicator):
         except:
             test(False)
 
-        print("ok");
+        print("ok")
 
     sys.stdout.write("catching object not exist exception... ")
     sys.stdout.flush()
@@ -817,11 +828,11 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         try:
-            thrower.throwMarshalException(context={"response":""})
+            thrower.throwMarshalException(context={"response": ""})
         except Ice.UnknownLocalException as ex:
             test("::Ice::MarshalException" in str(ex))
         try:
-            thrower.throwMarshalException(context={"param":""})
+            thrower.throwMarshalException(context={"param": ""})
         except Ice.UnknownLocalException as ex:
             test("::Ice::MarshalException" in str(ex))
         try:

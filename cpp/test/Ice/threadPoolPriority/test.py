@@ -6,4 +6,4 @@ if not isinstance(platform, Darwin) and (isinstance(platform, Windows) or os.get
     TestSuite(__file__, [
         ClientServerTestCase(),
         ClientServerTestCase(name="client/custom server", server="servercustom")
-    ], options={ "mx" : [False] })
+    ], options={"mx": [False]})

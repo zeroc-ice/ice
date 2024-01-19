@@ -7,7 +7,8 @@
 # Publisher/subscriber test cases, publisher publishes on TestIceStorm1 instance(s) and
 # the subscriber subscribes to the TestIceStorm2 instance(s)
 #
-pubSub=lambda si, pi, s={}, p={}: ClientServerTestCase(client=Publisher(args=s), server=Subscriber(args=p))
+pubSub = lambda si, pi, s={}, p={}: ClientServerTestCase(client=Publisher(args=s), server=Subscriber(args=p))
+
 
 class IceStormStressTestCase(IceStormTestCase):
 
@@ -65,7 +66,7 @@ class IceStormStressTestCase(IceStormTestCase):
         current.write("Sending 20000 unordered events with slow subscriber... ")
         doTest([("TestIceStorm1", '--events 2 --slow'),
                 ("TestIceStorm1", '--events 20000 ')],
-                '--events 20000 --oneway')
+               '--events 20000 --oneway')
         current.writeln("ok")
 
         self.runadmin(current, "link TestIceStorm1/fed1 TestIceStorm2/fed1")
@@ -74,7 +75,7 @@ class IceStormStressTestCase(IceStormTestCase):
                 ("TestIceStorm1", '--events 20000'),
                 ("TestIceStorm2", '--events 2 --slow'),
                 ("TestIceStorm2", '--events 20000')],
-                '--events 20000 --oneway')
+               '--events 20000 --oneway')
         current.writeln("ok")
 
         current.write("shutting down icestorm services... ")
@@ -92,21 +93,21 @@ class IceStormStressTestCase(IceStormTestCase):
 
         self.runadmin(current, "unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
         current.write("Sending 20000 unordered events with erratic subscriber... ")
-        doTest([ ("TestIceStorm1", '--erratic 5 --qos "reliability,ordered" --events 20000'),
-                 ("TestIceStorm1", '--erratic 5 --events 20000'),
-                 ("TestIceStorm1", '--events 20000')],
-                 '--events 20000 --oneway')
+        doTest([("TestIceStorm1", '--erratic 5 --qos "reliability,ordered" --events 20000'),
+                ("TestIceStorm1", '--erratic 5 --events 20000'),
+                ("TestIceStorm1", '--events 20000')],
+               '--events 20000 --oneway')
         current.writeln("ok")
 
         self.runadmin(current, "link TestIceStorm1/fed1 TestIceStorm2/fed1")
         current.write("Sending 20000 unordered events with erratic subscriber across a link... ")
-        doTest([ ("TestIceStorm1", '--events 20000'),
-                 ("TestIceStorm1", '--erratic 5 --qos "reliability,ordered" --events 20000 '),
-                 ("TestIceStorm1", '--erratic 5 --events 20000 '),
-                 ("TestIceStorm2", '--events 20000'),
-                 ("TestIceStorm2", '--erratic 5 --qos "reliability,ordered" --events 20000 '),
-                 ("TestIceStorm2", '--erratic 5 --events 20000 ')],
-                 '--events 20000 --oneway ')
+        doTest([("TestIceStorm1", '--events 20000'),
+                ("TestIceStorm1", '--erratic 5 --qos "reliability,ordered" --events 20000 '),
+                ("TestIceStorm1", '--erratic 5 --events 20000 '),
+                ("TestIceStorm2", '--events 20000'),
+                ("TestIceStorm2", '--erratic 5 --qos "reliability,ordered" --events 20000 '),
+                ("TestIceStorm2", '--erratic 5 --events 20000 ')],
+               '--events 20000 --oneway ')
         current.writeln("ok")
 
         #
@@ -138,13 +139,13 @@ class IceStormStressTestCase(IceStormTestCase):
             s.stop(current, True)
         current.writeln("ok")
 
+
 TestSuite(__file__, [
 
     IceStormStressTestCase("persistent", icestorm=[IceStorm("TestIceStorm1", quiet=True),
                                                    IceStorm("TestIceStorm2", quiet=True, portnum=20)]),
 
-    IceStormStressTestCase("replicated with replicated publisher", icestorm=
-                           [IceStorm("TestIceStorm1", i, 3, quiet=True) for i in range(0,3)] +
-                           [IceStorm("TestIceStorm2", i, 3, portnum=20, quiet=True) for i in range(0,3)]),
+    IceStormStressTestCase("replicated with replicated publisher", icestorm=[IceStorm("TestIceStorm1", i, 3, quiet=True) for i in range(0, 3)] +
+                           [IceStorm("TestIceStorm2", i, 3, portnum=20, quiet=True) for i in range(0, 3)]),
 
 ], multihost=False)

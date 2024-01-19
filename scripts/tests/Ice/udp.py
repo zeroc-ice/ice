@@ -4,6 +4,7 @@
 
 from Util import *
 
+
 class UdpTestCase(ClientServerTestCase):
 
     def setupServerSide(self, current):
@@ -18,4 +19,5 @@ class UdpTestCase(ClientServerTestCase):
         else:
             self.clients = [Client(args=[5])]
 
-TestSuite(__name__, [ UdpTestCase() ], multihost=False)
+
+TestSuite(__name__, [UdpTestCase()], multihost=False)

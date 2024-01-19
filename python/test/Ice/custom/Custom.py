@@ -10,6 +10,7 @@ try:
 except ImportError:
     hasNumPy = False
 
+
 def myBoolSeq(buffer, type, copy):
     return Ice.createArray(buffer, type, copy)
 
@@ -37,40 +38,33 @@ def myFloatSeq(buffer, type, copy):
 def myDoubleSeq(buffer, type, copy):
     return Ice.createArray(buffer, type, copy)
 
+
 if hasNumPy:
 
     def myNumPyBoolSeq(buffer, type, copy):
         return Ice.createNumPyArray(buffer, type, copy)
 
-
     def myNumPyByteSeq(buffer, type, copy):
         return Ice.createNumPyArray(buffer, type, copy)
-
 
     def myNumPyShortSeq(buffer, type, copy):
         return Ice.createNumPyArray(buffer, type, copy)
 
-
     def myNumPyIntSeq(buffer, type, copy):
         return Ice.createNumPyArray(buffer, type, copy)
-
 
     def myNumPyLongSeq(buffer, type, copy):
         return Ice.createNumPyArray(buffer, type, copy)
 
-
     def myNumPyFloatSeq(buffer, type, copy):
         return Ice.createNumPyArray(buffer, type, copy)
-
 
     def myNumPyDoubleSeq(buffer, type, copy):
         return Ice.createNumPyArray(buffer, type, copy)
 
-
     def myNumPyComplex128Seq(buffer, type, copy):
         import numpy
         return numpy.frombuffer(buffer.tobytes() if copy else buffer, numpy.complex128)
-
 
     def myNumPyMatrix3x3(buffer, type, copy):
         a = Ice.createNumPyArray(buffer, type, copy)

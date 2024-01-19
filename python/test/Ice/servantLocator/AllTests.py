@@ -2,11 +2,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, Ice, Test
+import sys
+import Ice
+import Test
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def testExceptions(obj):
 
@@ -119,6 +123,7 @@ def testExceptions(obj):
     except:
         test(False)
 
+
 def allTests(helper, communicator):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
@@ -227,6 +232,6 @@ def allTests(helper, communicator):
         communicator.stringToProxy("invalidReturnType:{0}".format(helper.getTestEndpoint())).ice_ping()
     except Ice.ObjectNotExistException:
         pass
-    print ("ok")
+    print("ok")
 
     return obj

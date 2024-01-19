@@ -2,11 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, Dispatcher, sys, threading, random
+import Ice
+import Test
+import Dispatcher
+import sys
+import threading
+import random
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class Callback:
     def __init__(self):
@@ -46,6 +53,7 @@ class Callback:
         else:
             test(Dispatcher.Dispatcher.isDispatcherThread())
 
+
 def allTests(helper, communicator):
     sref = "test:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
@@ -79,7 +87,7 @@ def allTests(helper, communicator):
     #
     # Expect InvocationTimeoutException.
     #
-    to = p.ice_invocationTimeout(10);
+    to = p.ice_invocationTimeout(10)
     to.sleepAsync(500).add_done_callback_async(cb.exceptionEx)
     cb.check()
 

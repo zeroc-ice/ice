@@ -11,12 +11,13 @@
 # truncated). See also bug #6070.
 #
 props = {
-    "IceStorm.Election.MasterTimeout" : 2,
-    "IceStorm.Election.ElectionTimeout" : 2,
-    "IceStorm.Election.ResponseTimeout" : 2
+    "IceStorm.Election.MasterTimeout": 2,
+    "IceStorm.Election.ElectionTimeout": 2,
+    "IceStorm.Election.ResponseTimeout": 2
 }
 
-icestorm = [ IceStorm(replica=i, nreplicas=3, props = props) for i in range(0,3) ]
+icestorm = [IceStorm(replica=i, nreplicas=3, props=props) for i in range(0, 3)]
+
 
 class IceStormRep1TestCase(IceStormTestCase):
 
@@ -282,4 +283,5 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.stopIceStorm(current)
         current.writeln("ok")
 
-TestSuite(__file__, [ IceStormRep1TestCase("replicated", icestorm=icestorm) ], multihost=False)
+
+TestSuite(__file__, [IceStormRep1TestCase("replicated", icestorm=icestorm)], multihost=False)

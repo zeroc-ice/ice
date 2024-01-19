@@ -2,7 +2,9 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import threading, Ice
+import threading
+import Ice
+
 
 class CallQueue(threading.Thread):
     def __init__(self):
@@ -30,6 +32,7 @@ class CallQueue(threading.Thread):
                     break
                 call = self._queue.pop()
             call.execute()
+
 
 class BlobjectCall(object):
     def __init__(self, proxy, future, inParams, curr):
@@ -61,6 +64,7 @@ class BlobjectCall(object):
         except Exception as ex:
             self._future.set_exception(ex)
 
+
 class BlobjectAsyncI(Ice.BlobjectAsync):
     def __init__(self):
         self._queue = CallQueue()
@@ -84,6 +88,7 @@ class BlobjectAsyncI(Ice.BlobjectAsync):
         with self._lock:
             self._queue.destroy()
             self._queue.join()
+
 
 class BlobjectI(Ice.Blobject):
     def __init__(self):
@@ -113,18 +118,20 @@ class BlobjectI(Ice.Blobject):
     def destroy(self):
         pass
 
+
 class ServantLocatorI(Ice.ServantLocator):
     def __init__(self, blobject):
         self._blobject = blobject
 
     def locate(self, current):
-        return self._blobject # and the cookie
+        return self._blobject  # and the cookie
 
     def finished(self, current, object, cookie):
         pass
 
     def deactivate(self, s):
         pass
+
 
 class RouterI(Ice.Router):
     def __init__(self, communicator, sync):
@@ -146,7 +153,7 @@ class RouterI(Ice.Router):
         return (self._blobjectProxy, True)
 
     def getServerProxy(self, current):
-        assert(False)
+        assert (False)
 
     def addProxies(self, proxies, current):
         for p in proxies:

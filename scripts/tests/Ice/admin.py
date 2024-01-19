@@ -3,4 +3,4 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-TestSuite(__name__, options = { "ipv6" : [False] }, multihost=False)
+TestSuite(__name__, options={"ipv6": [False]}, multihost=False)

@@ -2,7 +2,9 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test
+import Ice
+import Test
+
 
 class BI(Test.B):
     def __init__(self):
@@ -15,6 +17,7 @@ class BI(Test.B):
     def ice_postUnmarshal(self):
         self.postUnmarshalInvoked = True
 
+
 class CI(Test.C):
     def __init__(self):
         self.preMarshalInvoked = False
@@ -25,6 +28,7 @@ class CI(Test.C):
 
     def ice_postUnmarshal(self):
         self.postUnmarshalInvoked = True
+
 
 class DI(Test.D):
     def __init__(self):
@@ -37,12 +41,14 @@ class DI(Test.D):
     def ice_postUnmarshal(self):
         self.postUnmarshalInvoked = True
 
+
 class EI(Test.E):
     def __init__(self):
         Test.E.__init__(self, 1, "hello")
 
     def checkValues(self, current=None):
         return self._i == 1 and self._s == "hello"
+
 
 class FI(Test.F):
     def __init__(self, e=None):
@@ -51,13 +57,16 @@ class FI(Test.F):
     def checkValues(self, current=None):
         return self._e1 != None and self._e1 == self.e2
 
+
 class II(Ice.InterfaceByValue):
     def __init__(self):
         Ice.InterfaceByValue.__init__(self, "::Test::I")
 
+
 class JI(Ice.InterfaceByValue):
     def __init__(self):
         Ice.InterfaceByValue.__init__(self, "::Test::J")
+
 
 class InitialI(Test.Initial):
     def __init__(self, adapter):
@@ -69,12 +78,12 @@ class InitialI(Test.Initial):
         self._e = EI()
         self._f = FI(self._e)
 
-        self._b1.theA = self._b2 # Cyclic reference to another B
-        self._b1.theB = self._b1 # Self reference.
+        self._b1.theA = self._b2  # Cyclic reference to another B
+        self._b1.theB = self._b1  # Self reference.
         self._b1.theC = None     # Null reference.
 
-        self._b2.theA = self._b2 # Self reference, using base.
-        self._b2.theB = self._b1 # Cyclic reference to another B
+        self._b2.theA = self._b2  # Self reference, using base.
+        self._b2.theB = self._b1  # Cyclic reference to another B
         self._b2.theC = self._c  # Cyclic reference to a C.
 
         self._c.theB = self._b2  # Cyclic reference to a B.
@@ -201,6 +210,7 @@ class InitialI(Test.Initial):
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
         return Test.AlsoEmpty()
+
 
 class F2I(Test.F2):
     def op(self, current=None):

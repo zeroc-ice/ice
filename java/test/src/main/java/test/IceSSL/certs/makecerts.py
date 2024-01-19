@@ -3,7 +3,10 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys, socket, getopt
+import os
+import sys
+import socket
+import getopt
 
 try:
     import IceCertUtils
@@ -12,8 +15,8 @@ except:
           "from Python package repository")
     sys.exit(1)
 
-toplevel="."
-while(os.path.abspath(toplevel) != "/"):
+toplevel = "."
+while (os.path.abspath(toplevel) != "/"):
     toplevel = os.path.normpath(os.path.join("..", toplevel))
     if os.path.exists(os.path.join(toplevel, "scripts", "Util.py")):
         break
@@ -26,6 +29,7 @@ if not os.path.exists(os.path.join(cppcerts, "db", "ca1", "ca.pem")):
           " run makecerts.py in `" + cppcerts + "' first")
     sys.exit(1)
 
+
 def usage():
     print("Usage: " + sys.argv[0] + " [options]")
     print("")
@@ -34,6 +38,7 @@ def usage():
     print("-d | --debug     Debugging output.")
     print("--force          Re-save all the files even if they already exists.")
     sys.exit(1)
+
 
 #
 # Check arguments
@@ -61,14 +66,16 @@ ca2 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca2"), 
 cai1 = ca1.getIntermediateFactory("intermediate1")
 cai2 = cai1.getIntermediateFactory("intermediate1")
 
-if force or not os.path.exists("cacert1.jks"): ca1.getCA().save("cacert1.jks")
-if force or not os.path.exists("cacert2.jks"): ca2.getCA().save("cacert2.jks")
+if force or not os.path.exists("cacert1.jks"):
+    ca1.getCA().save("cacert1.jks")
+if force or not os.path.exists("cacert2.jks"):
+    ca2.getCA().save("cacert2.jks")
 
 certs = [
     (ca1, "s_rsa_ca1", None, {}),
     (ca1, "c_rsa_ca1", None, {}),
-    (ca1, "s_rsa_ca1_exp", None, {}), # Expired certificate
-    (ca1, "c_rsa_ca1_exp", None, {}), # Expired certificate
+    (ca1, "s_rsa_ca1_exp", None, {}),  # Expired certificate
+    (ca1, "c_rsa_ca1_exp", None, {}),  # Expired certificate
     (ca1, "s_rsa_ca1_cn1", None, {}),
     (ca1, "s_rsa_ca1_cn2", None, {}),
     (ca1, "s_rsa_ca1_cn3", None, {}),
@@ -84,14 +91,15 @@ certs = [
     (cai1, "s_rsa_cai1", None, {}),
     (cai2, "s_rsa_cai2", None, {}),
     (cai2, "c_rsa_cai2", None, {}),
-    (ca1, "s_rsa_ca1", "s_rsa_wroot_ca1", { "root": True }),
+    (ca1, "s_rsa_ca1", "s_rsa_wroot_ca1", {"root": True}),
 ]
 
 #
 # Save the certificate JKS files.
 #
 for (ca, alias, path, args) in certs:
-    if not path: path = alias
+    if not path:
+        path = alias
     cert = ca.get(alias)
     if force or not os.path.exists(path + ".jks"):
         cert.save(path + ".jks", alias="cert", **args)
@@ -100,17 +108,20 @@ for (ca, alias, path, args) in certs:
 # Create a cacerts.jks truststore that contains both CA certs.
 #
 if force or not os.path.exists("cacerts.jks"):
-    if os.path.exists("cacerts.jks"): os.remove("cacerts.jks")
+    if os.path.exists("cacerts.jks"):
+        os.remove("cacerts.jks")
     ca1.getCA().exportToKeyStore("cacerts.jks", alias="cacert1")
     ca2.getCA().exportToKeyStore("cacerts.jks", alias="cacert2")
 
-if force or not os.path.exists("s_cacert2.jks"): ca2.getCA().saveJKS("s_cacert2.jks", addkey=True)
+if force or not os.path.exists("s_cacert2.jks"):
+    ca2.getCA().saveJKS("s_cacert2.jks", addkey=True)
 
 #
 # Create a client/server certificate that contains both the DSA and
 # RSA certs.
 #
 if force or not os.path.exists("s_rsa_dsa_ca1.jks"):
-    if os.path.exists("s_rsa_dsa_ca1.jks"): os.remove("s_rsa_dsa_ca1.jks")
+    if os.path.exists("s_rsa_dsa_ca1.jks"):
+        os.remove("s_rsa_dsa_ca1.jks")
     ca1.get("s_rsa_ca1").exportToKeyStore("s_rsa_dsa_ca1.jks", alias="rsacert")
     ca1.get("s_dsa_ca1").exportToKeyStore("s_rsa_dsa_ca1.jks", alias="dsacert")

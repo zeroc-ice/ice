@@ -10,11 +10,13 @@ class IceGridNoRestartUpdateTestCase(IceGridTestCase):
         current.mkdirs("db/node1")
         current.mkdirs("db/node2")
 
-clientProps = lambda process, current: {
-    "IceBoxExe" : IceBox().getCommandLine(current),
-    "ServerDir" : current.getBuildDir("server"),
-    "ServiceDir" : current.getBuildDir("testservice")
+
+def clientProps(process, current): return {
+    "IceBoxExe": IceBox().getCommandLine(current),
+    "ServerDir": current.getBuildDir("server"),
+    "ServiceDir": current.getBuildDir("testservice")
 }
+
 
 if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(__file__,

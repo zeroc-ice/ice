@@ -3,11 +3,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, os, sys, traceback, time, threading
+import Ice
+import os
+import sys
+import traceback
+import time
+import threading
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class Dispatcher:
     def __init__(self):

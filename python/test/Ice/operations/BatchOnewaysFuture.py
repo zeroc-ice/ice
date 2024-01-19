@@ -2,11 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, array, sys, threading, time
+import Ice
+import Test
+import array
+import sys
+import threading
+import time
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class Callback:
     def __init__(self):
@@ -24,23 +31,24 @@ class Callback:
             self._called = True
             self._cond.notify()
 
+
 def batchOneways(p):
 
     bs1 = bytes([0 for x in range(0, 10 * 1024)])
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
-    f = batch.ice_flushBatchRequestsAsync() # Empty flush
+    f = batch.ice_flushBatchRequestsAsync()  # Empty flush
     f.result()
 
-    test(batch.ice_flushBatchRequestsAsync().is_sent()) # Empty flush
-    test(batch.ice_flushBatchRequestsAsync().done()) # Empty flush
-    test(batch.ice_flushBatchRequestsAsync().is_sent_synchronously()) # Empty flush
+    test(batch.ice_flushBatchRequestsAsync().is_sent())  # Empty flush
+    test(batch.ice_flushBatchRequestsAsync().done())  # Empty flush
+    test(batch.ice_flushBatchRequestsAsync().is_sent_synchronously())  # Empty flush
 
     for i in range(30):
         batch.opByteSOnewayAsync(bs1)
 
     count = 0
-    while count < 27: # 3 * 9 requests auto-flushed.
+    while count < 27:  # 3 * 9 requests auto-flushed.
         count += p.opByteSOnewayCallCount()
         time.sleep(0.01)
 
@@ -66,7 +74,7 @@ def batchOneways(p):
         test(batch2.ice_pingAsync().done() and not batch1.ice_pingAsync().exception())
 
     identity = Ice.Identity()
-    identity.name = "invalid";
+    identity.name = "invalid"
     batch3 = batch.ice_identity(identity)
     batch3.ice_ping()
     batch3.ice_flushBatchRequestsAsync().result()
