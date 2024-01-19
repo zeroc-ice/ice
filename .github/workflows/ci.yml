@@ -24,8 +24,6 @@ jobs:
           - os: macos-latest
             language: swift
           - os: macos-latest
-            language: objective-c
-          - os: macos-latest
             language: python
           - os: macos-latest
             language: php
