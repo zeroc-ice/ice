@@ -295,7 +295,6 @@ IcePHP::OperationI::function()
         _zendFunction->handler = ZEND_FN(IcePHP_Operation_call);
         zend_set_function_arg_flags(reinterpret_cast<zend_function*>(_zendFunction));
     }
-
     return reinterpret_cast<zend_function*>(_zendFunction);
 }
 

@@ -422,9 +422,9 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
     }
 
     zval underlying;
-    if(!createEndpointInfo(&underlying, p->underlying TSRMLS_CC))
+    if(!createEndpointInfo(&underlying, p->underlying))
     {
-        runtimeError("unable to initialize endpoint info" TSRMLS_CC);
+        runtimeError("unable to initialize endpoint info");
         return false;
     }
     add_property_zval(zv, STRCAST("underlying"), &underlying);

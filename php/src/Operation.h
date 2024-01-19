@@ -7,7 +7,6 @@
 
 #include "Config.h"
 
-// Global functions.
 extern "C"
 {
 ZEND_FUNCTION(IcePHP_defineOperation);

@@ -2663,7 +2663,7 @@ IcePHP::ProxyInfo::unmarshal(
 
     if(!defined)
     {
-        runtimeError("proxy %s is declared but not defined" TSRMLS_CC, id.c_str());
+        runtimeError("proxy %s is declared but not defined", id.c_str());
         throw AbortMarshaling();
     }
 

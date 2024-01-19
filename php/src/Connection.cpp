@@ -134,19 +134,19 @@ ZEND_END_ARG_INFO()
 ZEND_METHOD(Ice_Connection, flushBatchRequests)
 {
     zval* compress;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("z"), &compress TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &compress) != SUCCESS)
     {
         RETURN_NULL();
     }
 
     if(Z_TYPE_P(compress) != IS_LONG)
     {
-        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch" TSRMLS_CC);
+        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch");
         RETURN_NULL();
     }
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(Z_LVAL_P(compress));
 
-    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis() TSRMLS_CC);
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
 
     try
@@ -155,7 +155,7 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -726,9 +726,9 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     }
 
     zval underlying;
-    if(!createConnectionInfo(&underlying, p->underlying TSRMLS_CC))
+    if(!createConnectionInfo(&underlying, p->underlying))
     {
-        runtimeError("unable to initialize connection info" TSRMLS_CC);
+        runtimeError("unable to initialize connection info");
         return false;
     }
     add_property_zval(zv, STRCAST("underlying"), &underlying);

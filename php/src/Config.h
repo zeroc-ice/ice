@@ -20,14 +20,10 @@
 #   pragma GCC diagnostic ignored "-Wredundant-decls"
 #endif
 
-//
-// The php.h header defines/undefines NDEBUG based on how the PHP binary was built.
-// As a result, asserts are always disabled unless building against a php binary
-// built with --enable-debug. We want to enable asserts for the PHP Ice extension
-// when it's built without OPTIMIZE=yes. We save NDEBUG in a tmp macro here and
-// explicitly re-include the assert.h header with the saved NDEBUG macro after
-// including php.h
-//
+// The php.h header defines/undefines NDEBUG based on how the PHP binary was built. As a result, asserts are always
+// disabled unless building against a php binary built with --enable-debug. We want to enable asserts for the PHP Ice
+// extension when it's built without OPTIMIZE=yes. We save NDEBUG in a tmp macro here and explicitly re-include the
+// assert.h header with the saved NDEBUG macro after including php.h
 #ifndef NDEBUG
 #   define TMPDEBUG
 #endif
@@ -38,10 +34,8 @@
 #include "zend_interfaces.h"
 #include "zend_exceptions.h"
 
-//
-// Enable asserts if the extension is built with debug. It's fine to include several times
-// assert.h with a different NDEBUG setting.
-//
+// Enable asserts if the extension is built with debug. It's fine to include several times assert.h with a different
+// NDEBUG setting.
 #ifdef TMPDEBUG
 #   undef TMPDEBUG
 #   undef NDEBUG
@@ -51,8 +45,8 @@
 extern zend_module_entry ice_module_entry;
 #define phpext_ice_ptr &ice_module_entry
 
-// TODO what is this for?
 #ifdef ZTS
+//  If building for thread-safe enviroment, include the Thread Safe Resource Manager.
 #   include "TSRM.h"
 #endif
 
@@ -108,12 +102,7 @@ ZEND_END_ARG_INFO()
 #ifdef STRCAST
 #   error "STRCAST already defined!"
 #endif
-#define STRCAST(s) const_cast<char*>(s)
-
-// TODO can we remove this now that PHP 8 is the minimum supported version?
-// PHP8 removed TSRMLS_CC, however older versions still require it
-#ifndef TSRMLS_CC
-#   define TSRMLS_CC
-#endif
+// #define STRCAST(s) const_cast<char*>(s)
+#define STRCAST(s) s
 
 #endif

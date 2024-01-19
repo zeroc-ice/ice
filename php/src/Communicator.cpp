@@ -254,7 +254,7 @@ ZEND_METHOD(Ice_Communicator, __construct)
 
 ZEND_METHOD(Ice_Communicator, shutdown)
 {
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -263,13 +263,13 @@ ZEND_METHOD(Ice_Communicator, shutdown)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
     }
 }
 
 ZEND_METHOD(Ice_Communicator, isShutdown)
 {
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -278,14 +278,14 @@ ZEND_METHOD(Ice_Communicator, isShutdown)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_FALSE;
     }
 }
 
 ZEND_METHOD(Ice_Communicator, waitForShutdown)
 {
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -294,7 +294,7 @@ ZEND_METHOD(Ice_Communicator, waitForShutdown)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
     }
 }
 
@@ -775,19 +775,19 @@ ZEND_END_ARG_INFO()
 ZEND_METHOD(Ice_Communicator, flushBatchRequests)
 {
     zval* compress;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("z"), &compress TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &compress) != SUCCESS)
     {
         RETURN_NULL();
     }
 
     if(Z_TYPE_P(compress) != IS_LONG)
     {
-        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch" TSRMLS_CC);
+        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch");
         RETURN_NULL();
     }
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(Z_LVAL_P(compress));
 
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -796,7 +796,7 @@ ZEND_METHOD(Ice_Communicator, flushBatchRequests)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }

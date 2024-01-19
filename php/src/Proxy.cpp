@@ -1201,7 +1201,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
         WRONG_PARAM_COUNT;
     }
 
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     try
@@ -1213,12 +1213,12 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
         }
         else
         {
-            assignUnset(return_value TSRMLS_CC);
+            assignUnset(return_value);
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -1259,7 +1259,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
         WRONG_PARAM_COUNT;
     }
 
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     try
@@ -1271,12 +1271,12 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
         }
         else
         {
-            assignUnset(return_value TSRMLS_CC);
+            assignUnset(return_value);
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -1317,7 +1317,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
         WRONG_PARAM_COUNT;
     }
 
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     try
@@ -1326,7 +1326,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -1366,34 +1366,34 @@ ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_fixed)
 {
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     zval* zcon;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+    if(zend_parse_parameters(ZEND_NUM_ARGS(),
                              const_cast<char*>("O!"),
                              &zcon,
-                             connectionClassEntry TSRMLS_CC) != SUCCESS)
+                             connectionClassEntry) != SUCCESS)
     {
         RETURN_NULL();
     }
 
     Ice::ConnectionPtr connection;
-    if(zcon && !fetchConnection(zcon, connection TSRMLS_CC))
+    if(zcon && !fetchConnection(zcon, connection))
     {
         RETURN_NULL();
     }
 
     try
     {
-        if(!_this->clone(return_value, _this->proxy->ice_fixed(connection) TSRMLS_CC))
+        if(!_this->clone(return_value, _this->proxy->ice_fixed(connection)))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
