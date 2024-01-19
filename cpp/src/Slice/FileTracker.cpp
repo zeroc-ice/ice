@@ -39,7 +39,6 @@ Slice::FileException::ice_clone() const
     return new FileException(*this);
 }
 
-
 void
 Slice::FileException::ice_throw() const
 {
