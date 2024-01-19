@@ -2,8 +2,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, Twoways, TwowaysFuture, TwowaysAMI, Oneways, OnewaysFuture, OnewaysAMI, BatchOneways, sys
-import BatchOnewaysAMI, BatchOnewaysFuture
+import Ice, Test, Twoways, TwowaysFuture, Oneways, OnewaysFuture, BatchOneways, sys
+import BatchOnewaysFuture
 
 def test(b):
     if not b:
@@ -32,19 +32,9 @@ def allTests(helper, communicator):
     TwowaysFuture.twowaysFuture(helper, cl)
     print("ok")
 
-    sys.stdout.write("testing twoway operations with AMI... ")
-    sys.stdout.flush()
-    TwowaysAMI.twowaysAMI(helper, cl)
-    print("ok")
-
     sys.stdout.write("testing oneway operations with futures... ")
     sys.stdout.flush()
     OnewaysFuture.onewaysFuture(helper, cl)
-    print("ok")
-
-    sys.stdout.write("testing oneway operations with AMI... ")
-    sys.stdout.flush()
-    OnewaysAMI.onewaysAMI(helper, cl)
     print("ok")
 
     sys.stdout.write("testing batch oneway operations...  ")
@@ -57,12 +47,6 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     BatchOnewaysFuture.batchOneways(cl)
     BatchOnewaysFuture.batchOneways(derived)
-    print("ok")
-
-    sys.stdout.write("testing batch oneway operations with AMI...  ")
-    sys.stdout.flush()
-    BatchOnewaysAMI.batchOneways(cl)
-    BatchOnewaysAMI.batchOneways(derived)
     print("ok")
 
     sys.stdout.write("testing server shutdown... ")
