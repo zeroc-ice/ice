@@ -285,7 +285,7 @@ IcePHP::OperationI::function()
 
         _zendFunction = static_cast<zend_internal_function*>(ecalloc(1, sizeof(zend_internal_function)));
         _zendFunction->type = ZEND_INTERNAL_FUNCTION;
-        _zendFunction->function_name = zend_string_init(STRCAST(fixed.c_str()), static_cast<uint32_t>(fixed.length()), 0);
+        _zendFunction->function_name = zend_string_init(fixed.c_str(), static_cast<uint32_t>(fixed.length()), 0);
         _zendFunction->scope = proxyClassEntry;
         _zendFunction->fn_flags = ZEND_ACC_PUBLIC;
         _zendFunction->prototype = 0;

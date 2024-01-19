@@ -61,7 +61,7 @@ ZEND_METHOD(Ice_Connection, __toString)
     try
     {
         string str = _this->toString();
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -267,9 +267,9 @@ ZEND_METHOD(Ice_Connection, getACM)
             RETURN_NULL();
         }
 
-        add_property_long(return_value, STRCAST("timeout"), static_cast<long>(acm.timeout));
-        add_property_long(return_value, STRCAST("close"), static_cast<long>(acm.close));
-        add_property_long(return_value, STRCAST("heartbeat"), static_cast<long>(acm.heartbeat));
+        add_property_long(return_value, "timeout", static_cast<long>(acm.timeout));
+        add_property_long(return_value, "close", static_cast<long>(acm.close));
+        add_property_long(return_value, "heartbeat", static_cast<long>(acm.heartbeat));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -290,7 +290,7 @@ ZEND_METHOD(Ice_Connection, type)
     try
     {
         string str = _this->type();
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length());
+        RETURN_STRINGL(str.c_str(), str.length());
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -524,61 +524,67 @@ IcePHP::connectionInit(void)
     memcpy(&_connectionInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _connectionInfoHandlers.free_obj = handleConnectionInfoFreeStorage;
     _connectionInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionInfoPtr>, zobj);
-    zend_declare_property_bool(connectionInfoClassEntry, STRCAST("incoming"), sizeof("incoming") - 1, 0,
-                               ZEND_ACC_PUBLIC);
-    zend_declare_property_string(connectionInfoClassEntry, STRCAST("adapterName"), sizeof("adapterName") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
-    zend_declare_property_null(connectionInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
-                               ZEND_ACC_PUBLIC);
+
+    zend_declare_property_bool(connectionInfoClassEntry, "incoming", sizeof("incoming") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        connectionInfoClassEntry,
+        "adapterName",
+        sizeof("adapterName") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
+    zend_declare_property_null(connectionInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
     // Register the IPConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
-    zend_declare_property_string(ipConnectionInfoClassEntry, STRCAST("localAddress"), sizeof("localAddress") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
-    zend_declare_property_long(ipConnectionInfoClassEntry, STRCAST("localPort"), sizeof("localPort") - 1, 0,
-                               ZEND_ACC_PUBLIC);
-    zend_declare_property_string(ipConnectionInfoClassEntry, STRCAST("remoteAddress"), sizeof("remoteAddress") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
-    zend_declare_property_long(ipConnectionInfoClassEntry, STRCAST("remotePort"), sizeof("remotePort") - 1, 0,
-                               ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        ipConnectionInfoClassEntry,
+        "localAddress",
+        sizeof("localAddress") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
+    zend_declare_property_long(ipConnectionInfoClassEntry, "localPort", sizeof("localPort") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        ipConnectionInfoClassEntry,
+        "remoteAddress",
+        sizeof("remoteAddress") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
+    zend_declare_property_long(ipConnectionInfoClassEntry, "remotePort", sizeof("remotePort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the TCPConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     tcpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
-    zend_declare_property_long(tcpConnectionInfoClassEntry, STRCAST("rcvSize"), sizeof("rcvSize") - 1, 0,
-                               ZEND_ACC_PUBLIC);
-    zend_declare_property_long(tcpConnectionInfoClassEntry, STRCAST("sndSize"), sizeof("sndSize") - 1, 0,
-                               ZEND_ACC_PUBLIC);
+    zend_declare_property_long(tcpConnectionInfoClassEntry, "rcvSize", sizeof("rcvSize") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_long(tcpConnectionInfoClassEntry, "sndSize", sizeof("sndSize") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the UDPConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
-    zend_declare_property_string(udpConnectionInfoClassEntry, STRCAST("mcastAddress"), sizeof("mcastAddress") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
-    zend_declare_property_long(udpConnectionInfoClassEntry, STRCAST("mcastPort"), sizeof("mcastPort") - 1, 0,
-                               ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        udpConnectionInfoClassEntry,
+        "mcastAddress",
+        sizeof("mcastAddress") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
+    zend_declare_property_long(udpConnectionInfoClassEntry, "mcastPort", sizeof("mcastPort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the WSConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
-    zend_declare_property_string(wsConnectionInfoClassEntry, STRCAST("headers"), sizeof("headers") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
+    zend_declare_property_string(wsConnectionInfoClassEntry, "headers", sizeof("headers") - 1, "", ZEND_ACC_PUBLIC);
 
     // Register the SSLConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", ICE_NULLPTR);
     ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
-    zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("cipher"), sizeof("cipher") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
-    zend_declare_property_string(sslConnectionInfoClassEntry, STRCAST("certs"), sizeof("certs") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
-    zend_declare_property_bool(sslConnectionInfoClassEntry, STRCAST("verified"), sizeof("verified") - 1, 0,
-                               ZEND_ACC_PUBLIC);
+    zend_declare_property_string(sslConnectionInfoClassEntry, "cipher", sizeof("cipher") - 1, "", ZEND_ACC_PUBLIC);
+    zend_declare_property_string(sslConnectionInfoClassEntry, "certs", sizeof("certs") - 1, "", ZEND_ACC_PUBLIC);
+    zend_declare_property_bool(sslConnectionInfoClassEntry, "verified", sizeof("verified") - 1, 0, ZEND_ACC_PUBLIC);
 
     return true;
 }
@@ -643,7 +649,7 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
             AutoDestroy mapDestroyer(&zmap);
             if(createStringMap(&zmap, info->headers))
             {
-                add_property_zval(zv, STRCAST("headers"), &zmap);
+                add_property_zval(zv, "headers", &zmap);
             }
             else
             {
@@ -656,8 +662,8 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         auto info = dynamic_pointer_cast<Ice::TCPConnectionInfo>(p);
         if((status = object_init_ex(zv, tcpConnectionInfoClassEntry)) == SUCCESS)
         {
-            add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(info->rcvSize));
-            add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
+            add_property_long(zv, "rcvSize", static_cast<long>(info->rcvSize));
+            add_property_long(zv, "sndSize", static_cast<long>(info->sndSize));
         }
     }
     else if(dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
@@ -665,10 +671,10 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         auto info = dynamic_pointer_cast<Ice::UDPConnectionInfo>(p);
         if((status = object_init_ex(zv, udpConnectionInfoClassEntry)) == SUCCESS)
         {
-            add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()));
-            add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
-            add_property_long(zv, STRCAST("rcvSize"), static_cast<long>(info->rcvSize));
-            add_property_long(zv, STRCAST("sndSize"), static_cast<long>(info->sndSize));
+            add_property_string(zv, "mcastAddress", const_cast<char*>(info->mcastAddress.c_str()));
+            add_property_long(zv, "mcastPort", static_cast<long>(info->mcastPort));
+            add_property_long(zv, "rcvSize", static_cast<long>(info->rcvSize));
+            add_property_long(zv, "sndSize", static_cast<long>(info->sndSize));
         }
     }
     else if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
@@ -693,8 +699,8 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
-        add_property_string(zv, STRCAST("cipher"), const_cast<char*>(info->cipher.c_str()));
-        add_property_bool(zv, STRCAST("verified"), info->verified ? 1 : 0);
+        add_property_string(zv, "cipher", const_cast<char*>(info->cipher.c_str()));
+        add_property_bool(zv, "verified", info->verified ? 1 : 0);
 
         zval zarr;
         AutoDestroy listDestroyer(&zarr);
@@ -708,7 +714,7 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
 
         if(createStringArray(&zarr, encoded))
         {
-            add_property_zval(zv, STRCAST("certs"), &zarr);
+            add_property_zval(zv, "certs", &zarr);
         }
         else
         {
@@ -719,10 +725,10 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
     if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
-        add_property_string(zv, STRCAST("localAddress"), const_cast<char*>(info->localAddress.c_str()));
-        add_property_long(zv, STRCAST("localPort"), static_cast<long>(info->localPort));
-        add_property_string(zv, STRCAST("remoteAddress"), const_cast<char*>(info->remoteAddress.c_str()));
-        add_property_long(zv, STRCAST("remotePort"), static_cast<long>(info->remotePort));
+        add_property_string(zv, "localAddress", const_cast<char*>(info->localAddress.c_str()));
+        add_property_long(zv, "localPort", static_cast<long>(info->localPort));
+        add_property_string(zv, "remoteAddress", const_cast<char*>(info->remoteAddress.c_str()));
+        add_property_long(zv, "remotePort", static_cast<long>(info->remotePort));
     }
 
     zval underlying;
@@ -731,10 +737,10 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         runtimeError("unable to initialize connection info");
         return false;
     }
-    add_property_zval(zv, STRCAST("underlying"), &underlying);
+    add_property_zval(zv, "underlying", &underlying);
     zval_ptr_dtor(&underlying); // add_property_zval increased the refcount of underlying
-    add_property_bool(zv, STRCAST("incoming"), p->incoming ? 1 : 0);
-    add_property_string(zv, STRCAST("adapterName"), const_cast<char*>(p->adapterName.c_str()));
+    add_property_bool(zv, "incoming", p->incoming ? 1 : 0);
+    add_property_string(zv, "adapterName", const_cast<char*>(p->adapterName.c_str()));
 
     Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::extract(zv);
     assert(obj);

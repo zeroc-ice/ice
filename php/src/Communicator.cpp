@@ -393,7 +393,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
             assert(prx);
             str = prx->ice_toString();
         }
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -511,7 +511,7 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     try
     {
         string str = _this->getCommunicator()->identityToString(id);
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1135,7 +1135,7 @@ ZEND_FUNCTION(Ice_initialize)
 
         member = "properties";
         {
-            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())) != 0)
+            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), member.c_str(), member.size())) != 0)
             {
                 assert(Z_TYPE_P(data) == IS_INDIRECT);
                 if(!fetchProperties(Z_INDIRECT_P(data), initData.properties))
@@ -1147,7 +1147,7 @@ ZEND_FUNCTION(Ice_initialize)
 
         member = "logger";
         {
-            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())) != 0)
+            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), member.c_str(), member.size())) != 0)
             {
                 assert(Z_TYPE_P(data) == IS_INDIRECT);
                 if(!fetchLogger(Z_INDIRECT_P(data), initData.logger))
@@ -1404,7 +1404,7 @@ ZEND_FUNCTION(Ice_identityToString)
     try
     {
         string str = Ice::identityToString(id, static_cast<Ice::ToStringMode>(mode));
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1845,7 +1845,7 @@ IcePHP::FactoryWrapper::create(const string& id)
 
     zval arg;
     AutoDestroy destroyArg(&arg);
-    ZVAL_STRINGL(&arg, STRCAST(id.c_str()), static_cast<int>(id.length()));
+    ZVAL_STRINGL(&arg, id.c_str(), static_cast<int>(id.length()));
 
     zval obj;
     ZVAL_UNDEF(&obj);

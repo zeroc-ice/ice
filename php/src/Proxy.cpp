@@ -96,7 +96,7 @@ ZEND_METHOD(Ice_ObjectPrx, __toString)
     try
     {
         string str = _this->proxy->ice_toString();
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -239,7 +239,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getFacet)
     try
     {
         string facet = _this->proxy->ice_getFacet();
-        ZVAL_STRINGL(return_value, STRCAST(facet.c_str()), static_cast<int>(facet.length()));
+        ZVAL_STRINGL(return_value, facet.c_str(), static_cast<int>(facet.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -292,7 +292,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getAdapterId)
     try
     {
         string id = _this->proxy->ice_getAdapterId();
-        ZVAL_STRINGL(return_value, STRCAST(id.c_str()), static_cast<int>(id.length()));
+        ZVAL_STRINGL(return_value, id.c_str(), static_cast<int>(id.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -453,7 +453,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnectionId)
     try
     {
         string connectionId = _this->proxy->ice_getConnectionId();
-        ZVAL_STRINGL(return_value, STRCAST(connectionId.c_str()), static_cast<int>(connectionId.length()));
+        ZVAL_STRINGL(return_value, connectionId.c_str(), static_cast<int>(connectionId.length()));
     }
     catch(const IceUtil::Exception& ex)
     {

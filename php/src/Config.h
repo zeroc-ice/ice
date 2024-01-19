@@ -97,12 +97,4 @@ ZEND_END_ARG_INFO()
 #   define ZEND_MN(name) ZEND_FN(name)
 #endif
 
-//
-// Older versions of PHP use char* instead of const char* in many APIs.
-#ifdef STRCAST
-#   error "STRCAST already defined!"
-#endif
-// #define STRCAST(s) const_cast<char*>(s)
-#define STRCAST(s) s
-
 #endif

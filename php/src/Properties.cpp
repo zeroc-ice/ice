@@ -53,7 +53,7 @@ ZEND_METHOD(Ice_Properties, __toString)
             }
             str.append(p->first + "=" + p->second);
         }
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -83,7 +83,7 @@ ZEND_METHOD(Ice_Properties, getProperty)
     try
     {
         string val = _this->getProperty(propName);
-        RETURN_STRINGL(STRCAST(val.c_str()), static_cast<int>(val.length()));
+        RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -123,7 +123,7 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
     try
     {
         string val = _this->getPropertyWithDefault(propName, defaultValue);
-        RETURN_STRINGL(STRCAST(val.c_str()), static_cast<int>(val.length()));
+        RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
     catch(const IceUtil::Exception& ex)
     {

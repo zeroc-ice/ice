@@ -54,7 +54,7 @@ ZEND_METHOD(Ice_Endpoint, __toString)
     try
     {
         string str = _this->toString();
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -246,23 +246,22 @@ IcePHP::endpointInit(void)
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _endpointInfoHandlers.free_obj = handleEndpointInfoFreeStorage;
     _endpointInfoHandlers.offset   = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);
-    zend_declare_property_long(endpointInfoClassEntry, STRCAST("timeout"), sizeof("timeout") - 1, 0,
-                               ZEND_ACC_PUBLIC);
-    zend_declare_property_bool(endpointInfoClassEntry, STRCAST("compress"), sizeof("compress") - 1, 0,
-                               ZEND_ACC_PUBLIC);
-    zend_declare_property_null(endpointInfoClassEntry, STRCAST("underlying"), sizeof("underlying") - 1,
-                               ZEND_ACC_PUBLIC);
+    zend_declare_property_long(endpointInfoClassEntry, "timeout", sizeof("timeout") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_bool(endpointInfoClassEntry, "compress", sizeof("compress") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_null(endpointInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
     // Define the IPEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     ipEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
-    zend_declare_property_string(ipEndpointInfoClassEntry, STRCAST("host"), sizeof("host") - 1, STRCAST(""),
-                                 ZEND_ACC_PUBLIC);
-    zend_declare_property_long(ipEndpointInfoClassEntry, STRCAST("port"), sizeof("port") - 1, 0,
-                               ZEND_ACC_PUBLIC);
-    zend_declare_property_string(ipEndpointInfoClassEntry, STRCAST("sourceAddress"), sizeof("sourceAddress") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
+    zend_declare_property_string(ipEndpointInfoClassEntry, "host", sizeof("host") - 1, "", ZEND_ACC_PUBLIC);
+    zend_declare_property_long(ipEndpointInfoClassEntry, "port", sizeof("port") - 1, 0, ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        ipEndpointInfoClassEntry,
+        "sourceAddress",
+        sizeof("sourceAddress") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
 
     // Define the TCPEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPEndpointInfo", ICE_NULLPTR);
@@ -273,26 +272,29 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     udpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
-    zend_declare_property_string(udpEndpointInfoClassEntry, STRCAST("mcastInterface"), sizeof("mcastInterface") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
-    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("mcastTtl"), sizeof("mcastTtl") - 1, 0,
-                               ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        udpEndpointInfoClassEntry,
+        "mcastInterface",
+        sizeof("mcastInterface") - 1,
+        "",
+        ZEND_ACC_PUBLIC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, "mcastTtl", sizeof("mcastTtl") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Define the WSEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "WSEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     wsEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
-    zend_declare_property_string(wsEndpointInfoClassEntry, STRCAST("resource"), sizeof("resource") - 1,
-                                 STRCAST(""), ZEND_ACC_PUBLIC);
+    zend_declare_property_string(wsEndpointInfoClassEntry, "resource", sizeof("resource") - 1, "", ZEND_ACC_PUBLIC);
 
     // Define the OpaqueEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "OpaqueEndpointInfo", ICE_NULLPTR);
     ce.create_object = handleEndpointInfoAlloc;
     opaqueEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
-    zend_declare_property_null(opaqueEndpointInfoClassEntry, STRCAST("rawEncoding"), sizeof("rawEncoding") - 1,
-                               ZEND_ACC_PUBLIC);
-    zend_declare_property_null(opaqueEndpointInfoClassEntry, STRCAST("rawBytes"), sizeof("rawBytes") - 1,
-                               ZEND_ACC_PUBLIC);
+    zend_declare_property_null(
+        opaqueEndpointInfoClassEntry,
+        "rawEncoding",
+        sizeof("rawEncoding") - 1, ZEND_ACC_PUBLIC);
+    zend_declare_property_null(opaqueEndpointInfoClassEntry, "rawBytes", sizeof("rawBytes") - 1, ZEND_ACC_PUBLIC);
 
     // Define the SSLEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLEndpointInfo", ICE_NULLPTR);
@@ -358,7 +360,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         auto info = dynamic_pointer_cast<Ice::WSEndpointInfo>(p);
         if((status = object_init_ex(zv, wsEndpointInfoClassEntry)) == SUCCESS)
         {
-            add_property_string(zv, STRCAST("resource"), const_cast<char*>(info->resource.c_str()));
+            add_property_string(zv, "resource", const_cast<char*>(info->resource.c_str()));
         }
     }
     else if(dynamic_pointer_cast<Ice::TCPEndpointInfo>(p))
@@ -370,8 +372,8 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(p);
         if((status = object_init_ex(zv, udpEndpointInfoClassEntry)) == SUCCESS)
         {
-            add_property_string(zv, STRCAST("mcastInterface"), const_cast<char*>(info->mcastInterface.c_str()));
-            add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
+            add_property_string(zv, "mcastInterface", const_cast<char*>(info->mcastInterface.c_str()));
+            add_property_long(zv, "mcastTtl", static_cast<long>(info->mcastTtl));
         }
     }
     else if(dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p))
@@ -381,7 +383,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         {
             zval rawEncoding;
             createEncodingVersion(&rawEncoding, info->rawEncoding);
-            add_property_zval(zv, STRCAST("rawEncoding"), &rawEncoding);
+            add_property_zval(zv, "rawEncoding", &rawEncoding);
             zval_ptr_dtor(&rawEncoding); // add_property_zval increased the refcount of rawEncoding
 
             zval rawBytes;
@@ -390,7 +392,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
             {
                 add_next_index_long(&rawBytes, i & 0xff);
             }
-            add_property_zval(zv, STRCAST("rawBytes"), &rawBytes);
+            add_property_zval(zv, "rawBytes", &rawBytes);
             zval_ptr_dtor(&rawBytes); // add_property_zval increased the refcount of rawBytes
         }
     }
@@ -416,9 +418,9 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
     if(dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
-        add_property_string(zv, STRCAST("host"), const_cast<char*>(info->host.c_str()));
-        add_property_long(zv, STRCAST("port"), static_cast<long>(info->port));
-        add_property_string(zv, STRCAST("sourceAddress"), const_cast<char*>(info->sourceAddress.c_str()));
+        add_property_string(zv, "host", const_cast<char*>(info->host.c_str()));
+        add_property_long(zv, "port", static_cast<long>(info->port));
+        add_property_string(zv, "sourceAddress", const_cast<char*>(info->sourceAddress.c_str()));
     }
 
     zval underlying;
@@ -427,10 +429,10 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         runtimeError("unable to initialize endpoint info");
         return false;
     }
-    add_property_zval(zv, STRCAST("underlying"), &underlying);
+    add_property_zval(zv, "underlying", &underlying);
     zval_ptr_dtor(&underlying); // add_property_zval increased the refcount of underlying
-    add_property_long(zv, STRCAST("timeout"), static_cast<long>(p->timeout));
-    add_property_bool(zv, STRCAST("compress"), static_cast<long>(p->compress));
+    add_property_long(zv, "timeout", static_cast<long>(p->timeout));
+    add_property_bool(zv, "compress", static_cast<long>(p->compress));
 
     Wrapper<Ice::EndpointInfoPtr>* obj = Wrapper<Ice::EndpointInfoPtr>::extract(zv);
     assert(obj);

@@ -20,7 +20,7 @@ namespace
 bool
 getMember(zval* zv, const string& name, zval* member, int type, bool required)
 {
-    zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), STRCAST(name.c_str()), name.size());
+    zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), name.c_str(), name.size());
     if(!val)
     {
         if(required)
@@ -153,7 +153,7 @@ versionToString(zval* zv, zval* s, const char* type)
     try
     {
         string str = IceInternal::versionToString<T>(v);
-        ZVAL_STRINGL(s, STRCAST(str.c_str()), static_cast<int>(str.length()));
+        ZVAL_STRINGL(s, str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -215,7 +215,7 @@ zend_class_entry*
 IcePHP::nameToClass(const string& name)
 {
     zend_class_entry* result;
-    zend_string* s = zend_string_init(STRCAST(name.c_str()), static_cast<int>(name.length()), 0);
+    zend_string* s = zend_string_init(name.c_str(), static_cast<int>(name.length()), 0);
     result = zend_lookup_class(s);
     zend_string_release(s);
     return result;
@@ -346,7 +346,7 @@ IcePHP::createStringArray(zval* zv, const Ice::StringSeq& seq)
     array_init(zv);
     for(Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        if(add_next_index_stringl(zv, STRCAST(p->c_str()), static_cast<uint32_t>(p->length())) == FAILURE)
+        if(add_next_index_stringl(zv, p->c_str(), static_cast<uint32_t>(p->length())) == FAILURE)
         {
             return false;
         }
@@ -757,9 +757,9 @@ IcePHP::invalidArgument(const char* fmt, ...)
 static bool
 invokeMethodHelper(zval* obj, const string& name, zval* param)
 {
-    assert(zend_hash_str_exists(&Z_OBJCE_P(obj)->function_table, STRCAST(name.c_str()), name.size()));
+    assert(zend_hash_str_exists(&Z_OBJCE_P(obj)->function_table, name.c_str(), name.size()));
     zval ret, method;
-    ZVAL_STRING(&method, STRCAST(name.c_str()));
+    ZVAL_STRING(&method, name.c_str());
     uint32_t numParams = param ? 1 : 0;
     int status = 0;
     zend_try
@@ -790,7 +790,7 @@ bool
 IcePHP::invokeMethod(zval* obj, const string& name, const string& arg)
 {
     zval param;
-    ZVAL_STRINGL(&param, STRCAST(arg.c_str()), static_cast<int>(arg.size()));
+    ZVAL_STRINGL(&param, arg.c_str(), static_cast<int>(arg.size()));
     AutoDestroy destroy(&param);
     bool retval = invokeMethodHelper(obj, name, &param);
     return retval;
@@ -827,7 +827,7 @@ ZEND_FUNCTION(Ice_stringVersion)
         WRONG_PARAM_COUNT;
     }
 
-    RETURN_STRINGL(STRCAST(ICE_STRING_VERSION), static_cast<int>(strlen(ICE_STRING_VERSION)));
+    RETURN_STRINGL(ICE_STRING_VERSION, static_cast<int>(strlen(ICE_STRING_VERSION)));
 }
 
 ZEND_FUNCTION(Ice_intVersion)
@@ -848,7 +848,7 @@ ZEND_FUNCTION(Ice_generateUUID)
     }
 
     string uuid = Ice::generateUUID();
-    RETURN_STRINGL(STRCAST(uuid.c_str()), static_cast<int>(uuid.size()));
+    RETURN_STRINGL(uuid.c_str(), static_cast<int>(uuid.size()));
 }
 
 ZEND_FUNCTION(Ice_currentProtocol)
