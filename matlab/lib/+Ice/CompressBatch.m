@@ -8,7 +8,7 @@
 %   BasedOnProxy - Compress the batch requests if at least one request was made on a compressed proxy.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from Connection.ice by slice2matlab version 3.7.10
+% Generated from Connection.ice by slice2matlab version 3.8.50
 
 classdef CompressBatch < uint8
     enumeration

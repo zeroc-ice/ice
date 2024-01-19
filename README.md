@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/3.7/.github/assets/ice-banner.svg" height="150" width="150" />
+  <img src="https://raw.githubusercontent.com/zeroc-ice/ice/main/.github/assets/ice-banner.svg" height="150" width="150" />
 </p>
 
 [![Join the chat at https://gitter.im/zeroc-ice/ice](https://badges.gitter.im/zeroc-ice/ice.svg)][gitter]
@@ -110,20 +110,20 @@ license terms.
 [Commercial]: https://zeroc.com/ice/pricing
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
 [datastorm]: https://doc.zeroc.com/datastorm/latest/introduction
-[docs]: https://doc.zeroc.com/ice/3.7
+[docs]: https://doc.zeroc.com/ice/3.8
 [downloads]: https://zeroc.com/downloads/ice
 [examples]: https://github.com/zeroc-ice/ice-demos
 [gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-[glacier2]: https://doc.zeroc.com/ice/3.7/ice-services/glacier2
-[GPLv2]: https://github.com/zeroc-ice/ice/blob/3.7/LICENSE
+[glacier2]: https://doc.zeroc.com/ice/3.8/ice-services/glacier2
+[GPLv2]: https://github.com/zeroc-ice/ice/blob/3.8/LICENSE
 [ice-repo]: https://github.com/zeroc-ice/ice
-[icegrid]: https://doc.zeroc.com/ice/3.7/ice-services/icegrid
-[icemx]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/administrative-facility/the-metrics-facet
-[icessl]: https://doc.zeroc.com/ice/3.7/ice-plugins/icessl
-[icestorm]: https://doc.zeroc.com/ice/3.7/ice-services/icestorm
+[icegrid]: https://doc.zeroc.com/ice/3.8/ice-services/icegrid
+[icemx]: https://doc.zeroc.com/ice/3.8/administration-and-diagnostics/administrative-facility/the-metrics-facet
+[icessl]: https://doc.zeroc.com/ice/3.8/ice-plugins/icessl
+[icestorm]: https://doc.zeroc.com/ice/3.8/ice-services/icestorm
 [idl]: https://en.wikipedia.org/wiki/Interface_description_language
-[logger]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/logger-facility
-[properties]: https://doc.zeroc.com/ice/3.7/properties-and-configuration
-[protocol]: https://doc.zeroc.com/ice/3.7/ice-protocol-and-encoding
+[logger]: https://doc.zeroc.com/ice/3.8/administration-and-diagnostics/logger-facility
+[properties]: https://doc.zeroc.com/ice/3.8/properties-and-configuration
+[protocol]: https://doc.zeroc.com/ice/3.8/ice-protocol-and-encoding
 [rpcs]: https://en.wikipedia.org/wiki/Remote_procedure_call
-[slice]: https://doc.zeroc.com/ice/3.7/the-slice-language
+[slice]: https://doc.zeroc.com/ice/3.8/the-slice-language

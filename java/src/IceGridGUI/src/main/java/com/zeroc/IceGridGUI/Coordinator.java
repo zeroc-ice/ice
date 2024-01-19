@@ -3228,7 +3228,7 @@ public class Coordinator
 
         if(pos != -1)
         {
-            // 3.7a3 or 3.7b1 becomes simply 3.7
+            // 3.8a3 or 3.8b1 becomes simply 3.8
             version = version.substring(0, pos);
         }
 

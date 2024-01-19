@@ -3,7 +3,7 @@
 % This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
+% Generated from LocalException.ice by slice2matlab version 3.8.50
 
 classdef FixedProxyException < Ice.LocalException
     methods

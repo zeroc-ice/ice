@@ -4,7 +4,7 @@
 % or remote invocation. If it results in a remote invocation, a sub-observer is requested for the remote invocation.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from Instrumentation.ice by slice2matlab version 3.7.10
+% Generated from Instrumentation.ice by slice2matlab version 3.8.50
 
 classdef (Abstract) InvocationObserver < Ice.Instrumentation.Observer
     methods(Abstract)

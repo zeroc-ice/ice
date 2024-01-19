@@ -39,7 +39,7 @@
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
       <ItemGroup>
-        <PackageReference Include="zeroc.ice.net" Version="3.7.10" />
+        <PackageReference Include="zeroc.ice.net" Version="3.8.50" />
       </ItemGroup>
     </When>
     <Otherwise>

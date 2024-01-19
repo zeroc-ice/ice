@@ -9,7 +9,7 @@
 %   ThreadStateInUseForOther - The thread is performing other internal activities (DNS lookups, timer callbacks, etc).
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from Instrumentation.ice by slice2matlab version 3.7.10
+% Generated from Instrumentation.ice by slice2matlab version 3.8.50
 
 classdef ThreadState < uint8
     enumeration

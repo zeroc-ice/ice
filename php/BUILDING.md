@@ -235,5 +235,5 @@ chcon -R -t httpd_sys_content_t /opt/MyApp/slice
 ```
 
 [binary distributions]: https://zeroc.com/downloads/ice
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[supported platforms]: https://doc.zeroc.com/ice/3.8/release-notes/supported-platforms-for-ice-3-8-0
 [Ice Builder for Visual Studio]: https://github.com/zeroc-ice/ice-builder-visualstudio

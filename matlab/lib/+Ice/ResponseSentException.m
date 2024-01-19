@@ -3,7 +3,7 @@
 % Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
+% Generated from LocalException.ice by slice2matlab version 3.8.50
 
 classdef ResponseSentException < Ice.LocalException
     methods

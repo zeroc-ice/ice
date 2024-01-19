@@ -61,7 +61,7 @@ ZeroC provide RPM packages for expat, LDMB and mcpp. You can install these packa
 as shown below:
 
 ```shell
-sudo yum install https://zeroc.com/download/ice/3.7/aix7.2/ice-repo-3.7.aix7.2.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.8/aix7.2/ice-repo-3.8.aix7.2.noarch.rpm
 sudo yum install expat-devel lmdb-devel mcpp-devel
 ```
 
@@ -78,29 +78,29 @@ that do not include them. You can install these packages as shown below:
 ##### Amazon Linux 2
 
 ```shell
-sudo yum install https://zeroc.com/download/ice/3.7/amzn2/ice-repo-3.7.amzn2.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.8/amzn2/ice-repo-3.8.amzn2.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 
 ##### RHEL 8
 
 ```shell
-sudo yum install https://zeroc.com/download/ice/3.7/el8/ice-repo-3.7.el8.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.8/el8/ice-repo-3.8.el8.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 
 ##### RHEL 7
 
 ```shell
-sudo yum install https://zeroc.com/download/ice/3.7/el7/ice-repo-3.7.el7.noarch.rpm
+sudo yum install https://zeroc.com/download/ice/3.8/el7/ice-repo-3.8.el7.noarch.rpm
 sudo yum install lmdb-devel mcpp-devel
 ```
 
 ##### SLES 12
 
 ```shell
-wget https://zeroc.com/download/ice/3.7/suse/zeroc-ice3.7.repo
-sudo zypper addrepo zeroc-ice3.7.repo
+wget https://zeroc.com/download/ice/3.8/suse/zeroc-ice3.8.repo
+sudo zypper addrepo zeroc-ice3.8.repo
 sudo sudo rpm --import https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo zypper install mcpp-devel
 ```
@@ -186,7 +186,7 @@ where the C++ compiler can automatically find the header and library files, you 
 need to set `ICE_HOME`
 
 ```shell
-make ICE_HOME=/opt/Ice-3.7.10 ICE_BIN_DIST=all
+make ICE_HOME=/opt/Ice-3.8.50 ICE_BIN_DIST=all
 ```
 
 ### Build configurations and platforms
@@ -500,7 +500,7 @@ All the test clients and servers run on the iOS device, not on your Mac
 computer.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[2]: https://doc.zeroc.com/ice/3.8/release-notes/supported-platforms-for-ice-3-8-0
 [3]: https://github.com/zeroc-ice/bzip2
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/

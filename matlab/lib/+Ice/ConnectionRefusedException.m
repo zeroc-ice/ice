@@ -3,7 +3,7 @@
 % This exception indicates a connection failure for which the server host actively refuses a connection.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
+% Generated from LocalException.ice by slice2matlab version 3.8.50
 
 classdef ConnectionRefusedException < Ice.ConnectFailedException
     methods

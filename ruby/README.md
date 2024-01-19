@@ -34,8 +34,8 @@ Ice::initialize(ARGV) do |communicator|
 end
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-ruby
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/ruby
-[Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/ruby/BUILDING.md
+[Getting started]: https://doc.zeroc.com/ice/3.8/hello-world-application/writing-an-ice-application-with-ruby
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.8/ruby
+[Documentation]: https://doc.zeroc.com/ice/3.8
+[Building from source]: https://github.com/zeroc-ice/ice/blob/3.8/ruby/BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

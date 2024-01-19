@@ -3,7 +3,7 @@
 % The connection observer interface to instrument Ice connections.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from Instrumentation.ice by slice2matlab version 3.7.10
+% Generated from Instrumentation.ice by slice2matlab version 3.8.50
 
 classdef (Abstract) ConnectionObserver < Ice.Instrumentation.Observer
     methods(Abstract)

@@ -6,7 +6,7 @@
 %   badMagic - A sequence containing the first four bytes of the incorrect message.
 
 % Copyright (c) ZeroC, Inc. All rights reserved.
-% Generated from LocalException.ice by slice2matlab version 3.7.10
+% Generated from LocalException.ice by slice2matlab version 3.8.50
 
 classdef BadMagicException < Ice.ProtocolException
     properties

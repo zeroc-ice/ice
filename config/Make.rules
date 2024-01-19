@@ -103,14 +103,14 @@ supported-languages     ?= $(strip cpp java python ruby php \
 supported-configs       ?= shared
 default-configs         ?= $(firstword $(supported-configs))
 
-version                 = 3.7.10
-mmversion               = 3.7
-soversion               = 37
+version                 = 3.8.50
+mmversion               = 3.8
+soversion               = 38
 
 #
 # The compatversion is the lowest patch release with the same API.
-# For example, if 3.7.2 introduces no new API compared to 3.7.1, we
-# would set version to 3.7.2 and compatversion to 3.7.1.
+# For example, if 3.8.2 introduces no new API compared to 3.8.1, we
+# would set version to 3.8.2 and compatversion to 3.8.1.
 # Used for macOS libraries.
 #
 compatversion           = $(version)
