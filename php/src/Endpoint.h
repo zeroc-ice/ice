@@ -5,7 +5,7 @@
 #ifndef ICEPHP_ENDPOINT_H
 #define ICEPHP_ENDPOINT_H
 
-#include <Config.h>
+#include "Config.h"
 
 namespace IcePHP
 {

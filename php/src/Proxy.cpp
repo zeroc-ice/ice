@@ -2,17 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Proxy.h>
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Util.h>
+#include "Proxy.h"
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-//
 // Here's a brief description of how proxies are handled by this extension.
 //
 // A single PHP class, ObjectPrx, is registered. This is an "internal" class,
@@ -27,37 +26,28 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // In order to perform a checked or unchecked cast, the generated code invokes
 // ice_checkedCast or ice_uncheckedCast on the proxy to be narrowed, supplying a scoped
 // name for the desired type. Internally, the proxy validates the scoped name and returns
-// a new proxy containing the class or interface definition. This proxy is considered
+// a new proxy containing the interface definition. This proxy is considered
 // to be narrowed to that interface and therefore supports user-defined operations.
 //
 // Naturally, there are many predefined proxy methods (e.g., ice_getIdentity, etc.), but
 // the proxy also needs to support user-defined operations (if it has type information).
 // We use a Zend API hook that allows us to intercept the invocation of unknown methods
 // on the proxy object.
-//
 
-//
 // Class entries represent the PHP class implementations we have registered.
-//
 namespace IcePHP
 {
 zend_class_entry* proxyClassEntry = 0;
 }
 
-//
 // Ice::ObjectPrx support.
-//
 static zend_object_handlers _handlers;
 
 extern "C"
 {
 static zend_object* handleAlloc(zend_class_entry*);
 static void handleFreeStorage(zend_object*);
-#if PHP_VERSION_ID >= 80000
 static zend_object* handleClone(zend_object*);
-#else
-static zend_object* handleClone(zval*);
-#endif
 static union _zend_function* handleGetMethod(zend_object**, zend_string*, const zval*);
 static int handleCompare(zval*, zval*);
 }
@@ -65,27 +55,25 @@ static int handleCompare(zval*, zval*);
 namespace IcePHP
 {
 
-//
 // Encapsulates proxy and type information.
-//
-class Proxy : public IceUtil::Shared
+class Proxy
 {
 public:
 
-    Proxy(const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
+    Proxy(shared_ptr<Ice::ObjectPrx>, ProxyInfoPtr, CommunicatorInfoPtr);
     ~Proxy();
 
-    bool clone(zval*, const Ice::ObjectPrx&);
-    bool cloneUntyped(zval*, const Ice::ObjectPrx&);
-    static bool create(zval*, const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
+    bool clone(zval*, shared_ptr<Ice::ObjectPrx>);
+    bool cloneUntyped(zval*, shared_ptr<Ice::ObjectPrx>);
+    static bool create(zval*, shared_ptr<Ice::ObjectPrx>, ProxyInfoPtr, CommunicatorInfoPtr);
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     CommunicatorInfoPtr communicator;
     zval* connection;
     zval* cachedConnection;
 };
-typedef IceUtil::Handle<Proxy> ProxyPtr;
+using ProxyPtr = shared_ptr<Proxy> ;
 
 } // End of namespace IcePHP
 
@@ -107,7 +95,7 @@ ZEND_METHOD(Ice_ObjectPrx, __toString)
     try
     {
         string str = _this->proxy->ice_toString();
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -168,7 +156,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_identity)
     }
 
     Ice::Identity id;
-    if(extractIdentity(zid, id))
+    if (extractIdentity(zid, id))
     {
         try
         {
@@ -214,18 +202,15 @@ ZEND_METHOD(Ice_ObjectPrx, ice_context)
         RETURN_NULL();
     }
 
-    //
     // Populate the context.
-    //
     Ice::Context ctx;
-    if(arr && !extractStringMap(arr, ctx))
+    if (arr && !extractStringMap(arr, ctx))
     {
         RETURN_NULL();
     }
 
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
-
     try
     {
         if(!_this->clone(return_value, _this->proxy->ice_context(ctx)))
@@ -253,7 +238,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getFacet)
     try
     {
         string facet = _this->proxy->ice_getFacet();
-        ZVAL_STRINGL(return_value, STRCAST(facet.c_str()), static_cast<int>(facet.length()));
+        ZVAL_STRINGL(return_value, facet.c_str(), static_cast<int>(facet.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -306,7 +291,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getAdapterId)
     try
     {
         string id = _this->proxy->ice_getAdapterId();
-        ZVAL_STRINGL(return_value, STRCAST(id.c_str()), static_cast<int>(id.length()));
+        ZVAL_STRINGL(return_value, id.c_str(), static_cast<int>(id.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -362,18 +347,18 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpoints)
 
         array_init(return_value);
         uint32_t idx = 0;
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++idx)
+        for (const auto& p : endpoints)
         {
             zval elem;
-            if(!createEndpoint(&elem, *p))
+            if (!createEndpoint(&elem, p))
             {
                 zval_ptr_dtor(&elem);
                 RETURN_NULL();
             }
-            add_index_zval(return_value, idx, &elem);
+            add_index_zval(return_value, idx++, &elem);
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -467,7 +452,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getConnectionId)
     try
     {
         string connectionId = _this->proxy->ice_getConnectionId();
-        ZVAL_STRINGL(return_value, STRCAST(connectionId.c_str()), static_cast<int>(connectionId.length()));
+        ZVAL_STRINGL(return_value, connectionId.c_str(), static_cast<int>(connectionId.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -569,7 +554,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getEndpointSelection)
     try
     {
         Ice::EndpointSelectionType type = _this->proxy->ice_getEndpointSelection();
-        ZVAL_LONG(return_value, type == Ice::Random ? 0 : 1);
+        ZVAL_LONG(return_value, type == Ice::EndpointSelectionType::Random ? 0 : 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -601,7 +586,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpointSelection)
 
     try
     {
-        Ice::EndpointSelectionType type = l == 0 ? Ice::Random : Ice::Ordered;
+        auto type = l == 0 ? Ice::EndpointSelectionType::Random : Ice::EndpointSelectionType::Ordered;
         if(!_this->clone(return_value, _this->proxy->ice_endpointSelection(type)))
         {
             RETURN_NULL();
@@ -788,7 +773,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
 
     try
     {
-        Ice::RouterPrx router = _this->proxy->ice_getRouter();
+        shared_ptr<Ice::RouterPrx> router = _this->proxy->ice_getRouter();
         if(router)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Router");
@@ -799,7 +784,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
 
             assert(info);
 
-            if(!createProxy(return_value, router, info, _this->communicator))
+            if(!createProxy(return_value, std::move(router), std::move(info), _this->communicator))
             {
                 RETURN_NULL();
             }
@@ -832,14 +817,14 @@ ZEND_METHOD(Ice_ObjectPrx, ice_router)
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr def;
     if(zprx && !fetchProxy(zprx, proxy, def))
     {
         RETURN_NULL();
     }
 
-    Ice::RouterPrx router;
+    shared_ptr<Ice::RouterPrx> router;
     if(proxy)
     {
         if(!def || !def->isA("::Ice::Router"))
@@ -847,7 +832,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_router)
             runtimeError("ice_router requires a proxy narrowed to Ice::Router");
             RETURN_NULL();
         }
-        router = Ice::RouterPrx::uncheckedCast(proxy);
+        router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
     }
 
     try
@@ -876,7 +861,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
 
     try
     {
-        Ice::LocatorPrx locator = _this->proxy->ice_getLocator();
+        shared_ptr<Ice::LocatorPrx> locator = _this->proxy->ice_getLocator();
         if(locator)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Locator");
@@ -885,7 +870,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
                 RETURN_NULL();
             }
 
-            if(!createProxy(return_value, locator, info, _this->communicator))
+            if(!createProxy(return_value, std::move(locator), std::move(info), _this->communicator))
             {
                 RETURN_NULL();
             }
@@ -912,20 +897,19 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
     assert(_this);
 
     zval* zprx;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zprx, proxyClassEntry) !=
-        SUCCESS)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("O!"), &zprx, proxyClassEntry) != SUCCESS)
     {
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr def;
     if(zprx && !fetchProxy(zprx, proxy, def))
     {
         RETURN_NULL();
     }
 
-    Ice::LocatorPrx locator;
+    shared_ptr<Ice::LocatorPrx> locator;
     if(proxy)
     {
         if(!def || !def->isA("::Ice::Locator"))
@@ -933,12 +917,12 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
             runtimeError("ice_locator requires a proxy narrowed to Ice::Locator");
             RETURN_NULL();
         }
-        locator = Ice::LocatorPrx::uncheckedCast(proxy);
+        locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
     }
 
     try
     {
-        if(!_this->clone(return_value, _this->proxy->ice_locator(locator)))
+        if(!_this->clone(return_value, _this->proxy->ice_locator(std::move(locator))))
         {
             RETURN_NULL();
         }
@@ -1216,24 +1200,24 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
         WRONG_PARAM_COUNT;
     }
 
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     try
     {
-        IceUtil::Optional<bool> compress = _this->proxy->ice_getCompress();
+        optional<bool> compress = _this->proxy->ice_getCompress();
         if(compress)
         {
             RETURN_BOOL(*compress ? 1 : 0);
         }
         else
         {
-            assignUnset(return_value TSRMLS_CC);
+            assignUnset(return_value);
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -1274,7 +1258,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
         WRONG_PARAM_COUNT;
     }
 
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     try
@@ -1286,12 +1270,12 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
         }
         else
         {
-            assignUnset(return_value TSRMLS_CC);
+            assignUnset(return_value);
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -1332,7 +1316,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
         WRONG_PARAM_COUNT;
     }
 
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     try
@@ -1341,7 +1325,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -1381,34 +1365,34 @@ ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_ObjectPrx, ice_fixed)
 {
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     zval* zcon;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+    if(zend_parse_parameters(ZEND_NUM_ARGS(),
                              const_cast<char*>("O!"),
                              &zcon,
-                             connectionClassEntry TSRMLS_CC) != SUCCESS)
+                             connectionClassEntry) != SUCCESS)
     {
         RETURN_NULL();
     }
 
     Ice::ConnectionPtr connection;
-    if(zcon && !fetchConnection(zcon, connection TSRMLS_CC))
+    if(zcon && !fetchConnection(zcon, connection))
     {
         RETURN_NULL();
     }
 
     try
     {
-        if(!_this->clone(return_value, _this->proxy->ice_fixed(connection) TSRMLS_CC))
+        if(!_this->clone(return_value, _this->proxy->ice_fixed(connection)))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -1515,10 +1499,8 @@ ZEND_END_ARG_INFO()
 static void
 do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 {
-    //
-    // First argument is required and should be a scoped name. The second and third arguments
-    // are optional and represent a facet name, a context, or a facet name followed by a context.
-    //
+    // First argument is required and should be a scoped name. The second and third arguments are optional and
+    // represent a facet name, a context, or a facet name followed by a context.
     if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 3)
     {
         WRONG_PARAM_COUNT;
@@ -1546,9 +1528,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    //
     // Populate the context.
-    //
     Ice::Context ctx;
     if(arr && !extractStringMap(arr, ctx))
     {
@@ -1563,7 +1543,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             RETURN_NULL();
         }
 
-        Ice::ObjectPrx prx = _this->proxy;
+        shared_ptr<Ice::ObjectPrx> prx = _this->proxy;
         if(facet)
         {
             prx = prx->ice_facet(facet);
@@ -1576,16 +1556,14 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(check)
         {
-            //
             // Verify that the object supports the requested type.
-            //
-            if(!prx->ice_isA(info->id))
+            if (!prx->ice_isA(info->id))
             {
                 RETURN_NULL();
             }
         }
 
-        if(!createProxy(return_value, prx, info, _this->communicator))
+        if (!createProxy(return_value, std::move(prx), std::move(info), _this->communicator))
         {
             RETURN_NULL();
         }
@@ -1611,19 +1589,20 @@ ZEND_METHOD(Ice_ObjectPrx, ice_checkedCast)
     do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, true);
 }
 
-IcePHP::Proxy::Proxy(const Ice::ObjectPrx& p, const ProxyInfoPtr& i, const CommunicatorInfoPtr& comm) :
-    proxy(p), info(i), communicator(comm), connection(0), cachedConnection(0)
+IcePHP::Proxy::Proxy(
+    shared_ptr<Ice::ObjectPrx> p,
+    ProxyInfoPtr i,
+    CommunicatorInfoPtr comm) :
+    proxy(std::move(p)),
+    info(std::move(i)),
+    communicator(std::move(comm)),
+    connection(0),
+    cachedConnection(0)
 {
-    //
-    // We want to ensure that the PHP object corresponding to the communicator is
-    // not destroyed until after this proxy is destroyed.
-    //
-    communicator->addRef();
 }
 
 IcePHP::Proxy::~Proxy()
 {
-    communicator->decRef();
     if(connection)
     {
         zval_ptr_dtor(connection);
@@ -1635,21 +1614,21 @@ IcePHP::Proxy::~Proxy()
 }
 
 bool
-IcePHP::Proxy::clone(zval* zv, const Ice::ObjectPrx& p)
+IcePHP::Proxy::clone(zval* zv, const shared_ptr<Ice::ObjectPrx> p)
 {
-    return create(zv, p, info, communicator);
+    return create(zv, std::move(p), info, communicator);
 }
 
 bool
-IcePHP::Proxy::cloneUntyped(zval* zv, const Ice::ObjectPrx& p)
+IcePHP::Proxy::cloneUntyped(zval* zv, shared_ptr<Ice::ObjectPrx> p)
 {
-    return create(zv, p, 0, communicator);
+    return create(zv, std::move(p), nullptr, communicator);
 }
 
 bool
-IcePHP::Proxy::create(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm)
+IcePHP::Proxy::create(zval* zv, shared_ptr<Ice::ObjectPrx> p, ProxyInfoPtr info, CommunicatorInfoPtr comm)
 {
-    ProxyInfoPtr prx = info;
+    ProxyInfoPtr prx = std::move(info);
     if(!prx)
     {
         prx = getProxyInfo("::Ice::Object");
@@ -1663,29 +1642,20 @@ IcePHP::Proxy::create(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& inf
     }
 
     Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::extract(zv);
-    ProxyPtr proxy = new Proxy(p, prx, comm);
     assert(!obj->ptr);
-    obj->ptr = new ProxyPtr(proxy);
+    obj->ptr = new ProxyPtr(new Proxy(std::move(p), std::move(prx), std::move(comm)));
     return true;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleAlloc(zend_class_entry* ce)
 {
     Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::create(ce);
     assert(obj);
-
     obj->zobj.handlers = &_handlers;
-
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleFreeStorage(zend_object* object)
 {
@@ -1694,52 +1664,28 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
-
 static zend_object*
-#if PHP_VERSION_ID >= 80000
 handleClone(zend_object* zobj)
-#else
-handleClone(zval* zv)
-#endif
 {
-    //
     // Create a new object that shares a C++ proxy instance with this object.
-    //
-
-#if PHP_VERSION_ID >= 80000
     ProxyPtr obj = *Wrapper<ProxyPtr>::fetch(zobj)->ptr;
-#else
-    ProxyPtr obj = Wrapper<ProxyPtr>::value(zv);
-#endif
-
     assert(obj);
-
     zval clone;
     if(!obj->clone(&clone, obj->proxy))
     {
         return 0;
     }
-
     return Z_OBJ(clone);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static union _zend_function*
 handleGetMethod(zend_object **object, zend_string *name, const zval *key )
 {
     zend_function* result;
-    //
-    // First delegate to the standard implementation of get_method. This will find
-    // any of our predefined proxy methods. If it returns 0, then we return a
-    // function that will check the class definition.
-    //
+    // First delegate to the standard implementation of get_method. This will find any of our predefined proxy methods.
+    // If it returns 0, then we return a function that will check the class definition.
     result = zend_get_std_object_handlers()->get_method(object, name, key);
-    if(!result)
+    if (!result)
     {
         Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::fetch(*object);
         assert(obj->ptr);
@@ -1749,11 +1695,9 @@ handleGetMethod(zend_object **object, zend_string *name, const zval *key )
         assert(info);
 
         OperationPtr op = info->getOperation(name->val);
-        if(!op)
+        if (!op)
         {
-            //
             // Returning 0 causes PHP to report an "undefined method" error.
-            //
             return 0;
         }
 
@@ -1763,31 +1707,25 @@ handleGetMethod(zend_object **object, zend_string *name, const zval *key )
     return result;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static int
 handleCompare(zval* zobj1, zval* zobj2)
 {
-    //
     // PHP guarantees that the objects have the same class.
-    //
-
     Wrapper<ProxyPtr>* obj1 = Wrapper<ProxyPtr>::extract(zobj1);
     assert(obj1->ptr);
     ProxyPtr _this1 = *obj1->ptr;
-    Ice::ObjectPrx prx1 = _this1->proxy;
+    shared_ptr<Ice::ObjectPrx> prx1 = _this1->proxy;
 
     Wrapper<ProxyPtr>* obj2 = Wrapper<ProxyPtr>::extract(zobj2);
     assert(obj2->ptr);
     ProxyPtr _this2 = *obj2->ptr;
-    Ice::ObjectPrx prx2 = _this2->proxy;
+    shared_ptr<Ice::ObjectPrx> prx2 = _this2->proxy;
 
-    if(prx1 == prx2)
+    if(Ice::targetEqualTo(prx1, prx2))
     {
         return 0;
     }
-    else if(prx1 < prx2)
+    else if(Ice::targetLess(prx1, prx2))
     {
         return -1;
     }
@@ -1797,16 +1735,7 @@ handleCompare(zval* zobj1, zval* zobj2)
     }
 }
 
-//
-// Necessary to suppress warnings from zend_function_entry in php-5.2.
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
-
-//
 // Predefined methods for ObjectPrx.
-//
 static zend_function_entry _proxyMethods[] =
 {
     ZEND_ME(Ice_ObjectPrx, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -1867,19 +1796,10 @@ static zend_function_entry _proxyMethods[] =
     {0, 0, 0}
 };
 
-//
-// enable warning again
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wwrite-strings"
-#endif
-
 bool
 IcePHP::proxyInit(void)
 {
-    //
     // Register the ObjectPrx class.
-    //
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ObjectPrx", _proxyMethods);
     ce.create_object = handleAlloc;
@@ -1888,39 +1808,33 @@ IcePHP::proxyInit(void)
     memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _handlers.clone_obj = handleClone;
     _handlers.get_method = handleGetMethod;
-#if PHP_VERSION_ID >= 80000
     _handlers.compare = handleCompare;
-#else
-    _handlers.compare_objects = handleCompare;
-#endif
     _handlers.free_obj = handleFreeStorage;
     _handlers.offset =  XtOffsetOf(Wrapper<ProxyPtr>, zobj);
-
     return true;
 }
 
 bool
-IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const CommunicatorInfoPtr& comm)
+IcePHP::createProxy(zval* zv, Ice::ObjectPrxPtr proxy, CommunicatorInfoPtr communicatorInfo)
 {
-    return Proxy::create(zv, p, 0, comm);
+    return Proxy::create(zv, std::move(proxy), nullptr, std::move(communicatorInfo));
 }
 
 bool
-IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm
-                   )
+IcePHP::createProxy(zval* zv, Ice::ObjectPrxPtr proxy, ProxyInfoPtr proxyInfo, CommunicatorInfoPtr communicatorInfo)
 {
-    return Proxy::create(zv, p, info, comm);
+    return Proxy::create(zv, std::move(proxy), std::move(proxyInfo), std::move(communicatorInfo));
 }
 
 bool
-IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info)
+IcePHP::fetchProxy(zval* zv, Ice::ObjectPrxPtr& prx, ProxyInfoPtr& info)
 {
     CommunicatorInfoPtr comm;
     return fetchProxy(zv, prx, info, comm);
 }
 
 bool
-IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info, CommunicatorInfoPtr& comm)
+IcePHP::fetchProxy(zval* zv, Ice::ObjectPrxPtr& prx, ProxyInfoPtr& info, CommunicatorInfoPtr& comm)
 {
     if(!ZVAL_IS_NULL(zv))
     {

@@ -2,36 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Properties.h>
-#include <Util.h>
+#include "Properties.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-//
 // Class entries represent the PHP class implementations we have registered.
-//
 namespace IcePHP
 {
 zend_class_entry* propertiesClassEntry = 0;
 }
 
-//
 // Properties support.
-//
 static zend_object_handlers _handlers;
 
 extern "C"
 {
 static zend_object* handleAlloc(zend_class_entry*);
 static void handleFreeStorage(zend_object*);
-#if PHP_VERSION_ID >= 80000
 static zend_object* handleClone(zend_object*);
-#else
-static zend_object* handleClone(zval*);
-#endif
 }
 
 ZEND_METHOD(Ice_Properties, __construct)
@@ -53,7 +45,7 @@ ZEND_METHOD(Ice_Properties, __toString)
     {
         Ice::PropertyDict val = _this->getPropertiesForPrefix("");
         string str;
-        for(Ice::PropertyDict::const_iterator p = val.begin(); p != val.end(); ++p)
+        for (Ice::PropertyDict::const_iterator p = val.begin(); p != val.end(); ++p)
         {
             if(p != val.begin())
             {
@@ -61,7 +53,7 @@ ZEND_METHOD(Ice_Properties, __toString)
             }
             str.append(p->first + "=" + p->second);
         }
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -91,7 +83,7 @@ ZEND_METHOD(Ice_Properties, getProperty)
     try
     {
         string val = _this->getProperty(propName);
-        RETURN_STRINGL(STRCAST(val.c_str()), static_cast<int>(val.length()));
+        RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -131,7 +123,7 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
     try
     {
         string val = _this->getPropertyWithDefault(propName, defaultValue);
-        RETURN_STRINGL(STRCAST(val.c_str()), static_cast<int>(val.length()));
+        RETURN_STRINGL(val.c_str(), static_cast<int>(val.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -523,9 +515,6 @@ ZEND_METHOD(Ice_Properties, clone)
     }
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleAlloc(zend_class_entry* ce)
 {
@@ -537,9 +526,6 @@ handleAlloc(zend_class_entry* ce)
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleFreeStorage(zend_object* object)
 {
@@ -548,25 +534,13 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
-#if PHP_VERSION_ID >= 80000
 handleClone(zend_object* zobj)
 {
     Ice::PropertiesPtr p = *Wrapper<Ice::PropertiesPtr>::fetch(zobj)->ptr;
-#else
-handleClone(zval* zv)
-{
-    Ice::PropertiesPtr p = Wrapper<Ice::PropertiesPtr>::value(zv);
-#endif
     assert(p);
-
-    Ice::PropertiesPtr pclone = p->clone();
-
     zval clone;
-    if(!createProperties(&clone, pclone))
+    if (!createProperties(&clone, p->clone()))
     {
         return 0;
     }
@@ -579,30 +553,31 @@ ZEND_FUNCTION(Ice_createProperties)
     zval* arglist = 0;
     zval* defaultsObj = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(),
-                             const_cast<char*>("|a!O!"),
-                             &arglist, &defaultsObj,
-                             propertiesClassEntry) == FAILURE)
+    if (zend_parse_parameters(
+        ZEND_NUM_ARGS(),
+        const_cast<char*>("|a!O!"),
+        &arglist, &defaultsObj,
+        propertiesClassEntry) == FAILURE)
     {
         RETURN_NULL();
     }
 
-    if(arglist)
+    if (arglist)
     {
-        while(Z_TYPE_P(arglist) == IS_REFERENCE)
+        while (Z_TYPE_P(arglist) == IS_REFERENCE)
         {
             arglist = Z_REFVAL_P(arglist);
         }
     }
 
     Ice::StringSeq seq;
-    if(arglist && !extractStringArray(arglist, seq))
+    if (arglist && !extractStringArray(arglist, seq))
     {
         RETURN_NULL();
     }
 
     Ice::PropertiesPtr defaults;
-    if(defaultsObj && !fetchProperties(defaultsObj, defaults))
+    if (defaultsObj && !fetchProperties(defaultsObj, defaults))
     {
         RETURN_NULL();
     }
@@ -610,7 +585,7 @@ ZEND_FUNCTION(Ice_createProperties)
     try
     {
         Ice::PropertiesPtr props;
-        if(arglist || defaults)
+        if (arglist || defaults)
         {
             props = Ice::createProperties(seq, defaults);
         }
@@ -619,15 +594,15 @@ ZEND_FUNCTION(Ice_createProperties)
             props = Ice::createProperties();
         }
 
-        if(!createProperties(return_value, props))
+        if (!createProperties(return_value, props))
         {
             RETURN_NULL();
         }
 
-        if(arglist)
+        if (arglist)
         {
             zval_dtor(arglist);
-            if(!createStringArray(arglist, seq))
+            if (!createStringArray(arglist, seq))
             {
                 RETURN_NULL();
             }
@@ -640,20 +615,12 @@ ZEND_FUNCTION(Ice_createProperties)
     }
 }
 
-//
-// Necessary to suppress warnings from zend_function_entry in php-5.2.
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
-
-//
 // Predefined methods for Properties.
-//
 static zend_function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
 };
+
 static zend_function_entry _classMethods[] =
 {
     ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -683,31 +650,19 @@ static zend_function_entry _classMethods[] =
     {0, 0, 0}
 };
 
-//
-// enable warning again
-//
-#if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wwrite-strings"
-#endif
-
 bool
 IcePHP::propertiesInit(void)
 {
-    //
+    // TODO review no generated code for local Slice
     // We register an interface and a class that implements the interface. This allows
     // applications to safely include the Slice-generated code for the type.
-    //
 
-    //
     // Register the Properties interface.
-    //
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Properties", _interfaceMethods);
     zend_class_entry* interface = zend_register_internal_interface(&ce);
 
-    //
     // Register the Properties class.
-    //
     INIT_CLASS_ENTRY(ce, "IcePHP_Properties", _classMethods);
     ce.create_object = handleAlloc;
     propertiesClassEntry = zend_register_internal_class(&ce);
