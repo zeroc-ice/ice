@@ -1,4 +1,4 @@
-name: Whitespace Validation
+name: Whitespace validation
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   whitespace-validation:
-    name: Whitespace Validation
+    name: Validate trailing whitespace and consecutive empty lines
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
