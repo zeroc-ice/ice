@@ -13,7 +13,7 @@
 #include <IceUtil/ConsoleUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
-#include <Slice/PHPUtil.h>
+#include "PHPUtil.h"
 #include <Slice/Parser.h>
 #include <Slice/Util.h>
 #include <cstring>

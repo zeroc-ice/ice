@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\cpp\src\slice2py\Python.cpp" />
+    <ClCompile Include="..\..\..\..\cpp\src\slice2py\PythonUtil.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\FileTracker.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Grammar.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Parser.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Preprocessor.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\Python.cpp" />
-    <ClCompile Include="..\..\..\..\cpp\src\Slice\PythonUtil.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Scanner.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\SliceUtil.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
@@ -52,6 +51,7 @@
     <ClCompile Include="..\ValueFactoryManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\cpp\src\slice2py\PythonUtil.h" />
     <ClInclude Include="..\BatchRequestInterceptor.h" />
     <ClInclude Include="..\Communicator.h" />
     <ClInclude Include="..\Config.h" />

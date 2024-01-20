@@ -12,7 +12,7 @@
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
 #include <Ice/Proxy.h>
-#include <Slice/RubyUtil.h>
+#include "RubyUtil.h"
 
 using namespace std;
 using namespace IceRuby;

@@ -105,6 +105,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Main.cpp" />
+    <ClCompile Include="..\Python.cpp" />
+    <ClCompile Include="..\PythonUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Slice2Py.rc" />
@@ -119,6 +121,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\PythonUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
