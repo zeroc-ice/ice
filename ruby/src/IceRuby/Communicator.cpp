@@ -268,9 +268,9 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         delete[] av;
 
         VALUE result = Data_Wrap_Struct(
-            _communicatorClass, 
+            _communicatorClass,
             IceRuby_Communicator_mark,
-            IceRuby_Communicator_free, 
+            IceRuby_Communicator_free,
             new Ice::CommunicatorPtr(communicator));
 
         CommunicatorMap::iterator p = _communicatorMap.find(communicator);
