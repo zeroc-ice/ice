@@ -377,6 +377,7 @@ class ClassInfo final : public TypeInfo
 public:
 
     ClassInfo(VALUE, bool);
+    void init();
 
     void define(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
@@ -421,6 +422,7 @@ class ProxyInfo  final: public TypeInfo
 public:
 
     ProxyInfo(VALUE);
+    void init();
 
     void define(VALUE, VALUE, VALUE);
 

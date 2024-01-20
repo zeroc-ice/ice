@@ -84,11 +84,11 @@ IceRuby_Endpoint_cmp(VALUE self, VALUE other)
         }
         Ice::EndpointPtr p1 = Ice::EndpointPtr(*reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self)));
         Ice::EndpointPtr p2 = Ice::EndpointPtr(*reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(other)));
-        if(p1 < p2)
+        if(Ice::targetLess(p1, p2))
         {
             return INT2NUM(-1);
         }
-        else if(p1 == p2)
+        else if(Ice::targetEqualTo(p1, p1))
         {
             return INT2NUM(0);
         }

@@ -1260,8 +1260,12 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
 }
 
 void
-IceRuby::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target,
-                                 void* closure, bool optional)
+IceRuby::SequenceInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
     if(optional)
     {
@@ -1977,6 +1981,11 @@ IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc) :
     {
         const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
     }
+}
+
+void
+IceRuby::ClassInfo::init()
+{
     const_cast<VALUE&>(typeObj) = createType(shared_from_this());
 }
 
@@ -2296,6 +2305,11 @@ IceRuby::ProxyInfo::ProxyInfo(VALUE ident) :
 {
     const_cast<string&>(id) = getString(ident);
     const_cast<bool&>(isBase) = id == "::Ice::Object";
+}
+
+void
+IceRuby::ProxyInfo::init()
+{
     const_cast<VALUE&>(typeObj) = createType(shared_from_this());
 }
 
@@ -3012,6 +3026,7 @@ IceRuby_declareProxy(VALUE /*self*/, VALUE id)
         if(!info)
         {
             info = make_shared<ProxyInfo>(id);
+            info->init();
             addProxyInfo(proxyId, info);
         }
 
@@ -3032,6 +3047,7 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
         if(!info)
         {
             info = make_shared<ClassInfo>(id, false);
+            info->init();
             addClassInfo(idstr, info);
         }
 
@@ -3052,6 +3068,7 @@ IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
         if(!info)
         {
             info = make_shared<ClassInfo>(id, true);
+            info->init();
             addClassInfo(idstr, info);
         }
 
