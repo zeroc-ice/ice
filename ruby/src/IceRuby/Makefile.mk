@@ -12,7 +12,7 @@ IceRuby_cppflags        := -I$(project) $(ice_cpp_cppflags) -I$(top_srcdir)/cpp/
 IceRuby_system_libs     := $(ruby_ldflags)
 IceRubydependencies     := IceDiscovery++11 IceLocatorDiscovery++11 IceSSL++11 Ice++11
 # TODO temporary ++11 dependencies are not linked
-IceRuby_system_libs      := -L$(top_srcdir)/cpp/lib/x86_64-linux-gnu \
+IceRuby_system_libs      += -L$(top_srcdir)/cpp/lib/x86_64-linux-gnu \
     -L$(top_srcdir)/cpp/lib \
     -lIce++11 -lIceSSL++11 -lIceDiscovery++11 -lIceLocatorDiscovery++11
 IceRuby_libs            := mcpp

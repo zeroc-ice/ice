@@ -127,40 +127,40 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     }
 
     VALUE info;
-    if(Ice::WSEndpointInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::WSEndpointInfo>(p))
     {
         info = Data_Wrap_Struct(_wsEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
-        Ice::WSEndpointInfoPtr ws = Ice::WSEndpointInfoPtr::dynamicCast(p);
+        Ice::WSEndpointInfoPtr ws = dynamic_pointer_cast<Ice::WSEndpointInfo>(p);
         rb_ivar_set(info, rb_intern("@resource"), createString(ws->resource));
     }
-    else if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::TCPEndpointInfo>(p))
     {
         info = Data_Wrap_Struct(_tcpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }
-    else if(Ice::UDPEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::UDPEndpointInfo>(p))
     {
         info = Data_Wrap_Struct(_udpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
-        Ice::UDPEndpointInfoPtr udp = Ice::UDPEndpointInfoPtr::dynamicCast(p);
+        Ice::UDPEndpointInfoPtr udp = dynamic_pointer_cast<Ice::UDPEndpointInfo>(p);
         rb_ivar_set(info, rb_intern("@mcastInterface"), createString(udp->mcastInterface));
         rb_ivar_set(info, rb_intern("@mcastTtl"), INT2FIX(udp->mcastTtl));
     }
-    else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p))
     {
         info = Data_Wrap_Struct(_opaqueEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
-        Ice::OpaqueEndpointInfoPtr opaque = Ice::OpaqueEndpointInfoPtr::dynamicCast(p);
+        Ice::OpaqueEndpointInfoPtr opaque = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p);
         Ice::ByteSeq b = opaque->rawBytes;
         volatile VALUE v = callRuby(rb_str_new, reinterpret_cast<const char*>(&b[0]), static_cast<long>(b.size()));
         rb_ivar_set(info, rb_intern("@rawBytes"), v);
         rb_ivar_set(info, rb_intern("@rawEncoding"), createEncodingVersion(opaque->rawEncoding));
     }
-    else if(IceSSL::EndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<IceSSL::EndpointInfo>(p))
     {
         info = Data_Wrap_Struct(_sslEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }
-    else if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
         info = Data_Wrap_Struct(_ipEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }
@@ -169,9 +169,9 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         info = Data_Wrap_Struct(_endpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }
 
-    if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
-        Ice::IPEndpointInfoPtr ip = Ice::IPEndpointInfoPtr::dynamicCast(p);
+        Ice::IPEndpointInfoPtr ip = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
         rb_ivar_set(info, rb_intern("@host"), createString(ip->host));
         rb_ivar_set(info, rb_intern("@port"), INT2FIX(ip->port));
         rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ip->sourceAddress));
