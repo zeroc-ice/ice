@@ -10,7 +10,6 @@
 #include <Types.h>
 #include <Util.h>
 #include <ValueFactoryManager.h>
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
 #include <Ice/Locator.h>
@@ -22,7 +21,7 @@ using namespace IceRuby;
 
 static VALUE _communicatorClass;
 
-typedef map<Ice::CommunicatorPtr, VALUE> CommunicatorMap;
+using CommunicatorMap = map<Ice::CommunicatorPtr, VALUE>;
 static CommunicatorMap _communicatorMap;
 
 extern "C"
@@ -188,7 +187,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         volatile VALUE progName = callRuby(rb_gv_get, "$0");
         seq.insert(seq.begin(), getString(progName));
 
-        data.compactIdResolver = new IdResolver;
+        data.compactIdResolver = [](int id) { return IceRuby::resolveCompactId(id); };
         data.valueFactoryManager = ValueFactoryManager::create();
 
         if(!data.properties)
@@ -216,9 +215,9 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         int ac = static_cast<int>(seq.size());
         char** av = new char*[ac + 1];
         int i = 0;
-        for(Ice::StringSeq::const_iterator s = seq.begin(); s != seq.end(); ++s, ++i)
+        for (const auto& s : seq)
         {
-            av[i] = strdup(s->c_str());
+            av[i++] = strdup(s.c_str());
         }
         av[ac] = 0;
 
@@ -233,17 +232,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             {
                 communicator = Ice::initialize(data);
             }
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            cerr << ex << endl;
-            for(i = 0; i < ac + 1; ++i)
-            {
-                free(av[i]);
-            }
-            delete[] av;
-
-            throw;
         }
         catch(...)
         {
@@ -279,8 +267,11 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         }
         delete[] av;
 
-        VALUE result = Data_Wrap_Struct(_communicatorClass, IceRuby_Communicator_mark,
-                                        IceRuby_Communicator_free, new Ice::CommunicatorPtr(communicator));
+        VALUE result = Data_Wrap_Struct(
+            _communicatorClass, 
+            IceRuby_Communicator_mark,
+            IceRuby_Communicator_free, 
+            new Ice::CommunicatorPtr(communicator));
 
         CommunicatorMap::iterator p = _communicatorMap.find(communicator);
         if(p != _communicatorMap.end())
@@ -355,7 +346,7 @@ IceRuby_identityToString(int argc, VALUE* argv, VALUE /*self*/)
 
         Ice::Identity ident = getIdentity(argv[0]);
 
-        Ice::ToStringMode toStringMode = Ice::Unicode;
+        Ice::ToStringMode toStringMode = Ice::ToStringMode::Unicode;
         if(argc == 2)
         {
             volatile VALUE modeValue = callRuby(rb_funcall, argv[1], rb_intern("to_i"), 0);
@@ -437,7 +428,7 @@ IceRuby_Communicator_stringToProxy(VALUE self, VALUE str)
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
-        Ice::ObjectPrx proxy = p->stringToProxy(s);
+        shared_ptr<Ice::ObjectPrx> proxy = p->stringToProxy(s);
         if(proxy)
         {
             return createProxy(proxy);
@@ -454,7 +445,7 @@ IceRuby_Communicator_proxyToString(VALUE self, VALUE proxy)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        Ice::ObjectPrx prx;
+        shared_ptr<Ice::ObjectPrx> prx;
         if(!NIL_P(proxy))
         {
             if(!checkProxy(proxy))
@@ -478,7 +469,7 @@ IceRuby_Communicator_propertyToProxy(VALUE self, VALUE str)
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
-        Ice::ObjectPrx proxy = p->propertyToProxy(s);
+        shared_ptr<Ice::ObjectPrx> proxy = p->propertyToProxy(s);
         if(proxy)
         {
             return createProxy(proxy);
@@ -499,7 +490,7 @@ IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
             throw RubyException(rb_eTypeError, "argument must be a proxy");
         }
         Ice::CommunicatorPtr p = getCommunicator(self);
-        Ice::ObjectPrx o = getProxy(obj);
+        shared_ptr<Ice::ObjectPrx> o = getProxy(obj);
         string s = getString(str);
         Ice::PropertyDict dict = p->proxyToProperty(o, s);
         volatile VALUE result = callRuby(rb_hash_new);
@@ -594,7 +585,7 @@ IceRuby_Communicator_getDefaultRouter(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        Ice::RouterPrx router = p->getDefaultRouter();
+        shared_ptr<Ice::RouterPrx> router = p->getDefaultRouter();
         if(router)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
@@ -613,14 +604,14 @@ IceRuby_Communicator_setDefaultRouter(VALUE self, VALUE router)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        Ice::RouterPrx proxy;
+        shared_ptr<Ice::RouterPrx> proxy;
         if(!NIL_P(router))
         {
             if(!checkProxy(router))
             {
                 throw RubyException(rb_eTypeError, "argument must be a proxy");
             }
-            proxy = Ice::RouterPrx::uncheckedCast(getProxy(router));
+            proxy = Ice::uncheckedCast<Ice::RouterPrx>(getProxy(router));
         }
         p->setDefaultRouter(proxy);
     }
@@ -635,7 +626,7 @@ IceRuby_Communicator_getDefaultLocator(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        Ice::LocatorPrx locator = p->getDefaultLocator();
+        shared_ptr<Ice::LocatorPrx> locator = p->getDefaultLocator();
         if(locator)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
@@ -654,14 +645,14 @@ IceRuby_Communicator_setDefaultLocator(VALUE self, VALUE locator)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        Ice::LocatorPrx proxy;
+        shared_ptr<Ice::LocatorPrx> proxy;
         if(!NIL_P(locator))
         {
             if(!checkProxy(locator))
             {
                 throw RubyException(rb_eTypeError, "argument must be a proxy");
             }
-            proxy = Ice::LocatorPrx::uncheckedCast(getProxy(locator));
+            proxy = Ice::uncheckedCast<Ice::LocatorPrx>(getProxy(locator));
         }
         p->setDefaultLocator(proxy);
     }
@@ -732,7 +723,7 @@ IceRuby::getCommunicator(VALUE v)
 VALUE
 IceRuby::lookupCommunicator(const Ice::CommunicatorPtr& p)
 {
-    CommunicatorMap::iterator q = _communicatorMap.find(p.get());
+    CommunicatorMap::iterator q = _communicatorMap.find(p);
     if(q != _communicatorMap.end())
     {
         return q->second;

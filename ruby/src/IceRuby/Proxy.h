@@ -5,16 +5,19 @@
 #ifndef ICE_RUBY_PROXY_H
 #define ICE_RUBY_PROXY_H
 
-#include <Config.h>
+#include "Config.h"
+
 #include <Ice/ProxyF.h>
 #include <Ice/CommunicatorF.h>
+
+#include <memory>
 
 namespace IceRuby
 {
 
 void initProxy(VALUE);
-VALUE createProxy(const Ice::ObjectPrx&, VALUE = Qnil);
-Ice::ObjectPrx getProxy(VALUE);
+VALUE createProxy(std::shared_ptr<Ice::ObjectPrx>, VALUE = Qnil);
+std::shared_ptr<Ice::ObjectPrx> getProxy(VALUE);
 bool checkProxy(VALUE);
 
 }
