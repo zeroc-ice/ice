@@ -112,7 +112,6 @@ static struct PyModuleDef iceModule =
     ICE_NULLPTR
 };
 
-
 #if defined(__GNUC__)
 extern "C" __attribute__((visibility ("default"))) PyObject *
 #elif defined(_WIN32) // On Windows, PyMoDINIT_FUNC already defines dllexport

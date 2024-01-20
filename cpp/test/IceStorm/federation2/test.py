@@ -7,17 +7,32 @@
 # Publisher/subscriber test cases, publisher publishes on TestIceStorm1 instance(s) and
 # the subscriber subscribes to the TestIceStorm2 instance(s)
 #
-pub1Sub2Oneway=ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2"))
-pub1Sub2Batch=ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2", args=["-b"]))
+import re
+import time
+import Expect
+from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
+from Util import ClientServerTestCase, TestSuite
 
-pub1Sub1Oneway=ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm1"))
+
+pub1Sub2Oneway = ClientServerTestCase(
+    client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2")
+)
+pub1Sub2Batch = ClientServerTestCase(
+    client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2", args=["-b"])
+)
+
+pub1Sub1Oneway = ClientServerTestCase(
+    client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm1")
+)
+
 
 class IceStormFederation2TestCase(IceStormTestCase):
-
     def runClientSide(self, current):
-
         current.write("setting up the topics... ")
-        self.runadmin(current, "create TestIceStorm1/fed1 TestIceStorm2/fed1; link TestIceStorm1/fed1 TestIceStorm2/fed1")
+        self.runadmin(
+            current,
+            "create TestIceStorm1/fed1 TestIceStorm2/fed1; link TestIceStorm1/fed1 TestIceStorm2/fed1",
+        )
         current.writeln("ok")
 
         #
@@ -40,7 +55,9 @@ class IceStormFederation2TestCase(IceStormTestCase):
         # Stop and restart the service and repeat the test. This ensures that
         # the database is correct.
         #
-        current.write("restarting services to ensure that the database content is preserved... ")
+        current.write(
+            "restarting services to ensure that the database content is preserved... "
+        )
         self.restartIceStorm(current)
         current.writeln("ok")
 
@@ -63,8 +80,16 @@ class IceStormFederation2TestCase(IceStormTestCase):
         #
         self.stopIceStorm(current)
 
-        icestorm1 = [icestorm for icestorm in self.icestorm if icestorm.getInstanceName() == "TestIceStorm1"]
-        icestorm2 = [icestorm for icestorm in self.icestorm if icestorm.getInstanceName() == "TestIceStorm2"]
+        icestorm1 = [
+            icestorm
+            for icestorm in self.icestorm
+            if icestorm.getInstanceName() == "TestIceStorm1"
+        ]
+        icestorm2 = [
+            icestorm
+            for icestorm in self.icestorm
+            if icestorm.getInstanceName() == "TestIceStorm2"
+        ]
 
         #
         # Restart the first server and publish some events. Attach a
@@ -74,7 +99,6 @@ class IceStormFederation2TestCase(IceStormTestCase):
         # Ensure they are received by the linked server.
         #
         if self.getName().find("replicated") == -1:
-
             current.write("restarting only one IceStorm server... ")
             icestorm1[0].start(current)
             current.writeln("ok")
@@ -108,7 +132,9 @@ class IceStormFederation2TestCase(IceStormTestCase):
             current.writeln("ok")
 
             try:
-                icestorm1[0].expect(current, "topic.fed1.*subscriber offline", timeout=1)
+                icestorm1[0].expect(
+                    current, "topic.fed1.*subscriber offline", timeout=1
+                )
                 assert False
             except Expect.TIMEOUT:
                 pass
@@ -156,7 +182,7 @@ class IceStormFederation2TestCase(IceStormTestCase):
         nRetry = 5
         while len(line) > 0 and nRetry > 0:
             line = self.runadmin(current, "links TestIceStorm1")
-            time.sleep(1) # Give more time for unsubscription to propagate.
+            time.sleep(1)  # Give more time for unsubscription to propagate.
             nRetry -= 1
         if len(line) > 0:
             raise RuntimeError("unexpected output (`{0}')".format(line))
@@ -166,26 +192,55 @@ class IceStormFederation2TestCase(IceStormTestCase):
         # Destroy the remaining topic.
         #
         current.write("destroying topics... ")
-        self.runadmin(current, "destroy TestIceStorm1/fed1links TestIceStorm1", quiet=True)
+        self.runadmin(
+            current, "destroy TestIceStorm1/fed1links TestIceStorm1", quiet=True
+        )
         current.writeln("ok")
 
         self.stopIceStorm(current)
 
+
 # Override ReplicatedPublishEndpoints property to empty for testing without replicated publisher
-props = { 'IceStorm.Discard.Interval' : 2 }
-nonRepProps = { 'IceStorm.Discard.Interval' : 2, 'IceStorm.ReplicatedPublishEndpoints' : '' }
+props = {"IceStorm.Discard.Interval": 2}
+nonRepProps = {
+    "IceStorm.Discard.Interval": 2,
+    "IceStorm.ReplicatedPublishEndpoints": "",
+}
 
-TestSuite(__file__, [
-
-    IceStormFederation2TestCase("persistent", icestorm=
-                                [IceStorm("TestIceStorm1", quiet=True, props=props),
-                                 IceStorm("TestIceStorm2", quiet=True,portnum=20, props=props)]),
-
-    IceStormFederation2TestCase("replicated with non-replicated publisher", icestorm=
-                                [IceStorm("TestIceStorm1", i, 3, quiet=True, props=nonRepProps) for i in range(0,3)] +
-                                [IceStorm("TestIceStorm2", i, 3, quiet=True, portnum=20, props=nonRepProps) for i in range(0,3)]),
-
-    IceStormFederation2TestCase("replicated with replicated publisher", icestorm=
-                                [IceStorm("TestIceStorm1", i, 3, quiet=True, props=props) for i in range(0,3)] +
-                                [IceStorm("TestIceStorm2", i, 3, quiet=True, portnum=20, props=props) for i in range(0,3)]),
-], multihost=False)
+TestSuite(
+    __file__,
+    [
+        IceStormFederation2TestCase(
+            "persistent",
+            icestorm=[
+                IceStorm("TestIceStorm1", quiet=True, props=props),
+                IceStorm("TestIceStorm2", quiet=True, portnum=20, props=props),
+            ],
+        ),
+        IceStormFederation2TestCase(
+            "replicated with non-replicated publisher",
+            icestorm=[
+                IceStorm("TestIceStorm1", i, 3, quiet=True, props=nonRepProps)
+                for i in range(0, 3)
+            ]
+            + [
+                IceStorm(
+                    "TestIceStorm2", i, 3, quiet=True, portnum=20, props=nonRepProps
+                )
+                for i in range(0, 3)
+            ],
+        ),
+        IceStormFederation2TestCase(
+            "replicated with replicated publisher",
+            icestorm=[
+                IceStorm("TestIceStorm1", i, 3, quiet=True, props=props)
+                for i in range(0, 3)
+            ]
+            + [
+                IceStorm("TestIceStorm2", i, 3, quiet=True, portnum=20, props=props)
+                for i in range(0, 3)
+            ],
+        ),
+    ],
+    multihost=False,
+)

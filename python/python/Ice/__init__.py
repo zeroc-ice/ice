@@ -6,7 +6,18 @@
 Ice module
 """
 
-import sys, string, os, threading, warnings, datetime, logging, time, inspect, traceback, types, array
+import sys
+import string
+import os
+import threading
+import warnings
+import datetime
+import logging
+import time
+import inspect
+import traceback
+import types
+import array
 
 #
 # RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
@@ -20,7 +31,7 @@ try:
 
     try:
         import dl
-        sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
+        sys.setdlopenflags(dl.RTLD_NOW | dl.RTLD_GLOBAL)
     except ImportError:
         #
         # If the dl module is not available and we're running on a Linux
@@ -201,12 +212,13 @@ class Future(FutureBase):
     StateCancelled = 'cancelled'
     StateDone = 'done'
 
+
 class InvocationFuture(Future):
     def __init__(self, operation, asyncResult):
         Future.__init__(self)
-        assert(asyncResult)
+        assert (asyncResult)
         self._operation = operation
-        self._asyncResult = asyncResult # May be None for a batch invocation.
+        self._asyncResult = asyncResult  # May be None for a batch invocation.
         self._sent = False
         self._sentSynchronously = False
         self._sentCallbacks = []
@@ -305,6 +317,7 @@ class InvocationFuture(Future):
         else:
             logging.getLogger("Ice.Future").exception(msg)
 
+
 #
 # This value is used as the default value for struct types in the constructors
 # of user-defined types. It allows us to determine whether the application has
@@ -315,6 +328,8 @@ _struct_marker = object()
 #
 # Core Ice types.
 #
+
+
 class Value(object):
 
     def ice_id(self):
@@ -336,10 +351,10 @@ Returns:
     #
     # Do not define these here. They will be invoked if defined by a subclass.
     #
-    #def ice_preMarshal(self):
+    # def ice_preMarshal(self):
     #    pass
     #
-    #def ice_postUnmarshal(self):
+    # def ice_postUnmarshal(self):
     #    pass
 
     def ice_getSlicedData(self):
@@ -348,7 +363,8 @@ un-marshaling of the value, null is returned otherwise.
 Returns:
     The sliced data or null.
 '''
-        return getattr(self, "_ice_slicedData", None);
+        return getattr(self, "_ice_slicedData", None)
+
 
 class InterfaceByValue(Value):
 
@@ -357,6 +373,7 @@ class InterfaceByValue(Value):
 
     def ice_id(self):
         return self.id
+
 
 class Object(object):
 
@@ -380,7 +397,7 @@ that are supported by the target object.
 Returns:
     A list of type ids.
 '''
-        return [ self.ice_id(current) ]
+        return [self.ice_id(current)]
 
     def ice_id(self, current=None):
         '''Obtains the type id corresponding to the most-derived Slice
@@ -442,6 +459,7 @@ Returns:
         except:
             cb.exception(sys.exc_info()[1])
 
+
 class Blobject(Object):
     '''Special-purpose servant base class that allows a subclass to
 handle synchronous Ice invocations as "blobs" of bytes.'''
@@ -456,6 +474,7 @@ the encoded form of the operation's results or the user
 exception.
 '''
         pass
+
 
 class BlobjectAsync(Object):
     '''Special-purpose servant base class that allows a subclass to
@@ -476,8 +495,11 @@ completed with the tuple.
 #
 # Exceptions.
 #
+
+
 class Exception(Exception):     # Derives from built-in base 'Exception' class.
     '''The base class for all Ice exceptions.'''
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -489,10 +511,13 @@ class Exception(Exception):     # Derives from built-in base 'Exception' class.
         '''Returns the type id of this exception.'''
         return self._ice_id
 
+
 class LocalException(Exception):
     '''The base class for all Ice run-time exceptions.'''
+
     def __init__(self, args=''):
         self.args = args
+
 
 class UserException(Exception):
     '''The base class for all user-defined exceptions.'''
@@ -503,7 +528,8 @@ un-marshaling of the value, null is returned otherwise.
 Returns:
     The sliced data or null.
 '''
-        return getattr(self, "_ice_slicedData", None);
+        return getattr(self, "_ice_slicedData", None)
+
 
 class EnumBase(object):
     def __init__(self, _n, _v):
@@ -548,7 +574,7 @@ class EnumBase(object):
 
     def __gt__(self, other):
         if isinstance(other, self.__class__):
-            return self._value > other._value;
+            return self._value > other._value
         elif other == None:
             return False
         return NotImplemented
@@ -569,6 +595,7 @@ class EnumBase(object):
     name = property(_getName)
     value = property(_getValue)
 
+
 class SlicedData(object):
     #
     # Members:
@@ -576,6 +603,7 @@ class SlicedData(object):
     # slices - tuple of SliceInfo
     #
     pass
+
 
 class SliceInfo(object):
     #
@@ -589,10 +617,12 @@ class SliceInfo(object):
     # isLastSlice - boolean
     pass
 
+
 #
 # Native PropertiesAdmin admin facet.
 #
 NativePropertiesAdmin = IcePy.NativePropertiesAdmin
+
 
 class PropertiesAdminUpdateCallback(object):
     '''Callback class to get notifications of property updates passed
@@ -600,6 +630,7 @@ class PropertiesAdminUpdateCallback(object):
 
     def updated(self, props):
         pass
+
 
 class UnknownSlicedValue(Value):
     #
@@ -609,6 +640,7 @@ class UnknownSlicedValue(Value):
 
     def ice_id(self):
         return self.unknownTypeId
+
 
 def getSliceDir():
     '''Convenience function for locating the directory containing the Slice files.'''
@@ -655,7 +687,7 @@ def getSliceDir():
         #
         # Check the default macOS homebrew location.
         #
-        dir = os.path.join("/", "usr", "local", "share", "ice",  "slice")
+        dir = os.path.join("/", "usr", "local", "share", "ice", "slice")
         if os.path.exists(dir):
             return dir
 
@@ -665,7 +697,9 @@ def getSliceDir():
 # Utilities for use by generated code.
 #
 
+
 _pendingModules = {}
+
 
 def openModule(name):
     global _pendingModules
@@ -677,6 +711,7 @@ def openModule(name):
         result = createModule(name)
 
     return result
+
 
 def createModule(name):
     global _pendingModules
@@ -700,6 +735,7 @@ def createModule(name):
 
     return mod
 
+
 def updateModule(name):
     global _pendingModules
     if name in _pendingModules:
@@ -707,6 +743,7 @@ def updateModule(name):
         mod = sys.modules[name]
         mod.__dict__.update(pendingModule.__dict__)
         del _pendingModules[name]
+
 
 def updateModules():
     global _pendingModules
@@ -717,14 +754,18 @@ def updateModules():
             sys.modules[name] = _pendingModules[name]
     _pendingModules = {}
 
+
 def createTempClass():
-    class __temp: pass
+    class __temp:
+        pass
     return __temp
+
 
 class FormatType(object):
     def __init__(self, val):
-        assert(val >= 0 and val < 3)
+        assert (val >= 0 and val < 3)
         self.value = val
+
 
 FormatType.DefaultFormat = FormatType(0)
 FormatType.CompactFormat = FormatType(1)
@@ -769,17 +810,17 @@ import Ice.Metrics_ice
 # Replace EndpointInfo with our implementation.
 #
 del EndpointInfo
-EndpointInfo =  IcePy.EndpointInfo
+EndpointInfo = IcePy.EndpointInfo
 del IPEndpointInfo
-IPEndpointInfo =  IcePy.IPEndpointInfo
+IPEndpointInfo = IcePy.IPEndpointInfo
 del TCPEndpointInfo
-TCPEndpointInfo =  IcePy.TCPEndpointInfo
+TCPEndpointInfo = IcePy.TCPEndpointInfo
 del UDPEndpointInfo
-UDPEndpointInfo =  IcePy.UDPEndpointInfo
+UDPEndpointInfo = IcePy.UDPEndpointInfo
 del WSEndpointInfo
-WSEndpointInfo =  IcePy.WSEndpointInfo
+WSEndpointInfo = IcePy.WSEndpointInfo
 del OpaqueEndpointInfo
-OpaqueEndpointInfo =  IcePy.OpaqueEndpointInfo
+OpaqueEndpointInfo = IcePy.OpaqueEndpointInfo
 
 SSLEndpointInfo = IcePy.SSLEndpointInfo
 
@@ -787,17 +828,18 @@ SSLEndpointInfo = IcePy.SSLEndpointInfo
 # Replace ConnectionInfo with our implementation.
 #
 del ConnectionInfo
-ConnectionInfo =  IcePy.ConnectionInfo
+ConnectionInfo = IcePy.ConnectionInfo
 del IPConnectionInfo
-IPConnectionInfo =  IcePy.IPConnectionInfo
+IPConnectionInfo = IcePy.IPConnectionInfo
 del TCPConnectionInfo
-TCPConnectionInfo =  IcePy.TCPConnectionInfo
+TCPConnectionInfo = IcePy.TCPConnectionInfo
 del UDPConnectionInfo
-UDPConnectionInfo =  IcePy.UDPConnectionInfo
+UDPConnectionInfo = IcePy.UDPConnectionInfo
 del WSConnectionInfo
-WSConnectionInfo =  IcePy.WSConnectionInfo
+WSConnectionInfo = IcePy.WSConnectionInfo
 
-SSLConnectionInfo =  IcePy.SSLConnectionInfo
+SSLConnectionInfo = IcePy.SSLConnectionInfo
+
 
 class ThreadNotification(object):
     '''Base class for thread notification callbacks. A subclass must
@@ -815,6 +857,7 @@ define the start and stop methods.'''
 to terminate.'''
         pass
 
+
 class BatchRequestInterceptor(object):
     '''Base class for batch request interceptor. A subclass must
 define the enqueue method.'''
@@ -829,6 +872,8 @@ define the enqueue method.'''
 #
 # Initialization data.
 #
+
+
 class InitializationData(object):
     '''The attributes of this class are used to initialize a new
 communicator instance. The supported attributes are as follows:
@@ -854,10 +899,11 @@ batchRequestInterceptor: A callable that will be invoked when a batch request is
 
 valueFactoryManager: An object that implements ValueFactoryManager.
 '''
+
     def __init__(self):
         self.properties = None
         self.logger = None
-        self.threadHook = None # Deprecated.
+        self.threadHook = None  # Deprecated.
         self.threadStart = None
         self.threadStop = None
         self.dispatcher = None
@@ -867,6 +913,8 @@ valueFactoryManager: An object that implements ValueFactoryManager.
 #
 # Communicator wrapper.
 #
+
+
 class CommunicatorI(Communicator):
     def __init__(self, impl):
         self._impl = impl
@@ -935,7 +983,7 @@ class CommunicatorI(Communicator):
     def getImplicitContext(self):
         context = self._impl.getImplicitContext()
         if context == None:
-            return None;
+            return None
         else:
             return ImplicitContextI(context)
 
@@ -995,6 +1043,8 @@ class CommunicatorI(Communicator):
 #
 # Ice.initialize()
 #
+
+
 def initialize(args=None, data=None):
     '''Initializes a new communicator. The optional arguments represent
 an argument list (such as sys.argv) and an instance of InitializationData.
@@ -1014,18 +1064,24 @@ the list that were recognized by the Ice run time.
 #
 # Ice.identityToString
 #
+
+
 def identityToString(id, toStringMode=None):
     return IcePy.identityToString(id, toStringMode)
 
 #
 # Ice.stringToIdentity
 #
+
+
 def stringToIdentity(str):
     return IcePy.stringToIdentity(str)
 
 #
 # ObjectAdapter wrapper.
 #
+
+
 class ObjectAdapterI(ObjectAdapter):
     def __init__(self, impl):
         self._impl = impl
@@ -1154,6 +1210,8 @@ class ObjectAdapterI(ObjectAdapter):
 #
 # Logger wrapper.
 #
+
+
 class LoggerI(Logger):
     def __init__(self, impl):
         self._impl = impl
@@ -1180,6 +1238,8 @@ class LoggerI(Logger):
 #
 # Properties wrapper.
 #
+
+
 class PropertiesI(Properties):
     def __init__(self, impl):
         self._impl = impl
@@ -1234,6 +1294,8 @@ class PropertiesI(Properties):
 #
 # Ice.createProperties()
 #
+
+
 def createProperties(args=None, defaults=None):
     '''Creates a new property set. The optional arguments represent
 an argument list (such as sys.argv) and a property set that supplies
@@ -1255,6 +1317,8 @@ from the list that were recognized by the Ice run time.
 # Ice.getProcessLogger()
 # Ice.setProcessLogger()
 #
+
+
 def getProcessLogger():
     '''Returns the default logger object.'''
     logger = IcePy.getProcessLogger()
@@ -1263,6 +1327,7 @@ def getProcessLogger():
     else:
         return LoggerI(logger)
 
+
 def setProcessLogger(logger):
     '''Sets the default logger object.'''
     IcePy.setProcessLogger(logger)
@@ -1270,6 +1335,8 @@ def setProcessLogger(logger):
 #
 # ImplicitContext wrapper
 #
+
+
 class ImplicitContextI(ImplicitContext):
     def __init__(self, impl):
         self._impl = impl
@@ -1301,6 +1368,8 @@ class ImplicitContextI(ImplicitContext):
 # Note the interface is the same as the C++ CtrlCHandler
 # implementation, however, the implementation is different.
 #
+
+
 class CtrlCHandler(threading.Thread):
     # Class variable referring to the one and only handler for use
     # from the signal handling callback.
@@ -1392,6 +1461,8 @@ class CtrlCHandler(threading.Thread):
 #
 # Application logger.
 #
+
+
 class _ApplicationLoggerI(Logger):
     def __init__(self, prefix):
         if len(prefix) > 0:
@@ -1428,17 +1499,20 @@ class _ApplicationLoggerI(Logger):
         sys.stderr.write(str(datetime.datetime.now()) + " " + self._prefix + "error: " + message + "\n")
         self._outputMutex.release()
 
+
 #
 # Application class.
 #
 import signal
+
+
 class Application(object):
     '''Convenience class that initializes a communicator and reacts
 gracefully to signals. An application must define a subclass
 of this class and supply an implementation of the run method.
 '''
 
-    def __init__(self, signalPolicy=0): # HandleSignals=0
+    def __init__(self, signalPolicy=0):  # HandleSignals=0
         '''The constructor accepts an optional argument indicating
 whether to handle signals. The value should be either
 Application.HandleSignals (the default) or
@@ -1596,8 +1670,8 @@ when interrupted by a signal.'''
             self._ctrlCHandler.setCallback(self._destroyOnInterruptCallback)
             self._condVar.release()
         else:
-            getProcessLogger().error(Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts.")
+            getProcessLogger().error(Application._appName +
+                                     ": warning: interrupt method called on Application configured to not handle interrupts.")
     destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
     def shutdownOnInterrupt(self):
@@ -1611,8 +1685,8 @@ when interrupted by a signal.'''
             self._ctrlCHandler.setCallback(self._shutdownOnInterruptCallback)
             self._condVar.release()
         else:
-            getProcessLogger().error(Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts.")
+            getProcessLogger().error(Application._appName +
+                                     ": warning: interrupt method called on Application configured to not handle interrupts.")
     shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
     def ignoreInterrupt(self):
@@ -1625,8 +1699,8 @@ when interrupted by a signal.'''
             self._ctrlCHandler.setCallback(None)
             self._condVar.release()
         else:
-            getProcessLogger().error(Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts.")
+            getProcessLogger().error(Application._appName +
+                                     ": warning: interrupt method called on Application configured to not handle interrupts.")
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
     def callbackOnInterrupt(self):
@@ -1640,8 +1714,8 @@ when interrupted by a signal.'''
             self._ctrlCHandler.setCallback(self._callbackOnInterruptCallback)
             self._condVar.release()
         else:
-            getProcessLogger().error(Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts.")
+            getProcessLogger().error(Application._appName +
+                                     ": warning: interrupt method called on Application configured to not handle interrupts.")
     callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
     def holdInterrupt(self):
@@ -1656,8 +1730,8 @@ later processing.'''
             # else, we were already holding signals
             self._condVar.release()
         else:
-            getProcessLogger().error(Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts.")
+            getProcessLogger().error(Application._appName +
+                                     ": warning: interrupt method called on Application configured to not handle interrupts.")
     holdInterrupt = classmethod(holdInterrupt)
 
     def releaseInterrupt(self):
@@ -1677,8 +1751,8 @@ later processing.'''
             # Else nothing to release.
             self._condVar.release()
         else:
-            getProcessLogger().error(Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts.")
+            getProcessLogger().error(Application._appName +
+                                     ": warning: interrupt method called on Application configured to not handle interrupts.")
     releaseInterrupt = classmethod(releaseInterrupt)
 
     def interrupted(self):
@@ -1723,7 +1797,7 @@ signal, or False otherwise.'''
         try:
             self._communicator.destroy()
         except:
-            getProcessLogger().error(self._appName + " (while destroying in response to signal " + str(sig) + "):" + \
+            getProcessLogger().error(self._appName + " (while destroying in response to signal " + str(sig) + "):" +
                                      traceback.format_exc())
 
         self._condVar.acquire()
@@ -1748,7 +1822,7 @@ signal, or False otherwise.'''
         try:
             self._communicator.shutdown()
         except:
-            getProcessLogger().error(self._appName + " (while shutting down in response to signal " + str(sig) + \
+            getProcessLogger().error(self._appName + " (while shutting down in response to signal " + str(sig) +
                                      "):" + traceback.format_exc())
 
         self._condVar.acquire()
@@ -1775,7 +1849,7 @@ signal, or False otherwise.'''
         try:
             self._application.interruptCallback(sig)
         except:
-            getProcessLogger().error(self._appName + " (while interrupting in response to signal " + str(sig) + \
+            getProcessLogger().error(self._appName + " (while interrupting in response to signal " + str(sig) +
                                      "):" + traceback.format_exc())
 
         self._condVar.acquire()
@@ -1800,6 +1874,7 @@ signal, or False otherwise.'''
     _condVar = threading.Condition()
     _signalPolicy = HandleSignals
 
+
 #
 # Define Ice::Value and Ice::ObjectPrx.
 #
@@ -1808,53 +1883,77 @@ IcePy._t_Value = IcePy.defineValue('::Ice::Object', Value, -1, (), False, False,
 IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
 Object._ice_type = IcePy._t_Object
 
-Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (((), IcePy._t_string, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
-Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), None, ())
-Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), ((), _t_StringSeq, False, 0), ())
-Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), ((), IcePy._t_string, False, 0), ())
+Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), ((
+    (), IcePy._t_string, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
+Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent,
+                                      OperationMode.Nonmutating, False, None, (), (), (), None, ())
+Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent,
+                                     OperationMode.Nonmutating, False, None, (), (), (), ((), _t_StringSeq, False, 0), ())
+Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating,
+                                    False, None, (), (), (), ((), IcePy._t_string, False, 0), ())
 
 IcePy._t_LocalObject = IcePy.defineValue('::Ice::LocalObject', object, -1, (), False, False, None, ())
 
-IcePy._t_UnknownSlicedValue = IcePy.defineValue('::Ice::UnknownSlicedValue', UnknownSlicedValue, -1, (), True, False, None, ())
+IcePy._t_UnknownSlicedValue = IcePy.defineValue(
+    '::Ice::UnknownSlicedValue', UnknownSlicedValue, -1, (), True, False, None, ())
 UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue
 
 #
 # Annotate some exceptions.
 #
+
+
 def SyscallException__str__(self):
     return "Ice.SyscallException:\n" + os.strerror(self.error)
+
+
 SyscallException.__str__ = SyscallException__str__
 del SyscallException__str__
 
+
 def SocketException__str__(self):
     return "Ice.SocketException:\n" + os.strerror(self.error)
+
+
 SocketException.__str__ = SocketException__str__
 del SocketException__str__
 
+
 def ConnectFailedException__str__(self):
     return "Ice.ConnectFailedException:\n" + os.strerror(self.error)
+
+
 ConnectFailedException.__str__ = ConnectFailedException__str__
 del ConnectFailedException__str__
 
+
 def ConnectionRefusedException__str__(self):
     return "Ice.ConnectionRefusedException:\n" + os.strerror(self.error)
+
+
 ConnectionRefusedException.__str__ = ConnectionRefusedException__str__
 del ConnectionRefusedException__str__
+
 
 def ConnectionLostException__str__(self):
     if self.error == 0:
         return "Ice.ConnectionLostException:\nrecv() returned zero"
     else:
         return "Ice.ConnectionLostException:\n" + os.strerror(self.error)
+
+
 ConnectionLostException.__str__ = ConnectionLostException__str__
 del ConnectionLostException__str__
 
 #
 # Proxy comparison functions.
 #
+
+
 def proxyIdentityEqual(lhs, rhs):
     '''Determines whether the identities of two proxies are equal.'''
     return proxyIdentityCompare(lhs, rhs) == 0
+
 
 def proxyIdentityCompare(lhs, rhs):
     '''Compares the identities of two proxies.'''
@@ -1871,10 +1970,12 @@ def proxyIdentityCompare(lhs, rhs):
         rid = rhs.ice_getIdentity()
         return (lid > rid) - (lid < rid)
 
+
 def proxyIdentityAndFacetEqual(lhs, rhs):
     '''Determines whether the identities and facets of two
 proxies are equal.'''
     return proxyIdentityAndFacetCompare(lhs, rhs) == 0
+
 
 def proxyIdentityAndFacetCompare(lhs, rhs):
     '''Compares the identities and facets of two proxies.'''
@@ -1901,6 +2002,8 @@ def proxyIdentityAndFacetCompare(lhs, rhs):
 # names. Since the functions are in the __builtin__ module (for Python 2.x) and the
 # builtins module (for Python 3.x), it's easier to define them here.
 #
+
+
 def getType(o):
     return type(o)
 
@@ -1910,8 +2013,11 @@ def getType(o):
 # the function is in the __builtin__ module (for Python 2.x) and the builtins
 # module (for Python 3.x), it's easier to define it here.
 #
+
+
 def getHash(o):
     return hash(o)
+
 
 Protocol_1_0 = ProtocolVersion(1, 0)
 Encoding_1_0 = EncodingVersion(1, 0)
@@ -1929,12 +2035,14 @@ BuiltinDouble = 6
 BuiltinTypes = [BuiltinBool, BuiltinByte, BuiltinShort, BuiltinInt, BuiltinLong, BuiltinFloat, BuiltinDouble]
 BuiltinArrayTypes = ["b", "b", "h", "i", "q", "f", "d"]
 
+
 def createArray(view, t, copy):
     if t not in BuiltinTypes:
         raise ValueError("`{0}' is not an array builtin type".format(t))
     a = array.array(BuiltinArrayTypes[t])
     a.frombytes(view)
     return a
+
 
 try:
     import numpy

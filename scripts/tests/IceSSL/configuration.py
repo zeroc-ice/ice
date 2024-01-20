@@ -5,6 +5,7 @@
 
 import os
 
+
 class ConfigurationTestCase(ClientServerTestCase):
 
     def setupServerSide(self, current):
@@ -29,7 +30,8 @@ class ConfigurationTestCase(ClientServerTestCase):
             os.system("mkdir -p {0}".format(os.path.join(certsPath, "keychain")))
             os.system("security create-keychain -p password %s" % keychainPath)
             for cert in ["s_rsa_ca1.p12", "c_rsa_ca1.p12"]:
-                os.system("security import %s -f pkcs12 -A -P password -k %s" % (os.path.join(certsPath, cert), keychainPath))
+                os.system("security import %s -f pkcs12 -A -P password -k %s" %
+                          (os.path.join(certsPath, cert), keychainPath))
         elif current.config.openssl or platform.hasOpenSSL():
             if isinstance(platform, Windows):
                 conf = os.path.join(current.testsuite.getPath(), "openssl.cnf")
@@ -44,7 +46,8 @@ class ConfigurationTestCase(ClientServerTestCase):
             #
             for c in ["cacert1.pem", "cacert2.pem"]:
                 pem = os.path.join(certsPath, c)
-                out = run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem, openssl=self.getOpenSSLCommand(current)))
+                out = run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem,
+                          openssl=self.getOpenSSLCommand(current)))
                 shutil.copyfile(pem, "{dir}/{out}.0".format(dir=certsPath, out=out))
 
     def teardownServerSide(self, current, success):
@@ -59,11 +62,13 @@ class ConfigurationTestCase(ClientServerTestCase):
 
         certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
-            os.system("rm -rf {0} {1}".format(os.path.join(certsPath, "keychain"), os.path.join(certsPath, "Find.keychain")))
+            os.system("rm -rf {0} {1}".format(os.path.join(certsPath, "keychain"),
+                      os.path.join(certsPath, "Find.keychain")))
         elif current.config.openssl or platform.hasOpenSSL():
             for c in ["cacert1.pem", "cacert2.pem"]:
                 pem = os.path.join(certsPath, c)
-                out = run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem, openssl=self.getOpenSSLCommand(current)))
+                out = run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem,
+                          openssl=self.getOpenSSLCommand(current)))
                 os.remove("{dir}/{out}.0".format(out=out, dir=certsPath))
             if isinstance(platform, Windows):
                 os.remove(os.path.join(current.testsuite.getPath(), "openssl.cnf"))
@@ -77,12 +82,14 @@ class ConfigurationTestCase(ClientServerTestCase):
         else:
             return "openssl"
 
+
 class IceSSLConfigurationClient(Client):
 
     def getExe(self, current):
         if isinstance(platform, Windows) and current.config.openssl:
             return "clientopenssl"
         return Client.getExe(self, current)
+
 
 class IceSSLConfigurationServer(Server):
 
@@ -91,7 +98,8 @@ class IceSSLConfigurationServer(Server):
             return "serveropenssl"
         return Server.getExe(self, current)
 
+
 TestSuite(__name__, [
-   ConfigurationTestCase(client=IceSSLConfigurationClient(args=['"{testdir}"']),
-                         server=IceSSLConfigurationServer(args=['"{testdir}"']))
+    ConfigurationTestCase(client=IceSSLConfigurationClient(args=['"{testdir}"']),
+                          server=IceSSLConfigurationServer(args=['"{testdir}"']))
 ], multihost=False)

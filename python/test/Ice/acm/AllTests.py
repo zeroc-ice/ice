@@ -2,11 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading, time, traceback
+import Ice
+import Test
+import sys
+import threading
+import time
+import traceback
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class LoggerI(Ice.Logger):
     def __init__(self):
@@ -53,6 +60,7 @@ class LoggerI(Ice.Logger):
         for p in self._messages:
             print(p)
         self._messages = []
+
 
 class TestCase(threading.Thread):
     def __init__(self, name, com):
@@ -106,7 +114,7 @@ class TestCase(threading.Thread):
 
     def run(self):
         proxy = Test.TestIntfPrx.uncheckedCast(self._communicator.stringToProxy(
-                    self._adapter.getTestIntf().ice_toString()))
+            self._adapter.getTestIntf().ice_toString()))
         try:
             proxy.ice_getConnection().setCloseCallback(lambda conn: self.closed(conn))
             proxy.ice_getConnection().setHeartbeatCallback(lambda conn: self.heartbeat(conn))
@@ -128,7 +136,7 @@ class TestCase(threading.Thread):
         with self.m:
             while not self._closed:
                 now = time.time()
-                self.m.wait(30.0) # Wait 30s
+                self.m.wait(30.0)  # Wait 30s
                 if time.time() - now > 30.0:
                     test(False)
 
@@ -145,6 +153,7 @@ class TestCase(threading.Thread):
         self._serverACMClose = close
         self._serverACMHeartbeat = heartbeat
 
+
 def allTests(helper, communicator):
     ref = "communicator:{0}".format(helper.getTestEndpoint(num=0))
     com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref))
@@ -154,7 +163,7 @@ def allTests(helper, communicator):
     class InvocationHeartbeatTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation heartbeat", com)
-            self.setServerACM(1, -1, -1) # Faster ACM to make sure we receive enough ACM heartbeats
+            self.setServerACM(1, -1, -1)  # Faster ACM to make sure we receive enough ACM heartbeats
 
         def runTestCase(self, adapter, proxy):
             proxy.sleep(4)
@@ -182,7 +191,7 @@ def allTests(helper, communicator):
     class InvocationNoHeartbeatTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation with no heartbeat", com)
-            self.setServerACM(2, 2, 0) # Disable heartbeat on invocations
+            self.setServerACM(2, 2, 0)  # Disable heartbeat on invocations
 
         def runTestCase(self, adapter, proxy):
             try:
@@ -201,8 +210,8 @@ def allTests(helper, communicator):
     class InvocationHeartbeatCloseOnIdleTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation with no heartbeat and close on idle", com)
-            self.setClientACM(1, 1, 0) # Only close on idle.
-            self.setServerACM(1, 2, 0) # Disable heartbeat on invocations
+            self.setClientACM(1, 1, 0)  # Only close on idle.
+            self.setServerACM(1, 2, 0)  # Disable heartbeat on invocations
 
         def runTestCase(self, adapter, proxy):
             # No close on invocation, the call should succeed this time.
@@ -215,7 +224,7 @@ def allTests(helper, communicator):
     class CloseOnIdleTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "close on idle", com)
-            self.setClientACM(1, 1, 0) # Only close on idle.
+            self.setClientACM(1, 1, 0)  # Only close on idle.
 
         def runTestCase(self, adapter, proxy):
             self.waitForClosed()
@@ -226,10 +235,10 @@ def allTests(helper, communicator):
     class CloseOnInvocationTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "close on invocation", com)
-            self.setClientACM(1, 2, 0) # Only close on invocation.
+            self.setClientACM(1, 2, 0)  # Only close on invocation.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(3) # Idle for 3 seconds
+            time.sleep(3)  # Idle for 3 seconds
 
             with self.m:
                 test(self._heartbeat == 0)
@@ -238,7 +247,7 @@ def allTests(helper, communicator):
     class CloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "close on idle and invocation", com)
-            self.setClientACM(3, 3, 0) # Only close on idle and invocation.
+            self.setClientACM(3, 3, 0)  # Only close on idle and invocation.
 
         def runTestCase(self, adapter, proxy):
             #
@@ -247,11 +256,11 @@ def allTests(helper, communicator):
             # the close is graceful or forceful.
             #
             adapter.hold()
-            time.sleep(5) # Idle for 5 seconds
+            time.sleep(5)  # Idle for 5 seconds
 
             with self.m:
                 test(self._heartbeat == 0)
-                test(not self._closed) # Not closed yet because of graceful close.
+                test(not self._closed)  # Not closed yet because of graceful close.
 
             adapter.activate()
             self.waitForClosed()
@@ -259,7 +268,7 @@ def allTests(helper, communicator):
     class ForcefulCloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "forceful close on idle and invocation", com)
-            self.setClientACM(1, 4, 0) # Only close on idle and invocation.
+            self.setClientACM(1, 4, 0)  # Only close on idle and invocation.
 
         def runTestCase(self, adapter, proxy):
             adapter.hold()
@@ -271,7 +280,7 @@ def allTests(helper, communicator):
     class HeartbeatOnIdleTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "heartbeat on idle", com)
-            self.setServerACM(1, -1, 2) # Enable server heartbeats.
+            self.setServerACM(1, -1, 2)  # Enable server heartbeats.
 
         def runTestCase(self, adapter, proxy):
             time.sleep(3)
@@ -282,7 +291,7 @@ def allTests(helper, communicator):
     class HeartbeatAlwaysTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "heartbeat always", com)
-            self.setServerACM(1, -1, 3) # Enable server heartbeats.
+            self.setServerACM(1, -1, 3)  # Enable server heartbeats.
 
         def runTestCase(self, adapter, proxy):
             for i in range(0, 10):

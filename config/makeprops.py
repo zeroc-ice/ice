@@ -3,7 +3,13 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys, shutil, re, signal, time, pprint
+import os
+import sys
+import shutil
+import re
+import signal
+import time
+import pprint
 
 from xml.sax import make_parser
 from xml.sax.handler import feature_namespaces
@@ -117,14 +123,16 @@ const Property = Ice.Property;
 """
 
 jsEpilogue = \
-"""
+    """
 Ice.%(classname)s = %(classname)s;
 module.exports.Ice = Ice;
 """
 
+
 def usage():
     global progname
     print >> sys.stderr, "Usage: " + progname + " [--{cpp|java|csharp|js} file]"
+
 
 def progError(msg):
     global progname
@@ -137,8 +145,9 @@ def progError(msg):
 # the language mapping source code.
 #
 
+
 class PropertyClass:
-    def __init__(self, prefixOnly , childProperties):
+    def __init__(self, prefixOnly, childProperties):
         self.prefixOnly = prefixOnly
         self.childProperties = childProperties
 
@@ -150,6 +159,7 @@ class PropertyClass:
 
     def __repr__(self):
         return repr((repr(self.preifxOnly), repr(self.childProperties)))
+
 
 def initPropertyClasses(filename):
     doc = parse(filename)
@@ -174,6 +184,7 @@ def initPropertyClasses(filename):
 # SAX part.
 #
 
+
 def handler(signum, frame):
     """Installed as signal handler. Should cause an files that are in
     use to be closed and removed"""
@@ -181,12 +192,14 @@ def handler(signum, frame):
     contentHandler.cleanup()
     sys.exit(128 + signum)
 
+
 class UnknownElementException(Exception):
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
         return repr(self.value)
+
 
 class PropertyHandler(ContentHandler):
 
@@ -281,7 +294,7 @@ class PropertyHandler(ContentHandler):
                         # a property class, they need to be expanded.
                         if "deprecatedBy" in t:
                             t["deprecatedBy"] = "%s.%s.%s" % (self.currentSection, propertyName, t["deprecatedBy"])
-                        t['name'] =  "%s.%s" % (propertyName, p['name'])
+                        t['name'] = "%s.%s" % (propertyName, p['name'])
                         self.startElement(name, t)
                 if c.isPrefixOnly():
                     return
@@ -292,7 +305,7 @@ class PropertyHandler(ContentHandler):
             deprecatedBy = attrs.get("deprecatedBy", None)
             if deprecatedBy != None:
                 self.handleDeprecatedWithReplacement(propertyName, deprecatedBy)
-            elif attrs.get("deprecated", "false").lower() == "true" :
+            elif attrs.get("deprecated", "false").lower() == "true":
                 self.handleDeprecated(propertyName)
             else:
                 self.handleProperty(propertyName)
@@ -302,6 +315,7 @@ class PropertyHandler(ContentHandler):
             self.closeFiles()
         elif name == "section":
             self.closeSection()
+
 
 class CppPropertyHandler(PropertyHandler):
 
@@ -323,23 +337,23 @@ class CppPropertyHandler(PropertyHandler):
     def startFiles(self):
         self.hFile = open(self.className + ".h", "w")
         self.cppFile = open(self.className + ".cpp", "w")
-        self.hFile.write(cppHeaderPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-        self.cppFile.write(cppSrcPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
+        self.hFile.write(cppHeaderPreamble % {'inputfile': self.inputfile, 'classname': self.className})
+        self.cppFile.write(cppSrcPreamble % {'inputfile': self.inputfile, 'classname': self.className})
 
     def closeFiles(self):
-        self.hFile.write(cppHeaderPostamble % {'classname' : self.className})
-        self.cppFile.write("const IceInternal::PropertyArray "\
-                        "IceInternal::%(classname)s::validProps[] =\n" % \
-                {'classname' : self.className})
+        self.hFile.write(cppHeaderPostamble % {'classname': self.className})
+        self.cppFile.write("const IceInternal::PropertyArray "
+                           "IceInternal::%(classname)s::validProps[] =\n" %
+                           {'classname': self.className})
 
         self.cppFile.write("{\n")
         for s in self.sections:
             self.cppFile.write("    %sProps,\n" % s)
-        self.cppFile.write("    IceInternal::PropertyArray(0,0)\n");
+        self.cppFile.write("    IceInternal::PropertyArray(0,0)\n")
         self.cppFile.write("};\n\n")
 
-        self.cppFile.write("const char* IceInternal::%(classname)s::clPropNames[] =\n" % \
-                {'classname' : self.className})
+        self.cppFile.write("const char* IceInternal::%(classname)s::clPropNames[] =\n" %
+                           {'classname': self.className})
         self.cppFile.write("{\n")
         for s in self.cmdLineOptions:
             self.cppFile.write("    \"%s\",\n" % s)
@@ -352,16 +366,16 @@ class CppPropertyHandler(PropertyHandler):
         return propertyName.replace("[any]", "*")
 
     def deprecatedImpl(self, propertyName):
-        self.cppFile.write("    IceInternal::Property(\"%s.%s\", true, 0),\n" % (self.currentSection, \
-                self.fix(propertyName)))
+        self.cppFile.write("    IceInternal::Property(\"%s.%s\", true, 0),\n" % (self.currentSection,
+                                                                                 self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
-        self.cppFile.write("    IceInternal::Property(\"%s.%s\", true, \"%s\"),\n" % (self.currentSection, \
-                self.fix(propertyName), deprecatedBy))
+        self.cppFile.write("    IceInternal::Property(\"%s.%s\", true, \"%s\"),\n" % (self.currentSection,
+                                                                                      self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
-        self.cppFile.write("    IceInternal::Property(\"%s.%s\", false, 0),\n" % \
-                (self.currentSection, self.fix(propertyName)))
+        self.cppFile.write("    IceInternal::Property(\"%s.%s\", false, 0),\n" %
+                           (self.currentSection, self.fix(propertyName)))
 
     def newSection(self):
         self.hFile.write("    static const PropertyArray %sProps;\n" % self.currentSection)
@@ -375,7 +389,7 @@ const IceInternal::PropertyArray
     IceInternal::%(className)s::%(section)sProps(%(section)sPropsData,
                                                 sizeof(%(section)sPropsData)/sizeof(%(section)sPropsData[0]));
 
-""" % { 'className' : self.className, 'section': self.currentSection })
+""" % {'className': self.className, 'section': self.currentSection})
 
     def moveFiles(self, location):
         dest = os.path.join(location, "cpp", "src", "Ice")
@@ -385,6 +399,7 @@ const IceInternal::PropertyArray
             os.remove(os.path.join(dest, self.className + ".cpp"))
         shutil.move(self.className + ".h", dest)
         shutil.move(self.className + ".cpp", dest)
+
 
 class JavaPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -399,7 +414,7 @@ class JavaPropertyHandler(PropertyHandler):
 
     def startFiles(self):
         self.srcFile = open(self.className + ".java", "w")
-        self.srcFile.write(javaPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
+        self.srcFile.write(javaPreamble % {'inputfile': self.inputfile, 'classname': self.className})
 
     def closeFiles(self):
         self.srcFile.write("    public static final Property[] validProps[] =\n")
@@ -426,20 +441,20 @@ class JavaPropertyHandler(PropertyHandler):
         return propertyName.replace(".", "\\\\.").replace("[any]", "[^\\\\s]+")
 
     def deprecatedImpl(self, propertyName):
-        self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", " \
-                "true, null),\n" % \
-                {"section" : self.currentSection, "pattern": self.fix(propertyName)})
+        self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", "
+                           "true, null),\n" %
+                           {"section": self.currentSection, "pattern": self.fix(propertyName)})
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
-        self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", "\
-                "true, \"%(deprecatedBy)s\"),\n"  % \
-                {"section" : self.currentSection, "pattern": self.fix(propertyName),
-                    "deprecatedBy" : deprecatedBy})
+        self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", "
+                           "true, \"%(deprecatedBy)s\"),\n" %
+                           {"section": self.currentSection, "pattern": self.fix(propertyName),
+                            "deprecatedBy": deprecatedBy})
 
     def propertyImpl(self, propertyName):
-        self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", " \
-                "false, null),\n" % \
-                {"section" : self.currentSection, "pattern": self.fix(propertyName)} )
+        self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", "
+                           "false, null),\n" %
+                           {"section": self.currentSection, "pattern": self.fix(propertyName)})
 
     def newSection(self):
         self.srcFile.write("    public static final Property %sProps[] =\n" % self.currentSection)
@@ -455,6 +470,7 @@ class JavaPropertyHandler(PropertyHandler):
             os.remove(os.path.join(dest, self.className + ".java"))
         shutil.move(self.className + ".java", dest)
 
+
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
         PropertyHandler.__init__(self, inputfile, c)
@@ -468,7 +484,7 @@ class CSPropertyHandler(PropertyHandler):
 
     def startFiles(self):
         self.srcFile = open(self.className + ".cs", "w")
-        self.srcFile.write(csPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
+        self.srcFile.write(csPreamble % {'inputfile': self.inputfile, 'classname': self.className})
 
     def closeFiles(self):
         self.srcFile.write("        public static Property[][] validProps =\n")
@@ -491,19 +507,19 @@ class CSPropertyHandler(PropertyHandler):
         return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, null),\n" % (self.currentSection, \
-                self.fix(propertyName)))
+        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, null),\n" % (self.currentSection,
+                                                                                        self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, @\"%s\"),\n" % \
-                (self.currentSection, self.fix(propertyName), deprecatedBy))
+        self.srcFile.write("             new Property(@\"^%s\.%s$\", true, @\"%s\"),\n" %
+                           (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
-        self.srcFile.write("             new Property(@\"^%s\.%s$\", false, null),\n" % (self.currentSection, \
-                self.fix(propertyName)))
+        self.srcFile.write("             new Property(@\"^%s\.%s$\", false, null),\n" % (self.currentSection,
+                                                                                         self.fix(propertyName)))
 
     def newSection(self):
-        self.srcFile.write("        public static Property[] %sProps =\n" % self.currentSection);
+        self.srcFile.write("        public static Property[] %sProps =\n" % self.currentSection)
         self.srcFile.write("        {\n")
 
     def closeSection(self):
@@ -515,6 +531,7 @@ class CSPropertyHandler(PropertyHandler):
         if os.path.exists(os.path.join(dest, self.className + ".cs")):
             os.remove(os.path.join(dest, self.className + ".cs"))
         shutil.move(self.className + ".cs", dest)
+
 
 class JSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -530,7 +547,7 @@ class JSPropertyHandler(PropertyHandler):
 
     def startFiles(self):
         self.srcFile = open(self.className + ".js", "w")
-        self.srcFile.write(jsPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
+        self.srcFile.write(jsPreamble % {'inputfile': self.inputfile, 'classname': self.className})
 
     def closeFiles(self):
         self.srcFile.write("%s.validProps =\n" % (self.className))
@@ -547,7 +564,7 @@ class JSPropertyHandler(PropertyHandler):
                 self.srcFile.write("    \"%s\",\n" % s)
         self.srcFile.write("];\n")
 
-        self.srcFile.write(jsEpilogue % {'classname' : self.className});
+        self.srcFile.write(jsEpilogue % {'classname': self.className})
         self.srcFile.close()
 
     def fix(self, propertyName):
@@ -555,23 +572,23 @@ class JSPropertyHandler(PropertyHandler):
 
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, null),\n" % (self.currentSection, \
-                    self.fix(propertyName)))
+            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, null),\n" % (self.currentSection,
+                                                                                   self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, \"%s\"),\n" % \
-                    (self.currentSection, self.fix(propertyName), deprecatedBy))
+            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, \"%s\"),\n" %
+                               (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    new Property(\"/^%s\.%s/\", false, null),\n" % (self.currentSection, \
-                    self.fix(propertyName)))
+            self.srcFile.write("    new Property(\"/^%s\.%s/\", false, null),\n" % (self.currentSection,
+                                                                                    self.fix(propertyName)))
 
     def newSection(self):
         if self.currentSection in self.validSections:
             self.skipSection = False
-            self.srcFile.write("%s.%sProps =\n" % (self.className, self.currentSection));
+            self.srcFile.write("%s.%sProps =\n" % (self.className, self.currentSection))
             self.srcFile.write("[\n")
 
     def closeSection(self):
@@ -584,6 +601,7 @@ class JSPropertyHandler(PropertyHandler):
         if os.path.exists(os.path.join(dest, self.className + ".js")):
             os.remove(os.path.join(dest, self.className + ".js"))
         shutil.move(self.className + ".js", dest)
+
 
 class MultiHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -637,6 +655,7 @@ class MultiHandler(PropertyHandler):
         for f in self.handlers:
             f.moveFiles(location)
 
+
 def main():
     if len(sys.argv) != 1 and len(sys.argv) != 3:
         usage()
@@ -681,9 +700,9 @@ def main():
     if lang == None:
         contentHandler = MultiHandler(infile, "")
         contentHandler.addHandlers([CppPropertyHandler(infile, className),
-            JavaPropertyHandler(infile, className),
-            CSPropertyHandler(infile, className),
-            JSPropertyHandler(infile, className)])
+                                    JavaPropertyHandler(infile, className),
+                                    CSPropertyHandler(infile, className),
+                                    JSPropertyHandler(infile, className)])
     else:
         if lang == "cpp":
             contentHandler = CppPropertyHandler(infile, className)
@@ -715,6 +734,7 @@ def main():
     except SAXException as ex:
         progError(str(ex))
         contentHandler.cleanup()
+
 
 if __name__ == "__main__":
     main()

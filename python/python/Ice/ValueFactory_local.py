@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 
 # Start of module Ice
 _M_Ice = Ice.openModule('Ice')
@@ -22,12 +23,14 @@ __name__ = 'Ice'
 
 if 'ValueFactory' not in _M_Ice.__dict__:
     _M_Ice.ValueFactory = Ice.createTempClass()
+
     class ValueFactory(object):
         """
          A factory for values. Value factories are used in several places, such as when Ice receives a class instance and
          when Freeze restores a persistent value. Value factories must be implemented by the application writer and
          registered with the communicator.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.ValueFactory:
                 raise RuntimeError('Ice.ValueFactory is an abstract class')
@@ -57,11 +60,13 @@ if 'ValueFactory' not in _M_Ice.__dict__:
 
 if 'ValueFactoryManager' not in _M_Ice.__dict__:
     _M_Ice.ValueFactoryManager = Ice.createTempClass()
+
     class ValueFactoryManager(object):
         """
          A value factory manager maintains a collection of value factories. An application can supply a custom
          implementation during communicator initialization, otherwise Ice provides a default implementation.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.ValueFactoryManager:
                 raise RuntimeError('Ice.ValueFactoryManager is an abstract class')
@@ -104,7 +109,8 @@ if 'ValueFactoryManager' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_ValueFactoryManager = IcePy.defineValue('::Ice::ValueFactoryManager', ValueFactoryManager, -1, (), False, True, None, ())
+    _M_Ice._t_ValueFactoryManager = IcePy.defineValue(
+        '::Ice::ValueFactoryManager', ValueFactoryManager, -1, (), False, True, None, ())
     ValueFactoryManager._ice_type = _M_Ice._t_ValueFactoryManager
 
     _M_Ice.ValueFactoryManager = ValueFactoryManager

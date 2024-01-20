@@ -2,9 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Util.h>
+#include "Util.h"
+
 #include <Ice/UUID.h>
 #include <Slice/PHPUtil.h>
+
 #include <algorithm>
 #include <ctype.h>
 
@@ -18,7 +20,7 @@ namespace
 bool
 getMember(zval* zv, const string& name, zval* member, int type, bool required)
 {
-    zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), STRCAST(name.c_str()), name.size());
+    zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), name.c_str(), name.size());
     if(!val)
     {
         if(required)
@@ -50,27 +52,16 @@ setStringMember(zval* obj, const string& name, const string& val)
 {
     zend_class_entry* cls = Z_OBJCE_P(obj);
     assert(cls);
-#if PHP_VERSION_ID >= 80000
-    zend_update_property_stringl(cls,
-                                 Z_OBJ_P(obj),
-                                 const_cast<char*>(name.c_str()),
-                                 static_cast<int>(name.size()),
-                                 const_cast<char*>(val.c_str()),
-                                 static_cast<int>(val.size())
-                                );
-#else
-    zend_update_property_stringl(cls,
-                                 obj,
-                                 const_cast<char*>(name.c_str()),
-                                 static_cast<int>(name.size()),
-                                 const_cast<char*>(val.c_str()),
-                                 static_cast<int>(val.size())
-                                );
-#endif
+    zend_update_property_stringl(
+        cls,
+        Z_OBJ_P(obj),
+        const_cast<char*>(name.c_str()),
+        static_cast<int>(name.size()),
+        const_cast<char*>(val.c_str()),
+        static_cast<int>(val.size()));
 }
 
-template<typename T>
-bool
+template<typename T> bool
 getVersion(zval* zv, T& v, const char* type)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
@@ -124,25 +115,16 @@ getVersion(zval* zv, T& v, const char* type)
 void
 zendUpdateProperty(zend_class_entry* scope, zval* zv, const char* name, size_t nameLength, zval* value)
 {
-#if PHP_VERSION_ID >= 80000
     zend_update_property(scope, Z_OBJ_P(zv), name, nameLength, value);
-#else
-    zend_update_property(scope, zv, name, nameLength, value);
-#endif
 }
 
 void
 zendUpdatePropertyLong(zend_class_entry* scope, zval* zv, const char* name, size_t nameLength, zend_long value)
 {
-#if PHP_VERSION_ID >= 80000
     zend_update_property_long(scope, Z_OBJ_P(zv), name, nameLength, value);
-#else
-    zend_update_property_long(scope, zv, name, nameLength, value);
-#endif
 }
 
-template<typename T>
-bool
+template<typename T> bool
 createVersion(zval* zv, const T& version, const char* type)
 {
     zend_class_entry* cls = idToClass(type);
@@ -159,8 +141,7 @@ createVersion(zval* zv, const T& version, const char* type)
     return true;
 }
 
-template<typename T>
-bool
+template<typename T> bool
 versionToString(zval* zv, zval* s, const char* type)
 {
     T v;
@@ -172,7 +153,7 @@ versionToString(zval* zv, zval* s, const char* type)
     try
     {
         string str = IceInternal::versionToString<T>(v);
-        ZVAL_STRINGL(s, STRCAST(str.c_str()), static_cast<int>(str.length()));
+        ZVAL_STRINGL(s, str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -183,8 +164,7 @@ versionToString(zval* zv, zval* s, const char* type)
     return true;
 }
 
-template<typename T>
-bool
+template<typename T> bool
 stringToVersion(const string& s, zval* zv, const char* type)
 {
     try
@@ -235,7 +215,7 @@ zend_class_entry*
 IcePHP::nameToClass(const string& name)
 {
     zend_class_entry* result;
-    zend_string* s = zend_string_init(STRCAST(name.c_str()), static_cast<int>(name.length()), 0);
+    zend_string* s = zend_string_init(name.c_str(), static_cast<int>(name.length()), 0);
     result = zend_lookup_class(s);
     zend_string_release(s);
     return result;
@@ -278,9 +258,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id)
         return false;
     }
 
-    //
     // Category is optional, but name is required.
-    //
     zval categoryVal;
     ZVAL_UNDEF(&categoryVal);
     zval nameVal;
@@ -315,22 +293,12 @@ IcePHP::createStringMap(zval* zv, const map<string, string>& ctx)
 
     for(map<string, string>::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {
-#if PHP_VERSION_ID >= 80000
-        add_assoc_stringl_ex(zv,
-                             const_cast<char*>(p->first.c_str()),
-                             static_cast<uint32_t>(p->first.length()),
-                             const_cast<char*>(p->second.c_str()),
-                             static_cast<uint32_t>(p->second.length()));
-#else
-        if(add_assoc_stringl_ex(zv,
-                                const_cast<char*>(p->first.c_str()),
-                                static_cast<uint32_t>(p->first.length()),
-                                const_cast<char*>(p->second.c_str()),
-                                static_cast<uint32_t>(p->second.length())) == FAILURE)
-        {
-            return false;
-        }
-#endif
+        add_assoc_stringl_ex(
+            zv,
+            const_cast<char*>(p->first.c_str()),
+            static_cast<uint32_t>(p->first.length()),
+            const_cast<char*>(p->second.c_str()),
+            static_cast<uint32_t>(p->second.length()));
     }
 
     return true;
@@ -378,7 +346,7 @@ IcePHP::createStringArray(zval* zv, const Ice::StringSeq& seq)
     array_init(zv);
     for(Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        if(add_next_index_stringl(zv, STRCAST(p->c_str()), static_cast<uint32_t>(p->length())) == FAILURE)
+        if(add_next_index_stringl(zv, p->c_str(), static_cast<uint32_t>(p->length())) == FAILURE)
         {
             return false;
         }
@@ -439,9 +407,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
     zend_class_entry* cls = Z_OBJCE_P(zex);
     assert(cls);
 
-    //
     // Transfer data members from Ice exception to PHP object.
-    //
     try
     {
         ex.ice_throw();
@@ -601,9 +567,6 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
     }
     catch(const Ice::LocalException&)
     {
-        //
-        // Nothing to do.
-        //
     }
 
     return true;
@@ -743,9 +706,6 @@ throwError(const string& name, const string& msg)
         assert(false);
     }
 
-    //
-    // Invoke constructor.
-    //
     if(!invokeMethod(&ex, ZEND_CONSTRUCTOR_FUNC_NAME, msg))
     {
         assert(false);
@@ -762,9 +722,7 @@ IcePHP::runtimeError(const char* fmt, ...)
 
     va_start(args, fmt);
 
-#if defined(_MSC_VER)
-    vsprintf_s(msg, fmt, args);
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
     // vsprintf is deprecated with macOS Ventura
     vsnprintf(msg, sizeof(msg), fmt, args);
 #else
@@ -784,9 +742,7 @@ IcePHP::invalidArgument(const char* fmt, ...)
 
     va_start(args, fmt);
 
-#if defined(_MSC_VER)
-    vsprintf_s(msg, fmt, args);
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
     // vsprintf is deprecated with macOS Ventura
     vsnprintf(msg, sizeof(msg), fmt, args);
 #else
@@ -801,9 +757,9 @@ IcePHP::invalidArgument(const char* fmt, ...)
 static bool
 invokeMethodHelper(zval* obj, const string& name, zval* param)
 {
-    assert(zend_hash_str_exists(&Z_OBJCE_P(obj)->function_table, STRCAST(name.c_str()), name.size()));
+    assert(zend_hash_str_exists(&Z_OBJCE_P(obj)->function_table, name.c_str(), name.size()));
     zval ret, method;
-    ZVAL_STRING(&method, STRCAST(name.c_str()));
+    ZVAL_STRING(&method, name.c_str());
     uint32_t numParams = param ? 1 : 0;
     int status = 0;
     zend_try
@@ -834,7 +790,7 @@ bool
 IcePHP::invokeMethod(zval* obj, const string& name, const string& arg)
 {
     zval param;
-    ZVAL_STRINGL(&param, STRCAST(arg.c_str()), static_cast<int>(arg.size()));
+    ZVAL_STRINGL(&param, arg.c_str(), static_cast<int>(arg.size()));
     AutoDestroy destroy(&param);
     bool retval = invokeMethodHelper(obj, name, &param);
     return retval;
@@ -871,7 +827,7 @@ ZEND_FUNCTION(Ice_stringVersion)
         WRONG_PARAM_COUNT;
     }
 
-    RETURN_STRINGL(STRCAST(ICE_STRING_VERSION), static_cast<int>(strlen(ICE_STRING_VERSION)));
+    RETURN_STRINGL(ICE_STRING_VERSION, static_cast<int>(strlen(ICE_STRING_VERSION)));
 }
 
 ZEND_FUNCTION(Ice_intVersion)
@@ -892,7 +848,7 @@ ZEND_FUNCTION(Ice_generateUUID)
     }
 
     string uuid = Ice::generateUUID();
-    RETURN_STRINGL(STRCAST(uuid.c_str()), static_cast<int>(uuid.size()));
+    RETURN_STRINGL(uuid.c_str(), static_cast<int>(uuid.size()));
 }
 
 ZEND_FUNCTION(Ice_currentProtocol)

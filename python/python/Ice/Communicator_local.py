@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.LoggerF_local
 import Ice.InstrumentationF_local
 import Ice.ObjectAdapterF_local
@@ -44,11 +45,13 @@ _M_Ice.__doc__ = """
 
 if 'Communicator' not in _M_Ice.__dict__:
     _M_Ice.Communicator = Ice.createTempClass()
+
     class Communicator(object):
         """
          The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
          instantiation is language-specific, and not specified in Slice code.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Communicator:
                 raise RuntimeError('Ice.Communicator is an abstract class')
@@ -344,6 +347,7 @@ if 'Communicator' not in _M_Ice.__dict__:
 
 if 'ToStringMode' not in _M_Ice.__dict__:
     _M_Ice.ToStringMode = Ice.createTempClass()
+
     class ToStringMode(Ice.EnumBase):
         """
          The output mode for xxxToString method such as identityToString and proxyToString. The actual encoding format for
@@ -372,7 +376,7 @@ if 'ToStringMode' not in _M_Ice.__dict__:
     ToStringMode.Unicode = ToStringMode("Unicode", 0)
     ToStringMode.ASCII = ToStringMode("ASCII", 1)
     ToStringMode.Compat = ToStringMode("Compat", 2)
-    ToStringMode._enumerators = { 0:ToStringMode.Unicode, 1:ToStringMode.ASCII, 2:ToStringMode.Compat }
+    ToStringMode._enumerators = {0: ToStringMode.Unicode, 1: ToStringMode.ASCII, 2: ToStringMode.Compat}
 
     _M_Ice._t_ToStringMode = IcePy.defineEnum('::Ice::ToStringMode', ToStringMode, (), ToStringMode._enumerators)
 

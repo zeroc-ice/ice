@@ -13,6 +13,7 @@ class PropertiesTestSuite(TestSuite):
                             "Ice.Trace.Network=1",
                             "Ice.ProgramName=PropertiesClient",
                             "Config.Path=./config/" + name],
-                            "utf-8")
+                           "utf-8")
 
-PropertiesTestSuite(__name__, [ ClientTestCase(client=Client(args=["{testdir}"])) ])
+
+PropertiesTestSuite(__name__, [ClientTestCase(client=Client(args=["{testdir}"]))])

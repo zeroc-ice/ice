@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -103,7 +102,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Return a string representation of the endpoint.
         /// </summary>
@@ -111,7 +109,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string ice_toString_();
-
 
         /// <summary>
         /// Returns the endpoint information.

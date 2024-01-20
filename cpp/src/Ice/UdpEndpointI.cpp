@@ -44,15 +44,6 @@ registerIceUDP(bool loadOnInitialize)
 
 }
 
-//
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICE_API void
-ICEregisterIceUDP(bool loadOnInitialize)
-{
-    Ice::registerIceUDP(loadOnInitialize);
-}
-
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
                                         const Address& sourceAddr, const string& mcastInterface, Int mttl, bool conn,
                                         const string& conId, bool co) :

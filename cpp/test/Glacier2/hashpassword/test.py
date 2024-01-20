@@ -3,10 +3,13 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+import os
+import sys
+from Util import ClientTestCase, TestSuite, toplevel, run
+
+
 class Glacier2HashPasswordTestCase(ClientTestCase):
-
     def runClientSide(self, current):
-
         import passlib.hash
 
         hashpassword = os.path.join(toplevel, "scripts", "icehashpassword.py")
@@ -15,25 +18,42 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
 
         def test(b):
             if not b:
-                raise RuntimeError('test assertion failed')
+                raise RuntimeError("test assertion failed")
 
-        def hashPasswords(password, args = ""):
-            return run('"%s" "%s" %s' % (sys.executable, hashpassword, args),
-                       stdin=(password + "\r\n").encode('UTF-8'),
-                       stdinRepeat=False)
+        def hashPasswords(password, args=""):
+            return run(
+                '"%s" "%s" %s' % (sys.executable, hashpassword, args),
+                stdin=(password + "\r\n").encode("UTF-8"),
+                stdinRepeat=False,
+            )
 
         if usePBKDF2:
-
             current.write("Testing PBKDF2 crypt passwords...")
 
             test(passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc123")))
             test(not passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc")))
 
-            test(passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc123", "-d sha1")))
-            test(not passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc", "-d sha1")))
+            test(
+                passlib.hash.pbkdf2_sha1.verify(
+                    "abc123", hashPasswords("abc123", "-d sha1")
+                )
+            )
+            test(
+                not passlib.hash.pbkdf2_sha1.verify(
+                    "abc123", hashPasswords("abc", "-d sha1")
+                )
+            )
 
-            test(passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc123", "-d sha512")))
-            test(not passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc", "-d sha512")))
+            test(
+                passlib.hash.pbkdf2_sha512.verify(
+                    "abc123", hashPasswords("abc123", "-d sha512")
+                )
+            )
+            test(
+                not passlib.hash.pbkdf2_sha512.verify(
+                    "abc123", hashPasswords("abc", "-d sha512")
+                )
+            )
 
             #
             # Now use custom rounds
@@ -56,14 +76,21 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
             current.writeln("ok")
 
         elif useCryptExt:
-
             current.write("Testing Linux crypt passwords...")
 
             test(passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc123")))
             test(not passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc")))
 
-            test(passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc123", "-d sha256")))
-            test(not passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc", "-d sha256")))
+            test(
+                passlib.hash.sha256_crypt.verify(
+                    "abc123", hashPasswords("abc123", "-d sha256")
+                )
+            )
+            test(
+                not passlib.hash.sha256_crypt.verify(
+                    "abc123", hashPasswords("abc", "-d sha256")
+                )
+            )
 
             #
             # Now use custom rounds
@@ -87,5 +114,6 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
             test(passlib.hash.sha256_crypt.verify("abc123", hash))
 
             current.writeln("ok")
+
 
 TestSuite(__name__, [Glacier2HashPasswordTestCase()])

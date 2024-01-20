@@ -122,13 +122,11 @@ typedef std::shared_ptr<Patcher> PatcherPtr;
 typedef IceUtil::Handle<Patcher> PatcherPtr;
 #endif // ICE_CPP11_MAPPING
 
-
-
 //
 // IcePatch2 clients instantiate the IcePatch2::Patcher class
 // using the patcher factory.
 //
-class ICEPATCH2_API PatcherFactory 
+class ICEPATCH2_API PatcherFactory
 #ifndef ICE_CPP11_MAPPING
     : public IceUtil::noncopyable
 #endif // !ICE_CPP11_MAPPING

@@ -133,6 +133,7 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(response.public_bytes(Encoding.DER))
 
+
 def createOCSPServer(host, port, basepath):
     db = load_db(basepath)
     handler = partial(OCSPHandler, db)

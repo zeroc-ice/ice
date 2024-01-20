@@ -14,9 +14,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICEGRID_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceGrid"]]
 
 #include <IceGrid/Exception.ice>
@@ -26,7 +23,6 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICEGRID"]
 module IceGrid
 {
     /// Determines which load sampling interval to use.

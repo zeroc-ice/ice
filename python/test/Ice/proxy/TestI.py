@@ -2,8 +2,10 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test
+import Ice
+import Test
 import time
+
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):

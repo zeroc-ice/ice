@@ -14,8 +14,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:IceBox"]]
 
 #include <Ice/BuiltinSequences.ice>

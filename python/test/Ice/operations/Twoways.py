@@ -2,12 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, math, Test, array, sys
+import Ice
+import math
+import Test
+import array
+import sys
 from sys import version_info
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def twoways(helper, p):
 
@@ -186,7 +192,7 @@ def twoways(helper, p):
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(-32768 -1, 0, 0)
+        r, s, i, l = p.opShortIntLong(-32768 - 1, 0, 0)
         test(False)
     except ValueError:
         pass
@@ -226,13 +232,13 @@ def twoways(helper, p):
         test(math.isnan(r) and math.isnan(f) and math.isnan(d))
 
     try:
-        r, f, d = p.opFloatDouble(3.402823466E38*2, 0.0)
+        r, f, d = p.opFloatDouble(3.402823466E38 * 2, 0.0)
         test(False)
     except ValueError:
         pass
 
     try:
-        r, f, d = p.opFloatDouble(-3.402823466E38*2, 0.0)
+        r, f, d = p.opFloatDouble(-3.402823466E38 * 2, 0.0)
         test(False)
     except ValueError:
         pass
@@ -571,7 +577,7 @@ def twoways(helper, p):
     #
     # opShortIntLongSS
     #
-    ssi = ((1,2,5), (13,), ())
+    ssi = ((1, 2, 5), (13,), ())
     isi = ((24, 98), (42,))
     lsi = ((496, 1729),)
 
@@ -813,8 +819,8 @@ def twoways(helper, p):
     #
     # opByteBoolDS
     #
-    dsi1 = ({ 10: True, 100: False }, { 10: True, 11: False, 101: True })
-    dsi2 = ({ 100: False, 101: False },)
+    dsi1 = ({10: True, 100: False}, {10: True, 11: False, 101: True})
+    dsi2 = ({100: False, 101: False},)
 
     ro, do = p.opByteBoolDS(dsi1, dsi2)
 
@@ -841,8 +847,8 @@ def twoways(helper, p):
     #
     # opShortIntDS
     #
-    dsi1 = ({ 110: -1, 1100: 123123 }, { 110: -1, 111: -100, 1101: 0 })
-    dsi2 = ({ 100: -1001 },)
+    dsi1 = ({110: -1, 1100: 123123}, {110: -1, 111: -100, 1101: 0})
+    dsi2 = ({100: -1001},)
 
     ro, do = p.opShortIntDS(dsi1, dsi2)
 
@@ -869,8 +875,8 @@ def twoways(helper, p):
     #
     # opLongFloatDS
     #
-    dsi1 = ({ 999999110: -1.1, 999999111: 123123.2 }, { 999999110: -1.1, 999999120: -100.4, 999999130: 0.5 })
-    dsi2 = ({ 999999140: 3.14 },)
+    dsi1 = ({999999110: -1.1, 999999111: 123123.2}, {999999110: -1.1, 999999120: -100.4, 999999130: 0.5})
+    dsi2 = ({999999140: 3.14},)
 
     ro, do = p.opLongFloatDS(dsi1, dsi2)
 
@@ -898,8 +904,8 @@ def twoways(helper, p):
     # opStringStringDS
     #
 
-    dsi1 = ({ "foo": "abc -1.1", "bar": "abc 123123.2" }, { "foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5" })
-    dsi2 = ({ "f00": "ABC -3.14" },)
+    dsi1 = ({"foo": "abc -1.1", "bar": "abc 123123.2"}, {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"})
+    dsi2 = ({"f00": "ABC -3.14"},)
 
     ro, do = p.opStringStringDS(dsi1, dsi2)
 
@@ -927,11 +933,11 @@ def twoways(helper, p):
     # opStringMyEnumDS
     #
     dsi1 = (
-            { "abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2 },
-            { "abc": Test.MyEnum.enum1, "qwerty": Test.MyEnum.enum3, "Hello!!": Test.MyEnum.enum2 }
-           )
+        {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2},
+        {"abc": Test.MyEnum.enum1, "qwerty": Test.MyEnum.enum3, "Hello!!": Test.MyEnum.enum2}
+    )
 
-    dsi2 = ({ "Goodbye": Test.MyEnum.enum1 },)
+    dsi2 = ({"Goodbye": Test.MyEnum.enum1},)
 
     ro, do = p.opStringMyEnumDS(dsi1, dsi2)
 
@@ -958,8 +964,8 @@ def twoways(helper, p):
     #
     # opMyEnumStringDS
     #
-    dsi1 = ({ Test.MyEnum.enum1: 'abc' }, { Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'})
-    dsi2 = ({ Test.MyEnum.enum1: 'Goodbye' },)
+    dsi1 = ({Test.MyEnum.enum1: 'abc'}, {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'})
+    dsi2 = ({Test.MyEnum.enum1: 'Goodbye'},)
 
     ro, do = p.opMyEnumStringDS(dsi1, dsi2)
 
@@ -989,10 +995,10 @@ def twoways(helper, p):
     s23 = Test.MyStruct(2, 3)
 
     dsi1 = (
-            { s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2 },
-            { s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2 }
-           )
-    dsi2 = ({ s23: Test.MyEnum.enum3 },)
+        {s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2},
+        {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2}
+    )
+    dsi2 = ({s23: Test.MyEnum.enum3},)
 
     ro, do = p.opMyStructMyEnumDS(dsi1, dsi2)
 
@@ -1017,10 +1023,10 @@ def twoways(helper, p):
     test(do[2][s23] == Test.MyEnum.enum2)
 
     #
-    #opByteByteSD
+    # opByteByteSD
     #
-    sdi1 = { 0x01: (0x01, 0x11), 0x22: (0x12,) }
-    sdi2 = { 0xf1: (0xf2, 0xf3) }
+    sdi1 = {0x01: (0x01, 0x11), 0x22: (0x12,)}
+    sdi2 = {0xf1: (0xf2, 0xf3)}
 
     ro, do = p.opByteByteSD(sdi1, sdi2)
 
@@ -1041,8 +1047,8 @@ def twoways(helper, p):
     #
     # opBoolBoolSD
     #
-    sdi1 = { False: (True, False), True: (False, True, True) }
-    sdi2 = { False: (True, False) }
+    sdi1 = {False: (True, False), True: (False, True, True)}
+    sdi2 = {False: (True, False)}
 
     ro, do = p.opBoolBoolSD(sdi1, sdi2)
 
@@ -1062,8 +1068,8 @@ def twoways(helper, p):
     #
     # opShortShortSD
     #
-    sdi1 = { 1: (1, 2, 3), 2: (4, 5) }
-    sdi2 = { 4: (6, 7) }
+    sdi1 = {1: (1, 2, 3), 2: (4, 5)}
+    sdi2 = {4: (6, 7)}
 
     ro, do = p.opShortShortSD(sdi1, sdi2)
 
@@ -1086,8 +1092,8 @@ def twoways(helper, p):
     #
     # opIntIntSD
     #
-    sdi1 = { 100: (100, 200, 300), 200: (400, 500) }
-    sdi2 = { 400: (600, 700) }
+    sdi1 = {100: (100, 200, 300), 200: (400, 500)}
+    sdi2 = {400: (600, 700)}
 
     ro, do = p.opIntIntSD(sdi1, sdi2)
 
@@ -1110,8 +1116,8 @@ def twoways(helper, p):
     #
     # opLongLongSD
     #
-    sdi1 = { 999999990: (999999110, 999999111, 999999110), 999999991: (999999120, 999999130) }
-    sdi2 = { 999999992: (999999110, 999999120) }
+    sdi1 = {999999990: (999999110, 999999111, 999999110), 999999991: (999999120, 999999130)}
+    sdi2 = {999999992: (999999110, 999999120)}
 
     ro, do = p.opLongLongSD(sdi1, sdi2)
 
@@ -1134,8 +1140,8 @@ def twoways(helper, p):
     #
     # opStringFloatSD
     #
-    sdi1 = { "abc": (-1.1, 123123.2, 100.0), "ABC": (42.24, -1.61) }
-    sdi2 = { "aBc": (-3.14, 3.14) }
+    sdi1 = {"abc": (-1.1, 123123.2, 100.0), "ABC": (42.24, -1.61)}
+    sdi2 = {"aBc": (-3.14, 3.14)}
 
     ro, do = p.opStringFloatSD(sdi1, sdi2)
 
@@ -1159,8 +1165,8 @@ def twoways(helper, p):
     #
     # opStringDoubleSD
     #
-    sdi1 = { "Hello!!": (1.1E10, 1.2E10, 1.3E10), "Goodbye": (1.4E10, 1.5E10) }
-    sdi2 = { "": (1.6E10, 1.7E10) }
+    sdi1 = {"Hello!!": (1.1E10, 1.2E10, 1.3E10), "Goodbye": (1.4E10, 1.5E10)}
+    sdi2 = {"": (1.6E10, 1.7E10)}
 
     ro, do = p.opStringDoubleSD(sdi1, sdi2)
 
@@ -1183,8 +1189,8 @@ def twoways(helper, p):
     #
     # opStringStringSD
     #
-    sdi1 = { "abc": ("abc", "de", "fghi") , "def": ("xyz", "or") }
-    sdi2 = { "ghi": ("and", "xor") }
+    sdi1 = {"abc": ("abc", "de", "fghi"), "def": ("xyz", "or")}
+    sdi2 = {"ghi": ("and", "xor")}
 
     ro, do = p.opStringStringSD(sdi1, sdi2)
 
@@ -1208,10 +1214,10 @@ def twoways(helper, p):
     # opMyEnumMyEnumSD
     #
     sdi1 = {
-            Test.MyEnum.enum3: (Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2),
-            Test.MyEnum.enum2: (Test.MyEnum.enum1, Test.MyEnum.enum2)
-           }
-    sdi2 = { Test.MyEnum.enum1: (Test.MyEnum.enum3, Test.MyEnum.enum3) }
+        Test.MyEnum.enum3: (Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2),
+        Test.MyEnum.enum2: (Test.MyEnum.enum1, Test.MyEnum.enum2)
+    }
+    sdi2 = {Test.MyEnum.enum1: (Test.MyEnum.enum3, Test.MyEnum.enum3)}
 
     ro, do = p.opMyEnumMyEnumSD(sdi1, sdi2)
 
@@ -1234,7 +1240,7 @@ def twoways(helper, p):
     #
     # opIntS
     #
-    lengths = ( 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 )
+    lengths = (0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000)
     for l in lengths:
         s = []
         for i in range(l):
@@ -1268,7 +1274,7 @@ def twoways(helper, p):
     # Test implicit context propagation
     #
     if p.ice_getConnection():
-        impls = ( 'Shared', 'PerThread' )
+        impls = ('Shared', 'PerThread')
         for i in impls:
             initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
@@ -1368,6 +1374,6 @@ def twoways(helper, p):
 
     p.opMDict1()
 
-    p1 = { "test": "test" }
+    p1 = {"test": "test"}
     (p3, p2) = p.opMDict2(p1)
     test(p3["test"] == "test" and p2["test"] == "test")

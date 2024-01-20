@@ -2,8 +2,14 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys, traceback, time
-import Ice, Test, TestI
+import os
+import sys
+import traceback
+import time
+import Ice
+import Test
+import TestI
+
 
 class TestActivationI(Test.TestActivation):
 

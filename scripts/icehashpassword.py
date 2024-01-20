@@ -3,10 +3,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, getopt, passlib.hash, passlib.hosts, getpass
+import sys
+import getopt
+import passlib.hash
+import passlib.hosts
+import getpass
 
 usePBKDF2 = any(sys.platform == p for p in ["win32", "darwin", "cygwin"])
 useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
+
 
 def usage():
     print("Usage: icehashpassword [options]")
@@ -29,9 +34,10 @@ def usage():
         print("  -r ROUNDS, --rounds=ROUNDS")
         print("      Optional number of rounds to use.")
         print("")
-    print("  -h, --help" )
+    print("  -h, --help")
     print("      Show this message.")
     print("")
+
 
 def main():
 
@@ -104,13 +110,13 @@ def main():
     if rounds:
         if not passScheme.min_rounds <= rounds <= passScheme.max_rounds:
             print("Invalid number rounds for the digest algorithm. Value must be an integer between %s and %s" %
-                (passScheme.min_rounds, passScheme.max_rounds))
+                  (passScheme.min_rounds, passScheme.max_rounds))
             usage()
             return 2
     if salt:
         if not passScheme.min_salt_size <= salt <= passScheme.max_salt_size:
             print("Invalid salt size for the digest algorithm. Value must be an integer between %s and %s" %
-                (passScheme.min_salt_size, passScheme.max_salt_size))
+                  (passScheme.min_salt_size, passScheme.max_salt_size))
             usage()
             return 2
 
@@ -134,6 +140,7 @@ def main():
         print(passScheme.encrypt(*args, **opts))
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

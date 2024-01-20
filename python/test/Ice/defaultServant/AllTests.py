@@ -2,11 +2,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, MyObjectI, sys
+import Ice
+import Test
+import MyObjectI
+import sys
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
 
@@ -31,7 +36,7 @@ def allTests(helper, communicator):
     identity = Ice.Identity()
     identity.category = "foo"
 
-    names = ( "foo", "bar", "x", "y", "abcdefg" )
+    names = ("foo", "bar", "x", "y", "abcdefg")
 
     for idx in range(0, 5):
         identity.name = names[idx]

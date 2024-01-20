@@ -3,7 +3,12 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys, traceback, threading, time, concurrent.futures
+import os
+import sys
+import traceback
+import threading
+import time
+import concurrent.futures
 import Ice
 slice_dir = Ice.getSliceDir()
 if not slice_dir:
@@ -13,9 +18,11 @@ if not slice_dir:
 Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
 import Test
 
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class FutureThread(threading.Thread):
     def __init__(self, f, r):
@@ -26,6 +33,7 @@ class FutureThread(threading.Thread):
     def run(self):
         time.sleep(0.05)
         self.future.set_result(self.result)
+
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
@@ -123,7 +131,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
-        r.reverse();
+        r.reverse()
         return Ice.Future.completed((r, p3))
 
     def opShortIntLongS(self, p1, p2, p3, current=None):
@@ -346,7 +354,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return Ice.Future.completed(count)
 
     def opDoubleMarshaling(self, p1, p2, current=None):
-        d = 1278312346.0 / 13.0;
+        d = 1278312346.0 / 13.0
         test(p1 == d)
         for i in p2:
             test(i == d)
@@ -407,11 +415,11 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opStringLiterals(self, current=None):
         return Ice.Future.completed([
-                Test.s0, Test.s1, Test.s2, Test.s3, Test.s4, Test.s5, Test.s6, Test.s7, Test.s8, Test.s9, Test.s10,
-                Test.sw0, Test.sw1, Test.sw2, Test.sw3, Test.sw4, Test.sw5, Test.sw6, Test.sw7, Test.sw8, Test.sw9,
-                Test.sw10,
-                Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
-                Test.su0, Test.su1, Test.su2])
+            Test.s0, Test.s1, Test.s2, Test.s3, Test.s4, Test.s5, Test.s6, Test.s7, Test.s8, Test.s9, Test.s10,
+            Test.sw0, Test.sw1, Test.sw2, Test.sw3, Test.sw4, Test.sw5, Test.sw6, Test.sw7, Test.sw8, Test.sw9,
+            Test.sw10,
+            Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
+            Test.su0, Test.su1, Test.su2])
 
     def opWStringLiterals(self, current=None):
         return self.opStringLiterals(current)

@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.BuiltinSequences_ice
 import Ice.PropertyDict_ice
 
@@ -26,12 +27,14 @@ __name__ = 'Ice'
 
 if 'Properties' not in _M_Ice.__dict__:
     _M_Ice.Properties = Ice.createTempClass()
+
     class Properties(object):
         """
          A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
          values being strings. By convention, property keys should have the form
          application-name[.category[.sub-category]].name.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Properties:
                 raise RuntimeError('Ice.Properties is an abstract class')

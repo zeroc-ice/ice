@@ -12,16 +12,12 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:GLACIER2_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Glacier2/SSLInfo.ice>
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:GLACIER2"]
 module Glacier2
 {
     /// This exception is raised if a client is denied the ability to create a session with the router.

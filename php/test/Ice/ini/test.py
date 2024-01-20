@@ -28,6 +28,7 @@ class IniClient(Client):
         else:
             return ["-d", "ice.options=\"{0}\"".format(self.iceOptions), "-d", "ice.config=\"config.client\""]
 
+
 TestSuite(__name__, [
     ClientTestCase("php INI settings",
                    client=IniClient("--Ice.Trace.Network=1 --Ice.Warn.Connections=1")),

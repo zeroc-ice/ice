@@ -2,12 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os, time, threading, queue
+import sys
+import os
+import time
+import threading
+import queue
 from Util import *
 
 #
 # The Executor class runs testsuites on multiple worker threads.
 #
+
+
 class Executor:
 
     def __init__(self, threadlocal, workers, continueOnFailure):
@@ -64,7 +70,7 @@ class Executor:
         while True:
             item = self.get(total, mainThread)
             if not item:
-                results.put(None) # Notify the main thread that there are not more tests to run
+                results.put(None)  # Notify the main thread that there are not more tests to run
                 break
 
             (testsuite, index) = item
@@ -81,7 +87,8 @@ class Executor:
                 current.destroy()
             results.put((result, mainThread))
             if not result.isSuccess() and not self.continueOnFailure:
-                with self.lock: self.failure = True
+                with self.lock:
+                    self.failure = True
 
     def runUntilCompleted(self, driver, start):
         if self.queueLength == 0:
@@ -101,22 +108,23 @@ class Executor:
         #
         resultList = []
         results = queue.Queue()
+
         def worker(num):
             self.threadlocal.num = num
             try:
                 self.runTestSuites(driver, total, results)
             except Exception as ex:
                 print("unexpected exception raised from worker thread:\n" + str(ex))
-                results.put(None) # Notify the main thread that we're done
+                results.put(None)  # Notify the main thread that we're done
 
         #
         # Start the worker threads
         #
-        threads=[]
+        threads = []
         for i in range(min(self.workers, total)):
-             t = threading.Thread(target=worker, args=[i])
-             t.start()
-             threads.append(t)
+            t = threading.Thread(target=worker, args=[i])
+            t.start()
+            threads.append(t)
 
         try:
             #
@@ -176,6 +184,8 @@ class Executor:
 #
 # Runner to run the test cases locally.
 #
+
+
 class TestCaseRunner:
 
     def getTestSuites(self, mapping, testSuiteIds):
@@ -196,6 +206,8 @@ class TestCaseRunner:
 #
 # Runner to run the test cases remotely with the controller (requires IcePy)
 #
+
+
 class RemoteTestCaseRunner(TestCaseRunner):
 
     def __init__(self, communicator, clientPrx, serverPrx):
@@ -311,6 +323,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
                                   current.config.cprops,
                                   current.config.sprops)
 
+
 class XmlExporter:
 
     def __init__(self, results, duration, failures):
@@ -327,6 +340,7 @@ class XmlExporter:
             for r in self.results:
                 r.writeAsXml(out, hostname)
             out.write('</testsuites>\n')
+
 
 class LocalDriver(Driver):
 
@@ -374,13 +388,13 @@ class LocalDriver(Driver):
         self.clientCtlPrx = ""
         self.serverCtlPrx = ""
 
-        parseOptions(self, options, { "continue" : "continueOnFailure",
-                                      "l" : "loop",
-                                      "all-cross" : "allCross",
-                                      "client" : "clientCtlPrx",
-                                      "server" : "serverCtlPrx",
-                                      "show-durations" : "showDurations",
-                                      "export-xml" : "exportToXml" })
+        parseOptions(self, options, {"continue": "continueOnFailure",
+                                     "l": "loop",
+                                     "all-cross": "allCross",
+                                     "client": "clientCtlPrx",
+                                     "server": "serverCtlPrx",
+                                     "show-durations": "showDurations",
+                                     "export-xml": "exportToXml"})
 
         if self.cross:
             self.cross = Mapping.getByName(self.cross)
@@ -409,6 +423,7 @@ class LocalDriver(Driver):
                     # Sort the test suites to run tests in the following order.
                     #
                     runOrder = self.component.getRunOrder()
+
                     def testsuiteKey(testsuite):
                         for k in runOrder:
                             if testsuite.getId().startswith(k + '/'):
@@ -448,7 +463,7 @@ class LocalDriver(Driver):
                     print("Ran {0} tests in {1:02.2f} seconds".format(len(results), s))
 
                 if self.showDurations:
-                    for r in sorted(results, key = lambda r : r.getDuration()):
+                    for r in sorted(results, key=lambda r: r.getDuration()):
                         print("- {0} took {1:02.2f} seconds".format(r.testsuite, r.getDuration()))
 
                 self.loopCount += 1
@@ -471,7 +486,7 @@ class LocalDriver(Driver):
                     if not self.loop:
                         return 0
         finally:
-            Expect.cleanup() # Cleanup processes which might still be around
+            Expect.cleanup()  # Cleanup processes which might still be around
 
     def runTestSuite(self, current):
         if self.loop:
@@ -569,16 +584,17 @@ class LocalDriver(Driver):
                 #
                 failure = []
                 sem = threading.Semaphore(0)
+
                 def stopServerSide():
                     try:
                         self.runner.stopServerSide(server, current, success)
                     except Exception as ex:
                         failure.append(ex)
-                    except KeyboardInterrupt: # Potentially raised by Except.py if Ctrl-C
+                    except KeyboardInterrupt:  # Potentially raised by Except.py if Ctrl-C
                         pass
                     sem.release()
 
-                t=threading.Thread(target = stopServerSide)
+                t = threading.Thread(target=stopServerSide)
                 t.start()
                 while True:
                     try:
@@ -592,7 +608,7 @@ class LocalDriver(Driver):
                         t.join()
                         break
                     except KeyboardInterrupt:
-                        pass # Ignore keyboard interrupts
+                        pass  # Ignore keyboard interrupts
 
     def runTestCase(self, current):
         if self.cross or self.allCross:
@@ -631,7 +647,7 @@ class LocalDriver(Driver):
     def getTestPort(self, portnum):
         # Return a port number in the range 14100-14199 for the first thread, 14200-14299 for the
         # second thread, etc.
-        assert(portnum < 100)
+        assert (portnum < 100)
         baseport = 14000 + self.threadlocal.num * 100 if hasattr(self.threadlocal, "num") else 12010
         return baseport + portnum
 
@@ -650,5 +666,6 @@ class LocalDriver(Driver):
 
     def filterOptions(self, options):
         return self.runner.filterOptions(options)
+
 
 Driver.add("local", LocalDriver)

@@ -4,6 +4,7 @@
 
 from Util import *
 
+
 class IcePatch2Calc(ProcessFromBinDir, ProcessIsReleaseOnly, Process):
 
     def __init__(self, *args, **kargs):
@@ -12,6 +13,7 @@ class IcePatch2Calc(ProcessFromBinDir, ProcessIsReleaseOnly, Process):
     def getExe(self, current):
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
+
 class IcePatch2Client(ProcessFromBinDir, ProcessIsReleaseOnly, Process):
 
     def __init__(self, *args, **kargs):
@@ -19,6 +21,7 @@ class IcePatch2Client(ProcessFromBinDir, ProcessIsReleaseOnly, Process):
 
     def getExe(self, current):
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
+
 
 class IcePatch2Server(ProcessFromBinDir, ProcessIsReleaseOnly, Process):
 

@@ -33,7 +33,7 @@ class CallbackReceiverI(Test.CallbackReceiver):
         with self._cond:
             while not self._received:
                 self._cond.wait()
-            self._received = False;
+            self._received = False
 
 
 class Application(Glacier2.Application):
@@ -50,16 +50,16 @@ class Application(Glacier2.Application):
 
     def runWithSession(self, args):
 
-        test(self.router());
-        test(self.categoryForClient());
-        test(self.objectAdapter());
+        test(self.router())
+        test(self.categoryForClient())
+        test(self.objectAdapter())
 
         if self._restart == 0:
             sys.stdout.write("testing Glacier2::Application restart... ")
             sys.stdout.flush()
 
         base = self.communicator().stringToProxy("callback:{0}".format(
-            self._helper.getTestEndpoint(properties=self.communicator().getProperties())));
+            self._helper.getTestEndpoint(properties=self.communicator().getProperties())))
         callback = Test.CallbackPrx.uncheckedCast(base)
         self._restart += 1
         if self._restart < 5:

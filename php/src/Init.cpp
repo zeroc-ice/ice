@@ -2,15 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Communicator.h>
-#include <Connection.h>
-#include <Endpoint.h>
-#include <Logger.h>
-#include <Operation.h>
-#include <Properties.h>
-#include <Proxy.h>
-#include <Types.h>
-#include <Util.h>
+#include "Communicator.h"
+#include "Connection.h"
+#include "Endpoint.h"
+#include "Logger.h"
+#include "Operation.h"
+#include "Properties.h"
+#include "Proxy.h"
+#include "Types.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePHP;
@@ -199,7 +199,6 @@ zend_function_entry ice_functions[] =
     ICEPHP_UTIL_FUNCTIONS
     {0, 0, 0}
 };
-
 
 zend_module_entry ice_module_entry =
 {

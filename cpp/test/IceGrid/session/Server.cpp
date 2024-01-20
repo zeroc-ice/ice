@@ -14,7 +14,6 @@ class ClientPermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
 
-
     bool
     checkPermissions(string userId, string passwd, string&, const Ice::Current& current) const override
     {

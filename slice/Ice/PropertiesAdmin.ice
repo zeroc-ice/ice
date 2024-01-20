@@ -13,16 +13,12 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/PropertyDict.ice>
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICE"]
 module Ice
 {
     /// The PropertiesAdmin interface provides remote access to the properties of a communicator.

@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 
 # Start of module Ice
 _M_Ice = Ice.openModule('Ice')
@@ -22,11 +23,13 @@ __name__ = 'Ice'
 
 if 'Logger' not in _M_Ice.__dict__:
     _M_Ice.Logger = Ice.createTempClass()
+
     class Logger(object):
         """
          The Ice message logger. Applications can provide their own logger by implementing this interface and installing it
          in a communicator.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Logger:
                 raise RuntimeError('Ice.Logger is an abstract class')

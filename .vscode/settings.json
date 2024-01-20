@@ -1,0 +1,8 @@
+{
+    "python.analysis.extraPaths": [
+        "./scripts"
+    ],
+    "pylint.args": [
+        "--rcfile=tox.ini"
+    ]
+}

@@ -2,12 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys, traceback, time
-import Ice, Test
+import os
+import sys
+import traceback
+import time
+import Ice
+import Test
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class TestI(Test.TestIntf):
     def transient(self, current=None):
@@ -20,10 +26,11 @@ class TestI(Test.TestIntf):
         current.adapter.deactivate()
         time.sleep(0.1)
 
+
 class RouterI(Ice.Router):
 
     def __init__(self):
-        self._nextPort = 23456;
+        self._nextPort = 23456
 
     def getClientProxy(self, c):
         return (None, False)
@@ -36,9 +43,11 @@ class RouterI(Ice.Router):
     def addProxies(self, proxies, c):
         return []
 
+
 class Cookie:
     def message(self):
         return 'blahblah'
+
 
 class ServantLocatorI(Ice.ServantLocator):
 

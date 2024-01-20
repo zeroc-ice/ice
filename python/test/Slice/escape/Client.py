@@ -55,14 +55,14 @@ def testtypes():
     assert "_finally" in dir(_and.ifPrx)
     assert "_elif" in dir(_and.ifPrx)
     f1 = ifI()
-    g =  _and._is()
+    g = _and._is()
     g._lamba = 0
     h = _and._not()
     h._lamba = 0
     h._or = 1
     h._pass = 2
     i = printI()
-    j = _and._lambda;
+    j = _and._lambda
     en = _and.EnumNone._None
     print("ok")
 

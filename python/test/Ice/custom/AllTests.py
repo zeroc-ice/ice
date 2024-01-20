@@ -2,7 +2,13 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, string, re, traceback, Ice, Test, array
+import sys
+import string
+import re
+import traceback
+import Ice
+import Test
+import array
 
 
 def test(b):
@@ -79,25 +85,25 @@ def allTests(helper, communicator):
     test(b2 == stringList)
 
     s = Test.S()
-    s.b1 = byteList;
-    s.b2 = byteList;
-    s.b3 = byteList;
-    s.b4 = byteList;
-    s.s1 = stringList;
-    s.s2 = stringList;
-    s.s3 = stringList;
-    s.s4 = stringList;
+    s.b1 = byteList
+    s.b2 = byteList
+    s.b3 = byteList
+    s.b4 = byteList
+    s.s1 = stringList
+    s.s2 = stringList
+    s.s3 = stringList
+    s.s4 = stringList
     custom.sendS(s)
 
     c = Test.C()
-    c.b1 = byteList;
-    c.b2 = byteList;
-    c.b3 = byteList;
-    c.b4 = byteList;
-    c.s1 = stringList;
-    c.s2 = stringList;
-    c.s3 = stringList;
-    c.s4 = stringList;
+    c.b1 = byteList
+    c.b2 = byteList
+    c.b3 = byteList
+    c.b4 = byteList
+    c.s1 = stringList
+    c.s2 = stringList
+    c.s3 = stringList
+    c.s4 = stringList
     custom.sendC(c)
 
     print("ok")
@@ -224,7 +230,6 @@ def allTests(helper, communicator):
     test(len(v1) == 0)
     test(len(v2) == 0)
 
-
     d = Test.D()
     d.boolSeq = array.array("b", [True, False, True, False, True])
     d.byteSeq = array.array("b", [0, 2, 4, 8, 16, 32, 64, 127])
@@ -345,7 +350,7 @@ def allTests(helper, communicator):
         custom.opBogusArrayNoCallableFactory()
         test(False)
     except RuntimeError:
-            pass
+        pass
 
     print("ok")
 

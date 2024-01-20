@@ -13,16 +13,13 @@
 
 [["js:module:ice"]]
 
-[["objc:dll-export:GLACIER2_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Ice/Metrics.ice>
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICEMX", "swift:module:Glacier2:MX"]
+["swift:module:Glacier2:MX"]
 module IceMX
 {
     /// Provides information on Glacier2 sessions.

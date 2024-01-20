@@ -58,13 +58,16 @@ Slice::CompilerException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-#ifndef ICE_CPP11_MAPPING
+#ifdef ICE_CPP11_MAPPING
+Slice::CompilerException*
+Slice::CompilerException::ice_cloneImpl() const
+#else
 Slice::CompilerException*
 Slice::CompilerException::ice_clone() const
+#endif
 {
     return new CompilerException(*this);
 }
-#endif
 
 void
 Slice::CompilerException::ice_throw() const
@@ -1131,7 +1134,7 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
             if(differsOnlyInCase)
             {
                 ostringstream os;
-                os << "class definition `" << name << "' is capitalized inconsistently with its previous name: `" 
+                os << "class definition `" << name << "' is capitalized inconsistently with its previous name: `"
                    << def->name() << "'";
                 _unit->error(os.str());
             }
@@ -2563,7 +2566,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
             }
 
             _unit->error("`" + firstComponent + "' has changed meaning");
-            
+
             return false;
         }
     }
@@ -4944,7 +4947,7 @@ ParamDeclList
 Slice::Operation::outParameters() const
 {
     ParamDeclList result;
-    
+
     for(const auto& p : _contents)
     {
         ParamDeclPtr q = dynamic_pointer_cast<ParamDecl>(p);

@@ -5,6 +5,7 @@
 from Util import *
 from Component import component
 
+
 class IceBox(ProcessFromBinDir, Server):
 
     def __init__(self, configFile=None, *args, **kargs):
@@ -22,7 +23,7 @@ class IceBox(ProcessFromBinDir, Server):
             if isinstance(platform, Linux) and \
                platform.getLinuxId() in ["centos", "rhel", "fedora"] and \
                current.config.buildPlatform == "x86":
-                name += "32" # Multilib platform
+                name += "32"  # Multilib platform
             if isinstance(platform, AIX) and \
                current.config.buildPlatform == "ppc":
                 name += "_32"
@@ -40,6 +41,7 @@ class IceBox(ProcessFromBinDir, Server):
                 args.append("--Ice.Config={0}".format(self.configFile))
         return args
 
+
 class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
 
     def getMapping(self, current):
@@ -55,7 +57,7 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
         if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Admin"
         elif isinstance(platform, AIX) and \
-             current.config.buildPlatform == "ppc" and not component.useBinDist(mapping, current):
+                current.config.buildPlatform == "ppc" and not component.useBinDist(mapping, current):
             return "iceboxadmin_32"
         else:
             return "iceboxadmin"

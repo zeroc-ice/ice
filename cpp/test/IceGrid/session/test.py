@@ -3,16 +3,28 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-class IceGridSessionTestCase(IceGridTestCase):
 
+import os
+from IceGridUtil import (
+    IceGridClient,
+    IceGridNode,
+    IceGridRegistryMaster,
+    IceGridTestCase,
+)
+from Util import Server, TestSuite, Windows, platform
+
+
+class IceGridSessionTestCase(IceGridTestCase):
     def setupClientSide(self, current):
         IceGridTestCase.setupClientSide(self, current)
         current.mkdirs("db/node-1")
 
     def setupServerSide(self, current):
-        self.verifier = Server(exe="verifier", waitForShutdown=False, props={
-            "PermissionsVerifier.Endpoints" : "tcp -p 12002"
-        })
+        self.verifier = Server(
+            exe="verifier",
+            waitForShutdown=False,
+            props={"PermissionsVerifier.Endpoints": "tcp -p 12002"},
+        )
         current.write("starting permission verifier... ")
         self.verifier.start(current)
         current.writeln("ok")
@@ -21,36 +33,53 @@ class IceGridSessionTestCase(IceGridTestCase):
         self.verifier.stop(current, success)
         self.verifier = None
 
+
 registryProps = {
-    'Ice.Warn.Dispatch' : '0',
-    'IceGrid.Registry.DynamicRegistration' : True,
-    'IceGrid.Registry.SessionFilters' : True,
-    'IceGrid.Registry.AdminSessionFilters' : True,
-    'IceGrid.Registry.PermissionsVerifier' : 'ClientPermissionsVerifier',
-    'IceGrid.Registry.AdminPermissionsVerifier' : 'AdminPermissionsVerifier:tcp -p 12002',
-    'IceGrid.Registry.SSLPermissionsVerifier' : 'SSLPermissionsVerifier',
-    'IceGrid.Registry.AdminSSLPermissionsVerifier' : 'SSLPermissionsVerifier',
+    "Ice.Warn.Dispatch": "0",
+    "IceGrid.Registry.DynamicRegistration": True,
+    "IceGrid.Registry.SessionFilters": True,
+    "IceGrid.Registry.AdminSessionFilters": True,
+    "IceGrid.Registry.PermissionsVerifier": "ClientPermissionsVerifier",
+    "IceGrid.Registry.AdminPermissionsVerifier": "AdminPermissionsVerifier:tcp -p 12002",
+    "IceGrid.Registry.SSLPermissionsVerifier": "SSLPermissionsVerifier",
+    "IceGrid.Registry.AdminSSLPermissionsVerifier": "SSLPermissionsVerifier",
 }
 
-clientProps = lambda process, current: {
-    "IceGridNodeExe" : IceGridNode().getCommandLine(current),
-    "ServerDir" : current.getBuildDir("server"),
-    "TestDir" : "{testdir}",
-}
 
-clientProps10 = lambda process, current: {
-    "IceGridNodeExe" : IceGridNode().getCommandLine(current),
-    "ServerDir" : current.getBuildDir("server"),
-    "TestDir" : "{testdir}",
-    "Ice.Default.EncodingVersion" : "1.0"
-}
+def clientProps(process, current):
+    return {
+        "IceGridNodeExe": IceGridNode().getCommandLine(current),
+        "ServerDir": current.getBuildDir("server"),
+        "TestDir": "{testdir}",
+    }
+
+
+def clientProps10(process, current):
+    return {
+        "IceGridNodeExe": IceGridNode().getCommandLine(current),
+        "ServerDir": current.getBuildDir("server"),
+        "TestDir": "{testdir}",
+        "Ice.Default.EncodingVersion": "1.0",
+    }
+
 
 icegridregistry = [IceGridRegistryMaster(props=registryProps)]
 
 if isinstance(platform, Windows) or os.getuid() != 0:
-    TestSuite(__file__,
-          [ IceGridSessionTestCase("with default encoding", icegridregistry=icegridregistry,
-                                   client=IceGridClient(props=clientProps)),
-            IceGridSessionTestCase("with 1.0 encoding", icegridregistry=icegridregistry,
-                                   client=IceGridClient(props=clientProps10))],
-            runOnMainThread=True, multihost=False)
+    TestSuite(
+        __file__,
+        [
+            IceGridSessionTestCase(
+                "with default encoding",
+                icegridregistry=icegridregistry,
+                client=IceGridClient(props=clientProps),
+            ),
+            IceGridSessionTestCase(
+                "with 1.0 encoding",
+                icegridregistry=icegridregistry,
+                client=IceGridClient(props=clientProps10),
+            ),
+        ],
+        runOnMainThread=True,
+        multihost=False,
+    )

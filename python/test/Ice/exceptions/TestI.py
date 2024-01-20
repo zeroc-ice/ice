@@ -2,7 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, array, sys
+import Ice
+import Test
+import array
+import sys
+
 
 class ThrowerI(Test.Thrower):
     def shutdown(self, current=None):

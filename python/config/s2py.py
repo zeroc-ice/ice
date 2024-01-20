@@ -3,7 +3,9 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os, platform
+import sys
+import os
+import platform
 
 basepath = os.path.dirname(os.path.realpath(__file__))
 
@@ -17,9 +19,11 @@ else:
 
 import IcePy
 
+
 def main():
     val = IcePy.compile(sys.argv)
     sys.exit(int(val))
 
+
 if __name__ == '__main__':
-        main()
+    main()

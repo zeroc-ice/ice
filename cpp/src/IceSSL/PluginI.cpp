@@ -122,15 +122,6 @@ registerIceSSL(bool loadOnInitialize)
 
 }
 
-//
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICESSL_API void
-ICEregisterIceSSL(bool loadOnInitialize)
-{
-    Ice::registerIceSSL(loadOnInitialize);
-}
-
 IceSSL::TrustError
 IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
 {

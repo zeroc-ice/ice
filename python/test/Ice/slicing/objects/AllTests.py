@@ -3,14 +3,19 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, gc, sys, threading
+import Ice
+import gc
+import sys
+import threading
 
 Ice.loadSlice('-I. --all ClientPrivate.ice')
 import Test
 
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CallbackBase:
     def __init__(self):
@@ -27,6 +32,7 @@ class CallbackBase:
         with self._cond:
             self._called = True
             self._cond.notify()
+
 
 class Callback(CallbackBase):
     def response_SBaseAsObject(self, f):
@@ -359,6 +365,7 @@ class Callback(CallbackBase):
         test(r.pbs[0] == r)
         self.called()
 
+
 class PNodeI(Test.PNode):
     counter = 0
 
@@ -368,10 +375,12 @@ class PNodeI(Test.PNode):
     def __del__(self):
         PNodeI.counter = PNodeI.counter - 1
 
+
 def NodeFactoryI(id):
     if id == Test.PNode.ice_staticId():
         return PNodeI()
     return None
+
 
 class PreservedI(Test.Preserved):
     counter = 0
@@ -382,10 +391,12 @@ class PreservedI(Test.Preserved):
     def __del__(self):
         PreservedI.counter = PreservedI.counter - 1
 
+
 def PreservedFactoryI(id):
     if id == Test.Preserved.ice_staticId():
         return PreservedI()
     return None
+
 
 def allTests(helper, communicator):
     obj = communicator.stringToProxy("Test:{0}".format(helper.getTestEndpoint()))
@@ -1504,7 +1515,7 @@ def allTests(helper, communicator):
         #
         pcd = Test.PCDerived()
         pcd.pi = 3
-        pcd.pbs = [ pcd ]
+        pcd.pbs = [pcd]
 
         r = t.exchangePBase(pcd)
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
@@ -1521,7 +1532,7 @@ def allTests(helper, communicator):
         #
         pcd = Test.CompactPCDerived()
         pcd.pi = 3
-        pcd.pbs = [ pcd ]
+        pcd.pbs = [pcd]
 
         r = t.exchangePBase(pcd)
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
@@ -1545,7 +1556,7 @@ def allTests(helper, communicator):
         for i in range(0, 300):
             p2 = Test.PCDerived2()
             p2.pi = i
-            p2.pbs = [ None ] # Nil reference. This slice should not have an indirection table.
+            p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
             p2.pcd2 = i
             pcd.pbs.append(p2)
         pcd.pcd2 = pcd.pi
@@ -1621,7 +1632,7 @@ def allTests(helper, communicator):
     #
     pcd = Test.PCDerived()
     pcd.pi = 3
-    pcd.pbs = [ pcd ]
+    pcd.pbs = [pcd]
 
     cb = Callback()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
@@ -1636,7 +1647,7 @@ def allTests(helper, communicator):
     #
     pcd = Test.CompactPCDerived()
     pcd.pi = 3
-    pcd.pbs = [ pcd ]
+    pcd.pbs = [pcd]
 
     cb = Callback()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
@@ -1658,7 +1669,7 @@ def allTests(helper, communicator):
     for i in range(0, 300):
         p2 = Test.PCDerived2()
         p2.pi = i
-        p2.pbs = [ None ] # Nil reference. This slice should not have an indirection table.
+        p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
         p2.pcd2 = i
         pcd.pbs.append(p2)
     pcd.pcd2 = pcd.pi

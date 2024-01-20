@@ -2,12 +2,21 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, Twoways, TwowaysFuture, Oneways, OnewaysFuture, BatchOneways, sys
+import Ice
+import Test
+import Twoways
+import TwowaysFuture
+import Oneways
+import OnewaysFuture
+import BatchOneways
+import sys
 import BatchOnewaysFuture
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
     ref = "test:{0}".format(helper.getTestEndpoint())

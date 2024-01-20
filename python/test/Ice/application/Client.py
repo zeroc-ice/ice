@@ -3,7 +3,10 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, Ice, time
+import sys
+import Ice
+import time
+
 
 class Client(Ice.Application):
     def interruptCallback(self, sig):
@@ -48,6 +51,7 @@ class Client(Ice.Application):
 
         print("ok")
         return False
+
 
 app = Client()
 sys.exit(app.main(sys.argv))

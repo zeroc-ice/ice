@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -109,7 +108,6 @@ namespace IceBox
     {
         #region Slice operations
 
-
         /// <summary>
         /// Start the service.
         /// The given communicator is created by the ServiceManager for use by the service. This
@@ -126,7 +124,6 @@ namespace IceBox
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void start(string name, global::Ice.Communicator communicator, string[] args);
-
 
         /// <summary>
         /// Stop the service.

@@ -2,11 +2,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys
+import Ice
+import Test
+import sys
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
     sys.stdout.write("testing stringToProxy... ")

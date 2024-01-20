@@ -2,4 +2,4 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-TestSuite(__name__, [ClientTestCase(client=Client(props={"Ice.Warn.Dispatch" : 0}))], libDirs=["interceptortest"])
+TestSuite(__name__, [ClientTestCase(client=Client(props={"Ice.Warn.Dispatch": 0}))], libDirs=["interceptortest"])

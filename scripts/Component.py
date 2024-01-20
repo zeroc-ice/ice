@@ -6,33 +6,34 @@ import os
 
 from Util import *
 
+
 class Ice(Component):
 
     # Options for all transports (ran only with Ice client/server tests defined for cross testing)
     transportOptions = {
-        "protocol" : ["tcp", "ssl", "wss", "ws"],
-        "compress" : [False, True],
-        "ipv6" : [False, True],
-        "serialize" : [False, True],
-        "mx" : [False, True],
+        "protocol": ["tcp", "ssl", "wss", "ws"],
+        "compress": [False, True],
+        "ipv6": [False, True],
+        "serialize": [False, True],
+        "mx": [False, True],
     }
 
     # Options for Ice tests, run tests with ssl and ws/ipv6/serial/mx/compress
     coreOptions = {
-        "protocol" : ["ssl", "ws"],
-        "compress" : [False, True],
-        "ipv6" : [False, True],
-        "serialize" : [False, True],
-        "mx" : [False, True],
+        "protocol": ["ssl", "ws"],
+        "compress": [False, True],
+        "ipv6": [False, True],
+        "serialize": [False, True],
+        "mx": [False, True],
     }
 
     # Options for Ice services, run tests with ssl + mx
     serviceOptions = {
-        "protocol" : ["ssl"],
-        "compress" : [False],
-        "ipv6" : [False],
-        "serialize" : [False],
-        "mx" : [True],
+        "protocol": ["ssl"],
+        "compress": [False],
+        "ipv6": [False],
+        "serialize": [False],
+        "mx": [True],
     }
 
     def useBinDist(self, mapping, current):
@@ -127,7 +128,7 @@ class Ice(Component):
         return True
 
     def isMainThreadOnly(self, testId):
-        return False # By default, tests support being run concurrently
+        return False  # By default, tests support being run concurrently
 
     def getDefaultProcesses(self, mapping, processType, testId):
         if testId.startswith("IceUtil") or testId.startswith("Slice"):
@@ -191,6 +192,7 @@ class Ice(Component):
             else:
                 return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
 
+
 component = Ice()
 
 from Glacier2Util import *
@@ -217,8 +219,6 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
         Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
-    elif m == "objective-c" or re.match("objective-c-*", m):
-        Mapping.add(m, ObjCMapping(), component, enable=isinstance(platform, Darwin))
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
         Mapping.add("swift", SwiftMapping(), component, enable=platform.hasSwift((5, 0)))

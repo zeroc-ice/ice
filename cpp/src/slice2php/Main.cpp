@@ -57,7 +57,6 @@ getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const s
 
 }
 
-
 // CodeVisitor generates the PHP mapping for a translation unit.
 class CodeVisitor : public ParserVisitor
 {
