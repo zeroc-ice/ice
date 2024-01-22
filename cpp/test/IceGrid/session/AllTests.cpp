@@ -312,7 +312,6 @@ public:
             return;
         }
 
-
         lock_guard<mutex> lg(_mutex);
         //cerr << node << " " << info.id << " " << info.state << " " << info.pid << endl;
         ServerDynamicInfoSeq& servers = nodes[node].servers;

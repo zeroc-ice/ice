@@ -17,7 +17,7 @@ import Foundation
 
 /// The Ice message logger. Applications can provide their own logger by implementing this interface and installing it
 /// in a communicator.
-public protocol Logger:  Swift.AnyObject {
+public protocol Logger: Swift.AnyObject {
     /// Print a message. The message is printed literally, without any decorations such as executable name or time
     /// stamp.
     ///

@@ -25,7 +25,7 @@ class doI: `do` {
 }
 
 public class Client: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         let communicator = try initialize(args)
         defer {
             communicator.destroy()
@@ -46,19 +46,19 @@ public class Client: TestHelperI {
         out.write("testing types... ")
         let e: `continue` = .let
 
-        var g: `guard` = `guard`()
+        var g = `guard`()
         g.default = 0
 
-        var d: `defer` = `defer`()
+        var d = `defer`()
         d.else = "else"
 
-        let c: `switch` = `switch`()
+        let c = `switch`()
         c.if = 0
         c.export = nil
         c.volatile = 0
         try test(c.if == 0)
 
-        let ss: `fileprivate` = `fileprivate`(repeating: g, count: 1)
+        let ss = `fileprivate`(repeating: g, count: 1)
         let dd: `for` = ["g": g]
         try test(dd.count == ss.count)
 

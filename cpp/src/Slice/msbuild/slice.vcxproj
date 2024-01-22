@@ -95,12 +95,7 @@
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\Parser.cpp" />
-    <ClCompile Include="..\PHPUtil.cpp" />
     <ClCompile Include="..\Preprocessor.cpp" />
-    <ClCompile Include="..\Python.cpp" />
-    <ClCompile Include="..\PythonUtil.cpp" />
-    <ClCompile Include="..\Ruby.cpp" />
-    <ClCompile Include="..\RubyUtil.cpp" />
     <ClCompile Include="..\Scanner.cpp" />
     <ClCompile Include="..\SliceUtil.cpp" />
     <ClCompile Include="..\StringLiteralUtil.cpp" />
@@ -110,10 +105,7 @@
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />
     <ClInclude Include="..\Parser.h" />
-    <ClInclude Include="..\PHPUtil.h" />
     <ClInclude Include="..\Preprocessor.h" />
-    <ClInclude Include="..\PythonUtil.h" />
-    <ClInclude Include="..\RubyUtil.h" />
     <ClInclude Include="..\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

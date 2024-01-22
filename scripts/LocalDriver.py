@@ -2,14 +2,19 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os, time, threading, queue
+import sys
+import os
+import time
+import threading
+import queue
 from Util import *
 
 #
 # The Executor class runs testsuites on multiple worker threads.
 #
-class Executor:
 
+
+class Executor:
     def __init__(self, threadlocal, workers, continueOnFailure):
         self.threadlocal = threadlocal
         self.workers = workers - 1
@@ -64,7 +69,9 @@ class Executor:
         while True:
             item = self.get(total, mainThread)
             if not item:
-                results.put(None) # Notify the main thread that there are not more tests to run
+                results.put(
+                    None
+                )  # Notify the main thread that there are not more tests to run
                 break
 
             (testsuite, index) = item
@@ -81,7 +88,8 @@ class Executor:
                 current.destroy()
             results.put((result, mainThread))
             if not result.isSuccess() and not self.continueOnFailure:
-                with self.lock: self.failure = True
+                with self.lock:
+                    self.failure = True
 
     def runUntilCompleted(self, driver, start):
         if self.queueLength == 0:
@@ -101,22 +109,23 @@ class Executor:
         #
         resultList = []
         results = queue.Queue()
+
         def worker(num):
             self.threadlocal.num = num
             try:
                 self.runTestSuites(driver, total, results)
             except Exception as ex:
                 print("unexpected exception raised from worker thread:\n" + str(ex))
-                results.put(None) # Notify the main thread that we're done
+                results.put(None)  # Notify the main thread that we're done
 
         #
         # Start the worker threads
         #
-        threads=[]
+        threads = []
         for i in range(min(self.workers, total)):
-             t = threading.Thread(target=worker, args=[i])
-             t.start()
-             threads.append(t)
+            t = threading.Thread(target=worker, args=[i])
+            t.start()
+            threads.append(t)
 
         try:
             #
@@ -173,11 +182,13 @@ class Executor:
 
         return resultList
 
+
 #
 # Runner to run the test cases locally.
 #
-class TestCaseRunner:
 
+
+class TestCaseRunner:
     def getTestSuites(self, mapping, testSuiteIds):
         return mapping.getTestSuites(testSuiteIds)
 
@@ -193,16 +204,21 @@ class TestCaseRunner:
     def runClientSide(self, testcase, current, host):
         testcase._runClientSide(current, host)
 
+
 #
 # Runner to run the test cases remotely with the controller (requires IcePy)
 #
-class RemoteTestCaseRunner(TestCaseRunner):
 
+
+class RemoteTestCaseRunner(TestCaseRunner):
     def __init__(self, communicator, clientPrx, serverPrx):
         import Test
+
         if clientPrx:
             self.clientController = communicator.stringToProxy(clientPrx)
-            self.clientController = Test.Common.ControllerPrx.checkedCast(self.clientController)
+            self.clientController = Test.Common.ControllerPrx.checkedCast(
+                self.clientController
+            )
             self.clientOptions = self.clientController.getOptionOverrides()
         else:
             self.clientController = None
@@ -210,7 +226,9 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
         if serverPrx:
             self.serverController = communicator.stringToProxy(serverPrx)
-            self.serverController = Test.Common.ControllerPrx.checkedCast(self.serverController)
+            self.serverController = Test.Common.ControllerPrx.checkedCast(
+                self.serverController
+            )
             self.serverOptions = self.serverController.getOptionOverrides()
         else:
             self.serverController = None
@@ -241,8 +259,9 @@ class RemoteTestCaseRunner(TestCaseRunner):
         if options is None:
             return None
         import Ice
+
         options = options.copy()
-        for (key, values) in options.items():
+        for key, values in options.items():
             for opts in [self.serverOptions, self.clientOptions]:
                 if hasattr(opts, key) and getattr(opts, key) is not Ice.Unset:
                     options[key] = [v for v in values if v in getattr(opts, key)]
@@ -253,10 +272,13 @@ class RemoteTestCaseRunner(TestCaseRunner):
             return TestCaseRunner.startServerSide(self, testcase, current)
 
         import Test
-        current.serverTestCase = self.serverController.runTestCase(str(testcase.getMapping()),
-                                                                   testcase.getTestSuite().getId(),
-                                                                   testcase.getName(),
-                                                                   str(current.driver.cross))
+
+        current.serverTestCase = self.serverController.runTestCase(
+            str(testcase.getMapping()),
+            testcase.getTestSuite().getId(),
+            testcase.getName(),
+            str(current.driver.cross),
+        )
         try:
             try:
                 return current.serverTestCase.startServerSide(self.getConfig(current))
@@ -274,6 +296,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
             return
 
         import Test
+
         try:
             current.result.write(current.serverTestCase.stopServerSide(success))
             current.host = None
@@ -285,16 +308,21 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
     def runClientSide(self, testcase, current, host):
         import Test
+
         if not self.clientController:
             TestCaseRunner.runClientSide(self, testcase, current, host)
             return
 
-        clientTestCase = self.clientController.runTestCase(str(testcase.getMapping()),
-                                                           testcase.getTestSuite().getId(),
-                                                           testcase.getName(),
-                                                           str(current.driver.cross))
+        clientTestCase = self.clientController.runTestCase(
+            str(testcase.getMapping()),
+            testcase.getTestSuite().getId(),
+            testcase.getName(),
+            str(current.driver.cross),
+        )
         try:
-            current.result.write(clientTestCase.runClientSide(host, self.getConfig(current)))
+            current.result.write(
+                clientTestCase.runClientSide(host, self.getConfig(current))
+            )
         except Test.Common.TestCaseFailedException as ex:
             current.result.writeln(ex.output)
             raise RuntimeError("test failed")
@@ -303,16 +331,19 @@ class RemoteTestCaseRunner(TestCaseRunner):
 
     def getConfig(self, current):
         import Test
-        return Test.Common.Config(current.config.protocol,
-                                  current.config.mx,
-                                  current.config.serialize,
-                                  current.config.compress,
-                                  current.config.ipv6,
-                                  current.config.cprops,
-                                  current.config.sprops)
+
+        return Test.Common.Config(
+            current.config.protocol,
+            current.config.mx,
+            current.config.serialize,
+            current.config.compress,
+            current.config.ipv6,
+            current.config.cprops,
+            current.config.sprops,
+        )
+
 
 class XmlExporter:
-
     def __init__(self, results, duration, failures):
         self.results = results
         self.duration = duration
@@ -321,17 +352,18 @@ class XmlExporter:
     def save(self, filename, hostname):
         with open(filename, "w", encoding="utf-8") as out:
             out.write('<?xml version="1.1" encoding="UTF-8"?>\n')
-            out.write('<testsuites tests="{0}" failures="{1}" time="{2:.9f}">\n'.format(len(self.results),
-                                                                                        self.duration,
-                                                                                        len(self.failures)))
+            out.write(
+                '<testsuites tests="{0}" failures="{1}" time="{2:.9f}">\n'.format(
+                    len(self.results), self.duration, len(self.failures)
+                )
+            )
             for r in self.results:
                 r.writeAsXml(out, hostname)
-            out.write('</testsuites>\n')
+            out.write("</testsuites>\n")
+
 
 class LocalDriver(Driver):
-
     class Current(Driver.Current):
-
         def __init__(self, driver, testsuite, result, index, total):
             Driver.Current.__init__(self, driver, testsuite, result)
             self.index = index
@@ -339,8 +371,23 @@ class LocalDriver(Driver):
 
     @classmethod
     def getSupportedArgs(self):
-        return ("", ["cross=", "workers=", "continue", "loop", "start=", "all", "all-cross", "host=",
-                     "client=", "server=", "show-durations", "export-xml="])
+        return (
+            "",
+            [
+                "cross=",
+                "workers=",
+                "continue",
+                "loop",
+                "start=",
+                "all",
+                "all-cross",
+                "host=",
+                "client=",
+                "server=",
+                "show-durations",
+                "export-xml=",
+            ],
+        )
 
     @classmethod
     def usage(self):
@@ -352,9 +399,15 @@ class LocalDriver(Driver):
         print("--loop                Run the tests in a loop.")
         print("--continue            Don't stop on failures.")
         print("--all                 Run all sensible permutations of the tests.")
-        print("--all-cross           Run all sensible permutations of cross language tests.")
-        print("--client=<proxy>      The endpoint of the controller to run the client side.")
-        print("--server=<proxy>      The endpoint of the controller to run the server side.")
+        print(
+            "--all-cross           Run all sensible permutations of cross language tests."
+        )
+        print(
+            "--client=<proxy>      The endpoint of the controller to run the client side."
+        )
+        print(
+            "--server=<proxy>      The endpoint of the controller to run the server side."
+        )
         print("--show-durations      Print out the duration of each tests.")
         print("--export-xml=<file>   Export JUnit XML test report.")
 
@@ -374,18 +427,26 @@ class LocalDriver(Driver):
         self.clientCtlPrx = ""
         self.serverCtlPrx = ""
 
-        parseOptions(self, options, { "continue" : "continueOnFailure",
-                                      "l" : "loop",
-                                      "all-cross" : "allCross",
-                                      "client" : "clientCtlPrx",
-                                      "server" : "serverCtlPrx",
-                                      "show-durations" : "showDurations",
-                                      "export-xml" : "exportToXml" })
+        parseOptions(
+            self,
+            options,
+            {
+                "continue": "continueOnFailure",
+                "l": "loop",
+                "all-cross": "allCross",
+                "client": "clientCtlPrx",
+                "server": "serverCtlPrx",
+                "show-durations": "showDurations",
+                "export-xml": "exportToXml",
+            },
+        )
 
         if self.cross:
             self.cross = Mapping.getByName(self.cross)
             if not self.cross:
-                raise RuntimeError("unknown mapping `{0}' for --cross option".format(self.cross))
+                raise RuntimeError(
+                    "unknown mapping `{0}' for --cross option".format(self.cross)
+                )
 
         self.results = []
         self.threadlocal = threading.local()
@@ -393,10 +454,11 @@ class LocalDriver(Driver):
         self.executor = Executor(self.threadlocal, self.workers, self.continueOnFailure)
 
     def run(self, mappings, testSuiteIds):
-
         if self.clientCtlPrx or self.serverCtlPrx:
             self.initCommunicator()
-            self.runner = RemoteTestCaseRunner(self.communicator, self.clientCtlPrx, self.serverCtlPrx)
+            self.runner = RemoteTestCaseRunner(
+                self.communicator, self.clientCtlPrx, self.serverCtlPrx
+            )
         else:
             self.runner = TestCaseRunner()
 
@@ -409,23 +471,41 @@ class LocalDriver(Driver):
                     # Sort the test suites to run tests in the following order.
                     #
                     runOrder = self.component.getRunOrder()
+
                     def testsuiteKey(testsuite):
                         for k in runOrder:
-                            if testsuite.getId().startswith(k + '/'):
-                                return testsuite.getId().replace(k, str(runOrder.index(k)))
+                            if testsuite.getId().startswith(k + "/"):
+                                return testsuite.getId().replace(
+                                    k, str(runOrder.index(k))
+                                )
                         return testsuite.getId()
+
                     testsuites = sorted(testsuites, key=testsuiteKey)
 
                     for testsuite in testsuites:
-                        if mapping.filterTestSuite(testsuite.getId(), self.configs[mapping], self.filters, self.rfilters):
+                        if mapping.filterTestSuite(
+                            testsuite.getId(),
+                            self.configs[mapping],
+                            self.filters,
+                            self.rfilters,
+                        ):
                             continue
                         if testsuite.getId() == "Ice/echo":
                             continue
-                        elif (self.cross or self.allCross) and not self.component.isCross(testsuite.getId()):
+                        elif (
+                            self.cross or self.allCross
+                        ) and not self.component.isCross(testsuite.getId()):
                             continue
-                        elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
+                        elif (
+                            isinstance(self.runner, RemoteTestCaseRunner)
+                            and not testsuite.isMultiHost()
+                        ):
                             continue
-                        self.executor.submit(testsuite, Mapping.getAll(self) if self.allCross else [self.cross], self)
+                        self.executor.submit(
+                            testsuite,
+                            Mapping.getAll(self) if self.allCross else [self.cross],
+                            self,
+                        )
 
                 #
                 # Run all the tests and wait for the executor to complete.
@@ -438,27 +518,41 @@ class LocalDriver(Driver):
                 duration = time.time() - now
 
                 if self.exportToXml:
-                    XmlExporter(results, duration, failures).save(self.exportToXml, os.getenv("NODE_NAME", ""))
+                    XmlExporter(results, duration, failures).save(
+                        self.exportToXml, os.getenv("NODE_NAME", "")
+                    )
 
                 m, s = divmod(duration, 60)
                 print("")
                 if m > 0:
-                    print("Ran {0} tests in {1} minutes {2:02.2f} seconds".format(len(results), m, s))
+                    print(
+                        "Ran {0} tests in {1} minutes {2:02.2f} seconds".format(
+                            len(results), m, s
+                        )
+                    )
                 else:
                     print("Ran {0} tests in {1:02.2f} seconds".format(len(results), s))
 
                 if self.showDurations:
-                    for r in sorted(results, key = lambda r : r.getDuration()):
-                        print("- {0} took {1:02.2f} seconds".format(r.testsuite, r.getDuration()))
+                    for r in sorted(results, key=lambda r: r.getDuration()):
+                        print(
+                            "- {0} took {1:02.2f} seconds".format(
+                                r.testsuite, r.getDuration()
+                            )
+                        )
 
                 self.loopCount += 1
 
                 if len(failures) > 0:
-                    print("{0} succeeded and {1} failed:".format(len(results) - len(failures), len(failures)))
+                    print(
+                        "{0} succeeded and {1} failed:".format(
+                            len(results) - len(failures), len(failures)
+                        )
+                    )
                     for r in failures:
                         print("- {0}".format(r.testsuite))
-                        for (c, ex) in r.getFailed().items():
-                            lines = r.getOutput(c).strip().split('\n')
+                        for c, ex in r.getFailed().items():
+                            lines = r.getOutput(c).strip().split("\n")
                             for i in range(0, min(4, len(lines))):
                                 print("  " + lines[i])
                             if len(lines) > 4:
@@ -471,14 +565,22 @@ class LocalDriver(Driver):
                     if not self.loop:
                         return 0
         finally:
-            Expect.cleanup() # Cleanup processes which might still be around
+            Expect.cleanup()  # Cleanup processes which might still be around
 
     def runTestSuite(self, current):
         if self.loop:
-            current.result.write("*** [{0}/{1} loop={2}] ".format(current.index, current.total, self.loopCount))
+            current.result.write(
+                "*** [{0}/{1} loop={2}] ".format(
+                    current.index, current.total, self.loopCount
+                )
+            )
         else:
             current.result.write("*** [{0}/{1}] ".format(current.index, current.total))
-        current.result.writeln("Running {0}/{1} tests ***".format(current.testsuite.getMapping(), current.testsuite))
+        current.result.writeln(
+            "Running {0}/{1} tests ***".format(
+                current.testsuite.getMapping(), current.testsuite
+            )
+        )
 
         success = False
         try:
@@ -493,7 +595,11 @@ class LocalDriver(Driver):
             for testcase in current.testsuite.getTestCases():
                 config = current.config
                 try:
-                    for conf in current.config.getAll(current, testcase) if self.all else [current.config]:
+                    for conf in (
+                        current.config.getAll(current, testcase)
+                        if self.all
+                        else [current.config]
+                    ):
                         current.config = conf
                         testcase.run(current)
                 except:
@@ -513,7 +619,6 @@ class LocalDriver(Driver):
                 raise
 
     def runClientServerTestCase(self, current):
-
         if current.testcase.getParent():
             success = False
             host = current.testcase._startServerSide(current)
@@ -525,8 +630,7 @@ class LocalDriver(Driver):
             return
 
         client = current.testcase.getClientTestCase()
-        for cross in (Mapping.getAll(self) if self.allCross else [self.cross]):
-
+        for cross in Mapping.getAll(self) if self.allCross else [self.cross]:
             # Only run cross tests with allCross
             if self.allCross and cross == current.testcase.getMapping():
                 continue
@@ -540,7 +644,11 @@ class LocalDriver(Driver):
             if not server:
                 continue
 
-            current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
+            current.writeln(
+                "[ running {0} test - {1} ]".format(
+                    current.testcase, time.strftime("%x %X")
+                )
+            )
             if not self.all:
                 current.config = current.config.cloneRunnable(current)
             confStr = str(current.config)
@@ -550,9 +658,17 @@ class LocalDriver(Driver):
             else:
                 current.desc = ""
             if cross:
-                current.writeln("- Mappings: {0},{1}".format(client.getMapping(), server.getMapping()))
-                current.desc += (" " if current.desc else "") + "cross={0}".format(server.getMapping())
-            if not current.config.canRun(current.testsuite.getId(), current) or not current.testcase.canRun(current):
+                current.writeln(
+                    "- Mappings: {0},{1}".format(
+                        client.getMapping(), server.getMapping()
+                    )
+                )
+                current.desc += (" " if current.desc else "") + "cross={0}".format(
+                    server.getMapping()
+                )
+            if not current.config.canRun(
+                current.testsuite.getId(), current
+            ) or not current.testcase.canRun(current):
                 current.result.skipped(current, "not supported with this configuration")
                 return
 
@@ -569,16 +685,19 @@ class LocalDriver(Driver):
                 #
                 failure = []
                 sem = threading.Semaphore(0)
+
                 def stopServerSide():
                     try:
                         self.runner.stopServerSide(server, current, success)
                     except Exception as ex:
                         failure.append(ex)
-                    except KeyboardInterrupt: # Potentially raised by Except.py if Ctrl-C
+                    except (
+                        KeyboardInterrupt
+                    ):  # Potentially raised by Except.py if Ctrl-C
                         pass
                     sem.release()
 
-                t=threading.Thread(target = stopServerSide)
+                t = threading.Thread(target=stopServerSide)
                 t.start()
                 while True:
                     try:
@@ -592,22 +711,28 @@ class LocalDriver(Driver):
                         t.join()
                         break
                     except KeyboardInterrupt:
-                        pass # Ignore keyboard interrupts
+                        pass  # Ignore keyboard interrupts
 
     def runTestCase(self, current):
         if self.cross or self.allCross:
-            #current.result.skipped(current, "only client/server tests are ran with cross tests")
+            # current.result.skipped(current, "only client/server tests are ran with cross tests")
             return
 
         if not current.testcase.getParent():
-            current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
+            current.writeln(
+                "[ running {0} test - {1} ]".format(
+                    current.testcase, time.strftime("%x %X")
+                )
+            )
             if not self.all:
                 current.config = current.config.cloneRunnable(current)
             confStr = str(current.config)
             if confStr:
                 current.writeln("- Config: {0}".format(confStr))
                 current.desc = confStr
-            if not current.config.canRun(current.testsuite.getId(), current) or not current.testcase.canRun(current):
+            if not current.config.canRun(
+                current.testsuite.getId(), current
+            ) or not current.testcase.canRun(current):
                 current.result.skipped(current, "not supported with this configuration")
                 return
 
@@ -631,8 +756,12 @@ class LocalDriver(Driver):
     def getTestPort(self, portnum):
         # Return a port number in the range 14100-14199 for the first thread, 14200-14299 for the
         # second thread, etc.
-        assert(portnum < 100)
-        baseport = 14000 + self.threadlocal.num * 100 if hasattr(self.threadlocal, "num") else 12010
+        assert portnum < 100
+        baseport = (
+            14000 + self.threadlocal.num * 100
+            if hasattr(self.threadlocal, "num")
+            else 12010
+        )
         return baseport + portnum
 
     def getProps(self, process, current):
@@ -646,9 +775,16 @@ class LocalDriver(Driver):
         return props
 
     def getMappings(self):
-        return Mapping.getAll(self) if self.allCross else [self.cross] if self.cross else []
+        return (
+            Mapping.getAll(self)
+            if self.allCross
+            else [self.cross]
+            if self.cross
+            else []
+        )
 
     def filterOptions(self, options):
         return self.runner.filterOptions(options)
+
 
 Driver.add("local", LocalDriver)

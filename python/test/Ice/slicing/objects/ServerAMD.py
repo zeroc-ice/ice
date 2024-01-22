@@ -276,7 +276,7 @@ class TestI(Test.TestIntf):
         r.graph.next.next = Test.PNode()
         r.graph.next.next.next = r.graph
         return Ice.Future.completed(r)
-        #r.graph.next.next.next = None   # Break the cycle.
+        # r.graph.next.next.next = None   # Break the cycle.
 
     def checkPBSUnknownWithGraph(self, p, current=None):
         if current.encoding == Ice.Encoding_1_0:
@@ -300,7 +300,7 @@ class TestI(Test.TestIntf):
         r.ps = "preserved"
         r.pb = r
         return Ice.Future.completed(r)
-        #r.pb = None         # Break the cycle.
+        # r.pb = None         # Break the cycle.
 
     def checkPBSUnknown2WithGraph(self, p, current=None):
         if current.encoding == Ice.Encoding_1_0:
@@ -385,7 +385,7 @@ class TestI(Test.TestIntf):
         f = Ice.Future()
         f.set_exception(ue)
         return f
-        #ue.p.pb = None      # Break the cycle.
+        # ue.p.pb = None      # Break the cycle.
 
     def useForward(self, current=None):
         fwd = Test.Forward()

@@ -267,7 +267,7 @@ public class InputStream {
     }
 
     // Reset the InputStream to prepare for retry
-    internal func startOver() {
+    func startOver() {
         pos = 0
         encaps = nil
     }
@@ -708,9 +708,9 @@ public extension InputStream {
     func read(enumMaxValue: Int32) throws -> Int32 {
         if currentEncoding == Encoding_1_0 {
             if enumMaxValue < 127 {
-                return Int32(try read() as UInt8)
+                return try Int32(read() as UInt8)
             } else if enumMaxValue < 32767 {
-                return Int32(try read() as Int16)
+                return try Int32(read() as Int16)
             } else {
                 return try read()
             }
@@ -754,10 +754,10 @@ public extension InputStream {
     /// - returns: `[String]` - The sequence of strings read from the stream.
     func read() throws -> [String] {
         let sz = try readAndCheckSeqSize(minSize: 1)
-        var r: [String] = [String]()
+        var r = [String]()
         r.reserveCapacity(sz)
         for _ in 0 ..< sz {
-            r.append(try read())
+            try r.append(read())
         }
         return r
     }
@@ -1555,7 +1555,7 @@ private class EncapsDecoder11: EncapsDecoder {
         // indirect patch list into patch entries with direct references.
         //
         if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
-            var indirectionTable = [Int32](repeating: 0, count: Int(try stream.readAndCheckSeqSize(minSize: 1)))
+            var indirectionTable = try [Int32](repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0 ..< indirectionTable.count {
                 indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)
@@ -1570,7 +1570,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 throw MarshalException(reason: "empty indirection table")
             }
             if current.indirectPatchList.isEmpty,
-                !current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) {
+               !current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS) {
                 throw MarshalException(reason: "no references to indirection table")
             }
 
@@ -1600,7 +1600,7 @@ private class EncapsDecoder11: EncapsDecoder {
             if current.sliceType == .ValueSlice {
                 throw NoValueFactoryException(reason: "no value factory found and compact format prevents " +
                     "slicing (the sender should use the sliced format instead)",
-                                              type: current.typeId)
+                    type: current.typeId)
             } else {
                 if let r = current.typeId.range(of: "::") {
                     throw UnknownUserException(unknown: String(current.typeId[r.upperBound...]))
@@ -1643,7 +1643,7 @@ private class EncapsDecoder11: EncapsDecoder {
         // readSlicedData is called.
         //
         if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
-            var indirectionTable = [Int32](repeating: 0, count: Int(try stream.readAndCheckSeqSize(minSize: 1)))
+            var indirectionTable = try [Int32](repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0 ..< indirectionTable.count {
                 indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)

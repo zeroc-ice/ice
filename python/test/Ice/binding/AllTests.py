@@ -2,11 +2,17 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, random, threading
+import Ice
+import Test
+import sys
+import random
+import threading
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class GetAdapterNameCB:
     def __init__(self):
@@ -27,10 +33,12 @@ class GetAdapterNameCB:
             else:
                 return ""
 
+
 def getAdapterNameWithAMI(proxy):
     cb = GetAdapterNameCB()
     proxy.getAdapterNameAsync().add_done_callback(cb.response)
     return cb.getResult()
+
 
 def createTestIntfPrx(adapters):
     endpoints = []
@@ -41,9 +49,11 @@ def createTestIntfPrx(adapters):
         endpoints.extend(edpts)
     return Test.TestIntfPrx.uncheckedCast(test.ice_endpoints(endpoints))
 
+
 def deactivate(com, adapters):
     for p in adapters:
         com.deactivateObjectAdapter(p)
+
 
 def allTests(helper, communicator):
     ref = "communicator:{0}".format(helper.getTestEndpoint())
@@ -602,7 +612,7 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    if(len(communicator.getProperties().getProperty("Ice.Plugin.IceSSL")) > 0):
+    if (len(communicator.getProperties().getProperty("Ice.Plugin.IceSSL")) > 0):
         sys.stdout.write("testing unsecure vs. secure endpoints... ")
         sys.stdout.flush()
 
@@ -629,7 +639,7 @@ def allTests(helper, communicator):
             test(t.getAdapterName() == "Adapter81")
             t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
-        com.createObjectAdapter("Adapter83", (t.ice_getEndpoints()[1]).toString()) # Reactive tcp OA.
+        com.createObjectAdapter("Adapter83", (t.ice_getEndpoints()[1]).toString())  # Reactive tcp OA.
 
         for i in range(0, 5):
             test(t.getAdapterName() == "Adapter83")

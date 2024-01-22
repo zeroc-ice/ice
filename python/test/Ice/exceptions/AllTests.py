@@ -2,14 +2,21 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, threading, sys, array
+import Ice
+import Test
+import threading
+import sys
+import array
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
+
 class EmptyI(Test.Empty):
     pass
+
 
 class ServantLocatorI(Ice.ServantLocator):
     def locate(self, current):
@@ -21,8 +28,10 @@ class ServantLocatorI(Ice.ServantLocator):
     def deactivate(self, category):
         pass
 
+
 def ValueFactory(type):
     return None
+
 
 class CallbackBase:
     def __init__(self):
@@ -39,6 +48,7 @@ class CallbackBase:
         with self._cond:
             self._called = True
             self._cond.notify()
+
 
 class Callback(CallbackBase):
     def __init__(self, communicator=None):
@@ -206,6 +216,7 @@ class Callback(CallbackBase):
         except:
             test(False)
         self.called()
+
 
 def allTests(helper, communicator):
     sys.stdout.write("testing servant registration exceptions... ")
@@ -459,11 +470,11 @@ def allTests(helper, communicator):
         print("ok")
 
     if thrower.ice_getConnection():
-        sys.stdout.write("testing memory limit marshal exception...");
-        sys.stdout.flush();
+        sys.stdout.write("testing memory limit marshal exception...")
+        sys.stdout.flush()
 
         try:
-            thrower.throwMemoryLimitException(array.array('B'));
+            thrower.throwMemoryLimitException(array.array('B'))
             test(False)
         except Ice.MemoryLimitException:
             pass
@@ -472,7 +483,7 @@ def allTests(helper, communicator):
             test(False)
 
         try:
-            thrower.throwMemoryLimitException(bytearray(20 * 1024)) # 20KB
+            thrower.throwMemoryLimitException(bytearray(20 * 1024))  # 20KB
             test(False)
         except Ice.ConnectionLostException:
             pass
@@ -481,7 +492,7 @@ def allTests(helper, communicator):
         except:
             test(False)
 
-        print("ok");
+        print("ok")
 
     sys.stdout.write("catching object not exist exception... ")
     sys.stdout.flush()
@@ -817,11 +828,11 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         try:
-            thrower.throwMarshalException(context={"response":""})
+            thrower.throwMarshalException(context={"response": ""})
         except Ice.UnknownLocalException as ex:
             test("::Ice::MarshalException" in str(ex))
         try:
-            thrower.throwMarshalException(context={"param":""})
+            thrower.throwMarshalException(context={"param": ""})
         except Ice.UnknownLocalException as ex:
             test("::Ice::MarshalException" in str(ex))
         try:
@@ -830,123 +841,6 @@ def allTests(helper, communicator):
             test("::Ice::MarshalException" in str(ex))
     except Ice.OperationNotExistException:
         pass
-    print("ok")
-
-    sys.stdout.write("catching exact types with AMI mapping... ")
-    sys.stdout.flush()
-
-    cb = Callback()
-    thrower.begin_throwAasA(1, cb.response, cb.exception_AasA)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwAorDasAorD(1, cb.response, cb.exception_AorDasAorD)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwAorDasAorD(-1, cb.response, cb.exception_AorDasAorD)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwBasB(1, 2, cb.response, cb.exception_BasB)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwCasC(1, 2, 3, cb.response, cb.exception_CasC)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwModA(1, 2, cb.response, cb.exception_ModA)
-    cb.check()
-
-    print("ok")
-
-    sys.stdout.write("catching derived types with AMI mapping... ")
-    sys.stdout.flush()
-
-    cb = Callback()
-    thrower.begin_throwBasA(1, 2, cb.response, cb.exception_BasA)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwCasA(1, 2, 3, cb.response, cb.exception_CasA)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwCasB(1, 2, 3, cb.response, cb.exception_CasB)
-    cb.check()
-
-    print("ok")
-
-    if thrower.supportsUndeclaredExceptions():
-        sys.stdout.write("catching unknown user exception with AMI mapping... ")
-        sys.stdout.flush()
-
-        cb = Callback()
-        thrower.begin_throwUndeclaredA(1, cb.response, cb.exception_UndeclaredA)
-        cb.check()
-
-        cb = Callback()
-        thrower.begin_throwUndeclaredB(1, 2, cb.response, cb.exception_UndeclaredB)
-        cb.check()
-
-        cb = Callback()
-        thrower.begin_throwUndeclaredC(1, 2, 3, cb.response, cb.exception_UndeclaredC)
-        cb.check()
-
-        print("ok")
-
-    sys.stdout.write("catching object not exist exception with AMI mapping... ")
-    sys.stdout.flush()
-
-    id = Ice.stringToIdentity("does not exist")
-    thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
-    cb = Callback(communicator)
-    thrower2.begin_throwAasA(1, cb.response, cb.exception_AasAObjectNotExist)
-    cb.check()
-
-    print("ok")
-
-    sys.stdout.write("catching facet not exist exception with AMI mapping... ")
-    sys.stdout.flush()
-
-    thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
-    cb = Callback()
-    thrower2.begin_throwAasA(1, cb.response, cb.exception_AasAFacetNotExist)
-    cb.check()
-
-    print("ok")
-
-    sys.stdout.write("catching operation not exist exception with AMI mapping... ")
-    sys.stdout.flush()
-
-    cb = Callback()
-    thrower4 = Test.WrongOperationPrx.uncheckedCast(thrower)
-    thrower4.begin_noSuchOperation(cb.response, cb.exception_noSuchOperation)
-    cb.check()
-
-    print("ok")
-
-    sys.stdout.write("catching unknown local exception with AMI mapping... ")
-    sys.stdout.flush()
-
-    cb = Callback()
-    thrower.begin_throwLocalException(cb.response, cb.exception_LocalException)
-    cb.check()
-
-    cb = Callback()
-    thrower.begin_throwLocalExceptionIdempotent(cb.response, cb.exception_LocalException)
-    cb.check()
-
-    print("ok")
-
-    sys.stdout.write("catching unknown non-Ice exception with AMI mapping... ")
-    sys.stdout.flush()
-
-    cb = Callback()
-    thrower.begin_throwNonIceException(cb.response, cb.exception_NonIceException)
-    cb.check()
-
     print("ok")
 
     return thrower

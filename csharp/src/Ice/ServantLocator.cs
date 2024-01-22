@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -34,7 +33,6 @@ namespace Ice
     public partial interface ServantLocator
     {
         #region Slice operations
-
 
         /// <summary>
         /// Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
@@ -61,7 +59,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         Object locate(Current curr, out global::System.Object cookie);
 
-
         /// <summary>
         /// Called by the object adapter after a request has been made.
         /// This operation is only called if
@@ -86,7 +83,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void finished(Current curr, Object servant, global::System.Object cookie);
-
 
         /// <summary>
         /// Called when the object adapter in which this servant locator is installed is destroyed.

@@ -143,6 +143,7 @@ class ThrowerI(Test.Thrower):
             return Ice.Future.completed((0, ""))
         return Ice.Future.completed(None)
 
+
 class ServerAMD(TestHelper):
 
     def run(self, args):

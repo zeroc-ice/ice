@@ -2,15 +2,20 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, threading
+import Ice
+import Test
+import threading
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
+
 class TestFacetI(Test.TestFacet):
-    def op(self, current = None):
+    def op(self, current=None):
         return
+
 
 class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCallback):
     def __init__(self, communicator):
@@ -18,10 +23,10 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
         self.called = False
         self.m = threading.Condition()
 
-    def getAdmin(self, current = None):
+    def getAdmin(self, current=None):
         return self.communicator.getAdmin()
 
-    def getChanges(self, current = None):
+    def getChanges(self, current=None):
         with self.m:
             #
             # The client calls PropertiesAdmin::setProperties() and then invokes
@@ -37,17 +42,17 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
 
             return self.changes
 
-    def shutdown(self, current = None):
+    def shutdown(self, current=None):
         self.communicator.shutdown()
 
-    def waitForShutdown(self, current = None):
+    def waitForShutdown(self, current=None):
         #
         # Note that we are executing in a thread of the *main* communicator,
         # not the one that is being shut down.
         #
         self.communicator.waitForShutdown()
 
-    def destroy(self, current = None):
+    def destroy(self, current=None):
         self.communicator.destroy()
 
     def updated(self, changes):
@@ -56,9 +61,10 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
             self.called = True
             self.m.notify()
 
+
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
-    def createCommunicator(self, props, current = None):
+    def createCommunicator(self, props, current=None):
         #
         # Prepare the property set using the given properties.
         #
@@ -89,5 +95,5 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         proxy = current.adapter.addWithUUID(servant)
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 
-    def shutdown(self, current = None):
+    def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

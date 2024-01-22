@@ -2,11 +2,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading
+import Ice
+import Test
+import sys
+import threading
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator, collocated):
     sys.stdout.write("testing stringToProxy... ")
@@ -25,19 +30,19 @@ def allTests(helper, communicator, collocated):
     test(base)
 
     b1 = communicator.stringToProxy("test")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getAdapterId()) == 0 and len(b1.ice_getFacet()) == 0)
     b1 = communicator.stringToProxy("test ")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getFacet()) == 0)
     b1 = communicator.stringToProxy(" test ")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getFacet()) == 0)
     b1 = communicator.stringToProxy(" test")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getFacet()) == 0)
     b1 = communicator.stringToProxy("'test -f facet'")
-    test(b1.ice_getIdentity().name == "test -f facet" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test -f facet" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getFacet()) == 0)
     try:
         b1 = communicator.stringToProxy("\"test -f facet'")
@@ -45,13 +50,13 @@ def allTests(helper, communicator, collocated):
     except Ice.ProxyParseException:
         pass
     b1 = communicator.stringToProxy("\"test -f facet\"")
-    test(b1.ice_getIdentity().name == "test -f facet" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test -f facet" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getFacet()) == 0)
     b1 = communicator.stringToProxy("\"test -f facet@test\"")
-    test(b1.ice_getIdentity().name == "test -f facet@test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test -f facet@test" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getFacet()) == 0)
     b1 = communicator.stringToProxy("\"test -f facet@test @test\"")
-    test(b1.ice_getIdentity().name == "test -f facet@test @test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test -f facet@test @test" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getFacet()) == 0)
     try:
         b1 = communicator.stringToProxy("test test")
@@ -82,7 +87,7 @@ def allTests(helper, communicator, collocated):
     test(b1.ice_getIdentity().name == "test\b\f\n\r\t\'\"\\test" and len(b1.ice_getIdentity().category) == 0)
 
     b1 = communicator.stringToProxy("category/test")
-    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and \
+    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and
          len(b1.ice_getAdapterId()) == 0)
 
     b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"")
@@ -92,7 +97,7 @@ def allTests(helper, communicator, collocated):
     test(b1 == communicator.stringToProxy(b1.ice_toString()))
 
     b1 = communicator.stringToProxy("test@adapter")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getAdapterId() == "adapter")
     try:
         b1 = communicator.stringToProxy("id@adapter test")
@@ -100,35 +105,35 @@ def allTests(helper, communicator, collocated):
     except Ice.ProxyParseException:
         pass
     b1 = communicator.stringToProxy("category/test@adapter")
-    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and \
+    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and
          b1.ice_getAdapterId() == "adapter")
     b1 = communicator.stringToProxy("category/test@adapter:tcp")
-    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and \
+    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and
          b1.ice_getAdapterId() == "adapter:tcp")
     b1 = communicator.stringToProxy("'category 1/test'@adapter")
-    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category 1" and \
+    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category 1" and
          b1.ice_getAdapterId() == "adapter")
     b1 = communicator.stringToProxy("'category/test 1'@adapter")
-    test(b1.ice_getIdentity().name == "test 1" and b1.ice_getIdentity().category == "category" and \
+    test(b1.ice_getIdentity().name == "test 1" and b1.ice_getIdentity().category == "category" and
          b1.ice_getAdapterId() == "adapter")
     b1 = communicator.stringToProxy("'category/test'@'adapter 1'")
-    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and \
+    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and
          b1.ice_getAdapterId() == "adapter 1")
     b1 = communicator.stringToProxy("\"category \\/test@foo/test\"@adapter")
-    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category /test@foo" and \
+    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category /test@foo" and
          b1.ice_getAdapterId() == "adapter")
     b1 = communicator.stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"")
-    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category /test@foo" and \
+    test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category /test@foo" and
          b1.ice_getAdapterId() == "adapter:tcp")
 
     b1 = communicator.stringToProxy("id -f facet")
-    test(b1.ice_getIdentity().name == "id" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "id" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet")
     b1 = communicator.stringToProxy("id -f 'facet x'")
-    test(b1.ice_getIdentity().name == "id" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "id" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet x")
     b1 = communicator.stringToProxy("id -f \"facet x\"")
-    test(b1.ice_getIdentity().name == "id" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "id" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet x")
     try:
         b1 = communicator.stringToProxy("id -f \"facet x")
@@ -141,19 +146,19 @@ def allTests(helper, communicator, collocated):
     except Ice.ProxyParseException:
         pass
     b1 = communicator.stringToProxy("test -f facet:tcp")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet" and len(b1.ice_getAdapterId()) == 0)
     b1 = communicator.stringToProxy("test -f \"facet:tcp\"")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet:tcp" and len(b1.ice_getAdapterId()) == 0)
     b1 = communicator.stringToProxy("test -f facet@test")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet" and b1.ice_getAdapterId() == "test")
     b1 = communicator.stringToProxy("test -f 'facet@test'")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet@test" and len(b1.ice_getAdapterId()) == 0)
     b1 = communicator.stringToProxy("test -f 'facet@test'@test")
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          b1.ice_getFacet() == "facet@test" and b1.ice_getAdapterId() == "test")
     try:
         b1 = communicator.stringToProxy("test -f facet@test @test")
@@ -184,10 +189,10 @@ def allTests(helper, communicator, collocated):
         pass
     # This is an unknown endpoint warning, not a parse exception.
     #
-    #try:
+    # try:
     #   b1 = communicator.stringToProxy("test -f the:facet:tcp")
     #   test(False)
-    #except Ice.EndpointParseException:
+    # except Ice.EndpointParseException:
     #   pass
     try:
         b1 = communicator.stringToProxy("test::tcp")
@@ -202,7 +207,7 @@ def allTests(helper, communicator, collocated):
     propertyPrefix = "Foo.Proxy"
     prop.setProperty(propertyPrefix, "test:{0}".format(helper.getTestEndpoint()))
     b1 = communicator.propertyToProxy(propertyPrefix)
-    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
+    test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and
          len(b1.ice_getAdapterId()) == 0 and len(b1.ice_getFacet()) == 0)
 
     property = propertyPrefix + ".Locator"
@@ -265,12 +270,12 @@ def allTests(helper, communicator, collocated):
     test(not b1.ice_isConnectionCached())
     prop.setProperty(property, "")
 
-    property = propertyPrefix + ".InvocationTimeout";
-    test(b1.ice_getInvocationTimeout() == -1);
-    prop.setProperty(property, "1000");
-    b1 = communicator.propertyToProxy(propertyPrefix);
-    test(b1.ice_getInvocationTimeout() == 1000);
-    prop.setProperty(property, "");
+    property = propertyPrefix + ".InvocationTimeout"
+    test(b1.ice_getInvocationTimeout() == -1)
+    prop.setProperty(property, "1000")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getInvocationTimeout() == 1000)
+    prop.setProperty(property, "")
 
     property = propertyPrefix + ".EndpointSelection"
     test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
@@ -299,7 +304,7 @@ def allTests(helper, communicator, collocated):
     b1 = b1.ice_preferSecure(False)
     b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
     b1 = b1.ice_locatorCacheTimeout(100)
-    b1 = b1.ice_invocationTimeout(1234);
+    b1 = b1.ice_invocationTimeout(1234)
     b1 = b1.ice_encodingVersion(Ice.EncodingVersion(1, 0))
 
     router = communicator.stringToProxy("router")
@@ -308,7 +313,7 @@ def allTests(helper, communicator, collocated):
     router = router.ice_preferSecure(True)
     router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
     router = router.ice_locatorCacheTimeout(200)
-    router = router.ice_invocationTimeout(1500);
+    router = router.ice_invocationTimeout(1500)
 
     locator = communicator.stringToProxy("locator")
     locator = locator.ice_collocationOptimized(True)
@@ -316,7 +321,7 @@ def allTests(helper, communicator, collocated):
     locator = locator.ice_preferSecure(True)
     locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
     locator = locator.ice_locatorCacheTimeout(300)
-    locator = locator.ice_invocationTimeout(1500);
+    locator = locator.ice_invocationTimeout(1500)
 
     locator = locator.ice_router(Ice.RouterPrx.uncheckedCast(router))
     b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator))
@@ -330,7 +335,7 @@ def allTests(helper, communicator, collocated):
     test(proxyProps["Test.PreferSecure"] == "0")
     test(proxyProps["Test.EndpointSelection"] == "Ordered")
     test(proxyProps["Test.LocatorCacheTimeout"] == "100")
-    test(proxyProps["Test.InvocationTimeout"] == "1234");
+    test(proxyProps["Test.InvocationTimeout"] == "1234")
 
     test(proxyProps["Test.Locator"] == "locator -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()))
     test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
@@ -338,7 +343,7 @@ def allTests(helper, communicator, collocated):
     test(proxyProps["Test.Locator.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
-    test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
+    test(proxyProps["Test.Locator.InvocationTimeout"] == "1500")
 
     test(proxyProps["Test.Locator.Router"] == "router -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()))
     test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
@@ -346,7 +351,7 @@ def allTests(helper, communicator, collocated):
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
-    test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
+    test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500")
 
     print("ok")
 
@@ -491,13 +496,13 @@ def allTests(helper, communicator, collocated):
     test(compObj.ice_connectionCached(False) < compObj.ice_connectionCached(True))
     test(not (compObj.ice_connectionCached(True) < compObj.ice_connectionCached(False)))
 
-    test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) == \
+    test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) ==
          compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random))
-    test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) != \
+    test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) !=
          compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
-    test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) < \
+    test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random) <
          compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
-    test(not (compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered) < \
+    test(not (compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered) <
          compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random)))
 
     test(compObj.ice_connectionId("id2") == compObj.ice_connectionId("id2"))
@@ -512,18 +517,18 @@ def allTests(helper, communicator, collocated):
     test(compObj.ice_compress(False) < compObj.ice_compress(True))
     test(not (compObj.ice_compress(True) < compObj.ice_compress(False)))
 
-    test(compObj.ice_getCompress() == Ice.Unset);
-    test(compObj.ice_compress(True).ice_getCompress() == True);
-    test(compObj.ice_compress(False).ice_getCompress() == False);
+    test(compObj.ice_getCompress() == Ice.Unset)
+    test(compObj.ice_compress(True).ice_getCompress() == True)
+    test(compObj.ice_compress(False).ice_getCompress() == False)
 
     test(compObj.ice_timeout(20) == compObj.ice_timeout(20))
     test(compObj.ice_timeout(10) != compObj.ice_timeout(20))
     test(compObj.ice_timeout(10) < compObj.ice_timeout(20))
     test(not (compObj.ice_timeout(20) < compObj.ice_timeout(10)))
 
-    test(compObj.ice_getTimeout() == Ice.Unset);
-    test(compObj.ice_timeout(10).ice_getTimeout() == 10);
-    test(compObj.ice_timeout(20).ice_getTimeout() == 20);
+    test(compObj.ice_getTimeout() == Ice.Unset)
+    test(compObj.ice_timeout(10).ice_getTimeout() == 10)
+    test(compObj.ice_timeout(20).ice_getTimeout() == 20)
 
     loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"))
     loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"))
@@ -549,14 +554,14 @@ def allTests(helper, communicator, collocated):
     test(compObj.ice_router(rtr1) < compObj.ice_router(rtr2))
     test(not (compObj.ice_router(rtr2) < compObj.ice_router(rtr1)))
 
-    ctx1 = { }
+    ctx1 = {}
     ctx1["ctx1"] = "v1"
-    ctx2 = { }
+    ctx2 = {}
     ctx2["ctx2"] = "v2"
-    test(compObj.ice_context({ }) == compObj.ice_context({ }))
+    test(compObj.ice_context({}) == compObj.ice_context({}))
     test(compObj.ice_context(ctx1) == compObj.ice_context(ctx1))
-    test(compObj.ice_context(ctx1) != compObj.ice_context({ }))
-    test(compObj.ice_context({ }) != compObj.ice_context(ctx2))
+    test(compObj.ice_context(ctx1) != compObj.ice_context({}))
+    test(compObj.ice_context({}) != compObj.ice_context(ctx2))
     test(compObj.ice_context(ctx1) != compObj.ice_context(ctx2))
     test(compObj.ice_context(ctx1) < compObj.ice_context(ctx2))
     test(not (compObj.ice_context(ctx2) < compObj.ice_context(ctx1)))
@@ -583,10 +588,10 @@ def allTests(helper, communicator, collocated):
     test(compObj1.ice_locatorCacheTimeout(10) < compObj1.ice_locatorCacheTimeout(20))
     test(not (compObj1.ice_locatorCacheTimeout(20) < compObj1.ice_locatorCacheTimeout(10)))
 
-    test(compObj1.ice_invocationTimeout(20) == compObj1.ice_invocationTimeout(20));
-    test(compObj1.ice_invocationTimeout(10) != compObj1.ice_invocationTimeout(20));
-    test(compObj1.ice_invocationTimeout(10) < compObj1.ice_invocationTimeout(20));
-    test(not (compObj1.ice_invocationTimeout(20) < compObj1.ice_invocationTimeout(10)));
+    test(compObj1.ice_invocationTimeout(20) == compObj1.ice_invocationTimeout(20))
+    test(compObj1.ice_invocationTimeout(10) != compObj1.ice_invocationTimeout(20))
+    test(compObj1.ice_invocationTimeout(10) < compObj1.ice_invocationTimeout(20))
+    test(not (compObj1.ice_invocationTimeout(20) < compObj1.ice_invocationTimeout(10)))
 
     compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000")
     compObj2 = communicator.stringToProxy("foo@MyAdapter1")
@@ -606,12 +611,12 @@ def allTests(helper, communicator, collocated):
     test(compObj.ice_encodingVersion(Ice.Encoding_1_0) < compObj.ice_encodingVersion(Ice.Encoding_1_1))
     test(not (compObj.ice_encodingVersion(Ice.Encoding_1_1) < compObj.ice_encodingVersion(Ice.Encoding_1_0)))
 
-    baseConnection = base.ice_getConnection();
+    baseConnection = base.ice_getConnection()
     if baseConnection:
-        baseConnection2 = base.ice_connectionId("base2").ice_getConnection();
-        compObj1 = compObj1.ice_fixed(baseConnection);
-        compObj2 = compObj2.ice_fixed(baseConnection2);
-        test(compObj1 != compObj2);
+        baseConnection2 = base.ice_connectionId("base2").ice_getConnection()
+        compObj1 = compObj1.ice_fixed(baseConnection)
+        compObj2 = compObj2.ice_fixed(baseConnection2)
+        test(compObj1 != compObj2)
 
     print("ok")
 
@@ -648,9 +653,9 @@ def allTests(helper, communicator, collocated):
     c = tccp.getContext()
     test(c == None or len(c) == 0)
 
-    c = { }
+    c = {}
     c["one"] = "hello"
-    c["two"] =  "world"
+    c["two"] = "world"
     tccp = Test.MyClassPrx.checkedCast(base, c)
     c2 = tccp.getContext()
     test(c == c2)
@@ -666,24 +671,24 @@ def allTests(helper, communicator, collocated):
         test(cl.ice_secure(True).ice_fixed(connection).ice_isSecure())
         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")
         test(cl.ice_oneway().ice_fixed(connection).ice_isOneway())
-        ctx = { }
+        ctx = {}
         ctx["one"] = "hello"
-        ctx["two"] =  "world"
-        test(len(cl.ice_fixed(connection).ice_getContext()) == 0);
-        test(len(cl.ice_context(ctx).ice_fixed(connection).ice_getContext()) == 2);
-        test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
-        test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+        ctx["two"] = "world"
+        test(len(cl.ice_fixed(connection).ice_getContext()) == 0)
+        test(len(cl.ice_context(ctx).ice_fixed(connection).ice_getContext()) == 2)
+        test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1)
+        test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10)
         test(cl.ice_fixed(connection).ice_getConnection() == connection)
         test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection)
         test(cl.ice_fixed(connection).ice_getTimeout() == Ice.Unset)
         fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection()
         test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection)
         try:
-            cl.ice_secure(not connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+            cl.ice_secure(not connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping()
         except Ice.NoEndpointException:
             pass
         try:
-            cl.ice_datagram().ice_fixed(connection).ice_ping();
+            cl.ice_datagram().ice_fixed(connection).ice_ping()
         except Ice.NoEndpointException:
             pass
     else:
@@ -698,7 +703,7 @@ def allTests(helper, communicator, collocated):
     sys.stdout.write("testing encoding versioning... ")
     sys.stdout.flush()
     ref20 = "test -e 2.0:{0}".format(helper.getTestEndpoint())
-    cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
+    cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20))
     try:
         cl20.ice_ping()
         test(False)
@@ -815,7 +820,8 @@ def allTests(helper, communicator, collocated):
         tcp = communicator.getProperties().getProperty("Ice.Default.Protocol") == "tcp"
 
         # Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator.stringToProxy("test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
+        p1 = communicator.stringToProxy(
+            "test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
         pstr = communicator.proxyToString(p1)
         test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
 
@@ -823,7 +829,8 @@ def allTests(helper, communicator, collocated):
         # Test that an SSL endpoint and a nonsense endpoint get written
         # back out as an opaque endpoint.
         #
-        p1 = communicator.stringToProxy("test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+        p1 = communicator.stringToProxy(
+            "test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
         pstr = communicator.proxyToString(p1)
         if ssl:
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
@@ -858,17 +865,17 @@ def allTests(helper, communicator, collocated):
 
     print("ok")
 
-    sys.stdout.write("testing communicator shutdown/destroy... ");
+    sys.stdout.write("testing communicator shutdown/destroy... ")
     sys.stdout.flush()
-    c = Ice.initialize();
-    c.shutdown();
-    test(c.isShutdown());
-    c.waitForShutdown();
-    c.destroy();
-    c.shutdown();
-    test(c.isShutdown());
-    c.waitForShutdown();
-    c.destroy();
-    print("ok");
+    c = Ice.initialize()
+    c.shutdown()
+    test(c.isShutdown())
+    c.waitForShutdown()
+    c.destroy()
+    c.shutdown()
+    test(c.isShutdown())
+    c.waitForShutdown()
+    c.destroy()
+    print("ok")
 
     return cl

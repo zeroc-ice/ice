@@ -3,4 +3,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-TestSuite(__name__, options = { "cpp11" : [False] })
+from Util import TestSuite
+
+
+TestSuite(__name__, options={"cpp11": [False]})

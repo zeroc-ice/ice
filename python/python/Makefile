@@ -31,8 +31,6 @@ $(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Glacier2,Metri
 install:: | $(DESTDIR)$(install_pythondir)/Ice
 	$(E) "Installing generated code"
 	$(Q)$(INSTALL) -m 644 Ice/__init__.py $(DESTDIR)$(install_pythondir)/Ice
-	$(Q)$(MKDIR) -p -m 755 $(DESTDIR)$(install_pythondir)/Ice/Py3
-	$(Q)$(INSTALL) -m 644 Ice/Py3/IceFuture.py $(DESTDIR)$(install_pythondir)/Ice/Py3/
 
 install:: | $(DESTDIR)$(install_pythondir)/Glacier2
 	$(Q)$(INSTALL) -m 644 Glacier2/__init__.py $(DESTDIR)$(install_pythondir)/Glacier2

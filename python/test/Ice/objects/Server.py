@@ -16,7 +16,7 @@ def MyValueFactory(type):
         return TestI.JI()
     elif type == '::Test::H':
         return TestI.HI()
-    assert(False)  # Should never be reached
+    assert (False)  # Should never be reached
 
 
 class Server(TestHelper):

@@ -1,0 +1,23 @@
+name: Python lint and format
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  ruff-lint:
+    name: Ruff check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install SwiftLints
+        run: pip install ruff
+
+      - name: Run Ruff
+        run: ruff check . --exclude "scripts" --exclude "python" --ignore E402

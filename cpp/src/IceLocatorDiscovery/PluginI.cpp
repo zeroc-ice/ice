@@ -272,15 +272,6 @@ registerIceLocatorDiscovery(bool loadOnInitialize)
 
 }
 
-//
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICE_LOCATOR_DISCOVERY_API void
-ICEregisterIceLocatorDiscovery(bool loadOnInitialize)
-{
-    Ice::registerIceLocatorDiscovery(loadOnInitialize);
-}
-
 PluginI::PluginI(const string& name, const Ice::CommunicatorPtr& communicator) :
     _name(name), _communicator(communicator)
 {

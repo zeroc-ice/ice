@@ -2,11 +2,17 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading, time
+import Ice
+import Test
+import sys
+import threading
+import time
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CallbackBase:
     def __init__(self):
@@ -25,6 +31,7 @@ class CallbackBase:
             self._called = False
             return True
 
+
 class Callback(CallbackBase):
     def response(self):
         self.called()
@@ -39,6 +46,7 @@ class Callback(CallbackBase):
         test(isinstance(ex, Ice.TimeoutException))
         self.called()
 
+
 def connect(prx):
     # Establish connection with the given proxy (which might have a timeout
     # set and might sporadically fail on connection establishment if it's
@@ -47,12 +55,13 @@ def connect(prx):
     nRetry = 10
     while --nRetry > 0:
         try:
-            prx.ice_getConnection();
+            prx.ice_getConnection()
             break
         except Ice.ConnectTimeoutException:
             # Can sporadically occur with slow machines
             pass
-    return prx.ice_getConnection(); # Establish connection
+    return prx.ice_getConnection()  # Establish connection
+
 
 def allTests(helper, communicator):
     controller = Test.ControllerPrx.checkedCast(
@@ -66,6 +75,7 @@ def allTests(helper, communicator):
         # the test from hanging on exit in case a connection which disables timeouts is still opened.
         controller.resumeAdapter()
         raise
+
 
 def allTestsWithController(helper, communicator, controller):
 
@@ -87,9 +97,9 @@ def allTestsWithController(helper, communicator, controller):
         to.op()
         test(False)
     except Ice.ConnectTimeoutException:
-       pass # Expected.
+        pass  # Expected.
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
 
     #
     # Expect success.
@@ -115,9 +125,9 @@ def allTestsWithController(helper, communicator, controller):
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
-       pass # Expected.
+        pass  # Expected.
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
     #
     # Expect success.
     #
@@ -148,22 +158,6 @@ def allTestsWithController(helper, communicator, controller):
     except Ice.InvocationTimeoutException:
         test(False)
     test(connection == to.ice_getConnection())
-
-    # #
-    # # Expect InvocationTimeoutException.
-    # #
-    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250))
-    # cb = new Callback()
-    # to.begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx))
-    # cb.check()
-
-    # #
-    # # Expect success.
-    # #
-    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(1000))
-    # cb = new Callback()
-    # to.begin_sleep(100, newCallback_Timeout_sleep(cb, &Callback.response, &Callback.exception))
-    # cb.check()
     print("ok")
 
     sys.stdout.write("testing close timeout... ")
@@ -173,7 +167,7 @@ def allTestsWithController(helper, communicator, controller):
     controller.holdAdapter(-1)
     connection.close(Ice.ConnectionClose.GracefullyWithWait)
     try:
-        connection.getInfo(); # getInfo() doesn't throw in the closing state.
+        connection.getInfo()  # getInfo() doesn't throw in the closing state.
     except Ice.LocalException:
         test(False)
     while True:
@@ -185,7 +179,7 @@ def allTestsWithController(helper, communicator, controller):
             test(ex.graceful)
             break
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
     print("ok")
 
     sys.stdout.write("testing timeout overrides... ")
@@ -207,9 +201,9 @@ def allTestsWithController(helper, communicator, controller):
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
-       pass # Expected.
+        pass  # Expected.
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
 
     #
     # Calling ice_timeout() should have no effect.
@@ -221,9 +215,9 @@ def allTestsWithController(helper, communicator, controller):
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
-       pass # Expected.
+        pass  # Expected.
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
     comm.destroy()
     #
     # Test Ice.Override.ConnectTimeout.
@@ -238,9 +232,9 @@ def allTestsWithController(helper, communicator, controller):
         to.op()
         test(False)
     except Ice.ConnectTimeoutException:
-       pass # Expected.
+        pass  # Expected.
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
     #
     # Calling ice_timeout() should have no effect on the connect timeout.
     #
@@ -250,9 +244,9 @@ def allTestsWithController(helper, communicator, controller):
         to.op()
         test(False)
     except Ice.ConnectTimeoutException:
-       pass # Expected.
+        pass  # Expected.
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
     #
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
@@ -263,9 +257,9 @@ def allTestsWithController(helper, communicator, controller):
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
-       pass # Expected.
+        pass  # Expected.
     controller.resumeAdapter()
-    timeout.op() # Ensure adapter is active.
+    timeout.op()  # Ensure adapter is active.
     comm.destroy()
 
     #

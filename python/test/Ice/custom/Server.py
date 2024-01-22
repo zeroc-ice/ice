@@ -28,9 +28,11 @@ import Test
 import Ice
 import array
 
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CustomI(Test.Custom):
     def opByteString1(self, b1, current=None):
@@ -136,6 +138,7 @@ class CustomI(Test.Custom):
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
+
 
 if hasNumPy:
 

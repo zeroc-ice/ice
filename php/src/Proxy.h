@@ -5,23 +5,19 @@
 #ifndef ICEPHP_PROXY_H
 #define ICEPHP_PROXY_H
 
-#include <Config.h>
-#include <Communicator.h>
-#include <Types.h>
+#include "Config.h"
+#include "Communicator.h"
+#include "Types.h"
 
 namespace IcePHP
 {
 
 bool proxyInit(void);
 
-bool createProxy(zval*, const Ice::ObjectPrx&, const CommunicatorInfoPtr&);
-bool createProxy(zval*, const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
-bool fetchProxy(zval*, Ice::ObjectPrx&, ProxyInfoPtr&);
-bool fetchProxy(zval*, Ice::ObjectPrx&, ProxyInfoPtr&, CommunicatorInfoPtr&);
-
-//
-// Class entry.
-//
+bool createProxy(zval*, Ice::ObjectPrxPtr, CommunicatorInfoPtr);
+bool createProxy(zval*, Ice::ObjectPrxPtr, ProxyInfoPtr, CommunicatorInfoPtr);
+bool fetchProxy(zval*, Ice::ObjectPrxPtr&, ProxyInfoPtr&);
+bool fetchProxy(zval*, Ice::ObjectPrxPtr&, ProxyInfoPtr&, CommunicatorInfoPtr&);
 extern zend_class_entry* proxyClassEntry;
 
 } // End of namespace IcePHP

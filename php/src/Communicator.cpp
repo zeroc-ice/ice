@@ -2,24 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Communicator.h>
-#include <Logger.h>
-#include <Properties.h>
-#include <Proxy.h>
-#include <Types.h>
-#include <Util.h>
-#include <IceUtil/DisableWarnings.h>
+#include "Communicator.h"
+#include "Logger.h"
+#include "Properties.h"
+#include "Proxy.h"
+#include "Types.h"
+#include "Util.h"
+
 #include <IceUtil/Options.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
 
+#include <chrono>
+#include <condition_variable>
 #include <fstream>
 #include <mutex>
+#include <thread>
 
 #ifdef getcwd
 #  undef getcwd
 #endif
+
 #include <IceUtil/FileUtil.h>
 
 using namespace std;
@@ -27,22 +31,18 @@ using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-//
 // Class entries represent the PHP class implementations we have registered.
-//
 namespace IcePHP
 {
 
 zend_class_entry* communicatorClassEntry = 0;
 zend_class_entry* valueFactoryManagerClassEntry = 0;
 
-//
 // An active communicator is in use by at least one request and may have
 // registered so that it remains active after a request completes. The
 // communicator is destroyed when there are no more references to this
 // object.
-//
-class ActiveCommunicator : public IceUtil::Shared
+class ActiveCommunicator
 {
 public:
 
@@ -52,9 +52,9 @@ public:
     const Ice::CommunicatorPtr communicator;
     vector<string> ids;
     int expires;
-    IceUtil::Time lastAccess;
+    std::chrono::steady_clock::time_point lastAccess;
 };
-typedef IceUtil::Handle<ActiveCommunicator> ActiveCommunicatorPtr;
+using ActiveCommunicatorPtr = shared_ptr<ActiveCommunicator>;
 
 class FactoryWrapper;
 using FactoryWrapperPtr = shared_ptr<FactoryWrapper>;
@@ -62,27 +62,26 @@ using FactoryWrapperPtr = shared_ptr<FactoryWrapper>;
 class DefaultValueFactory;
 using DefaultValueFactoryPtr = shared_ptr<DefaultValueFactory>;
 
-//
 // CommunicatorInfoI encapsulates communicator-related information that
 // is specific to a PHP "request". In other words, multiple PHP requests
 // might share the same communicator instance but still need separate
 // workspaces. For example, we don't want the value factories installed
 // by one request to influence the behavior of another request.
-//
-class CommunicatorInfoI : public CommunicatorInfo
+class CommunicatorInfoI final : public CommunicatorInfo, public enable_shared_from_this<CommunicatorInfoI>
 {
 public:
 
     CommunicatorInfoI(const ActiveCommunicatorPtr&, zval*);
 
-    virtual void getZval(zval*);
-    virtual void addRef(void);
-    virtual void decRef(void);
+    void getZval(zval*) final;
+    void addRef(void) final;
+    void decRef(void) final;
 
-    virtual Ice::CommunicatorPtr getCommunicator() const;
+    Ice::CommunicatorPtr getCommunicator() const final;
 
     bool addFactory(zval*, const string&);
     FactoryWrapperPtr findFactory(const string&) const;
+    void setDefaultFactory(DefaultValueFactoryPtr defaultFactory);
     DefaultValueFactoryPtr defaultFactory() const { return _defaultFactory; }
     void destroyFactories();
 
@@ -96,18 +95,16 @@ private:
     FactoryMap _factories;
     DefaultValueFactoryPtr _defaultFactory;
 };
-typedef IceUtil::Handle<CommunicatorInfoI> CommunicatorInfoIPtr;
+using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
 
-//
 // Wraps a PHP object/value factory.
-//
-class FactoryWrapper : public Ice::ValueFactory
+class FactoryWrapper final : public Ice::ValueFactory
 {
 public:
 
     FactoryWrapper(zval*, const CommunicatorInfoIPtr&);
 
-    virtual shared_ptr<Ice::Value> create(const string&);
+    shared_ptr<Ice::Value> create(const string&) final;
 
     void getZval(zval*);
 
@@ -119,16 +116,14 @@ protected:
     CommunicatorInfoIPtr _info;
 };
 
-//
 // Implements the default value factory behavior.
-//
-class DefaultValueFactory : public Ice::ValueFactory
+class DefaultValueFactory final : public Ice::ValueFactory
 {
 public:
 
     DefaultValueFactory(const CommunicatorInfoIPtr&);
 
-    virtual shared_ptr<Ice::Value> create(const string&);
+    shared_ptr<Ice::Value> create(const string&) final;
 
     void setDelegate(const FactoryWrapperPtr& d) { _delegate = d; }
     FactoryWrapperPtr getDelegate() const { return _delegate; }
@@ -141,7 +136,6 @@ private:
     CommunicatorInfoIPtr _info;
 };
 
-//
 // Each PHP request has its own set of value factories. More precisely, there is
 // a value factory map for each communicator that is created by a PHP request.
 // (see CommunicatorInfoI).
@@ -162,14 +156,13 @@ private:
 //
 //  * For non-empty type-ids, return a wrapper around the application-supplied
 //    factory, if any.
-//
-class ValueFactoryManager : public Ice::ValueFactoryManager
+class ValueFactoryManager final : public Ice::ValueFactoryManager
 {
 public:
 
-    virtual void add(Ice::ValueFactoryFunc, const string&);
-    virtual void add(const Ice::ValueFactoryPtr&, const string&);
-    virtual Ice::ValueFactoryFunc find(const string&) const noexcept;
+    void add(Ice::ValueFactoryFunc, const string&) final;
+    void add(const Ice::ValueFactoryPtr&, const string&) final;
+    Ice::ValueFactoryFunc find(const string&) const noexcept final;
 
     void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -183,74 +176,73 @@ private:
     Ice::CommunicatorPtr _communicator;
 };
 using ValueFactoryManagerPtr = shared_ptr<ValueFactoryManager>;
-
-class ReaperTask : public IceUtil::TimerTask
-{
-public:
-
-    virtual void runTimerTask();
-};
-
 }
 
 namespace
 {
-//
 // Communicator support.
-//
 zend_object_handlers _handlers;
 
-//
 // ValueFactoryManager support.
-//
 zend_object_handlers _vfmHandlers;
 
-//
 // The profile map holds Properties objects corresponding to the "default" profile
 // (defined via the ice.config & ice.options settings in php.ini) as well as named
 // profiles defined in an external file.
-//
-typedef map<string, Ice::PropertiesPtr> ProfileMap;
+using ProfileMap = map<string, Ice::PropertiesPtr>;
 ProfileMap _profiles;
 const string _defaultProfileName = "";
 
-//
 // This map represents communicators that have been registered so that they can be used
 // by multiple PHP requests.
-//
-typedef map<string, ActiveCommunicatorPtr> RegisteredCommunicatorMap;
+using RegisteredCommunicatorMap = map<string, ActiveCommunicatorPtr>;
 RegisteredCommunicatorMap _registeredCommunicators;
 
 // std::mutex constructor is constexpr so it is statically initialized
+// _registeredCommunicatorsMutex protects _registeredCommunicators and _reapThread
+// _reapFinishedMutex protects _reapingFinished
 std::mutex _registeredCommunicatorsMutex;
+std::mutex _reapFinishedMutex;
+std::condition_variable _reapCond;
+std::thread _reapThread;
+bool _reapingFinished = true;
 
-IceUtil::TimerPtr _timer;
-
-//
 // This map is stored in the "global" variables for each PHP request and holds
 // the communicators that have been created (or registered communicators that have
 // been used) by the request.
-//
-typedef map<Ice::CommunicatorPtr, CommunicatorInfoIPtr> CommunicatorMap;
+using CommunicatorMap = map<Ice::CommunicatorPtr, CommunicatorInfoIPtr>;
+
+void
+reapRegisteredCommunicators()
+{
+    // This function must be called with _registeredCommunicatorsMutex locked
+    auto now = std::chrono::steady_clock::now();
+    RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
+    while (p != _registeredCommunicators.end())
+    {
+        if(p->second->lastAccess + std::chrono::hours(p->second->expires) <= now)
+        {
+            p->second->communicator->destroy();
+            _registeredCommunicators.erase(p++);
+        }
+        else
+        {
+            ++p;
+        }
+    }
+}
 }
 
 extern "C"
 {
+
 static zend_object* handleAlloc(zend_class_entry*);
 static void handleFreeStorage(zend_object*);
-#if PHP_VERSION_ID >= 80000
 static zend_object* handleClone(zend_object*);
-#else
-static zend_object* handleClone(zval*);
-#endif
-
 static zend_object* handleVfmAlloc(zend_class_entry*);
 static void handleVfmFreeStorage(zend_object*);
-#if PHP_VERSION_ID >= 80000
 static zend_object* handleVfmClone(zend_object*);
-#else
-static zend_object* handleVfmClone(zval*);
-#endif
+
 }
 
 ZEND_METHOD(Ice_Communicator, __construct)
@@ -260,7 +252,7 @@ ZEND_METHOD(Ice_Communicator, __construct)
 
 ZEND_METHOD(Ice_Communicator, shutdown)
 {
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -269,13 +261,13 @@ ZEND_METHOD(Ice_Communicator, shutdown)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
     }
 }
 
 ZEND_METHOD(Ice_Communicator, isShutdown)
 {
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -284,14 +276,14 @@ ZEND_METHOD(Ice_Communicator, isShutdown)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_FALSE;
     }
 }
 
 ZEND_METHOD(Ice_Communicator, waitForShutdown)
 {
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -300,7 +292,7 @@ ZEND_METHOD(Ice_Communicator, waitForShutdown)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
     }
 }
 
@@ -317,9 +309,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
     {
         m->erase(c);
 
-        //
         // Remove all registrations.
-        //
         {
             lock_guard lock(_registeredCommunicatorsMutex);
             for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
@@ -329,9 +319,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
             _this->ac->ids.clear();
         }
 
-        //
-        // We need to destroy any object|value factories installed by this request.
-        //
+        // We need to destroy any value factories installed by this request.
         _this->destroyFactories();
 
         auto vfm = dynamic_pointer_cast<ValueFactoryManager>(c->getValueFactoryManager());
@@ -361,7 +349,7 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
 
     try
     {
-        Ice::ObjectPrx prx = _this->getCommunicator()->stringToProxy(s);
+        shared_ptr<Ice::ObjectPrx> prx = _this->getCommunicator()->stringToProxy(s);
         if(!createProxy(return_value, prx, _this))
         {
             RETURN_NULL();
@@ -394,7 +382,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
         string str;
         if(zv)
         {
-            Ice::ObjectPrx prx;
+            shared_ptr<Ice::ObjectPrx> prx;
             ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {
@@ -403,7 +391,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
             assert(prx);
             str = prx->ice_toString();
         }
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -431,7 +419,7 @@ ZEND_METHOD(Ice_Communicator, propertyToProxy)
 
     try
     {
-        Ice::ObjectPrx prx = _this->getCommunicator()->propertyToProxy(s);
+        shared_ptr<Ice::ObjectPrx> prx = _this->getCommunicator()->propertyToProxy(s);
         if(!createProxy(return_value, prx, _this))
         {
             RETURN_NULL();
@@ -469,7 +457,7 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
     {
         if(zv)
         {
-            Ice::ObjectPrx prx;
+            shared_ptr<Ice::ObjectPrx> prx;
             ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {
@@ -521,7 +509,7 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     try
     {
         string str = _this->getCommunicator()->identityToString(id);
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -628,7 +616,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
 
     try
     {
-        Ice::RouterPrx router = _this->getCommunicator()->getDefaultRouter();
+        shared_ptr<Ice::RouterPrx> router = _this->getCommunicator()->getDefaultRouter();
         if(router)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Router");
@@ -669,7 +657,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
@@ -678,7 +666,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
 
     try
     {
-        Ice::RouterPrx router;
+        shared_ptr<Ice::RouterPrx> router;
         if(proxy)
         {
             if(!info || !info->isA("::Ice::Router"))
@@ -686,7 +674,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
                 invalidArgument("setDefaultRouter requires a proxy narrowed to Ice::Router");
                 RETURN_NULL();
             }
-            router = Ice::RouterPrx::uncheckedCast(proxy);
+            router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
         }
         _this->getCommunicator()->setDefaultRouter(router);
     }
@@ -709,8 +697,8 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
 
     try
     {
-        Ice::LocatorPrx locator = _this->getCommunicator()->getDefaultLocator();
-        if(locator)
+        shared_ptr<Ice::LocatorPrx> locator = _this->getCommunicator()->getDefaultLocator();
+        if (locator)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Locator");
             if(!info)
@@ -750,7 +738,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
         RETURN_NULL();
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
@@ -759,7 +747,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
 
     try
     {
-        Ice::LocatorPrx locator;
+        shared_ptr<Ice::LocatorPrx> locator;
         if(proxy)
         {
             if(!info || !info->isA("::Ice::Locator"))
@@ -767,7 +755,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
                 invalidArgument("setDefaultLocator requires a proxy narrowed to Ice::Locator");
                 RETURN_NULL();
             }
-            locator = Ice::LocatorPrx::uncheckedCast(proxy);
+            locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
         }
         _this->getCommunicator()->setDefaultLocator(locator);
     }
@@ -785,19 +773,19 @@ ZEND_END_ARG_INFO()
 ZEND_METHOD(Ice_Communicator, flushBatchRequests)
 {
     zval* compress;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("z"), &compress TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &compress) != SUCCESS)
     {
         RETURN_NULL();
     }
 
     if(Z_TYPE_P(compress) != IS_LONG)
     {
-        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch" TSRMLS_CC);
+        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch");
         RETURN_NULL();
     }
     Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(Z_LVAL_P(compress));
 
-    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
     try
@@ -806,7 +794,7 @@ ZEND_METHOD(Ice_Communicator, flushBatchRequests)
     }
     catch(const IceUtil::Exception& ex)
     {
-        throwException(ex TSRMLS_CC);
+        throwException(ex);
         RETURN_NULL();
     }
 }
@@ -896,9 +884,6 @@ ZEND_METHOD(Ice_ValueFactoryManager, find)
     }
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleAlloc(zend_class_entry* ce)
 {
@@ -910,9 +895,6 @@ handleAlloc(zend_class_entry* ce)
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleFreeStorage(zend_object* object)
 {
@@ -923,23 +905,13 @@ handleFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
-#if PHP_VERSION_ID >= 80000
 handleClone(zend_object* zobj)
-#else
-handleClone(zval* zv)
-#endif
 {
     php_error_docref(0, E_ERROR, "communicators cannot be cloned");
     return 0;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
 handleVfmAlloc(zend_class_entry* ce)
 {
@@ -951,9 +923,6 @@ handleVfmAlloc(zend_class_entry* ce)
     return &obj->zobj;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static void
 handleVfmFreeStorage(zend_object* object)
 {
@@ -964,15 +933,8 @@ handleVfmFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
 static zend_object*
-#if PHP_VERSION_ID >= 80000
 handleVfmClone(zend_object* zobj)
-#else
-handleVfmClone(zval* zv)
-#endif
 {
     php_error_docref(0, E_ERROR, "value factory managers cannot be cloned");
     return 0;
@@ -991,9 +953,9 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 
         Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
         assert(!obj->ptr);
-
-        CommunicatorInfoIPtr info = new CommunicatorInfoI(ac, zv);
-        obj->ptr = new CommunicatorInfoIPtr(info);
+        obj->ptr = new shared_ptr<CommunicatorInfoI>(make_shared<CommunicatorInfoI>(ac, zv));
+        shared_ptr<CommunicatorInfoI> info = *obj->ptr;
+        info->setDefaultFactory(make_shared<DefaultValueFactory>(info));
 
         CommunicatorMap* m;
         if(ICE_G(communicatorMap))
@@ -1030,7 +992,7 @@ initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, const Ice::
         {
             c = Ice::initialize(initData);
         }
-        ActiveCommunicatorPtr ac = new ActiveCommunicator(c);
+        ActiveCommunicatorPtr ac = make_shared<ActiveCommunicator>(c);
 
         auto vfm = dynamic_pointer_cast<ValueFactoryManager>(c->getValueFactoryManager());
         assert(vfm);
@@ -1171,7 +1133,7 @@ ZEND_FUNCTION(Ice_initialize)
 
         member = "properties";
         {
-            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())) != 0)
+            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), member.c_str(), member.size())) != 0)
             {
                 assert(Z_TYPE_P(data) == IS_INDIRECT);
                 if(!fetchProperties(Z_INDIRECT_P(data), initData.properties))
@@ -1183,7 +1145,7 @@ ZEND_FUNCTION(Ice_initialize)
 
         member = "logger";
         {
-            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())) != 0)
+            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), member.c_str(), member.size())) != 0)
             {
                 assert(Z_TYPE_P(data) == IS_INDIRECT);
                 if(!fetchLogger(Z_INDIRECT_P(data), initData.logger))
@@ -1194,7 +1156,19 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
-    initData.compactIdResolver = new IdResolver();
+    initData.compactIdResolver = [](int id)
+        {
+            CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
+            if(m)
+            {
+                CompactIdMap::iterator p = m->find(id);
+                if(p != m->end())
+                {
+                    return p->second->id;
+                }
+            }
+            return string();
+        };
     initData.valueFactoryManager = make_shared<ValueFactoryManager>();
 
     if(!initData.properties)
@@ -1272,16 +1246,25 @@ ZEND_FUNCTION(Ice_register)
         // always use the most recent expiration setting.
         //
         info->ac->expires = static_cast<int>(expires);
-        info->ac->lastAccess = IceUtil::Time::now();
+        info->ac->lastAccess = std::chrono::steady_clock::now();
 
         //
         // Start the timer if necessary. Reap expired communicators every five minutes.
         //
-        if(!_timer)
+        if(!_reapThread.joinable())
         {
-            _timer = new IceUtil::Timer;
-            _timer->scheduleRepeated(new ReaperTask, IceUtil::Time::seconds(5 * 60));
+            _reapThread = std::thread([&]
+            {
+                std::unique_lock lock(_reapFinishedMutex);
+                _reapCond.wait_for(lock, std::chrono::minutes(5), [&] { return _reapingFinished; });
+                if (_reapingFinished)
+                {
+                    return;
+                }
+                reapRegisteredCommunicators();
+            });
         }
+
     }
 
     RETURN_TRUE;
@@ -1346,7 +1329,7 @@ ZEND_FUNCTION(Ice_find)
 
     if(p->second->expires > 0)
     {
-        p->second->lastAccess = IceUtil::Time::now();
+        p->second->lastAccess = std::chrono::steady_clock::now();
     }
 
     //
@@ -1419,7 +1402,7 @@ ZEND_FUNCTION(Ice_identityToString)
     try
     {
         string str = Ice::identityToString(id, static_cast<Ice::ToStringMode>(mode));
-        RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()));
+        RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1453,21 +1436,12 @@ ZEND_FUNCTION(Ice_stringToIdentity)
     }
 }
 
-//
-// Necessary to suppress warnings from zend_function_entry in php-5.2
-// and INI_STR macro.
-//
-#ifdef __GNUC__
-#   pragma GCC diagnostic ignored "-Wwrite-strings"
-#endif
-
-//
 // Predefined methods for Communicator.
-//
 static zend_function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
 };
+
 static zend_function_entry _classMethods[] =
 {
     ZEND_ME(Ice_Communicator, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -1492,13 +1466,12 @@ static zend_function_entry _classMethods[] =
     {0, 0, 0}
 };
 
-//
 // Predefined methods for ValueFactoryManager.
-//
 static zend_function_entry _vfmInterfaceMethods[] =
 {
     {0, 0, 0}
 };
+
 static zend_function_entry _vfmClassMethods[] =
 {
     ZEND_ME(Ice_ValueFactoryManager, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
@@ -1547,11 +1520,14 @@ createProfile(const string& name, const string& config, const string& options)
             ostringstream ostr;
             ex.ice_print(ostr);
             string msg = ostr.str();
-            php_error_docref(0, E_WARNING, "error occurred while parsing the options `%s':\n%s",
-                             options.c_str(), msg.c_str());
+            php_error_docref(
+                0,
+                E_WARNING,
+                "error occurred while parsing the options `%s':\n%s",
+                options.c_str(),
+                msg.c_str());
             return false;
         }
-
         properties->parseCommandLineOptions("", args);
     }
 
@@ -1562,14 +1538,11 @@ createProfile(const string& name, const string& config, const string& options)
 static bool
 parseProfiles(const string& file)
 {
-    //
-    // The Zend engine doesn't export a function for loading an INI file, so we
-    // have to do it ourselves. The format is:
+    // The Zend engine doesn't export a function for loading an INI file, so we have to do it ourselves. The format is:
     //
     // [profile-name]
     // ice.config = config-file
     // ice.options = args
-    //
     ifstream in(IceUtilInternal::streamFilename(file).c_str());
     if(!in)
     {
@@ -1608,8 +1581,7 @@ parseProfiles(const string& file)
             string::size_type end = s.find_first_of(" \t]", beg);
             if(end == string::npos || s[s.length() - 1] != ']')
             {
-                php_error_docref(0, E_WARNING, "invalid profile section in file %s:\n%s\n", file.c_str(),
-                                 line);
+                php_error_docref(0, E_WARNING, "invalid profile section in file %s:\n%s\n", file.c_str(), line);
                 return false;
             }
 
@@ -1644,9 +1616,7 @@ parseProfiles(const string& file)
                 end = s.length();
                 value = s.substr(beg, end - beg);
 
-                //
                 // Check for quotes and remove them if present
-                //
                 string::size_type qpos = IceUtilInternal::checkQuote(value);
                 if(qpos != string::npos)
                 {
@@ -1690,21 +1660,15 @@ parseProfiles(const string& file)
 bool
 IcePHP::communicatorInit(void)
 {
-    //
     // We register an interface and a class that implements the interface. This allows
     // applications to safely include the Slice-generated code for the type.
-    //
 
-    //
     // Register the Communicator interface.
-    //
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Communicator", _interfaceMethods);
     zend_class_entry* interface = zend_register_internal_interface(&ce);
 
-    //
     // Register the Communicator class.
-    //
     INIT_CLASS_ENTRY(ce, "IcePHP_Communicator", _classMethods);
     ce.create_object = handleAlloc;
     communicatorClassEntry = zend_register_internal_class(&ce);
@@ -1714,15 +1678,11 @@ IcePHP::communicatorInit(void)
     _handlers.offset = XtOffsetOf(Wrapper<CommunicatorInfoIPtr>, zobj);
     zend_class_implements(communicatorClassEntry, 1, interface);
 
-    //
     // Register the ValueFactoryManager interface.
-    //
     INIT_NS_CLASS_ENTRY(ce, "Ice", "ValueFactoryManager", _vfmInterfaceMethods);
     zend_class_entry* vfmInterface = zend_register_internal_interface(&ce);
 
-    //
     // Register the ValueFactoryManager class.
-    //
     INIT_CLASS_ENTRY(ce, "IcePHP_ValueFactoryManager", _vfmClassMethods);
     ce.create_object = handleVfmAlloc;
     valueFactoryManagerClassEntry = zend_register_internal_class(&ce);
@@ -1732,9 +1692,7 @@ IcePHP::communicatorInit(void)
     _vfmHandlers.offset   = XtOffsetOf(Wrapper<ValueFactoryManagerPtr>, zobj);
     zend_class_implements(valueFactoryManagerClassEntry, 1, vfmInterface);
 
-    //
     // Create the profiles from configuration settings.
-    //
     const char* empty = "";
     const char* config = INI_STR("ice.config"); // Needs to be a string literal!
     if(!config)
@@ -1788,19 +1746,21 @@ IcePHP::communicatorShutdown(void)
 {
     _profiles.clear();
 
-    lock_guard lock(_registeredCommunicatorsMutex);
-
-    if(_timer)
     {
-        _timer->destroy();
-        _timer = 0;
+        lock_guard lock(_reapFinishedMutex);
+        _reapingFinished = true;
+        _reapCond.notify_one();
     }
 
-    //
-    // Clearing the map releases the last remaining reference counts of the ActiveCommunicator
-    // objects. The ActiveCommunicator destructor destroys its communicator.
-    //
+    lock_guard lock(_registeredCommunicatorsMutex);
+    // Clearing the map releases the last remaining reference counts of the ActiveCommunicator objects. The
+    // ActiveCommunicator destructor destroys its communicator.
     _registeredCommunicators.clear();
+
+    if(_reapThread.joinable())
+    {
+        _reapThread.join();
+    }
 
     return true;
 }
@@ -1823,17 +1783,12 @@ IcePHP::communicatorRequestShutdown(void)
         {
             CommunicatorInfoIPtr info = p->second;
 
-            //
-            // We need to destroy any object|value factories installed during this request.
-            //
+            // We need to destroy any value factories installed during this request.
             info->destroyFactories();
         }
 
-        //
-        // Deleting the map decrements the reference count of its ActiveCommunicator
-        // values. If there are no other references to an ActiveCommunicator, its
-        // destructor destroys the communicator.
-        //
+        // Deleting the map decrements the reference count of its ActiveCommunicator values. If there are no other
+        // references to an ActiveCommunicator, its destructor destroys the communicator.
         delete m;
     }
 
@@ -1847,9 +1802,7 @@ IcePHP::ActiveCommunicator::ActiveCommunicator(const Ice::CommunicatorPtr& c) :
 
 IcePHP::ActiveCommunicator::~ActiveCommunicator()
 {
-    //
     // There are no more references to this communicator, so we can safely destroy it now.
-    //
     try
     {
         communicator->destroy();
@@ -1868,20 +1821,14 @@ IcePHP::FactoryWrapper::FactoryWrapper(zval* factory, const CommunicatorInfoIPtr
 shared_ptr<Ice::Value>
 IcePHP::FactoryWrapper::create(const string& id)
 {
-    //
     // Get the TSRM id for the current request.
-    //
 
-    //
     // Get the type information.
-    //
     ClassInfoPtr cls;
     if(id == Ice::Object::ice_staticId())
     {
-        //
-        // When the ID is that of Ice::Object, it indicates that the stream has not
-        // found a factory and is providing us an opportunity to preserve the object.
-        //
+        // When the ID is that of Ice::Object, it indicates that the stream has not found a factory and is providing us
+        // an opportunity to preserve the object.
         cls = getClassInfoById("::Ice::UnknownSlicedValue");
     }
     else
@@ -1891,12 +1838,12 @@ IcePHP::FactoryWrapper::create(const string& id)
 
     if(!cls)
     {
-        return 0;
+        return nullptr;
     }
 
     zval arg;
     AutoDestroy destroyArg(&arg);
-    ZVAL_STRINGL(&arg, STRCAST(id.c_str()), static_cast<int>(id.length()));
+    ZVAL_STRINGL(&arg, id.c_str(), static_cast<int>(id.length()));
 
     zval obj;
     ZVAL_UNDEF(&obj);
@@ -1904,11 +1851,7 @@ IcePHP::FactoryWrapper::create(const string& id)
     zend_try
     {
         assert(Z_TYPE(_factory) == IS_OBJECT);
-#if PHP_VERSION_ID >= 80000
         zend_call_method(Z_OBJ_P(&_factory), 0, 0, const_cast<char*>("create"), sizeof("create") - 1, &obj, 1, &arg, 0);
-#else
-        zend_call_method(&_factory, 0, 0, const_cast<char*>("create"), sizeof("create") - 1, &obj, 1, &arg, 0);
-#endif
     }
     zend_catch
     {
@@ -1916,9 +1859,7 @@ IcePHP::FactoryWrapper::create(const string& id)
     }
     zend_end_try();
 
-    //
     // Bail out if an exception has already been thrown.
-    //
     if(Z_ISUNDEF(obj) || EG(exception))
     {
         throw AbortMarshaling();
@@ -1930,7 +1871,6 @@ IcePHP::FactoryWrapper::create(const string& id)
     {
         return 0;
     }
-
     return make_shared<ValueReader>(&obj, cls, _info);
 }
 
@@ -1944,7 +1884,7 @@ void
 IcePHP::FactoryWrapper::destroy(void)
 {
     zval_ptr_dtor(&_factory);
-    _info = 0;
+    _info = nullptr;
 }
 
 IcePHP::DefaultValueFactory::DefaultValueFactory(const CommunicatorInfoIPtr& info) :
@@ -1955,9 +1895,7 @@ IcePHP::DefaultValueFactory::DefaultValueFactory(const CommunicatorInfoIPtr& inf
 shared_ptr<Ice::Value>
 IcePHP::DefaultValueFactory::create(const string& id)
 {
-    //
     // Get the TSRM id for the current request.
-    //
     if(_delegate)
     {
         shared_ptr<Ice::Value> v = _delegate->create(id);
@@ -1967,16 +1905,12 @@ IcePHP::DefaultValueFactory::create(const string& id)
         }
     }
 
-    //
     // Get the type information.
-    //
     ClassInfoPtr cls;
     if(id == Ice::Object::ice_staticId())
     {
-        //
-        // When the ID is that of Ice::Object, it indicates that the stream has not
-        // found a factory and is providing us an opportunity to preserve the object.
-        //
+        // When the ID is that of Ice::Object, it indicates that the stream has not found a factory and is providing us
+        // an opportunity to preserve the object.
         cls = getClassInfoById("::Ice::UnknownSlicedValue");
     }
     else
@@ -1989,9 +1923,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
         return 0;
     }
 
-    //
     // Instantiate the object.
-    //
     zval obj;
 
     if(object_init_ex(&obj, const_cast<zend_class_entry*>(cls->zce)) != SUCCESS)
@@ -2018,16 +1950,22 @@ IcePHP::DefaultValueFactory::destroy(void)
     if(_delegate)
     {
         _delegate->destroy();
-        _delegate = 0;
+        _delegate = nullptr;
     }
-    _info = 0;
+    _info = nullptr;
 }
 
 IcePHP::CommunicatorInfoI::CommunicatorInfoI(const ActiveCommunicatorPtr& c, zval* z) :
     ac(c),
-    _defaultFactory(make_shared<DefaultValueFactory>(this))
+    _defaultFactory(nullptr)
 {
     ZVAL_COPY_VALUE(&zv, z);
+}
+
+void
+IcePHP::CommunicatorInfoI::setDefaultFactory(DefaultValueFactoryPtr defaultFactory)
+{
+    _defaultFactory = std::move(defaultFactory);
 }
 
 void
@@ -2069,7 +2007,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
             return false;
         }
 
-        _defaultFactory->setDelegate(make_shared<FactoryWrapper>(factory, this));
+        _defaultFactory->setDelegate(make_shared<FactoryWrapper>(factory, shared_from_this()));
     }
     else
     {
@@ -2082,7 +2020,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
             throwException(ex);
             return false;
         }
-        _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, this)));
+        _factories.insert(FactoryMap::value_type(id, make_shared<FactoryWrapper>(factory, shared_from_this())));
     }
 
     return true;
@@ -2104,7 +2042,7 @@ IcePHP::CommunicatorInfoI::findFactory(const string& id) const
             return p->second;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void
@@ -2121,28 +2059,21 @@ IcePHP::CommunicatorInfoI::destroyFactories(void)
 void
 IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
 {
-    //
     // We don't support factories registered in C++.
-    //
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
 }
 
 void
 IcePHP::ValueFactoryManager::add(const Ice::ValueFactoryPtr&, const string&)
 {
-    //
     // We don't support factories registered in C++.
-    //
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
 }
 
 Ice::ValueFactoryFunc
 IcePHP::ValueFactoryManager::find(const string& id) const noexcept
 {
-    //
     // Get the TSRM id for the current request.
-    //
-
     CommunicatorMap* m = static_cast<CommunicatorMap*>(ICE_G(communicatorMap));
     assert(m);
     CommunicatorMap::iterator p = m->find(_communicator);
@@ -2151,7 +2082,6 @@ IcePHP::ValueFactoryManager::find(const string& id) const noexcept
     CommunicatorInfoIPtr info = p->second;
 
     Ice::ValueFactoryPtr factory;
-
     if (id.empty())
     {
         factory = info->defaultFactory();
@@ -2172,38 +2102,10 @@ IcePHP::ValueFactoryManager::find(const string& id) const noexcept
     {
         return nullptr;
     }
-
 }
 
 void
 IcePHP::ValueFactoryManager::destroy()
 {
-    _communicator = 0;
-}
-
-void
-IcePHP::ReaperTask::runTimerTask()
-{
-    lock_guard lock(_registeredCommunicatorsMutex);
-
-    IceUtil::Time now = IceUtil::Time::now();
-    RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
-    while(p != _registeredCommunicators.end())
-    {
-        if(p->second->lastAccess + IceUtil::Time::seconds(p->second->expires * 60) <= now)
-        {
-            try
-            {
-                p->second->communicator->destroy();
-            }
-            catch(...)
-            {
-            }
-            _registeredCommunicators.erase(p++);
-        }
-        else
-        {
-            ++p;
-        }
-    }
+    _communicator = nullptr;
 }

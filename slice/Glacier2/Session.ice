@@ -12,9 +12,6 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:GLACIER2_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Glacier2"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -23,7 +20,6 @@
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:GLACIER2"]
 module Glacier2
 {
     /// This exception is raised if an attempt to create a new session failed.

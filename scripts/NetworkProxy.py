@@ -53,12 +53,14 @@ class BaseConnection(threading.Thread):
                 return
 
             try:
-                while(not self.closed):
-                    readables, writeables, exceptions = select.select([self.socket, self.remoteSocket], [], [])
+                while not self.closed:
+                    readables, writeables, exceptions = select.select(
+                        [self.socket, self.remoteSocket], [], []
+                    )
                     for r in readables:
                         w = self.remoteSocket if r == self.socket else self.socket
                         data = r.recv(4096)
-                        if(len(data) == 0):
+                        if len(data) == 0:
                             self.closed = True
                             break
                         w.send(data)
@@ -101,7 +103,9 @@ class BaseProxy(threading.Thread):
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 if hasattr(socket, "SO_REUSEPORT"):
                     try:
-                        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                        self.socket.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_REUSEPORT, 1
+                        )
                     except:
                         # Ignore, this can throw on some platforms if not supported (e.g: ARMHF/Qemu)
                         pass
@@ -152,7 +156,6 @@ class BaseProxy(threading.Thread):
 
 
 class SocksConnection(BaseConnection):
-
     def request(self, s):
         def decode(c):
             return ord(c) if sys.version_info[0] == 2 else c
@@ -186,19 +189,17 @@ class SocksConnection(BaseConnection):
 
 
 class SocksProxy(BaseProxy):
-
     def createConnection(self, socket, peer):
         return SocksConnection(socket, peer)
 
 
 class HttpConnection(BaseConnection):
-
     def request(self, s):
         def decode(c):
             return c[0] if sys.version_info[0] == 2 else chr(c[0])
 
         data = ""
-        while(len(data) < 4 or data[len(data) - 4:] != "\r\n\r\n"):
+        while len(data) < 4 or data[len(data) - 4 :] != "\r\n\r\n":
             data += decode(s.recv(1))
 
         if data.find("CONNECT ") != 0:
@@ -208,16 +209,16 @@ class HttpConnection(BaseConnection):
         if sep < len("CONNECT ") + 1:
             raise InvalidRequest
 
-        host = data[len("CONNECT "):sep]
+        host = data[len("CONNECT ") : sep]
         space = data.find(" ", sep)
         if space < sep + 1:
             raise InvalidRequest
 
-        port = int(data[sep + 1:space])
+        port = int(data[sep + 1 : space])
         return (host, port)
 
     def response(self, success):
-        if(success):
+        if success:
             s = "HTTP/1.1 200 OK\r\nServer: CERN/3.0 libwww/2.17\r\n\r\n"
         else:
             s = "HTTP/1.1 404\r\n\r\n"
@@ -225,6 +226,5 @@ class HttpConnection(BaseConnection):
 
 
 class HttpProxy(BaseProxy):
-
     def createConnection(self, socket, peer):
         return HttpConnection(socket, peer)

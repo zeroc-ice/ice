@@ -2,15 +2,20 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys
+import Ice
+import Test
+import sys
+
 
 class HelloI(Test.Hello):
     def sayHello(self, current=None):
         pass
 
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(helper, communicator):
     ref = "ServerManager:{0}".format(helper.getTestEndpoint())

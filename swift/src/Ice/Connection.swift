@@ -83,13 +83,13 @@ public enum ACMClose: Swift.UInt8 {
     case CloseOff = 0
     /// CloseOnIdle Gracefully closes a connection that has been idle for the configured timeout period.
     case CloseOnIdle = 1
-    /// CloseOnInvocation Forcefully closes a connection that has been idle for the configured timeout period, but only if the connection
-    /// has pending invocations.
+    /// CloseOnInvocation Forcefully closes a connection that has been idle for the configured timeout period, but
+    /// only if the connection has pending invocations.
     case CloseOnInvocation = 2
     /// CloseOnInvocationAndIdle Combines the behaviors of CloseOnIdle and CloseOnInvocation.
     case CloseOnInvocationAndIdle = 3
-    /// CloseOnIdleForceful Forcefully closes a connection that has been idle for the configured timeout period, regardless of whether the
-    /// connection has pending invocations or dispatch.
+    /// CloseOnIdleForceful Forcefully closes a connection that has been idle for the configured timeout period,
+    /// regardless of whether the connection has pending invocations or dispatch.
     case CloseOnIdleForceful = 4
     public init() {
         self = .CloseOff
@@ -148,7 +148,8 @@ public extension OutputStream {
 public enum ACMHeartbeat: Swift.UInt8 {
     /// HeartbeatOff Disables heartbeats.
     case HeartbeatOff = 0
-    /// HeartbeatOnDispatch Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch.
+    /// HeartbeatOnDispatch Send a heartbeat at regular intervals if the connection is idle and only if there are
+    /// pending dispatch.
     case HeartbeatOnDispatch = 1
     /// HeartbeatOnIdle Send a heartbeat at regular intervals when the connection is idle.
     case HeartbeatOnIdle = 2
@@ -227,11 +228,11 @@ public struct ACM: Swift.Hashable {
 
 /// Determines the behavior when manually closing a connection.
 public enum ConnectionClose: Swift.UInt8 {
-    /// Forcefully Close the connection immediately without sending a close connection protocol message to the peer and waiting
-    /// for the peer to acknowledge it.
+    /// Forcefully Close the connection immediately without sending a close connection protocol message to the peer
+    /// and waiting for the peer to acknowledge it.
     case Forcefully = 0
-    /// Gracefully Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete. On the
-    /// server side, the connection will not be closed until all incoming invocations have completed.
+    /// Gracefully Close the connection by notifying the peer but do not wait for pending outgoing invocations to
+    /// complete. On the server side, the connection will not be closed until all incoming invocations have completed.
     case Gracefully = 1
     /// GracefullyWithWait Wait for all pending invocations to complete before closing the connection.
     case GracefullyWithWait = 2
@@ -292,7 +293,7 @@ public extension OutputStream {
 public typealias HeaderDict = [Swift.String: Swift.String]
 
 /// Base class providing access to the connection details.
-public protocol ConnectionInfo:  Swift.AnyObject {
+public protocol ConnectionInfo: Swift.AnyObject {
     /// The information of the underyling transport or null if there's no underlying transport.
     var underlying: ConnectionInfo? { get set }
     /// Whether or not the connection is an incoming or outgoing connection.
@@ -320,7 +321,7 @@ public typealias CloseCallback = (Connection?) -> Swift.Void
 public typealias HeartbeatCallback = (Connection?) -> Swift.Void
 
 /// The user-level interface to a connection.
-public protocol Connection:  Swift.AnyObject, Swift.CustomStringConvertible {
+public protocol Connection: Swift.AnyObject, Swift.CustomStringConvertible {
     /// Manually close the connection using the specified closure mode.
     ///
     /// - parameter _: `ConnectionClose` Determines how the connection will be closed.
@@ -340,14 +341,15 @@ public protocol Connection:  Swift.AnyObject, Swift.CustomStringConvertible {
     /// is used by the proxy in order to receive callbacks. This is useful if the server cannot establish a connection
     /// back to the client, for example because of firewalls.
     ///
-    /// - parameter _: `ObjectAdapter?` The object adapter that should be used by this connection to dispatch requests. The object
-    /// adapter must be activated. When the object adapter is deactivated, it is automatically removed from the
-    /// connection. Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException
+    /// - parameter _: `ObjectAdapter?` The object adapter that should be used by this connection to dispatch requests.
+    /// The object adapter must be activated. When the object adapter is deactivated, it is automatically removed from
+    /// the connection. Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException
     func setAdapter(_ adapter: ObjectAdapter?) throws
 
     /// Get the object adapter that dispatches requests for this connection.
     ///
-    /// - returns: `ObjectAdapter?` - The object adapter that dispatches requests for the connection, or null if no adapter is set.
+    /// - returns: `ObjectAdapter?` - The object adapter that dispatches requests for the connection, or null if no
+    /// adapter is set.
     func getAdapter() -> ObjectAdapter?
 
     /// Get the endpoint from which the connection was created.
@@ -358,15 +360,15 @@ public protocol Connection:  Swift.AnyObject, Swift.CustomStringConvertible {
     /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
     /// associated with the connection.
     ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before being sent over
-    /// the wire.
+    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
+    /// being sent over the wire.
     func flushBatchRequests(_ compress: CompressBatch) throws
 
     /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
     /// associated with the connection.
     ///
-    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before being sent over
-    /// the wire.
+    /// - parameter _: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
+    /// being sent over the wire.
     ///
     /// - parameter sentOn: `Dispatch.DispatchQueue?` - Optional dispatch queue used to
     ///   dispatch the sent callback.
@@ -377,7 +379,10 @@ public protocol Connection:  Swift.AnyObject, Swift.CustomStringConvertible {
     /// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<>` - The result of the operation
-    func flushBatchRequestsAsync(_ compress: CompressBatch, sentOn: Dispatch.DispatchQueue?, sentFlags: Dispatch.DispatchWorkItemFlags?, sent: ((Swift.Bool) -> Swift.Void)?) -> PromiseKit.Promise<Swift.Void>
+    func flushBatchRequestsAsync(_ compress: CompressBatch,
+                                 sentOn: Dispatch.DispatchQueue?,
+                                 sentFlags: Dispatch.DispatchWorkItemFlags?,
+                                 sent: ((Swift.Bool) -> Swift.Void)?) -> PromiseKit.Promise<Swift.Void>
 
     /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
     /// is called from the Ice thread pool associated with the connection. If the callback needs more information about
@@ -406,7 +411,9 @@ public protocol Connection:  Swift.AnyObject, Swift.CustomStringConvertible {
     /// - parameter sent: `((Swift.Bool) -> Swift.Void)` - Optional sent callback.
     ///
     /// - returns: `PromiseKit.Promise<>` - The result of the operation
-    func heartbeatAsync(sentOn: Dispatch.DispatchQueue?, sentFlags: Dispatch.DispatchWorkItemFlags?, sent: ((Swift.Bool) -> Swift.Void)?) -> PromiseKit.Promise<Swift.Void>
+    func heartbeatAsync(sentOn: Dispatch.DispatchQueue?,
+                        sentFlags: Dispatch.DispatchWorkItemFlags?,
+                        sent: ((Swift.Bool) -> Swift.Void)?) -> PromiseKit.Promise<Swift.Void>
 
     /// Set the active connection management parameters.
     ///
@@ -425,7 +432,7 @@ public protocol Connection:  Swift.AnyObject, Swift.CustomStringConvertible {
     /// Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
     ///
     /// - returns: `Swift.String` - The type of the connection.
-    func `type`() -> Swift.String
+    func type() -> Swift.String
 
     /// Get the timeout for the connection.
     ///

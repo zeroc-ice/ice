@@ -9,7 +9,7 @@ import IceStorm
 import TestCommon
 
 public class Client: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
         let communicator = try initialize(initData)
@@ -20,8 +20,8 @@ public class Client: TestHelperI {
 
         do {
             out.write("Testing Glacier2 stub... ")
-            let router = uncheckedCast(prx: try communicator.stringToProxy("test:\(getTestEndpoint(num: 0))")!,
-                                       type: Glacier2.RouterPrx.self)
+            let router = try uncheckedCast(prx: communicator.stringToProxy("test:\(getTestEndpoint(num: 0))")!,
+                                           type: Glacier2.RouterPrx.self)
             do {
                 _ = try router.createSession(userId: "foo", password: "bar")
                 try test(false)
@@ -33,8 +33,8 @@ public class Client: TestHelperI {
 
         do {
             out.write("Testing IceStorm stub... ")
-            let manager = uncheckedCast(prx: try communicator.stringToProxy("test:\(getTestEndpoint(num: 0))")!,
-                                                 type: TopicManagerPrx.self)
+            let manager = try uncheckedCast(prx: communicator.stringToProxy("test:\(getTestEndpoint(num: 0))")!,
+                                            type: TopicManagerPrx.self)
 
             let topicName = "time"
             var topic: TopicPrx?
@@ -55,8 +55,8 @@ public class Client: TestHelperI {
 
         do {
             out.write("Testing IceGrid stub... ")
-            let registry = uncheckedCast(prx: try communicator.stringToProxy("test:\(getTestEndpoint(num: 0))")!,
-                                        type: RegistryPrx.self)
+            let registry = try uncheckedCast(prx: communicator.stringToProxy("test:\(getTestEndpoint(num: 0))")!,
+                                             type: RegistryPrx.self)
 
             var session: AdminSessionPrx?
             do {

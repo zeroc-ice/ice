@@ -16,7 +16,7 @@
 import Foundation
 
 /// Base class providing access to the endpoint details.
-public protocol EndpointInfo:  Swift.AnyObject {
+public protocol EndpointInfo: Swift.AnyObject {
     /// The information of the underyling endpoint or null if there's no underlying endpoint.
     var underlying: EndpointInfo? { get set }
     /// The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
@@ -27,7 +27,7 @@ public protocol EndpointInfo:  Swift.AnyObject {
     /// Returns the type of the endpoint.
     ///
     /// - returns: `Swift.Int16` - The endpoint type.
-    func `type`() -> Swift.Int16
+    func type() -> Swift.Int16
 
     /// Returns true if this endpoint is a datagram endpoint.
     ///
@@ -40,7 +40,7 @@ public protocol EndpointInfo:  Swift.AnyObject {
 }
 
 /// The user-level interface to an endpoint.
-public protocol Endpoint:  Swift.AnyObject, Swift.CustomStringConvertible {
+public protocol Endpoint: Swift.AnyObject, Swift.CustomStringConvertible {
     /// Return a string representation of the endpoint.
     ///
     /// - returns: `Swift.String` - The string representation of the endpoint.
@@ -88,4 +88,3 @@ public protocol OpaqueEndpointInfo: EndpointInfo {
 }
 
 public typealias EndpointSeq = [Endpoint]
-

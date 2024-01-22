@@ -103,8 +103,8 @@ class TestI: TestIntf {
     }
 
     func waitForHeartbeatCount(count: Int32, current _: Current) {
-        for _ in 0..<count {
-            self._hearbeatCallback.wait()
+        for _ in 0 ..< count {
+            _hearbeatCallback.wait()
         }
     }
 }

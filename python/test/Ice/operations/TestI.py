@@ -2,11 +2,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading
+import Ice
+import Test
+import sys
+import threading
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):

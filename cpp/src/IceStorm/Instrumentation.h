@@ -53,7 +53,6 @@
 namespace IceStorm
 {
 
-
 namespace Instrumentation
 {
 

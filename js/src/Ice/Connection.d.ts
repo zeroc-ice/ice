@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 export namespace Ice
 {
     /**
@@ -33,12 +32,12 @@ export namespace Ice
          * Compress the batch requests if at least one request was made on a compressed proxy.
          */
         static readonly BasedOnProxy:CompressBatch;
-        
+
         static valueOf(value:number):CompressBatch;
         equals(other:any):boolean;
         hashCode():number;
         toString():string;
-        
+
         readonly name:string;
         readonly value:number;
     }
@@ -112,12 +111,12 @@ export namespace Ice
          * connection has pending invocations or dispatch.
          */
         static readonly CloseOnIdleForceful:ACMClose;
-        
+
         static valueOf(value:number):ACMClose;
         equals(other:any):boolean;
         hashCode():number;
         toString():string;
-        
+
         readonly name:string;
         readonly value:number;
     }
@@ -143,12 +142,12 @@ export namespace Ice
          * Send a heartbeat at regular intervals until the connection is closed.
          */
         static readonly HeartbeatAlways:ACMHeartbeat;
-        
+
         static valueOf(value:number):ACMHeartbeat;
         equals(other:any):boolean;
         hashCode():number;
         toString():string;
-        
+
         readonly name:string;
         readonly value:number;
     }
@@ -188,12 +187,12 @@ export namespace Ice
          * Wait for all pending invocations to complete before closing the connection.
          */
         static readonly GracefullyWithWait:ConnectionClose;
-        
+
         static valueOf(value:number):ConnectionClose;
         equals(other:any):boolean;
         hashCode():number;
         toString():string;
-        
+
         readonly name:string;
         readonly value:number;
     }

@@ -6,7 +6,7 @@ import Ice
 import TestCommon
 
 class Server: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         let properties = try createTestProperties(args)
         //
         // We don't want connection warnings because of the timeout test.

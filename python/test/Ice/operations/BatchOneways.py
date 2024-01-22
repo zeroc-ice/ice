@@ -2,11 +2,17 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, array, sys, time
+import Ice
+import Test
+import array
+import sys
+import time
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
 
@@ -27,8 +33,9 @@ class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
         self._size = size
 
         if self._size + request.getSize() > 25000:
-            request.getProxy().begin_ice_flushBatchRequests()
-            self._size = 18 # header
+            f = request.getProxy().ice_flushBatchRequestsAsync()
+            f.result()
+            self._size = 18  # header
 
         if self._enabled:
             self._lastRequestSize = request.getSize()
@@ -41,6 +48,7 @@ class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
     def count(self):
         return self._count
 
+
 def batchOneways(p):
 
     bs1 = bytes([0 for x in range(0, 10 * 1024)])
@@ -52,18 +60,18 @@ def batchOneways(p):
 
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
-    batch.ice_flushBatchRequests() # Empty flush
+    batch.ice_flushBatchRequests()  # Empty flush
     if batch.ice_getConnection():
         batch.ice_getConnection().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
     batch.ice_getCommunicator().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
 
-    p.opByteSOnewayCallCount() # Reset the call count
+    p.opByteSOnewayCallCount()  # Reset the call count
 
     for i in range(30):
         batch.opByteSOneway(bs1)
 
     count = 0
-    while count < 27: # 3 * 9 requests auto-flushed.
+    while count < 27:  # 3 * 9 requests auto-flushed.
         count += p.opByteSOnewayCallCount()
         time.sleep(0.01)
 
@@ -88,7 +96,7 @@ def batchOneways(p):
         batch2.ice_ping()
 
     identity = Ice.Identity()
-    identity.name = "invalid";
+    identity.name = "invalid"
     batch3 = batch.ice_identity(identity)
     batch3.ice_ping()
     batch3.ice_flushBatchRequests()
@@ -130,7 +138,7 @@ def batchOneways(p):
         batch.opByteSOneway(bs1)
         test(interceptor.count() == 3)
 
-        batch.opByteSOneway(bs1) # This should trigger the flush
+        batch.opByteSOneway(bs1)  # This should trigger the flush
         batch.ice_ping()
         test(interceptor.count() == 2)
 

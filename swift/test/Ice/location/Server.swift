@@ -7,7 +7,7 @@ import Ice
 import TestCommon
 
 class Server: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         //
         // Register the server manager. The server manager creates a new
         // 'server'(a server isn't a different process, it's just a new

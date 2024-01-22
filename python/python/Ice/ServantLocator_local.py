@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.ObjectAdapterF_local
 import Ice.Current_local
 
@@ -26,10 +27,12 @@ __name__ = 'Ice'
 
 if 'ServantLocator' not in _M_Ice.__dict__:
     _M_Ice.ServantLocator = Ice.createTempClass()
+
     class ServantLocator(object):
         """
          A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.ServantLocator:
                 raise RuntimeError('Ice.ServantLocator is an abstract class')

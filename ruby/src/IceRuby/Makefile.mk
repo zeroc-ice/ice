@@ -8,15 +8,18 @@ IceRuby_target          := ruby-module
 IceRuby_targetname      := IceRuby
 IceRuby_targetdir       := $(lang_srcdir)/ruby
 IceRuby_installdir      := $(install_rubylibdir)
-IceRuby_cppflags        := -I$(project) $(ice_cpp_cppflags) -I$(top_srcdir)/cpp/src $(ruby_cppflags)
+IceRuby_cppflags        := -I$(project) $(ice_cpp_cppflags) -I$(top_srcdir)/cpp/src -I$(top_srcdir)/cpp/src/slice2rb \
+    $(ruby_cppflags) -DICE_CPP11_MAPPING
 IceRuby_system_libs     := $(ruby_ldflags)
-IceRuby_dependencies    := IceDiscovery IceLocatorDiscovery IceSSL Ice
+IceRubydependencies     := IceDiscovery++11 IceLocatorDiscovery++11 IceSSL++11 Ice++11
+# TODO temporary ++11 dependencies are not linked
+IceRuby_system_libs      += -L$(top_srcdir)/cpp/lib/x86_64-linux-gnu \
+    -L$(top_srcdir)/cpp/lib \
+    -lIce++11 -lIceSSL++11 -lIceDiscovery++11 -lIceLocatorDiscovery++11
 IceRuby_libs            := mcpp
-IceRuby_extra_sources   := $(filter-out %Util.cpp %Python.cpp,\
-                           $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp)) \
-                           $(top_srcdir)/cpp/src/Slice/SliceUtil.cpp \
-                           $(top_srcdir)/cpp/src/Slice/RubyUtil.cpp \
-                           $(top_srcdir)/cpp/src/Slice/StringLiteralUtil.cpp
+IceRuby_extra_sources   := $(wildcard $(top_srcdir)/cpp/src/Slice/*.cpp) \
+                           $(top_srcdir)/cpp/src/slice2rb/RubyUtil.cpp   \
+                           (top_srcdir)/cpp/src/slice2rb/Ruby.cpp        \
 
 #
 # On the default platform, always write the module in the ruby directory.

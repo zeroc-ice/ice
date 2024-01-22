@@ -2,14 +2,22 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, os
+import sys
+import os
 from Util import *
 
-class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
+class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     def __init__(self, portnum=50, passwords={"userid": "abc123"}, *args, **kargs):
-        Server.__init__(self, "glacier2router++11", mapping=Mapping.getByName("cpp"), desc="Glacier2 router",
-                        readyCount=2, *args, **kargs)
+        Server.__init__(
+            self,
+            "glacier2router++11",
+            mapping=Mapping.getByName("cpp"),
+            desc="Glacier2 router",
+            readyCount=2,
+            *args,
+            **kargs,
+        )
         self.portnum = portnum
         self.passwords = passwords
 
@@ -20,8 +28,12 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
         if self.passwords:
             path = os.path.join(current.testsuite.getPath(), "passwords")
             with open(path, "w") as file:
-                command = "\"%s\" %s" % (sys.executable,
-                                     os.path.abspath(os.path.join(toplevel, "scripts", "icehashpassword.py")))
+                command = '"%s" %s' % (
+                    sys.executable,
+                    os.path.abspath(
+                        os.path.join(toplevel, "scripts", "icehashpassword.py")
+                    ),
+                )
 
                 #
                 # For Linux ARM default rounds makes test slower (Usually runs on embedded boards)
@@ -30,19 +42,29 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
                     command += " --rounds 100000"
 
                 for user, password in self.passwords.items():
-                    file.write("%s %s\n" % (user, run(command, stdin=(password + '\r\n').encode('UTF-8'))))
+                    file.write(
+                        "%s %s\n"
+                        % (
+                            user,
+                            run(command, stdin=(password + "\r\n").encode("UTF-8")),
+                        )
+                    )
             current.files.append(path)
 
     def getProps(self, current):
         props = Server.getProps(self, current)
-        props.update({
-            "Glacier2.Client.Endpoints" : current.getTestEndpoint(self.portnum),
-            "Glacier2.Server.Endpoints" : "tcp",
-            "Ice.Admin.Endpoints" : current.getTestEndpoint(self.portnum + 1),
-            "Ice.Admin.InstanceName" : "Glacier2",
-        })
+        props.update(
+            {
+                "Glacier2.Client.Endpoints": current.getTestEndpoint(self.portnum),
+                "Glacier2.Server.Endpoints": "tcp",
+                "Ice.Admin.Endpoints": current.getTestEndpoint(self.portnum + 1),
+                "Ice.Admin.InstanceName": "Glacier2",
+            }
+        )
         if self.passwords:
-            props["Glacier2.CryptPasswords"] = os.path.join(current.testsuite.getPath(), "passwords")
+            props["Glacier2.CryptPasswords"] = os.path.join(
+                current.testsuite.getPath(), "passwords"
+            )
         if isinstance(current.testcase.getTestSuite(), Glacier2TestSuite):
             # Add the properties provided by the Glacier2TestSuite routerProps parameter.
             props.update(current.testcase.getTestSuite().getRouterProps(self, current))
@@ -51,8 +73,8 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     def getClientProxy(self, current):
         return "Glacier2/router:{0}".format(current.getTestEndpoint(self.portnum))
 
-class Glacier2TestSuite(TestSuite):
 
+class Glacier2TestSuite(TestSuite):
     def __init__(self, path, routerProps={}, testcases=None, *args, **kargs):
         if testcases is None:
             testcases = [ClientServerTestCase(servers=[Glacier2Router(), Server()])]
@@ -60,4 +82,8 @@ class Glacier2TestSuite(TestSuite):
         self.routerProps = routerProps
 
     def getRouterProps(self, process, current):
-        return self.routerProps(process, current) if callable(self.routerProps) else self.routerProps.copy()
+        return (
+            self.routerProps(process, current)
+            if callable(self.routerProps)
+            else self.routerProps.copy()
+        )

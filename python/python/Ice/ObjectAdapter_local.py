@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.CommunicatorF_local
 import Ice.ServantLocatorF_local
 import Ice.Locator_ice
@@ -29,12 +30,14 @@ __name__ = 'Ice'
 
 if 'ObjectAdapter' not in _M_Ice.__dict__:
     _M_Ice.ObjectAdapter = Ice.createTempClass()
+
     class ObjectAdapter(object):
         """
          The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
          object adapter is responsible for receiving requests from endpoints, and for mapping between servants, identities,
          and proxies.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.ObjectAdapter:
                 raise RuntimeError('Ice.ObjectAdapter is an abstract class')

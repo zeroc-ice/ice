@@ -3,14 +3,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, threading, sys
+import Ice
+import threading
+import sys
 
 Ice.loadSlice('-I. --all ClientPrivate.ice')
 import Test
 
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CallbackBase:
     def __init__(self):
@@ -27,6 +31,7 @@ class CallbackBase:
         with self._cond:
             self._called = True
             self._cond.notify()
+
 
 class Callback(CallbackBase):
     def exception_baseAsBase(self, f):
@@ -184,6 +189,7 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
+
 class RelayI(Test.Relay):
     def knownPreservedAsBase(self, current=None):
         ex = Test.KnownPreservedDerived()
@@ -216,6 +222,7 @@ class RelayI(Test.Relay):
         ex.p1 = Test.PreservedClass("bc", "pc")
         ex.p2 = ex.p1
         raise ex
+
 
 def allTests(helper, communicator):
     obj = communicator.stringToProxy("Test:{0}".format(helper.getTestEndpoint()))
@@ -507,31 +514,31 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     try:
-        t.unknownPreservedAsBase();
-        test(False);
+        t.unknownPreservedAsBase()
+        test(False)
     except Test.Base as ex:
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(ex.ice_getSlicedData() is None)
         else:
-            slicedData = ex.ice_getSlicedData();
-            test(slicedData);
-            test(len(slicedData.slices) == 2);
-            test(slicedData.slices[1].typeId == "::Test::SPreserved1");
-            test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+            slicedData = ex.ice_getSlicedData()
+            test(slicedData)
+            test(len(slicedData.slices) == 2)
+            test(slicedData.slices[1].typeId == "::Test::SPreserved1")
+            test(slicedData.slices[0].typeId == "::Test::SPreserved2")
 
     try:
-        t.unknownPreservedAsKnownPreserved();
-        test(False);
+        t.unknownPreservedAsKnownPreserved()
+        test(False)
     except Test.KnownPreserved as ex:
         test(ex.kp == "preserved")
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(ex.ice_getSlicedData() is None)
         else:
-            slicedData = ex.ice_getSlicedData();
-            test(slicedData);
-            test(len(slicedData.slices) == 2);
-            test(slicedData.slices[1].typeId == "::Test::SPreserved1");
-            test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+            slicedData = ex.ice_getSlicedData()
+            test(slicedData)
+            test(len(slicedData.slices) == 2)
+            test(slicedData.slices[1].typeId == "::Test::SPreserved1")
+            test(slicedData.slices[0].typeId == "::Test::SPreserved2")
 
     adapter = communicator.createObjectAdapter("")
     relay = Test.RelayPrx.uncheckedCast(adapter.addWithUUID(RelayI()))

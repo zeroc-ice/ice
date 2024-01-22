@@ -7,11 +7,28 @@ from Util import *
 from Component import component
 from IceBoxUtil import *
 
-class IceStorm(ProcessFromBinDir, Server):
 
-    def __init__(self, instanceName="IceStorm", replica=0, nreplicas=0, transient=False, portnum=0,
-                 createDb=True, cleanDb=True, *args, **kargs):
-        Server.__init__(self, exe="icebox++11", ready="IceStorm", mapping=Mapping.getByName("cpp"), *args, **kargs)
+class IceStorm(ProcessFromBinDir, Server):
+    def __init__(
+        self,
+        instanceName="IceStorm",
+        replica=0,
+        nreplicas=0,
+        transient=False,
+        portnum=0,
+        createDb=True,
+        cleanDb=True,
+        *args,
+        **kargs,
+    ):
+        Server.__init__(
+            self,
+            exe="icebox++11",
+            ready="IceStorm",
+            mapping=Mapping.getByName("cpp"),
+            *args,
+            **kargs,
+        )
         self.portnum = portnum
         self.replica = replica
         self.nreplicas = nreplicas
@@ -19,15 +36,21 @@ class IceStorm(ProcessFromBinDir, Server):
         self.instanceName = instanceName
         self.createDb = createDb
         self.cleanDb = cleanDb
-        self.desc = self.instanceName if self.nreplicas == 0 else "{0} replica #{1}".format(self.instanceName,
-                                                                                            self.replica)
+        self.desc = (
+            self.instanceName
+            if self.nreplicas == 0
+            else "{0} replica #{1}".format(self.instanceName, self.replica)
+        )
 
     def getExe(self, current):
         return self.exe + "_32" if current.config.buildPlatform == "ppc" else self.exe
 
     def setup(self, current):
         # Create the database directory
-        self.dbdir = os.path.join(current.testsuite.getPath(), "{0}-{1}.db".format(self.instanceName, self.replica))
+        self.dbdir = os.path.join(
+            current.testsuite.getPath(),
+            "{0}-{1}.db".format(self.instanceName, self.replica),
+        )
         if self.createDb:
             if os.path.exists(self.dbdir):
                 shutil.rmtree(self.dbdir)
@@ -45,20 +68,24 @@ class IceStorm(ProcessFromBinDir, Server):
         props = Server.getProps(self, current)
 
         # Default properties
-        props.update({
-            'IceBox.Service.IceStorm' : 'IceStormService,' + component.getSoVersion() + ':createIceStorm',
-            'IceBox.PrintServicesReady' : 'IceStorm',
-            'IceBox.InheritProperties' : 1,
-            'IceStorm.InstanceName' : self.instanceName,
-            'Ice.Admin.InstanceName' : 'IceBox',
-            'Ice.Warn.Dispatch' : 0,
-            'Ice.Warn.Connections' : 0,
-            'IceStorm.LMDB.MapSize' : 1,
-            'IceStorm.LMDB.Path' : '{testdir}/{process.instanceName}-{process.replica}.db',
-        })
+        props.update(
+            {
+                "IceBox.Service.IceStorm": "IceStormService,"
+                + component.getSoVersion()
+                + ":createIceStorm",
+                "IceBox.PrintServicesReady": "IceStorm",
+                "IceBox.InheritProperties": 1,
+                "IceStorm.InstanceName": self.instanceName,
+                "Ice.Admin.InstanceName": "IceBox",
+                "Ice.Warn.Dispatch": 0,
+                "Ice.Warn.Connections": 0,
+                "IceStorm.LMDB.MapSize": 1,
+                "IceStorm.LMDB.Path": "{testdir}/{process.instanceName}-{process.replica}.db",
+            }
+        )
 
         if self.nreplicas > 0:
-            props['IceStorm.NodeId'] = self.replica
+            props["IceStorm.NodeId"] = self.replica
 
         if self.transient:
             props["IceStorm.Transient"] = 1
@@ -72,26 +99,43 @@ class IceStorm(ProcessFromBinDir, Server):
         #
 
         # Manager, publish, node and admin endpoints for given replica number
-        manager = lambda replica: current.getTestEndpoint(self.portnum + replica * 4 + 0)
-        publish = lambda replica: "{0}:{1}".format(current.getTestEndpoint(self.portnum + replica * 4 + 1),
-                                                   current.getTestEndpoint(self.portnum + replica * 4 + 1, "udp"))
-        node = lambda replica: current.getTestEndpoint(self.portnum + replica * 4 + 2)
-        admin = lambda replica: current.getTestEndpoint(self.portnum + replica * 4 + 3)
+        def manager(replica):
+            return current.getTestEndpoint(self.portnum + replica * 4 + 0)
+
+        def publish(replica):
+            return "{0}:{1}".format(
+                current.getTestEndpoint(self.portnum + replica * 4 + 1),
+                current.getTestEndpoint(self.portnum + replica * 4 + 1, "udp"),
+            )
+
+        def node(replica):
+            return current.getTestEndpoint(self.portnum + replica * 4 + 2)
+
+        def admin(replica):
+            return current.getTestEndpoint(self.portnum + replica * 4 + 3)
 
         # The endpoints for the given replica
-        props.update({
-            "IceStorm.TopicManager.Endpoints" : manager(self.replica),
-            "IceStorm.Publish.Endpoints" : publish(self.replica),
-            "Ice.Admin.Endpoints" : admin(self.replica),
-        })
+        props.update(
+            {
+                "IceStorm.TopicManager.Endpoints": manager(self.replica),
+                "IceStorm.Publish.Endpoints": publish(self.replica),
+                "Ice.Admin.Endpoints": admin(self.replica),
+            }
+        )
 
         # Compute the node and replicated endpoints to be configured for each replica
         if self.nreplicas > 0:
-            props['IceStorm.Node.Endpoints'] = node(self.replica)
+            props["IceStorm.Node.Endpoints"] = node(self.replica)
             for i in range(0, self.nreplicas):
-                props["IceStorm.Nodes.{0}".format(i)] = "{2}/node{0}:{1}".format(i, node(i), self.instanceName)
-            props['IceStorm.ReplicatedTopicManagerEndpoints'] = ":".join([manager(i) for i in range(0, self.nreplicas)])
-            props['IceStorm.ReplicatedPublishEndpoints'] = ":".join([publish(i) for i in range(0, self.nreplicas)])
+                props["IceStorm.Nodes.{0}".format(i)] = "{2}/node{0}:{1}".format(
+                    i, node(i), self.instanceName
+                )
+            props["IceStorm.ReplicatedTopicManagerEndpoints"] = ":".join(
+                [manager(i) for i in range(0, self.nreplicas)]
+            )
+            props["IceStorm.ReplicatedPublishEndpoints"] = ":".join(
+                [publish(i) for i in range(0, self.nreplicas)]
+            )
 
         return props
 
@@ -100,29 +144,38 @@ class IceStorm(ProcessFromBinDir, Server):
 
     def getTopicManager(self, current):
         # Return the endpoint for this IceStorm replica
-        return "{1}/TopicManager:{0}".format(current.getTestEndpoint(self.portnum + self.replica * 4), self.instanceName)
+        return "{1}/TopicManager:{0}".format(
+            current.getTestEndpoint(self.portnum + self.replica * 4), self.instanceName
+        )
 
     def getReplicatedTopicManager(self, current):
         # Return the replicated endpoints for IceStorm
         if self.nreplicas == 0:
             return self.getTopicManager(current)
-        manager = lambda replica: current.getTestEndpoint(self.portnum + replica * 4)
-        return "{1}/TopicManager:{0}".format(":".join([manager(i) for i in range(0, self.nreplicas)]), self.instanceName)
+
+        def manager(replica):
+            return current.getTestEndpoint(self.portnum + replica * 4)
+
+        return "{1}/TopicManager:{0}".format(
+            ":".join([manager(i) for i in range(0, self.nreplicas)]), self.instanceName
+        )
 
     def shutdown(self, current):
         # Shutdown this replica by connecting to the IceBox service manager with iceboxadmin
         endpoint = current.getTestEndpoint(self.portnum + self.replica * 4 + 3)
-        props = { "IceBoxAdmin.ServiceManager.Proxy" : "IceBox/admin -f IceBox.ServiceManager:" + endpoint }
-        IceBoxAdmin().run(current, props=props, args=['shutdown'])
+        props = {
+            "IceBoxAdmin.ServiceManager.Proxy": "IceBox/admin -f IceBox.ServiceManager:"
+            + endpoint
+        }
+        IceBoxAdmin().run(current, props=props, args=["shutdown"])
+
 
 class IceStormProcess:
-
     def __init__(self, instanceName=None, instance=None):
         self.instanceName = instanceName
         self.instance = instance
 
     def getProps(self, current):
-
         #
         # An IceStorm client is provided with the IceStormAdmin.TopicManager.Default property set
         # to the "instance" topic manager proxy if "instance" is set. Otherwise, if a single it's
@@ -134,54 +187,79 @@ class IceStormProcess:
 
         props = self.getParentProps(current)
         testcase = current.testcase
-        while testcase and not isinstance(testcase, IceStormTestCase): testcase = testcase.parent
+        while testcase and not isinstance(testcase, IceStormTestCase):
+            testcase = testcase.parent
         if self.instance:
-            props["IceStormAdmin.TopicManager.Default"] = self.instance.getTopicManager(current)
+            props["IceStormAdmin.TopicManager.Default"] = self.instance.getTopicManager(
+                current
+            )
         else:
-            instanceNames = [self.instanceName] if self.instanceName else testcase.getInstanceNames()
+            instanceNames = (
+                [self.instanceName]
+                if self.instanceName
+                else testcase.getInstanceNames()
+            )
             if len(instanceNames) == 1:
-                props["IceStormAdmin.TopicManager.Default"] = testcase.getTopicManager(current, instanceNames[0])
+                props["IceStormAdmin.TopicManager.Default"] = testcase.getTopicManager(
+                    current, instanceNames[0]
+                )
             else:
                 for name in instanceNames:
-                    props["IceStormAdmin.TopicManager.{0}".format(name)] = testcase.getTopicManager(current, name)
+                    props[
+                        "IceStormAdmin.TopicManager.{0}".format(name)
+                    ] = testcase.getTopicManager(current, name)
         return props
 
-class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Client):
 
+class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Client):
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
-        Client.__init__(self, exe="icestormadmin++11", mapping=Mapping.getByName("cpp"), *args, **kargs)
+        Client.__init__(
+            self,
+            exe="icestormadmin++11",
+            mapping=Mapping.getByName("cpp"),
+            *args,
+            **kargs,
+        )
         IceStormProcess.__init__(self, instanceName, instance)
 
     def getExe(self, current):
-        if current.config.buildPlatform == "ppc" and not component.useBinDist(self.mapping, current):
+        if current.config.buildPlatform == "ppc" and not component.useBinDist(
+            self.mapping, current
+        ):
             return self.exe + "_32"
         else:
             return self.exe
 
-    getParentProps = Client.getProps # Used by IceStormProcess to get the client properties
+    getParentProps = (
+        Client.getProps
+    )  # Used by IceStormProcess to get the client properties
+
 
 class Subscriber(IceStormProcess, Server):
-
     processType = "subscriber"
 
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Server.__init__(self, *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
-    getParentProps = Server.getProps # Used by IceStormProcess to get the server properties
+    getParentProps = (
+        Server.getProps
+    )  # Used by IceStormProcess to get the server properties
+
 
 class Publisher(IceStormProcess, Client):
-
     processType = "publisher"
 
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Client.__init__(self, *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
-    getParentProps = Client.getProps # Used by IceStormProcess to get the client properties
+    getParentProps = (
+        Client.getProps
+    )  # Used by IceStormProcess to get the client properties
+
 
 class IceStormTestCase(TestCase):
-
     def __init__(self, name, icestorm, *args, **kargs):
         TestCase.__init__(self, name, *args, **kargs)
         self.icestorm = icestorm if isinstance(icestorm, list) else [icestorm]
@@ -215,7 +293,9 @@ class IceStormTestCase(TestCase):
         for icestorm in self.icestorm:
             icestorm.shutdown(current)
 
-    def runadmin(self, current, cmd, instanceName=None, instance=None, exitstatus=0, quiet=False):
+    def runadmin(
+        self, current, cmd, instanceName=None, instance=None, exitstatus=0, quiet=False
+    ):
         admin = IceStormAdmin(instanceName, instance, args=["-e", cmd], quiet=quiet)
         admin.run(current, exitstatus=exitstatus)
         return admin.getOutput(current)

@@ -139,7 +139,6 @@ depending on the browser you're using:
    the Trusted Root Certificate Authorities. Reload the test page to continue.
    You should uninstall this certificate after running the tests.
 
-
 #### Secure WebSockets on iOS and Android
 
 To use WSS on iOS and Android it may be required (depending on browser and

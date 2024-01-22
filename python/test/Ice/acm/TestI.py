@@ -2,7 +2,10 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, threading
+import Ice
+import Test
+import threading
+
 
 class ConnectionCallbackI():
     def __init__(self):
@@ -19,11 +22,12 @@ class ConnectionCallbackI():
             while self.count < count:
                 self.m.wait()
 
+
 class RemoteCommunicatorI(Test.RemoteCommunicator):
     def createObjectAdapter(self, timeout, close, heartbeat, current=None):
         com = current.adapter.getCommunicator()
         properties = com.getProperties()
-        protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp")
 
         name = Ice.generateUUID()
         if timeout >= 0:
@@ -38,6 +42,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
+
 
 class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
     def __init__(self, adapter):
@@ -60,6 +65,7 @@ class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
             self._adapter.destroy()
         except Ice.ObjectAdapterDeactivatedException:
             pass
+
 
 class TestIntfI(Test.TestIntf):
     def __init__(self):

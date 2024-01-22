@@ -2,7 +2,13 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys, string, re, traceback, Ice, Test, Inner
+import sys
+import string
+import re
+import traceback
+import Ice
+import Test
+import Inner
 
 
 def test(b):

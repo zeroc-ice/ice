@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 
 # Start of module Ice
 _M_Ice = Ice.openModule('Ice')

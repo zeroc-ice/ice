@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.LocalException_local
 import Ice.Current_local
 
@@ -26,6 +27,7 @@ __name__ = 'Ice'
 
 if 'ImplicitContext' not in _M_Ice.__dict__:
     _M_Ice.ImplicitContext = Ice.createTempClass()
+
     class ImplicitContext(object):
         """
          An interface to associate implict contexts with communicators. When you make a remote invocation without an
@@ -46,6 +48,7 @@ if 'ImplicitContext' not in _M_Ice.__dict__:
          of the java.util.Map methods, with java.lang.Object replaced by string and
          null replaced by the empty-string.
         """
+
         def __init__(self):
             if Ice.getType(self) == _M_Ice.ImplicitContext:
                 raise RuntimeError('Ice.ImplicitContext is an abstract class')
@@ -109,7 +112,8 @@ if 'ImplicitContext' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_ImplicitContext = IcePy.defineValue('::Ice::ImplicitContext', ImplicitContext, -1, (), False, True, None, ())
+    _M_Ice._t_ImplicitContext = IcePy.defineValue(
+        '::Ice::ImplicitContext', ImplicitContext, -1, (), False, True, None, ())
     ImplicitContext._ice_type = _M_Ice._t_ImplicitContext
 
     _M_Ice.ImplicitContext = ImplicitContext

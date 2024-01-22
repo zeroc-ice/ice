@@ -6,33 +6,33 @@ import os
 
 from Util import *
 
-class Ice(Component):
 
+class Ice(Component):
     # Options for all transports (ran only with Ice client/server tests defined for cross testing)
     transportOptions = {
-        "protocol" : ["tcp", "ssl", "wss", "ws"],
-        "compress" : [False, True],
-        "ipv6" : [False, True],
-        "serialize" : [False, True],
-        "mx" : [False, True],
+        "protocol": ["tcp", "ssl", "wss", "ws"],
+        "compress": [False, True],
+        "ipv6": [False, True],
+        "serialize": [False, True],
+        "mx": [False, True],
     }
 
     # Options for Ice tests, run tests with ssl and ws/ipv6/serial/mx/compress
     coreOptions = {
-        "protocol" : ["ssl", "ws"],
-        "compress" : [False, True],
-        "ipv6" : [False, True],
-        "serialize" : [False, True],
-        "mx" : [False, True],
+        "protocol": ["ssl", "ws"],
+        "compress": [False, True],
+        "ipv6": [False, True],
+        "serialize": [False, True],
+        "mx": [False, True],
     }
 
     # Options for Ice services, run tests with ssl + mx
     serviceOptions = {
-        "protocol" : ["ssl"],
-        "compress" : [False],
-        "ipv6" : [False],
-        "serialize" : [False],
-        "mx" : [True],
+        "protocol": ["ssl"],
+        "compress": [False],
+        "ipv6": [False],
+        "serialize": [False],
+        "mx": [True],
     }
 
     def useBinDist(self, mapping, current):
@@ -40,12 +40,20 @@ class Ice(Component):
 
     def getInstallDir(self, mapping, current):
         # On Windows, the Ice MSI installation can only be used for C++
-        envHomeName = None if isinstance(platform, Windows) and not isinstance(mapping, CppMapping) else "ICE_HOME"
+        envHomeName = (
+            None
+            if isinstance(platform, Windows) and not isinstance(mapping, CppMapping)
+            else "ICE_HOME"
+        )
         return Component._getInstallDir(self, mapping, current, envHomeName)
 
     def getPhpExtension(self, mapping, current):
         if isinstance(platform, Windows):
-            return "php_ice.dll" if current.driver.configs[mapping].buildConfig in ["Debug", "Release"] else "php_ice_nts.dll"
+            return (
+                "php_ice.dll"
+                if current.driver.configs[mapping].buildConfig in ["Debug", "Release"]
+                else "php_ice_nts.dll"
+            )
         else:
             return "ice.so"
 
@@ -53,44 +61,74 @@ class Ice(Component):
         if isinstance(mapping, CSharpMapping):
             return os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec")
         else:
-            return os.path.join(toplevel, "cpp", "msbuild", "zeroc.ice.{0}.nuspec".format(platform.getPlatformToolset()))
+            return os.path.join(
+                toplevel,
+                "cpp",
+                "msbuild",
+                "zeroc.ice.{0}.nuspec".format(platform.getPlatformToolset()),
+            )
 
     def getFilters(self, mapping, config):
         if "xcodesdk" in config.buildConfig:
-            return (["Ice/.*", "IceSSL/configuration"],
-                    ["Ice/background",
-                     "Ice/echo",
-                     "Ice/faultTolerance",
-                     "Ice/library",
-                     "Ice/logger",
-                     "Ice/properties",
-                     "Ice/plugin",
-                     "Ice/stringConverter",
-                     "Ice/threadPoolPriority",
-                     "Ice/udp"])
+            return (
+                ["Ice/.*", "IceSSL/configuration"],
+                [
+                    "Ice/background",
+                    "Ice/echo",
+                    "Ice/faultTolerance",
+                    "Ice/library",
+                    "Ice/logger",
+                    "Ice/properties",
+                    "Ice/plugin",
+                    "Ice/stringConverter",
+                    "Ice/threadPoolPriority",
+                    "Ice/udp",
+                ],
+            )
         elif "static" in config.buildConfig:
-            return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
-                    ["Ice/library", "Ice/plugin"])
+            return (
+                [
+                    "Ice/.*",
+                    "IceSSL/configuration",
+                    "IceDiscovery/simple",
+                    "IceGrid/simple",
+                    "Glacier2/application",
+                ],
+                ["Ice/library", "Ice/plugin"],
+            )
         elif isinstance(mapping, JavaMapping) and config.android:
-            return (["Ice/.*"],
-                    ["Ice/hash",
-                     "Ice/faultTolerance",
-                     "Ice/metrics",
-                     "Ice/networkProxy",
-                     "Ice/throughput",
-                     "Ice/plugin",
-                     "Ice/logger",
-                     "Ice/properties"])
+            return (
+                ["Ice/.*"],
+                [
+                    "Ice/hash",
+                    "Ice/faultTolerance",
+                    "Ice/metrics",
+                    "Ice/networkProxy",
+                    "Ice/throughput",
+                    "Ice/plugin",
+                    "Ice/logger",
+                    "Ice/properties",
+                ],
+            )
         elif isinstance(mapping, JavaScriptMapping):
             return ([], ["typescript/.*"])
-        elif isinstance(mapping, SwiftMapping) and config.buildPlatform in ["iphonesimulator", "iphoneos"]:
-            return (["Ice/.*", "IceSSL/configuration", "Slice/*"], ["Ice/properties", "Ice/udp"])
+        elif isinstance(mapping, SwiftMapping) and config.buildPlatform in [
+            "iphonesimulator",
+            "iphoneos",
+        ]:
+            return (
+                ["Ice/.*", "IceSSL/configuration", "Slice/*"],
+                ["Ice/properties", "Ice/udp"],
+            )
         return ([], [])
 
     def canRun(self, testId, mapping, current):
-        parent = re.match(r'^([\w]*).*', testId).group(1)
+        parent = re.match(r"^([\w]*).*", testId).group(1)
         if isinstance(platform, Linux):
-            if platform.getLinuxId() in ["centos", "rhel", "fedora"] and current.config.buildPlatform == "x86":
+            if (
+                platform.getLinuxId() in ["centos", "rhel", "fedora"]
+                and current.config.buildPlatform == "x86"
+            ):
                 #
                 # Don't test Glacier2/IceStorm/IceGrid services with multilib platforms. We only
                 # build services for the native platform.
@@ -103,10 +141,15 @@ class Ice(Component):
             # with the Debug configurations since we don't provide binaries for them.
             #
             if self.useBinDist(mapping, current):
-                if parent in ["Glacier2", "IceBridge"] and current.config.buildConfig.find("Debug") >= 0:
+                if (
+                    parent in ["Glacier2", "IceBridge"]
+                    and current.config.buildConfig.find("Debug") >= 0
+                ):
                     return False
         elif isinstance(platform, AIX):
-            if current.config.buildPlatform == "ppc" and self.useBinDist(mapping, current):
+            if current.config.buildPlatform == "ppc" and self.useBinDist(
+                mapping, current
+            ):
                 #
                 # Don't test Glacier2, IceBridge and IceGrid services on ppc with bindist. We only ship
                 # ppc64 binaries for these services
@@ -117,17 +160,17 @@ class Ice(Component):
                     return False
 
         # No C++98 tests for Glacier2, IceGrid, IceStorm, IceBridge
-        if isinstance(mapping, CppMapping) and not current.config.cpp11 and parent in [
-                "Glacier2",
-                "IceBridge",
-                "IceGrid",
-                "IceStorm"]:
+        if (
+            isinstance(mapping, CppMapping)
+            and not current.config.cpp11
+            and parent in ["Glacier2", "IceBridge", "IceGrid", "IceStorm"]
+        ):
             return False
 
         return True
 
     def isMainThreadOnly(self, testId):
-        return False # By default, tests support being run concurrently
+        return False  # By default, tests support being run concurrently
 
     def getDefaultProcesses(self, mapping, processType, testId):
         if testId.startswith("IceUtil") or testId.startswith("Slice"):
@@ -139,20 +182,33 @@ class Ice(Component):
                 return [IceGridServer()]
 
     def getOptions(self, testcase, current):
-
-        parent = re.match(r'^([\w]*).*', testcase.getTestSuite().getId()).group(1)
-        if parent not in ["Ice", "IceBox", "IceGrid", "Glacier2", "IceStorm", "IceDiscovery", "IceBridge"]:
+        parent = re.match(r"^([\w]*).*", testcase.getTestSuite().getId()).group(1)
+        if parent not in [
+            "Ice",
+            "IceBox",
+            "IceGrid",
+            "Glacier2",
+            "IceStorm",
+            "IceDiscovery",
+            "IceBridge",
+        ]:
             return None
 
         if isinstance(testcase, CollocatedTestCase):
             return None
 
         # Define here Ice tests which are slow to execute and for which it's not useful to test different options
-        if testcase.getTestSuite().getId() in ["Ice/binding", "Ice/faultTolerance", "Ice/location"]:
+        if testcase.getTestSuite().getId() in [
+            "Ice/binding",
+            "Ice/faultTolerance",
+            "Ice/location",
+        ]:
             return self.serviceOptions
 
         # We only run the client/server tests defined for cross testing with all transports
-        if isinstance(testcase, ClientServerTestCase) and self.isCross(testcase.getTestSuite().getId()):
+        if isinstance(testcase, ClientServerTestCase) and self.isCross(
+            testcase.getTestSuite().getId()
+        ):
             return self.transportOptions
         elif parent in ["Ice", "IceBox"]:
             return self.coreOptions
@@ -160,7 +216,16 @@ class Ice(Component):
             return self.serviceOptions
 
     def getRunOrder(self):
-        return ["Slice", "IceUtil", "Ice", "IceSSL", "IceBox", "Glacier2", "IceGrid", "IceStorm"]
+        return [
+            "Slice",
+            "IceUtil",
+            "Ice",
+            "IceSSL",
+            "IceBox",
+            "Glacier2",
+            "IceGrid",
+            "IceStorm",
+        ]
 
     def isCross(self, testId):
         return testId in [
@@ -179,17 +244,22 @@ class Ice(Component):
         ]
 
     def getSoVersion(self):
-        with open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r") as config:
-            intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+        with open(
+            os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r"
+        ) as config:
+            intVersion = int(
+                re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1)
+            )
             majorVersion = int(intVersion / 10000)
             minorVersion = int(intVersion / 100) - 100 * majorVersion
             patchVersion = intVersion % 100
             if patchVersion < 50:
-                return '%d' % (majorVersion * 10 + minorVersion)
+                return "%d" % (majorVersion * 10 + minorVersion)
             elif patchVersion < 60:
-                return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
+                return "%da%d" % (majorVersion * 10 + minorVersion, patchVersion - 50)
             else:
-                return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
+                return "%db%d" % (majorVersion * 10 + minorVersion, patchVersion - 60)
+
 
 component = Ice()
 
@@ -203,7 +273,9 @@ from IceStormUtil import *
 #
 # Supported mappings
 #
-for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
+for m in filter(
+    lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)
+):
     if m == "cpp" or re.match("cpp-.*", m):
         Mapping.add(m, CppMapping(), component)
     elif m == "java" or re.match("java-.*", m):
@@ -211,19 +283,34 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
     elif m == "python" or re.match("python-.*", m):
         Mapping.add(m, PythonMapping(), component)
     elif m == "ruby" or re.match("ruby-.*", m):
-        Mapping.add(m, RubyMapping(), component, enable=not isinstance(platform, Windows))
+        Mapping.add(
+            m, RubyMapping(), component, enable=not isinstance(platform, Windows)
+        )
     elif m == "php" or re.match("php-.*", m):
-        Mapping.add(m, PhpMapping(), component, enable=not isinstance(platform, Windows))
+        Mapping.add(
+            m, PhpMapping(), component, enable=not isinstance(platform, Windows)
+        )
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component, enable=platform.hasNodeJS())
-        Mapping.add("typescript", TypeScriptMapping(), component, "js", enable=platform.hasNodeJS())
-    elif m == "objective-c" or re.match("objective-c-*", m):
-        Mapping.add(m, ObjCMapping(), component, enable=isinstance(platform, Darwin))
+        Mapping.add(
+            "typescript",
+            TypeScriptMapping(),
+            component,
+            "js",
+            enable=platform.hasNodeJS(),
+        )
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
-        Mapping.add("swift", SwiftMapping(), component, enable=platform.hasSwift((5, 0)))
+        Mapping.add(
+            "swift", SwiftMapping(), component, enable=platform.hasSwift((5, 0))
+        )
     elif m == "csharp" or re.match("charp-.*", m):
-        Mapping.add("csharp", CSharpMapping(), component, enable=isinstance(platform, Windows) or platform.hasDotNet())
+        Mapping.add(
+            "csharp",
+            CSharpMapping(),
+            component,
+            enable=isinstance(platform, Windows) or platform.hasDotNet(),
+        )
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping

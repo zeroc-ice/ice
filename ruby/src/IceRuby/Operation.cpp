@@ -2,17 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Operation.h>
-#include <Proxy.h>
-#include <Types.h>
-#include <Util.h>
+#include "Operation.h"
+#include "Proxy.h"
+#include "Types.h"
+#include "Util.h"
+
 #include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
 #include <Ice/Proxy.h>
-#include <Slice/RubyUtil.h>
+#include "RubyUtil.h"
+
+#include <memory>
 
 using namespace std;
 using namespace IceRuby;
@@ -23,28 +26,28 @@ static VALUE _operationClass;
 namespace IceRuby
 {
 
-class ParamInfo : public UnmarshalCallback
+class ParamInfo final : public UnmarshalCallback
 {
 public:
 
-    virtual void unmarshaled(VALUE, VALUE, void*);
+    void unmarshaled(VALUE, VALUE, void*) final;
 
     TypeInfoPtr type;
     bool optional;
     int tag;
     int pos;
 };
-typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
-typedef list<ParamInfoPtr> ParamInfoList;
+using ParamInfoPtr = shared_ptr<ParamInfo>;
+using ParamInfoList = list<ParamInfoPtr>;
 
-class OperationI : public Operation
+class OperationI final : public Operation
 {
 public:
 
     OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
-    virtual VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE);
-    virtual void deprecate(const string&);
+    VALUE invoke(const shared_ptr<Ice::ObjectPrx>&, VALUE, VALUE) final;
+    void deprecate(const string&) final;
 
 private:
 
@@ -66,27 +69,13 @@ private:
 
     void convertParams(VALUE, ParamInfoList&, long, bool&);
     ParamInfoPtr convertParam(VALUE, long);
-    void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
+    void prepareRequest(const shared_ptr<Ice::ObjectPrx>&, VALUE, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(VALUE) const;
-    void checkTwowayOnly(const Ice::ObjectPrx&) const;
+    void checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>&) const;
 };
-typedef IceUtil::Handle<OperationI> OperationIPtr;
-
-class UserExceptionFactory : public Ice::UserExceptionFactory
-{
-public:
-
-    virtual void createAndThrow(const string& id)
-    {
-        ExceptionInfoPtr info = lookupExceptionInfo(id);
-        if(info)
-        {
-            throw ExceptionReader(info);
-        }
-    }
-};
+using OperationIPtr = shared_ptr<OperationI>;
 
 }
 
@@ -104,8 +93,16 @@ IceRuby_defineOperation(VALUE /*self*/, VALUE name, VALUE mode, VALUE sendMode, 
 {
     ICE_RUBY_TRY
     {
-        OperationIPtr op = new OperationI(name, mode, sendMode, amd, format, inParams, outParams, returnType,
-                                          exceptions);
+        OperationIPtr op = make_shared<OperationI>(
+            name,
+            mode,
+            sendMode,
+            amd,
+            format,
+            inParams,
+            outParams,
+            returnType,
+            exceptions);
         return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -200,7 +197,7 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     //
     if(format == Qnil)
     {
-        _format = Ice::DefaultFormat;
+        _format = Ice::FormatType::DefaultFormat;
     }
     else
     {
@@ -278,7 +275,7 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
 }
 
 VALUE
-IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
+IceRuby::OperationI::invoke(const shared_ptr<Ice::ObjectPrx>& proxy, VALUE args, VALUE hctx)
 {
     Ice::CommunicatorPtr communicator = proxy->ice_getCommunicator();
 
@@ -386,7 +383,7 @@ ParamInfoPtr
 IceRuby::OperationI::convertParam(VALUE v, long pos)
 {
     assert(TYPE(v) == T_ARRAY);
-    ParamInfoPtr param = new ParamInfo;
+    ParamInfoPtr param = make_shared<ParamInfo>();
     param->type = getType(RARRAY_AREF(v, 0));
     param->optional = static_cast<bool>(RTEST(RARRAY_AREF(v, 1)));
     param->tag = static_cast<int>(getInteger(RARRAY_AREF(v, 2)));
@@ -395,8 +392,11 @@ IceRuby::OperationI::convertParam(VALUE v, long pos)
 }
 
 void
-IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice::OutputStream* os,
-                                    pair<const Ice::Byte*, const Ice::Byte*>& params)
+IceRuby::OperationI::prepareRequest(
+    const shared_ptr<Ice::ObjectPrx>& proxy,
+    VALUE args,
+    Ice::OutputStream* os,
+    pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
     params.first = params.second = static_cast<const Ice::Byte*>(0);
 
@@ -571,8 +571,14 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
 
     try
     {
-        Ice::UserExceptionFactoryPtr factory = new UserExceptionFactory;
-        is.throwException(factory);
+        is.throwException([](const auto& id)
+            {
+                ExceptionInfoPtr info = lookupExceptionInfo(id);
+                if(info)
+                {
+                    throw ExceptionReader(info);
+                }
+            });
     }
     catch(const ExceptionReader& r)
     {
@@ -621,7 +627,7 @@ IceRuby::OperationI::validateException(VALUE ex) const
 }
 
 void
-IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
+IceRuby::OperationI::checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>& proxy) const
 {
     if((_returnType != 0 || !_outParams.empty()) && !proxy->ice_isTwoway())
     {

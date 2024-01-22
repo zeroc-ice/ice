@@ -18,11 +18,11 @@ public final class UnknownSlicedValue: Value {
     /// Returns the Slice type ID associated with this object.
     ///
     /// - returns: `String` - The type ID.
-    public override func ice_id() -> String {
+    override public func ice_id() -> String {
         return unknownTypeId
     }
 
-    public override class func ice_staticId() -> String {
+    override public class func ice_staticId() -> String {
         return "::Ice::UnknownSlicedValue"
     }
 
@@ -30,16 +30,16 @@ public final class UnknownSlicedValue: Value {
     /// un-marshaling of the value, nil is returned otherwise.
     ///
     /// - returns: `Ice.SlicedData?` - The sliced data or nil.
-    public override func ice_getSlicedData() -> SlicedData? {
+    override public func ice_getSlicedData() -> SlicedData? {
         return slicedData
     }
 
-    public override func _iceRead(from ins: InputStream) throws {
+    override public func _iceRead(from ins: InputStream) throws {
         ins.startValue()
         slicedData = try ins.endValue(preserve: true)
     }
 
-    public override func _iceWrite(to os: OutputStream) {
+    override public func _iceWrite(to os: OutputStream) {
         os.startValue(data: slicedData)
         os.endValue()
     }

@@ -2,7 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, time, threading
+import Ice
+import Test
+import time
+import threading
+
 
 class ThreadHook(Ice.ThreadNotification):
     def __init__(self):
@@ -44,9 +48,11 @@ class ThreadHook(Ice.ThreadNotification):
         with self.cond:
             return self.threadStopCount
 
+
 class TestIntfI(Test.TestIntf):
-    def sleep(self, ms, current = None):
+    def sleep(self, ms, current=None):
         time.sleep(ms / 1000.0)
+
 
 class RemoteCommunicatorI(Test.RemoteCommunicator):
     def __init__(self, communicator, hook):
@@ -56,27 +62,28 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
         self.obj = Test.TestIntfPrx.uncheckedCast(oa.addWithUUID(TestIntfI()))
         oa.activate()
 
-    def getObject(self, current = None):
+    def getObject(self, current=None):
         return self.obj
 
-    def getThreadHookStartCount(self, current = None):
+    def getThreadHookStartCount(self, current=None):
         return self.hook.getThreadHookStartCount()
 
-    def getThreadHookStopCount(self, current = None):
+    def getThreadHookStopCount(self, current=None):
         return self.hook.getThreadHookStopCount()
 
-    def getThreadStartCount(self, current = None):
+    def getThreadStartCount(self, current=None):
         return self.hook.getThreadStartCount()
 
-    def getThreadStopCount(self, current = None):
+    def getThreadStopCount(self, current=None):
         return self.hook.getThreadStopCount()
 
-    def destroy(self, current = None):
+    def destroy(self, current=None):
         self.communicator.destroy()
+
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
-    def createCommunicator(self, props, current = None):
+    def createCommunicator(self, props, current=None):
         #
         # Prepare the property set using the given properties.
         #
@@ -97,5 +104,5 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         proxy = current.adapter.addWithUUID(RemoteCommunicatorI(communicator, init.threadHook))
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 
-    def shutdown(self, current = None):
+    def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

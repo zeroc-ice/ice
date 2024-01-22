@@ -14,7 +14,8 @@
 # </auto-generated>
 #
 
-import Ice, IcePy
+import Ice
+import IcePy
 import Ice.ObjectAdapterF_local
 import Ice.ConnectionF_local
 import Ice.Context_ice
@@ -30,6 +31,7 @@ __name__ = 'Ice'
 
 if 'Current' not in _M_Ice.__dict__:
     _M_Ice.Current = Ice.createTempClass()
+
     class Current(object):
         """
          Information about the current method invocation for servers. Each operation on the server has a
@@ -47,6 +49,7 @@ if 'Current' not in _M_Ice.__dict__:
         requestId --  The request id unless oneway (0).
         encoding --  The encoding version used to encode the input and output parameters.
         """
+
         def __init__(self, adapter=None, con=None, id=Ice._struct_marker, facet='', operation='', mode=_M_Ice.OperationMode.Normal, ctx=None, requestId=0, encoding=Ice._struct_marker):
             self.adapter = adapter
             self.con = con

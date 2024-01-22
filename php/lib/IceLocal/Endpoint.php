@@ -14,7 +14,6 @@
 // </auto-generated>
 //
 
-
 namespace
 {
     require_once 'Ice/Version.php';

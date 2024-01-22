@@ -2,11 +2,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, math, Test, array
+import Ice
+import math
+import Test
+import array
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def oneways(helper, p):
     communicator = helper.communicator()

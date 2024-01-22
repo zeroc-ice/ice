@@ -238,7 +238,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
 
     do {
         let bsi1: [Bool] = [true, true, false]
-        let bsi2: [Bool] = [false]
+        let bsi2 = [false]
 
         let (rso, bso) = try p.opBoolS(p1: bsi1, p2: bsi2)
         try test(bso.count == 4)
@@ -454,13 +454,13 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
     }
 
     do {
-        let s11: [String] = ["abc"]
+        let s11 = ["abc"]
         let s12: [String] = ["de", "fghi"]
         let ssi1 = [s11, s12]
 
         let s21: [String] = []
         let s22: [String] = []
-        let s23: [String] = ["xyz"]
+        let s23 = ["xyz"]
         let ssi2 = [s21, s22, s23]
 
         let (rso, sso) = try p.opStringSS(p1: ssi1, p2: ssi2)
@@ -1094,7 +1094,7 @@ func twoways(_ helper: TestHelper, _ p: MyClassPrx) throws {
         let lengths: [Int32] = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000]
 
         for l in 0 ..< lengths.count {
-            var s: [Int32] = [Int32]()
+            var s = [Int32]()
             for i in 0 ..< lengths[l] {
                 s.append(i)
             }

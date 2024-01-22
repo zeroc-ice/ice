@@ -15,16 +15,12 @@
 [["js:module:ice"]]
 [["js:cjs-module"]]
 
-[["objc:dll-export:ICE_API"]]
-[["objc:header-dir:objc"]]
-
 [["python:pkgdir:Ice"]]
 
 #include <Ice/Identity.ice>
 
 [["java:package:com.zeroc"]]
 
-["objc:prefix:ICE"]
 module Ice
 {
 

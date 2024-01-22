@@ -18,7 +18,7 @@ import Foundation
 /// A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
 /// values being strings. By convention, property keys should have the form
 /// application-name[.category[.sub-category]].name.
-public protocol Properties:  Swift.AnyObject {
+public protocol Properties: Swift.AnyObject {
     /// Get a property by key. If the property is not set, an empty string is returned.
     ///
     /// - parameter _: `Swift.String` The property key.
@@ -100,11 +100,13 @@ public protocol Properties:  Swift.AnyObject {
     /// --prefix. are converted into properties. If the prefix is empty, all options that begin with
     /// -- are converted to properties.
     ///
-    /// - parameter prefix: `Swift.String` The property prefix, or an empty string to convert all options starting with --.
+    /// - parameter prefix: `Swift.String` The property prefix, or an empty string to convert all options starting
+    /// with --.
     ///
     /// - parameter options: `StringSeq` The command-line options.
     ///
-    /// - returns: `StringSeq` - The command-line options that do not start with the specified prefix, in their original order.
+    /// - returns: `StringSeq` - The command-line options that do not start with the specified prefix, in their
+    /// original order.
     func parseCommandLineOptions(prefix: Swift.String, options: StringSeq) throws -> StringSeq
 
     /// Convert a sequence of command-line options into properties. All options that begin with one of the following
@@ -113,7 +115,8 @@ public protocol Properties:  Swift.AnyObject {
     ///
     /// - parameter _: `StringSeq` The command-line options.
     ///
-    /// - returns: `StringSeq` - The command-line options that do not start with one of the listed prefixes, in their original order.
+    /// - returns: `StringSeq` - The command-line options that do not start with one of the listed prefixes,
+    /// in their original order.
     func parseIceCommandLineOptions(_ options: StringSeq) throws -> StringSeq
 
     /// Load properties from a file.

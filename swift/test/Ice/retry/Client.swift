@@ -6,7 +6,7 @@ import Ice
 import TestCommon
 
 class Client: TestHelperI {
-    public override func run(args: [String]) throws {
+    override public func run(args: [String]) throws {
         do {
             var properties = try createTestProperties(args)
             properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10 1")
@@ -27,14 +27,14 @@ class Client: TestHelperI {
             //
             properties = communicator.getProperties().clone()
             properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10000")
-            let communicator2 = try self.initialize(properties)
+            let communicator2 = try initialize(properties)
             defer {
                 communicator2.destroy()
             }
 
             let r = try allTests(helper: self,
                                  communicator2: communicator2,
-                                 ref: "retry:\(self.getTestEndpoint(num: 0))")
+                                 ref: "retry:\(getTestEndpoint(num: 0))")
             try r.shutdown()
         }
     }

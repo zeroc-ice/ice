@@ -2,30 +2,37 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys, threading
+import Ice
+import Test
+import sys
+import threading
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
+
 def getTCPEndpointInfo(info):
-    while(info):
+    while (info):
         if isinstance(info, Ice.TCPEndpointInfo):
             return info
         info = info.underlying
 
+
 def getTCPConnectionInfo(info):
-    while(info):
+    while (info):
         if isinstance(info, Ice.TCPConnectionInfo):
             return info
         info = info.underlying
+
 
 def allTests(helper, communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
-    p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" + \
-                                    "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" + \
+    p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
+                                    "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
                                     "opaque -e 1.8 -t 100 -v ABCD")
 
     endps = p1.ice_getEndpoints()
@@ -40,9 +47,9 @@ def allTests(helper, communicator):
     test(tcpEndpoint.compress)
     test(not tcpEndpoint.datagram())
     test((tcpEndpoint.type() == Ice.TCPEndpointType and not tcpEndpoint.secure()) or
-         (tcpEndpoint.type() == Ice.SSLEndpointType and tcpEndpoint.secure()) or # SSL
-         (tcpEndpoint.type() == Ice.WSEndpointType and not tcpEndpoint.secure()) or # WS
-         (tcpEndpoint.type() == Ice.WSSEndpointType and tcpEndpoint.secure())) # WS
+         (tcpEndpoint.type() == Ice.SSLEndpointType and tcpEndpoint.secure()) or  # SSL
+         (tcpEndpoint.type() == Ice.WSEndpointType and not tcpEndpoint.secure()) or  # WS
+         (tcpEndpoint.type() == Ice.WSSEndpointType and tcpEndpoint.secure()))  # WS
     test((tcpEndpoint.type() == Ice.TCPEndpointType and isinstance(endpoint, Ice.TCPEndpointInfo)) or
          (tcpEndpoint.type() == Ice.SSLEndpointType and isinstance(endpoint, Ice.SSLEndpointInfo)) or
          (tcpEndpoint.type() == Ice.WSEndpointType and isinstance(endpoint, Ice.WSEndpointInfo)) or
@@ -72,7 +79,7 @@ def allTests(helper, communicator):
 
     host = "::1" if communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 else "127.0.0.1"
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
-                            "\" -t 15000:udp -h \"" + host + "\"")
+                                             "\" -t 15000:udp -h \"" + host + "\"")
     adapter = communicator.createObjectAdapter("TestAdapter")
     endpoints = adapter.getEndpoints()
     test(len(endpoints) == 2)
@@ -173,13 +180,13 @@ def allTests(helper, communicator):
     test(ctx["remotePort"] == str(tcpinfo.localPort))
     test(ctx["localPort"] == str(tcpinfo.remotePort))
 
-    if(base.ice_getConnection().type() == "ws" or base.ice_getConnection().type() == "wss"):
+    if (base.ice_getConnection().type() == "ws" or base.ice_getConnection().type() == "wss"):
         test(isinstance(info, Ice.WSConnectionInfo))
 
         test(info.headers["Upgrade"] == "websocket")
         test(info.headers["Connection"] == "Upgrade")
         test(info.headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com")
-        test("Sec-WebSocket-Accept" in info.headers);
+        test("Sec-WebSocket-Accept" in info.headers)
 
         test(ctx["ws.Upgrade"] == "websocket")
         test(ctx["ws.Connection"] == "Upgrade")

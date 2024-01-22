@@ -2,11 +2,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice, Test, sys
+import Ice
+import Test
+import sys
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests():
 
@@ -159,21 +163,21 @@ def allTests():
     test(v.c1 == Test.Color.red)
     test(v.bs is None)
     test(v.iseq is None)
-    test(isinstance(v.st, Test.InnerStruct));
-    test(v.dict is None);
+    test(isinstance(v.st, Test.InnerStruct))
+    test(v.dict is None)
 
     e = Test.ExceptionNoDefaults()
     test(e.str == '')
     test(e.c1 == Test.Color.red)
     test(e.bs is None)
-    test(isinstance(e.st, Test.InnerStruct));
-    test(e.dict is None);
+    test(isinstance(e.st, Test.InnerStruct))
+    test(e.dict is None)
 
     c = Test.ClassNoDefaults()
     test(c.str == '')
     test(c.c1 == Test.Color.red)
     test(c.bs is None)
-    test(isinstance(c.st, Test.InnerStruct));
-    test(c.dict is None);
+    test(isinstance(c.st, Test.InnerStruct))
+    test(c.dict is None)
 
     print("ok")

@@ -2,12 +2,18 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os, sys, traceback, time
-import Ice, Test
+import os
+import sys
+import traceback
+import time
+import Ice
+import Test
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class TestI(Test.TestIntf):
 
@@ -68,9 +74,11 @@ class TestI(Test.TestIntf):
     def shutdown(self, current=None):
         current.adapter.deactivate()
 
+
 class Cookie:
     def message(self):
         return 'blahblah'
+
 
 class ServantLocatorI(Ice.ServantLocator):
     def __init__(self, category):
@@ -150,9 +158,9 @@ class ServantLocatorI(Ice.ServantLocator):
         elif current.operation == "unknownExceptionWithServantException":
             raise Ice.UnknownException("reason")
         elif current.operation == "impossibleException":
-            raise Test.TestIntfUserException() # Yes, it really is meant to be TestIntfUserException.
+            raise Test.TestIntfUserException()  # Yes, it really is meant to be TestIntfUserException.
         elif current.operation == "intfUserException":
-            raise Test.TestImpossibleException() # Yes, it really is meant to be TestImpossibleException.
+            raise Test.TestImpossibleException()  # Yes, it really is meant to be TestImpossibleException.
         elif current.operation == "asyncResponse":
             raise Test.TestImpossibleException()
         elif current.operation == "asyncException":

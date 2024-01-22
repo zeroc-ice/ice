@@ -13,7 +13,6 @@
 // </auto-generated>
 //
 
-
 using _System = global::System;
 
 #pragma warning disable 1591
@@ -35,7 +34,6 @@ namespace Ice
     {
         #region Slice operations
 
-
         /// <summary>
         /// Print a message.
         /// The message is printed literally, without any decorations such as executable name or time
@@ -45,7 +43,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void print(string message);
-
 
         /// <summary>
         /// Log a trace message.
@@ -57,7 +54,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void trace(string category, string message);
 
-
         /// <summary>
         /// Log a warning message.
         /// </summary>
@@ -66,7 +62,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void warning(string message);
-
 
         /// <summary>
         /// Log an error message.
@@ -77,7 +72,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         void error(string message);
 
-
         /// <summary>
         /// Returns this logger's prefix.
         /// </summary>
@@ -85,7 +79,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         string getPrefix();
-
 
         /// <summary>
         /// Returns a clone of the logger with a new prefix.
