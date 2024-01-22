@@ -96,7 +96,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     {
         _callback = callback;
         _handler = this;
-        lock.unlock);
+        lock.unlock();
 
         SetConsoleCtrlHandler(handlerRoutine, TRUE);
     }
