@@ -4,9 +4,5 @@
     ],
     "pylint.args": [
         "--rcfile=tox.ini"
-    ],
-    "files.associations": {
-        "mutex": "cpp",
-        "__mutex_base": "cpp"
-    }
+    ]
 }
