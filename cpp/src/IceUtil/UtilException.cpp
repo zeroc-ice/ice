@@ -24,6 +24,8 @@
 
 #include <IceUtil/Exception.h>
 #include <IceUtil/StringUtil.h>
+
+#include <mutex>
 #include <ostream>
 #include <iomanip>
 #include <cstdlib>
