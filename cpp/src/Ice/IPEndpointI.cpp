@@ -17,31 +17,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-namespace
-{
-
-IceUtil::Mutex* hashMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        hashMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete hashMutex;
-        hashMutex = 0;
-    }
-};
-
-Init init;
-
-}
-
 #ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(IPEndpointI* p) { return p; }
 #endif
@@ -213,7 +188,7 @@ IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
 Ice::Int
 IceInternal::IPEndpointI::hash() const
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(hashMutex);
+    lock_guard lock(_hashMutex);
     if(!_hashInitialized)
     {
         _hashValue = 5381;
