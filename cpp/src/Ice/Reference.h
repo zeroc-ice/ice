@@ -22,6 +22,8 @@
 #include <Ice/Protocol.h>
 #include <Ice/Properties.h>
 
+#include <mutex>
+
 namespace Ice
 {
 
@@ -158,9 +160,6 @@ protected:
 
     virtual Ice::Int hashInit() const;
 
-    mutable Ice::Int _hashValue;
-    mutable bool _hashInitialized;
-
 private:
 
     const InstancePtr _instance;
@@ -171,6 +170,9 @@ private:
     Ice::Identity _identity;
     SharedContextPtr _context;
     std::string _facet;
+    mutable Ice::Int _hashValue;
+    mutable bool _hashInitialized;
+    mutable std::mutex _hashMutex;
     Ice::ProtocolVersion _protocol;
     Ice::EncodingVersion _encoding;
     int _invocationTimeout;
