@@ -2,7 +2,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-from Util import *
+
+from Util import Mapping, ProcessFromBinDir, ProcessIsReleaseOnly, Server
 
 
 class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):

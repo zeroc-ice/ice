@@ -3,9 +3,17 @@
 #
 
 import os
-from Util import *
-from Component import component
-from IceBoxUtil import *
+import shutil
+import Component
+from IceBoxUtil import IceBoxAdmin
+from Util import (
+    Client,
+    Mapping,
+    ProcessFromBinDir,
+    ProcessIsReleaseOnly,
+    Server,
+    TestCase,
+)
 
 
 class IceStorm(ProcessFromBinDir, Server):
@@ -61,7 +69,7 @@ class IceStorm(ProcessFromBinDir, Server):
             # Remove the database directory tree
             try:
                 shutil.rmtree(self.dbdir)
-            except:
+            except Exception:
                 pass
 
     def getProps(self, current):
@@ -71,7 +79,7 @@ class IceStorm(ProcessFromBinDir, Server):
         props.update(
             {
                 "IceBox.Service.IceStorm": "IceStormService,"
-                + component.getSoVersion()
+                + Component.component.getSoVersion()
                 + ":createIceStorm",
                 "IceBox.PrintServicesReady": "IceStorm",
                 "IceBox.InheritProperties": 1,
@@ -223,7 +231,7 @@ class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Cl
         IceStormProcess.__init__(self, instanceName, instance)
 
     def getExe(self, current):
-        if current.config.buildPlatform == "ppc" and not component.useBinDist(
+        if current.config.buildPlatform == "ppc" and not Component.component.useBinDist(
             self.mapping, current
         ):
             return self.exe + "_32"

@@ -2,7 +2,8 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-from Util import *
+
+from Util import Mapping, Process, ProcessFromBinDir, ProcessIsReleaseOnly
 
 
 class IcePatch2Calc(ProcessFromBinDir, ProcessIsReleaseOnly, Process):

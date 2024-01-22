@@ -5,7 +5,19 @@
 
 import os
 import sys
-from Util import *
+
+from Util import (
+    Darwin,
+    Driver,
+    IceProcess,
+    Mapping,
+    Result,
+    parseOptions,
+    toplevel,
+    platform,
+    runTests,
+    traceback,
+)
 
 
 class ControllerDriver(Driver):
@@ -109,7 +121,7 @@ class ControllerDriver(Driver):
                 try:
                     self.serverSideRunning = True
                     return self.current.serverTestCase._startServerSide(self.current)
-                except Exception as ex:
+                except Exception:
                     self.serverSideRunning = False
                     raise Test.Common.TestCaseFailedException(
                         self.current.result.getOutput() + "\n" + traceback.format_exc()
@@ -141,7 +153,7 @@ class ControllerDriver(Driver):
                 if self.serverSideRunning:
                     try:
                         self.current.serverTestCase._stopServerSide(self.current, False)
-                    except:
+                    except Exception:
                         pass
                 c.adapter.remove(c.id)
 
@@ -171,7 +183,7 @@ class ControllerDriver(Driver):
                 if self.testcase:
                     try:
                         self.testcase.destroy()
-                    except:
+                    except Exception:
                         pass
                     self.testcase = None
 
