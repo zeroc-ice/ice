@@ -6,7 +6,6 @@
 #include <IceGrid/IceGrid.h>
 #include <Glacier2/Router.h>
 #include <TestHelper.h>
-#include <Test.h>
 #include <thread>
 
 using namespace std;
@@ -467,7 +466,6 @@ void
 allTests(TestHelper* helper)
 {
     auto communicator = helper->communicator();
-    bool encoding10 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
 
     auto registry = Ice::checkedCast<RegistryPrx>(communicator->stringToProxy(
         communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
@@ -814,13 +812,9 @@ allTests(TestHelper* helper)
             router->ice_connectionId("routerex")->createSession("client3", "test1", ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
-        {
-            test(!encoding10 && ex.reason == "reason");
-        }
         catch(const Glacier2::PermissionDeniedException& ex)
         {
-            test(encoding10 && ex.reason == "reason");
+            test(ex.reason == "reason");
         }
 
         session1->ice_ping();
@@ -891,13 +885,9 @@ allTests(TestHelper* helper)
             adminRouter->ice_connectionId("routerex")->createSession("admin3", "test1", ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
-        {
-            test(!encoding10 && ex.reason == "reason");
-        }
         catch(const Glacier2::PermissionDeniedException& ex)
         {
-            test(encoding10 && ex.reason == "reason");
+            test(ex.reason == "reason");
         }
 
         admSession1->ice_ping();
@@ -983,13 +973,9 @@ allTests(TestHelper* helper)
             router->ice_connectionId("routerex")->createSessionFromSecureConnection(ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
-        {
-            test(!encoding10 && ex.reason == "reason");
-        }
         catch(const Glacier2::PermissionDeniedException& ex)
         {
-            test(encoding10 && ex.reason == "reason");
+            test(ex.reason == "reason");
         }
 
         try
@@ -1056,13 +1042,9 @@ allTests(TestHelper* helper)
             adminRouter->ice_connectionId("routerex")->createSessionFromSecureConnection(ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
-        {
-            test(!encoding10 && ex.reason == "reason");
-        }
         catch(const Glacier2::PermissionDeniedException& ex)
         {
-            test(encoding10 && ex.reason == "reason");
+            test(ex.reason == "reason");
         }
 
         auto admin1 = admSession1->getAdmin()->ice_router(adminRouter1)->ice_connectionId("admRouter11");

@@ -1047,7 +1047,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     dm1 = ICE_DYNAMIC_CAST(IceMX::DispatchMetrics, map["opWithUserException"]);
     test(dm1->current <= 1 && dm1->total == 1 && dm1->failures == 0 && dm1->userException == 1);
-    test(dm1->size == 38 && dm1->replySize == 23);
+    test(dm1->size == 38 && dm1->replySize == 27);
 
     dm1 = ICE_DYNAMIC_CAST(IceMX::DispatchMetrics, map["opWithLocalException"]);
     test(dm1->current <= 1 && dm1->total == 1 && dm1->failures == 1 && dm1->userException == 0);
@@ -1444,7 +1444,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     test(collocated ? (im1->collocated.size() == 1) : (im1->remotes.size() == 1));
     rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, collocated ? im1->collocated[0] : im1->remotes[0]);
     test(rim1->current == 0 && rim1->total == 3 && rim1->failures == 0);
-    test(rim1->size == 114 && rim1->replySize == 69);
+    test(rim1->size == 114 && rim1->replySize == 81);
     test(im1->userException == 3);
 
     im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["opWithLocalException"]);
