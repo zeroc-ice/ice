@@ -5,18 +5,19 @@
 
 import os
 import sys
-import socket
 import getopt
 
 try:
     import IceCertUtils
-except:
-    print("error: couldn't find IceCertUtils, install `zeroc-icecertutils' package "
-          "from Python package repository")
+except ImportError:
+    print(
+        "error: couldn't find IceCertUtils, install `zeroc-icecertutils' package "
+        "from Python package repository"
+    )
     sys.exit(1)
 
 toplevel = "."
-while (os.path.abspath(toplevel) != "/"):
+while os.path.abspath(toplevel) != "/":
     toplevel = os.path.normpath(os.path.join("..", toplevel))
     if os.path.exists(os.path.join(toplevel, "scripts", "Util.py")):
         break
@@ -25,8 +26,12 @@ else:
 
 cppcerts = os.path.join(toplevel, "cpp", "test", "IceSSL", "certs")
 if not os.path.exists(os.path.join(cppcerts, "db", "ca1", "ca.pem")):
-    print("error: CA database is not initialized in `" + os.path.join(cppcerts, "db") + "',"
-          " run makecerts.py in `" + cppcerts + "' first")
+    print(
+        "error: CA database is not initialized in `"
+        + os.path.join(cppcerts, "db")
+        + "',"
+        " run makecerts.py in `" + cppcerts + "' first"
+    )
     sys.exit(1)
 
 
@@ -52,7 +57,7 @@ except getopt.GetoptError as e:
     usage()
     sys.exit(1)
 
-for (o, a) in opts:
+for o, a in opts:
     if o == "-h" or o == "--help":
         usage()
         sys.exit(0)
@@ -61,8 +66,12 @@ for (o, a) in opts:
     elif o == "--force":
         force = True
 
-ca1 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca1"), debug=debug)
-ca2 = IceCertUtils.CertificateFactory(home=os.path.join(cppcerts, "db", "ca2"), debug=debug)
+ca1 = IceCertUtils.CertificateFactory(
+    home=os.path.join(cppcerts, "db", "ca1"), debug=debug
+)
+ca2 = IceCertUtils.CertificateFactory(
+    home=os.path.join(cppcerts, "db", "ca2"), debug=debug
+)
 cai1 = ca1.getIntermediateFactory("intermediate1")
 cai2 = cai1.getIntermediateFactory("intermediate1")
 
@@ -97,7 +106,7 @@ certs = [
 #
 # Save the certificate JKS files.
 #
-for (ca, alias, path, args) in certs:
+for ca, alias, path, args in certs:
     if not path:
         path = alias
     cert = ca.get(alias)
