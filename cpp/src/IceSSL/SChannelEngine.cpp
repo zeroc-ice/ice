@@ -559,7 +559,7 @@ SChannel::SSLEngine::initialize()
     // avoid crashes ocurring with last SChannel updates see:
     // https://github.com/zeroc-ice/ice/issues/242
     //
-    lock_guard lock(globalMutex);
+    lock_guard globalLock(globalMutex);
 
     //
     // We still have to acquire the instance mutex because it is used by the base
