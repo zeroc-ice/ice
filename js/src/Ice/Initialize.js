@@ -106,7 +106,7 @@ Ice.stringVersion = function()
 
 Ice.intVersion = function()
 {
-    return 30800; // AABBCC, with AA=major, BB=minor, CC=patch
+    return 30850; // AABBCC, with AA=major, BB=minor, CC=patch
 };
 
 module.exports.Ice = Ice;
