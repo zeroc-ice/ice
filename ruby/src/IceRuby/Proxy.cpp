@@ -23,11 +23,9 @@ static VALUE _proxyClass;
 
 extern "C"
 void
-IceRuby_ObjectPrx_mark(Ice::ObjectPrx* p)
+IceRuby_ObjectPrx_mark(shared_ptr<Ice::ObjectPrx>* p)
 {
-    //
     // We need to mark the communicator associated with this proxy.
-    //
     assert(p);
     volatile VALUE communicator = lookupCommunicator((*p)->ice_getCommunicator());
     assert(!NIL_P(communicator));
@@ -36,15 +34,13 @@ IceRuby_ObjectPrx_mark(Ice::ObjectPrx* p)
 
 extern "C"
 void
-IceRuby_ObjectPrx_free(Ice::ObjectPrx* p)
+IceRuby_ObjectPrx_free(shared_ptr<Ice::ObjectPrx>* p)
 {
     assert(p);
     delete p;
 }
 
-//
 // If a context was provided set it to ::Ice::noExplicitContext.
-//
 static void
 checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ctx)
 {
@@ -72,7 +68,7 @@ IceRuby_ObjectPrx_hash(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return INT2FIX(p->_hash());
     }
     ICE_RUBY_CATCH
@@ -85,7 +81,7 @@ IceRuby_ObjectPrx_ice_getCommunicator(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         Ice::CommunicatorPtr communicator = p->ice_getCommunicator();
         return lookupCommunicator(communicator);
     }
@@ -99,7 +95,7 @@ IceRuby_ObjectPrx_ice_toString(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         string s = p->ice_toString();
         return createString(s);
     }
@@ -113,7 +109,7 @@ IceRuby_ObjectPrx_ice_isA(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::Context ctx;
         checkArgs("ice_isA", 1, argc, argv, ctx);
@@ -131,7 +127,7 @@ IceRuby_ObjectPrx_ice_ping(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::Context ctx;
         checkArgs("ice_ping", 0, argc, argv, ctx);
@@ -147,7 +143,7 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::Context ctx;
         checkArgs("ice_ids", 0, argc, argv, ctx);
@@ -155,9 +151,9 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         vector<string> ids = p->ice_ids(ctx);
         volatile VALUE result = createArray(static_cast<long>(ids.size()));
         long i = 0;
-        for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
+        for(const auto& q : ids)
         {
-            RARRAY_ASET(result, i, createString(*q));
+            RARRAY_ASET(result, i++, createString(q));
         }
 
         return result;
@@ -172,7 +168,7 @@ IceRuby_ObjectPrx_ice_id(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::Context ctx;
         checkArgs("ice_id", 0, argc, argv, ctx);
@@ -189,7 +185,7 @@ IceRuby_ObjectPrx_ice_getIdentity(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createIdentity(p->ice_getIdentity());
     }
     ICE_RUBY_CATCH
@@ -202,7 +198,7 @@ IceRuby_ObjectPrx_ice_identity(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         Ice::Identity ident = getIdentity(id);
         return createProxy(p->ice_identity(ident));
     }
@@ -216,7 +212,7 @@ IceRuby_ObjectPrx_ice_getContext(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return contextToHash(p->ice_getContext());
     }
     ICE_RUBY_CATCH
@@ -229,7 +225,7 @@ IceRuby_ObjectPrx_ice_context(VALUE self, VALUE ctx)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::Context context;
         if(!NIL_P(ctx) && !hashToContext(ctx, context))
@@ -248,7 +244,7 @@ IceRuby_ObjectPrx_ice_getFacet(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         string facet = p->ice_getFacet();
         return createString(facet);
     }
@@ -262,7 +258,7 @@ IceRuby_ObjectPrx_ice_facet(VALUE self, VALUE facet)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         string f = getString(facet);
         return createProxy(p->ice_facet(f));
     }
@@ -276,7 +272,7 @@ IceRuby_ObjectPrx_ice_getAdapterId(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         string id = p->ice_getAdapterId();
         return createString(id);
     }
@@ -290,7 +286,7 @@ IceRuby_ObjectPrx_ice_adapterId(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         string idstr = getString(id);
         return createProxy(p->ice_adapterId(idstr), rb_class_of(self));
     }
@@ -304,7 +300,7 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::EndpointSeq seq = p->ice_getEndpoints();
         volatile VALUE result = createArray(static_cast<long>(seq.size()));
@@ -325,7 +321,7 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         if(!NIL_P(seq) && !isArray(seq))
         {
@@ -363,7 +359,7 @@ IceRuby_ObjectPrx_ice_getLocatorCacheTimeout(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         Ice::Int t = p->ice_getLocatorCacheTimeout();
         return INT2FIX(t);
     }
@@ -377,7 +373,7 @@ IceRuby_ObjectPrx_ice_getInvocationTimeout(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         Ice::Int t = p->ice_getInvocationTimeout();
         return INT2FIX(t);
     }
@@ -391,7 +387,7 @@ IceRuby_ObjectPrx_ice_getConnectionId(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         string connectionId = p->ice_getConnectionId();
         return createString(connectionId);
     }
@@ -407,7 +403,7 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
     {
         try
         {
-            Ice::ObjectPrx p = getProxy(self);
+            shared_ptr<Ice::ObjectPrx> p = getProxy(self);
             long t = getInteger(timeout);
             return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
         }
@@ -428,7 +424,7 @@ IceRuby_ObjectPrx_ice_invocationTimeout(VALUE self, VALUE timeout)
     {
         try
         {
-            Ice::ObjectPrx p = getProxy(self);
+            shared_ptr<Ice::ObjectPrx> p = getProxy(self);
             long t = getInteger(timeout);
             return createProxy(p->ice_invocationTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
         }
@@ -447,7 +443,7 @@ IceRuby_ObjectPrx_ice_isConnectionCached(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isConnectionCached() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -460,7 +456,7 @@ IceRuby_ObjectPrx_ice_connectionCached(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_connectionCached(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -473,7 +469,7 @@ IceRuby_ObjectPrx_ice_getEndpointSelection(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::EndpointSelectionType type = p->ice_getEndpointSelection();
         volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
@@ -490,7 +486,7 @@ IceRuby_ObjectPrx_ice_endpointSelection(VALUE self, VALUE type)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
         assert(!NIL_P(cls));
@@ -513,7 +509,7 @@ IceRuby_ObjectPrx_ice_isSecure(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isSecure() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -526,7 +522,7 @@ IceRuby_ObjectPrx_ice_secure(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_secure(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -539,7 +535,7 @@ IceRuby_ObjectPrx_ice_getEncodingVersion(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createEncodingVersion(p->ice_getEncodingVersion());
     }
     ICE_RUBY_CATCH
@@ -555,7 +551,7 @@ IceRuby_ObjectPrx_ice_encodingVersion(VALUE self, VALUE v)
     {
         ICE_RUBY_TRY
         {
-            Ice::ObjectPrx p = getProxy(self);
+            shared_ptr<Ice::ObjectPrx> p = getProxy(self);
             return createProxy(p->ice_encodingVersion(val), rb_class_of(self));
         }
         ICE_RUBY_CATCH
@@ -570,7 +566,7 @@ IceRuby_ObjectPrx_ice_isPreferSecure(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isPreferSecure() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -583,7 +579,7 @@ IceRuby_ObjectPrx_ice_preferSecure(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_preferSecure(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -596,9 +592,9 @@ IceRuby_ObjectPrx_ice_getRouter(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
-        Ice::RouterPrx router = p->ice_getRouter();
+        shared_ptr<Ice::RouterPrx> router = p->ice_getRouter();
         if(router)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
@@ -616,16 +612,16 @@ IceRuby_ObjectPrx_ice_router(VALUE self, VALUE router)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
-        Ice::RouterPrx proxy;
+        shared_ptr<Ice::RouterPrx> proxy;
         if(!NIL_P(router))
         {
             if(!checkProxy(router))
             {
                 throw RubyException(rb_eTypeError, "argument must be a proxy");
             }
-            proxy = Ice::RouterPrx::uncheckedCast(getProxy(router));
+            proxy = Ice::uncheckedCast<Ice::RouterPrx>(getProxy(router));
         }
         return createProxy(p->ice_router(proxy), rb_class_of(self));
     }
@@ -639,9 +635,9 @@ IceRuby_ObjectPrx_ice_getLocator(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
-        Ice::LocatorPrx locator = p->ice_getLocator();
+        shared_ptr<Ice::LocatorPrx> locator = p->ice_getLocator();
         if(locator)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
@@ -659,16 +655,16 @@ IceRuby_ObjectPrx_ice_locator(VALUE self, VALUE locator)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
-        Ice::LocatorPrx proxy;
+        shared_ptr<Ice::LocatorPrx> proxy;
         if(!NIL_P(locator))
         {
             if(!checkProxy(locator))
             {
                 throw RubyException(rb_eTypeError, "argument must be a proxy");
             }
-            proxy = Ice::LocatorPrx::uncheckedCast(getProxy(locator));
+            proxy = Ice::uncheckedCast<Ice::LocatorPrx>(getProxy(locator));
         }
         return createProxy(p->ice_locator(proxy), rb_class_of(self));
     }
@@ -682,7 +678,7 @@ IceRuby_ObjectPrx_ice_twoway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_twoway(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -695,7 +691,7 @@ IceRuby_ObjectPrx_ice_isTwoway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isTwoway() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -708,7 +704,7 @@ IceRuby_ObjectPrx_ice_oneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_oneway(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -721,7 +717,7 @@ IceRuby_ObjectPrx_ice_isOneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isOneway() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -734,7 +730,7 @@ IceRuby_ObjectPrx_ice_batchOneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_batchOneway(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -747,7 +743,7 @@ IceRuby_ObjectPrx_ice_isBatchOneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isBatchOneway() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -760,7 +756,7 @@ IceRuby_ObjectPrx_ice_datagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_datagram(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -773,7 +769,7 @@ IceRuby_ObjectPrx_ice_isDatagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isDatagram() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -786,7 +782,7 @@ IceRuby_ObjectPrx_ice_batchDatagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_batchDatagram(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -799,7 +795,7 @@ IceRuby_ObjectPrx_ice_isBatchDatagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isBatchDatagram() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -812,7 +808,7 @@ IceRuby_ObjectPrx_ice_compress(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return createProxy(p->ice_compress(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
@@ -825,7 +821,7 @@ IceRuby_ObjectPrx_ice_getCompress(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         IceUtil::Optional<bool> c = p->ice_getCompress();
         if(c)
         {
@@ -848,7 +844,7 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
     {
         try
         {
-            Ice::ObjectPrx p = getProxy(self);
+            shared_ptr<Ice::ObjectPrx> p = getProxy(self);
             Ice::Int timeout = static_cast<Ice::Int>(getInteger(t));
             return createProxy(p->ice_timeout(timeout), rb_class_of(self));
         }
@@ -867,7 +863,7 @@ IceRuby_ObjectPrx_ice_getTimeout(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         IceUtil::Optional<int> t = p->ice_getTimeout();
         if(t)
         {
@@ -888,7 +884,7 @@ IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         string idstr = getString(id);
         return createProxy(p->ice_connectionId(idstr), rb_class_of(self));
     }
@@ -902,7 +898,7 @@ IceRuby_ObjectPrx_ice_fixed(VALUE self, VALUE con)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
 
         Ice::ConnectionPtr connection;
         if(!NIL_P(con))
@@ -925,7 +921,7 @@ IceRuby_ObjectPrx_ice_isFixed(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         return p->ice_isFixed() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
@@ -938,7 +934,7 @@ IceRuby_ObjectPrx_ice_getConnection(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         Ice::ConnectionPtr conn = p->ice_getConnection();
         return createConnection(conn);
     }
@@ -952,7 +948,7 @@ IceRuby_ObjectPrx_ice_getCachedConnection(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         Ice::ConnectionPtr conn = p->ice_getCachedConnection();
         if(conn)
         {
@@ -969,7 +965,7 @@ IceRuby_ObjectPrx_ice_flushBatchRequests(VALUE self)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(self);
         p->ice_flushBatchRequests();
     }
     ICE_RUBY_CATCH
@@ -990,13 +986,13 @@ IceRuby_ObjectPrx_cmp(VALUE self, VALUE other)
         {
             throw RubyException(rb_eTypeError, "argument must be a proxy");
         }
-        Ice::ObjectPrx p1 = getProxy(self);
-        Ice::ObjectPrx p2 = getProxy(other);
-        if(p1 < p2)
+        shared_ptr<Ice::ObjectPrx> p1 = getProxy(self);
+        shared_ptr<Ice::ObjectPrx> p2 = getProxy(other);
+        if(Ice::targetLess(p1, p2))
         {
             return INT2NUM(-1);
         }
-        else if(p1 == p2)
+        else if(Ice::targetEqualTo(p1, p2))
         {
             return INT2NUM(0);
         }
@@ -1017,9 +1013,9 @@ IceRuby_ObjectPrx_equals(VALUE self, VALUE other)
 }
 
 static VALUE
-checkedCastImpl(const Ice::ObjectPrx& p, const string& id, VALUE facet, VALUE ctx, VALUE type)
+checkedCastImpl(const shared_ptr<Ice::ObjectPrx>& p, const string& id, VALUE facet, VALUE ctx, VALUE type)
 {
-    Ice::ObjectPrx target;
+    shared_ptr<Ice::ObjectPrx> target;
     if(NIL_P(facet))
     {
         target = p;
@@ -1086,7 +1082,7 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE /*self*/)
             throw RubyException(rb_eArgError, "checkedCast requires a proxy argument");
         }
 
-        Ice::ObjectPrx p = getProxy(args[0]);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(args[0]);
 
         volatile VALUE facet = Qnil;
         volatile VALUE ctx = Qnil;
@@ -1154,7 +1150,7 @@ IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE /*self*/)
             facet = args[1];
         }
 
-        Ice::ObjectPrx p = getProxy(args[0]);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(args[0]);
 
         if(!NIL_P(facet))
         {
@@ -1189,7 +1185,7 @@ IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOr
             throw RubyException(rb_eArgError, "checkedCast requires a proxy argument");
         }
 
-        Ice::ObjectPrx p = getProxy(obj);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(obj);
 
         string idstr = getString(id);
 
@@ -1238,7 +1234,7 @@ IceRuby_ObjectPrx_ice_uncheckedCast(VALUE self, VALUE obj, VALUE facet)
             throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument");
         }
 
-        Ice::ObjectPrx p = getProxy(obj);
+        shared_ptr<Ice::ObjectPrx> p = getProxy(obj);
 
         if(!NIL_P(facet))
         {
@@ -1367,25 +1363,20 @@ IceRuby::initProxy(VALUE iceModule)
 }
 
 VALUE
-IceRuby::createProxy(const Ice::ObjectPrx& p, VALUE cls)
+IceRuby::createProxy(shared_ptr<Ice::ObjectPrx> p, VALUE cls)
 {
-    //
     // If cls is nil then the proxy has the base type Ice::ObjectPrx.
-    //
-    if(NIL_P(cls))
-    {
-        return Data_Wrap_Struct(_proxyClass, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free, new Ice::ObjectPrx(p));
-    }
-    else
-    {
-        return Data_Wrap_Struct(cls, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free, new Ice::ObjectPrx(p));
-    }
+    return Data_Wrap_Struct(
+        NIL_P(cls) ? _proxyClass : cls,
+        IceRuby_ObjectPrx_mark,
+        IceRuby_ObjectPrx_free,
+        new shared_ptr<Ice::ObjectPrx>(std::move(p)));
 }
 
-Ice::ObjectPrx
+shared_ptr<Ice::ObjectPrx>
 IceRuby::getProxy(VALUE v)
 {
-    Ice::ObjectPrx* p = reinterpret_cast<Ice::ObjectPrx*>(DATA_PTR(v));
+    shared_ptr<Ice::ObjectPrx>* p = reinterpret_cast<shared_ptr<Ice::ObjectPrx>*>(DATA_PTR(v));
     return *p;
 }
 

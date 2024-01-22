@@ -345,11 +345,11 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     }
 
     VALUE info;
-    if(Ice::WSConnectionInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::WSConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_wsConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
-        Ice::WSConnectionInfoPtr ws = Ice::WSConnectionInfoPtr::dynamicCast(p);
+        Ice::WSConnectionInfoPtr ws = dynamic_pointer_cast<Ice::WSConnectionInfo>(p);
         volatile VALUE result = callRuby(rb_hash_new);
         for(Ice::HeaderDict::const_iterator q = ws->headers.begin(); q != ws->headers.end(); ++q)
         {
@@ -359,29 +359,29 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         }
         rb_ivar_set(info, rb_intern("@headers"), result);
     }
-    else if(Ice::TCPConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::TCPConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_tcpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
-        Ice::TCPConnectionInfoPtr tcp = Ice::TCPConnectionInfoPtr::dynamicCast(p);
+        Ice::TCPConnectionInfoPtr tcp = dynamic_pointer_cast<Ice::TCPConnectionInfo>(p);
         rb_ivar_set(info, rb_intern("@rcvSize"), INT2FIX(tcp->rcvSize));
         rb_ivar_set(info, rb_intern("@sndSize"), INT2FIX(tcp->sndSize));
     }
-    else if(Ice::UDPConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_udpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
-        Ice::UDPConnectionInfoPtr udp = Ice::UDPConnectionInfoPtr::dynamicCast(p);
+        Ice::UDPConnectionInfoPtr udp = dynamic_pointer_cast<Ice::UDPConnectionInfo>(p);
         rb_ivar_set(info, rb_intern("@mcastAddress"), createString(udp->mcastAddress));
         rb_ivar_set(info, rb_intern("@mcastPort"), INT2FIX(udp->mcastPort));
         rb_ivar_set(info, rb_intern("@rcvSize"), INT2FIX(udp->rcvSize));
         rb_ivar_set(info, rb_intern("@sndSize"), INT2FIX(udp->sndSize));
     }
-    else if(IceSSL::ConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_sslConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
-        IceSSL::ConnectionInfoPtr ssl = IceSSL::ConnectionInfoPtr::dynamicCast(p);
+        IceSSL::ConnectionInfoPtr ssl = dynamic_pointer_cast<IceSSL::ConnectionInfo>(p);
         rb_ivar_set(info, rb_intern("@cipher"), createString(ssl->cipher));
 
         Ice::StringSeq encoded;
@@ -393,7 +393,7 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         rb_ivar_set(info, rb_intern("@certs"), stringSeqToArray(encoded));
         rb_ivar_set(info, rb_intern("@verified"), ssl->verified ? Qtrue : Qfalse);
     }
-    else if(Ice::IPConnectionInfoPtr::dynamicCast(p))
+    else if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
         info = Data_Wrap_Struct(_ipConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
 
@@ -403,9 +403,9 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
         info = Data_Wrap_Struct(_connectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
     }
 
-    if(Ice::IPConnectionInfoPtr::dynamicCast(p))
+    if(dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
-        Ice::IPConnectionInfoPtr ip = Ice::IPConnectionInfoPtr::dynamicCast(p);
+        Ice::IPConnectionInfoPtr ip = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
         rb_ivar_set(info, rb_intern("@localAddress"), createString(ip->localAddress));
         rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(ip->localPort));
         rb_ivar_set(info, rb_intern("@remoteAddress"), createString(ip->remoteAddress));

@@ -2,9 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <ValueFactoryManager.h>
-#include <Types.h>
-#include <Util.h>
+#include "ValueFactoryManager.h"
+#include "Types.h"
+#include "Util.h"
+
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -22,10 +23,8 @@ getClassInfo(const string& id)
 
     if(id == Ice::Object::ice_staticId())
     {
-        //
         // When the ID is that of Ice::Object, it indicates that the stream has not
         // found a factory and is providing us an opportunity to preserve the object.
-        //
         info = lookupClassInfo("::Ice::UnknownSlicedValue");
     }
     else
