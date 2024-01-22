@@ -3,7 +3,7 @@
 //
 
 #include <Slice/Util.h>
-#include <Slice/PHPUtil.h>
+#include "PHPUtil.h"
 #include <functional>
 #include <algorithm>
 #include <vector>

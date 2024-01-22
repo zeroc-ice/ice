@@ -8,7 +8,7 @@
 #include "Types.h"
 #include "Util.h"
 
-#include "Slice/PHPUtil.h"
+#include "PHPUtil.h"
 
 using namespace std;
 using namespace IcePHP;

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/PythonUtil.h>
+#include "PythonUtil.h"
 #include <Slice/Util.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>

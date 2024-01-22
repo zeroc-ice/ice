@@ -13,7 +13,7 @@
 #include <IceUtil/FileUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
-#include <Slice/PythonUtil.h>
+#include "PythonUtil.h"
 #include <Slice/Util.h>
 #include <cstring>
 
