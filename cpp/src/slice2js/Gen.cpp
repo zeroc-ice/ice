@@ -11,17 +11,6 @@
 #include <algorithm>
 #include <iterator>
 
-// TODO: fix this warning!
-#if defined(_MSC_VER)
-#   pragma warning(disable:4456) // shadow
-#   pragma warning(disable:4457) // shadow
-#   pragma warning(disable:4459) // shadow
-#elif defined(__clang__)
-#   pragma clang diagnostic ignored "-Wshadow"
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
@@ -748,18 +737,19 @@ Slice::Gen::generate(const UnitPtr& p)
             _jsout.restoreIndent();
         }
     }
-    RequireVisitor requireVisitor(_jsout, _includePaths, icejs, es6module);
-    p->visit(&requireVisitor, false);
-    vector<string> seenModules = requireVisitor.writeRequires(p);
 
-    TypesVisitor typesVisitor(_jsout, seenModules, icejs);
-    p->visit(&typesVisitor, false);
+    {
+        RequireVisitor requireVisitor(_jsout, _includePaths, icejs, es6module);
+        p->visit(&requireVisitor, false);
+        vector<string> seenModules = requireVisitor.writeRequires(p);
 
-    //
-    // Export the top-level modules.
-    //
-    ExportVisitor exportVisitor(_jsout, icejs, es6module);
-    p->visit(&exportVisitor, false);
+        TypesVisitor typesVisitor(_jsout, seenModules, icejs);
+        p->visit(&typesVisitor, false);
+
+        // Export the top-level modules.
+        ExportVisitor exportVisitor(_jsout, icejs, es6module);
+        p->visit(&exportVisitor, false);
+    }
 
     if(iifemodule)
     {
@@ -1049,29 +1039,27 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
             if(m1 != m2 && !m2.empty())
             {
-                for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
+                for(const auto& j : modules)
                 {
                     if(imports.find(m2) == imports.end())
                     {
-                        set<string> mImports;
-                        mImports.insert(*j);
-                        imports[m2] = mImports;
+                        imports[m2] = set<string> { j };
                     }
                     else
                     {
-                        imports[m2].insert(*j);
+                        imports[m2].insert(j);
                     }
                 }
             }
             else
             {
                 set<string> newModules;
-                for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
+                for (const auto& j : modules)
                 {
-                    if(find(seenModules.begin(), seenModules.end(), *j) == seenModules.end())
+                    if (find(seenModules.begin(), seenModules.end(), j) == seenModules.end())
                     {
-                        seenModules.push_back(*j);
-                        newModules.insert(*j);
+                        seenModules.push_back(j);
+                        newModules.insert(j);
                     }
                 }
 
@@ -1103,7 +1091,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
         _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
 
-        for(map<string, set<string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        for (map<string, set<string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
         {
             if(i->first != "ice")
             {
@@ -1112,10 +1100,10 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                 if(!mImports.empty())
                 {
                     _out << "{ ";
-                    for(set<string>::const_iterator i = mImports.begin(); i != mImports.end();)
+                    for (set<string>::const_iterator j = mImports.begin(); j != mImports.end();)
                     {
-                        _out << (*i);
-                        if(++i != mImports.end())
+                        _out << (*j);
+                        if(++j != mImports.end())
                         {
                             _out << ", ";
                         }
@@ -1555,7 +1543,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
 
             OperationPtr op = *q;
-            const string name = fixId(op->name());
+            const string opName = fixId(op->name());
             const ParamDeclList paramList = op->parameters();
             const TypePtr ret = op->returnType();
             ParamDeclList inParams, outParams;
@@ -1590,9 +1578,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             _out << nl << "\"" << op->name() << "\": ["; // Operation name over-the-wire.
 
-            if(name != op->name())
+            if(opName != op->name())
             {
-                _out << "\"" << name << "\""; // Native method name.
+                _out << "\"" << opName << "\""; // Native method name.
             }
             _out << ", ";
 
@@ -1709,11 +1697,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             ExceptionList throws = op->throws();
             throws.sort();
             throws.unique();
-#if defined(__SUNPRO_CC)
-            throws.sort(derivedToBaseCompare);
-#else
             throws.sort(Slice::DerivedToBaseCompare());
-#endif
             if(throws.empty())
             {
                 _out << " ";
