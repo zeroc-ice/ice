@@ -193,17 +193,17 @@ class Callback(CallbackBase):
         (ret, p1, p2) = f.result()
         test(p1)
         test(p1.sb == "D2.sb (p1 1)")
-        test(p1.pb == None)
+        test(p1.pb is None)
         test(p1.ice_id() == "::Test::B")
 
         test(p2)
         test(p2.sb == "D2.sb (p2 1)")
-        test(p2.pb == None)
+        test(p2.pb is None)
         test(p2.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "D1.sb (p2 2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::D1")
         self.called()
 
@@ -211,12 +211,12 @@ class Callback(CallbackBase):
         (ret, b) = f.result()
         test(b)
         test(b.sb == "D4.sb (1)")
-        test(b.pb == None)
+        test(b.pb is None)
         test(b.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "B.sb (2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::B")
         self.called()
 
@@ -496,7 +496,7 @@ def allTests(helper, communicator):
             test(sb.sb == "SBSUnknownDerived.sb")
         except Ice.OperationNotExistException:
             pass
-        except:
+        except Exception:
             test(False)
     else:
         try:
@@ -511,7 +511,7 @@ def allTests(helper, communicator):
         except Ice.NoValueFactoryException:
             # Expected.
             pass
-        except:
+        except Exception:
             test(False)
     print("ok")
 
@@ -958,17 +958,17 @@ def allTests(helper, communicator):
 
         test(p1)
         test(p1.sb == "D2.sb (p1 1)")
-        test(p1.pb == None)
+        test(p1.pb is None)
         test(p1.ice_id() == "::Test::B")
 
         test(p2)
         test(p2.sb == "D2.sb (p2 1)")
-        test(p2.pb == None)
+        test(p2.pb is None)
         test(p2.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "D1.sb (p2 2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::D1")
     except Ice.Exception:
         test(False)
@@ -988,12 +988,12 @@ def allTests(helper, communicator):
 
         test(b)
         test(b.sb == "D4.sb (1)")
-        test(b.pb == None)
+        test(b.pb is None)
         test(b.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "B.sb (2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::B")
     except Ice.Exception:
         test(False)
@@ -1323,7 +1323,7 @@ def allTests(helper, communicator):
             s = "D1." + str(i * 20)
             test(b.sb == s)
             if i == 0:
-                test(b.pb == None)
+                test(b.pb is None)
             else:
                 test(b.pb == r[(i - 1) * 20])
             d1 = b
@@ -1371,7 +1371,7 @@ def allTests(helper, communicator):
             s = "D1." + str(i * 20)
             test(b.sb == s)
             if i == 0:
-                test(b.pb == None)
+                test(b.pb is None)
             else:
                 test(b.pb == r[(i - 1) * 20])
             d1 = b
@@ -1732,7 +1732,7 @@ def allTests(helper, communicator):
         test(PNodeI.counter == 0)
         n = t.exchangePNode(c)
         test(PNodeI.counter == 3)
-        test(n.next != None)
+        test(n.next is not None)
         test(n.next != n.next.next)
         test(n.next.next != n.next.next.next)
         test(n.next.next.next == n)
@@ -1772,7 +1772,7 @@ def allTests(helper, communicator):
         #
         test(PreservedI.counter == 0)
         p = t.PBSUnknown2AsPreservedWithGraph()
-        test(p != None)
+        test(p is not None)
         test(PreservedI.counter == 1)
         t.checkPBSUnknown2WithGraph(p)
         p._ice_slicedData = None  # Break the cycle.

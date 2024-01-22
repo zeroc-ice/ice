@@ -152,7 +152,7 @@ def allTests(helper, communicator):
     test(b2 != d)
     test(c != d)
     test(b1.theB == b1)
-    test(b1.theC == None)
+    test(b1.theC is None)
     test(isinstance(b1.theA, Test.B))
     test(b1.theA.theA == b1.theA)
     test(b1.theA.theB == b1)
@@ -166,7 +166,7 @@ def allTests(helper, communicator):
     test(b1.theA.theC.postUnmarshalInvoked)
     # More tests possible for b2 and d, but I think this is already sufficient.
     test(b2.theA == b2)
-    test(d.theC == None)
+    test(d.theC is None)
     print("ok")
 
     sys.stdout.write("getting B1, B2, C, and D all at once... ")
@@ -188,14 +188,14 @@ def allTests(helper, communicator):
     test(c != d)
     test(b1.theA == b2)
     test(b1.theB == b1)
-    test(b1.theC == None)
+    test(b1.theC is None)
     test(b2.theA == b2)
     test(b2.theB == b1)
     test(b2.theC == c)
     test(c.theB == b2)
     test(d.theA == b1)
     test(d.theB == b2)
-    test(d.theC == None)
+    test(d.theC is None)
     test(d.preMarshalInvoked)
     test(d.postUnmarshalInvoked)
     test(d.theA.preMarshalInvoked)
@@ -256,9 +256,9 @@ def allTests(helper, communicator):
     sys.stdout.write("testing marshaled results...")
     sys.stdout.flush()
     b1 = initial.getMB()
-    test(b1 != None and b1.theB == b1)
+    test(b1 is not None and b1.theB == b1)
     b1 = initial.getAMDMBAsync().result()
-    test(b1 != None and b1.theB == b1)
+    test(b1 is not None and b1.theB == b1)
     print("ok")
 
     # Don't run this test with collocation, this should work with collocation
@@ -281,7 +281,7 @@ def allTests(helper, communicator):
         except Ice.Exception as ex:
             print(ex)
             test(False)
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
         print("ok")

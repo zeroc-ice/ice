@@ -107,7 +107,7 @@ def allTests(helper, communicator):
     )
 
     test(mo1.a == 15)
-    test(mo1.b == True)
+    test(mo1.b is True)
     test(mo1.c == 19)
     test(mo1.d == 78)
     test(mo1.e == 99)
@@ -116,7 +116,7 @@ def allTests(helper, communicator):
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
     test(mo1.j == communicator.stringToProxy("test"))
-    test(mo1.k == None)
+    test(mo1.k is None)
     test(mo1.bs == [5])
     test(mo1.ss == ["test", "test2"])
     test(mo1.iid[4] == 3)
@@ -501,10 +501,10 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opBool(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
     (p2, p3) = initial.opBool(True)
-    test(p2 == True and p3 == True)
+    test(p2 is True and p3 is True)
     f = initial.opBoolAsync(True)
     (p2, p3) = f.result()
-    test(p2 == True and p3 == True)
+    test(p2 is True and p3 is True)
 
     (p2, p3) = initial.opShort(Ice.Unset)
     test(p2 is Ice.Unset and p3 is Ice.Unset)
@@ -838,7 +838,7 @@ def allTests(helper, communicator):
         test(ex.b is Ice.Unset)
         test(ex.o is Ice.Unset)
         test(ex.ss == "test")
-        test(ex.o2 == None)
+        test(ex.o2 is None)
 
     try:
         initial.opRequiredException(30, "test2", Test.OneOptional(53))

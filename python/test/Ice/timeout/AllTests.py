@@ -69,7 +69,7 @@ def allTests(helper, communicator):
             "controller:{0}".format(helper.getTestEndpoint(num=1))
         )
     )
-    test(controller != None)
+    test(controller is not None)
 
     try:
         allTestsWithController(helper, communicator, controller)
@@ -83,10 +83,10 @@ def allTests(helper, communicator):
 def allTestsWithController(helper, communicator, controller):
     sref = "timeout:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
-    test(obj != None)
+    test(obj is not None)
 
     timeout = Test.TimeoutPrx.checkedCast(obj)
-    test(timeout != None)
+    test(timeout is not None)
 
     sys.stdout.write("testing connect timeout... ")
     sys.stdout.flush()

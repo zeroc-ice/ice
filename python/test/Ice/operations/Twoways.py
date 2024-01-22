@@ -160,19 +160,19 @@ def twoways(helper, p):
     #
     # opShortIntLong
     #
-    r, s, i, l = p.opShortIntLong(10, 11, 12)
+    r, s, i, l = p.opShortIntLong(10, 11, 12)  # noqa: E741
     test(s == 10)
     test(i == 11)
     test(l == 12)
     test(r == 12)
 
-    r, s, i, l = p.opShortIntLong(-32768, -2147483648, -9223372036854775808)
+    r, s, i, l = p.opShortIntLong(-32768, -2147483648, -9223372036854775808)  # noqa: E741
     test(s == -32768)
     test(i == -2147483648)
     test(l == -9223372036854775808)
     test(r == -9223372036854775808)
 
-    r, s, i, l = p.opShortIntLong(32767, 2147483647, 9223372036854775807)
+    r, s, i, l = p.opShortIntLong(32767, 2147483647, 9223372036854775807)  # noqa: E741
     test(s == 32767)
     test(i == 2147483647)
     test(l == 9223372036854775807)
@@ -196,37 +196,37 @@ def twoways(helper, p):
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(32767 + 1, 0, 0)
+        r, s, i, l = p.opShortIntLong(32767 + 1, 0, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(-32768 - 1, 0, 0)
+        r, s, i, l = p.opShortIntLong(-32768 - 1, 0, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, 2147483647 + 1, 0)
+        r, s, i, l = p.opShortIntLong(0, 2147483647 + 1, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, -2147483648 - 1, 0)
+        r, s, i, l = p.opShortIntLong(0, -2147483648 - 1, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, 0, 9223372036854775807 + 1)
+        r, s, i, l = p.opShortIntLong(0, 0, 9223372036854775807 + 1)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, 0, -9223372036854775808 - 1)
+        r, s, i, l = p.opShortIntLong(0, 0, -9223372036854775808 - 1)  # noqa: E741
         test(False)
     except ValueError:
         pass
@@ -1275,12 +1275,12 @@ def twoways(helper, p):
     # opIntS
     #
     lengths = (0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000)
-    for l in lengths:
+    for length in lengths:
         s = []
-        for i in range(l):
+        for i in range(length):
             s.append(i)
         r = p.opIntS(s)
-        test(len(r) == l)
+        test(len(r) == length)
         for j in range(len(r)):
             test(r[j] == -j)
 
@@ -1325,10 +1325,10 @@ def twoways(helper, p):
             test(ic.getImplicitContext().getContext() == ctx)
             test(p1.opContext() == ctx)
 
-            test(ic.getImplicitContext().containsKey("zero") == False)
+            test(ic.getImplicitContext().containsKey("zero") is False)
             r = ic.getImplicitContext().put("zero", "ZERO")
             test(r == "")
-            test(ic.getImplicitContext().containsKey("zero") == True)
+            test(ic.getImplicitContext().containsKey("zero") is True)
             test(ic.getImplicitContext().get("zero") == "ZERO")
 
             ctx = ic.getImplicitContext().getContext()
@@ -1387,7 +1387,7 @@ def twoways(helper, p):
     s.myStruct1 = "Test.MyStruct1.myStruct1"
     s = d.opMyStruct1(s)
     test(s.tesT == "Test.MyStruct1.s")
-    test(s.myClass == None)
+    test(s.myClass is None)
     test(s.myStruct1 == "Test.MyStruct1.myStruct1")
     c = Test.MyClass1()
     c.tesT = "Test.MyClass1.testT"
@@ -1395,7 +1395,7 @@ def twoways(helper, p):
     c.myClass1 = "Test.MyClass1.myClass1"
     c = d.opMyClass1(c)
     test(c.tesT == "Test.MyClass1.testT")
-    test(c.myClass == None)
+    test(c.myClass is None)
     test(c.myClass1 == "Test.MyClass1.myClass1")
 
     p1 = p.opMStruct1()

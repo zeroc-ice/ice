@@ -150,7 +150,7 @@ def allTests():
     sys.stdout.write("testing default constructor... ")
     sys.stdout.flush()
     v = Test.StructNoDefaults()
-    test(v.bo == False)
+    test(v.bo is False)
     test(v.b == 0)
     test(v.s == 0)
     test(v.i == 0)

@@ -12,7 +12,6 @@ def test(b):
 
 
 def oneways(helper, p):
-    communicator = helper.communicator()
     p = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
 
     #

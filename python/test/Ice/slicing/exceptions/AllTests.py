@@ -41,7 +41,7 @@ class Callback(CallbackBase):
         except Test.Base as b:
             test(b.b == "Base.b")
             test(b.ice_id() == "::Test::Base")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -52,7 +52,7 @@ class Callback(CallbackBase):
         except Test.Base as b:
             test(b.b == "UnknownDerived.b")
             test(b.ice_id() == "::Test::Base")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -64,7 +64,7 @@ class Callback(CallbackBase):
             test(k.b == "KnownDerived.b")
             test(k.kd == "KnownDerived.kd")
             test(k.ice_id() == "::Test::KnownDerived")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -76,7 +76,7 @@ class Callback(CallbackBase):
             test(k.b == "KnownDerived.b")
             test(k.kd == "KnownDerived.kd")
             test(k.ice_id() == "::Test::KnownDerived")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -87,7 +87,7 @@ class Callback(CallbackBase):
         except Test.Base as b:
             test(b.b == "UnknownIntermediate.b")
             test(b.ice_id() == "::Test::Base")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -99,7 +99,7 @@ class Callback(CallbackBase):
             test(ki.b == "KnownIntermediate.b")
             test(ki.ki == "KnownIntermediate.ki")
             test(ki.ice_id() == "::Test::KnownIntermediate")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -112,7 +112,7 @@ class Callback(CallbackBase):
             test(kmd.ki == "KnownMostDerived.ki")
             test(kmd.kmd == "KnownMostDerived.kmd")
             test(kmd.ice_id() == "::Test::KnownMostDerived")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -124,7 +124,7 @@ class Callback(CallbackBase):
             test(ki.b == "KnownIntermediate.b")
             test(ki.ki == "KnownIntermediate.ki")
             test(ki.ice_id() == "::Test::KnownIntermediate")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -137,7 +137,7 @@ class Callback(CallbackBase):
             test(kmd.ki == "KnownMostDerived.ki")
             test(kmd.kmd == "KnownMostDerived.kmd")
             test(kmd.ice_id() == "::Test::KnownMostDerived")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -150,7 +150,7 @@ class Callback(CallbackBase):
             test(kmd.ki == "KnownMostDerived.ki")
             test(kmd.kmd == "KnownMostDerived.kmd")
             test(kmd.ice_id() == "::Test::KnownMostDerived")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -162,7 +162,7 @@ class Callback(CallbackBase):
             test(ki.b == "UnknownMostDerived1.b")
             test(ki.ki == "UnknownMostDerived1.ki")
             test(ki.ice_id() == "::Test::KnownIntermediate")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -174,7 +174,7 @@ class Callback(CallbackBase):
             test(ki.b == "UnknownMostDerived1.b")
             test(ki.ki == "UnknownMostDerived1.ki")
             test(ki.ice_id() == "::Test::KnownIntermediate")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -185,7 +185,7 @@ class Callback(CallbackBase):
         except Test.Base as b:
             test(b.b == "UnknownMostDerived2.b")
             test(b.ice_id() == "::Test::Base")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -236,7 +236,7 @@ def allTests(helper, communicator):
     except Test.Base as b:
         test(b.b == "Base.b")
         test(b.ice_id() == "::Test::Base")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -255,7 +255,7 @@ def allTests(helper, communicator):
     except Test.Base as b:
         test(b.b == "UnknownDerived.b")
         test(b.ice_id() == "::Test::Base")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -275,7 +275,7 @@ def allTests(helper, communicator):
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
         test(k.ice_id() == "::Test::KnownDerived")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -295,7 +295,7 @@ def allTests(helper, communicator):
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
         test(k.ice_id() == "::Test::KnownDerived")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -316,7 +316,7 @@ def allTests(helper, communicator):
     except Test.Base as b:
         test(b.b == "UnknownIntermediate.b")
         test(b.ice_id() == "::Test::Base")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -338,7 +338,7 @@ def allTests(helper, communicator):
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
         test(ki.ice_id() == "::Test::KnownIntermediate")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -361,7 +361,7 @@ def allTests(helper, communicator):
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
         test(kmd.ice_id() == "::Test::KnownMostDerived")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -383,7 +383,7 @@ def allTests(helper, communicator):
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
         test(ki.ice_id() == "::Test::KnownIntermediate")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -406,7 +406,7 @@ def allTests(helper, communicator):
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
         test(kmd.ice_id() == "::Test::KnownMostDerived")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -429,7 +429,7 @@ def allTests(helper, communicator):
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
         test(kmd.ice_id() == "::Test::KnownMostDerived")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -451,7 +451,7 @@ def allTests(helper, communicator):
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
         test(ki.ice_id() == "::Test::KnownIntermediate")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -477,7 +477,7 @@ def allTests(helper, communicator):
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
         test(ki.ice_id() == "::Test::KnownIntermediate")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -502,7 +502,7 @@ def allTests(helper, communicator):
     except Test.Base as b:
         test(b.b == "UnknownMostDerived2.b")
         test(b.ice_id() == "::Test::Base")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -535,7 +535,7 @@ def allTests(helper, communicator):
         test(t.ice_getEncodingVersion() != Ice.Encoding_1_0)
     except Ice.OperationNotExistException:
         pass
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -583,7 +583,7 @@ def allTests(helper, communicator):
         test(ex.kpd == "derived")
     except Ice.OperationNotExistException:
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -595,7 +595,7 @@ def allTests(helper, communicator):
         test(ex.kpd == "derived")
     except Ice.OperationNotExistException:
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -621,7 +621,7 @@ def allTests(helper, communicator):
         test(ex.kpd == "derived")
     except Ice.OperationNotExistException:
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -647,7 +647,7 @@ def allTests(helper, communicator):
         test(ex.kpd == "derived")
     except Ice.OperationNotExistException:
         pass
-    except:
+    except Exception:
         test(False)
 
     adapter.destroy()

@@ -20,7 +20,7 @@ def testExceptions(obj):
         test(ex.id == obj.ice_getIdentity())
         test(ex.facet == obj.ice_getFacet())
         test(ex.operation == "requestFailedException")
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -28,7 +28,7 @@ def testExceptions(obj):
         test(False)
     except Ice.UnknownUserException as ex:
         test(ex.unknown == "reason")
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -36,7 +36,7 @@ def testExceptions(obj):
         test(False)
     except Ice.UnknownLocalException as ex:
         test(ex.unknown == "reason")
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -55,7 +55,7 @@ def testExceptions(obj):
         pass
     except AttributeError:
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -66,7 +66,7 @@ def testExceptions(obj):
             ex.unknown.find("Ice.SocketException") >= 0
             or ex.unknown.find("Ice::SocketException") >= 0
         )
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -78,7 +78,7 @@ def testExceptions(obj):
         pass
     except AttributeError:
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -86,7 +86,7 @@ def testExceptions(obj):
         test(False)
     except Ice.UnknownException as ex:
         test(ex.unknown == "reason")
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -95,7 +95,7 @@ def testExceptions(obj):
     except Ice.UnknownUserException:
         # Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -104,7 +104,7 @@ def testExceptions(obj):
     except Ice.UnknownUserException:
         # Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -113,7 +113,7 @@ def testExceptions(obj):
     except Test.TestImpossibleException:
         # Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
         pass
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -122,7 +122,7 @@ def testExceptions(obj):
     except Test.TestImpossibleException:
         # Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
         pass
-    except:
+    except Exception:
         test(False)
 
 
@@ -150,7 +150,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.UnknownUserException as ex:
         test(ex.unknown == "::Test::TestIntfUserException")
-    except:
+    except Exception:
         test(False)
 
     try:
@@ -161,7 +161,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.UnknownUserException as ex:
         test(ex.unknown == "::Test::TestIntfUserException")
-    except:
+    except Exception:
         test(False)
     print("ok")
 
@@ -242,7 +242,7 @@ def allTests(helper, communicator):
     activation.activateServantLocator(True)
     try:
         obj.ice_ping()
-    except:
+    except Exception:
         test(False)
     print("ok")
 

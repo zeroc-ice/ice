@@ -6,6 +6,7 @@
 Glacier2 module
 """
 
+import threading
 import traceback
 import copy
 
@@ -15,6 +16,12 @@ import copy
 import Ice
 
 Ice.updateModule("Glacier2")
+
+import Glacier2.Router_ice
+import Glacier2.Session_ice
+import Glacier2.PermissionsVerifier_ice
+import Glacier2.SSLInfo_ice
+import Glacier2.Metrics_ice
 
 
 class SessionNotExistException(Exception):

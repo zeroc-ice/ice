@@ -130,7 +130,7 @@ def allTests(helper, communicator):
     try:
         adapter.setPublishedEndpoints(router.ice_getEndpoints())
         test(False)
-    except:
+    except Exception:
         # Expected.
         pass
     adapter.destroy()

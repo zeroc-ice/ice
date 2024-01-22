@@ -7,8 +7,10 @@ Ice module
 """
 
 import sys
+import string
 import os
 import threading
+import warnings
 import datetime
 import logging
 import time
@@ -82,7 +84,7 @@ loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
 Unset = IcePy.Unset
 
-from Ice.IceFuture import FutureBase
+from Ice.IceFuture import FutureBase, wrap_future
 
 
 class Future(FutureBase):
@@ -792,6 +794,29 @@ IcePy._t_LocalObject = IcePy.declareValue("::Ice::LocalObject")
 #
 # Import "local slice" and generated Ice modules.
 #
+import Ice.BuiltinSequences_ice
+import Ice.Current_local
+import Ice.Communicator_local
+import Ice.ImplicitContext_local
+import Ice.Endpoint_local
+import Ice.EndpointSelectionType_local
+import Ice.EndpointTypes_ice
+import Ice.Identity_ice
+import Ice.LocalException_local
+import Ice.Locator_ice
+import Ice.Logger_local
+import Ice.ObjectAdapter_local
+import Ice.ValueFactory_local
+import Ice.Process_ice
+import Ice.Properties_local
+import Ice.PropertiesAdmin_ice
+import Ice.RemoteLogger_ice
+import Ice.Router_ice
+import Ice.ServantLocator_local
+import Ice.Connection_local
+import Ice.Version_ice
+import Ice.Instrumentation_local
+import Ice.Metrics_ice
 
 #
 # Replace EndpointInfo with our implementation.

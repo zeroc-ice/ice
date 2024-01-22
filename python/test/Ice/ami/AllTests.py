@@ -62,7 +62,7 @@ class ResponseCallback(CallbackBase):
         self.called()
 
     def connection(self, conn):
-        test(conn != None)
+        test(conn is not None)
         self.called()
 
     def op(self):
@@ -77,7 +77,7 @@ class ResponseCallback(CallbackBase):
             raise ex
         except Test.TestIntfException:
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def ex(self, ex):
@@ -110,7 +110,7 @@ class ResponseCallbackWC(CallbackBase):
 
     def connection(self, conn, cookie):
         test(cookie == self._cookie)
-        test(conn != None)
+        test(conn is not None)
         self.called()
 
     def op(self, cookie):
@@ -128,7 +128,7 @@ class ResponseCallbackWC(CallbackBase):
             raise ex
         except Test.TestIntfException:
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def ex(self, ex, cookie):
@@ -283,7 +283,7 @@ class FutureDoneCallback(CallbackBase):
         self.called()
 
     def connection(self, f):
-        test(f.result() != None)
+        test(f.result() is not None)
         self.called()
 
     def op(self, f):
@@ -299,7 +299,7 @@ class FutureDoneCallback(CallbackBase):
             test(False)
         except Test.TestIntfException:
             self.called()
-        except:
+        except Exception:
             test(False)
 
 
@@ -424,8 +424,6 @@ def allTests(helper, communicator, collocated):
     obj = communicator.stringToProxy(sref)
     test(obj)
 
-    testController = Test.TestIntfControllerPrx.uncheckedCast(obj)
-
     if p.ice_getConnection() and p.supportsAMD():
         sys.stdout.write("testing graceful close connection without wait... ")
         sys.stdout.flush()
@@ -459,7 +457,7 @@ def allTests(helper, communicator, collocated):
         cb.check()  # Ensure connection was closed.
         try:
             f.result()
-        except:
+        except Exception:
             test(False)
 
         print("ok")
@@ -528,7 +526,7 @@ def allTestsFuture(helper, communicator, collocated):
     test(len(p.ice_idsAsync(ctx).result()) == 2)
 
     if not collocated:
-        test(p.ice_getConnectionAsync().result() != None)
+        test(p.ice_getConnectionAsync().result() is not None)
 
     p.opAsync().result()
     p.opAsync(ctx).result()
@@ -1002,7 +1000,7 @@ def allTestsFuture(helper, communicator, collocated):
     #
     f = p.ice_pingAsync()
     test(f.operation() == "ice_ping")
-    test(f.connection() == None)  # Expected
+    test(f.connection() is None)  # Expected
     test(f.communicator() == communicator)
     test(f.proxy() == p)
     f.result()
@@ -1013,7 +1011,7 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_oneway()
     f = p2.ice_pingAsync()
     test(f.operation() == "ice_ping")
-    test(f.connection() == None)  # Expected
+    test(f.connection() is None)  # Expected
     test(f.communicator() == communicator)
     test(f.proxy() == p2)
 
@@ -1023,7 +1021,7 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_batchOneway()
     p2.ice_ping()
     f = p2.ice_flushBatchRequestsAsync()
-    test(f.connection() == None)  # Expected
+    test(f.connection() is None)  # Expected
     test(f.communicator() == communicator)
     test(f.proxy() == p2)
     f.result()
@@ -1038,7 +1036,7 @@ def allTestsFuture(helper, communicator, collocated):
         f = con.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
         test(f.connection() == con)
         test(f.communicator() == communicator)
-        test(f.proxy() == None)  # Expected
+        test(f.proxy() is None)  # Expected
         f.result()
 
     #
@@ -1047,9 +1045,9 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_batchOneway()
     p2.ice_ping()
     f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
-    test(f.connection() == None)  # Expected
+    test(f.connection() is None)  # Expected
     test(f.communicator() == communicator)
-    test(f.proxy() == None)  # Expected
+    test(f.proxy() is None)  # Expected
     f.result()
 
     if p.ice_getConnection():
@@ -1098,12 +1096,12 @@ def allTestsFuture(helper, communicator, collocated):
         try:
             f1.result()
             test(False)
-        except:
+        except Exception:
             pass
         try:
             f2.result()
             test(False)
-        except:
+        except Exception:
             pass
         testController.resumeAdapter()
 

@@ -41,7 +41,7 @@ class Dispatcher:
             if call:
                 try:
                     call()
-                except:
+                except Exception:
                     # Exceptions should never propagate here.
                     test(False)
 

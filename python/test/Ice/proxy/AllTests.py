@@ -20,9 +20,9 @@ def allTests(helper, communicator, collocated):
     # Test nil proxies.
     #
     p = communicator.stringToProxy("")
-    test(p == None)
+    test(p is None)
     p = communicator.propertyToProxy("bogus")
-    test(p == None)
+    test(p is None)
 
     ref = "test:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
@@ -656,8 +656,8 @@ def allTests(helper, communicator, collocated):
     test(not (compObj.ice_compress(True) < compObj.ice_compress(False)))
 
     test(compObj.ice_getCompress() == Ice.Unset)
-    test(compObj.ice_compress(True).ice_getCompress() == True)
-    test(compObj.ice_compress(False).ice_getCompress() == False)
+    test(compObj.ice_compress(True).ice_getCompress() is True)
+    test(compObj.ice_compress(False).ice_getCompress() is False)
 
     test(compObj.ice_timeout(20) == compObj.ice_timeout(20))
     test(compObj.ice_timeout(10) != compObj.ice_timeout(20))
@@ -803,10 +803,10 @@ def allTests(helper, communicator, collocated):
     test(cl == base)
     test(derived == base)
     test(cl == derived)
-    test(Test.MyDerivedClassPrx.checkedCast(cl, "facet") == None)
+    test(Test.MyDerivedClassPrx.checkedCast(cl, "facet") is None)
 
     loc = Ice.LocatorPrx.checkedCast(base)
-    test(loc == None)
+    test(loc is None)
 
     #
     # Upcasting
@@ -824,7 +824,7 @@ def allTests(helper, communicator, collocated):
     sys.stdout.flush()
     tccp = Test.MyClassPrx.checkedCast(base)
     c = tccp.getContext()
-    test(c == None or len(c) == 0)
+    test(c is None or len(c) == 0)
 
     c = {}
     c["one"] = "hello"
@@ -837,8 +837,8 @@ def allTests(helper, communicator, collocated):
     sys.stdout.write("testing ice_fixed... ")
     sys.stdout.flush()
     connection = cl.ice_getConnection()
-    if connection != None:
-        test(cl.ice_isFixed() == False)
+    if connection is not None:
+        test(cl.ice_isFixed() is False)
         test(cl.ice_fixed(connection).ice_isFixed())
         cl.ice_fixed(connection).getContext()
         test(cl.ice_secure(True).ice_fixed(connection).ice_isSecure())
@@ -881,7 +881,7 @@ def allTests(helper, communicator, collocated):
         try:
             cl.ice_fixed(connection)
             test(False)
-        except:
+        except Exception:
             # Expected with null connection.
             pass
     print("ok")

@@ -37,7 +37,7 @@ class Callback(CallbackBase):
         try:
             self._pid = f.result()
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opShutdownI(self, f):

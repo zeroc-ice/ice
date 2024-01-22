@@ -146,7 +146,7 @@ def allTests(helper, communicator):
     test(df2.ice_getFacet() == "facetABCD")
     df3 = Test.DPrx.checkedCast(df, "")
     test(df3.ice_getFacet() == "")
-    test(Test.DPrx.checkedCast(df, "bogus") == None)
+    test(Test.DPrx.checkedCast(df, "bogus") is None)
     print("ok")
 
     sys.stdout.write("testing non-facets A, B, C, and D... ")

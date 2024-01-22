@@ -41,7 +41,7 @@ class Callback(CallbackBase):
             test(b == 0xF0)
             test(r == 0xFF)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opBool(self, f):
@@ -50,18 +50,18 @@ class Callback(CallbackBase):
             test(b)
             test(not r)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opShortIntLong(self, f):
         try:
-            (r, s, i, l) = f.result()
+            (r, s, i, l) = f.result()  # noqa: E741
             test(s == 10)
             test(i == 11)
             test(l == 12)
             test(r == 12)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opFloatDouble(self, fut):
@@ -71,7 +71,7 @@ class Callback(CallbackBase):
             test(d == 1.1e10)
             test(r == 1.1e10)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opString(self, f):
@@ -80,7 +80,7 @@ class Callback(CallbackBase):
             test(s == "world hello")
             test(r == "hello world")
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opMyEnum(self, f):
@@ -89,7 +89,7 @@ class Callback(CallbackBase):
             test(e == Test.MyEnum.enum2)
             test(r == Test.MyEnum.enum3)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opMyClass(self, f):
@@ -113,13 +113,13 @@ class Callback(CallbackBase):
                 except Ice.ObjectNotExistException:
                     pass
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStruct(self, f):
         try:
             (rso, so) = f.result()
-            test(rso.p == None)
+            test(rso.p is None)
             test(rso.e == Test.MyEnum.enum2)
             test(rso.s.s == "def")
             test(so.e == Test.MyEnum.enum3)
@@ -133,7 +133,7 @@ class Callback(CallbackBase):
             ):
                 so.p.opVoid()
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opByteS(self, f):
@@ -154,7 +154,7 @@ class Callback(CallbackBase):
             test(rso[6] == 0xF3)
             test(rso[7] == 0xF4)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opBoolS(self, f):
@@ -170,7 +170,7 @@ class Callback(CallbackBase):
             test(rso[1])
             test(rso[2])
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opShortIntLongS(self, f):
@@ -197,7 +197,7 @@ class Callback(CallbackBase):
             test(rso[1] == 30)
             test(rso[2] == 20)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opFloatDoubleS(self, f):
@@ -217,7 +217,7 @@ class Callback(CallbackBase):
             test(rso[3] - 3.14 < 0.001)
             test(rso[4] - 1.11 < 0.001)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringS(self, f):
@@ -233,7 +233,7 @@ class Callback(CallbackBase):
             test(rso[1] == "de")
             test(rso[2] == "abc")
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opByteSS(self, f):
@@ -259,7 +259,7 @@ class Callback(CallbackBase):
             test(rso[3][0] == 0xF2)
             test(rso[3][1] == 0xF1)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opBoolSS(self, f):
@@ -286,7 +286,7 @@ class Callback(CallbackBase):
             test(len(rso[2]) == 1)
             test(rso[2][0])
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opShortIntLongSS(self, f):
@@ -318,7 +318,7 @@ class Callback(CallbackBase):
             test(lso[1][0] == 496)
             test(lso[1][1] == 1729)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opFloatDoubleSS(self, f):
@@ -345,7 +345,7 @@ class Callback(CallbackBase):
             test(rso[1][1] == 1.2e10)
             test(rso[1][2] == 1.3e10)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringSS(self, f):
@@ -367,7 +367,7 @@ class Callback(CallbackBase):
             test(len(rso[1]) == 0)
             test(len(rso[2]) == 0)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opByteBoolD(self, f):
@@ -381,7 +381,7 @@ class Callback(CallbackBase):
             test(not ro[100])
             test(ro[101])
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opShortIntD(self, f):
@@ -395,7 +395,7 @@ class Callback(CallbackBase):
             test(ro[1100] == 123123)
             test(ro[1101] == 0)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opLongFloatD(self, f):
@@ -410,7 +410,7 @@ class Callback(CallbackBase):
             test(ro[999999111] - 123123.2 < 0.01)
             test(ro[999999130] - 0.5 < 0.01)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringStringD(self, f):
@@ -424,7 +424,7 @@ class Callback(CallbackBase):
             test(ro["bar"] == "abc 123123.2")
             test(ro["BAR"] == "abc 0.5")
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringMyEnumD(self, f):
@@ -438,7 +438,7 @@ class Callback(CallbackBase):
             test(ro[""] == Test.MyEnum.enum2)
             test(ro["Hello!!"] == Test.MyEnum.enum2)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opMyEnumStringD(self, f):
@@ -451,7 +451,7 @@ class Callback(CallbackBase):
             test(ro[Test.MyEnum.enum2] == "Hello!!")
             test(ro[Test.MyEnum.enum3] == "qwerty")
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opMyStructMyEnumD(self, f):
@@ -477,7 +477,7 @@ class Callback(CallbackBase):
             test(ro[s22] == Test.MyEnum.enum3)
             test(ro[s23] == Test.MyEnum.enum2)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opByteBoolDS(self, f):
@@ -503,7 +503,7 @@ class Callback(CallbackBase):
             test(not do[2][11])
             test(do[2][101])
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opShortIntDS(self, f):
@@ -528,7 +528,7 @@ class Callback(CallbackBase):
             test(do[2][111] == -100)
             test(do[2][1101] == 0)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opLongFloatDS(self, f):
@@ -553,7 +553,7 @@ class Callback(CallbackBase):
             test(do[2][999999120] - -100.4 < 0.01)
             test(do[2][999999130] - 0.5 < 0.01)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringStringDS(self, f):
@@ -578,7 +578,7 @@ class Callback(CallbackBase):
             test(do[2]["FOO"] == "abc -100.4")
             test(do[2]["BAR"] == "abc 0.5")
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringMyEnumDS(self, f):
@@ -603,7 +603,7 @@ class Callback(CallbackBase):
             test(do[2]["qwerty"] == Test.MyEnum.enum3)
             test(do[2]["Hello!!"] == Test.MyEnum.enum2)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opMyEnumStringDS(self, f):
@@ -624,7 +624,7 @@ class Callback(CallbackBase):
             test(do[2][Test.MyEnum.enum2] == "Hello!!")
             test(do[2][Test.MyEnum.enum3] == "qwerty")
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opMyStructMyEnumDS(self, f):
@@ -653,7 +653,7 @@ class Callback(CallbackBase):
             test(do[2][s22] == Test.MyEnum.enum3)
             test(do[2][s23] == Test.MyEnum.enum2)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opByteByteSD(self, f):
@@ -673,7 +673,7 @@ class Callback(CallbackBase):
             test(ro[0xF1][0] == 0xF2)
             test(ro[0xF1][1] == 0xF3)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opBoolBoolSD(self, f):
@@ -692,7 +692,7 @@ class Callback(CallbackBase):
             test(ro[True][1])
             test(ro[True][2])
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opShortShortSD(self, f):
@@ -714,7 +714,7 @@ class Callback(CallbackBase):
             test(ro[4][0] == 6)
             test(ro[4][1] == 7)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opIntIntSD(self, f):
@@ -736,7 +736,7 @@ class Callback(CallbackBase):
             test(ro[400][0] == 600)
             test(ro[400][1] == 700)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opLongLongSD(self, f):
@@ -758,7 +758,7 @@ class Callback(CallbackBase):
             test(ro[999999992][0] == 999999110)
             test(ro[999999992][1] == 999999120)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringFloatSD(self, f):
@@ -780,7 +780,7 @@ class Callback(CallbackBase):
             test(ro["aBc"][0] - -3.14 < 0.10)
             test(ro["aBc"][1] - 3.14 < 0.10)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringDoubleSD(self, f):
@@ -802,7 +802,7 @@ class Callback(CallbackBase):
             test(ro[""][0] == 1.6e10)
             test(ro[""][1] == 1.7e10)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opStringStringSD(self, f):
@@ -824,7 +824,7 @@ class Callback(CallbackBase):
             test(ro["ghi"][0] == "and")
             test(ro["ghi"][1] == "xor")
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opMyEnumMyEnumSD(self, f):
@@ -846,7 +846,7 @@ class Callback(CallbackBase):
             test(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3)
             test(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opIntS(self, f):
@@ -855,7 +855,7 @@ class Callback(CallbackBase):
             for j in range(0, len(r)):
                 test(r[j] == -j)
             self.called()
-        except:
+        except Exception:
             test(False)
 
     def opIdempotent(self, f):
@@ -1223,11 +1223,11 @@ def twowaysFuture(helper, p):
     cb.called()
 
     lengths = (0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000)
-    for l in lengths:
+    for length in lengths:
         s = []
-        for i in range(l):
+        for i in range(length):
             s.append(i)
-        cb = Callback(l)
+        cb = Callback(length)
         p.opIntSAsync(s).add_done_callback(cb.opIntS)
         cb.check()
 

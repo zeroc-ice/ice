@@ -12,7 +12,6 @@ def test(b):
 
 
 def onewaysFuture(helper, proxy):
-    communicator = helper.communicator()
     p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
 
     f = p.ice_pingAsync()

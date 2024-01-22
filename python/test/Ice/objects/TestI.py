@@ -55,7 +55,7 @@ class FI(Test.F):
         Test.F.__init__(self, e, e)
 
     def checkValues(self, current=None):
-        return self._e1 != None and self._e1 == self.e2
+        return self._e1 is not None and self._e1 == self.e2
 
 
 class II(Ice.InterfaceByValue):
