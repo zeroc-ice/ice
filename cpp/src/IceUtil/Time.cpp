@@ -134,7 +134,7 @@ IceUtil::Time::now(Clock clock)
         }
         return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
 #elif defined(__APPLE__)
-        return Time(static_cast<IceUtil::Int64>(static_cast<double>(mach_absolute_time()) * machMultiplier));
+        return Time(static_cast<IceUtil::Int64>(mach_absolute_time() * machMultiplier));
 #else
         struct timespec ts;
         if(clock_gettime(CLOCK_MONOTONIC, &ts) < 0)
@@ -214,13 +214,13 @@ IceUtil::Time::toMicroSeconds() const
 double
 IceUtil::Time::toSecondsDouble() const
 {
-    return static_cast<double>(_usec) / 1000000.0;
+    return _usec / 1000000.0;
 }
 
 double
 IceUtil::Time::toMilliSecondsDouble() const
 {
-    return static_cast<double>(_usec) / 1000.0;
+    return _usec / 1000.0;
 }
 
 double
@@ -293,5 +293,5 @@ Time::Time(Int64 usec) :
 std::ostream&
 IceUtil::operator<<(std::ostream& out, const Time& tm)
 {
-    return out << static_cast<double>(tm.toMicroSeconds()) / 1000000.0;
+    return out << tm.toMicroSeconds() / 1000000.0;
 }

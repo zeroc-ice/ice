@@ -80,13 +80,11 @@ class PDerived extends Preserved
     PBase pb;
 }
 
-["preserve-slice"]
 class PNode
 {
     PNode next;
 }
 
-["preserve-slice"]
 exception PreservedException
 {
 }
