@@ -15,8 +15,6 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/Router.h>
 #include <Ice/OutgoingAsync.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <Ice/UUID.h>
 #ifdef ICE_SWIFT
 #   include <Ice/ThreadPool.h>

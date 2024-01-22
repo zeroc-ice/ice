@@ -14,10 +14,11 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <Ice/UUID.h>
 
 #include <wincrypt.h>
+
+#include <mutex>
 
 //
 // SP_PROT_TLS1_3 is new in v10.0.15021 SDK
@@ -50,25 +51,7 @@ Shared* SChannel::upCast(SChannel::SSLEngine* p)
 namespace
 {
 
-IceUtil::Mutex* globalMutex;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        globalMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-    }
-};
-
-Init init;
+mutex globalMutex;
 
 void
 addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, const void* findParam)
@@ -576,7 +559,7 @@ SChannel::SSLEngine::initialize()
     // avoid crashes ocurring with last SChannel updates see:
     // https://github.com/zeroc-ice/ice/issues/242
     //
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
+    lock_guard globalLock(globalMutex);
 
     //
     // We still have to acquire the instance mutex because it is used by the base

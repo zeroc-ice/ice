@@ -6,9 +6,9 @@
 #include <IceUtil/Random.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <TestHelper.h>
+
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -18,25 +18,7 @@ using namespace std;
 namespace
 {
 
-Mutex* staticMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        staticMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete staticMutex;
-        staticMutex = 0;
-    }
-};
-
-Init init;
+mutex staticMutex;
 
 }
 
@@ -62,7 +44,7 @@ public:
         {
             T item = _func();
 
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
+            lock_guard lock(staticMutex);
             pair<typename ItemSet::iterator, bool> ok = _itemSet.insert(item);
             if(!ok.second)
             {

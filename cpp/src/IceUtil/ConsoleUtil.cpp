@@ -3,8 +3,8 @@
 //
 
 #include <IceUtil/ConsoleUtil.h>
-#include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/Mutex.h>
+
+#include <mutex>
 
 using namespace IceUtilInternal;
 using namespace std;
@@ -13,39 +13,16 @@ using namespace std;
 namespace
 {
 
-IceUtil::Mutex* consoleMutex = 0;
+mutex consoleMutex;
+// We leak consoleUtil object to ensure that is available during static destruction.
 ConsoleUtil* consoleUtil = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        consoleMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        //
-        // We leak consoleUtil object to ensure that is available
-        // during static destruction.
-        //
-        //delete consoleUtil;
-        //consoleUtil = 0;
-        delete consoleMutex;
-        consoleMutex = 0;
-    }
-};
-
-Init init;
 
 }
 
 const ConsoleUtil&
 IceUtilInternal::getConsoleUtil()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(consoleMutex);
+    lock_guard sync(consoleMutex);
     if(consoleUtil == 0)
     {
         consoleUtil = new ConsoleUtil();

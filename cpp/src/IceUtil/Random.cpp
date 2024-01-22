@@ -7,8 +7,8 @@
 #endif
 
 #include <IceUtil/Random.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
+
+#include <mutex>
 
 #ifndef _WIN32
 #   include <unistd.h>
@@ -34,7 +34,7 @@ namespace
 // widespread. Therefore, we serialize access to /dev/urandom using a
 // static mutex.
 //
-Mutex* staticMutex = 0;
+mutex staticMutex;
 int fd = -1;
 
 //
@@ -61,12 +61,7 @@ public:
 
     Init()
     {
-        staticMutex = new IceUtil::Mutex;
-
-        //
-        // Register a callback to reset the "/dev/urandom" fd
-        // state after fork.
-        //
+        // Register a callback to reset the "/dev/urandom" fd state after fork.
         pthread_atfork(0, 0, &childAtFork);
     }
 
@@ -77,8 +72,6 @@ public:
             close(fd);
             fd = -1;
         }
-        delete staticMutex;
-        staticMutex = 0;
     }
 };
 
@@ -121,7 +114,7 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
     //
     // Serialize access to /dev/urandom; see comment above.
     //
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
+    lock_guard lock(staticMutex);
     if(fd == -1)
     {
         fd = open("/dev/urandom", O_RDONLY);

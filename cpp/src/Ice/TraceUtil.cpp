@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <Ice/StringUtil.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Instance.h>
@@ -15,6 +13,8 @@
 #include <Ice/InputStream.h>
 #include <Ice/Protocol.h>
 #include <Ice/ReplyStatus.h>
+
+#include <mutex>
 #include <set>
 
 using namespace std;
@@ -373,32 +373,14 @@ printMessage(ostream& s, InputStream& stream)
 namespace
 {
 
-IceUtil::Mutex* slicingMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        slicingMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete slicingMutex;
-        slicingMutex = 0;
-    }
-};
-
-Init init;
+mutex slicingMutex;
 
 }
 
 void
 IceInternal::traceSlicing(const char* kind, const string& typeId, const char* slicingCat, const LoggerPtr& logger)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(slicingMutex);
+    lock_guard lock(slicingMutex);
     static set<string> slicingIds;
     if(slicingIds.insert(typeId).second)
     {

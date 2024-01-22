@@ -9,9 +9,9 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
-#include <IceUtil/Mutex.h>
 
 #include <fstream>
+#include <mutex>
 
 #if defined(__GLIBC__) || defined(_AIX)
 #   include <crypt.h>
@@ -501,29 +501,8 @@ namespace
 
 #if defined(__FreeBSD__) && !defined(__GLIBC__)
 
-//
-// FreeBSD crypt is no reentrat we use this global mutex
-// to serialize access.
-//
-IceUtil::Mutex* _staticMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        _staticMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete _staticMutex;
-        _staticMutex = 0;
-    }
-};
-
-Init init;
+// FreeBSD crypt is no reentrat we use this global mutex to serialize access.
+mutex staticMutex;
 
 #elif defined(__APPLE__)
 
@@ -731,7 +710,7 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
     data.initialized = 0;
     return p->second == crypt_r(password.c_str(), salt.c_str(), &data);
 #   else
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
+    lock_guard lock(staticMutex);
     return p->second == crypt(password.c_str(), salt.c_str());
 #   endif
 #elif defined(__APPLE__) || defined(_WIN32)

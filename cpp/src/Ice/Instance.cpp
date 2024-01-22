@@ -43,11 +43,10 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/UUID.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 
 #include <stdio.h>
 #include <list>
+#include <mutex>
 
 #ifdef __APPLE__
 #   include <Ice/OSLogLoggerI.h>
@@ -82,7 +81,7 @@ extern bool printStackTraces;
 namespace
 {
 
-IceUtil::Mutex* staticMutex = 0;
+mutex staticMutex;
 bool oneOfDone = false;
 std::list<IceInternal::Instance*>* instanceList = 0;
 
@@ -113,20 +112,16 @@ public:
 
     Init()
     {
-        staticMutex = new IceUtil::Mutex;
-
-        //
         // Although probably not necessary here, we consistently lock
-        // staticMutex before accessing instanceList
-        //
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+        // staticMutex before accessing instanceList.
+        lock_guard lock(staticMutex);
         instanceList = new std::list<IceInternal::Instance*>;
     }
 
     ~Init()
     {
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+            lock_guard lock(staticMutex);
             int notDestroyedCount = 0;
 
             for(std::list<IceInternal::Instance*>::const_iterator p = instanceList->begin();
@@ -155,8 +150,6 @@ public:
             delete instanceList;
             instanceList = 0;
         }
-        delete staticMutex;
-        staticMutex = 0;
     }
 };
 
@@ -953,7 +946,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     {
         __setNoDelete(true);
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+            lock_guard lock(staticMutex);
             instanceList->push_back(this);
 
             if(!_initData.properties)
@@ -1279,7 +1272,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     catch(...)
     {
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+            lock_guard lock(staticMutex);
             instanceList->remove(this);
         }
         destroy();
@@ -1307,7 +1300,7 @@ IceInternal::Instance::~Instance()
     assert(!_dynamicLibraryList);
     assert(!_pluginManager);
 
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+    lock_guard lock(staticMutex);
     if(instanceList != 0)
     {
         instanceList->remove(this);
@@ -1519,7 +1512,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         //
         // Safe double-check locking (no dependent variable!)
         //
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+        lock_guard lock(staticMutex);
         printProcessId = !printProcessIdDone;
 
         //

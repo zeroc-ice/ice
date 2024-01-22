@@ -9,7 +9,6 @@
 
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/MutexPtrLock.h>
 
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
@@ -38,25 +37,7 @@ using namespace IceSSL::SecureTransport;
 namespace
 {
 
-IceUtil::Mutex* staticMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        staticMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete staticMutex;
-        staticMutex = 0;
-    }
-};
-
-Init init;
+mutex staticMutex;
 
 class RegExp : public IceUtil::Shared
 {
@@ -121,7 +102,7 @@ map<string, SSLCipherSuite> CiphersHelper::_ciphers;
 void
 CiphersHelper::initialize()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+    lock_guard sync(staticMutex);
     if(_ciphers.empty())
     {
         _ciphers["NULL_WITH_NULL_NULL"] = SSL_NULL_WITH_NULL_NULL;
