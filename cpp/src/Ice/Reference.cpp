@@ -25,7 +25,6 @@
 #include <Ice/StringUtil.h>
 
 #include <IceUtil/Random.h>
-#include <IceUtil/MutexPtrLock.h>
 
 #include <functional>
 #include <algorithm>
@@ -35,31 +34,6 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(IceInternal::Reference* p) { return p; }
-
-namespace
-{
-
-IceUtil::Mutex* hashMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        hashMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete hashMutex;
-        hashMutex = 0;
-    }
-};
-
-Init init;
-
-}
 
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
@@ -182,7 +156,7 @@ IceInternal::Reference::getCompressOverride(bool& compress) const
 Int
 Reference::hash() const
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(hashMutex);
+    lock_guard lock(_hashMutex);
     if(!_hashInitialized)
     {
         _hashValue = hashInit();
@@ -503,7 +477,6 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
                                   const EncodingVersion& encoding,
                                   int invocationTimeout,
                                   const Ice::Context& ctx) :
-    _hashInitialized(false),
     _instance(instance),
     _communicator(communicator),
     _mode(mode),
@@ -511,6 +484,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
     _identity(id),
     _context(new SharedContext(ctx)),
     _facet(facet),
+    _hashInitialized(false),
     _protocol(protocol),
     _encoding(encoding),
     _invocationTimeout(invocationTimeout),
@@ -521,7 +495,6 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
 
 IceInternal::Reference::Reference(const Reference& r) :
     IceUtil::Shared(),
-    _hashInitialized(false),
     _instance(r._instance),
     _communicator(r._communicator),
     _mode(r._mode),
@@ -529,6 +502,7 @@ IceInternal::Reference::Reference(const Reference& r) :
     _identity(r._identity),
     _context(r._context),
     _facet(r._facet),
+    _hashInitialized(false),
     _protocol(r._protocol),
     _encoding(r._encoding),
     _invocationTimeout(r._invocationTimeout),
