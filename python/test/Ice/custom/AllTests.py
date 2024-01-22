@@ -3,9 +3,6 @@
 #
 
 import sys
-import string
-import re
-import traceback
 import Ice
 import Test
 import array
@@ -13,7 +10,7 @@ import array
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):
@@ -26,7 +23,7 @@ def allTests(helper, communicator):
 
     byteList = [1, 2, 3, 4, 5]
     byteString = bytes(byteList)
-    stringList = ['s1', 's2', 's3']
+    stringList = ["s1", "s2", "s3"]
 
     sys.stdout.write("testing custom sequences... ")
     sys.stdout.flush()
@@ -356,6 +353,7 @@ def allTests(helper, communicator):
 
     try:
         import numpy
+
         ref = "test.numpy:{0}".format(helper.getTestEndpoint())
         base = communicator.stringToProxy(ref)
         test(base)
@@ -490,8 +488,12 @@ def allTests(helper, communicator):
         d.shortSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 128, 256], numpy.int16)
         d.intSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 128, 256], numpy.int32)
         d.longSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 128, 256], numpy.int64)
-        d.floatSeq = numpy.array([0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float32)
-        d.doubleSeq = numpy.array([0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float64)
+        d.floatSeq = numpy.array(
+            [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float32
+        )
+        d.doubleSeq = numpy.array(
+            [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float64
+        )
 
         d1 = custom.opD(d)
         test(isinstance(d1.boolSeq, numpy.ndarray))
@@ -532,10 +534,15 @@ def allTests(helper, communicator):
         test(d1.floatSeq == Ice.Unset)
         test(d1.doubleSeq == Ice.Unset)
 
-        v1 = numpy.array([numpy.complex128(1 + 1j),
-                          numpy.complex128(2 + 2j),
-                          numpy.complex128(3 + 3j),
-                          numpy.complex128(4 + 4j)], numpy.complex128)
+        v1 = numpy.array(
+            [
+                numpy.complex128(1 + 1j),
+                numpy.complex128(2 + 2j),
+                numpy.complex128(3 + 3j),
+                numpy.complex128(4 + 4j),
+            ],
+            numpy.complex128,
+        )
         v2 = custom.opComplex128Seq(v1)
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v2))
@@ -548,39 +555,63 @@ def allTests(helper, communicator):
         test(len(v1) == len(v2))
 
         v1 = custom.opBoolMatrix()
-        test(numpy.array_equal(v1, numpy.array([[True, False, True],
-                                                [True, False, True],
-                                                [True, False, True]], numpy.bool_)))
+        test(
+            numpy.array_equal(
+                v1,
+                numpy.array(
+                    [[True, False, True], [True, False, True], [True, False, True]],
+                    numpy.bool_,
+                ),
+            )
+        )
 
         v1 = custom.opByteMatrix()
-        test(numpy.array_equal(v1, numpy.array([[1, 0, 1],
-                                                [1, 0, 1],
-                                                [1, 0, 1]], numpy.int8)))
+        test(
+            numpy.array_equal(
+                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int8)
+            )
+        )
 
         v1 = custom.opShortMatrix()
-        test(numpy.array_equal(v1, numpy.array([[1, 0, 1],
-                                                [1, 0, 1],
-                                                [1, 0, 1]], numpy.int16)))
+        test(
+            numpy.array_equal(
+                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int16)
+            )
+        )
 
         v1 = custom.opIntMatrix()
-        test(numpy.array_equal(v1, numpy.array([[1, 0, 1],
-                                                [1, 0, 1],
-                                                [1, 0, 1]], numpy.int32)))
+        test(
+            numpy.array_equal(
+                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int32)
+            )
+        )
 
         v1 = custom.opLongMatrix()
-        test(numpy.array_equal(v1, numpy.array([[1, 0, 1],
-                                                [1, 0, 1],
-                                                [1, 0, 1]], numpy.int64)))
+        test(
+            numpy.array_equal(
+                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int64)
+            )
+        )
 
         v1 = custom.opFloatMatrix()
-        test(numpy.array_equal(v1, numpy.array([[1.1, 0.1, 1.1],
-                                                [1.1, 0.1, 1.1],
-                                                [1.1, 0.1, 1.1]], numpy.float32)))
+        test(
+            numpy.array_equal(
+                v1,
+                numpy.array(
+                    [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float32
+                ),
+            )
+        )
 
         v1 = custom.opDoubleMatrix()
-        test(numpy.array_equal(v1, numpy.array([[1.1, 0.1, 1.1],
-                                                [1.1, 0.1, 1.1],
-                                                [1.1, 0.1, 1.1]], numpy.float64)))
+        test(
+            numpy.array_equal(
+                v1,
+                numpy.array(
+                    [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float64
+                ),
+            )
+        )
 
         try:
             custom.opBogusNumpyArrayType()

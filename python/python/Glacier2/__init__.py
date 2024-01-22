@@ -6,7 +6,6 @@
 Glacier2 module
 """
 
-import threading
 import traceback
 import copy
 
@@ -14,13 +13,8 @@ import copy
 # Import the Python extension.
 #
 import Ice
-Ice.updateModule("Glacier2")
 
-import Glacier2.Router_ice
-import Glacier2.Session_ice
-import Glacier2.PermissionsVerifier_ice
-import Glacier2.SSLInfo_ice
-import Glacier2.Metrics_ice
+Ice.updateModule("Glacier2")
 
 
 class SessionNotExistException(Exception):
@@ -34,13 +28,11 @@ class RestartSessionException(Exception):
 
 
 class Application(Ice.Application):
-
     def __init__(self, signalPolicy=0):  # HandleSignals=0
-        '''The constructor accepts an optional argument indicating
-whether to handle signals. The value should be either
-Application.HandleSignals (the default) or
-Application.NoSignalHandling.
-'''
+        """The constructor accepts an optional argument indicating
+        whether to handle signals. The value should be either
+        Application.HandleSignals (the default) or
+        Application.NoSignalHandling."""
 
         if type(self) == Application:
             raise RuntimeError("Glacier2.Application is an abstract class")
@@ -53,50 +45,63 @@ Application.NoSignalHandling.
         Application._category = None
 
     def run(self, args):
-        raise RuntimeError('run should not be called on Glacier2.Application - call runWithSession instead')
+        raise RuntimeError(
+            "run should not be called on Glacier2.Application - call runWithSession instead"
+        )
 
     def createSession(self, args):
-        raise RuntimeError('createSession() not implemented')
+        raise RuntimeError("createSession() not implemented")
 
     def runWithSession(self, args):
-        raise RuntimeError('runWithSession() not implemented')
+        raise RuntimeError("runWithSession() not implemented")
 
     def sessionDestroyed(self):
         pass
 
     def restart(self):
         raise RestartSessionException()
+
     restart = classmethod(restart)
 
     def router(self):
         return Application._router
+
     router = classmethod(router)
 
     def session(self):
         return Application._session
+
     session = classmethod(session)
 
     def categoryForClient(self):
         if Application._router == None:
             raise SessionNotExistException()
         return Application._category
+
     categoryForClient = classmethod(categoryForClient)
 
     def createCallbackIdentity(self, name):
         return Ice.Identity(name, self.categoryForClient())
+
     createCallbackIdentity = classmethod(createCallbackIdentity)
 
     def addWithUUID(self, servant):
-        return self.objectAdapter().add(servant, self.createCallbackIdentity(Ice.generateUUID()))
+        return self.objectAdapter().add(
+            servant, self.createCallbackIdentity(Ice.generateUUID())
+        )
+
     addWithUUID = classmethod(addWithUUID)
 
     def objectAdapter(self):
         if Application._router == None:
             raise SessionNotExistException()
         if Application._adapter == None:
-            Application._adapter = self.communicator().createObjectAdapterWithRouter("", Application._router)
+            Application._adapter = self.communicator().createObjectAdapterWithRouter(
+                "", Application._router
+            )
             Application._adapter.activate()
         return Application._adapter
+
     objectAdapter = classmethod(objectAdapter)
 
     def doMainInternal(self, args, initData):
@@ -112,7 +117,9 @@ Application.NoSignalHandling.
         try:
             Ice.Application._communicator = Ice.initialize(args, initData)
 
-            Application._router = RouterPrx.uncheckedCast(Ice.Application.communicator().getDefaultRouter())
+            Application._router = RouterPrx.uncheckedCast(
+                Ice.Application.communicator().getDefaultRouter()
+            )
             if Application._router == None:
                 Ice.getProcessLogger().error("no glacier2 router configured")
                 status = 1
@@ -135,15 +142,19 @@ Application.NoSignalHandling.
                     acmTimeout = 0
                     try:
                         acmTimeout = Application._router.getACMTimeout()
-                    except (Ice.OperationNotExistException):
+                    except Ice.OperationNotExistException:
                         pass
                     if acmTimeout <= 0:
                         acmTimeout = Application._router.getSessionTimeout()
                     if acmTimeout > 0:
                         connection = Application._router.ice_getCachedConnection()
-                        assert (connection)
-                        connection.setACM(acmTimeout, Ice.Unset, Ice.ACMHeartbeat.HeartbeatAlways)
-                        connection.setCloseCallback(lambda conn: self.sessionDestroyed())
+                        assert connection
+                        connection.setACM(
+                            acmTimeout, Ice.Unset, Ice.ACMHeartbeat.HeartbeatAlways
+                        )
+                        connection.setCloseCallback(
+                            lambda conn: self.sessionDestroyed()
+                        )
                     Application._category = Application._router.getCategoryForClient()
                     status = self.runWithSession(args)
 
@@ -151,10 +162,15 @@ Application.NoSignalHandling.
         # break down in communications, but not those exceptions that
         # indicate a programming logic error (ie: marshal, protocol
         # failure, etc).
-        except (RestartSessionException):
+        except RestartSessionException:
             restart = True
-        except (Ice.ConnectionRefusedException, Ice.ConnectionLostException, Ice.UnknownLocalException,
-                Ice.RequestFailedException, Ice.TimeoutException):
+        except (
+            Ice.ConnectionRefusedException,
+            Ice.ConnectionLostException,
+            Ice.UnknownLocalException,
+            Ice.RequestFailedException,
+            Ice.TimeoutException,
+        ):
             Ice.getProcessLogger().error(traceback.format_exc())
             restart = True
         except:
@@ -189,8 +205,10 @@ Application.NoSignalHandling.
             except (Ice.ConnectionLostException, SessionNotExistException):
                 pass
             except:
-                Ice.getProcessLogger().error("unexpected exception when destroying the session " +
-                                             traceback.format_exc())
+                Ice.getProcessLogger().error(
+                    "unexpected exception when destroying the session "
+                    + traceback.format_exc()
+                )
             Application._router = None
 
         if Ice.Application._communicator:

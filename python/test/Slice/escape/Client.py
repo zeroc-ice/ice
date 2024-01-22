@@ -4,6 +4,7 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Key.ice Clash.ice")
 import sys
 import Ice
@@ -68,7 +69,6 @@ def testtypes():
 
 
 class Client(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         #
@@ -85,7 +85,9 @@ class Client(TestHelper):
 
             sys.stdout.write("Testing operation name... ")
             sys.stdout.flush()
-            p = _and.execPrx.uncheckedCast(adapter.createProxy(Ice.stringToIdentity("test")))
+            p = _and.execPrx.uncheckedCast(
+                adapter.createProxy(Ice.stringToIdentity("test"))
+            )
             p._finally()
             print("ok")
 

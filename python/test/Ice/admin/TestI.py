@@ -9,7 +9,7 @@ import threading
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class TestFacetI(Test.TestFacet):
@@ -63,7 +63,6 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
 
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
-
     def createCommunicator(self, props, current=None):
         #
         # Prepare the property set using the given properties.

@@ -6,12 +6,12 @@
 import os
 import Ice
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import Test
 
 
 class TestI(Test.TestIntf):
-
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
@@ -27,7 +27,6 @@ class TestI(Test.TestIntf):
 
 
 class Server(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         #
@@ -39,8 +38,7 @@ class Server(TestHelper):
 
         port = 0
         for arg in args:
-
-            if arg[0] == '-':
+            if arg[0] == "-":
                 continue
 
             if port > 0:
@@ -52,7 +50,9 @@ class Server(TestHelper):
             raise RuntimeError("no port specified\n")
 
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint(num=port))
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint(num=port)
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI(), Ice.stringToIdentity("test"))
             adapter.activate()

@@ -11,7 +11,7 @@ import threading
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class GetAdapterNameCB:
@@ -133,7 +133,9 @@ def allTests(helper, communicator):
     test(i == nRetry)
 
     for a in adapters:
-        a.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        a.getTestIntf().ice_getConnection().close(
+            Ice.ConnectionClose.GracefullyWithWait
+        )
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -217,7 +219,9 @@ def allTests(helper, communicator):
     test(i == nRetry)
 
     for a in adapters:
-        a.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
+        a.getTestIntf().ice_getConnection().close(
+            Ice.ConnectionClose.GracefullyWithWait
+        )
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -273,7 +277,9 @@ def allTests(helper, communicator):
             names.remove(name)
         t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Random))
+    t = Test.TestIntfPrx.uncheckedCast(
+        t.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    )
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
 
     names.append("Adapter21")
@@ -298,7 +304,9 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("Adapter33", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
+    t = Test.TestIntfPrx.uncheckedCast(
+        t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+    )
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
     nRetry = 5
 
@@ -364,8 +372,12 @@ def allTests(helper, communicator):
 
     adapter = com.createObjectAdapter("Adapter41", "default")
 
-    test1 = Test.TestIntfPrx.uncheckedCast(adapter.getTestIntf().ice_connectionCached(False))
-    test2 = Test.TestIntfPrx.uncheckedCast(adapter.getTestIntf().ice_connectionCached(False))
+    test1 = Test.TestIntfPrx.uncheckedCast(
+        adapter.getTestIntf().ice_connectionCached(False)
+    )
+    test2 = Test.TestIntfPrx.uncheckedCast(
+        adapter.getTestIntf().ice_connectionCached(False)
+    )
     test(not test1.ice_isConnectionCached())
     test(not test2.ice_isConnectionCached())
     test(test1.ice_getConnection() == test2.ice_getConnection())
@@ -393,7 +405,9 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("Adapter52", "default"))
     adapters.append(com.createObjectAdapter("Adapter53", "default"))
 
-    t = Test.TestIntfPrx.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(False))
+    t = Test.TestIntfPrx.uncheckedCast(
+        createTestIntfPrx(adapters).ice_connectionCached(False)
+    )
     test(not t.ice_isConnectionCached())
 
     names = ["Adapter51", "Adapter52", "Adapter53"]
@@ -427,7 +441,9 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("AdapterAMI52", "default"))
     adapters.append(com.createObjectAdapter("AdapterAMI53", "default"))
 
-    t = Test.TestIntfPrx.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(False))
+    t = Test.TestIntfPrx.uncheckedCast(
+        createTestIntfPrx(adapters).ice_connectionCached(False)
+    )
     test(not t.ice_isConnectionCached())
 
     names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
@@ -462,7 +478,9 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("Adapter63", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
+    t = Test.TestIntfPrx.uncheckedCast(
+        t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+    )
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
     t = Test.TestIntfPrx.uncheckedCast(t.ice_connectionCached(False))
     test(not t.ice_isConnectionCached())
@@ -523,7 +541,9 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    sys.stdout.write("testing per request binding and ordered endpoint selection and AMI... ")
+    sys.stdout.write(
+        "testing per request binding and ordered endpoint selection and AMI... "
+    )
     sys.stdout.flush()
 
     adapters = []
@@ -532,7 +552,9 @@ def allTests(helper, communicator):
     adapters.append(com.createObjectAdapter("AdapterAMI63", "default"))
 
     t = createTestIntfPrx(adapters)
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
+    t = Test.TestIntfPrx.uncheckedCast(
+        t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+    )
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
     t = Test.TestIntfPrx.uncheckedCast(t.ice_connectionCached(False))
     test(not t.ice_isConnectionCached())
@@ -612,7 +634,7 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    if (len(communicator.getProperties().getProperty("Ice.Plugin.IceSSL")) > 0):
+    if len(communicator.getProperties().getProperty("Ice.Plugin.IceSSL")) > 0:
         sys.stdout.write("testing unsecure vs. secure endpoints... ")
         sys.stdout.flush()
 
@@ -639,7 +661,9 @@ def allTests(helper, communicator):
             test(t.getAdapterName() == "Adapter81")
             t.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
-        com.createObjectAdapter("Adapter83", (t.ice_getEndpoints()[1]).toString())  # Reactive tcp OA.
+        com.createObjectAdapter(
+            "Adapter83", (t.ice_getEndpoints()[1]).toString()
+        )  # Reactive tcp OA.
 
         for i in range(0, 5):
             test(t.getAdapterName() == "Adapter83")

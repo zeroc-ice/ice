@@ -23,24 +23,24 @@ import Ice.FacetMap_local
 import Ice.Endpoint_local
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 
-if 'ObjectAdapter' not in _M_Ice.__dict__:
+if "ObjectAdapter" not in _M_Ice.__dict__:
     _M_Ice.ObjectAdapter = Ice.createTempClass()
 
     class ObjectAdapter(object):
         """
-         The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
-         object adapter is responsible for receiving requests from endpoints, and for mapping between servants, identities,
-         and proxies.
+        The object adapter provides an up-call interface from the Ice run time to the implementation of Ice objects. The
+        object adapter is responsible for receiving requests from endpoints, and for mapping between servants, identities,
+        and proxies.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.ObjectAdapter:
-                raise RuntimeError('Ice.ObjectAdapter is an abstract class')
+                raise RuntimeError("Ice.ObjectAdapter is an abstract class")
 
         def getName(self):
             """
@@ -58,45 +58,45 @@ if 'ObjectAdapter' not in _M_Ice.__dict__:
 
         def activate(self):
             """
-             Activate all endpoints that belong to this object adapter. After activation, the object adapter can dispatch
-             requests received through its endpoints.
+            Activate all endpoints that belong to this object adapter. After activation, the object adapter can dispatch
+            requests received through its endpoints.
             """
             raise NotImplementedError("method 'activate' not implemented")
 
         def hold(self):
             """
-             Temporarily hold receiving and dispatching requests. The object adapter can be reactivated with the
-             activate operation.  Holding is not immediate, i.e., after hold returns, the
-             object adapter might still be active for some time. You can use waitForHold to wait until holding is
-             complete.
+            Temporarily hold receiving and dispatching requests. The object adapter can be reactivated with the
+            activate operation.  Holding is not immediate, i.e., after hold returns, the
+            object adapter might still be active for some time. You can use waitForHold to wait until holding is
+            complete.
             """
             raise NotImplementedError("method 'hold' not implemented")
 
         def waitForHold(self):
             """
-             Wait until the object adapter holds requests. Calling hold initiates holding of requests, and
-             waitForHold only returns when holding of requests has been completed.
+            Wait until the object adapter holds requests. Calling hold initiates holding of requests, and
+            waitForHold only returns when holding of requests has been completed.
             """
             raise NotImplementedError("method 'waitForHold' not implemented")
 
         def deactivate(self):
             """
-             Deactivate all endpoints that belong to this object adapter. After deactivation, the object adapter stops
-             receiving requests through its endpoints. Object adapters that have been deactivated must not be reactivated
-             again, and cannot be used otherwise. Attempts to use a deactivated object adapter raise
-             ObjectAdapterDeactivatedException however, attempts to deactivate an already deactivated
-             object adapter are ignored and do nothing. Once deactivated, it is possible to destroy the adapter to clean up
-             resources and then create and activate a new adapter with the same name.
-              After deactivate returns, no new requests are processed by the object adapter.
-             However, requests that have been started before deactivate was called might still be active. You can
-             use waitForDeactivate to wait for the completion of all requests for this object adapter.
+            Deactivate all endpoints that belong to this object adapter. After deactivation, the object adapter stops
+            receiving requests through its endpoints. Object adapters that have been deactivated must not be reactivated
+            again, and cannot be used otherwise. Attempts to use a deactivated object adapter raise
+            ObjectAdapterDeactivatedException however, attempts to deactivate an already deactivated
+            object adapter are ignored and do nothing. Once deactivated, it is possible to destroy the adapter to clean up
+            resources and then create and activate a new adapter with the same name.
+             After deactivate returns, no new requests are processed by the object adapter.
+            However, requests that have been started before deactivate was called might still be active. You can
+            use waitForDeactivate to wait for the completion of all requests for this object adapter.
             """
             raise NotImplementedError("method 'deactivate' not implemented")
 
         def waitForDeactivate(self):
             """
-             Wait until the object adapter has deactivated. Calling deactivate initiates object adapter
-             deactivation, and waitForDeactivate only returns when deactivation has been completed.
+            Wait until the object adapter has deactivated. Calling deactivate initiates object adapter
+            deactivation, and waitForDeactivate only returns when deactivation has been completed.
             """
             raise NotImplementedError("method 'waitForDeactivate' not implemented")
 
@@ -109,10 +109,10 @@ if 'ObjectAdapter' not in _M_Ice.__dict__:
 
         def destroy(self):
             """
-             Destroys the object adapter and cleans up all resources held by the object adapter. If the object adapter has
-             not yet been deactivated, destroy implicitly initiates the deactivation and waits for it to finish. Subsequent
-             calls to destroy are ignored. Once destroy has returned, it is possible to create another object adapter with
-             the same name.
+            Destroys the object adapter and cleans up all resources held by the object adapter. If the object adapter has
+            not yet been deactivated, destroy implicitly initiates the deactivation and waits for it to finish. Subsequent
+            calls to destroy are ignored. Once destroy has returned, it is possible to create another object adapter with
+            the same name.
             """
             raise NotImplementedError("method 'destroy' not implemented")
 
@@ -373,12 +373,14 @@ if 'ObjectAdapter' not in _M_Ice.__dict__:
 
         def refreshPublishedEndpoints(self):
             """
-             Refresh the set of published endpoints. The run time re-reads the PublishedEndpoints property if it is set and
-             re-reads the list of local interfaces if the adapter is configured to listen on all endpoints. This operation
-             is useful to refresh the endpoint information that is published in the proxies that are created by an object
-             adapter if the network interfaces used by a host changes.
+            Refresh the set of published endpoints. The run time re-reads the PublishedEndpoints property if it is set and
+            re-reads the list of local interfaces if the adapter is configured to listen on all endpoints. This operation
+            is useful to refresh the endpoint information that is published in the proxies that are created by an object
+            adapter if the network interfaces used by a host changes.
             """
-            raise NotImplementedError("method 'refreshPublishedEndpoints' not implemented")
+            raise NotImplementedError(
+                "method 'refreshPublishedEndpoints' not implemented"
+            )
 
         def getPublishedEndpoints(self):
             """
@@ -400,7 +402,9 @@ if 'ObjectAdapter' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_ObjectAdapter = IcePy.defineValue('::Ice::ObjectAdapter', ObjectAdapter, -1, (), False, True, None, ())
+    _M_Ice._t_ObjectAdapter = IcePy.defineValue(
+        "::Ice::ObjectAdapter", ObjectAdapter, -1, (), False, True, None, ()
+    )
     ObjectAdapter._ice_type = _M_Ice._t_ObjectAdapter
 
     _M_Ice.ObjectAdapter = ObjectAdapter

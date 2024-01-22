@@ -6,13 +6,13 @@ import Ice
 import sys
 import threading
 
-Ice.loadSlice('Test.ice')
+Ice.loadSlice("Test.ice")
 import Test
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class CallbackBase:
@@ -138,7 +138,9 @@ def allTests(helper, communicator, ports):
                 print("ok")
         elif j == 2 or j == 3:
             if not ami:
-                sys.stdout.write("aborting server #%d and #%d with idempotent call... " % (i, i + 1))
+                sys.stdout.write(
+                    "aborting server #%d and #%d with idempotent call... " % (i, i + 1)
+                )
                 sys.stdout.flush()
                 try:
                     obj.idempotentAbort()
@@ -148,7 +150,10 @@ def allTests(helper, communicator, ports):
                 except Ice.ConnectFailedException:
                     print("ok")
             else:
-                sys.stdout.write("aborting server #%d and #%d with idempotent AMI call... " % (i, i + 1))
+                sys.stdout.write(
+                    "aborting server #%d and #%d with idempotent AMI call... "
+                    % (i, i + 1)
+                )
                 sys.stdout.flush()
                 cb = Callback()
                 obj.idempotentAbortAsync().add_done_callback(cb.exceptAbortI)
@@ -157,7 +162,7 @@ def allTests(helper, communicator, ports):
 
             i = i + 1
         else:
-            assert (False)
+            assert False
 
         i = i + 1
         j = j + 1

@@ -4,7 +4,8 @@
 #
 
 from TestHelper import TestHelper
-TestHelper.loadSlice('--all -I. Test.ice')
+
+TestHelper.loadSlice("--all -I. Test.ice")
 import Test
 import Test1
 import testpkg
@@ -13,7 +14,6 @@ import Ice
 
 
 class InitialI(Test.Initial):
-
     def getTest1C2AsObject(self, current):
         return Test1.C2()
 
@@ -67,11 +67,11 @@ class InitialI(Test.Initial):
 
 
 class Server(TestHelper):
-
     def run(self, args):
-
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(InitialI(), Ice.stringToIdentity("initial"))
             adapter.activate()

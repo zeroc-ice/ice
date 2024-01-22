@@ -20,17 +20,17 @@ import Ice.BuiltinSequences_ice
 import Ice.CommunicatorF_ice
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module IceBox
-_M_IceBox = Ice.openModule('IceBox')
-__name__ = 'IceBox'
+_M_IceBox = Ice.openModule("IceBox")
+__name__ = "IceBox"
 _M_IceBox.__doc__ = """
  IceBox is an application server specifically for Ice applications. IceBox can easily run and administer Ice
  services that are dynamically loaded as a DLL, shared library, or Java class.
 """
 
-if 'FailureException' not in _M_IceBox.__dict__:
+if "FailureException" not in _M_IceBox.__dict__:
     _M_IceBox.FailureException = Ice.createTempClass()
 
     class FailureException(Ice.LocalException):
@@ -41,7 +41,7 @@ if 'FailureException' not in _M_IceBox.__dict__:
         reason --  The reason for the failure.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             self.reason = reason
 
         def __str__(self):
@@ -49,26 +49,32 @@ if 'FailureException' not in _M_IceBox.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::IceBox::FailureException'
+        _ice_id = "::IceBox::FailureException"
 
     _M_IceBox._t_FailureException = IcePy.defineException(
-        '::IceBox::FailureException', FailureException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
+        "::IceBox::FailureException",
+        FailureException,
+        (),
+        False,
+        None,
+        (("reason", (), IcePy._t_string, False, 0),),
+    )
     FailureException._ice_type = _M_IceBox._t_FailureException
 
     _M_IceBox.FailureException = FailureException
     del FailureException
 
-if 'Service' not in _M_IceBox.__dict__:
+if "Service" not in _M_IceBox.__dict__:
     _M_IceBox.Service = Ice.createTempClass()
 
     class Service(object):
         """
-         An application service managed by a ServiceManager.
+        An application service managed by a ServiceManager.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_IceBox.Service:
-                raise RuntimeError('IceBox.Service is an abstract class')
+                raise RuntimeError("IceBox.Service is an abstract class")
 
         def start(self, name, communicator, args):
             """
@@ -86,7 +92,7 @@ if 'Service' not in _M_IceBox.__dict__:
 
         def stop(self):
             """
-             Stop the service.
+            Stop the service.
             """
             raise NotImplementedError("method 'stop' not implemented")
 
@@ -95,7 +101,9 @@ if 'Service' not in _M_IceBox.__dict__:
 
         __repr__ = __str__
 
-    _M_IceBox._t_Service = IcePy.defineValue('::IceBox::Service', Service, -1, (), False, True, None, ())
+    _M_IceBox._t_Service = IcePy.defineValue(
+        "::IceBox::Service", Service, -1, (), False, True, None, ()
+    )
     Service._ice_type = _M_IceBox._t_Service
 
     _M_IceBox.Service = Service

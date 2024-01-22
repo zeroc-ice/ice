@@ -4,13 +4,12 @@
 
 import Ice
 import Test
-import sys
 import threading
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class MyDerivedClassI(Test.MyDerivedClass):
@@ -62,8 +61,13 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return (Test.MyEnum.enum3, p1)
 
     def opMyClass(self, p1, current=None):
-        return (Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)), p1,
-                Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))))
+        return (
+            Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)),
+            p1,
+            Test.MyClassPrx.uncheckedCast(
+                current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))
+            ),
+        )
 
     def opStruct(self, p1, p2, current=None):
         p1.s.s = "a new string"
@@ -357,10 +361,39 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return value
 
     def opStringLiterals(self, current=None):
-        return [Test.s0, Test.s1, Test.s2, Test.s3, Test.s4, Test.s5, Test.s6, Test.s7, Test.s8, Test.s9, Test.s10,
-                Test.sw0, Test.sw1, Test.sw2, Test.sw3, Test.sw4, Test.sw5, Test.sw6, Test.sw7, Test.sw8, Test.sw9, Test.sw10,
-                Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
-                Test.su0, Test.su1, Test.su2]
+        return [
+            Test.s0,
+            Test.s1,
+            Test.s2,
+            Test.s3,
+            Test.s4,
+            Test.s5,
+            Test.s6,
+            Test.s7,
+            Test.s8,
+            Test.s9,
+            Test.s10,
+            Test.sw0,
+            Test.sw1,
+            Test.sw2,
+            Test.sw3,
+            Test.sw4,
+            Test.sw5,
+            Test.sw6,
+            Test.sw7,
+            Test.sw8,
+            Test.sw9,
+            Test.sw10,
+            Test.ss0,
+            Test.ss1,
+            Test.ss2,
+            Test.ss3,
+            Test.ss4,
+            Test.ss5,
+            Test.su0,
+            Test.su1,
+            Test.su2,
+        ]
 
     def opWStringLiterals(self, current=None):
         return self.opStringLiterals(current)

@@ -4,7 +4,8 @@
 #
 
 from TestHelper import TestHelper
-TestHelper.loadSlice('Test.ice')
+
+TestHelper.loadSlice("Test.ice")
 import Ice
 import Test
 import time
@@ -26,7 +27,6 @@ class TestI(Test.Hello):
 
 
 class Server(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         #
@@ -36,7 +36,9 @@ class Server(TestHelper):
         #
         properties.setProperty("Ice.Warn.Dispatch", "0")
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI(), Ice.stringToIdentity("test"))
             adapter.activate()

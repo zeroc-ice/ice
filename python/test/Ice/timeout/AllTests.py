@@ -11,7 +11,7 @@ import time
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class CallbackBase:
@@ -65,7 +65,10 @@ def connect(prx):
 
 def allTests(helper, communicator):
     controller = Test.ControllerPrx.checkedCast(
-        communicator.stringToProxy("controller:{0}".format(helper.getTestEndpoint(num=1))))
+        communicator.stringToProxy(
+            "controller:{0}".format(helper.getTestEndpoint(num=1))
+        )
+    )
     test(controller != None)
 
     try:
@@ -78,7 +81,6 @@ def allTests(helper, communicator):
 
 
 def allTestsWithController(helper, communicator, controller):
-
     sref = "timeout:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
     test(obj != None)

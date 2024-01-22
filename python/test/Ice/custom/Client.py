@@ -4,6 +4,7 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 
 try:
@@ -15,7 +16,6 @@ import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
         with self.initialize(args=args) as communicator:
             custom = AllTests.allTests(self, communicator)

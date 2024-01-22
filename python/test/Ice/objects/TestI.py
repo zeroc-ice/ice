@@ -80,7 +80,7 @@ class InitialI(Test.Initial):
 
         self._b1.theA = self._b2  # Cyclic reference to another B
         self._b1.theB = self._b1  # Self reference.
-        self._b1.theC = None     # Null reference.
+        self._b1.theC = None  # Null reference.
 
         self._b2.theA = self._b2  # Self reference, using base.
         self._b2.theB = self._b1  # Cyclic reference to another B
@@ -90,7 +90,7 @@ class InitialI(Test.Initial):
 
         self._d.theA = self._b1  # Reference to a B.
         self._d.theB = self._b2  # Reference to a B.
-        self._d.theC = None      # Reference to a C.
+        self._d.theC = None  # Reference to a C.
 
     def shutdown(self, current=None):
         self._adapter.getCommunicator().shutdown()
@@ -142,7 +142,9 @@ class InitialI(Test.Initial):
         return Test.Initial.GetMBMarshaledResult(self._b1, current)
 
     def getAMDMB(self, current):
-        return Ice.Future.completed(Test.Initial.GetAMDMBMarshaledResult(self._b1, current))
+        return Ice.Future.completed(
+            Test.Initial.GetAMDMBMarshaledResult(self._b1, current)
+        )
 
     def getAll(self, current=None):
         self._b1.preMarshalInvoked = False
@@ -197,11 +199,23 @@ class InitialI(Test.Initial):
         return (f11, Test.F1("F12"))
 
     def opF2(self, f21, current=None):
-        return (f21, Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")))
+        return (
+            f21,
+            Test.F2Prx.uncheckedCast(
+                current.adapter.getCommunicator().stringToProxy("F22")
+            ),
+        )
 
     def opF3(self, f31, current):
-        return (f31, Test.F3(Test.F1("F12"),
-                             Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22"))))
+        return (
+            f31,
+            Test.F3(
+                Test.F1("F12"),
+                Test.F2Prx.uncheckedCast(
+                    current.adapter.getCommunicator().stringToProxy("F22")
+                ),
+            ),
+        )
 
     def hasF3(self, current):
         return True

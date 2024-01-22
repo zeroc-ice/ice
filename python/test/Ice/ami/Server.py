@@ -5,14 +5,13 @@
 
 import Ice
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import TestI
 
 
 class Server(TestHelper):
-
     def run(self, args):
-
         properties = self.createTestProperties(args)
         #
         # This test kills connections, so we don't want warnings.
@@ -26,10 +25,15 @@ class Server(TestHelper):
         properties.setProperty("Ice.TCP.RcvSize", "50000")
 
         with self.initialize(properties=properties) as communicator:
-
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
-            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))
-            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
+            communicator.getProperties().setProperty(
+                "ControllerAdapter.Endpoints", self.getTestEndpoint(num=1)
+            )
+            communicator.getProperties().setProperty(
+                "ControllerAdapter.ThreadPool.Size", "1"
+            )
 
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter2 = communicator.createObjectAdapter("ControllerAdapter")

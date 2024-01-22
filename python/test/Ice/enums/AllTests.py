@@ -3,16 +3,12 @@
 #
 
 import sys
-import string
-import re
-import traceback
-import Ice
 import Test
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):
@@ -113,26 +109,57 @@ def allTests(helper, communicator):
     sys.stdout.write("testing enum operations... ")
     sys.stdout.flush()
 
-    test(proxy.opByte(Test.ByteEnum.benum1) == (Test.ByteEnum.benum1, Test.ByteEnum.benum1))
-    test(proxy.opByte(Test.ByteEnum.benum11) == (Test.ByteEnum.benum11, Test.ByteEnum.benum11))
+    test(
+        proxy.opByte(Test.ByteEnum.benum1)
+        == (Test.ByteEnum.benum1, Test.ByteEnum.benum1)
+    )
+    test(
+        proxy.opByte(Test.ByteEnum.benum11)
+        == (Test.ByteEnum.benum11, Test.ByteEnum.benum11)
+    )
 
-    test(proxy.opShort(Test.ShortEnum.senum1) == (Test.ShortEnum.senum1, Test.ShortEnum.senum1))
-    test(proxy.opShort(Test.ShortEnum.senum11) == (Test.ShortEnum.senum11, Test.ShortEnum.senum11))
+    test(
+        proxy.opShort(Test.ShortEnum.senum1)
+        == (Test.ShortEnum.senum1, Test.ShortEnum.senum1)
+    )
+    test(
+        proxy.opShort(Test.ShortEnum.senum11)
+        == (Test.ShortEnum.senum11, Test.ShortEnum.senum11)
+    )
 
     test(proxy.opInt(Test.IntEnum.ienum1) == (Test.IntEnum.ienum1, Test.IntEnum.ienum1))
-    test(proxy.opInt(Test.IntEnum.ienum11) == (Test.IntEnum.ienum11, Test.IntEnum.ienum11))
-    test(proxy.opInt(Test.IntEnum.ienum12) == (Test.IntEnum.ienum12, Test.IntEnum.ienum12))
+    test(
+        proxy.opInt(Test.IntEnum.ienum11)
+        == (Test.IntEnum.ienum11, Test.IntEnum.ienum11)
+    )
+    test(
+        proxy.opInt(Test.IntEnum.ienum12)
+        == (Test.IntEnum.ienum12, Test.IntEnum.ienum12)
+    )
 
-    test(proxy.opSimple(Test.SimpleEnum.green) == (Test.SimpleEnum.green, Test.SimpleEnum.green))
+    test(
+        proxy.opSimple(Test.SimpleEnum.green)
+        == (Test.SimpleEnum.green, Test.SimpleEnum.green)
+    )
 
     print("ok")
 
     sys.stdout.write("testing enum sequences operations... ")
     sys.stdout.flush()
 
-    b1 = [Test.ByteEnum.benum1, Test.ByteEnum.benum2, Test.ByteEnum.benum3, Test.ByteEnum.benum4, Test.ByteEnum.benum5,
-          Test.ByteEnum.benum6, Test.ByteEnum.benum7, Test.ByteEnum.benum8, Test.ByteEnum.benum9, Test.ByteEnum.benum10,
-          Test.ByteEnum.benum11]
+    b1 = [
+        Test.ByteEnum.benum1,
+        Test.ByteEnum.benum2,
+        Test.ByteEnum.benum3,
+        Test.ByteEnum.benum4,
+        Test.ByteEnum.benum5,
+        Test.ByteEnum.benum6,
+        Test.ByteEnum.benum7,
+        Test.ByteEnum.benum8,
+        Test.ByteEnum.benum9,
+        Test.ByteEnum.benum10,
+        Test.ByteEnum.benum11,
+    ]
 
     (b2, b3) = proxy.opByteSeq(b1)
 
@@ -140,9 +167,19 @@ def allTests(helper, communicator):
         test(b1[i] == b2[i])
         test(b1[i] == b3[i])
 
-    s1 = [Test.ShortEnum.senum1, Test.ShortEnum.senum2, Test.ShortEnum.senum3, Test.ShortEnum.senum4,
-          Test.ShortEnum.senum5, Test.ShortEnum.senum6, Test.ShortEnum.senum7, Test.ShortEnum.senum8,
-          Test.ShortEnum.senum9, Test.ShortEnum.senum10, Test.ShortEnum.senum11]
+    s1 = [
+        Test.ShortEnum.senum1,
+        Test.ShortEnum.senum2,
+        Test.ShortEnum.senum3,
+        Test.ShortEnum.senum4,
+        Test.ShortEnum.senum5,
+        Test.ShortEnum.senum6,
+        Test.ShortEnum.senum7,
+        Test.ShortEnum.senum8,
+        Test.ShortEnum.senum9,
+        Test.ShortEnum.senum10,
+        Test.ShortEnum.senum11,
+    ]
 
     (s2, s3) = proxy.opShortSeq(s1)
 
@@ -150,9 +187,19 @@ def allTests(helper, communicator):
         test(s1[i] == s2[i])
         test(s1[i] == s3[i])
 
-    i1 = [Test.IntEnum.ienum1, Test.IntEnum.ienum2, Test.IntEnum.ienum3, Test.IntEnum.ienum4,
-          Test.IntEnum.ienum5, Test.IntEnum.ienum6, Test.IntEnum.ienum7, Test.IntEnum.ienum8,
-          Test.IntEnum.ienum9, Test.IntEnum.ienum10, Test.IntEnum.ienum11]
+    i1 = [
+        Test.IntEnum.ienum1,
+        Test.IntEnum.ienum2,
+        Test.IntEnum.ienum3,
+        Test.IntEnum.ienum4,
+        Test.IntEnum.ienum5,
+        Test.IntEnum.ienum6,
+        Test.IntEnum.ienum7,
+        Test.IntEnum.ienum8,
+        Test.IntEnum.ienum9,
+        Test.IntEnum.ienum10,
+        Test.IntEnum.ienum11,
+    ]
 
     (i2, i3) = proxy.opIntSeq(i1)
 

@@ -20,24 +20,24 @@ import Ice.BuiltinSequences_ice
 import Ice.PropertyDict_ice
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 
-if 'Properties' not in _M_Ice.__dict__:
+if "Properties" not in _M_Ice.__dict__:
     _M_Ice.Properties = Ice.createTempClass()
 
     class Properties(object):
         """
-         A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
-         values being strings. By convention, property keys should have the form
-         application-name[.category[.sub-category]].name.
+        A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
+        values being strings. By convention, property keys should have the form
+        application-name[.category[.sub-category]].name.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Properties:
-                raise RuntimeError('Ice.Properties is an abstract class')
+                raise RuntimeError("Ice.Properties is an abstract class")
 
         def getProperty(self, key):
             """
@@ -75,7 +75,9 @@ if 'Properties' not in _M_Ice.__dict__:
             value -- The default value to use if the property does not exist.
             Returns: The property value interpreted as an integer, or the default value.
             """
-            raise NotImplementedError("method 'getPropertyAsIntWithDefault' not implemented")
+            raise NotImplementedError(
+                "method 'getPropertyAsIntWithDefault' not implemented"
+            )
 
         def getPropertyAsList(self, key):
             """
@@ -102,7 +104,9 @@ if 'Properties' not in _M_Ice.__dict__:
             value -- The default value to use if the property is not set.
             Returns: The property value interpreted as list of strings, or the default value.
             """
-            raise NotImplementedError("method 'getPropertyAsListWithDefault' not implemented")
+            raise NotImplementedError(
+                "method 'getPropertyAsListWithDefault' not implemented"
+            )
 
         def getPropertiesForPrefix(self, prefix):
             """
@@ -141,7 +145,9 @@ if 'Properties' not in _M_Ice.__dict__:
             options -- The command-line options.
             Returns: The command-line options that do not start with the specified prefix, in their original order.
             """
-            raise NotImplementedError("method 'parseCommandLineOptions' not implemented")
+            raise NotImplementedError(
+                "method 'parseCommandLineOptions' not implemented"
+            )
 
         def parseIceCommandLineOptions(self, options):
             """
@@ -152,7 +158,9 @@ if 'Properties' not in _M_Ice.__dict__:
             options -- The command-line options.
             Returns: The command-line options that do not start with one of the listed prefixes, in their original order.
             """
-            raise NotImplementedError("method 'parseIceCommandLineOptions' not implemented")
+            raise NotImplementedError(
+                "method 'parseIceCommandLineOptions' not implemented"
+            )
 
         def load(self, file):
             """
@@ -174,7 +182,9 @@ if 'Properties' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_Properties = IcePy.defineValue('::Ice::Properties', Properties, -1, (), False, True, None, ())
+    _M_Ice._t_Properties = IcePy.defineValue(
+        "::Ice::Properties", Properties, -1, (), False, True, None, ()
+    )
     Properties._ice_type = _M_Ice._t_Properties
 
     _M_Ice.Properties = Properties

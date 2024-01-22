@@ -18,10 +18,12 @@ import Ice
 import IcePy
 
 # Start of module Ice
-_M_Ice = Ice.openModule('Ice')
-__name__ = 'Ice'
+_M_Ice = Ice.openModule("Ice")
+__name__ = "Ice"
 
-if '_t_FacetMap' not in _M_Ice.__dict__:
-    _M_Ice._t_FacetMap = IcePy.defineDictionary('::Ice::FacetMap', (), IcePy._t_string, IcePy._t_Value)
+if "_t_FacetMap" not in _M_Ice.__dict__:
+    _M_Ice._t_FacetMap = IcePy.defineDictionary(
+        "::Ice::FacetMap", (), IcePy._t_string, IcePy._t_Value
+    )
 
 # End of module Ice

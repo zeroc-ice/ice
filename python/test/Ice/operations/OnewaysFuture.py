@@ -8,7 +8,7 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def onewaysFuture(helper, proxy):
@@ -46,7 +46,7 @@ def onewaysFuture(helper, proxy):
     f.sent()
 
     try:
-        p.opByteAsync(0xff, 0x0f)
+        p.opByteAsync(0xFF, 0x0F)
         test(False)
     except Ice.TwowayOnlyException:
         pass

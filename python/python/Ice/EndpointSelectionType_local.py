@@ -18,10 +18,10 @@ import Ice
 import IcePy
 
 # Start of module Ice
-_M_Ice = Ice.openModule('Ice')
-__name__ = 'Ice'
+_M_Ice = Ice.openModule("Ice")
+__name__ = "Ice"
 
-if 'EndpointSelectionType' not in _M_Ice.__dict__:
+if "EndpointSelectionType" not in _M_Ice.__dict__:
     _M_Ice.EndpointSelectionType = Ice.createTempClass()
 
     class EndpointSelectionType(Ice.EnumBase):
@@ -39,14 +39,22 @@ if 'EndpointSelectionType' not in _M_Ice.__dict__:
             if _n in self._enumerators:
                 return self._enumerators[_n]
             return None
+
         valueOf = classmethod(valueOf)
 
     EndpointSelectionType.Random = EndpointSelectionType("Random", 0)
     EndpointSelectionType.Ordered = EndpointSelectionType("Ordered", 1)
-    EndpointSelectionType._enumerators = {0: EndpointSelectionType.Random, 1: EndpointSelectionType.Ordered}
+    EndpointSelectionType._enumerators = {
+        0: EndpointSelectionType.Random,
+        1: EndpointSelectionType.Ordered,
+    }
 
     _M_Ice._t_EndpointSelectionType = IcePy.defineEnum(
-        '::Ice::EndpointSelectionType', EndpointSelectionType, (), EndpointSelectionType._enumerators)
+        "::Ice::EndpointSelectionType",
+        EndpointSelectionType,
+        (),
+        EndpointSelectionType._enumerators,
+    )
 
     _M_Ice.EndpointSelectionType = EndpointSelectionType
     del EndpointSelectionType

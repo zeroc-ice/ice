@@ -6,12 +6,12 @@
 import Ice
 import Dispatcher
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
         initData = Ice.InitializationData()
         initData.properties = self.createTestProperties(args)

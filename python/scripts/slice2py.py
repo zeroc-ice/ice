@@ -12,7 +12,7 @@ def main():
     sliceDir = Ice.getSliceDir()
     # Automatically add the slice dir.
     if sliceDir is not None:
-        sys.argv.append('-I' + sliceDir)
+        sys.argv.append("-I" + sliceDir)
     val = IcePy.compile(sys.argv)
     sys.exit(int(val))
 

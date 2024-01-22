@@ -10,11 +10,10 @@ import TestI
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def testFacets(com, builtInFacets=True):
-
     if builtInFacets:
         test(com.findAdminFacet("Properties") != None)
         test(com.findAdminFacet("Process") != None)
@@ -146,7 +145,9 @@ def allTests(helper, communicator):
     print("ok")
 
     ref = "factory:{0} -t 10000".format(helper.getTestEndpoint())
-    factory = Test.RemoteCommunicatorFactoryPrx.uncheckedCast(communicator.stringToProxy(ref))
+    factory = Test.RemoteCommunicatorFactoryPrx.uncheckedCast(
+        communicator.stringToProxy(ref)
+    )
 
     sys.stdout.write("testing process facet... ")
     sys.stdout.flush()

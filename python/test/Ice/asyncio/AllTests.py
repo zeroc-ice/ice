@@ -10,11 +10,10 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 async def allTestsAsync(helper, communicator):
-
     sref = "test:{0}".format(helper.getTestEndpoint(num=0))
     obj = communicator.stringToProxy(sref)
     test(obj)

@@ -4,12 +4,12 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
         #
         # In this test, we need at least two threads in the

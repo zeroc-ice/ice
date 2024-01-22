@@ -20,34 +20,34 @@ import Ice.LoggerF_local
 import Ice.BuiltinSequences_ice
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 
-if 'Plugin' not in _M_Ice.__dict__:
+if "Plugin" not in _M_Ice.__dict__:
     _M_Ice.Plugin = Ice.createTempClass()
 
     class Plugin(object):
         """
-         A communicator plug-in. A plug-in generally adds a feature to a communicator, such as support for a protocol.
-         The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the second stage
-         invokes Plugin#initialize on each one.
+        A communicator plug-in. A plug-in generally adds a feature to a communicator, such as support for a protocol.
+        The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the second stage
+        invokes Plugin#initialize on each one.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Plugin:
-                raise RuntimeError('Ice.Plugin is an abstract class')
+                raise RuntimeError("Ice.Plugin is an abstract class")
 
         def initialize(self):
             """
-             Perform any necessary initialization steps.
+            Perform any necessary initialization steps.
             """
             raise NotImplementedError("method 'initialize' not implemented")
 
         def destroy(self):
             """
-             Called when the communicator is being destroyed.
+            Called when the communicator is being destroyed.
             """
             raise NotImplementedError("method 'destroy' not implemented")
 
@@ -56,23 +56,25 @@ if 'Plugin' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_Plugin = IcePy.defineValue('::Ice::Plugin', Plugin, -1, (), False, True, None, ())
+    _M_Ice._t_Plugin = IcePy.defineValue(
+        "::Ice::Plugin", Plugin, -1, (), False, True, None, ()
+    )
     Plugin._ice_type = _M_Ice._t_Plugin
 
     _M_Ice.Plugin = Plugin
     del Plugin
 
-if 'PluginManager' not in _M_Ice.__dict__:
+if "PluginManager" not in _M_Ice.__dict__:
     _M_Ice.PluginManager = Ice.createTempClass()
 
     class PluginManager(object):
         """
-         Each communicator has a plug-in manager to administer the set of plug-ins.
+        Each communicator has a plug-in manager to administer the set of plug-ins.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.PluginManager:
-                raise RuntimeError('Ice.PluginManager is an abstract class')
+                raise RuntimeError("Ice.PluginManager is an abstract class")
 
         def initializePlugins(self):
             """
@@ -117,7 +119,7 @@ if 'PluginManager' not in _M_Ice.__dict__:
 
         def destroy(self):
             """
-             Called when the communicator is being destroyed.
+            Called when the communicator is being destroyed.
             """
             raise NotImplementedError("method 'destroy' not implemented")
 
@@ -126,7 +128,9 @@ if 'PluginManager' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_PluginManager = IcePy.defineValue('::Ice::PluginManager', PluginManager, -1, (), False, True, None, ())
+    _M_Ice._t_PluginManager = IcePy.defineValue(
+        "::Ice::PluginManager", PluginManager, -1, (), False, True, None, ()
+    )
     PluginManager._ice_type = _M_Ice._t_PluginManager
 
     _M_Ice.PluginManager = PluginManager

@@ -4,13 +4,13 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import Ice
 import Test
 
 
 class InitialI(Test.Initial):
-
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
@@ -189,10 +189,11 @@ class InitialI(Test.Initial):
 
 
 class Server(TestHelper):
-
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             initial = InitialI()
             adapter.add(initial, Ice.stringToIdentity("initial"))

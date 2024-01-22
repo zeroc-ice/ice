@@ -4,16 +4,16 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
-        properties.setProperty('Ice.Warn.AMICallback', '0')
-        properties.setProperty('Ice.Warn.Connections', '0')
+        properties.setProperty("Ice.Warn.AMICallback", "0")
+        properties.setProperty("Ice.Warn.Connections", "0")
 
         #
         # Limit the send buffer size, this test relies on the socket

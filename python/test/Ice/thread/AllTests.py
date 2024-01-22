@@ -2,21 +2,20 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice
 import Test
 import sys
-import TestI
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):
-
     ref = "factory:{0} -t 10000".format(helper.getTestEndpoint())
-    factory = Test.RemoteCommunicatorFactoryPrx.checkedCast(communicator.stringToProxy(ref))
+    factory = Test.RemoteCommunicatorFactoryPrx.checkedCast(
+        communicator.stringToProxy(ref)
+    )
 
     sys.stdout.write("testing thread hooks... ")
     sys.stdout.flush()

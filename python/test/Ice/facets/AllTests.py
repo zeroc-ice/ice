@@ -9,7 +9,7 @@ import sys
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class EmptyI(Test.Empty):
@@ -17,7 +17,6 @@ class EmptyI(Test.Empty):
 
 
 def allTests(helper, communicator):
-
     sys.stdout.write("testing Ice.Admin.Facets property... ")
     sys.stdout.flush()
     test(len(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")) == 0)
@@ -27,13 +26,25 @@ def allTests(helper, communicator):
     communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar")
     facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
     test(len(facetFilter) == 1 and facetFilter[0] == "foo'bar")
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'")
+    communicator.getProperties().setProperty(
+        "Ice.Admin.Facets", "'foo bar' toto 'titi'"
+    )
     facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
-    test(len(facetFilter) == 3 and facetFilter[0] == "foo bar" and facetFilter[1] == "toto"
-         and facetFilter[2] == "titi")
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'")
+    test(
+        len(facetFilter) == 3
+        and facetFilter[0] == "foo bar"
+        and facetFilter[1] == "toto"
+        and facetFilter[2] == "titi"
+    )
+    communicator.getProperties().setProperty(
+        "Ice.Admin.Facets", "'foo bar\\' toto' 'titi'"
+    )
     facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")
-    test(len(facetFilter) == 2 and facetFilter[0] == "foo bar' toto" and facetFilter[1] == "titi")
+    test(
+        len(facetFilter) == 2
+        and facetFilter[0] == "foo bar' toto"
+        and facetFilter[1] == "titi"
+    )
     # communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
     # facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
     # test(len(facetFilter) == 0);
@@ -42,7 +53,9 @@ def allTests(helper, communicator):
 
     sys.stdout.write("testing facet registration exceptions... ")
     sys.stdout.flush()
-    communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *")
+    communicator.getProperties().setProperty(
+        "FacetExceptionTestAdapter.Endpoints", "tcp -h *"
+    )
     adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter")
     obj = EmptyI()
     adapter.add(obj, Ice.stringToIdentity("d"))

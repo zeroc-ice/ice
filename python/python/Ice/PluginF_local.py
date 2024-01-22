@@ -18,13 +18,13 @@ import Ice
 import IcePy
 
 # Start of module Ice
-_M_Ice = Ice.openModule('Ice')
-__name__ = 'Ice'
+_M_Ice = Ice.openModule("Ice")
+__name__ = "Ice"
 
-if 'Plugin' not in _M_Ice.__dict__:
-    _M_Ice._t_Plugin = IcePy.declareValue('::Ice::Plugin')
+if "Plugin" not in _M_Ice.__dict__:
+    _M_Ice._t_Plugin = IcePy.declareValue("::Ice::Plugin")
 
-if 'PluginManager' not in _M_Ice.__dict__:
-    _M_Ice._t_PluginManager = IcePy.declareValue('::Ice::PluginManager')
+if "PluginManager" not in _M_Ice.__dict__:
+    _M_Ice._t_PluginManager = IcePy.declareValue("::Ice::PluginManager")
 
 # End of module Ice

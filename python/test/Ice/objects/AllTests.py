@@ -9,36 +9,36 @@ import sys
 
 
 def MyValueFactory(type):
-    if type == '::Test::B':
+    if type == "::Test::B":
         return TestI.BI()
-    elif type == '::Test::C':
+    elif type == "::Test::C":
         return TestI.CI()
-    elif type == '::Test::D':
+    elif type == "::Test::D":
         return TestI.DI()
-    elif type == '::Test::E':
+    elif type == "::Test::E":
         return TestI.EI()
-    elif type == '::Test::F':
+    elif type == "::Test::F":
         return TestI.FI()
-    elif type == '::Test::I':
+    elif type == "::Test::I":
         return TestI.II()
-    elif type == '::Test::J':
+    elif type == "::Test::J":
         return TestI.JI()
-    assert (False)  # Should never be reached
+    assert False  # Should never be reached
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::B')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::C')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::D')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::E')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::F')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::I')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::J')
+    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B")
+    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C")
+    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D")
+    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E")
+    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F")
+    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I")
+    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J")
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
@@ -114,7 +114,9 @@ def allTests(helper, communicator):
 
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
-    d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")))
+    d1 = initial.getD1(
+        Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
+    )
     test(d1.a1.name == "a1")
     test(d1.a2.name == "a2")
     test(d1.a3.name == "a3")
@@ -224,10 +226,12 @@ def allTests(helper, communicator):
         while depth <= 700:
             p.v = Test.Recursive()
             p = p.v
-            if (depth < 10 and (depth % 10) == 0) or \
-               (depth < 1000 and (depth % 100) == 0) or \
-               (depth < 10000 and (depth % 1000) == 0) or \
-               (depth % 10000) == 0:
+            if (
+                (depth < 10 and (depth % 10) == 0)
+                or (depth < 1000 and (depth % 100) == 0)
+                or (depth < 10000 and (depth % 1000) == 0)
+                or (depth % 10000) == 0
+            ):
                 initial.setRecursive(top)
             depth += 1
         test(not initial.supportsClassGraphDepthMax())

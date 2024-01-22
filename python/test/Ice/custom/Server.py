@@ -4,11 +4,13 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 
 
 try:
     import numpy
+
     hasNumPy = True
 except ImportError:
     hasNumPy = False
@@ -23,7 +25,6 @@ try:
 except ImportError:
     pass
 
-import sys
 import Test
 import Ice
 import array
@@ -31,7 +32,7 @@ import array
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class CustomI(Test.Custom):
@@ -143,7 +144,6 @@ class CustomI(Test.Custom):
 if hasNumPy:
 
     class NumPyCustomI(Test.NumPy.Custom):
-
         def opBoolSeq(self, v1, current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
@@ -177,39 +177,32 @@ if hasNumPy:
             return v1
 
         def opBoolMatrix(self, current):
-            return numpy.array([[True, False, True],
-                                [True, False, True],
-                                [True, False, True]], numpy.bool_)
+            return numpy.array(
+                [[True, False, True], [True, False, True], [True, False, True]],
+                numpy.bool_,
+            )
 
         def opByteMatrix(self, current):
-            return numpy.array([[1, 0, 1],
-                                [1, 0, 1],
-                                [1, 0, 1]], numpy.int8)
+            return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int8)
 
         def opShortMatrix(self, current):
-            return numpy.array([[1, 0, 1],
-                                [1, 0, 1],
-                                [1, 0, 1]], numpy.int16)
+            return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int16)
 
         def opIntMatrix(self, current):
-            return numpy.array([[1, 0, 1],
-                                [1, 0, 1],
-                                [1, 0, 1]], numpy.int32)
+            return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int32)
 
         def opLongMatrix(self, current):
-            return numpy.array([[1, 0, 1],
-                                [1, 0, 1],
-                                [1, 0, 1]], numpy.int64)
+            return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int64)
 
         def opFloatMatrix(self, current):
-            return numpy.array([[1.1, 0.1, 1.1],
-                                [1.1, 0.1, 1.1],
-                                [1.1, 0.1, 1.1]], numpy.float32)
+            return numpy.array(
+                [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float32
+            )
 
         def opDoubleMatrix(self, current):
-            return numpy.array([[1.1, 0.1, 1.1],
-                                [1.1, 0.1, 1.1],
-                                [1.1, 0.1, 1.1]], numpy.float64)
+            return numpy.array(
+                [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float64
+            )
 
         def opBogusNumpyArrayType(self, current):
             return [True, False, True, False]
@@ -222,10 +215,11 @@ if hasNumPy:
 
 
 class Server(TestHelper):
-
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(CustomI(), Ice.stringToIdentity("test"))
             if hasNumPy:

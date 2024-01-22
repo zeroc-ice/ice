@@ -9,7 +9,7 @@ import sys
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):
@@ -74,15 +74,37 @@ def allTests(helper, communicator):
     ss = Test.SmallStruct()
     fs = Test.FixedStruct(78)
     vs = Test.VarStruct("hello")
-    mo1 = Test.MultiOptional(15, True, 19, 78, 99, 5.5, 1.0, "test", Test.MyEnum.MyEnumMember,
-                             Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")),
-                             None, [5], ["test", "test2"], {4: 3}, {"test": 10}, fs, vs, [1],
-                             [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember],
-                             [fs], [vs], [oo1],
-                             [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))],
-                             {4: Test.MyEnum.MyEnumMember}, {4: fs}, {5: vs}, {5: Test.OneOptional(15)},
-                             {5: Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))},
-                             [False, True, False])
+    mo1 = Test.MultiOptional(
+        15,
+        True,
+        19,
+        78,
+        99,
+        5.5,
+        1.0,
+        "test",
+        Test.MyEnum.MyEnumMember,
+        Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test")),
+        None,
+        [5],
+        ["test", "test2"],
+        {4: 3},
+        {"test": 10},
+        fs,
+        vs,
+        [1],
+        [Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember],
+        [fs],
+        [vs],
+        [oo1],
+        [Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))],
+        {4: Test.MyEnum.MyEnumMember},
+        {4: fs},
+        {5: vs},
+        {5: Test.OneOptional(15)},
+        {5: Test.MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test"))},
+        [False, True, False],
+    )
 
     test(mo1.a == 15)
     test(mo1.b == True)
@@ -103,7 +125,9 @@ def allTests(helper, communicator):
     test(mo1.vs == Test.VarStruct("hello"))
 
     test(mo1.shs[0] == 1)
-    test(mo1.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
+    test(
+        mo1.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember
+    )
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
     test(mo1.oos[0] == oo1)
@@ -193,7 +217,9 @@ def allTests(helper, communicator):
     test(mo5.fs == mo1.fs)
     test(mo5.vs == mo1.vs)
     test(mo5.shs == mo1.shs)
-    test(mo5.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
+    test(
+        mo5.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember
+    )
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
     test(mo5.oos[0].a == 15)
@@ -298,7 +324,9 @@ def allTests(helper, communicator):
     test(mo9.vs == mo1.vs)
 
     test(mo9.shs is Ice.Unset)
-    test(mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
+    test(
+        mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember
+    )
     test(mo9.fss is Ice.Unset)
     test(mo9.vss[0] == Test.VarStruct("hello"))
     test(mo9.oos is Ice.Unset)
@@ -316,7 +344,9 @@ def allTests(helper, communicator):
     # Use the 1.0 encoding with operations whose only class parameters are optional.
     #
     initial.sendOptionalClass(True, Test.OneOptional(53))
-    initial.ice_encodingVersion(Ice.Encoding_1_0).sendOptionalClass(True, Test.OneOptional(53))
+    initial.ice_encodingVersion(Ice.Encoding_1_0).sendOptionalClass(
+        True, Test.OneOptional(53)
+    )
 
     r = initial.returnOptionalClass(True)
     test(r != Ice.Unset)
@@ -347,7 +377,9 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    sys.stdout.write("testing marshaling of large containers with fixed size elements... ")
+    sys.stdout.write(
+        "testing marshaling of large containers with fixed size elements... "
+    )
     sys.stdout.flush()
 
     mc = Test.MultiOptional()
@@ -769,7 +801,9 @@ def allTests(helper, communicator):
         #
         # Use the 1.0 encoding with an exception whose only class members are optional.
         #
-        initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(30, "test", Test.OneOptional(53))
+        initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(
+            30, "test", Test.OneOptional(53)
+        )
     except Test.OptionalException as ex:
         test(ex.a is Ice.Unset)
         test(ex.b is Ice.Unset)

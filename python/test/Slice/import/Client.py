@@ -10,11 +10,10 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class Client(TestHelper):
-
     def run(self, args):
         sys.stdout.write("testing imports... ")
         sys.stdout.flush()

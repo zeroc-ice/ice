@@ -5,13 +5,12 @@
 import Ice
 import Test
 import math
-import sys
 import threading
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class CallbackBase:
@@ -39,8 +38,8 @@ class Callback(CallbackBase):
     def opByte(self, f):
         try:
             (r, b) = f.result()
-            test(b == 0xf0)
-            test(r == 0xff)
+            test(b == 0xF0)
+            test(r == 0xFF)
             self.called()
         except:
             test(False)
@@ -69,8 +68,8 @@ class Callback(CallbackBase):
         try:
             (r, f, d) = fut.result()
             test(f - 3.14 < 0.001)
-            test(d == 1.1E10)
-            test(r == 1.1E10)
+            test(d == 1.1e10)
+            test(r == 1.1e10)
             self.called()
         except:
             test(False)
@@ -100,7 +99,12 @@ class Callback(CallbackBase):
             test(c2.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
             test(r.ice_getIdentity() == Ice.stringToIdentity("test"))
             # We can't do the callbacks below in serialize mode
-            if self._communicator.getProperties().getPropertyAsInt("Ice.Client.ThreadPool.Serialize") == 0:
+            if (
+                self._communicator.getProperties().getPropertyAsInt(
+                    "Ice.Client.ThreadPool.Serialize"
+                )
+                == 0
+            ):
                 r.opVoid()
                 c1.opVoid()
                 try:
@@ -121,7 +125,12 @@ class Callback(CallbackBase):
             test(so.e == Test.MyEnum.enum3)
             test(so.s.s == "a new string")
             # We can't do the callbacks below in serialize mode.
-            if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0:
+            if (
+                self._communicator.getProperties().getPropertyAsInt(
+                    "Ice.ThreadPool.Client.Serialize"
+                )
+                == 0
+            ):
                 so.p.opVoid()
             self.called()
         except:
@@ -140,10 +149,10 @@ class Callback(CallbackBase):
             test(rso[1] == 0x11)
             test(rso[2] == 0x12)
             test(rso[3] == 0x22)
-            test(rso[4] == 0xf1)
-            test(rso[5] == 0xf2)
-            test(rso[6] == 0xf3)
-            test(rso[7] == 0xf4)
+            test(rso[4] == 0xF1)
+            test(rso[5] == 0xF2)
+            test(rso[6] == 0xF3)
+            test(rso[7] == 0xF4)
             self.called()
         except:
             test(False)
@@ -198,13 +207,13 @@ class Callback(CallbackBase):
             test(fso[0] - 3.14 < 0.001)
             test(fso[1] - 1.11 < 0.001)
             test(len(dso) == 3)
-            test(dso[0] == 1.3E10)
-            test(dso[1] == 1.2E10)
-            test(dso[2] == 1.1E10)
+            test(dso[0] == 1.3e10)
+            test(dso[1] == 1.2e10)
+            test(dso[2] == 1.1e10)
             test(len(rso) == 5)
-            test(rso[0] == 1.1E10)
-            test(rso[1] == 1.2E10)
-            test(rso[2] == 1.3E10)
+            test(rso[0] == 1.1e10)
+            test(rso[1] == 1.2e10)
+            test(rso[2] == 1.3e10)
             test(rso[3] - 3.14 < 0.001)
             test(rso[4] - 1.11 < 0.001)
             self.called()
@@ -238,17 +247,17 @@ class Callback(CallbackBase):
             test(len(rso[1]) == 1)
             test(len(rso[2]) == 1)
             test(len(rso[3]) == 2)
-            test(bso[0][0] == 0xff)
+            test(bso[0][0] == 0xFF)
             test(bso[1][0] == 0x01)
             test(bso[1][1] == 0x11)
             test(bso[1][2] == 0x12)
             test(rso[0][0] == 0x01)
             test(rso[0][1] == 0x11)
             test(rso[0][2] == 0x12)
-            test(rso[1][0] == 0xff)
-            test(rso[2][0] == 0x0e)
-            test(rso[3][0] == 0xf2)
-            test(rso[3][1] == 0xf1)
+            test(rso[1][0] == 0xFF)
+            test(rso[2][0] == 0x0E)
+            test(rso[3][0] == 0xF2)
+            test(rso[3][1] == 0xF1)
             self.called()
         except:
             test(False)
@@ -323,18 +332,18 @@ class Callback(CallbackBase):
             test(len(fso[2]) == 0)
             test(len(dso) == 1)
             test(len(dso[0]) == 3)
-            test(dso[0][0] == 1.1E10)
-            test(dso[0][1] == 1.2E10)
-            test(dso[0][2] == 1.3E10)
+            test(dso[0][0] == 1.1e10)
+            test(dso[0][1] == 1.2e10)
+            test(dso[0][2] == 1.3e10)
             test(len(rso) == 2)
             test(len(rso[0]) == 3)
-            test(rso[0][0] == 1.1E10)
-            test(rso[0][1] == 1.2E10)
-            test(rso[0][2] == 1.3E10)
+            test(rso[0][0] == 1.1e10)
+            test(rso[0][1] == 1.2e10)
+            test(rso[0][2] == 1.3e10)
             test(len(rso[1]) == 3)
-            test(rso[1][0] == 1.1E10)
-            test(rso[1][1] == 1.2E10)
-            test(rso[1][2] == 1.3E10)
+            test(rso[1][0] == 1.1e10)
+            test(rso[1][1] == 1.2e10)
+            test(rso[1][2] == 1.3e10)
             self.called()
         except:
             test(False)
@@ -407,7 +416,7 @@ class Callback(CallbackBase):
     def opStringStringD(self, f):
         try:
             (ro, do) = f.result()
-            di1 = {'foo': 'abc -1.1', 'bar': 'abc 123123.2'}
+            di1 = {"foo": "abc -1.1", "bar": "abc 123123.2"}
             test(do == di1)
             test(len(ro) == 4)
             test(ro["foo"] == "abc -1.1")
@@ -421,7 +430,7 @@ class Callback(CallbackBase):
     def opStringMyEnumD(self, f):
         try:
             (ro, do) = f.result()
-            di1 = {'abc': Test.MyEnum.enum1, '': Test.MyEnum.enum2}
+            di1 = {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2}
             test(do == di1)
             test(len(ro) == 4)
             test(ro["abc"] == Test.MyEnum.enum1)
@@ -435,7 +444,7 @@ class Callback(CallbackBase):
     def opMyEnumStringD(self, f):
         try:
             (ro, do) = f.result()
-            di1 = {Test.MyEnum.enum1: 'abc'}
+            di1 = {Test.MyEnum.enum1: "abc"}
             test(do == di1)
             test(len(ro) == 3)
             test(ro[Test.MyEnum.enum1] == "abc")
@@ -651,18 +660,18 @@ class Callback(CallbackBase):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
-            test(len(do[0xf1]) == 2)
-            test(do[0xf1][0] == 0xf2)
-            test(do[0xf1][1] == 0xf3)
+            test(len(do[0xF1]) == 2)
+            test(do[0xF1][0] == 0xF2)
+            test(do[0xF1][1] == 0xF3)
             test(len(ro) == 3)
             test(len(ro[0x01]) == 2)
             test(ro[0x01][0] == 0x01)
             test(ro[0x01][1] == 0x11)
             test(len(ro[0x22]) == 1)
             test(ro[0x22][0] == 0x12)
-            test(len(ro[0xf1]) == 2)
-            test(ro[0xf1][0] == 0xf2)
-            test(ro[0xf1][1] == 0xf3)
+            test(len(ro[0xF1]) == 2)
+            test(ro[0xF1][0] == 0xF2)
+            test(ro[0xF1][1] == 0xF3)
             self.called()
         except:
             test(False)
@@ -779,19 +788,19 @@ class Callback(CallbackBase):
             (ro, do) = f.result()
             test(len(do) == 1)
             test(len(do[""]) == 2)
-            test(do[""][0] == 1.6E10)
-            test(do[""][1] == 1.7E10)
+            test(do[""][0] == 1.6e10)
+            test(do[""][1] == 1.7e10)
             test(len(ro) == 3)
             test(len(ro["Hello!!"]) == 3)
-            test(ro["Hello!!"][0] == 1.1E10)
-            test(ro["Hello!!"][1] == 1.2E10)
-            test(ro["Hello!!"][2] == 1.3E10)
+            test(ro["Hello!!"][0] == 1.1e10)
+            test(ro["Hello!!"][1] == 1.2e10)
+            test(ro["Hello!!"][2] == 1.3e10)
             test(len(ro["Goodbye"]) == 2)
-            test(ro["Goodbye"][0] == 1.4E10)
-            test(ro["Goodbye"][1] == 1.5E10)
+            test(ro["Goodbye"][0] == 1.4e10)
+            test(ro["Goodbye"][1] == 1.5e10)
             test(len(ro[""]) == 2)
-            test(ro[""][0] == 1.6E10)
-            test(ro[""][1] == 1.7E10)
+            test(ro[""][0] == 1.6e10)
+            test(ro[""][1] == 1.7e10)
             self.called()
         except:
             test(False)
@@ -880,13 +889,13 @@ def twowaysFuture(helper, p):
     p.opVoidAsync().add_done_callback(lambda f: cb.called())
     cb.check()
 
-    f = p.opByteAsync(0xff, 0x0f)
+    f = p.opByteAsync(0xFF, 0x0F)
     (ret, p3) = f.result()
-    test(p3 == 0xf0)
-    test(ret == 0xff)
+    test(p3 == 0xF0)
+    test(ret == 0xFF)
 
     cb = Callback()
-    p.opByteAsync(0xff, 0x0f).add_done_callback(cb.opByte)
+    p.opByteAsync(0xFF, 0x0F).add_done_callback(cb.opByte)
     cb.check()
 
     cb = Callback()
@@ -898,7 +907,7 @@ def twowaysFuture(helper, p):
     cb.check()
 
     cb = Callback()
-    p.opFloatDoubleAsync(3.14, 1.1E10).add_done_callback(cb.opFloatDouble)
+    p.opFloatDoubleAsync(3.14, 1.1e10).add_done_callback(cb.opFloatDouble)
     cb.check()
 
     cb = Callback()
@@ -929,7 +938,7 @@ def twowaysFuture(helper, p):
     cb.check()
 
     bsi1 = (0x01, 0x11, 0x12, 0x22)
-    bsi2 = (0xf1, 0xf2, 0xf3, 0xf4)
+    bsi2 = (0xF1, 0xF2, 0xF3, 0xF4)
 
     cb = Callback()
     p.opByteSAsync(bsi1, bsi2).add_done_callback(cb.opByteS)
@@ -951,27 +960,31 @@ def twowaysFuture(helper, p):
     cb.check()
 
     fsi = (3.14, 1.11)
-    dsi = (1.1E10, 1.2E10, 1.3E10)
+    dsi = (1.1e10, 1.2e10, 1.3e10)
 
     cb = Callback()
     p.opFloatDoubleSAsync(fsi, dsi).add_done_callback(cb.opFloatDoubleS)
     cb.check()
 
-    ssi1 = ('abc', 'de', 'fghi')
-    ssi2 = ('xyz',)
+    ssi1 = ("abc", "de", "fghi")
+    ssi2 = ("xyz",)
 
     cb = Callback()
     p.opStringSAsync(ssi1, ssi2).add_done_callback(cb.opStringS)
     cb.check()
 
-    bsi1 = ((0x01, 0x11, 0x12), (0xff,))
-    bsi2 = ((0x0e,), (0xf2, 0xf1))
+    bsi1 = ((0x01, 0x11, 0x12), (0xFF,))
+    bsi2 = ((0x0E,), (0xF2, 0xF1))
 
     cb = Callback()
     p.opByteSSAsync(bsi1, bsi2).add_done_callback(cb.opByteSS)
     cb.check()
 
-    bsi1 = ((True,), (False,), (True, True),)
+    bsi1 = (
+        (True,),
+        (False,),
+        (True, True),
+    )
     bsi2 = ((False, False, True),)
 
     cb = Callback()
@@ -987,14 +1000,14 @@ def twowaysFuture(helper, p):
     cb.check()
 
     fsi = ((3.14,), (1.11,), ())
-    dsi = ((1.1E10, 1.2E10, 1.3E10),)
+    dsi = ((1.1e10, 1.2e10, 1.3e10),)
 
     cb = Callback()
     p.opFloatDoubleSSAsync(fsi, dsi).add_done_callback(cb.opFloatDoubleSS)
     cb.check()
 
-    ssi1 = (('abc',), ('de', 'fghi'))
-    ssi2 = ((), (), ('xyz',))
+    ssi1 = (("abc",), ("de", "fghi"))
+    ssi2 = ((), (), ("xyz",))
 
     cb = Callback()
     p.opStringSSAsync(ssi1, ssi2).add_done_callback(cb.opStringSS)
@@ -1021,22 +1034,26 @@ def twowaysFuture(helper, p):
     p.opLongFloatDAsync(di1, di2).add_done_callback(cb.opLongFloatD)
     cb.check()
 
-    di1 = {'foo': 'abc -1.1', 'bar': 'abc 123123.2'}
-    di2 = {'foo': 'abc -1.1', 'FOO': 'abc -100.4', 'BAR': 'abc 0.5'}
+    di1 = {"foo": "abc -1.1", "bar": "abc 123123.2"}
+    di2 = {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"}
 
     cb = Callback()
     p.opStringStringDAsync(di1, di2).add_done_callback(cb.opStringStringD)
     cb.check()
 
-    di1 = {'abc': Test.MyEnum.enum1, '': Test.MyEnum.enum2}
-    di2 = {'abc': Test.MyEnum.enum1, 'qwerty': Test.MyEnum.enum3, 'Hello!!': Test.MyEnum.enum2}
+    di1 = {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2}
+    di2 = {
+        "abc": Test.MyEnum.enum1,
+        "qwerty": Test.MyEnum.enum3,
+        "Hello!!": Test.MyEnum.enum2,
+    }
 
     cb = Callback()
     p.opStringMyEnumDAsync(di1, di2).add_done_callback(cb.opStringMyEnumD)
     cb.check()
 
-    di1 = {Test.MyEnum.enum1: 'abc'}
-    di2 = {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'}
+    di1 = {Test.MyEnum.enum1: "abc"}
+    di2 = {Test.MyEnum.enum2: "Hello!!", Test.MyEnum.enum3: "qwerty"}
 
     cb = Callback()
     p.opMyEnumStringDAsync(di1, di2).add_done_callback(cb.opMyEnumStringD)
@@ -1075,14 +1092,20 @@ def twowaysFuture(helper, p):
     p.opShortIntDSAsync(dsi1, dsi2).add_done_callback(cb.opShortIntDS)
     cb.called()
 
-    dsi1 = ({999999110: -1.1, 999999111: 123123.2}, {999999110: -1.1, 999999120: -100.4, 999999130: 0.5})
+    dsi1 = (
+        {999999110: -1.1, 999999111: 123123.2},
+        {999999110: -1.1, 999999120: -100.4, 999999130: 0.5},
+    )
     dsi2 = ({999999140: 3.14},)
 
     cb = Callback()
     p.opLongFloatDSAsync(dsi1, dsi2).add_done_callback(cb.opLongFloatDS)
     cb.called()
 
-    dsi1 = ({"foo": "abc -1.1", "bar": "abc 123123.2"}, {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"})
+    dsi1 = (
+        {"foo": "abc -1.1", "bar": "abc 123123.2"},
+        {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"},
+    )
     dsi2 = ({"f00": "ABC -3.14"},)
 
     cb = Callback()
@@ -1091,7 +1114,11 @@ def twowaysFuture(helper, p):
 
     dsi1 = (
         {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2},
-        {"abc": Test.MyEnum.enum1, "qwerty": Test.MyEnum.enum3, "Hello!!": Test.MyEnum.enum2}
+        {
+            "abc": Test.MyEnum.enum1,
+            "qwerty": Test.MyEnum.enum3,
+            "Hello!!": Test.MyEnum.enum2,
+        },
     )
 
     dsi2 = ({"Goodbye": Test.MyEnum.enum1},)
@@ -1100,8 +1127,11 @@ def twowaysFuture(helper, p):
     p.opStringMyEnumDSAsync(dsi1, dsi2).add_done_callback(cb.opStringMyEnumDS)
     cb.called()
 
-    dsi1 = ({Test.MyEnum.enum1: 'abc'}, {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'})
-    dsi2 = ({Test.MyEnum.enum1: 'Goodbye'},)
+    dsi1 = (
+        {Test.MyEnum.enum1: "abc"},
+        {Test.MyEnum.enum2: "Hello!!", Test.MyEnum.enum3: "qwerty"},
+    )
+    dsi2 = ({Test.MyEnum.enum1: "Goodbye"},)
 
     cb = Callback()
     p.opMyEnumStringDSAsync(dsi1, dsi2).add_done_callback(cb.opMyEnumStringDS)
@@ -1115,7 +1145,7 @@ def twowaysFuture(helper, p):
 
     dsi1 = (
         {s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2},
-        {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2}
+        {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2},
     )
     dsi2 = ({s23: Test.MyEnum.enum3},)
 
@@ -1124,7 +1154,7 @@ def twowaysFuture(helper, p):
     cb.called()
 
     sdi1 = {0x01: (0x01, 0x11), 0x22: (0x12,)}
-    sdi2 = {0xf1: (0xf2, 0xf3)}
+    sdi2 = {0xF1: (0xF2, 0xF3)}
 
     cb = Callback()
     p.opByteByteSDAsync(sdi1, sdi2).add_done_callback(cb.opByteByteSD)
@@ -1151,7 +1181,10 @@ def twowaysFuture(helper, p):
     p.opIntIntSDAsync(sdi1, sdi2).add_done_callback(cb.opIntIntSD)
     cb.called()
 
-    sdi1 = {999999990: (999999110, 999999111, 999999110), 999999991: (999999120, 999999130)}
+    sdi1 = {
+        999999990: (999999110, 999999111, 999999110),
+        999999991: (999999120, 999999130),
+    }
     sdi2 = {999999992: (999999110, 999999120)}
 
     cb = Callback()
@@ -1165,8 +1198,8 @@ def twowaysFuture(helper, p):
     p.opStringFloatSDAsync(sdi1, sdi2).add_done_callback(cb.opStringFloatSD)
     cb.called()
 
-    sdi1 = {"Hello!!": (1.1E10, 1.2E10, 1.3E10), "Goodbye": (1.4E10, 1.5E10)}
-    sdi2 = {"": (1.6E10, 1.7E10)}
+    sdi1 = {"Hello!!": (1.1e10, 1.2e10, 1.3e10), "Goodbye": (1.4e10, 1.5e10)}
+    sdi2 = {"": (1.6e10, 1.7e10)}
 
     cb = Callback()
     p.opStringDoubleSDAsync(sdi1, sdi2).add_done_callback(cb.opStringDoubleSD)
@@ -1181,7 +1214,7 @@ def twowaysFuture(helper, p):
 
     sdi1 = {
         Test.MyEnum.enum3: (Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2),
-        Test.MyEnum.enum2: (Test.MyEnum.enum1, Test.MyEnum.enum2)
+        Test.MyEnum.enum2: (Test.MyEnum.enum1, Test.MyEnum.enum2),
     }
     sdi2 = {Test.MyEnum.enum1: (Test.MyEnum.enum3, Test.MyEnum.enum3)}
 
@@ -1198,7 +1231,7 @@ def twowaysFuture(helper, p):
         p.opIntSAsync(s).add_done_callback(cb.opIntS)
         cb.check()
 
-    ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+    ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
     test(len(p.ice_getContext()) == 0)
     f = p.opContextAsync()
@@ -1224,16 +1257,18 @@ def twowaysFuture(helper, p):
     # Test implicit context propagation
     #
     if p.ice_getConnection():
-        impls = ('Shared', 'PerThread')
+        impls = ("Shared", "PerThread")
         for i in impls:
             initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
-            initData.properties.setProperty('Ice.ImplicitContext', i)
+            initData.properties.setProperty("Ice.ImplicitContext", i)
             ic = Ice.initialize(data=initData)
 
-            ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+            ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
-            p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:{0}".format(helper.getTestEndpoint())))
+            p3 = Test.MyClassPrx.uncheckedCast(
+                ic.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
+            )
 
             ic.getImplicitContext().setContext(ctx)
             test(ic.getImplicitContext().getContext() == ctx)
@@ -1241,19 +1276,19 @@ def twowaysFuture(helper, p):
             c = f.result()
             test(c == ctx)
 
-            ic.getImplicitContext().put('zero', 'ZERO')
+            ic.getImplicitContext().put("zero", "ZERO")
 
             ctx = ic.getImplicitContext().getContext()
             f = p3.opContextAsync()
             c = f.result()
             test(c == ctx)
 
-            prxContext = {'one': 'UN', 'four': 'QUATRE'}
+            prxContext = {"one": "UN", "four": "QUATRE"}
 
             combined = {}
             combined.update(ctx)
             combined.update(prxContext)
-            test(combined['one'] == 'UN')
+            test(combined["one"] == "UN")
 
             p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext))
             ic.getImplicitContext().setContext({})

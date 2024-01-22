@@ -2,10 +2,13 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+import os
+import shutil
+from Util import ClientTestCase, SliceTranslator, TestSuite
+
+
 class SliceImportTestCase(ClientTestCase):
-
     def setupClientSide(self, current):
-
         testdir = current.testsuite.getPath()
         if os.path.exists(os.path.join(testdir, "Test1_ice.py")):
             os.remove(os.path.join(testdir, "Test1_ice.py"))

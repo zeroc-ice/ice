@@ -11,7 +11,7 @@ import array
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class EmptyI(Test.Empty):
@@ -202,7 +202,7 @@ class Callback(CallbackBase):
             raise ex
         except Ice.UnknownLocalException as ex:
             pass
-        except Ice.OperationNotExistException as ex:
+        except Ice.OperationNotExistException:
             pass
         except:
             test(False)
@@ -474,7 +474,7 @@ def allTests(helper, communicator):
         sys.stdout.flush()
 
         try:
-            thrower.throwMemoryLimitException(array.array('B'))
+            thrower.throwMemoryLimitException(array.array("B"))
             test(False)
         except Ice.MemoryLimitException:
             pass
@@ -501,7 +501,7 @@ def allTests(helper, communicator):
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasA(1)
-#        thrower2.ice_ping()
+        #        thrower2.ice_ping()
         test(False)
     except Ice.ObjectNotExistException as ex:
         test(ex.id == id)
@@ -745,7 +745,7 @@ def allTests(helper, communicator):
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasAAsync(1).result()
-#        thrower2.ice_ping()
+        #        thrower2.ice_ping()
         test(False)
     except Ice.ObjectNotExistException as ex:
         test(ex.id == id)

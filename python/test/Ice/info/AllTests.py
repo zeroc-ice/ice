@@ -5,23 +5,22 @@
 import Ice
 import Test
 import sys
-import threading
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def getTCPEndpointInfo(info):
-    while (info):
+    while info:
         if isinstance(info, Ice.TCPEndpointInfo):
             return info
         info = info.underlying
 
 
 def getTCPConnectionInfo(info):
-    while (info):
+    while info:
         if isinstance(info, Ice.TCPConnectionInfo):
             return info
         info = info.underlying
@@ -31,9 +30,11 @@ def allTests(helper, communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
-    p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
-                                    "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
-                                    "opaque -e 1.8 -t 100 -v ABCD")
+    p1 = communicator.stringToProxy(
+        "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
+        + "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
+        + "opaque -e 1.8 -t 100 -v ABCD"
+    )
 
     endps = p1.ice_getEndpoints()
 
@@ -46,14 +47,30 @@ def allTests(helper, communicator):
     test(tcpEndpoint.timeout == 1200)
     test(tcpEndpoint.compress)
     test(not tcpEndpoint.datagram())
-    test((tcpEndpoint.type() == Ice.TCPEndpointType and not tcpEndpoint.secure()) or
-         (tcpEndpoint.type() == Ice.SSLEndpointType and tcpEndpoint.secure()) or  # SSL
-         (tcpEndpoint.type() == Ice.WSEndpointType and not tcpEndpoint.secure()) or  # WS
-         (tcpEndpoint.type() == Ice.WSSEndpointType and tcpEndpoint.secure()))  # WS
-    test((tcpEndpoint.type() == Ice.TCPEndpointType and isinstance(endpoint, Ice.TCPEndpointInfo)) or
-         (tcpEndpoint.type() == Ice.SSLEndpointType and isinstance(endpoint, Ice.SSLEndpointInfo)) or
-         (tcpEndpoint.type() == Ice.WSEndpointType and isinstance(endpoint, Ice.WSEndpointInfo)) or
-         (tcpEndpoint.type() == Ice.WSSEndpointType and isinstance(endpoint, Ice.WSEndpointInfo)))
+    test(
+        (tcpEndpoint.type() == Ice.TCPEndpointType and not tcpEndpoint.secure())
+        or (tcpEndpoint.type() == Ice.SSLEndpointType and tcpEndpoint.secure())  # SSL
+        or (tcpEndpoint.type() == Ice.WSEndpointType and not tcpEndpoint.secure())  # WS
+        or (tcpEndpoint.type() == Ice.WSSEndpointType and tcpEndpoint.secure())
+    )  # WS
+    test(
+        (
+            tcpEndpoint.type() == Ice.TCPEndpointType
+            and isinstance(endpoint, Ice.TCPEndpointInfo)
+        )
+        or (
+            tcpEndpoint.type() == Ice.SSLEndpointType
+            and isinstance(endpoint, Ice.SSLEndpointInfo)
+        )
+        or (
+            tcpEndpoint.type() == Ice.WSEndpointType
+            and isinstance(endpoint, Ice.WSEndpointInfo)
+        )
+        or (
+            tcpEndpoint.type() == Ice.WSSEndpointType
+            and isinstance(endpoint, Ice.WSEndpointInfo)
+        )
+    )
 
     udpEndpoint = endps[1].getInfo()
     test(isinstance(udpEndpoint, Ice.UDPEndpointInfo))
@@ -77,9 +94,14 @@ def allTests(helper, communicator):
     sys.stdout.write("test object adapter endpoint information... ")
     sys.stdout.flush()
 
-    host = "::1" if communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 else "127.0.0.1"
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
-                                             "\" -t 15000:udp -h \"" + host + "\"")
+    host = (
+        "::1"
+        if communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0
+        else "127.0.0.1"
+    )
+    communicator.getProperties().setProperty(
+        "TestAdapter.Endpoints", 'tcp -h "' + host + '" -t 15000:udp -h "' + host + '"'
+    )
     adapter = communicator.createObjectAdapter("TestAdapter")
     endpoints = adapter.getEndpoints()
     test(len(endpoints) == 2)
@@ -87,8 +109,12 @@ def allTests(helper, communicator):
     test(endpoints == publishedEndpoints)
 
     tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo())
-    test(tcpEndpoint.type() == Ice.TCPEndpointType or tcpEndpoint.type() == 2 or tcpEndpoint.type() == 4 or
-         tcpEndpoint.type() == 5)
+    test(
+        tcpEndpoint.type() == Ice.TCPEndpointType
+        or tcpEndpoint.type() == 2
+        or tcpEndpoint.type() == 4
+        or tcpEndpoint.type() == 5
+    )
     test(tcpEndpoint.host == host)
     test(tcpEndpoint.port > 0)
     test(tcpEndpoint.timeout == 15000)
@@ -98,7 +124,7 @@ def allTests(helper, communicator):
     test(udpEndpoint.datagram())
     test(udpEndpoint.port > 0)
 
-    endpoints = (endpoints[0], )
+    endpoints = (endpoints[0],)
     test(len(endpoints) == 1)
     adapter.setPublishedEndpoints(endpoints)
     publishedEndpoints = adapter.getPublishedEndpoints()
@@ -106,8 +132,12 @@ def allTests(helper, communicator):
 
     adapter.destroy()
 
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 15000")
-    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 15000")
+    communicator.getProperties().setProperty(
+        "TestAdapter.Endpoints", "default -h * -p 15000"
+    )
+    communicator.getProperties().setProperty(
+        "TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 15000"
+    )
     adapter = communicator.createObjectAdapter("TestAdapter")
 
     endpoints = adapter.getEndpoints()
@@ -128,8 +158,11 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    base = communicator.stringToProxy("test:{0}:{1}".format(helper.getTestEndpoint(),
-                                                            helper.getTestEndpoint(protocol="udp")))
+    base = communicator.stringToProxy(
+        "test:{0}:{1}".format(
+            helper.getTestEndpoint(), helper.getTestEndpoint(protocol="udp")
+        )
+    )
     testIntf = Test.TestIntfPrx.checkedCast(base)
 
     sys.stdout.write("test connection endpoint information... ")
@@ -166,7 +199,7 @@ def allTests(helper, communicator):
     test(not info.incoming)
     test(len(info.adapterName) == 0)
     test(tcpinfo.remotePort == port)
-    if defaultHost == '127.0.0.1':
+    if defaultHost == "127.0.0.1":
         test(tcpinfo.remoteAddress == defaultHost)
         test(tcpinfo.localAddress == defaultHost)
     test(tcpinfo.rcvSize >= 1024)
@@ -180,7 +213,10 @@ def allTests(helper, communicator):
     test(ctx["remotePort"] == str(tcpinfo.localPort))
     test(ctx["localPort"] == str(tcpinfo.remotePort))
 
-    if (base.ice_getConnection().type() == "ws" or base.ice_getConnection().type() == "wss"):
+    if (
+        base.ice_getConnection().type() == "ws"
+        or base.ice_getConnection().type() == "wss"
+    ):
         test(isinstance(info, Ice.WSConnectionInfo))
 
         test(info.headers["Upgrade"] == "websocket")

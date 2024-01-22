@@ -4,6 +4,7 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("-I. --all ServerPrivate.ice")
 import Ice
 import Test
@@ -11,11 +12,10 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class TestI(Test.TestIntf):
-
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
@@ -158,7 +158,9 @@ class TestI(Test.TestIntf):
     def relayKnownPreservedAsBase(self, r, current):
         f = Ice.Future()
         try:
-            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p = Test.RelayPrx.uncheckedCast(
+                current.con.createProxy(r.ice_getIdentity())
+            )
             p.knownPreservedAsBase()
             test(False)
         except Ice.Exception as ex:
@@ -168,7 +170,9 @@ class TestI(Test.TestIntf):
     def relayKnownPreservedAsKnownPreserved(self, r, current):
         f = Ice.Future()
         try:
-            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p = Test.RelayPrx.uncheckedCast(
+                current.con.createProxy(r.ice_getIdentity())
+            )
             p.knownPreservedAsKnownPreserved()
             test(False)
         except Ice.Exception as ex:
@@ -200,7 +204,9 @@ class TestI(Test.TestIntf):
     def relayUnknownPreservedAsBase(self, r, current):
         f = Ice.Future()
         try:
-            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p = Test.RelayPrx.uncheckedCast(
+                current.con.createProxy(r.ice_getIdentity())
+            )
             p.unknownPreservedAsBase()
             test(False)
         except Ice.Exception as ex:
@@ -210,7 +216,9 @@ class TestI(Test.TestIntf):
     def relayUnknownPreservedAsKnownPreserved(self, r, current):
         f = Ice.Future()
         try:
-            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p = Test.RelayPrx.uncheckedCast(
+                current.con.createProxy(r.ice_getIdentity())
+            )
             p.unknownPreservedAsKnownPreserved()
             test(False)
         except Ice.Exception as ex:
@@ -219,13 +227,13 @@ class TestI(Test.TestIntf):
 
 
 class ServerAMD(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                     "{0} -t 10000".format(self.getTestEndpoint()))
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", "{0} -t 10000".format(self.getTestEndpoint())
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI(), Ice.stringToIdentity("Test"))
             adapter.activate()

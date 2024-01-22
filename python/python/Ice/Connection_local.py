@@ -21,12 +21,12 @@ import Ice.Identity_ice
 import Ice.Endpoint_local
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 
-if 'CompressBatch' not in _M_Ice.__dict__:
+if "CompressBatch" not in _M_Ice.__dict__:
     _M_Ice.CompressBatch = Ice.createTempClass()
 
     class CompressBatch(Ice.EnumBase):
@@ -45,19 +45,26 @@ if 'CompressBatch' not in _M_Ice.__dict__:
             if _n in self._enumerators:
                 return self._enumerators[_n]
             return None
+
         valueOf = classmethod(valueOf)
 
     CompressBatch.Yes = CompressBatch("Yes", 0)
     CompressBatch.No = CompressBatch("No", 1)
     CompressBatch.BasedOnProxy = CompressBatch("BasedOnProxy", 2)
-    CompressBatch._enumerators = {0: CompressBatch.Yes, 1: CompressBatch.No, 2: CompressBatch.BasedOnProxy}
+    CompressBatch._enumerators = {
+        0: CompressBatch.Yes,
+        1: CompressBatch.No,
+        2: CompressBatch.BasedOnProxy,
+    }
 
-    _M_Ice._t_CompressBatch = IcePy.defineEnum('::Ice::CompressBatch', CompressBatch, (), CompressBatch._enumerators)
+    _M_Ice._t_CompressBatch = IcePy.defineEnum(
+        "::Ice::CompressBatch", CompressBatch, (), CompressBatch._enumerators
+    )
 
     _M_Ice.CompressBatch = CompressBatch
     del CompressBatch
 
-if 'ConnectionInfo' not in _M_Ice.__dict__:
+if "ConnectionInfo" not in _M_Ice.__dict__:
     _M_Ice.ConnectionInfo = Ice.createTempClass()
 
     class ConnectionInfo(object):
@@ -70,7 +77,9 @@ if 'ConnectionInfo' not in _M_Ice.__dict__:
         connectionId --  The connection id.
         """
 
-        def __init__(self, underlying=None, incoming=False, adapterName='', connectionId=''):
+        def __init__(
+            self, underlying=None, incoming=False, adapterName="", connectionId=""
+        ):
             self.underlying = underlying
             self.incoming = incoming
             self.adapterName = adapterName
@@ -81,33 +90,42 @@ if 'ConnectionInfo' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_ConnectionInfo = IcePy.declareValue('::Ice::ConnectionInfo')
+    _M_Ice._t_ConnectionInfo = IcePy.declareValue("::Ice::ConnectionInfo")
 
-    _M_Ice._t_ConnectionInfo = IcePy.defineValue('::Ice::ConnectionInfo', ConnectionInfo, -1, (), False, False, None, (
-        ('underlying', (), _M_Ice._t_ConnectionInfo, False, 0),
-        ('incoming', (), IcePy._t_bool, False, 0),
-        ('adapterName', (), IcePy._t_string, False, 0),
-        ('connectionId', (), IcePy._t_string, False, 0)
-    ))
+    _M_Ice._t_ConnectionInfo = IcePy.defineValue(
+        "::Ice::ConnectionInfo",
+        ConnectionInfo,
+        -1,
+        (),
+        False,
+        False,
+        None,
+        (
+            ("underlying", (), _M_Ice._t_ConnectionInfo, False, 0),
+            ("incoming", (), IcePy._t_bool, False, 0),
+            ("adapterName", (), IcePy._t_string, False, 0),
+            ("connectionId", (), IcePy._t_string, False, 0),
+        ),
+    )
     ConnectionInfo._ice_type = _M_Ice._t_ConnectionInfo
 
     _M_Ice.ConnectionInfo = ConnectionInfo
     del ConnectionInfo
 
-if 'Connection' not in _M_Ice.__dict__:
-    _M_Ice._t_Connection = IcePy.declareValue('::Ice::Connection')
+if "Connection" not in _M_Ice.__dict__:
+    _M_Ice._t_Connection = IcePy.declareValue("::Ice::Connection")
 
-if 'CloseCallback' not in _M_Ice.__dict__:
+if "CloseCallback" not in _M_Ice.__dict__:
     _M_Ice.CloseCallback = Ice.createTempClass()
 
     class CloseCallback(object):
         """
-          An application can implement this interface to receive notifications when a connection closes.
+        An application can implement this interface to receive notifications when a connection closes.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.CloseCallback:
-                raise RuntimeError('Ice.CloseCallback is an abstract class')
+                raise RuntimeError("Ice.CloseCallback is an abstract class")
 
         def closed(self, con):
             """
@@ -123,24 +141,26 @@ if 'CloseCallback' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_CloseCallback = IcePy.defineValue('::Ice::CloseCallback', CloseCallback, -1, (), False, True, None, ())
+    _M_Ice._t_CloseCallback = IcePy.defineValue(
+        "::Ice::CloseCallback", CloseCallback, -1, (), False, True, None, ()
+    )
     CloseCallback._ice_type = _M_Ice._t_CloseCallback
 
     _M_Ice.CloseCallback = CloseCallback
     del CloseCallback
 
-if 'HeartbeatCallback' not in _M_Ice.__dict__:
+if "HeartbeatCallback" not in _M_Ice.__dict__:
     _M_Ice.HeartbeatCallback = Ice.createTempClass()
 
     class HeartbeatCallback(object):
         """
-         An application can implement this interface to receive notifications when a connection receives a heartbeat
-         message.
+        An application can implement this interface to receive notifications when a connection receives a heartbeat
+        message.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.HeartbeatCallback:
-                raise RuntimeError('Ice.HeartbeatCallback is an abstract class')
+                raise RuntimeError("Ice.HeartbeatCallback is an abstract class")
 
         def heartbeat(self, con):
             """
@@ -156,13 +176,14 @@ if 'HeartbeatCallback' not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_HeartbeatCallback = IcePy.defineValue(
-        '::Ice::HeartbeatCallback', HeartbeatCallback, -1, (), False, True, None, ())
+        "::Ice::HeartbeatCallback", HeartbeatCallback, -1, (), False, True, None, ()
+    )
     HeartbeatCallback._ice_type = _M_Ice._t_HeartbeatCallback
 
     _M_Ice.HeartbeatCallback = HeartbeatCallback
     del HeartbeatCallback
 
-if 'ACMClose' not in _M_Ice.__dict__:
+if "ACMClose" not in _M_Ice.__dict__:
     _M_Ice.ACMClose = Ice.createTempClass()
 
     class ACMClose(Ice.EnumBase):
@@ -185,6 +206,7 @@ if 'ACMClose' not in _M_Ice.__dict__:
             if _n in self._enumerators:
                 return self._enumerators[_n]
             return None
+
         valueOf = classmethod(valueOf)
 
     ACMClose.CloseOff = ACMClose("CloseOff", 0)
@@ -192,15 +214,22 @@ if 'ACMClose' not in _M_Ice.__dict__:
     ACMClose.CloseOnInvocation = ACMClose("CloseOnInvocation", 2)
     ACMClose.CloseOnInvocationAndIdle = ACMClose("CloseOnInvocationAndIdle", 3)
     ACMClose.CloseOnIdleForceful = ACMClose("CloseOnIdleForceful", 4)
-    ACMClose._enumerators = {0: ACMClose.CloseOff, 1: ACMClose.CloseOnIdle, 2: ACMClose.CloseOnInvocation,
-                             3: ACMClose.CloseOnInvocationAndIdle, 4: ACMClose.CloseOnIdleForceful}
+    ACMClose._enumerators = {
+        0: ACMClose.CloseOff,
+        1: ACMClose.CloseOnIdle,
+        2: ACMClose.CloseOnInvocation,
+        3: ACMClose.CloseOnInvocationAndIdle,
+        4: ACMClose.CloseOnIdleForceful,
+    }
 
-    _M_Ice._t_ACMClose = IcePy.defineEnum('::Ice::ACMClose', ACMClose, (), ACMClose._enumerators)
+    _M_Ice._t_ACMClose = IcePy.defineEnum(
+        "::Ice::ACMClose", ACMClose, (), ACMClose._enumerators
+    )
 
     _M_Ice.ACMClose = ACMClose
     del ACMClose
 
-if 'ACMHeartbeat' not in _M_Ice.__dict__:
+if "ACMHeartbeat" not in _M_Ice.__dict__:
     _M_Ice.ACMHeartbeat = Ice.createTempClass()
 
     class ACMHeartbeat(Ice.EnumBase):
@@ -220,21 +249,28 @@ if 'ACMHeartbeat' not in _M_Ice.__dict__:
             if _n in self._enumerators:
                 return self._enumerators[_n]
             return None
+
         valueOf = classmethod(valueOf)
 
     ACMHeartbeat.HeartbeatOff = ACMHeartbeat("HeartbeatOff", 0)
     ACMHeartbeat.HeartbeatOnDispatch = ACMHeartbeat("HeartbeatOnDispatch", 1)
     ACMHeartbeat.HeartbeatOnIdle = ACMHeartbeat("HeartbeatOnIdle", 2)
     ACMHeartbeat.HeartbeatAlways = ACMHeartbeat("HeartbeatAlways", 3)
-    ACMHeartbeat._enumerators = {0: ACMHeartbeat.HeartbeatOff, 1: ACMHeartbeat.HeartbeatOnDispatch,
-                                 2: ACMHeartbeat.HeartbeatOnIdle, 3: ACMHeartbeat.HeartbeatAlways}
+    ACMHeartbeat._enumerators = {
+        0: ACMHeartbeat.HeartbeatOff,
+        1: ACMHeartbeat.HeartbeatOnDispatch,
+        2: ACMHeartbeat.HeartbeatOnIdle,
+        3: ACMHeartbeat.HeartbeatAlways,
+    }
 
-    _M_Ice._t_ACMHeartbeat = IcePy.defineEnum('::Ice::ACMHeartbeat', ACMHeartbeat, (), ACMHeartbeat._enumerators)
+    _M_Ice._t_ACMHeartbeat = IcePy.defineEnum(
+        "::Ice::ACMHeartbeat", ACMHeartbeat, (), ACMHeartbeat._enumerators
+    )
 
     _M_Ice.ACMHeartbeat = ACMHeartbeat
     del ACMHeartbeat
 
-if 'ACM' not in _M_Ice.__dict__:
+if "ACM" not in _M_Ice.__dict__:
     _M_Ice.ACM = Ice.createTempClass()
 
     class ACM(object):
@@ -246,7 +282,12 @@ if 'ACM' not in _M_Ice.__dict__:
         heartbeat --  The heartbeat semantics.
         """
 
-        def __init__(self, timeout=0, close=_M_Ice.ACMClose.CloseOff, heartbeat=_M_Ice.ACMHeartbeat.HeartbeatOff):
+        def __init__(
+            self,
+            timeout=0,
+            close=_M_Ice.ACMClose.CloseOff,
+            heartbeat=_M_Ice.ACMHeartbeat.HeartbeatOff,
+        ):
             self.timeout = timeout
             self.close = close
             self.heartbeat = heartbeat
@@ -256,7 +297,7 @@ if 'ACM' not in _M_Ice.__dict__:
             _h = 5 * _h + Ice.getHash(self.timeout)
             _h = 5 * _h + Ice.getHash(self.close)
             _h = 5 * _h + Ice.getHash(self.heartbeat)
-            return _h % 0x7fffffff
+            return _h % 0x7FFFFFFF
 
         def __compare(self, other):
             if other is None:
@@ -266,7 +307,7 @@ if 'ACM' not in _M_Ice.__dict__:
             else:
                 if self.timeout is None or other.timeout is None:
                     if self.timeout != other.timeout:
-                        return (-1 if self.timeout is None else 1)
+                        return -1 if self.timeout is None else 1
                 else:
                     if self.timeout < other.timeout:
                         return -1
@@ -274,7 +315,7 @@ if 'ACM' not in _M_Ice.__dict__:
                         return 1
                 if self.close is None or other.close is None:
                     if self.close != other.close:
-                        return (-1 if self.close is None else 1)
+                        return -1 if self.close is None else 1
                 else:
                     if self.close < other.close:
                         return -1
@@ -282,7 +323,7 @@ if 'ACM' not in _M_Ice.__dict__:
                         return 1
                 if self.heartbeat is None or other.heartbeat is None:
                     if self.heartbeat != other.heartbeat:
-                        return (-1 if self.heartbeat is None else 1)
+                        return -1 if self.heartbeat is None else 1
                 else:
                     if self.heartbeat < other.heartbeat:
                         return -1
@@ -337,16 +378,21 @@ if 'ACM' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_ACM = IcePy.defineStruct('::Ice::ACM', ACM, (), (
-        ('timeout', (), IcePy._t_int),
-        ('close', (), _M_Ice._t_ACMClose),
-        ('heartbeat', (), _M_Ice._t_ACMHeartbeat)
-    ))
+    _M_Ice._t_ACM = IcePy.defineStruct(
+        "::Ice::ACM",
+        ACM,
+        (),
+        (
+            ("timeout", (), IcePy._t_int),
+            ("close", (), _M_Ice._t_ACMClose),
+            ("heartbeat", (), _M_Ice._t_ACMHeartbeat),
+        ),
+    )
 
     _M_Ice.ACM = ACM
     del ACM
 
-if 'ConnectionClose' not in _M_Ice.__dict__:
+if "ConnectionClose" not in _M_Ice.__dict__:
     _M_Ice.ConnectionClose = Ice.createTempClass()
 
     class ConnectionClose(Ice.EnumBase):
@@ -367,31 +413,36 @@ if 'ConnectionClose' not in _M_Ice.__dict__:
             if _n in self._enumerators:
                 return self._enumerators[_n]
             return None
+
         valueOf = classmethod(valueOf)
 
     ConnectionClose.Forcefully = ConnectionClose("Forcefully", 0)
     ConnectionClose.Gracefully = ConnectionClose("Gracefully", 1)
     ConnectionClose.GracefullyWithWait = ConnectionClose("GracefullyWithWait", 2)
-    ConnectionClose._enumerators = {0: ConnectionClose.Forcefully,
-                                    1: ConnectionClose.Gracefully, 2: ConnectionClose.GracefullyWithWait}
+    ConnectionClose._enumerators = {
+        0: ConnectionClose.Forcefully,
+        1: ConnectionClose.Gracefully,
+        2: ConnectionClose.GracefullyWithWait,
+    }
 
     _M_Ice._t_ConnectionClose = IcePy.defineEnum(
-        '::Ice::ConnectionClose', ConnectionClose, (), ConnectionClose._enumerators)
+        "::Ice::ConnectionClose", ConnectionClose, (), ConnectionClose._enumerators
+    )
 
     _M_Ice.ConnectionClose = ConnectionClose
     del ConnectionClose
 
-if 'Connection' not in _M_Ice.__dict__:
+if "Connection" not in _M_Ice.__dict__:
     _M_Ice.Connection = Ice.createTempClass()
 
     class Connection(object):
         """
-         The user-level interface to a connection.
+        The user-level interface to a connection.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Connection:
-                raise RuntimeError('Ice.Connection is an abstract class')
+                raise RuntimeError("Ice.Connection is an abstract class")
 
         def close(self, mode):
             """
@@ -467,7 +518,7 @@ if 'Connection' not in _M_Ice.__dict__:
 
         def heartbeat(self):
             """
-             Send a heartbeat message.
+            Send a heartbeat message.
             """
             raise NotImplementedError("method 'heartbeat' not implemented")
 
@@ -527,10 +578,10 @@ if 'Connection' not in _M_Ice.__dict__:
 
         def throwException(self):
             """
-             Throw an exception indicating the reason for connection closure. For example,
-             CloseConnectionException is raised if the connection was closed gracefully, whereas
-             ConnectionManuallyClosedException is raised if the connection was manually closed by
-             the application. This operation does nothing if the connection is not yet closed.
+            Throw an exception indicating the reason for connection closure. For example,
+            CloseConnectionException is raised if the connection was closed gracefully, whereas
+            ConnectionManuallyClosedException is raised if the connection was manually closed by
+            the application. This operation does nothing if the connection is not yet closed.
             """
             raise NotImplementedError("method 'throwException' not implemented")
 
@@ -539,13 +590,15 @@ if 'Connection' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_Connection = IcePy.defineValue('::Ice::Connection', Connection, -1, (), False, True, None, ())
+    _M_Ice._t_Connection = IcePy.defineValue(
+        "::Ice::Connection", Connection, -1, (), False, True, None, ()
+    )
     Connection._ice_type = _M_Ice._t_Connection
 
     _M_Ice.Connection = Connection
     del Connection
 
-if 'IPConnectionInfo' not in _M_Ice.__dict__:
+if "IPConnectionInfo" not in _M_Ice.__dict__:
     _M_Ice.IPConnectionInfo = Ice.createTempClass()
 
     class IPConnectionInfo(_M_Ice.ConnectionInfo):
@@ -558,8 +611,20 @@ if 'IPConnectionInfo' not in _M_Ice.__dict__:
         remotePort --  The remote port.
         """
 
-        def __init__(self, underlying=None, incoming=False, adapterName='', connectionId='', localAddress="", localPort=-1, remoteAddress="", remotePort=-1):
-            _M_Ice.ConnectionInfo.__init__(self, underlying, incoming, adapterName, connectionId)
+        def __init__(
+            self,
+            underlying=None,
+            incoming=False,
+            adapterName="",
+            connectionId="",
+            localAddress="",
+            localPort=-1,
+            remoteAddress="",
+            remotePort=-1,
+        ):
+            _M_Ice.ConnectionInfo.__init__(
+                self, underlying, incoming, adapterName, connectionId
+            )
             self.localAddress = localAddress
             self.localPort = localPort
             self.remoteAddress = remoteAddress
@@ -570,20 +635,29 @@ if 'IPConnectionInfo' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_IPConnectionInfo = IcePy.declareValue('::Ice::IPConnectionInfo')
+    _M_Ice._t_IPConnectionInfo = IcePy.declareValue("::Ice::IPConnectionInfo")
 
-    _M_Ice._t_IPConnectionInfo = IcePy.defineValue('::Ice::IPConnectionInfo', IPConnectionInfo, -1, (), False, False, _M_Ice._t_ConnectionInfo, (
-        ('localAddress', (), IcePy._t_string, False, 0),
-        ('localPort', (), IcePy._t_int, False, 0),
-        ('remoteAddress', (), IcePy._t_string, False, 0),
-        ('remotePort', (), IcePy._t_int, False, 0)
-    ))
+    _M_Ice._t_IPConnectionInfo = IcePy.defineValue(
+        "::Ice::IPConnectionInfo",
+        IPConnectionInfo,
+        -1,
+        (),
+        False,
+        False,
+        _M_Ice._t_ConnectionInfo,
+        (
+            ("localAddress", (), IcePy._t_string, False, 0),
+            ("localPort", (), IcePy._t_int, False, 0),
+            ("remoteAddress", (), IcePy._t_string, False, 0),
+            ("remotePort", (), IcePy._t_int, False, 0),
+        ),
+    )
     IPConnectionInfo._ice_type = _M_Ice._t_IPConnectionInfo
 
     _M_Ice.IPConnectionInfo = IPConnectionInfo
     del IPConnectionInfo
 
-if 'TCPConnectionInfo' not in _M_Ice.__dict__:
+if "TCPConnectionInfo" not in _M_Ice.__dict__:
     _M_Ice.TCPConnectionInfo = Ice.createTempClass()
 
     class TCPConnectionInfo(_M_Ice.IPConnectionInfo):
@@ -594,9 +668,30 @@ if 'TCPConnectionInfo' not in _M_Ice.__dict__:
         sndSize --  The connection buffer send size.
         """
 
-        def __init__(self, underlying=None, incoming=False, adapterName='', connectionId='', localAddress="", localPort=-1, remoteAddress="", remotePort=-1, rcvSize=0, sndSize=0):
-            _M_Ice.IPConnectionInfo.__init__(self, underlying, incoming, adapterName,
-                                             connectionId, localAddress, localPort, remoteAddress, remotePort)
+        def __init__(
+            self,
+            underlying=None,
+            incoming=False,
+            adapterName="",
+            connectionId="",
+            localAddress="",
+            localPort=-1,
+            remoteAddress="",
+            remotePort=-1,
+            rcvSize=0,
+            sndSize=0,
+        ):
+            _M_Ice.IPConnectionInfo.__init__(
+                self,
+                underlying,
+                incoming,
+                adapterName,
+                connectionId,
+                localAddress,
+                localPort,
+                remoteAddress,
+                remotePort,
+            )
             self.rcvSize = rcvSize
             self.sndSize = sndSize
 
@@ -605,18 +700,27 @@ if 'TCPConnectionInfo' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_TCPConnectionInfo = IcePy.declareValue('::Ice::TCPConnectionInfo')
+    _M_Ice._t_TCPConnectionInfo = IcePy.declareValue("::Ice::TCPConnectionInfo")
 
-    _M_Ice._t_TCPConnectionInfo = IcePy.defineValue('::Ice::TCPConnectionInfo', TCPConnectionInfo, -1, (), False, False, _M_Ice._t_IPConnectionInfo, (
-        ('rcvSize', (), IcePy._t_int, False, 0),
-        ('sndSize', (), IcePy._t_int, False, 0)
-    ))
+    _M_Ice._t_TCPConnectionInfo = IcePy.defineValue(
+        "::Ice::TCPConnectionInfo",
+        TCPConnectionInfo,
+        -1,
+        (),
+        False,
+        False,
+        _M_Ice._t_IPConnectionInfo,
+        (
+            ("rcvSize", (), IcePy._t_int, False, 0),
+            ("sndSize", (), IcePy._t_int, False, 0),
+        ),
+    )
     TCPConnectionInfo._ice_type = _M_Ice._t_TCPConnectionInfo
 
     _M_Ice.TCPConnectionInfo = TCPConnectionInfo
     del TCPConnectionInfo
 
-if 'UDPConnectionInfo' not in _M_Ice.__dict__:
+if "UDPConnectionInfo" not in _M_Ice.__dict__:
     _M_Ice.UDPConnectionInfo = Ice.createTempClass()
 
     class UDPConnectionInfo(_M_Ice.IPConnectionInfo):
@@ -629,9 +733,32 @@ if 'UDPConnectionInfo' not in _M_Ice.__dict__:
         sndSize --  The connection buffer send size.
         """
 
-        def __init__(self, underlying=None, incoming=False, adapterName='', connectionId='', localAddress="", localPort=-1, remoteAddress="", remotePort=-1, mcastAddress='', mcastPort=-1, rcvSize=0, sndSize=0):
-            _M_Ice.IPConnectionInfo.__init__(self, underlying, incoming, adapterName,
-                                             connectionId, localAddress, localPort, remoteAddress, remotePort)
+        def __init__(
+            self,
+            underlying=None,
+            incoming=False,
+            adapterName="",
+            connectionId="",
+            localAddress="",
+            localPort=-1,
+            remoteAddress="",
+            remotePort=-1,
+            mcastAddress="",
+            mcastPort=-1,
+            rcvSize=0,
+            sndSize=0,
+        ):
+            _M_Ice.IPConnectionInfo.__init__(
+                self,
+                underlying,
+                incoming,
+                adapterName,
+                connectionId,
+                localAddress,
+                localPort,
+                remoteAddress,
+                remotePort,
+            )
             self.mcastAddress = mcastAddress
             self.mcastPort = mcastPort
             self.rcvSize = rcvSize
@@ -642,23 +769,34 @@ if 'UDPConnectionInfo' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_UDPConnectionInfo = IcePy.declareValue('::Ice::UDPConnectionInfo')
+    _M_Ice._t_UDPConnectionInfo = IcePy.declareValue("::Ice::UDPConnectionInfo")
 
-    _M_Ice._t_UDPConnectionInfo = IcePy.defineValue('::Ice::UDPConnectionInfo', UDPConnectionInfo, -1, (), False, False, _M_Ice._t_IPConnectionInfo, (
-        ('mcastAddress', (), IcePy._t_string, False, 0),
-        ('mcastPort', (), IcePy._t_int, False, 0),
-        ('rcvSize', (), IcePy._t_int, False, 0),
-        ('sndSize', (), IcePy._t_int, False, 0)
-    ))
+    _M_Ice._t_UDPConnectionInfo = IcePy.defineValue(
+        "::Ice::UDPConnectionInfo",
+        UDPConnectionInfo,
+        -1,
+        (),
+        False,
+        False,
+        _M_Ice._t_IPConnectionInfo,
+        (
+            ("mcastAddress", (), IcePy._t_string, False, 0),
+            ("mcastPort", (), IcePy._t_int, False, 0),
+            ("rcvSize", (), IcePy._t_int, False, 0),
+            ("sndSize", (), IcePy._t_int, False, 0),
+        ),
+    )
     UDPConnectionInfo._ice_type = _M_Ice._t_UDPConnectionInfo
 
     _M_Ice.UDPConnectionInfo = UDPConnectionInfo
     del UDPConnectionInfo
 
-if '_t_HeaderDict' not in _M_Ice.__dict__:
-    _M_Ice._t_HeaderDict = IcePy.defineDictionary('::Ice::HeaderDict', (), IcePy._t_string, IcePy._t_string)
+if "_t_HeaderDict" not in _M_Ice.__dict__:
+    _M_Ice._t_HeaderDict = IcePy.defineDictionary(
+        "::Ice::HeaderDict", (), IcePy._t_string, IcePy._t_string
+    )
 
-if 'WSConnectionInfo' not in _M_Ice.__dict__:
+if "WSConnectionInfo" not in _M_Ice.__dict__:
     _M_Ice.WSConnectionInfo = Ice.createTempClass()
 
     class WSConnectionInfo(_M_Ice.ConnectionInfo):
@@ -668,8 +806,17 @@ if 'WSConnectionInfo' not in _M_Ice.__dict__:
         headers --  The headers from the HTTP upgrade request.
         """
 
-        def __init__(self, underlying=None, incoming=False, adapterName='', connectionId='', headers=None):
-            _M_Ice.ConnectionInfo.__init__(self, underlying, incoming, adapterName, connectionId)
+        def __init__(
+            self,
+            underlying=None,
+            incoming=False,
+            adapterName="",
+            connectionId="",
+            headers=None,
+        ):
+            _M_Ice.ConnectionInfo.__init__(
+                self, underlying, incoming, adapterName, connectionId
+            )
             self.headers = headers
 
         def __str__(self):
@@ -677,10 +824,18 @@ if 'WSConnectionInfo' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_WSConnectionInfo = IcePy.declareValue('::Ice::WSConnectionInfo')
+    _M_Ice._t_WSConnectionInfo = IcePy.declareValue("::Ice::WSConnectionInfo")
 
-    _M_Ice._t_WSConnectionInfo = IcePy.defineValue('::Ice::WSConnectionInfo', WSConnectionInfo, -1,
-                                                   (), False, False, _M_Ice._t_ConnectionInfo, (('headers', (), _M_Ice._t_HeaderDict, False, 0),))
+    _M_Ice._t_WSConnectionInfo = IcePy.defineValue(
+        "::Ice::WSConnectionInfo",
+        WSConnectionInfo,
+        -1,
+        (),
+        False,
+        False,
+        _M_Ice._t_ConnectionInfo,
+        (("headers", (), _M_Ice._t_HeaderDict, False, 0),),
+    )
     WSConnectionInfo._ice_type = _M_Ice._t_WSConnectionInfo
 
     _M_Ice.WSConnectionInfo = WSConnectionInfo

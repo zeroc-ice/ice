@@ -3,17 +3,12 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice
-import os
-import sys
-import traceback
-import time
 import threading
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class Dispatcher:

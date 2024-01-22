@@ -9,17 +9,17 @@ import Ice
 import Glacier2
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Callback.ice")
 import Test
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class CallbackReceiverI(Test.CallbackReceiver):
-
     def __init__(self):
         self._received = False
         self._cond = threading.Condition()
@@ -37,7 +37,6 @@ class CallbackReceiverI(Test.CallbackReceiver):
 
 
 class Application(Glacier2.Application):
-
     def __init__(self, helper):
         Glacier2.Application.__init__(self)
         self._restart = 0
@@ -46,10 +45,11 @@ class Application(Glacier2.Application):
         self._helper = helper
 
     def createSession(self):
-        return Glacier2.SessionPrx.uncheckedCast(self.router().createSession("userid", "abc123"))
+        return Glacier2.SessionPrx.uncheckedCast(
+            self.router().createSession("userid", "abc123")
+        )
 
     def runWithSession(self, args):
-
         test(self.router())
         test(self.categoryForClient())
         test(self.objectAdapter())
@@ -58,12 +58,19 @@ class Application(Glacier2.Application):
             sys.stdout.write("testing Glacier2::Application restart... ")
             sys.stdout.flush()
 
-        base = self.communicator().stringToProxy("callback:{0}".format(
-            self._helper.getTestEndpoint(properties=self.communicator().getProperties())))
+        base = self.communicator().stringToProxy(
+            "callback:{0}".format(
+                self._helper.getTestEndpoint(
+                    properties=self.communicator().getProperties()
+                )
+            )
+        )
         callback = Test.CallbackPrx.uncheckedCast(base)
         self._restart += 1
         if self._restart < 5:
-            receiver = Test.CallbackReceiverPrx.uncheckedCast(self.addWithUUID(self._receiver))
+            receiver = Test.CallbackReceiverPrx.uncheckedCast(
+                self.addWithUUID(self._receiver)
+            )
             callback.initiateCallback(receiver)
             self._receiver.waitForCallback()
             self.restart()
@@ -81,12 +88,15 @@ class Application(Glacier2.Application):
 
 
 class Client(TestHelper):
-
     def run(self, args):
         initData = Ice.InitializationData()
         initData.properties = self.createTestProperties(args)
-        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:{0}".format(
-            self.getTestEndpoint(properties=initData.properties, num=50)))
+        initData.properties.setProperty(
+            "Ice.Default.Router",
+            "Glacier2/router:{0}".format(
+                self.getTestEndpoint(properties=initData.properties, num=50)
+            ),
+        )
 
         app = Application(self)
         status = app.main(sys.argv, initData=initData)
@@ -98,8 +108,11 @@ class Client(TestHelper):
         with self.initialize(initData=initData) as communicator:
             sys.stdout.write("testing stringToProxy for process object... ")
             sys.stdout.flush()
-            processBase = communicator.stringToProxy("Glacier2/admin -f Process:{0}".format(
-                self.getTestEndpoint(properties=initData.properties, num=51)))
+            processBase = communicator.stringToProxy(
+                "Glacier2/admin -f Process:{0}".format(
+                    self.getTestEndpoint(properties=initData.properties, num=51)
+                )
+            )
             print("ok")
 
             sys.stdout.write("testing checked cast for admin object... ")

@@ -3,7 +3,6 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys
 #
 # We want to test coroutines but older versions of Python cannot
 # load a source file that uses the async/await keywords, so we
@@ -12,12 +11,12 @@ import sys
 from TestAMDCoroI import MyDerivedClassI
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import Ice
 
 
 class ServerAMD(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         #
@@ -28,7 +27,9 @@ class ServerAMD(TestHelper):
         properties.setProperty("Ice.Warn.Dispatch", "0")
 
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(MyDerivedClassI(), Ice.stringToIdentity("test"))
             adapter.activate()

@@ -10,8 +10,8 @@ import Test
 # The implementation of the coroutines below assume the use of an Ice dispatcher which
 # dispatch the calls on an asyncio event loop
 
-class TestIntfI(Test.TestIntf):
 
+class TestIntfI(Test.TestIntf):
     async def op(self, current):
         # make sure this is called from an asyncio event loop
         asyncio.get_running_loop()
