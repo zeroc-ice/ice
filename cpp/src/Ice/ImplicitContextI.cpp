@@ -249,7 +249,6 @@ size_t PerThreadImplicitContext::_slotVectors;
 PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
 mutex PerThreadImplicitContext::_mutex;
 
-
 #   ifdef _WIN32
 DWORD PerThreadImplicitContext::_key;
 #   else
