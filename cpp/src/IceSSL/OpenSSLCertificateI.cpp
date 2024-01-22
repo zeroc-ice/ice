@@ -10,6 +10,8 @@
 
 #include <IceUtil/Mutex.h>
 
+#include <mutex>
+
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
 

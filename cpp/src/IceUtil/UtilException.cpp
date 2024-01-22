@@ -370,7 +370,7 @@ getStackTrace(const vector<void*>& stackFrames)
     //
     // Note: the Sym functions are not thread-safe
     //
-    lock_guard lock(globalMutex);
+    unique_lock lock(globalMutex);
     bool refreshModuleList = process != 0;
     if(process == 0)
     {
@@ -383,7 +383,7 @@ getStackTrace(const vector<void*>& stackFrames)
             return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
         }
     }
-    lock.release();
+    lock.unlock();
 
 #if defined(_MSC_VER)
 #   if defined(DBGHELP_TRANSLATE_TCHAR)
@@ -403,7 +403,7 @@ getStackTrace(const vector<void*>& stackFrames)
     line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
     DWORD displacement = 0;
 
-    lock.acquire();
+    lock.lock();
 
     if(refreshModuleList && SymRefreshModuleList(process) == 0)
     {
@@ -446,7 +446,7 @@ getStackTrace(const vector<void*>& stackFrames)
         s << "\n";
         stackTrace += s.str();
     }
-    lock.release();
+    lock.unlock();
 
 #elif defined(ICE_LIBBACKTRACE) || defined (ICE_BACKTRACE)
 
