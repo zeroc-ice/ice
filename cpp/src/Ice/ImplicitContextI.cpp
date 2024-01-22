@@ -6,6 +6,8 @@
 #include <Ice/OutputStream.h>
 #include <Ice/Object.h>
 
+#include <mutex>
+
 using namespace std;
 using namespace Ice;
 

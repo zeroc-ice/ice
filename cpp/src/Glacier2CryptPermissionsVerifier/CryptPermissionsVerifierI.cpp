@@ -11,6 +11,7 @@
 #include <IceUtil/InputUtil.h>
 
 #include <fstream>
+#include <mutex>
 
 #if defined(__GLIBC__) || defined(_AIX)
 #   include <crypt.h>
