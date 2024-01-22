@@ -10,7 +10,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/HashUtil.h>
 #include <Ice/NetworkProxy.h>
-#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace Ice;

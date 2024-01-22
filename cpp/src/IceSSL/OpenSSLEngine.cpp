@@ -17,9 +17,9 @@
 #include <Ice/Properties.h>
 
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/FileUtil.h>
+
+#include <mutex>
 
 #include <openssl/rand.h>
 #include <openssl/err.h>
@@ -40,7 +40,7 @@ using namespace IceSSL;
 namespace
 {
 
-IceUtil::Mutex* staticMutex = 0;
+mutex staticMutex;
 int instanceCount = 0;
 bool initOpenSSL = false;
 
@@ -144,22 +144,14 @@ IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 namespace
 {
 
+// OpenSSL 1.1.0 introduces a new thread API and removes the need to use a custom thread callback.
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
 class Init
 {
 public:
 
-    Init()
-    {
-        staticMutex = new IceUtil::Mutex;
-    }
-
     ~Init()
     {
-        //
-        // OpenSSL 1.1.0 introduces a new thread API and removes
-        // the need to use a custom thread callback.
-        //
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
         if(CRYPTO_get_locking_callback() == IceSSL_opensslLockCallback)
         {
             assert(locks);
@@ -172,13 +164,12 @@ public:
         {
             CRYPTO_set_id_callback(0);
         }
-#endif
-        delete staticMutex;
-        staticMutex = 0;
     }
 };
 
 Init init;
+
+#endif
 
 bool
 passwordError()
@@ -206,7 +197,7 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
     //
     // Initialize OpenSSL if necessary.
     //
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+    lock_guard lock(staticMutex);
     instanceCount++;
 
     if(instanceCount == 1)
@@ -375,7 +366,7 @@ OpenSSL::SSLEngine::cleanup()
 
 OpenSSL::SSLEngine::~SSLEngine()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+    lock_guard lock(staticMutex);
     cleanup();
 }
 

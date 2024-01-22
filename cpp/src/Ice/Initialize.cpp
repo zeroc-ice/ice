@@ -11,9 +11,9 @@
 #include <Ice/Instance.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/StringUtil.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <Ice/StringConverter.h>
+
+#include <mutex>
 
 using namespace std;
 using namespace Ice;
@@ -22,26 +22,8 @@ using namespace IceInternal;
 namespace
 {
 
-IceUtil::Mutex* globalMutex = 0;
+mutex globalMutex;
 Ice::LoggerPtr processLogger;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        globalMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-    }
-};
-
-Init init;
 
 }
 
@@ -361,7 +343,7 @@ Ice::initialize(ICE_CONFIG_FILE_STRING configFile, int version)
 LoggerPtr
 Ice::getProcessLogger()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    lock_guard lock(globalMutex);
 
     if(processLogger == ICE_NULLPTR)
     {
@@ -376,14 +358,14 @@ Ice::getProcessLogger()
 void
 Ice::setProcessLogger(const LoggerPtr& logger)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    lock_guard lock(globalMutex);
     processLogger = logger;
 }
 
 void
 Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool loadOnInitialize)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    lock_guard lock(globalMutex);
     PluginManagerI::registerPluginFactory(name, factory, loadOnInitialize);
 }
 

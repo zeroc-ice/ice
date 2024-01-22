@@ -7,8 +7,8 @@
 #endif
 
 #include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/Mutex.h>
+
+#include <mutex>
 
 #ifndef _WIN32
 #   include <signal.h>
@@ -24,25 +24,7 @@ CtrlCHandlerCallback _callback = ICE_NULLPTR;
 
 const CtrlCHandler* _handler = 0;
 
-IceUtil::Mutex* globalMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        globalMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-    }
-};
-
-Init init;
+mutex globalMutex;
 
 }
 
@@ -68,7 +50,7 @@ CtrlCHandlerException::ice_clone() const
 CtrlCHandlerCallback
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    lock_guard lock(globalMutex);
     CtrlCHandlerCallback oldCallback = _callback;
     _callback = callback;
     return oldCallback;
@@ -77,7 +59,7 @@ CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 CtrlCHandlerCallback
 CtrlCHandler::getCallback() const
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    lock_guard lock(globalMutex);
     return _callback;
 }
 
@@ -87,7 +69,7 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
 {
     CtrlCHandlerCallback callback;
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        lock_guard lock(globalMutex);
         if(!_handler) // The handler is destroyed.
         {
             return FALSE;
@@ -103,7 +85,7 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
 
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    unique_lock lock(globalMutex);
     bool handler = _handler != 0;
 
     if(handler)
@@ -114,7 +96,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     {
         _callback = callback;
         _handler = this;
-        lock.release();
+        lock.unlock);
 
         SetConsoleCtrlHandler(handlerRoutine, TRUE);
     }
@@ -124,7 +106,7 @@ CtrlCHandler::~CtrlCHandler()
 {
     SetConsoleCtrlHandler(handlerRoutine, FALSE);
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        lock_guard lock(globalMutex);
         _handler = 0;
         _callback = ICE_NULLPTR;
     }
@@ -163,7 +145,7 @@ sigwaitThread(void*)
 
         CtrlCHandlerCallback callback;
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+            lock_guard lock(globalMutex);
             if(!_handler) // The handler is destroyed.
             {
                 return 0;
@@ -190,7 +172,7 @@ pthread_t _tid;
 
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    unique_lock lock(globalMutex);
     bool handler = _handler != 0;
 
     if(handler)
@@ -202,7 +184,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
         _callback = callback;
         _handler = this;
 
-        lock.release();
+        lock.unlock();
 
         // We block these CTRL+C like signals in the main thread,
         // and by default all other threads will inherit this signal
@@ -236,7 +218,7 @@ CtrlCHandler::~CtrlCHandler()
     // Clear the handler, the sigwaitThread will exit if _handler is null
     //
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        lock_guard lock(globalMutex);
         _handler = 0;
         _callback = ICE_NULLPTR;
     }

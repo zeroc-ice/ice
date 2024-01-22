@@ -5,11 +5,11 @@
 #include <IceUtil/Time.h>
 #include <Ice/LoggerI.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 
 #include <Ice/LocalException.h>
 #include <IceUtil/FileUtil.h>
+
+#include <mutex>
 
 using namespace std;
 using namespace Ice;
@@ -19,25 +19,7 @@ using namespace IceUtilInternal;
 namespace
 {
 
-IceUtil::Mutex* outputMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        outputMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete outputMutex;
-        outputMutex = 0;
-    }
-};
-
-Init init;
+mutex outputMutex;
 
 //
 // Timeout in milliseconds after which rename will be attempted
@@ -123,15 +105,14 @@ Ice::LoggerI::getPrefix()
 LoggerPtr
 Ice::LoggerI::cloneWithPrefix(const std::string& prefix)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(outputMutex); // for _sizeMax
+    lock_guard lock(outputMutex); // for _sizeMax
     return ICE_MAKE_SHARED(LoggerI, prefix, _file, _convert, _sizeMax);
 }
 
 void
 Ice::LoggerI::write(const string& message, bool indent)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(outputMutex);
-
+    unique_lock lock(outputMutex);
     string s = message;
 
     if(indent)
@@ -204,9 +185,9 @@ Ice::LoggerI::write(const string& message, bool indent)
                     //
                     size_t sizeMax = _sizeMax;
                     _sizeMax = 0;
-                    sync.release();
+                    lock.unlock();
                     error("FileLogger: cannot rename `" + _file + "'\n" + IceUtilInternal::lastErrorToString());
-                    sync.acquire();
+                    lock.lock();
                     _sizeMax = sizeMax;
                 }
                 else
@@ -216,11 +197,12 @@ Ice::LoggerI::write(const string& message, bool indent)
 
                 if(!_out.is_open())
                 {
-                    sync.release();
+                    lock.unlock();
                     error("FileLogger: cannot open `" + _file + "':\nlog messages will be sent to stderr");
                     write(message, indent);
                     return;
-                }            }
+                }
+            }
         }
         _out << s << endl;
     }

@@ -3,8 +3,6 @@
 //
 
 #include <IceUtil/DisableWarnings.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
 #include <IceSSL/PluginI.h>
 #include <IceSSL/Util.h>

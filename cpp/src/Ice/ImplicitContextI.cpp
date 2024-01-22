@@ -5,8 +5,6 @@
 #include <Ice/ImplicitContextI.h>
 #include <Ice/OutputStream.h>
 #include <Ice/Object.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace Ice;
@@ -75,7 +73,7 @@ public:
     //
     typedef std::vector<bool> IndexInUse;
     static IndexInUse* _indexInUse;
-    static IceUtil::Mutex* _mutex;
+    static mutex _mutex;
 
     static long _nextId;
     static long _destroyedIds;
@@ -249,30 +247,8 @@ long PerThreadImplicitContext::_nextId;
 long PerThreadImplicitContext::_destroyedIds;
 size_t PerThreadImplicitContext::_slotVectors;
 PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
-IceUtil::Mutex* PerThreadImplicitContext::_mutex = 0;
+mutex PerThreadImplicitContext::_mutex;
 
-namespace
-{
-
-class Init
-{
-public:
-
-    Init()
-    {
-        PerThreadImplicitContext::_mutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete PerThreadImplicitContext::_mutex;
-        PerThreadImplicitContext::_mutex = 0;
-    }
-};
-
-Init init;
-
-}
 
 #   ifdef _WIN32
 DWORD PerThreadImplicitContext::_key;
@@ -282,7 +258,7 @@ pthread_key_t PerThreadImplicitContext::_key;
 
 PerThreadImplicitContext::PerThreadImplicitContext()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+    lock_guard lock(_mutex);
     _id = _nextId++;
     if(_id == 0)
     {
@@ -324,7 +300,7 @@ PerThreadImplicitContext::PerThreadImplicitContext()
 
 PerThreadImplicitContext::~PerThreadImplicitContext()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+    lock_guard lock(_mutex);
     (*_indexInUse)[_index] = false;
 
     if(find(_indexInUse->begin(), _indexInUse->end(), true) == _indexInUse->end())
@@ -371,7 +347,7 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
         }
 
         {
-             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+             lock_guard lock(_mutex);
              sv = new SlotVector(_index + 1);
              _slotVectors++;
         }
@@ -480,7 +456,7 @@ PerThreadImplicitContext::clearThreadContext() const
             }
 
             {
-                IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+                lock_guard lock(_mutex);
                 _slotVectors--;
             }
 #   endif
@@ -647,7 +623,7 @@ extern "C" void iceImplicitContextThreadDestructor(void* v)
         delete sv;
 
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(PerThreadImplicitContext::_mutex);
+            lock_guard lock(PerThreadImplicitContext::_mutex);
             PerThreadImplicitContext::_slotVectors--;
             PerThreadImplicitContext::tryCleanupKey();
         }
