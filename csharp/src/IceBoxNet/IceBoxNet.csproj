@@ -4,7 +4,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>iceboxnet</AssemblyName>
-    <Version>$(IceVersion)</Version>
+    <Version>$(IceJSONVersion)</Version>
     <OutputPath>../../bin</OutputPath>
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
