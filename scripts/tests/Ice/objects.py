@@ -8,8 +8,10 @@
 # a client stack overflow if the client stack is too small compared to the
 # Java server stack.
 #
-class ObjectClientServerTestCase(ClientServerTestCase):
+from Util import ClientServerTestCase, CollocatedTestCase, Mapping, Server, TestSuite
 
+
+class ObjectClientServerTestCase(ClientServerTestCase):
     def getProps(self, process, current):
         props = ClientServerTestCase.getProps(self, process, current)
         if process.getMapping(current) in ["java"] and isinstance(process, Server):
@@ -32,8 +34,12 @@ class ObjectClientServerTestCase(ClientServerTestCase):
 
 testcases = [
     ObjectClientServerTestCase("client/server with compact format"),
-    ObjectClientServerTestCase("client/server with sliced format", props={"Ice.Default.SlicedFormat": True}),
-    ObjectClientServerTestCase("client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}),
+    ObjectClientServerTestCase(
+        "client/server with sliced format", props={"Ice.Default.SlicedFormat": True}
+    ),
+    ObjectClientServerTestCase(
+        "client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}
+    ),
 ]
 
 if Mapping.getByPath(__name__).hasSource("Ice/objects", "collocated"):

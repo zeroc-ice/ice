@@ -38,7 +38,7 @@ class BaseConnection(threading.Thread):
             if self.remoteSocket:
                 self.remoteSocket.close()
                 self.remoteSocket = None
-        except:
+        except Exception:
             pass
 
     def run(self):
@@ -48,7 +48,7 @@ class BaseConnection(threading.Thread):
             try:
                 self.remoteSocket.connect(remoteAddr)
                 self.socket.send(self.response(True))
-            except:
+            except Exception:
                 self.socket.send(self.response(False))
                 return
 
@@ -106,7 +106,7 @@ class BaseProxy(threading.Thread):
                         self.socket.setsockopt(
                             socket.SOL_SOCKET, socket.SO_REUSEPORT, 1
                         )
-                    except:
+                    except Exception:
                         # Ignore, this can throw on some platforms if not supported (e.g: ARMHF/Qemu)
                         pass
                 self.socket.bind(("127.0.0.1", self.port))
@@ -126,7 +126,7 @@ class BaseProxy(threading.Thread):
                 connection.start()
                 with self.cond:
                     self.connections.append(connection)
-        except:
+        except Exception:
             pass
         finally:
             self.socket.close()

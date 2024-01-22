@@ -2,8 +2,11 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-class SliceGenerationTestCase(ClientTestCase):
+import os
+from Util import ClientTestCase, SliceTranslator, TestSuite
 
+
+class SliceGenerationTestCase(ClientTestCase):
     def runClientSide(self, current):
         current.write("testing list-generated... ")
 
@@ -12,10 +15,19 @@ class SliceGenerationTestCase(ClientTestCase):
 
         slice2java.run(
             current,
-            args=["--list-generated", "--output-dir", "classes", "File1.ice", "File2.ice"])
+            args=[
+                "--list-generated",
+                "--output-dir",
+                "classes",
+                "File1.ice",
+                "File2.ice",
+            ],
+        )
 
         lines1 = slice2java.getOutput(current).strip().split("\n")
-        lines2 = open(os.path.join(current.testsuite.getPath(), "list-generated.out"), "r").readlines()
+        lines2 = open(
+            os.path.join(current.testsuite.getPath(), "list-generated.out"), "r"
+        ).readlines()
         if len(lines1) != len(lines2):
             raise RuntimeError("failed!")
 

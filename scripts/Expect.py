@@ -634,11 +634,13 @@ class Expect(object):
                         return
                     killProcess(self.p)
                     self.wait()
+                    break
                 except KeyboardInterrupt as e:
                     ex = e
                     raise
-                except e:
+                except Exception as e:
                     ex = e
+
             if ex:
                 print(ex)
                 raise ex

@@ -7,7 +7,9 @@ import os
 import time
 import threading
 import queue
-from Util import *
+import traceback
+
+from Util import Driver, IceProcess, Mapping, Result, parseOptions, Expect
 
 #
 # The Executor class runs testsuites on multiple worker threads.
@@ -82,7 +84,7 @@ class Executor:
             except KeyboardInterrupt:
                 if mainThread:
                     raise
-            except:
+            except Exception:
                 pass
             finally:
                 current.destroy()
@@ -285,7 +287,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
             except Test.Common.TestCaseFailedException as ex:
                 current.result.writeln(ex.output)
                 raise RuntimeError("test failed:\n" + str(ex))
-        except:
+        except Exception:
             current.serverTestCase.destroy()
             current.serverTestCase = None
             raise
@@ -588,7 +590,7 @@ class LocalDriver(Driver):
                 current.result.started("setup")
                 current.testsuite.setup(current)
                 current.result.succeeded("setup")
-            except Exception as ex:
+            except Exception:
                 current.result.failed("setup", traceback.format_exc())
                 raise
 
@@ -602,7 +604,7 @@ class LocalDriver(Driver):
                     ):
                         current.config = conf
                         testcase.run(current)
-                except:
+                except Exception:
                     if current.driver.debug:
                         current.result.writeln(traceback.format_exc())
                     raise
@@ -614,7 +616,7 @@ class LocalDriver(Driver):
                 current.result.started("teardown")
                 current.testsuite.teardown(current, success)
                 current.result.succeeded("teardown")
-            except Exception as ex:
+            except Exception:
                 current.result.failed("teardown", traceback.format_exc())
                 raise
 
@@ -785,6 +787,3 @@ class LocalDriver(Driver):
 
     def filterOptions(self, options):
         return self.runner.filterOptions(options)
-
-
-Driver.add("local", LocalDriver)

@@ -2,8 +2,20 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-from Util import *
-from Component import component
+import Component
+from Util import (
+    AIX,
+    CSharpMapping,
+    Client,
+    CppMapping,
+    JavaMapping,
+    Linux,
+    Mapping,
+    ProcessFromBinDir,
+    ProcessIsReleaseOnly,
+    Server,
+    platform,
+)
 
 
 class IceBox(ProcessFromBinDir, Server):
@@ -62,7 +74,7 @@ class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
         elif (
             isinstance(platform, AIX)
             and current.config.buildPlatform == "ppc"
-            and not component.useBinDist(mapping, current)
+            and not Component.component.useBinDist(mapping, current)
         ):
             return "iceboxadmin_32"
         else:
