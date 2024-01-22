@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
-    <Version>$(IceVersion)</Version>
+    <Version>$(IceJSONVersion)</Version>
     <OutputPath>../../lib</OutputPath>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
