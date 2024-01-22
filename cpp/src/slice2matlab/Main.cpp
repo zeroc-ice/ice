@@ -33,17 +33,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtilInternal;
 
-// TODO: fix this warning!
-#if defined(_MSC_VER)
-#   pragma warning(disable:4456) // shadow
-#   pragma warning(disable:4457) // shadow
-#   pragma warning(disable:4459) // shadow
-#elif defined(__clang__)
-#   pragma clang diagnostic ignored "-Wshadow"
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 namespace
 {
 
@@ -1987,7 +1976,6 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string abs = getAbsolute(p);
     InterfaceList bases = p->bases();
     const OperationList allOps = p->allOperations();
-    const string self = name == "obj" ? "this" : "obj";
 
     //
     // Generate proxy class.
@@ -2158,18 +2146,18 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 if(r->param)
                 {
-                    string name;
+                    string param;
                     if(isClass(r->type))
                     {
                         out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
-                        name = "@(v) " + r->fixedName + "_h_.set(v)";
+                        param = "@(v) " + r->fixedName + "_h_.set(v)";
                         classParams.push_back(*r);
                     }
                     else
                     {
-                        name = r->fixedName;
+                        param = r->fixedName;
                     }
-                    unmarshal(out, "is_", name, r->type, false, -1);
+                    unmarshal(out, "is_", param, r->type, false, -1);
 
                     if(needsConversion(r->type))
                     {
@@ -2183,18 +2171,18 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
             {
                 ParamInfoList::const_iterator r = requiredOutParams.begin();
-                string name;
+                string param;
                 if(isClass(r->type))
                 {
                     out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
-                    name = "@(v) " + r->fixedName + "_h_.set(v)";
+                    param = "@(v) " + r->fixedName + "_h_.set(v)";
                     classParams.push_back(*r);
                 }
                 else
                 {
-                    name = r->fixedName;
+                    param = r->fixedName;
                 }
-                unmarshal(out, "is_", name, r->type, false, -1);
+                unmarshal(out, "is_", param, r->type, false, -1);
 
                 if(needsConversion(r->type))
                 {
@@ -2206,18 +2194,18 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
-                string name;
+                string param;
                 if(isClass(r->type))
                 {
                     out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
-                    name = "@(v) " + r->fixedName + "_h_.set(v)";
+                    param = "@(v) " + r->fixedName + "_h_.set(v)";
                     classParams.push_back(*r);
                 }
                 else
                 {
-                    name = r->fixedName;
+                    param = r->fixedName;
                 }
-                unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+                unmarshal(out, "is_", param, r->type, r->optional, r->tag);
 
                 if(needsConversion(r->type))
                 {
@@ -2303,17 +2291,17 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 if(r->param)
                 {
-                    string name;
+                    string param;
                     if(isClass(r->type))
                     {
                         out << nl << r->fixedName << " = IceInternal.ValueHolder();";
-                        name = "@(v) " + r->fixedName + ".set(v)";
+                        param = "@(v) " + r->fixedName + ".set(v)";
                     }
                     else
                     {
-                        name = r->fixedName;
+                        param = r->fixedName;
                     }
-                    unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+                    unmarshal(out, "is_", param, r->type, r->optional, r->tag);
                 }
             }
             //
@@ -2322,34 +2310,34 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
             {
                 ParamInfoList::const_iterator r = requiredOutParams.begin();
-                string name;
+                string param;
                 if(isClass(r->type))
                 {
                     out << nl << r->fixedName << " = IceInternal.ValueHolder();";
-                    name = "@(v) " + r->fixedName + ".set(v)";
+                    param = "@(v) " + r->fixedName + ".set(v)";
                 }
                 else
                 {
-                    name = r->fixedName;
+                    param = r->fixedName;
                 }
-                unmarshal(out, "is_", name, r->type, false, -1);
+                unmarshal(out, "is_", param, r->type, false, -1);
             }
             //
             // Now unmarshal all optional out parameters. They are already sorted by tag.
             //
             for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
-                string name;
+                string param;
                 if(isClass(r->type))
                 {
                     out << nl << r->fixedName << " = IceInternal.ValueHolder();";
-                    name = "@(v) " + r->fixedName + ".set(v)";
+                    param = "@(v) " + r->fixedName + ".set(v)";
                 }
                 else
                 {
-                    name = r->fixedName;
+                    param = r->fixedName;
                 }
-                unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+                unmarshal(out, "is_", param, r->type, r->optional, r->tag);
             }
             if(op->returnsClasses(false))
             {
@@ -2504,11 +2492,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             // handler, causing compiler warnings and resulting in the base exception
             // being marshaled instead of the derived exception.
             //
-#if defined(__SUNPRO_CC)
-            exceptions.sort(Slice::derivedToBaseCompare);
-#else
             exceptions.sort(Slice::DerivedToBaseCompare());
-#endif
 
             if(!exceptions.empty())
             {
