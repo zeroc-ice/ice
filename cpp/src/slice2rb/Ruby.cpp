@@ -5,13 +5,13 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/ConsoleUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include "RubyUtil.h"
 #include <Slice/Util.h>
+
+#include <mutex>
 
 #include <string.h>
 
@@ -23,32 +23,13 @@ using namespace IceUtilInternal;
 namespace
 {
 
-IceUtil::Mutex* globalMutex = 0;
+mutex globalMutex;
 bool interrupted = false;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        globalMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-    }
-};
-
-Init init;
 
 void
 interruptedCallback(int /*signal*/)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
-
+    lock_guard lock(globalMutex);
     interrupted = true;
 }
 
@@ -312,8 +293,7 @@ Slice::Ruby::compile(const vector<string>& argv)
         }
 
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
-
+            lock_guard lock(globalMutex);
             if(interrupted)
             {
                 FileTracker::instance()->cleanup();
