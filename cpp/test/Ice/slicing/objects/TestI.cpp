@@ -47,7 +47,12 @@ void breakCycles(Ice::ValuePtr o)
     if(ICE_DYNAMIC_CAST(D2, o))
     {
         auto d2 = ICE_DYNAMIC_CAST(D2, o);
+        auto tmp = d2->pd2;
         d2->pd2 = nullptr;
+        if(tmp != d2)
+        {
+            breakCycles(tmp);
+        }
     }
     if(ICE_DYNAMIC_CAST(D4, o))
     {
@@ -58,11 +63,16 @@ void breakCycles(Ice::ValuePtr o)
     if(ICE_DYNAMIC_CAST(B, o))
     {
         auto b = ICE_DYNAMIC_CAST(B, o);
-        if(b->pb)
-        {
-            b->pb->pb = nullptr;
-        }
+        auto tmp = b->pb;
         b->pb = nullptr;
+        if (tmp != b)
+        {
+            breakCycles(tmp);
+        }
+        if(b->ice_getSlicedData())
+        {
+            b->ice_getSlicedData()->clear();
+        }
     }
     if(ICE_DYNAMIC_CAST(Preserved, o))
     {
@@ -287,7 +297,8 @@ TestI::D2AsB(const ::Ice::Current&)
     d1->sd1 = "D1.sd1";
     d1->pd1 = d2;
     d2->pb = d1;
-    d2->pd2 = d1;
+    // d2->pd2 = d1;
+    d2->pd2 = d2;
     _values.push_back(d1);
     return d2;
 }
@@ -416,6 +427,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
         d2->pb = b->pb;
         d2->sd2 = "D2";
         d2->pd2 = d2;
+        _values.push_back(b);
         _values.push_back(d2);
         bout[i * 10] = d2;
     }

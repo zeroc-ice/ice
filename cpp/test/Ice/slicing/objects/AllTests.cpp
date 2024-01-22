@@ -47,16 +47,26 @@ void breakCycles(ICE_SHARED_PTR<Ice::Value> o)
     if(ICE_DYNAMIC_CAST(D3, o))
     {
         auto d3 = ICE_DYNAMIC_CAST(D3, o);
+        auto tmp = d3->pd3;
         d3->pd3 = nullptr;
+        if(tmp != d3)
+        {
+            breakCycles(tmp);
+        }
     }
     if(ICE_DYNAMIC_CAST(B, o))
     {
         auto b = ICE_DYNAMIC_CAST(B, o);
-        if(b->pb)
-        {
-            b->pb->pb = nullptr;
-        }
+        auto tmp = b->pb;
         b->pb = nullptr;
+        if (tmp != b)
+        {
+            breakCycles(tmp);
+        }
+        if(b->ice_getSlicedData())
+        {
+            b->ice_getSlicedData()->clear();
+        }
     }
     if(ICE_DYNAMIC_CAST(PDerived, o))
     {
@@ -332,7 +342,10 @@ public:
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1 == b2);
+
         breakCycles(b2);
+        breakCycles(d1);
+
         called();
     }
 
@@ -358,18 +371,20 @@ public:
     }
 
     void
-    response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr&)
+    response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr& p2)
     {
         test(r == p1);
         breakCycles(r);
+        breakCycles(p2);
         called();
     }
 
     void
-    response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr&)
+    response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr& p2)
     {
         test(r == p1);
         breakCycles(r);
+        breakCycles(p2);
         called();
     }
 
@@ -1291,6 +1306,7 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             breakCycles(b2);
+            breakCycles(d1);
         }
         catch(...)
         {
@@ -1323,6 +1339,7 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             breakCycles(b2);
+            breakCycles(d1);
         }
         catch(...)
         {
@@ -1450,7 +1467,6 @@ allTests(Test::TestHelper* helper)
             test(r == p1);
 
             breakCycles(r);
-            breakCycles(p1);
             breakCycles(p2);
         }
         catch(...)
@@ -1470,7 +1486,7 @@ allTests(Test::TestHelper* helper)
             test(result.returnValue == result.p1);
 
             breakCycles(result.returnValue);
-            breakCycles(result.p1);
+            breakCycles(result.p2);
         }
         catch(...)
         {
@@ -1495,7 +1511,6 @@ allTests(Test::TestHelper* helper)
             test(r == p1);
 
             breakCycles(r);
-            breakCycles(p1);
             breakCycles(p2);
         }
         catch(...)
@@ -1515,7 +1530,7 @@ allTests(Test::TestHelper* helper)
             test(result.returnValue == result.p2);
 
             breakCycles(result.returnValue);
-            breakCycles(result.p2);
+            breakCycles(result.p1);
         }
         catch(...)
         {
@@ -1580,7 +1595,6 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(d1);
             breakCycles(d3);
-            breakCycles(p3);
         }
         catch(...)
         {
@@ -1647,7 +1661,6 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(d1);
             breakCycles(d3);
-            breakCycles(p3);
         }
         catch(...)
         {
@@ -1707,7 +1720,6 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(d1);
             breakCycles(d3);
-            breakCycles(p1);
         }
         catch(...)
         {
@@ -1958,13 +1970,12 @@ allTests(Test::TestHelper* helper)
 
                 test(p3->pd3->ice_id() == "::Test::B");
                 test(p3->pd3->sb == "B.sb(1)");
-                test(p3->pd3->pb = b1);
+                test(p3->pd3->pb == p3->pd3);
             }
 
-            breakCycles(r);
             breakCycles(b1);
             breakCycles(d3);
-            breakCycles(p3);
+            breakCycles(r);
         }
         catch(...)
         {
@@ -2016,13 +2027,12 @@ allTests(Test::TestHelper* helper)
 
                 test(p3->pd3->ice_id() == "::Test::B");
                 test(p3->pd3->sb == "B.sb(1)");
-                test(p3->pd3->pb = b1);
+                test(p3->pd3->pb == p3->pd3);
             }
 
             breakCycles(b1);
             breakCycles(d3);
             breakCycles(r);
-            breakCycles(p3);
         }
         catch(...)
         {
@@ -2073,7 +2083,6 @@ allTests(Test::TestHelper* helper)
             breakCycles(d11);
             breakCycles(d12);
             breakCycles(r);
-            breakCycles(p3);
         }
         catch(...)
         {
@@ -2132,7 +2141,6 @@ allTests(Test::TestHelper* helper)
             breakCycles(d11);
             breakCycles(d12);
             breakCycles(r);
-            breakCycles(p3);
         }
         catch(...)
         {
@@ -2804,6 +2812,7 @@ allTests(Test::TestHelper* helper)
 
         breakCycles(r);
         breakCycles(pcd);
+        breakCycles(p2);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2834,6 +2843,7 @@ allTests(Test::TestHelper* helper)
 
         breakCycles(r);
         breakCycles(pcd);
+        breakCycles(p2);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2888,6 +2898,7 @@ allTests(Test::TestHelper* helper)
 
         breakCycles(r);
         breakCycles(pcd);
+        breakCycles(p3);
     }
     catch(const Ice::OperationNotExistException&)
     {
