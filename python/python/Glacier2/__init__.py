@@ -2,11 +2,12 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+# ruff: noqa: F401, F821
+
 """
 Glacier2 module
 """
 
-import threading
 import traceback
 import copy
 
@@ -81,7 +82,7 @@ class Application(Ice.Application):
     session = classmethod(session)
 
     def categoryForClient(self):
-        if Application._router == None:
+        if Application._router is None:
             raise SessionNotExistException()
         return Application._category
 
@@ -100,9 +101,9 @@ class Application(Ice.Application):
     addWithUUID = classmethod(addWithUUID)
 
     def objectAdapter(self):
-        if Application._router == None:
+        if Application._router is None:
             raise SessionNotExistException()
-        if Application._adapter == None:
+        if Application._adapter is None:
             Application._adapter = self.communicator().createObjectAdapterWithRouter(
                 "", Application._router
             )
@@ -127,7 +128,7 @@ class Application(Ice.Application):
             Application._router = RouterPrx.uncheckedCast(
                 Ice.Application.communicator().getDefaultRouter()
             )
-            if Application._router == None:
+            if Application._router is None:
                 Ice.getProcessLogger().error("no glacier2 router configured")
                 status = 1
             else:
@@ -180,7 +181,7 @@ class Application(Ice.Application):
         ):
             Ice.getProcessLogger().error(traceback.format_exc())
             restart = True
-        except:
+        except Exception:
             Ice.getProcessLogger().error(traceback.format_exc())
             status = 1
 
@@ -211,7 +212,7 @@ class Application(Ice.Application):
                 Application._router.destroySession()
             except (Ice.ConnectionLostException, SessionNotExistException):
                 pass
-            except:
+            except Exception:
                 Ice.getProcessLogger().error(
                     "unexpected exception when destroying the session "
                     + traceback.format_exc()
@@ -221,7 +222,7 @@ class Application(Ice.Application):
         if Ice.Application._communicator:
             try:
                 Ice.Application._communicator.destroy()
-            except:
+            except Exception:
                 getProcessLogger().error(traceback.format_exc())
                 status = 1
 

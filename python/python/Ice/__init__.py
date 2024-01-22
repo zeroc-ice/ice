@@ -2,15 +2,15 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+# ruff: noqa: F401, F821
+
 """
 Ice module
 """
 
 import sys
-import string
 import os
 import threading
-import warnings
 import datetime
 import logging
 import time
@@ -84,7 +84,7 @@ loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
 Unset = IcePy.Unset
 
-from Ice.IceFuture import FutureBase, wrap_future
+from Ice.IceFuture import FutureBase, wrap_future  # noqa
 
 
 class Future(FutureBase):
@@ -204,7 +204,7 @@ class Future(FutureBase):
         for callback in callbacks:
             try:
                 callback(self)
-            except:
+            except Exception:
                 self._warn("done callback raised exception")
 
     def _warn(self, msg):
@@ -233,7 +233,7 @@ class InvocationFuture(Future):
         def callback():
             try:
                 fn(self)
-            except:
+            except Exception:
                 self._warn("done callback raised exception")
 
         with self._condition:
@@ -261,7 +261,7 @@ class InvocationFuture(Future):
         def callback():
             try:
                 fn(self, self._sentSynchronously)
-            except:
+            except Exception:
                 self._warn("sent callback raised exception")
 
         with self._condition:
@@ -426,7 +426,7 @@ class Object(object):
             def handler(future):
                 try:
                     cb.response(future.result())
-                except:
+                except Exception:
                     cb.exception(sys.exc_info()[1])
 
             result.add_done_callback(handler)
@@ -453,7 +453,7 @@ class Object(object):
                 def handler(future):
                     try:
                         self._iceDispatchCoroutine(cb, coro, value=future.result())
-                    except:
+                    except Exception:
                         self._iceDispatchCoroutine(
                             cb, coro, exception=sys.exc_info()[1]
                         )
@@ -468,7 +468,7 @@ class Object(object):
         except StopIteration as ex:
             # StopIteration is raised when the coroutine completes.
             cb.response(ex.value)
-        except:
+        except Exception:
             cb.exception(sys.exc_info()[1])
 
 
@@ -557,7 +557,7 @@ class EnumBase(object):
     def __lt__(self, other):
         if isinstance(other, self.__class__):
             return self._value < other._value
-        elif other == None:
+        elif other is None:
             return False
         return NotImplemented
 
@@ -571,28 +571,28 @@ class EnumBase(object):
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self._value == other._value
-        elif other == None:
+        elif other is None:
             return False
         return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, self.__class__):
             return self._value != other._value
-        elif other == None:
+        elif other is None:
             return False
         return NotImplemented
 
     def __gt__(self, other):
         if isinstance(other, self.__class__):
             return self._value > other._value
-        elif other == None:
+        elif other is None:
             return False
         return NotImplemented
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
             return self._value >= other._value
-        elif other == None:
+        elif other is None:
             return False
         return NotImplemented
 
@@ -726,11 +726,11 @@ def openModule(name):
 
 def createModule(name):
     global _pendingModules
-    l = name.split(".")
+    parts = name.split(".")
     curr = ""
     mod = None
 
-    for s in l:
+    for s in parts:
         curr = curr + s
 
         if curr in sys.modules:
@@ -995,7 +995,7 @@ class CommunicatorI(Communicator):
 
     def getImplicitContext(self):
         context = self._impl.getImplicitContext()
-        if context == None:
+        if context is None:
             return None
         else:
             return ImplicitContextI(context)
@@ -1399,7 +1399,7 @@ class CtrlCHandler(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
-        if CtrlCHandler._self != None:
+        if CtrlCHandler._self is not None:
             raise RuntimeError(
                 "Only a single instance of a CtrlCHandler can be instantiated."
             )
@@ -1497,7 +1497,6 @@ class _ApplicationLoggerI(Logger):
         self._outputMutex = threading.Lock()
 
     def _print(self, message):
-        s = "[ " + str(datetime.datetime.now()) + " " + self._prefix
         self._outputMutex.acquire()
         sys.stderr.write(message + "\n")
         self._outputMutex.release()
@@ -1582,7 +1581,7 @@ class Application(object):
             try:
                 initData.properties = createProperties(None, initData.properties)
                 initData.properties.load(configFile)
-            except:
+            except Exception:
                 getProcessLogger().error(traceback.format_exc())
                 return 1
         initData.properties = createProperties(args, initData.properties)
@@ -1622,7 +1621,7 @@ class Application(object):
                 Application.destroyOnInterrupt()
 
             status = self.doMain(args, initData)
-        except:
+        except Exception:
             getProcessLogger().error(traceback.format_exc())
             status = 1
         #
@@ -1641,7 +1640,7 @@ class Application(object):
             Application._destroyed = False
             status = self.run(args)
 
-        except:
+        except Exception:
             getProcessLogger().error(traceback.format_exc())
             status = 1
 
@@ -1671,7 +1670,7 @@ class Application(object):
         if Application._communicator:
             try:
                 Application._communicator.destroy()
-            except:
+            except Exception:
                 getProcessLogger().error(traceback.format_exc())
                 status = 1
             Application._communicator = None
@@ -1859,7 +1858,7 @@ class Application(object):
 
         try:
             self._communicator.destroy()
-        except:
+        except Exception:
             getProcessLogger().error(
                 self._appName
                 + " (while destroying in response to signal "
@@ -1890,7 +1889,7 @@ class Application(object):
 
         try:
             self._communicator.shutdown()
-        except:
+        except Exception:
             getProcessLogger().error(
                 self._appName
                 + " (while shutting down in response to signal "
@@ -1923,7 +1922,7 @@ class Application(object):
 
         try:
             self._application.interruptCallback(sig)
-        except:
+        except Exception:
             getProcessLogger().error(
                 self._appName
                 + " (while interrupting in response to signal "
