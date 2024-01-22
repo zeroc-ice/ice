@@ -3,28 +3,34 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+import re
 import uuid
+
+from Util import AIX, Client, ClientServerTestCase, Linux, Server, TestSuite, platform
 
 domainId = uuid.uuid4()  # Ensures each test uses a unique domain ID
 
 
-def props(process, current): return {
-    "IceDiscovery.Timeout": 50,
-    "IceDiscovery.RetryCount": 20,
-    "IceDiscovery.DomainId": domainId,
-    "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
-    "IceDiscovery.Port": current.driver.getTestPort(10),
-    "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
-    # This is used for the trace file
-    "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client"
-}
+def props(process, current):
+    return {
+        "IceDiscovery.Timeout": 50,
+        "IceDiscovery.RetryCount": 20,
+        "IceDiscovery.DomainId": domainId,
+        "IceDiscovery.Interface": ""
+        if isinstance(platform, Linux)
+        else "::1"
+        if current.config.ipv6
+        else "127.0.0.1",
+        "IceDiscovery.Port": current.driver.getTestPort(10),
+        "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
+        # This is used for the trace file
+        "Ice.ProgramName": "server{}".format(process.args[0])
+        if isinstance(process, Server)
+        else "client",
+    }
 
 
-traceProps = {
-    "Ice.Trace.Locator": 2,
-    "Ice.Trace.Protocol": 1,
-    "Ice.Trace.Network": 3
-}
+traceProps = {"Ice.Trace.Locator": 2, "Ice.Trace.Protocol": 1, "Ice.Trace.Network": 3}
 
 #
 # Suppress the warning lines
@@ -53,8 +59,15 @@ if isinstance(platform, AIX):
     # where multicast doesn't work
     options = {"ipv6": [False]}
 
-TestSuite(__name__, [
-    ClientServerTestCase(client=Client(args=[3], props=props, outfilters=outfilters),
-                         servers=[Server(args=[i], readyCount=4, props=props) for i in range(0, 3)],
-                         traceProps=traceProps)
-], multihost=False, options=options)
+TestSuite(
+    __name__,
+    [
+        ClientServerTestCase(
+            client=Client(args=[3], props=props, outfilters=outfilters),
+            servers=[Server(args=[i], readyCount=4, props=props) for i in range(0, 3)],
+            traceProps=traceProps,
+        )
+    ],
+    multihost=False,
+    options=options,
+)

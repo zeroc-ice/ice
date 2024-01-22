@@ -3,21 +3,28 @@
 #
 
 import NetworkProxy
+from Util import Client, ClientServerTestCase, TestSuite
 
 
 class NetworkProxyTestSuite(TestSuite):
-
     def setup(self, current):
         self.portNum = 30
 
 
 class NetworkProxyTestCase(ClientServerTestCase):
-
     def __init__(self, proxyName, proxyType):
-        ClientServerTestCase.__init__(self, proxyName + " client/server", client=Client(props=lambda p, c: {
-            "Ice.{0}ProxyHost".format(proxyName): "localhost",
-            "Ice.{0}ProxyPort".format(proxyName): "{0}".format(c.driver.getTestPort(c.testsuite.portNum))
-        }))
+        ClientServerTestCase.__init__(
+            self,
+            proxyName + " client/server",
+            client=Client(
+                props=lambda p, c: {
+                    "Ice.{0}ProxyHost".format(proxyName): "localhost",
+                    "Ice.{0}ProxyPort".format(proxyName): "{0}".format(
+                        c.driver.getTestPort(c.testsuite.portNum)
+                    ),
+                }
+            ),
+        )
         self.proxyName = proxyName
         self.proxyType = proxyType
         self.proxy = None
@@ -29,7 +36,9 @@ class NetworkProxyTestCase(ClientServerTestCase):
 
     def setupClientSide(self, current):
         current.write("starting {0} proxy... ".format(self.proxyName))
-        self.proxy = self.proxyType(current.driver.getTestPort(current.testsuite.portNum))
+        self.proxy = self.proxyType(
+            current.driver.getTestPort(current.testsuite.portNum)
+        )
         current.writeln("ok")
 
     def teardownClientSide(self, current, success):
@@ -40,7 +49,11 @@ class NetworkProxyTestCase(ClientServerTestCase):
         current.writeln("ok")
 
 
-NetworkProxyTestSuite(__name__, [
-    NetworkProxyTestCase("SOCKS", NetworkProxy.SocksProxy),
-    NetworkProxyTestCase("HTTP", NetworkProxy.HttpProxy),
-], options={"ipv6": [False]})
+NetworkProxyTestSuite(
+    __name__,
+    [
+        NetworkProxyTestCase("SOCKS", NetworkProxy.SocksProxy),
+        NetworkProxyTestCase("HTTP", NetworkProxy.HttpProxy),
+    ],
+    options={"ipv6": [False]},
+)
