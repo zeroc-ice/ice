@@ -16,6 +16,7 @@
 #include <Ice/ObserverHelper.h>
 
 #include <deque>
+#include <mutex>
 
 namespace IceInternal
 {
@@ -100,6 +101,7 @@ private:
 
     mutable bool _hashInitialized;
     mutable Ice::Int _hashValue;
+    mutable std::mutex _hashMutex;
 };
 
 class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>

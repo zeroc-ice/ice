@@ -8,16 +8,16 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/ConsoleUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
-#include <Slice/PHPUtil.h>
+#include "PHPUtil.h"
 #include <Slice/Parser.h>
 #include <Slice/Util.h>
+
 #include <cstring>
 #include <climits>
+#include <mutex>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1338,34 +1338,15 @@ printHeader(IceUtilInternal::Output& out)
 namespace
 {
 
-IceUtil::Mutex* globalMutex = 0;
+mutex globalMutex;
 bool interrupted = false;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        globalMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-    }
-};
-
-Init init;
 
 }
 
 static void
 interruptedCallback(int /*signal*/)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
-
+    lock_guard lock(globalMutex);
     interrupted = true;
 }
 
@@ -1645,8 +1626,7 @@ compile(const vector<string>& argv)
         }
 
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
-
+            lock_guard lock(globalMutex);
             if(interrupted)
             {
                 FileTracker::instance()->cleanup();

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Slice/RubyUtil.h>
+#include "RubyUtil.h"
 #include <Slice/Util.h>
 #include <IceUtil/InputUtil.h>
 #include <iterator>
