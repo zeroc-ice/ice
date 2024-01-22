@@ -1793,7 +1793,7 @@ IceRuby::DictionaryInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* value
         os->writeSize(sz);
         if(sz > 0)
         {
-            DictionaryMarshalIterator iter(dynamic_pointer_cast<DictionaryInfo>(shared_from_this()), os, valueMap);
+            DictionaryMarshalIterator iter(shared_from_this(), os, valueMap);
             hashIterate(hash, iter);
         }
     }
@@ -1929,7 +1929,7 @@ IceRuby::DictionaryInfo::print(VALUE value, IceUtilInternal::Output& out, PrintO
         }
 
         out.sb();
-        DictionaryPrintIterator iter(dynamic_pointer_cast<DictionaryInfo>(shared_from_this()), out, history);
+        DictionaryPrintIterator iter(shared_from_this(), out, history);
         hashIterate(hash, iter);
         out.eb();
     }
@@ -2050,7 +2050,7 @@ IceRuby::ClassInfo::validate(VALUE val)
     assert(!NIL_P(type));
     ClassInfoPtr info = dynamic_pointer_cast<ClassInfo>(getType(type));
     assert(info);
-    return this->interface || info->isA(dynamic_pointer_cast<ClassInfo>(shared_from_this()));
+    return this->interface || info->isA(shared_from_this());
 }
 
 bool
@@ -2103,7 +2103,7 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
     ValueMap::iterator q = valueMap->find(p);
     if(q == valueMap->end())
     {
-        writer = make_shared<ValueWriter>(p, valueMap, dynamic_pointer_cast<ClassInfo>(shared_from_this()));
+        writer = make_shared<ValueWriter>(p, valueMap, shared_from_this());
         valueMap->insert(ValueMap::value_type(p, writer));
     }
     else
@@ -2143,7 +2143,7 @@ IceRuby::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
     // attached to the stream keeps a reference to the callback object to ensure it lives
     // long enough.
     //
-    ReadValueCallbackPtr rocb = make_shared<ReadValueCallback>(dynamic_pointer_cast<ClassInfo>(shared_from_this()), cb, target, closure);
+    ReadValueCallbackPtr rocb = make_shared<ReadValueCallback>(shared_from_this(), cb, target, closure);
     StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
     assert(util);
     util->add(rocb);
@@ -2192,7 +2192,7 @@ IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObject
                     //
                     if(id == "::Ice::LocalObject")
                     {
-                        info = dynamic_pointer_cast<ClassInfo>(shared_from_this());
+                        info = shared_from_this();
                     }
                     else
                     {
@@ -2354,7 +2354,7 @@ IceRuby::ProxyInfo::validate(VALUE val)
         assert(!NIL_P(type));
         ProxyInfoPtr info = dynamic_pointer_cast<ProxyInfo>(getType(type));
         assert(info);
-        return info->isA(dynamic_pointer_cast<ProxyInfo>(shared_from_this()));
+        return info->isA(shared_from_this());
     }
     return true;
 }

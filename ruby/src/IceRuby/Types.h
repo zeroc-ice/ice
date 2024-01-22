@@ -132,7 +132,7 @@ private:
 //
 // Base class for type information.
 //
-class TypeInfo : public UnmarshalCallback, public std::enable_shared_from_this<TypeInfo>
+class TypeInfo : public UnmarshalCallback
 {
 public:
 
@@ -284,7 +284,7 @@ private:
 using StructInfoPtr = std::shared_ptr<StructInfo>;
 
 // Sequence information.
-class SequenceInfo final : public TypeInfo
+class SequenceInfo final : public TypeInfo, public std::enable_shared_from_this<SequenceInfo>
 {
 public:
 
@@ -324,7 +324,7 @@ private:
 using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
 // Dictionary information.
-class DictionaryInfo final : public TypeInfo
+class DictionaryInfo final : public TypeInfo, public std::enable_shared_from_this<DictionaryInfo>
 {
 public:
 
@@ -372,7 +372,7 @@ private:
 using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo> ;
 using TypeInfoList = std::vector<TypeInfoPtr>;
 
-class ClassInfo final : public TypeInfo
+class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
 {
 public:
 
@@ -417,7 +417,7 @@ public:
 };
 
 // Proxy information.
-class ProxyInfo  final: public TypeInfo
+class ProxyInfo  final: public TypeInfo, public std::enable_shared_from_this<ProxyInfo>
 {
 public:
 
