@@ -1755,7 +1755,7 @@ Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>&
     {
         return 0;
     }
-    return objs[IceUtilInternal::random(static_cast<int>(objs.size()))];
+    return objs[IceUtilInternal::random(static_cast<unsigned int>(objs.size()))];
 }
 
 shared_ptr<Ice::ObjectPrx>
