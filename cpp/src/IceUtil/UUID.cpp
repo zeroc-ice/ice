@@ -3,60 +3,22 @@
 //
 
 #include <IceUtil/UUID.h>
-
-// On Windows, we use Windows's RPC UUID generator.
-// On other platforms, we use a high quality random number generator
-// (/dev/random) to generate "version 4" UUIDs, as described in
+#include <IceUtil/Exception.h>
+// On Windows, we use Windows's RPC UUID generator. On other platforms, we use a high quality random number generator
+// (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
-
-#include <IceUtil/Random.h>
-
 #ifdef _WIN32
 #   include <rpc.h>
 #else
-#   include <sys/types.h>
-#   include <unistd.h>
+#   include <IceUtil/Random.h>
 #endif
 
 using namespace std;
-
-#ifndef _WIN32
-
-namespace
-{
-
-char myPid[2];
-
-}
-
-namespace IceUtilInternal
-{
-
-//
-// Initialize the pid.
-//
-class PidInitializer
-{
-public:
-
-    PidInitializer()
-    {
-        pid_t p = getpid();
-        myPid[0] = (p >> 8) & 0x7F;
-        myPid[1] = static_cast<char>(p & 0xFF);
-    }
-};
-
-PidInitializer pidInitializer;
-
-};
-#endif
 
 namespace
 {
 
 // Helper char to hex functions
-//
 inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
 {
     if(hb < 10)
@@ -118,33 +80,17 @@ IceUtil::generateUUID()
 
     assert(sizeof(UUID) == 16);
 
-    //
-    // Get a random sequence of bytes. Instead of using 122 random
-    // bits that could be duplicated (because of a bug with some Linux
-    // kernels and potentially other Unix platforms -- see comment in
-    // Random.cpp), we replace the last 15 bits of all "random"
-    // Randoms by the last 15 bits of the process id.
-    //
+    // Get a random sequence of bytes.
     char* buffer = reinterpret_cast<char*>(&uuid);
     IceUtilInternal::generateRandom(buffer, sizeof(UUID));
 
-    //
     // Adjust the bits that say "version 4" UUID
-    //
     uuid.timeHighAndVersion[0] &= 0x0F;
     uuid.timeHighAndVersion[0] |= (4 << 4);
     uuid.clockSeqHiAndReserved &= 0x3F;
     uuid.clockSeqHiAndReserved |= 0x80;
 
-    //
-    // Replace the end of the node by myPid (15 bits)
-    //
-    uuid.node[4] = (uuid.node[4] & 0x80) | static_cast<unsigned char>(myPid[0]);
-    uuid.node[5] = static_cast<unsigned char>(myPid[1]);
-
-    //
     // Convert to a UUID string
-    //
     char uuidString[16 * 2 + 4 + 1]; // 16 bytes, 4 '-' and a final '\0'
     char* uuidIndex = uuidString;
     bytesToHex(uuid.timeLow, sizeof(uuid.timeLow), uuidIndex);

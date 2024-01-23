@@ -249,14 +249,14 @@ allTests(Test::TestHelper* helper)
             for(i = 0; i < proxies.size(); ++i)
             {
                 vector<RemoteObjectAdapterPrxPtr> adpts;
-                adpts.resize(IceUtilInternal::random(static_cast<int>(adapters.size())));
+                adpts.resize(IceUtilInternal::random(static_cast<unsigned int>(adapters.size())));
                 if(adpts.empty())
                 {
                     adpts.resize(1);
                 }
                 for(vector<RemoteObjectAdapterPrxPtr>::iterator p = adpts.begin(); p != adpts.end(); ++p)
                 {
-                    *p = adapters[IceUtilInternal::random(static_cast<int>(adapters.size()))];
+                    *p = adapters[IceUtilInternal::random(static_cast<unsigned int>(adapters.size()))];
                 }
                 proxies[i] = createTestIntfPrx(adpts);
             }
