@@ -453,7 +453,7 @@ class Object(object):
                 def handler(future):
                     try:
                         self._iceDispatchCoroutine(cb, coro, value=future.result())
-                    except Exception:
+                    except BaseException:
                         self._iceDispatchCoroutine(
                             cb, coro, exception=sys.exc_info()[1]
                         )
@@ -468,7 +468,7 @@ class Object(object):
         except StopIteration as ex:
             # StopIteration is raised when the coroutine completes.
             cb.response(ex.value)
-        except Exception:
+        except BaseException:
             cb.exception(sys.exc_info()[1])
 
 
