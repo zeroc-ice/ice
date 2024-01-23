@@ -11,8 +11,6 @@
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/ReplyStatus.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace Ice;

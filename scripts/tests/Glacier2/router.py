@@ -3,13 +3,17 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+from Glacier2Util import Glacier2Router, Glacier2TestSuite
+from Util import Client, ClientServerTestCase, Server
+
+
 passwords = {
     "userid": "abc123",
     "userid-0": "abc123",
     "userid-1": "abc123",
     "userid-2": "abc123",
     "userid-3": "abc123",
-    "userid-4": "abc123"
+    "userid-4": "abc123",
 }
 
 routerProps = {
@@ -31,12 +35,27 @@ def buffered(enabled):
     return {"Glacier2.Client.Buffered": enabled, "Glacier2.Server.Buffered": enabled}
 
 
-Glacier2TestSuite(__name__, routerProps, [
-                  ClientServerTestCase(name="client/server with router in unbuffered mode",
-                                       servers=[Glacier2Router(passwords=passwords, props=buffered(False)), Server()],
-                                       client=Client(args=["--shutdown"]),
-                                       traceProps=traceProps),
-                  ClientServerTestCase(name="client/server with router in buffered mode",
-                                       servers=[Glacier2Router(passwords=passwords, props=buffered(True)), Server()],
-                                       clients=[Client(), Client(args=["--shutdown"])],
-                                       traceProps=traceProps)])
+Glacier2TestSuite(
+    __name__,
+    routerProps,
+    [
+        ClientServerTestCase(
+            name="client/server with router in unbuffered mode",
+            servers=[
+                Glacier2Router(passwords=passwords, props=buffered(False)),
+                Server(),
+            ],
+            client=Client(args=["--shutdown"]),
+            traceProps=traceProps,
+        ),
+        ClientServerTestCase(
+            name="client/server with router in buffered mode",
+            servers=[
+                Glacier2Router(passwords=passwords, props=buffered(True)),
+                Server(),
+            ],
+            clients=[Client(), Client(args=["--shutdown"])],
+            traceProps=traceProps,
+        ),
+    ],
+)

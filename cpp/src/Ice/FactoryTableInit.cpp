@@ -4,8 +4,10 @@
 
 #include <Ice/FactoryTableInit.h>
 #include <Ice/UserExceptionFactory.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
+
+#include <atomic>
+
+using namespace std;
 
 namespace IceInternal
 {
@@ -21,26 +23,7 @@ ICE_API FactoryTable* factoryTable;
 namespace
 {
 
-int initCount = 0;   // Initialization count
-IceUtil::Mutex* initCountMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        initCountMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete initCountMutex;
-        initCountMutex = 0;
-    }
-};
-
-Init init;
+atomic<int> initCount = 0;   // Initialization count
 
 }
 
@@ -55,7 +38,6 @@ Init init;
 //
 IceInternal::FactoryTableInit::FactoryTableInit()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(initCountMutex);
     if(0 == initCount++)
     {
         factoryTable = new FactoryTable;
@@ -68,7 +50,6 @@ IceInternal::FactoryTableInit::FactoryTableInit()
 //
 IceInternal::FactoryTableInit::~FactoryTableInit()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(initCountMutex);
     if(0 == --initCount)
     {
         delete factoryTable;

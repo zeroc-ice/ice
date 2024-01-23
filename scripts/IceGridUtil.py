@@ -2,12 +2,25 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import sys
 import os
-from Util import *
-from IceBoxUtil import *
-from Glacier2Util import *
-from IcePatch2Util import *
+import shutil
+from Glacier2Util import Glacier2Router
+from IceBoxUtil import IceBox
+from IcePatch2Util import IcePatch2Server
+
+from Util import (
+    CSharpMapping,
+    Client,
+    Linux,
+    Mapping,
+    ProcessFromBinDir,
+    ProcessIsReleaseOnly,
+    Server,
+    TestCase,
+    toplevel,
+    platform,
+    val,
+)
 
 
 class IceGridProcess:
@@ -106,7 +119,7 @@ class IceGridNode(ProcessFromBinDir, Server):
         if success or current.driver.isInterrupted():
             try:
                 shutil.rmtree(self.dbdir)
-            except:
+            except Exception:
                 pass
 
     def getProps(self, current):
@@ -176,7 +189,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
         if success or current.driver.isInterrupted():
             try:
                 shutil.rmtree(self.dbdir)
-            except:
+            except Exception:
                 pass
 
     def getProps(self, current):
@@ -295,11 +308,10 @@ class IceGridTestCase(TestCase):
         if self.application:
             try:
                 self.runadmin(current, "application remove Test", quiet=True)
-            except:
+            except Exception:
                 pass
 
             javaHome = os.environ.get("JAVA_HOME", None)
-            serverProps = Server().getProps(current)
             variables = {
                 "test.dir": self.getPath(current),
                 "java.exe": os.path.join(javaHome, "bin", "java")

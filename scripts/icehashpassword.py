@@ -83,14 +83,14 @@ def main():
         elif o in ("-s", "--salt"):
             try:
                 salt = int(a)
-            except ValueError as err:
+            except ValueError:
                 print("Invalid salt size. Value must be an integer")
                 usage()
                 return 2
         elif o in ("-r", "--rounds"):
             try:
                 rounds = int(a)
-            except ValueError as err:
+            except ValueError:
                 print("Invalid number of rounds. Value must be an integer")
                 usage()
                 return 2

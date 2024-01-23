@@ -3,7 +3,7 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>IceSSL</AssemblyName>
-    <Version>$(IceVersion)</Version>
+    <Version>$(IceJSONVersion)</Version>
     <OutputPath>../../lib</OutputPath>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>

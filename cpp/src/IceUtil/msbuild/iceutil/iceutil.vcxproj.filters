@@ -109,12 +109,6 @@
   <ClInclude Include="..\..\..\..\include\IceUtil\MutexProtocol.h">
     <Filter>Header Files</Filter>
   </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\MutexPtrLock.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\MutexPtrTryLock.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h">
     <Filter>Header Files</Filter>
   </ClInclude>

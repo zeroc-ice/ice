@@ -23,9 +23,9 @@
 #endif
 
 #include <IceUtil/Exception.h>
-#include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/Mutex.h>
 #include <IceUtil/StringUtil.h>
+
+#include <mutex>
 #include <ostream>
 #include <iomanip>
 #include <cstdlib>
@@ -99,7 +99,7 @@ stackTraceImpl()
 namespace
 {
 
-IceUtil::Mutex* globalMutex = 0;
+mutex globalMutex;
 
 #ifdef ICE_DBGHELP
 HANDLE process = 0;
@@ -129,7 +129,6 @@ public:
 
     Init()
     {
-        globalMutex = new IceUtil::Mutex;
 #ifdef ICE_LIBBACKTRACE
         // Leaked, as libbacktrace does not provide an API to free this state.
         //
@@ -145,8 +144,6 @@ public:
 
     ~Init()
     {
-        delete globalMutex;
-        globalMutex = 0;
 #ifdef ICE_DBGHELP
         if(process != 0)
         {
@@ -373,7 +370,7 @@ getStackTrace(const vector<void*>& stackFrames)
     //
     // Note: the Sym functions are not thread-safe
     //
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    unique_lock lock(globalMutex);
     bool refreshModuleList = process != 0;
     if(process == 0)
     {
@@ -386,7 +383,7 @@ getStackTrace(const vector<void*>& stackFrames)
             return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
         }
     }
-    lock.release();
+    lock.unlock();
 
 #if defined(_MSC_VER)
 #   if defined(DBGHELP_TRANSLATE_TCHAR)
@@ -406,7 +403,7 @@ getStackTrace(const vector<void*>& stackFrames)
     line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
     DWORD displacement = 0;
 
-    lock.acquire();
+    lock.lock();
 
     if(refreshModuleList && SymRefreshModuleList(process) == 0)
     {
@@ -449,7 +446,7 @@ getStackTrace(const vector<void*>& stackFrames)
         s << "\n";
         stackTrace += s.str();
     }
-    lock.release();
+    lock.unlock();
 
 #elif defined(ICE_LIBBACKTRACE) || defined (ICE_BACKTRACE)
 
@@ -546,7 +543,7 @@ IceUtil::Exception::what() const noexcept
 {
     try
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        lock_guard lock(globalMutex);
         {
             if(_str.empty())
             {

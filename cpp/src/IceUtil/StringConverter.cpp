@@ -11,12 +11,11 @@
 #endif
 
 #include <IceUtil/StringConverter.h>
-#include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/Mutex.h>
 #include <IceUtil/StringUtil.h>
 
 #include <codecvt>
 #include <locale>
+#include <mutex>
 
 using namespace IceUtil;
 using namespace IceUtilInternal;
@@ -25,7 +24,7 @@ using namespace std;
 namespace
 {
 
-IceUtil::Mutex* processStringConverterMutex = 0;
+mutex processStringConverterMutex;
 IceUtil::StringConverterPtr processStringConverter;
 IceUtil::WstringConverterPtr processWstringConverter;
 
@@ -172,24 +171,6 @@ private:
     const CodeCvt _codecvt;
 };
 
-class Init
-{
-public:
-
-    Init()
-    {
-        processStringConverterMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete processStringConverterMutex;
-        processStringConverterMutex = 0;
-    }
-};
-
-Init init;
-
 const WstringConverterPtr&
 getUnicodeWstringConverter()
 {
@@ -247,21 +228,21 @@ IceUtil::createUnicodeWstringConverter()
 StringConverterPtr
 IceUtil::getProcessStringConverter()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    lock_guard lock(processStringConverterMutex);
     return processStringConverter;
 }
 
 void
 IceUtil::setProcessStringConverter(const StringConverterPtr& converter)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    lock_guard lock(processStringConverterMutex);
     processStringConverter = converter;
 }
 
 WstringConverterPtr
 IceUtil::getProcessWstringConverter()
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    lock_guard lock(processStringConverterMutex);
     if(processWstringConverter)
     {
         return processWstringConverter;
@@ -275,7 +256,7 @@ IceUtil::getProcessWstringConverter()
 void
 IceUtil::setProcessWstringConverter(const WstringConverterPtr& converter)
 {
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    lock_guard lock(processStringConverterMutex);
     processWstringConverter = converter;
 }
 

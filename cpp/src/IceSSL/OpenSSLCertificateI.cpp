@@ -9,7 +9,8 @@
 #include <IceSSL/RFC2253.h>
 
 #include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
+
+#include <mutex>
 
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
@@ -146,25 +147,7 @@ public:
 
 };
 
-IceUtil::Mutex* mut = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        mut = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete mut;
-        mut = 0;
-    }
-};
-
-Init init;
+mutex globalMutex;
 
 #ifdef ICE_CPP11_MAPPING
 chrono::system_clock::time_point
@@ -205,7 +188,7 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
 
     time_t tzone;
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mut);
+        lock_guard lock(globalMutex);
         time_t now = time(0);
         struct tm localTime;
         struct tm gmTime;

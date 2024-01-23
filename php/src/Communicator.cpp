@@ -10,7 +10,6 @@
 #include "Util.h"
 
 #include <IceUtil/Options.h>
-#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
 

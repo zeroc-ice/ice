@@ -4,7 +4,17 @@
 
 import sys
 import os
-from Util import *
+
+from Util import (
+    ClientServerTestCase,
+    Mapping,
+    ProcessFromBinDir,
+    ProcessIsReleaseOnly,
+    Server,
+    TestSuite,
+    run,
+    toplevel,
+)
 
 
 class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):

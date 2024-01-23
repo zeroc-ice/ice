@@ -5,6 +5,8 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+#include <mutex>
+
 using namespace std;
 
 namespace
@@ -13,24 +15,7 @@ namespace
 int nRetry = 0;
 int nFailure = 0;
 int nInvocation = 0;
-IceUtil::Mutex* staticMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        staticMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete staticMutex;
-        staticMutex = 0;
-    }
-};
-Init init;
+mutex staticMutex;
 
 class InvocationObserverI : public Ice::Instrumentation::InvocationObserver
 {
@@ -44,21 +29,21 @@ public:
     virtual void
     detach()
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
+        lock_guard lock(staticMutex);
         ++nInvocation;
     }
 
     virtual void
     failed(const ::std::string&)
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
+        lock_guard lock(staticMutex);
         ++nFailure;
     }
 
     virtual void
     retried()
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
+        lock_guard lock(staticMutex);
         ++nRetry;
     }
 
@@ -150,7 +135,7 @@ testEqual(int& value, int expected)
     while(++retry < 100)
     {
         {
-            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
+            lock_guard lock(staticMutex);
             if(value == expected)
             {
                 break;

@@ -18,9 +18,9 @@
 #include <Ice/UniqueRef.h>
 #include <Ice/Base64.h>
 
-#include <IceUtil/MutexPtrLock.h>
-
 #include <Security/Security.h>
+
+#include <mutex>
 
 using namespace Ice;
 using namespace IceInternal;
@@ -732,25 +732,7 @@ SecureTransportCertificateI::getCert() const
 
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
 
-IceUtil::Mutex* globalMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        globalMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-    }
-};
-
-Init init;
+mutex globalMutex;
 
 void
 SecureTransportCertificateI::initializeAttributes() const
@@ -760,7 +742,7 @@ SecureTransportCertificateI::initializeAttributes() const
     // retrieve its attributes. Unfortunately kSecMatchItemList doesn't work
     // on iOS. We make sure only one thread adds/removes a cert at a time here.
     //
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    lock_guard lock(globalMutex);
 
     if(_subject)
     {

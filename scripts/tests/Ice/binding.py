@@ -3,6 +3,9 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
+from Util import ClientServerTestCase, Server, TestSuite, Windows, platform
+
+
 def setlimits():
     if not isinstance(platform, Windows):
         #
@@ -10,6 +13,7 @@ def setlimits():
         # which could otherwise potentially allocate many file descriptors on the system.
         #
         import resource
+
         resource.setrlimit(resource.RLIMIT_NOFILE, (92, 92))
 
 

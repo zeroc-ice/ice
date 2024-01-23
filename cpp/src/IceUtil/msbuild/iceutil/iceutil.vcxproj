@@ -120,8 +120,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Monitor.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Mutex.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\MutexProtocol.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\MutexPtrLock.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\MutexPtrTryLock.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Options.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\OutputUtil.h" />

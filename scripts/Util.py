@@ -45,7 +45,7 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
                     if not stdinRepeat:
                         break
                     time.sleep(1)
-            except:
+            except Exception:
                 pass
 
         out = (p.stderr if stdout else p.stdout).read().decode("UTF-8").strip()
@@ -66,9 +66,9 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
 
 
 def val(v, quoteValue=True):
-    if type(v) == bool:
+    if isinstance(v, bool):
         return "1" if v else "0"
-    elif type(v) == str:
+    elif isinstance(v, str):
         if not quoteValue or v.find(" ") < 0:
             return v
         v = v.replace("\\", "\\\\").replace('"', '\\"')
@@ -110,7 +110,7 @@ class Component(object):
     """
 
     def getInstallDir(self, mapping, current):
-        raise Error("must be overridden")
+        raise Exception("must be overridden")
 
     def getSourceDir(self):
         return toplevel
@@ -139,7 +139,7 @@ class Component(object):
         )
 
     def getNugetPackageVersion(self, mapping):
-        if not mapping in self.nugetVersion:
+        if mapping not in self.nugetVersion:
             file = self.getNugetPackageVersionFile(mapping)
             if file.endswith(".nuspec"):
                 expr = "<version>(.*)</version>"
@@ -152,7 +152,7 @@ class Component(object):
                     m = re.search(expr, config.read())
                     if m:
                         self.nugetVersion[mapping] = m.group(1)
-        if not mapping in self.nugetVersion:
+        if mapping not in self.nugetVersion:
             raise RuntimeError(
                 "couldn't figure out the nuget version from `{0}'".format(file)
             )
@@ -255,7 +255,7 @@ class Platform(object):
                 "global-packages: (.*)",
                 run("dotnet nuget locals --list global-packages"),
             ).groups(1)[0]
-        except:
+        except Exception:
             self.nugetPackageCache = None
 
         self._hasNodeJS = None
@@ -271,14 +271,14 @@ class Platform(object):
         )
 
     def hasDotNet(self):
-        return self.nugetPackageCache != None
+        return self.nugetPackageCache is not None
 
     def hasNodeJS(self):
         if self._hasNodeJS is None:
             try:
                 run("node --version")
                 self._hasNodeJS = True
-            except:
+            except Exception:
                 self._hasNodeJS = False
         return self._hasNodeJS
 
@@ -294,7 +294,7 @@ class Platform(object):
                     )
                 else:
                     self.hasSwift = False
-            except:
+            except Exception:
                 self._hasSwift = False
         return self._hasSwift
 
@@ -308,8 +308,8 @@ class Platform(object):
             cwd = Mapping.getByName("cpp").getPath()
 
         output = run('make print V="{0}"'.format(" ".join(variables.keys())), cwd=cwd)
-        for l in output.split("\n"):
-            match = re.match(r"^.*:.*: (.*) = (.*)", l)
+        for line in output.split("\n"):
+            match = re.match(r"^.*:.*: (.*) = (.*)", line)
             if match and match.group(1):
                 if match.group(1) in variables:
                     (varname, valuefn) = variables[match.group(1).strip()]
@@ -497,7 +497,7 @@ class Windows(Platform):
         return "Release"
 
     def getCompiler(self):
-        if self.compiler != None:
+        if self.compiler is not None:
             return self.compiler
         if os.environ.get("CPP_COMPILER", "") != "":
             self.compiler = os.environ["CPP_COMPILER"]
@@ -520,7 +520,7 @@ class Windows(Platform):
                     self.compiler = "v143"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
-            except:
+            except Exception:
                 self.compiler = ""
         return self.compiler
 
@@ -632,7 +632,7 @@ class Windows(Platform):
     def getDotNetExe(self):
         try:
             return run("where dotnet").strip().splitlines()[0]
-        except:
+        except Exception:
             return None
 
 
@@ -658,13 +658,13 @@ def parseOptions(obj, options, mapped={}):
             if isinstance(getattr(obj, o), bool):
                 setattr(obj, o, True if not a else (a.lower() in ["yes", "true", "1"]))
             elif isinstance(getattr(obj, o), list):
-                l = getattr(obj, o)
-                l.append(a)
+                argList = getattr(obj, o)
+                argList.append(a)
             else:
                 if not a and not isinstance(a, str):
                     a = "0"
                 setattr(obj, o, type(getattr(obj, o))(a))
-            if not o in obj.parsedOptions:
+            if o not in obj.parsedOptions:
                 obj.parsedOptions.append(o)
         else:
             remaining.append((o, a))
@@ -770,7 +770,7 @@ class Mapping(object):
             for o in self.parsedOptions:
                 v = getattr(self, o)
                 if v:
-                    s.append(o if type(v) == bool else str(v))
+                    s.append(o if isinstance(v, bool) else str(v))
             return ",".join(s)
 
         def getAll(self, current, testcase, rand=False):
@@ -812,7 +812,7 @@ class Mapping(object):
                     for k, v in supportedOptions.items():
                         v = next(v)
                         if v:
-                            if type(v) == bool:
+                            if isinstance(v, bool):
                                 if v:
                                     options.append(("--{0}".format(k), None))
                             else:
@@ -821,10 +821,10 @@ class Mapping(object):
                     # Add parsed options
                     for o in self.parsedOptions:
                         v = getattr(self, o)
-                        if type(v) == bool:
+                        if isinstance(v, bool):
                             if v:
                                 options.append(("--{0}".format(o), None))
-                        elif type(v) == list:
+                        elif isinstance(v, list):
                             options += [("--{0}".format(o), e) for e in v]
                         else:
                             options.append(("--{0}".format(o), v))
@@ -853,10 +853,10 @@ class Mapping(object):
 
             for k, v in options.items():
                 if hasattr(self, k):
-                    if not getattr(self, k) in v:
+                    if getattr(self, k) not in v:
                         return False
                 elif hasattr(current.driver, k):
-                    if not getattr(current.driver, k) in v:
+                    if getattr(current.driver, k) not in v:
                         return False
             else:
                 return True
@@ -950,7 +950,7 @@ class Mapping(object):
 
     @classmethod
     def getByName(self, name):
-        if not name in self.mappings:
+        if name not in self.mappings:
             raise RuntimeError(
                 "unknown mapping: `{0}', known mappings: `{1}'".format(
                     name, list(self.mappings)
@@ -1524,7 +1524,7 @@ class Process(Runnable):
         )
         try:
             self.waitForStart(current)
-        except:
+        except Exception:
             self.stop(current)
             raise
 
@@ -1985,7 +1985,7 @@ class TestCase(Runnable):
         try:
             self.startServerSide(current)
             return current.host
-        except:
+        except Exception:
             self._stopServerSide(current, False)
             raise
         finally:
@@ -2013,7 +2013,7 @@ class TestCase(Runnable):
     def _stopServer(self, current, server, success):
         try:
             server.stop(current, success)
-        except:
+        except Exception:
             success = False
             raise
         finally:
@@ -2415,7 +2415,7 @@ class ProcessController:
         pass
 
     def start(self, process, current, args, props, envs, watchDog):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def destroy(self, driver):
         pass
@@ -2612,7 +2612,7 @@ class RemoteProcessController(ProcessController):
 
     def getController(self, current):
         ident = self.getControllerIdentity(current)
-        if type(ident) == str:
+        if isinstance(ident, str):
             ident = current.driver.getCommunicator().stringToIdentity(ident)
 
         import Ice
@@ -2654,7 +2654,7 @@ class RemoteProcessController(ProcessController):
             try:
                 future.result()
                 with self.cond:
-                    if not ident in self.processControllerProxies:
+                    if ident not in self.processControllerProxies:
                         self.processControllerProxies[proxy.ice_getIdentity()] = proxy
                     self.cond.notifyAll()
             except Exception:
@@ -2668,7 +2668,7 @@ class RemoteProcessController(ProcessController):
                 proxy.ice_pingAsync().add_done_callback(callback)
 
             with self.cond:
-                if not ident in self.processControllerProxies:
+                if ident not in self.processControllerProxies:
                     self.cond.wait(5)
                 if ident in self.processControllerProxies:
                     return self.processControllerProxies[ident]
@@ -2811,7 +2811,7 @@ class AndroidProcessController(RemoteProcessController):
         port = -1
         out = run("adb devices -l")
         for p in range(5554, 5586, 2):
-            if not "emulator-{}".format(p) in out:
+            if "emulator-{}".format(p) not in out:
                 port = p
 
         if port == -1:
@@ -2865,7 +2865,7 @@ class AndroidProcessController(RemoteProcessController):
             print("creating virtual device ({0})... ".format(sdk))
             try:
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
-            except:
+            except Exception:
                 pass
             # The SDK is downloaded by test VMs instead of here.
             # run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
@@ -2879,7 +2879,7 @@ class AndroidProcessController(RemoteProcessController):
         # First try uninstall in case the controller was left behind from a previous run
         try:
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
-        except:
+        except Exception:
             pass
         run(
             "{} install -t -r {}".format(
@@ -2895,13 +2895,13 @@ class AndroidProcessController(RemoteProcessController):
     def stopControllerApp(self, ident):
         try:
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
-        except:
+        except Exception:
             pass
 
         if self.avd:
             try:
                 run("{} emu kill".format(self.adb()))
-            except:
+            except Exception:
                 pass
 
             if self.avd == "IceTests":
@@ -2909,7 +2909,7 @@ class AndroidProcessController(RemoteProcessController):
                     run(
                         "avdmanager -v delete avd -n IceTests"
                     )  # Delete the created device
-                except:
+                except Exception:
                     pass
 
         #
@@ -2919,7 +2919,7 @@ class AndroidProcessController(RemoteProcessController):
             sys.stdout.write("Waiting for the emulator to shutdown..")
             sys.stdout.flush()
             while True:
-                if self.emulator.poll() != None:
+                if self.emulator.poll() is not None:
                     print(" ok")
                     break
                 sys.stdout.write(".")
@@ -2928,7 +2928,7 @@ class AndroidProcessController(RemoteProcessController):
 
         try:
             run("adb kill-server")
-        except:
+        except Exception:
             pass
 
 
@@ -2946,7 +2946,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 m = re.search("iOS .* \\(.*\\) - (.*)", r)
                 if m:
                     self.runtimeID = m.group(1)
-        except:
+        except Exception:
             pass
         if not self.runtimeID:
             self.runtimeID = (
@@ -3035,7 +3035,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     def stopControllerApp(self, ident):
         try:
             run('xcrun simctl uninstall "{0}" {1}'.format(self.device, ident.name))
-        except:
+        except Exception:
             pass
 
     def destroy(self, driver):
@@ -3045,7 +3045,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.flush()
         try:
             run('xcrun simctl shutdown "{0}"'.format(self.simulatorID))
-        except:
+        except Exception:
             pass
         print("ok")
 
@@ -3054,7 +3054,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             sys.stdout.flush()
             try:
                 run('xcrun simctl delete "{0}"'.format(self.simulatorID))
-            except:
+            except Exception:
                 pass
             print("ok")
 
@@ -3145,7 +3145,7 @@ class BrowserProcessController(RemoteProcessController):
                     self.driver = webdriver.Safari(service=service)
                 else:
                     self.driver = getattr(webdriver, driver)()
-        except:
+        except Exception:
             self.destroy(current.driver)
             raise
 
@@ -3212,7 +3212,7 @@ class BrowserProcessController(RemoteProcessController):
                     Test.Common.BrowserProcessControllerPrx.uncheckedCast(prx).redirect(
                         url
                     )
-                except:
+                except Exception:
                     pass
                 finally:
                     self.clearProcessController(prx, prx.ice_getCachedConnection())
@@ -3242,7 +3242,7 @@ class BrowserProcessController(RemoteProcessController):
                 # Print out the browser log
                 try:
                     print("browser log:\n{0}".format(self.driver.get_log("browser")))
-                except:
+                except Exception:
                     pass  # Not all browsers support retrieving the browser console log
             raise ex
 
@@ -3254,7 +3254,7 @@ class BrowserProcessController(RemoteProcessController):
 
         try:
             self.driver.quit()
-        except:
+        except Exception:
             pass
 
 
@@ -3315,8 +3315,8 @@ class Driver:
             with open(path, "w", encoding=encoding) if encoding else open(
                 path, "w"
             ) as file:
-                for l in lines:
-                    file.write("%s\n" % l)
+                for line in lines:
+                    file.write("%s\n" % line)
             self.files.append(path)
 
         def mkdirs(self, dirs):
@@ -3441,12 +3441,14 @@ class Driver:
 
         if self.languages:
             self.languages = [
-                i for sublist in [l.split(",") for l in self.languages] for i in sublist
+                i
+                for sublist in [lang.split(",") for lang in self.languages]
+                for i in sublist
             ]
         if self.rlanguages:
             self.rlanguages = [
                 i
-                for sublist in [l.split(",") for l in self.rlanguages]
+                for sublist in [lang.split(",") for lang in self.rlanguages]
                 for i in sublist
             ]
 
@@ -4109,7 +4111,7 @@ class PythonMapping(CppBasedMapping):
                         'import sys; print("{0}.{1}".format(sys.version_info[0], sys.version_info[1]))',
                     ]
                 )
-                if type(version) != str:
+                if not isinstance(version, str):
                     version = version.decode("utf-8")
                 self.pythonVersion = tuple(int(num) for num in version.split("."))
             return self.pythonVersion
@@ -4583,7 +4585,7 @@ if not platform:
 #
 # Import component classes and instantiate the default component
 #
-from Component import *
+from Component import component  # noqa: F401, E402
 
 #
 # Initialize the platform with component
@@ -4591,9 +4593,11 @@ from Component import *
 platform.init(component)
 
 #
-# Import local driver
+# Import local driver (this adds the local driver to the list of supported drivers)
 #
-from LocalDriver import *
+import LocalDriver  # noqa: F401, E402
+
+Driver.add("local", LocalDriver.LocalDriver)
 
 
 def runTestsWithPath(path):
@@ -4686,6 +4690,6 @@ def runTests(mappings=None, drivers=None):
         finally:
             driver.destroy()
 
-    except Exception as e:
+    except Exception:
         print(sys.argv[0] + ": unexpected exception raised:\n" + traceback.format_exc())
         sys.exit(1)

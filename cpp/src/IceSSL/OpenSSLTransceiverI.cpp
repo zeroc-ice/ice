@@ -5,9 +5,6 @@
 #include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/OpenSSLEngine.h>
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
-
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/PluginI.h>
@@ -24,6 +21,8 @@
 #include <openssl/err.h>
 #include <openssl/bio.h>
 
+#include <mutex>
+
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
@@ -38,25 +37,7 @@ using namespace IceSSL;
 namespace
 {
 
-IceUtil::Mutex* sslMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        sslMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete sslMutex;
-        sslMutex = 0;
-    }
-};
-
-Init init;
+mutex sslMutex;
 
 }
 #endif
@@ -320,13 +301,13 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         // See: http://cvs.openssl.org/chngview?cn=22569
         //
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(sslMutex);
+        unique_lock lock(sslMutex);
 #endif
 
         int ret = _incoming ? SSL_accept(_ssl) : SSL_connect(_ssl);
 
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
-        sync.release();
+        lock.unlock();
 #endif
 
         if(_memBio && BIO_ctrl_pending(_memBio))
