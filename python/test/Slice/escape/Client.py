@@ -4,6 +4,7 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Key.ice Clash.ice")
 import sys
 import Ice
@@ -39,36 +40,35 @@ class printI(_and._print):
 def testtypes():
     sys.stdout.write("Testing generated type names... ")
     sys.stdout.flush()
-    a = _and._assert._break
+    _a = _and._assert._break
     b = _and._continue
     b._def = 0
-    c = _and.delPrx.uncheckedCast(None)
+    _c = _and.delPrx.uncheckedCast(None)
     assert "_elif" in dir(_and.delPrx)
-    c1 = delI()
-    d = _and.execPrx.uncheckedCast(None)
+    _c1 = delI()
+    _d = _and.execPrx.uncheckedCast(None)
     assert "_finally" in dir(_and.execPrx)
-    d1 = execI()
+    _d1 = execI()
 
-    e1 = _and._for()
-    f = _and.ifPrx.uncheckedCast(None)
+    _e1 = _and._for()
+    _f = _and.ifPrx.uncheckedCast(None)
 
     assert "_finally" in dir(_and.ifPrx)
     assert "_elif" in dir(_and.ifPrx)
-    f1 = ifI()
+    _f1 = ifI()
     g = _and._is()
     g._lamba = 0
     h = _and._not()
     h._lamba = 0
     h._or = 1
     h._pass = 2
-    i = printI()
-    j = _and._lambda
-    en = _and.EnumNone._None
+    _i = printI()
+    _j = _and._lambda
+    _en = _and.EnumNone._None
     print("ok")
 
 
 class Client(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         #
@@ -85,7 +85,9 @@ class Client(TestHelper):
 
             sys.stdout.write("Testing operation name... ")
             sys.stdout.flush()
-            p = _and.execPrx.uncheckedCast(adapter.createProxy(Ice.stringToIdentity("test")))
+            p = _and.execPrx.uncheckedCast(
+                adapter.createProxy(Ice.stringToIdentity("test"))
+            )
             p._finally()
             print("ok")
 

@@ -49,12 +49,19 @@ class BlobjectCall(object):
         if "_fwd" in self._curr.ctx and self._curr.ctx["_fwd"] == "o":
             proxy = proxy.ice_oneway()
             try:
-                ok, out = proxy.ice_invoke(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
+                ok, out = proxy.ice_invoke(
+                    self._curr.operation,
+                    self._curr.mode,
+                    self._inParams,
+                    self._curr.ctx,
+                )
                 self._future.set_result((ok, out))
             except Ice.Exception as e:
                 self._future.set_exception(e)
         else:
-            f = proxy.ice_invokeAsync(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
+            f = proxy.ice_invokeAsync(
+                self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx
+            )
             f.add_done_callback(self.done)
 
     def done(self, future):
@@ -82,7 +89,9 @@ class BlobjectAsyncI(Ice.BlobjectAsync):
 
     def add(self, proxy):
         with self._lock:
-            self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
+            self._objects[proxy.ice_getIdentity()] = (
+                proxy.ice_facet("").ice_twoway().ice_router(None)
+            )
 
     def destroy(self):
         with self._lock:
@@ -108,12 +117,14 @@ class BlobjectI(Ice.Blobject):
                 return proxy.ice_invoke(curr.operation, curr.mode, inParams, curr.ctx)
             else:
                 return proxy.ice_invoke(curr.operation, curr.mode, inParams, curr.ctx)
-        except Ice.Exception as e:
+        except Ice.Exception:
             raise
 
     def add(self, proxy):
         with self._lock:
-            self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
+            self._objects[proxy.ice_getIdentity()] = (
+                proxy.ice_facet("").ice_twoway().ice_router(None)
+            )
 
     def destroy(self):
         pass
@@ -135,7 +146,9 @@ class ServantLocatorI(Ice.ServantLocator):
 
 class RouterI(Ice.Router):
     def __init__(self, communicator, sync):
-        self._adapter = communicator.createObjectAdapterWithEndpoints("forward", "default -h 127.0.0.1")
+        self._adapter = communicator.createObjectAdapterWithEndpoints(
+            "forward", "default -h 127.0.0.1"
+        )
         if sync:
             self._blobject = BlobjectI()
         else:
@@ -153,7 +166,7 @@ class RouterI(Ice.Router):
         return (self._blobjectProxy, True)
 
     def getServerProxy(self, current):
-        assert (False)
+        assert False
 
     def addProxies(self, proxies, current):
         for p in proxies:

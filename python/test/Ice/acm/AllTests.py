@@ -12,7 +12,7 @@ import traceback
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class LoggerI(Ice.Logger):
@@ -80,21 +80,28 @@ class TestCase(threading.Thread):
         self.m = threading.Condition()
 
     def init(self):
-        self._adapter = \
-            self._com.createObjectAdapter(self._serverACMTimeout, self._serverACMClose, self._serverACMHeartbeat)
+        self._adapter = self._com.createObjectAdapter(
+            self._serverACMTimeout, self._serverACMClose, self._serverACMHeartbeat
+        )
 
         initData = Ice.InitializationData()
         initData.properties = self._com.ice_getCommunicator().getProperties().clone()
         initData.logger = self._logger
         initData.properties.setProperty("Ice.ACM.Timeout", "2")
         if self._clientACMTimeout >= 0:
-            initData.properties.setProperty("Ice.ACM.Client.Timeout", str(self._clientACMTimeout))
+            initData.properties.setProperty(
+                "Ice.ACM.Client.Timeout", str(self._clientACMTimeout)
+            )
         if self._clientACMClose >= 0:
-            initData.properties.setProperty("Ice.ACM.Client.Close", str(self._clientACMClose))
+            initData.properties.setProperty(
+                "Ice.ACM.Client.Close", str(self._clientACMClose)
+            )
         if self._clientACMHeartbeat >= 0:
-            initData.properties.setProperty("Ice.ACM.Client.Heartbeat", str(self._clientACMHeartbeat))
-        #initData.properties.setProperty("Ice.Trace.Protocol", "2")
-        #initData.properties.setProperty("Ice.Trace.Network", "2")
+            initData.properties.setProperty(
+                "Ice.ACM.Client.Heartbeat", str(self._clientACMHeartbeat)
+            )
+        # initData.properties.setProperty("Ice.Trace.Protocol", "2")
+        # initData.properties.setProperty("Ice.Trace.Network", "2")
         self._communicator = Ice.initialize(initData)
 
     def destroy(self):
@@ -113,14 +120,17 @@ class TestCase(threading.Thread):
             test(False)
 
     def run(self):
-        proxy = Test.TestIntfPrx.uncheckedCast(self._communicator.stringToProxy(
-            self._adapter.getTestIntf().ice_toString()))
+        proxy = Test.TestIntfPrx.uncheckedCast(
+            self._communicator.stringToProxy(self._adapter.getTestIntf().ice_toString())
+        )
         try:
             proxy.ice_getConnection().setCloseCallback(lambda conn: self.closed(conn))
-            proxy.ice_getConnection().setHeartbeatCallback(lambda conn: self.heartbeat(conn))
+            proxy.ice_getConnection().setHeartbeatCallback(
+                lambda conn: self.heartbeat(conn)
+            )
 
             self.runTestCase(self._adapter, proxy)
-        except Exception as ex:
+        except Exception:
             self._msg = "unexpected exception:\n" + traceback.format_exc()
 
     def heartbeat(self, con):
@@ -163,7 +173,9 @@ def allTests(helper, communicator):
     class InvocationHeartbeatTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation heartbeat", com)
-            self.setServerACM(1, -1, -1)  # Faster ACM to make sure we receive enough ACM heartbeats
+            self.setServerACM(
+                1, -1, -1
+            )  # Faster ACM to make sure we receive enough ACM heartbeats
 
         def runTestCase(self, adapter, proxy):
             proxy.sleep(4)
@@ -209,7 +221,9 @@ def allTests(helper, communicator):
 
     class InvocationHeartbeatCloseOnIdleTest(TestCase):
         def __init__(self, com):
-            TestCase.__init__(self, "invocation with no heartbeat and close on idle", com)
+            TestCase.__init__(
+                self, "invocation with no heartbeat and close on idle", com
+            )
             self.setClientACM(1, 1, 0)  # Only close on idle.
             self.setServerACM(1, 2, 0)  # Disable heartbeat on invocations
 
@@ -343,8 +357,11 @@ def allTests(helper, communicator):
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful)
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff)
 
-            proxy.ice_getCachedConnection().setACM(1, Ice.ACMClose.CloseOnInvocationAndIdle,
-                                                   Ice.ACMHeartbeat.HeartbeatAlways)
+            proxy.ice_getCachedConnection().setACM(
+                1,
+                Ice.ACMClose.CloseOnInvocationAndIdle,
+                Ice.ACMHeartbeat.HeartbeatAlways,
+            )
             acm = proxy.ice_getCachedConnection().getACM()
             test(acm.timeout == 1)
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle)

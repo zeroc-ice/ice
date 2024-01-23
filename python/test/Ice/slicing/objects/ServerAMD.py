@@ -4,6 +4,7 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("-I. --all ServerPrivate.ice")
 import Ice
 import Test
@@ -11,7 +12,7 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class TestI(Test.TestIntf):
@@ -291,7 +292,7 @@ class TestI(Test.TestIntf):
             test(p.graph != p.graph.next)
             test(p.graph.next != p.graph.next.next)
             test(p.graph.next.next.next == p.graph)
-            p.graph.next.next.next = None   # Break the cycle.
+            p.graph.next.next.next = None  # Break the cycle.
         return Ice.Future.completed(None)
 
     def PBSUnknown2AsPreservedWithGraph(self, current=None):
@@ -312,7 +313,7 @@ class TestI(Test.TestIntf):
             test(p.pi == 5)
             test(p.ps == "preserved")
             test(p.pb == p)
-            p.pb = None        # Break the cycle.
+            p.pb = None  # Break the cycle.
         return Ice.Future.completed(None)
 
     def exchangePNode(self, pn, current=None):
@@ -402,8 +403,9 @@ class ServerAMD(TestHelper):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                     "{0} -t 10000".format(self.getTestEndpoint()))
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", "{0} -t 10000".format(self.getTestEndpoint())
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI(), Ice.stringToIdentity("Test"))
             adapter.activate()

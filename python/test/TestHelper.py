@@ -10,51 +10,46 @@ import importlib
 
 
 class TestHelper:
-
     def __init__(self):
         self._communicator = None
 
     def getTestEndpoint(self, properties=None, num=0, protocol=""):
-
         if properties is None:
             properties = self._communicator.getProperties()
 
         if protocol == "":
-            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default")
+            protocol = properties.getPropertyWithDefault(
+                "Ice.Default.Protocol", "default"
+            )
 
         port = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
 
         return "{0} -p {1}".format(protocol, port)
 
     def getTestHost(self, properties=None):
-
         if properties is None:
             properties = self._communicator.getProperties()
 
         return properties.getPropertyWithDefaul("Ice.Default.Host", "127.0.0.1")
 
     def getTestProtocol(self, properties=None):
-
         if properties is None:
             properties = self._communicator.getProperties()
 
         return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp")
 
     def getTestPort(self, properties=None, num=0):
-
         if properties is None:
             properties = self._communicator.getProperties()
 
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
 
     def createTestProperties(self, args=[]):
-
         properties = Ice.createProperties(args)
         args = properties.parseCommandLineOptions("Test", args)
         return properties
 
     def initialize(self, initData=None, properties=None, args=[]):
-
         if initData is None:
             initData = Ice.InitializationData()
             if properties:
@@ -80,7 +75,7 @@ class TestHelper:
     def loadSlice(self, args):
         sliceDir = Ice.getSliceDir()
         if not sliceDir:
-            print(sys.argv[0] + ': Slice directory not found.')
+            print(sys.argv[0] + ": Slice directory not found.")
             sys.exit(1)
         Ice.loadSlice("'-I{0}' {1}".format(sliceDir, args))
 
@@ -98,5 +93,5 @@ class TestHelper:
             return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(TestHelper.run())

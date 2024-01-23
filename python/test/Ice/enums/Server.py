@@ -4,6 +4,7 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import Ice
 import Test
@@ -39,11 +40,11 @@ class TestIntfI(Test.TestIntf):
 
 
 class Server(TestHelper):
-
     def run(self, args):
-
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestIntfI(), Ice.stringToIdentity("test"))
             adapter.activate()

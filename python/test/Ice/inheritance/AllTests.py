@@ -2,14 +2,13 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice
 import Test
 import sys
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):

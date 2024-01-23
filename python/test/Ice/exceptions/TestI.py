@@ -4,8 +4,6 @@
 
 import Ice
 import Test
-import array
-import sys
 
 
 class ThrowerI(Test.Thrower):

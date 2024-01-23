@@ -8,7 +8,6 @@ import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
         with self.initialize(args=args) as communicator:
             initial = AllTests.allTests(self, communicator)

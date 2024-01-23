@@ -4,18 +4,15 @@
 
 import Ice
 import Test
-import array
-import sys
 import time
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
-
     def __init__(self):
         self._enabled = False
         self._count = 0
@@ -23,7 +20,10 @@ class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
         self._lastRequestSize = 0
 
     def enqueue(self, request, count, size):
-        test(request.getOperation() == "opByteSOneway" or request.getOperation() == "ice_ping")
+        test(
+            request.getOperation() == "opByteSOneway"
+            or request.getOperation() == "ice_ping"
+        )
         test(request.getProxy().ice_isBatchOneway())
 
         if count > 0:
@@ -50,7 +50,6 @@ class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
 
 
 def batchOneways(p):
-
     bs1 = bytes([0 for x in range(0, 10 * 1024)])
 
     try:
@@ -115,7 +114,9 @@ def batchOneways(p):
 
         ic = Ice.initialize(data=initData)
 
-        batch = Test.MyClassPrx.uncheckedCast(ic.stringToProxy(p.ice_toString())).ice_batchOneway()
+        batch = Test.MyClassPrx.uncheckedCast(
+            ic.stringToProxy(p.ice_toString())
+        ).ice_batchOneway()
 
         test(interceptor.count() == 0)
         batch.ice_ping()

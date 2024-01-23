@@ -2,24 +2,19 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice
 import Test
 import Test1
 import testpkg
 import modpkg
 import sys
-import threading
-import time
-import traceback
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):
-
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
     ref = "initial:{0}".format(helper.getTestEndpoint())
@@ -49,13 +44,13 @@ def allTests(helper, communicator):
     try:
         initial.throwTest1E2AsE2()
         test(False)
-    except Test1.E2 as ex:
+    except Test1.E2:
         # Expected
         pass
     try:
         initial.throwTest1Def()
         test(False)
-    except Test1._def as ex:
+    except Test1._def:
         # Expected
         pass
     print("ok")
@@ -76,7 +71,7 @@ def allTests(helper, communicator):
     try:
         initial.throwTest2E2AsE2()
         test(False)
-    except testpkg.Test2.E2 as ex:
+    except testpkg.Test2.E2:
         # Expected
         pass
 
@@ -93,7 +88,7 @@ def allTests(helper, communicator):
     try:
         initial.throwTest3E2AsE2()
         test(False)
-    except modpkg.Test3.E2 as ex:
+    except modpkg.Test3.E2:
         # Expected
         pass
 

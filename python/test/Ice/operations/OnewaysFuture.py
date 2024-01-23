@@ -8,11 +8,10 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def onewaysFuture(helper, proxy):
-    communicator = helper.communicator()
     p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
 
     f = p.ice_pingAsync()
@@ -46,7 +45,7 @@ def onewaysFuture(helper, proxy):
     f.sent()
 
     try:
-        p.opByteAsync(0xff, 0x0f)
+        p.opByteAsync(0xFF, 0x0F)
         test(False)
     except Ice.TwowayOnlyException:
         pass

@@ -4,12 +4,12 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.MessageSizeMax", "10")

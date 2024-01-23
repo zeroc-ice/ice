@@ -2,21 +2,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os
-import sys
-import traceback
-import time
 import Ice
 import Test
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class TestI(Test.TestIntf):
-
     def requestFailedException(self, current=None):
         pass
 
@@ -77,7 +72,7 @@ class TestI(Test.TestIntf):
 
 class Cookie:
     def message(self):
-        return 'blahblah'
+        return "blahblah"
 
 
 class ServantLocatorI(Ice.ServantLocator):
@@ -131,7 +126,7 @@ class ServantLocatorI(Ice.ServantLocator):
             self.exception(current)
 
         test(isinstance(cookie, Cookie))
-        test(cookie.message() == 'blahblah')
+        test(cookie.message() == "blahblah")
 
     def deactivate(self, category):
         test(not self._deactivated)

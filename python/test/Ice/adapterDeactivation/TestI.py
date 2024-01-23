@@ -2,9 +2,6 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os
-import sys
-import traceback
 import time
 import Ice
 import Test
@@ -12,13 +9,15 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class TestI(Test.TestIntf):
     def transient(self, current=None):
         communicator = current.adapter.getCommunicator()
-        adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default")
+        adapter = communicator.createObjectAdapterWithEndpoints(
+            "TransientTestAdapter", "default"
+        )
         adapter.activate()
         adapter.destroy()
 
@@ -28,7 +27,6 @@ class TestI(Test.TestIntf):
 
 
 class RouterI(Ice.Router):
-
     def __init__(self):
         self._nextPort = 23456
 
@@ -38,7 +36,9 @@ class RouterI(Ice.Router):
     def getServerProxy(self, c):
         port = self._nextPort
         self._nextPort += 1
-        return c.adapter.getCommunicator().stringToProxy("dummy:tcp -h localhost -p {0} -t 30000".format(port))
+        return c.adapter.getCommunicator().stringToProxy(
+            "dummy:tcp -h localhost -p {0} -t 30000".format(port)
+        )
 
     def addProxies(self, proxies, c):
         return []
@@ -46,11 +46,10 @@ class RouterI(Ice.Router):
 
 class Cookie:
     def message(self):
-        return 'blahblah'
+        return "blahblah"
 
 
 class ServantLocatorI(Ice.ServantLocator):
-
     def __init__(self):
         self._deactivated = False
         self._router = RouterI()
@@ -61,22 +60,22 @@ class ServantLocatorI(Ice.ServantLocator):
     def locate(self, current):
         test(not self._deactivated)
 
-        if current.id.name == 'router':
+        if current.id.name == "router":
             return (self._router, None)
 
-        test(current.id.category == '')
-        test(current.id.name == 'test')
+        test(current.id.category == "")
+        test(current.id.name == "test")
 
         return (TestI(), Cookie())
 
     def finished(self, current, servant, cookie):
         test(not self._deactivated)
 
-        if current.id.name == 'router':
+        if current.id.name == "router":
             return
 
         test(isinstance(cookie, Cookie))
-        test(cookie.message() == 'blahblah')
+        test(cookie.message() == "blahblah")
 
     def deactivate(self, category):
         test(not self._deactivated)

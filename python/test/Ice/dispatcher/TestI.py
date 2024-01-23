@@ -2,7 +2,6 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice
 import Test
 import Dispatcher
 import time
@@ -10,7 +9,7 @@ import time
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class TestIntfI(Test.TestIntf):

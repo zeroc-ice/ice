@@ -11,7 +11,7 @@ import array
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class EmptyI(Test.Empty):
@@ -70,7 +70,7 @@ class Callback(CallbackBase):
             test(ex.aMem == 1)
         except Test.D as ex:
             test(ex.dMem == -1)
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -80,7 +80,7 @@ class Callback(CallbackBase):
         except Test.B as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -91,7 +91,7 @@ class Callback(CallbackBase):
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -106,7 +106,7 @@ class Callback(CallbackBase):
             # This operation is not supported in Java.
             #
             pass
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -116,7 +116,7 @@ class Callback(CallbackBase):
         except Test.B as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -127,7 +127,7 @@ class Callback(CallbackBase):
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -138,7 +138,7 @@ class Callback(CallbackBase):
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -147,7 +147,7 @@ class Callback(CallbackBase):
             raise ex
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -156,7 +156,7 @@ class Callback(CallbackBase):
             raise ex
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -165,7 +165,7 @@ class Callback(CallbackBase):
             raise ex
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -175,7 +175,7 @@ class Callback(CallbackBase):
         except Ice.ObjectNotExistException as ex:
             id = Ice.stringToIdentity("does not exist")
             test(ex.id == id)
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -184,7 +184,7 @@ class Callback(CallbackBase):
             raise ex
         except Ice.FacetNotExistException as ex:
             test(ex.facet == "no such facet")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -193,7 +193,7 @@ class Callback(CallbackBase):
             raise ex
         except Ice.OperationNotExistException as ex:
             test(ex.operation == "noSuchOperation")
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -202,9 +202,9 @@ class Callback(CallbackBase):
             raise ex
         except Ice.UnknownLocalException as ex:
             pass
-        except Ice.OperationNotExistException as ex:
+        except Ice.OperationNotExistException:
             pass
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -213,7 +213,7 @@ class Callback(CallbackBase):
             raise ex
         except Ice.UnknownException as ex:
             pass
-        except:
+        except Exception:
             test(False)
         self.called()
 
@@ -301,7 +301,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.A as ex:
         test(ex.aMem == 1)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -310,7 +310,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.A as ex:
         test(ex.aMem == 1)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -319,7 +319,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.D as ex:
         test(ex.dMem == -1)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -329,7 +329,7 @@ def allTests(helper, communicator):
     except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -340,7 +340,7 @@ def allTests(helper, communicator):
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -355,7 +355,7 @@ def allTests(helper, communicator):
         # This operation is not supported in Java.
         #
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -369,7 +369,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.A as ex:
         test(ex.aMem == 1)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -379,7 +379,7 @@ def allTests(helper, communicator):
     except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -393,7 +393,7 @@ def allTests(helper, communicator):
         # This operation is not supported in Java.
         #
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -408,7 +408,7 @@ def allTests(helper, communicator):
     except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -419,7 +419,7 @@ def allTests(helper, communicator):
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -430,7 +430,7 @@ def allTests(helper, communicator):
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -445,7 +445,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
 
@@ -454,7 +454,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
 
@@ -463,7 +463,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
 
@@ -474,11 +474,11 @@ def allTests(helper, communicator):
         sys.stdout.flush()
 
         try:
-            thrower.throwMemoryLimitException(array.array('B'))
+            thrower.throwMemoryLimitException(array.array("B"))
             test(False)
         except Ice.MemoryLimitException:
             pass
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
 
@@ -489,7 +489,7 @@ def allTests(helper, communicator):
             pass
         except Ice.UnknownLocalException:
             pass
-        except:
+        except Exception:
             test(False)
 
         print("ok")
@@ -501,11 +501,11 @@ def allTests(helper, communicator):
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasA(1)
-#        thrower2.ice_ping()
+        #        thrower2.ice_ping()
         test(False)
     except Ice.ObjectNotExistException as ex:
         test(ex.id == id)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -521,7 +521,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.FacetNotExistException as ex:
             test(ex.facet == "no such facet")
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -536,7 +536,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.OperationNotExistException as ex:
         test(ex.operation == "noSuchOperation")
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -550,7 +550,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.UnknownLocalException:
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
     try:
@@ -560,7 +560,7 @@ def allTests(helper, communicator):
         pass
     except Ice.OperationNotExistException:
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -574,7 +574,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.UnknownException:
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -585,7 +585,7 @@ def allTests(helper, communicator):
 
     try:
         thrower.throwAfterResponse()
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -594,7 +594,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.A:
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -608,7 +608,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.A as ex:
         test(ex.aMem == 1)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -617,7 +617,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.A as ex:
         test(ex.aMem == 1)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -626,7 +626,7 @@ def allTests(helper, communicator):
         test(False)
     except Test.D as ex:
         test(ex.dMem == -1)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -636,7 +636,7 @@ def allTests(helper, communicator):
     except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -647,7 +647,7 @@ def allTests(helper, communicator):
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -662,7 +662,7 @@ def allTests(helper, communicator):
         # This operation is not supported in Java.
         #
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -677,7 +677,7 @@ def allTests(helper, communicator):
     except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -688,7 +688,7 @@ def allTests(helper, communicator):
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -699,7 +699,7 @@ def allTests(helper, communicator):
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -714,7 +714,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
 
@@ -723,7 +723,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
 
@@ -732,7 +732,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.UnknownUserException:
             pass
-        except:
+        except Exception:
             print(sys.exc_info())
             test(False)
 
@@ -745,11 +745,11 @@ def allTests(helper, communicator):
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasAAsync(1).result()
-#        thrower2.ice_ping()
+        #        thrower2.ice_ping()
         test(False)
     except Ice.ObjectNotExistException as ex:
         test(ex.id == id)
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -765,7 +765,7 @@ def allTests(helper, communicator):
             test(False)
         except Ice.FacetNotExistException as ex:
             test(ex.facet == "no such facet")
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -780,7 +780,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.OperationNotExistException as ex:
         test(ex.operation == "noSuchOperation")
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -794,7 +794,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.UnknownLocalException:
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
     try:
@@ -804,7 +804,7 @@ def allTests(helper, communicator):
         pass
     except Ice.OperationNotExistException:
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 
@@ -818,7 +818,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.UnknownException:
         pass
-    except:
+    except Exception:
         print(sys.exc_info())
         test(False)
 

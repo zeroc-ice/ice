@@ -4,14 +4,14 @@
 #
 
 from TestHelper import TestHelper
-TestHelper.loadSlice('Test.ice')
+
+TestHelper.loadSlice("Test.ice")
 import Test
 import Inner
 import Ice
 
 
 class I1(Test.I):
-
     def opS(self, s1, current=None):
         return (s1, s1)
 
@@ -44,7 +44,6 @@ class I1(Test.I):
 
 
 class I2(Test.Inner.Inner2.I):
-
     def opS(self, s1, current=None):
         return (s1, s1)
 
@@ -68,7 +67,6 @@ class I2(Test.Inner.Inner2.I):
 
 
 class I3(Test.Inner.I):
-
     def opS(self, s1, current=None):
         return (s1, s1)
 
@@ -92,7 +90,6 @@ class I3(Test.Inner.I):
 
 
 class I4(Inner.Test.Inner2.I):
-
     def opS(self, s1, current=None):
         return (s1, s1)
 
@@ -116,10 +113,11 @@ class I4(Inner.Test.Inner2.I):
 
 
 class Server(TestHelper):
-
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(I1(), Ice.stringToIdentity("i1"))
             adapter.add(I2(), Ice.stringToIdentity("i2"))

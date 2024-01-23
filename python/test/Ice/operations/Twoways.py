@@ -6,17 +6,15 @@ import Ice
 import math
 import Test
 import array
-import sys
 from sys import version_info
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def twoways(helper, p):
-
     communicator = helper.communicator()
     literals = p.opStringLiterals()
 
@@ -60,22 +58,34 @@ def twoways(helper, p):
     test(Test.s7 == literals[7])
     test(Test.s7 == literals[18])
 
-    test(Test.s8 == "\xf0\x90\x80\x80" if version_info[0] < 3 else b"\xf0\x90\x80\x80".decode("utf-8"))
+    test(
+        Test.s8 == "\xf0\x90\x80\x80"
+        if version_info[0] < 3
+        else b"\xf0\x90\x80\x80".decode("utf-8")
+    )
     test(Test.s8 == Test.sw8)
     test(Test.s8 == literals[8])
     test(Test.s8 == literals[19])
 
-    test(Test.s9 == "\xf0\x9f\x8d\x8c" if version_info[0] < 3 else b"\xf0\x9f\x8d\x8c".decode("utf-8"))
+    test(
+        Test.s9 == "\xf0\x9f\x8d\x8c"
+        if version_info[0] < 3
+        else b"\xf0\x9f\x8d\x8c".decode("utf-8")
+    )
     test(Test.s9 == Test.sw9)
     test(Test.s9 == literals[9])
     test(Test.s9 == literals[20])
 
-    test(Test.s10 == "\xe0\xb6\xa7" if version_info[0] < 3 else b"\xe0\xb6\xa7".decode("utf-8"))
+    test(
+        Test.s10 == "\xe0\xb6\xa7"
+        if version_info[0] < 3
+        else b"\xe0\xb6\xa7".decode("utf-8")
+    )
     test(Test.s10 == Test.sw10)
     test(Test.s10 == literals[10])
     test(Test.s10 == literals[21])
 
-    test(Test.ss0 == "\'\"\x3f\\\a\b\f\n\r\t\v\x06")
+    test(Test.ss0 == "'\"\x3f\\\a\b\f\n\r\t\v\x06")
     test(Test.ss0 == Test.ss1)
     test(Test.ss0 == Test.ss2)
     test(Test.ss0 == literals[22])
@@ -136,9 +146,9 @@ def twoways(helper, p):
     #
     # opByte
     #
-    r, b = p.opByte(0xff, 0x0f)
-    test(b == 0xf0)
-    test(r == 0xff)
+    r, b = p.opByte(0xFF, 0x0F)
+    test(b == 0xF0)
+    test(r == 0xFF)
 
     #
     # opBool
@@ -150,19 +160,19 @@ def twoways(helper, p):
     #
     # opShortIntLong
     #
-    r, s, i, l = p.opShortIntLong(10, 11, 12)
+    r, s, i, l = p.opShortIntLong(10, 11, 12)  # noqa: E741
     test(s == 10)
     test(i == 11)
     test(l == 12)
     test(r == 12)
 
-    r, s, i, l = p.opShortIntLong(-32768, -2147483648, -9223372036854775808)
+    r, s, i, l = p.opShortIntLong(-32768, -2147483648, -9223372036854775808)  # noqa: E741
     test(s == -32768)
     test(i == -2147483648)
     test(l == -9223372036854775808)
     test(r == -9223372036854775808)
 
-    r, s, i, l = p.opShortIntLong(32767, 2147483647, 9223372036854775807)
+    r, s, i, l = p.opShortIntLong(32767, 2147483647, 9223372036854775807)  # noqa: E741
     test(s == 32767)
     test(i == 2147483647)
     test(l == 9223372036854775807)
@@ -171,74 +181,74 @@ def twoways(helper, p):
     #
     # opFloatDouble
     #
-    r, f, d = p.opFloatDouble(3.14, 1.1E10)
+    r, f, d = p.opFloatDouble(3.14, 1.1e10)
     test(f - 3.14 < 0.001)
-    test(d == 1.1E10)
-    test(r == 1.1E10)
+    test(d == 1.1e10)
+    test(r == 1.1e10)
 
     #
     # Test invalid ranges for numbers
     #
     try:
-        r, b = p.opByte(0x01ff, 0x01ff)
+        r, b = p.opByte(0x01FF, 0x01FF)
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(32767 + 1, 0, 0)
+        r, s, i, l = p.opShortIntLong(32767 + 1, 0, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(-32768 - 1, 0, 0)
+        r, s, i, l = p.opShortIntLong(-32768 - 1, 0, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, 2147483647 + 1, 0)
+        r, s, i, l = p.opShortIntLong(0, 2147483647 + 1, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, -2147483648 - 1, 0)
+        r, s, i, l = p.opShortIntLong(0, -2147483648 - 1, 0)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, 0, 9223372036854775807 + 1)
+        r, s, i, l = p.opShortIntLong(0, 0, 9223372036854775807 + 1)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
     try:
-        r, s, i, l = p.opShortIntLong(0, 0, -9223372036854775808 - 1)
+        r, s, i, l = p.opShortIntLong(0, 0, -9223372036854775808 - 1)  # noqa: E741
         test(False)
     except ValueError:
         pass
 
-    r, f, d = p.opFloatDouble(3.402823466E38, 0.0)
-    r, f, d = p.opFloatDouble(-3.402823466E38, 0.0)
+    r, f, d = p.opFloatDouble(3.402823466e38, 0.0)
+    r, f, d = p.opFloatDouble(-3.402823466e38, 0.0)
 
-    for val in ('inf', '-inf'):
+    for val in ("inf", "-inf"):
         r, f, d = p.opFloatDouble(float(val), float(val))
         test(math.isinf(r) and math.isinf(f) and math.isinf(d))
-    for val in ('nan', '-nan'):
+    for val in ("nan", "-nan"):
         r, f, d = p.opFloatDouble(float(val), float(val))
         test(math.isnan(r) and math.isnan(f) and math.isnan(d))
 
     try:
-        r, f, d = p.opFloatDouble(3.402823466E38 * 2, 0.0)
+        r, f, d = p.opFloatDouble(3.402823466e38 * 2, 0.0)
         test(False)
     except ValueError:
         pass
 
     try:
-        r, f, d = p.opFloatDouble(-3.402823466E38 * 2, 0.0)
+        r, f, d = p.opFloatDouble(-3.402823466e38 * 2, 0.0)
         test(False)
     except ValueError:
         pass
@@ -320,7 +330,7 @@ def twoways(helper, p):
     # opByteS
     #
     bsi1 = (0x01, 0x11, 0x12, 0x22)
-    bsi2 = (0xf1, 0xf2, 0xf3, 0xf4)
+    bsi2 = (0xF1, 0xF2, 0xF3, 0xF4)
 
     rso, bso = p.opByteS(bsi1, bsi2)
     test(len(bso) == 4)
@@ -333,18 +343,18 @@ def twoways(helper, p):
     test(rso[1] == 0x11)
     test(rso[2] == 0x12)
     test(rso[3] == 0x22)
-    test(rso[4] == 0xf1)
-    test(rso[5] == 0xf2)
-    test(rso[6] == 0xf3)
-    test(rso[7] == 0xf4)
+    test(rso[4] == 0xF1)
+    test(rso[5] == 0xF2)
+    test(rso[6] == 0xF3)
+    test(rso[7] == 0xF4)
 
     #
     # opByteS (array)
     #
-    bsi1 = array.array('B')
+    bsi1 = array.array("B")
     bsi1.fromlist([0x01, 0x11, 0x12, 0x22])
-    bsi2 = array.array('B')
-    bsi2.fromlist([0xf1, 0xf2, 0xf3, 0xf4])
+    bsi2 = array.array("B")
+    bsi2.fromlist([0xF1, 0xF2, 0xF3, 0xF4])
 
     rso, bso = p.opByteS(bsi1, bsi2)
     test(len(bso) == 4)
@@ -357,10 +367,10 @@ def twoways(helper, p):
     test(rso[1] == 0x11)
     test(rso[2] == 0x12)
     test(rso[3] == 0x22)
-    test(rso[4] == 0xf1)
-    test(rso[5] == 0xf2)
-    test(rso[6] == 0xf3)
-    test(rso[7] == 0xf4)
+    test(rso[4] == 0xF1)
+    test(rso[5] == 0xF2)
+    test(rso[6] == 0xF3)
+    test(rso[7] == 0xF4)
 
     #
     # opBoolS
@@ -382,9 +392,9 @@ def twoways(helper, p):
     #
     # opBoolS (array)
     #
-    bsi1 = array.array('B')
+    bsi1 = array.array("B")
     bsi1.fromlist([1, 1, 0])
-    bsi2 = array.array('B')
+    bsi2 = array.array("B")
     bsi2.fromlist([0])
 
     rso, bso = p.opBoolS(bsi1, bsi2)
@@ -430,9 +440,9 @@ def twoways(helper, p):
     #
     # opShortIntLongS (array)
     #
-    ssi = array.array('h')
+    ssi = array.array("h")
     ssi.fromlist([1, 2, 3])
-    isi = array.array('i')
+    isi = array.array("i")
     isi.fromlist([5, 6, 7, 8])
     lsi = (10, 30, 20)  # Can't store Ice::Long in an array.
 
@@ -462,51 +472,51 @@ def twoways(helper, p):
     # opFloatDoubleS
     #
     fsi = (3.14, 1.11)
-    dsi = (1.1E10, 1.2E10, 1.3E10)
+    dsi = (1.1e10, 1.2e10, 1.3e10)
 
     rso, fso, dso = p.opFloatDoubleS(fsi, dsi)
     test(len(fso) == 2)
     test(fso[0] - 3.14 < 0.001)
     test(fso[1] - 1.11 < 0.001)
     test(len(dso) == 3)
-    test(dso[0] == 1.3E10)
-    test(dso[1] == 1.2E10)
-    test(dso[2] == 1.1E10)
+    test(dso[0] == 1.3e10)
+    test(dso[1] == 1.2e10)
+    test(dso[2] == 1.1e10)
     test(len(rso) == 5)
-    test(rso[0] == 1.1E10)
-    test(rso[1] == 1.2E10)
-    test(rso[2] == 1.3E10)
+    test(rso[0] == 1.1e10)
+    test(rso[1] == 1.2e10)
+    test(rso[2] == 1.3e10)
     test(rso[3] - 3.14 < 0.001)
     test(rso[4] - 1.11 < 0.001)
 
     #
     # opFloatDoubleS (array)
     #
-    fsi = array.array('f')
+    fsi = array.array("f")
     fsi.fromlist([3.14, 1.11])
-    dsi = array.array('d')
-    dsi.fromlist([1.1E10, 1.2E10, 1.3E10])
+    dsi = array.array("d")
+    dsi.fromlist([1.1e10, 1.2e10, 1.3e10])
 
     rso, fso, dso = p.opFloatDoubleS(fsi, dsi)
     test(len(fso) == 2)
     test(fso[0] - 3.14 < 0.001)
     test(fso[1] - 1.11 < 0.001)
     test(len(dso) == 3)
-    test(dso[0] == 1.3E10)
-    test(dso[1] == 1.2E10)
-    test(dso[2] == 1.1E10)
+    test(dso[0] == 1.3e10)
+    test(dso[1] == 1.2e10)
+    test(dso[2] == 1.1e10)
     test(len(rso) == 5)
-    test(rso[0] == 1.1E10)
-    test(rso[1] == 1.2E10)
-    test(rso[2] == 1.3E10)
+    test(rso[0] == 1.1e10)
+    test(rso[1] == 1.2e10)
+    test(rso[2] == 1.3e10)
     test(rso[3] - 3.14 < 0.001)
     test(rso[4] - 1.11 < 0.001)
 
     #
     # opStringS
     #
-    ssi1 = ('abc', 'de', 'fghi')
-    ssi2 = ('xyz',)
+    ssi1 = ("abc", "de", "fghi")
+    ssi2 = ("xyz",)
 
     rso, sso = p.opStringS(ssi1, ssi2)
     test(len(sso) == 4)
@@ -522,8 +532,8 @@ def twoways(helper, p):
     #
     # opByteSS
     #
-    bsi1 = ((0x01, 0x11, 0x12), (0xff,))
-    bsi2 = ((0x0e,), (0xf2, 0xf1))
+    bsi1 = ((0x01, 0x11, 0x12), (0xFF,))
+    bsi2 = ((0x0E,), (0xF2, 0xF1))
 
     rso, bso = p.opByteSS(bsi1, bsi2)
     test(len(bso) == 2)
@@ -534,22 +544,26 @@ def twoways(helper, p):
     test(len(rso[1]) == 1)
     test(len(rso[2]) == 1)
     test(len(rso[3]) == 2)
-    test(bso[0][0] == 0xff)
+    test(bso[0][0] == 0xFF)
     test(bso[1][0] == 0x01)
     test(bso[1][1] == 0x11)
     test(bso[1][2] == 0x12)
     test(rso[0][0] == 0x01)
     test(rso[0][1] == 0x11)
     test(rso[0][2] == 0x12)
-    test(rso[1][0] == 0xff)
-    test(rso[2][0] == 0x0e)
-    test(rso[3][0] == 0xf2)
-    test(rso[3][1] == 0xf1)
+    test(rso[1][0] == 0xFF)
+    test(rso[2][0] == 0x0E)
+    test(rso[3][0] == 0xF2)
+    test(rso[3][1] == 0xF1)
 
     #
     # opBoolSS
     #
-    bsi1 = ((True,), (False,), (True, True),)
+    bsi1 = (
+        (True,),
+        (False,),
+        (True, True),
+    )
     bsi2 = ((False, False, True),)
 
     rso, bso = p.opBoolSS(bsi1, bsi2)
@@ -612,7 +626,7 @@ def twoways(helper, p):
     # opFloatDoubleSS
     #
     fsi = ((3.14,), (1.11,), ())
-    dsi = ((1.1E10, 1.2E10, 1.3E10),)
+    dsi = ((1.1e10, 1.2e10, 1.3e10),)
 
     rso, fso, dso = p.opFloatDoubleSS(fsi, dsi)
     test(len(fso) == 3)
@@ -623,24 +637,24 @@ def twoways(helper, p):
     test(len(fso[2]) == 0)
     test(len(dso) == 1)
     test(len(dso[0]) == 3)
-    test(dso[0][0] == 1.1E10)
-    test(dso[0][1] == 1.2E10)
-    test(dso[0][2] == 1.3E10)
+    test(dso[0][0] == 1.1e10)
+    test(dso[0][1] == 1.2e10)
+    test(dso[0][2] == 1.3e10)
     test(len(rso) == 2)
     test(len(rso[0]) == 3)
-    test(rso[0][0] == 1.1E10)
-    test(rso[0][1] == 1.2E10)
-    test(rso[0][2] == 1.3E10)
+    test(rso[0][0] == 1.1e10)
+    test(rso[0][1] == 1.2e10)
+    test(rso[0][2] == 1.3e10)
     test(len(rso[1]) == 3)
-    test(rso[1][0] == 1.1E10)
-    test(rso[1][1] == 1.2E10)
-    test(rso[1][2] == 1.3E10)
+    test(rso[1][0] == 1.1e10)
+    test(rso[1][1] == 1.2e10)
+    test(rso[1][2] == 1.3e10)
 
     #
     # opStringSS
     #
-    ssi1 = (('abc',), ('de', 'fghi'))
-    ssi2 = ((), (), ('xyz',))
+    ssi1 = (("abc",), ("de", "fghi"))
+    ssi2 = ((), (), ("xyz",))
 
     rso, sso = p.opStringSS(ssi1, ssi2)
     test(len(sso) == 5)
@@ -662,8 +676,8 @@ def twoways(helper, p):
     #
     # opStringSSS
     #
-    sssi1 = ((('abc', 'de'), ('xyz',)), (('hello',),))
-    sssi2 = ((('', ''), ('abcd',)), (('',),), ())
+    sssi1 = ((("abc", "de"), ("xyz",)), (("hello",),))
+    sssi2 = ((("", ""), ("abcd",)), (("",),), ())
 
     rsso, ssso = p.opStringSSS(sssi1, sssi2)
     test(len(ssso) == 5)
@@ -748,8 +762,8 @@ def twoways(helper, p):
     #
     # opStringStringD
     #
-    di1 = {'foo': 'abc -1.1', 'bar': 'abc 123123.2'}
-    di2 = {'foo': 'abc -1.1', 'FOO': 'abc -100.4', 'BAR': 'abc 0.5'}
+    di1 = {"foo": "abc -1.1", "bar": "abc 123123.2"}
+    di2 = {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"}
 
     ro, do = p.opStringStringD(di1, di2)
 
@@ -763,8 +777,12 @@ def twoways(helper, p):
     #
     # opStringMyEnumD
     #
-    di1 = {'abc': Test.MyEnum.enum1, '': Test.MyEnum.enum2}
-    di2 = {'abc': Test.MyEnum.enum1, 'qwerty': Test.MyEnum.enum3, 'Hello!!': Test.MyEnum.enum2}
+    di1 = {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2}
+    di2 = {
+        "abc": Test.MyEnum.enum1,
+        "qwerty": Test.MyEnum.enum3,
+        "Hello!!": Test.MyEnum.enum2,
+    }
 
     ro, do = p.opStringMyEnumD(di1, di2)
 
@@ -778,8 +796,8 @@ def twoways(helper, p):
     #
     # opMyEnumStringD
     #
-    di1 = {Test.MyEnum.enum1: 'abc'}
-    di2 = {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'}
+    di1 = {Test.MyEnum.enum1: "abc"}
+    di2 = {Test.MyEnum.enum2: "Hello!!", Test.MyEnum.enum3: "qwerty"}
 
     ro, do = p.opMyEnumStringD(di1, di2)
 
@@ -875,7 +893,10 @@ def twoways(helper, p):
     #
     # opLongFloatDS
     #
-    dsi1 = ({999999110: -1.1, 999999111: 123123.2}, {999999110: -1.1, 999999120: -100.4, 999999130: 0.5})
+    dsi1 = (
+        {999999110: -1.1, 999999111: 123123.2},
+        {999999110: -1.1, 999999120: -100.4, 999999130: 0.5},
+    )
     dsi2 = ({999999140: 3.14},)
 
     ro, do = p.opLongFloatDS(dsi1, dsi2)
@@ -904,7 +925,10 @@ def twoways(helper, p):
     # opStringStringDS
     #
 
-    dsi1 = ({"foo": "abc -1.1", "bar": "abc 123123.2"}, {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"})
+    dsi1 = (
+        {"foo": "abc -1.1", "bar": "abc 123123.2"},
+        {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"},
+    )
     dsi2 = ({"f00": "ABC -3.14"},)
 
     ro, do = p.opStringStringDS(dsi1, dsi2)
@@ -934,7 +958,11 @@ def twoways(helper, p):
     #
     dsi1 = (
         {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2},
-        {"abc": Test.MyEnum.enum1, "qwerty": Test.MyEnum.enum3, "Hello!!": Test.MyEnum.enum2}
+        {
+            "abc": Test.MyEnum.enum1,
+            "qwerty": Test.MyEnum.enum3,
+            "Hello!!": Test.MyEnum.enum2,
+        },
     )
 
     dsi2 = ({"Goodbye": Test.MyEnum.enum1},)
@@ -964,8 +992,11 @@ def twoways(helper, p):
     #
     # opMyEnumStringDS
     #
-    dsi1 = ({Test.MyEnum.enum1: 'abc'}, {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'})
-    dsi2 = ({Test.MyEnum.enum1: 'Goodbye'},)
+    dsi1 = (
+        {Test.MyEnum.enum1: "abc"},
+        {Test.MyEnum.enum2: "Hello!!", Test.MyEnum.enum3: "qwerty"},
+    )
+    dsi2 = ({Test.MyEnum.enum1: "Goodbye"},)
 
     ro, do = p.opMyEnumStringDS(dsi1, dsi2)
 
@@ -996,7 +1027,7 @@ def twoways(helper, p):
 
     dsi1 = (
         {s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2},
-        {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2}
+        {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2},
     )
     dsi2 = ({s23: Test.MyEnum.enum3},)
 
@@ -1026,23 +1057,23 @@ def twoways(helper, p):
     # opByteByteSD
     #
     sdi1 = {0x01: (0x01, 0x11), 0x22: (0x12,)}
-    sdi2 = {0xf1: (0xf2, 0xf3)}
+    sdi2 = {0xF1: (0xF2, 0xF3)}
 
     ro, do = p.opByteByteSD(sdi1, sdi2)
 
     test(len(do) == 1)
-    test(len(do[0xf1]) == 2)
-    test(do[0xf1][0] == 0xf2)
-    test(do[0xf1][1] == 0xf3)
+    test(len(do[0xF1]) == 2)
+    test(do[0xF1][0] == 0xF2)
+    test(do[0xF1][1] == 0xF3)
     test(len(ro) == 3)
     test(len(ro[0x01]) == 2)
     test(ro[0x01][0] == 0x01)
     test(ro[0x01][1] == 0x11)
     test(len(ro[0x22]) == 1)
     test(ro[0x22][0] == 0x12)
-    test(len(ro[0xf1]) == 2)
-    test(ro[0xf1][0] == 0xf2)
-    test(ro[0xf1][1] == 0xf3)
+    test(len(ro[0xF1]) == 2)
+    test(ro[0xF1][0] == 0xF2)
+    test(ro[0xF1][1] == 0xF3)
 
     #
     # opBoolBoolSD
@@ -1116,7 +1147,10 @@ def twoways(helper, p):
     #
     # opLongLongSD
     #
-    sdi1 = {999999990: (999999110, 999999111, 999999110), 999999991: (999999120, 999999130)}
+    sdi1 = {
+        999999990: (999999110, 999999111, 999999110),
+        999999991: (999999120, 999999130),
+    }
     sdi2 = {999999992: (999999110, 999999120)}
 
     ro, do = p.opLongLongSD(sdi1, sdi2)
@@ -1165,26 +1199,26 @@ def twoways(helper, p):
     #
     # opStringDoubleSD
     #
-    sdi1 = {"Hello!!": (1.1E10, 1.2E10, 1.3E10), "Goodbye": (1.4E10, 1.5E10)}
-    sdi2 = {"": (1.6E10, 1.7E10)}
+    sdi1 = {"Hello!!": (1.1e10, 1.2e10, 1.3e10), "Goodbye": (1.4e10, 1.5e10)}
+    sdi2 = {"": (1.6e10, 1.7e10)}
 
     ro, do = p.opStringDoubleSD(sdi1, sdi2)
 
     test(len(do) == 1)
     test(len(do[""]) == 2)
-    test(do[""][0] == 1.6E10)
-    test(do[""][1] == 1.7E10)
+    test(do[""][0] == 1.6e10)
+    test(do[""][1] == 1.7e10)
     test(len(ro) == 3)
     test(len(ro["Hello!!"]) == 3)
-    test(ro["Hello!!"][0] == 1.1E10)
-    test(ro["Hello!!"][1] == 1.2E10)
-    test(ro["Hello!!"][2] == 1.3E10)
+    test(ro["Hello!!"][0] == 1.1e10)
+    test(ro["Hello!!"][1] == 1.2e10)
+    test(ro["Hello!!"][2] == 1.3e10)
     test(len(ro["Goodbye"]) == 2)
-    test(ro["Goodbye"][0] == 1.4E10)
-    test(ro["Goodbye"][1] == 1.5E10)
+    test(ro["Goodbye"][0] == 1.4e10)
+    test(ro["Goodbye"][1] == 1.5e10)
     test(len(ro[""]) == 2)
-    test(ro[""][0] == 1.6E10)
-    test(ro[""][1] == 1.7E10)
+    test(ro[""][0] == 1.6e10)
+    test(ro[""][1] == 1.7e10)
 
     #
     # opStringStringSD
@@ -1215,7 +1249,7 @@ def twoways(helper, p):
     #
     sdi1 = {
         Test.MyEnum.enum3: (Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2),
-        Test.MyEnum.enum2: (Test.MyEnum.enum1, Test.MyEnum.enum2)
+        Test.MyEnum.enum2: (Test.MyEnum.enum1, Test.MyEnum.enum2),
     }
     sdi2 = {Test.MyEnum.enum1: (Test.MyEnum.enum3, Test.MyEnum.enum3)}
 
@@ -1241,19 +1275,19 @@ def twoways(helper, p):
     # opIntS
     #
     lengths = (0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000)
-    for l in lengths:
+    for length in lengths:
         s = []
-        for i in range(l):
+        for i in range(length):
             s.append(i)
         r = p.opIntS(s)
-        test(len(r) == l)
+        test(len(r) == length)
         for j in range(len(r)):
             test(r[j] == -j)
 
     #
     # opContext
     #
-    ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+    ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
     r = p.opContext()
     test(len(p.ice_getContext()) == 0)
@@ -1274,35 +1308,37 @@ def twoways(helper, p):
     # Test implicit context propagation
     #
     if p.ice_getConnection():
-        impls = ('Shared', 'PerThread')
+        impls = ("Shared", "PerThread")
         for i in impls:
             initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
-            initData.properties.setProperty('Ice.ImplicitContext', i)
+            initData.properties.setProperty("Ice.ImplicitContext", i)
             ic = Ice.initialize(data=initData)
 
-            ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+            ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
-            p1 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:{0}'.format(helper.getTestEndpoint())))
+            p1 = Test.MyClassPrx.uncheckedCast(
+                ic.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
+            )
 
             ic.getImplicitContext().setContext(ctx)
             test(ic.getImplicitContext().getContext() == ctx)
             test(p1.opContext() == ctx)
 
-            test(ic.getImplicitContext().containsKey('zero') == False)
-            r = ic.getImplicitContext().put('zero', 'ZERO')
-            test(r == '')
-            test(ic.getImplicitContext().containsKey('zero') == True)
-            test(ic.getImplicitContext().get('zero') == 'ZERO')
+            test(ic.getImplicitContext().containsKey("zero") is False)
+            r = ic.getImplicitContext().put("zero", "ZERO")
+            test(r == "")
+            test(ic.getImplicitContext().containsKey("zero") is True)
+            test(ic.getImplicitContext().get("zero") == "ZERO")
 
             ctx = ic.getImplicitContext().getContext()
             test(p1.opContext() == ctx)
 
-            prxContext = {'one': 'UN', 'four': 'QUATRE'}
+            prxContext = {"one": "UN", "four": "QUATRE"}
 
             combined = ctx.copy()
             combined.update(prxContext)
-            test(combined['one'] == 'UN')
+            test(combined["one"] == "UN")
 
             p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
 
@@ -1312,7 +1348,7 @@ def twoways(helper, p):
             ic.getImplicitContext().setContext(ctx)
             test(p2.opContext() == combined)
 
-            test(ic.getImplicitContext().remove('one') == 'ONE')
+            test(ic.getImplicitContext().remove("one") == "ONE")
 
             ic.destroy()
 
@@ -1351,7 +1387,7 @@ def twoways(helper, p):
     s.myStruct1 = "Test.MyStruct1.myStruct1"
     s = d.opMyStruct1(s)
     test(s.tesT == "Test.MyStruct1.s")
-    test(s.myClass == None)
+    test(s.myClass is None)
     test(s.myStruct1 == "Test.MyStruct1.myStruct1")
     c = Test.MyClass1()
     c.tesT = "Test.MyClass1.testT"
@@ -1359,7 +1395,7 @@ def twoways(helper, p):
     c.myClass1 = "Test.MyClass1.myClass1"
     c = d.opMyClass1(c)
     test(c.tesT == "Test.MyClass1.testT")
-    test(c.myClass == None)
+    test(c.myClass is None)
     test(c.myClass1 == "Test.MyClass1.myClass1")
 
     p1 = p.opMStruct1()

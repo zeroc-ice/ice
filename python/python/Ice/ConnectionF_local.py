@@ -18,16 +18,16 @@ import Ice
 import IcePy
 
 # Start of module Ice
-_M_Ice = Ice.openModule('Ice')
-__name__ = 'Ice'
+_M_Ice = Ice.openModule("Ice")
+__name__ = "Ice"
 
-if 'ConnectionInfo' not in _M_Ice.__dict__:
-    _M_Ice._t_ConnectionInfo = IcePy.declareValue('::Ice::ConnectionInfo')
+if "ConnectionInfo" not in _M_Ice.__dict__:
+    _M_Ice._t_ConnectionInfo = IcePy.declareValue("::Ice::ConnectionInfo")
 
-if 'WSConnectionInfo' not in _M_Ice.__dict__:
-    _M_Ice._t_WSConnectionInfo = IcePy.declareValue('::Ice::WSConnectionInfo')
+if "WSConnectionInfo" not in _M_Ice.__dict__:
+    _M_Ice._t_WSConnectionInfo = IcePy.declareValue("::Ice::WSConnectionInfo")
 
-if 'Connection' not in _M_Ice.__dict__:
-    _M_Ice._t_Connection = IcePy.declareValue('::Ice::Connection')
+if "Connection" not in _M_Ice.__dict__:
+    _M_Ice._t_Connection = IcePy.declareValue("::Ice::Connection")
 
 # End of module Ice

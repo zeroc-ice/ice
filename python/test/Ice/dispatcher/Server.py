@@ -5,15 +5,14 @@
 
 import Ice
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import TestI
 import Dispatcher
 
 
 class Server(TestHelper):
-
     def run(self, args):
-
         initData = Ice.InitializationData()
         initData.properties = self.createTestProperties(args)
 
@@ -32,9 +31,15 @@ class Server(TestHelper):
         initData.dispatcher = d.dispatch
 
         with self.initialize(initData=initData) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
-            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))
-            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
+            communicator.getProperties().setProperty(
+                "ControllerAdapter.Endpoints", self.getTestEndpoint(num=1)
+            )
+            communicator.getProperties().setProperty(
+                "ControllerAdapter.ThreadPool.Size", "1"
+            )
 
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter2 = communicator.createObjectAdapter("ControllerAdapter")

@@ -2,9 +2,7 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice
 import Test
-import time
 
 
 class MyDerivedClassI(Test.MyDerivedClass):

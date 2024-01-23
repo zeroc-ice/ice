@@ -4,13 +4,13 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import Ice
 import TestI
 
 
 class Server(TestHelper):
-
     def run(self, args):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
@@ -18,11 +18,17 @@ class Server(TestHelper):
         properties.setProperty("Ice.MessageSizeMax", "10")
 
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint(num=0))
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint(num=0)
+            )
             communicator.getProperties().setProperty("Ice.MessageSizeMax", "10")
-            communicator.getProperties().setProperty("TestAdapter2.Endpoints", self.getTestEndpoint(num=1))
+            communicator.getProperties().setProperty(
+                "TestAdapter2.Endpoints", self.getTestEndpoint(num=1)
+            )
             communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0")
-            communicator.getProperties().setProperty("TestAdapter3.Endpoints", self.getTestEndpoint(num=2))
+            communicator.getProperties().setProperty(
+                "TestAdapter3.Endpoints", self.getTestEndpoint(num=2)
+            )
             communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1")
 
             adapter = communicator.createObjectAdapter("TestAdapter")

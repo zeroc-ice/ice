@@ -10,11 +10,10 @@ import sys
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(helper, communicator):
-
     oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost")
     oa.activate()
 
@@ -31,7 +30,7 @@ def allTests(helper, communicator):
     test(r == servant)
 
     r = oa.findDefaultServant("bar")
-    test(r == None)
+    test(r is None)
 
     identity = Ice.Identity()
     identity.category = "foo"
@@ -112,7 +111,7 @@ def allTests(helper, communicator):
     oa.addDefaultServant(servant, "")
 
     r = oa.findDefaultServant("bar")
-    test(r == None)
+    test(r is None)
 
     r = oa.findDefaultServant("")
     test(r == servant)

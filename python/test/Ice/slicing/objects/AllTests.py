@@ -8,13 +8,13 @@ import gc
 import sys
 import threading
 
-Ice.loadSlice('-I. --all ClientPrivate.ice')
+Ice.loadSlice("-I. --all ClientPrivate.ice")
 import Test
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class CallbackBase:
@@ -169,7 +169,7 @@ class Callback(CallbackBase):
         test(d1.pd1 == b2)
 
         test(b2)
-        test(b2.ice_id() == "::Test::B")        # No factory, must be sliced
+        test(b2.ice_id() == "::Test::B")  # No factory, must be sliced
         test(b2.sb == "D2.sb")
         test(b2.pb == b1)
         self.called()
@@ -193,17 +193,17 @@ class Callback(CallbackBase):
         (ret, p1, p2) = f.result()
         test(p1)
         test(p1.sb == "D2.sb (p1 1)")
-        test(p1.pb == None)
+        test(p1.pb is None)
         test(p1.ice_id() == "::Test::B")
 
         test(p2)
         test(p2.sb == "D2.sb (p2 1)")
-        test(p2.pb == None)
+        test(p2.pb is None)
         test(p2.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "D1.sb (p2 2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::D1")
         self.called()
 
@@ -211,12 +211,12 @@ class Callback(CallbackBase):
         (ret, b) = f.result()
         test(b)
         test(b.sb == "D4.sb (1)")
-        test(b.pb == None)
+        test(b.pb is None)
         test(b.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "B.sb (2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::B")
         self.called()
 
@@ -456,7 +456,9 @@ def allTests(helper, communicator):
     sys.stdout.write("base with known derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSKnownDerivedAsSBaseAsync().add_done_callback(cb.response_SBSKnownDerivedAsSBase)
+    t.SBSKnownDerivedAsSBaseAsync().add_done_callback(
+        cb.response_SBSKnownDerivedAsSBase
+    )
     cb.check()
     print("ok")
 
@@ -472,7 +474,9 @@ def allTests(helper, communicator):
     sys.stdout.write("base with known derived as known derived (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSKnownDerivedAsSBSKnownDerivedAsync().add_done_callback(cb.response_SBSKnownDerivedAsSBSKnownDerived)
+    t.SBSKnownDerivedAsSBSKnownDerivedAsync().add_done_callback(
+        cb.response_SBSKnownDerivedAsSBSKnownDerived
+    )
     cb.check()
     print("ok")
 
@@ -492,7 +496,7 @@ def allTests(helper, communicator):
             test(sb.sb == "SBSUnknownDerived.sb")
         except Ice.OperationNotExistException:
             pass
-        except:
+        except Exception:
             test(False)
     else:
         try:
@@ -507,21 +511,25 @@ def allTests(helper, communicator):
         except Ice.NoValueFactoryException:
             # Expected.
             pass
-        except:
+        except Exception:
             test(False)
     print("ok")
 
     sys.stdout.write("base with unknown derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSUnknownDerivedAsSBaseAsync().add_done_callback(cb.response_SBSUnknownDerivedAsSBase)
+    t.SBSUnknownDerivedAsSBaseAsync().add_done_callback(
+        cb.response_SBSUnknownDerivedAsSBase
+    )
     cb.check()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
         #
         # This test succeeds for the 1.0 encoding.
         #
         cb = Callback()
-        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(cb.response_SBSUnknownDerivedAsSBase)
+        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(
+            cb.response_SBSUnknownDerivedAsSBase
+        )
         cb.check()
     else:
         #
@@ -529,7 +537,9 @@ def allTests(helper, communicator):
         # be sliced to a known type.
         #
         cb = Callback()
-        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(cb.exception_SBSUnknownDerivedAsSBaseCompact)
+        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(
+            cb.exception_SBSUnknownDerivedAsSBaseCompact
+        )
         cb.check()
     print("ok")
 
@@ -707,7 +717,7 @@ def allTests(helper, communicator):
         test(d1.pd1 == b2)
 
         test(b2)
-        test(b2.ice_id() == "::Test::B")        # No factory, must be sliced
+        test(b2.ice_id() == "::Test::B")  # No factory, must be sliced
         test(b2.sb == "D2.sb")
         test(b2.pb == b1)
     except Ice.Exception:
@@ -736,7 +746,7 @@ def allTests(helper, communicator):
         test(d1.pd1 == b2)
 
         test(b2)
-        test(b2.ice_id() == "::Test::B")        # No factory, must be sliced
+        test(b2.ice_id() == "::Test::B")  # No factory, must be sliced
         test(b2.sb == "D2.sb")
         test(b2.pb == b1)
     except Ice.Exception:
@@ -802,7 +812,7 @@ def allTests(helper, communicator):
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D3.sb")
-        test(b2.ice_id() == "::Test::B")        # Sliced by server
+        test(b2.ice_id() == "::Test::B")  # Sliced by server
         test(b2.pb == b1)
         p3 = b2
         test(not isinstance(p3, Test.D3))
@@ -845,7 +855,7 @@ def allTests(helper, communicator):
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D3.sb")
-        test(b2.ice_id() == "::Test::B")        # Sliced by server
+        test(b2.ice_id() == "::Test::B")  # Sliced by server
         test(b2.pb == b1)
         p3 = b2
         test(not isinstance(p3, Test.D3))
@@ -876,7 +886,7 @@ def allTests(helper, communicator):
 
         test(b1)
         test(b1.sb == "D3.sb")
-        test(b1.ice_id() == "::Test::B")        # Sliced by server
+        test(b1.ice_id() == "::Test::B")  # Sliced by server
         p1 = b1
         test(not isinstance(p1, Test.D3))
 
@@ -919,7 +929,7 @@ def allTests(helper, communicator):
 
         test(b1)
         test(b1.sb == "D3.sb")
-        test(b1.ice_id() == "::Test::B")        # Sliced by server
+        test(b1.ice_id() == "::Test::B")  # Sliced by server
         p1 = b1
         test(not isinstance(p1, Test.D3))
 
@@ -948,17 +958,17 @@ def allTests(helper, communicator):
 
         test(p1)
         test(p1.sb == "D2.sb (p1 1)")
-        test(p1.pb == None)
+        test(p1.pb is None)
         test(p1.ice_id() == "::Test::B")
 
         test(p2)
         test(p2.sb == "D2.sb (p2 1)")
-        test(p2.pb == None)
+        test(p2.pb is None)
         test(p2.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "D1.sb (p2 2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::D1")
     except Ice.Exception:
         test(False)
@@ -978,12 +988,12 @@ def allTests(helper, communicator):
 
         test(b)
         test(b.sb == "D4.sb (1)")
-        test(b.pb == None)
+        test(b.pb is None)
         test(b.ice_id() == "::Test::B")
 
         test(ret)
         test(ret.sb == "B.sb (2)")
-        test(ret.pb == None)
+        test(ret.pb is None)
         test(ret.ice_id() == "::Test::B")
     except Ice.Exception:
         test(False)
@@ -996,7 +1006,9 @@ def allTests(helper, communicator):
     cb.check()
     print("ok")
 
-    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as base... ")
+    sys.stdout.write(
+        "param ptr slicing, instance marshaled in unknown derived as base... "
+    )
     sys.stdout.flush()
     try:
         b1 = Test.B()
@@ -1023,7 +1035,9 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
-    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as base (AMI)... ")
+    sys.stdout.write(
+        "param ptr slicing, instance marshaled in unknown derived as base (AMI)... "
+    )
     sys.stdout.flush()
     try:
         b1 = Test.B()
@@ -1053,7 +1067,9 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
-    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as derived... ")
+    sys.stdout.write(
+        "param ptr slicing, instance marshaled in unknown derived as derived... "
+    )
     sys.stdout.flush()
     try:
         d11 = Test.D1()
@@ -1083,7 +1099,9 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
-    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ")
+    sys.stdout.write(
+        "param ptr slicing, instance marshaled in unknown derived as derived (AMI)... "
+    )
     sys.stdout.flush()
     try:
         d11 = Test.D1()
@@ -1305,7 +1323,7 @@ def allTests(helper, communicator):
             s = "D1." + str(i * 20)
             test(b.sb == s)
             if i == 0:
-                test(b.pb == None)
+                test(b.pb is None)
             else:
                 test(b.pb == r[(i - 1) * 20])
             d1 = b
@@ -1353,7 +1371,7 @@ def allTests(helper, communicator):
             s = "D1." + str(i * 20)
             test(b.sb == s)
             if i == 0:
-                test(b.pb == None)
+                test(b.pb is None)
             else:
                 test(b.pb == r[(i - 1) * 20])
             d1 = b
@@ -1460,7 +1478,9 @@ def allTests(helper, communicator):
     sys.stdout.write("unknown derived exception thrown as base exception (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.throwUnknownDerivedAsBaseAsync().add_done_callback(cb.exception_throwUnknownDerivedAsBase)
+    t.throwUnknownDerivedAsBaseAsync().add_done_callback(
+        cb.exception_throwUnknownDerivedAsBase
+    )
     cb.check()
     print("ok")
 
@@ -1556,7 +1576,9 @@ def allTests(helper, communicator):
         for i in range(0, 300):
             p2 = Test.PCDerived2()
             p2.pi = i
-            p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
+            p2.pbs = [
+                None
+            ]  # Nil reference. This slice should not have an indirection table.
             p2.pcd2 = i
             pcd.pbs.append(p2)
         pcd.pcd2 = pcd.pi
@@ -1669,7 +1691,9 @@ def allTests(helper, communicator):
     for i in range(0, 300):
         p2 = Test.PCDerived2()
         p2.pi = i
-        p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
+        p2.pbs = [
+            None
+        ]  # Nil reference. This slice should not have an indirection table.
         p2.pcd2 = i
         pcd.pbs.append(p2)
     pcd.pcd2 = pcd.pi
@@ -1692,7 +1716,9 @@ def allTests(helper, communicator):
         # UCNode. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.getValueFactoryManager().add(NodeFactoryI, Test.PNode.ice_staticId())
+        communicator.getValueFactoryManager().add(
+            NodeFactoryI, Test.PNode.ice_staticId()
+        )
 
         #
         # Relay a graph through the server. This test uses a preserved class
@@ -1701,16 +1727,16 @@ def allTests(helper, communicator):
         c = Test.PNode()
         c.next = Test.PNode()
         c.next.next = Test.PNode()
-        c.next.next.next = c    # Create a cyclic graph.
+        c.next.next.next = c  # Create a cyclic graph.
 
         test(PNodeI.counter == 0)
         n = t.exchangePNode(c)
         test(PNodeI.counter == 3)
-        test(n.next != None)
+        test(n.next is not None)
         test(n.next != n.next.next)
         test(n.next.next != n.next.next.next)
         test(n.next.next.next == n)
-        n = None        # Release reference.
+        n = None  # Release reference.
         gc.collect()
         test(PNodeI.counter == 0)
 
@@ -1724,7 +1750,7 @@ def allTests(helper, communicator):
         test(p)
         test(PNodeI.counter == 3)
         t.checkPBSUnknownWithGraph(p)
-        p = None        # Release reference.
+        p = None  # Release reference.
         gc.collect()
         test(PNodeI.counter == 0)
 
@@ -1733,7 +1759,9 @@ def allTests(helper, communicator):
         # Preserved. This provides an easy way to determine how many
         # unmarshaled instances currently exist.
         #
-        communicator.getValueFactoryManager().add(PreservedFactoryI, Test.Preserved.ice_staticId())
+        communicator.getValueFactoryManager().add(
+            PreservedFactoryI, Test.Preserved.ice_staticId()
+        )
 
         #
         # Obtain a preserved object from the server where the most-derived
@@ -1744,11 +1772,11 @@ def allTests(helper, communicator):
         #
         test(PreservedI.counter == 0)
         p = t.PBSUnknown2AsPreservedWithGraph()
-        test(p != None)
+        test(p is not None)
         test(PreservedI.counter == 1)
         t.checkPBSUnknown2WithGraph(p)
-        p._ice_slicedData = None    # Break the cycle.
-        p = None                    # Release reference.
+        p._ice_slicedData = None  # Break the cycle.
+        p = None  # Release reference.
         test(PreservedI.counter == 0)
 
         #
@@ -1773,9 +1801,9 @@ def allTests(helper, communicator):
                 #
                 if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
                     test(PreservedI.counter == 1)
-                    gc.collect()        # No effect.
+                    gc.collect()  # No effect.
                     test(PreservedI.counter == 1)
-                    ex._ice_slicedData = None   # Break the cycle.
+                    ex._ice_slicedData = None  # Break the cycle.
 
             #
             # Exception has gone out of scope.

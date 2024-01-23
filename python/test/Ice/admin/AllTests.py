@@ -10,16 +10,15 @@ import TestI
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def testFacets(com, builtInFacets=True):
-
     if builtInFacets:
-        test(com.findAdminFacet("Properties") != None)
-        test(com.findAdminFacet("Process") != None)
-        test(com.findAdminFacet("Logger") != None)
-        test(com.findAdminFacet("Metrics") != None)
+        test(com.findAdminFacet("Properties") is not None)
+        test(com.findAdminFacet("Process") is not None)
+        test(com.findAdminFacet("Logger") is not None)
+        test(com.findAdminFacet("Metrics") is not None)
 
     f1 = TestI.TestFacetI()
     f2 = TestI.TestFacetI()
@@ -32,7 +31,7 @@ def testFacets(com, builtInFacets=True):
     test(com.findAdminFacet("Facet1") == f1)
     test(com.findAdminFacet("Facet2") == f2)
     test(com.findAdminFacet("Facet3") == f3)
-    test(com.findAdminFacet("Bogus") == None)
+    test(com.findAdminFacet("Bogus") is None)
 
     facetMap = com.findAllAdminFacets()
     if builtInFacets:
@@ -115,7 +114,7 @@ def allTests(helper, communicator):
     init.properties = Ice.createProperties()
     init.properties.setProperty("Ice.Admin.Enabled", "1")
     com = Ice.initialize(init)
-    test(com.getAdmin() == None)
+    test(com.getAdmin() is None)
     identity = Ice.stringToIdentity("test-admin")
     try:
         com.createAdmin(None, identity)
@@ -124,8 +123,8 @@ def allTests(helper, communicator):
         pass
 
     adapter = com.createObjectAdapter("")
-    test(com.createAdmin(adapter, identity) != None)
-    test(com.getAdmin() != None)
+    test(com.createAdmin(adapter, identity) is not None)
+    test(com.getAdmin() is not None)
 
     testFacets(com)
     com.destroy()
@@ -146,7 +145,9 @@ def allTests(helper, communicator):
     print("ok")
 
     ref = "factory:{0} -t 10000".format(helper.getTestEndpoint())
-    factory = Test.RemoteCommunicatorFactoryPrx.uncheckedCast(communicator.stringToProxy(ref))
+    factory = Test.RemoteCommunicatorFactoryPrx.uncheckedCast(
+        communicator.stringToProxy(ref)
+    )
 
     sys.stdout.write("testing process facet... ")
     sys.stdout.flush()
@@ -262,9 +263,9 @@ def allTests(helper, communicator):
     obj = com.getAdmin()
 
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-    test(proc == None)
+    test(proc is None)
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
-    test(tf == None)
+    test(tf is None)
     com.destroy()
 
     #
@@ -279,9 +280,9 @@ def allTests(helper, communicator):
     obj = com.getAdmin()
 
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-    test(pa == None)
+    test(pa is None)
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
-    test(tf == None)
+    test(tf is None)
 
     com.destroy()
 
@@ -297,10 +298,10 @@ def allTests(helper, communicator):
     obj = com.getAdmin()
 
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-    test(pa == None)
+    test(pa is None)
 
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-    test(proc == None)
+    test(proc is None)
 
     com.destroy()
 
@@ -320,7 +321,7 @@ def allTests(helper, communicator):
     tf.op()
 
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
-    test(proc == None)
+    test(proc is None)
     com.destroy()
 
     #
@@ -335,7 +336,7 @@ def allTests(helper, communicator):
     obj = com.getAdmin()
 
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
-    test(pa == None)
+    test(pa is None)
 
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     tf.op()

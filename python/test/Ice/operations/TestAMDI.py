@@ -3,25 +3,23 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import os
 import sys
-import traceback
 import threading
 import time
 import Ice
+
 slice_dir = Ice.getSliceDir()
 if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
+    print(sys.argv[0] + ": Slice directory not found.")
     sys.exit(1)
 
 Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
 import Test
-import M
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class FutureThread(threading.Thread):
@@ -101,8 +99,16 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opMyClass(self, p1, current=None):
         p2 = p1
-        p3 = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")))
-        return Ice.Future.completed((Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3))
+        p3 = Test.MyClassPrx.uncheckedCast(
+            current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))
+        )
+        return Ice.Future.completed(
+            (
+                Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)),
+                p2,
+                p3,
+            )
+        )
 
     def opStruct(self, p1, p2, current=None):
         p1.s.s = "a new string"
@@ -400,30 +406,67 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return Ice.Future.completed(value)
 
     def opStringLiterals(self, current=None):
-        return Ice.Future.completed([
-            Test.s0, Test.s1, Test.s2, Test.s3, Test.s4, Test.s5, Test.s6, Test.s7, Test.s8, Test.s9, Test.s10,
-            Test.sw0, Test.sw1, Test.sw2, Test.sw3, Test.sw4, Test.sw5, Test.sw6, Test.sw7, Test.sw8, Test.sw9,
-            Test.sw10,
-            Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
-            Test.su0, Test.su1, Test.su2])
+        return Ice.Future.completed(
+            [
+                Test.s0,
+                Test.s1,
+                Test.s2,
+                Test.s3,
+                Test.s4,
+                Test.s5,
+                Test.s6,
+                Test.s7,
+                Test.s8,
+                Test.s9,
+                Test.s10,
+                Test.sw0,
+                Test.sw1,
+                Test.sw2,
+                Test.sw3,
+                Test.sw4,
+                Test.sw5,
+                Test.sw6,
+                Test.sw7,
+                Test.sw8,
+                Test.sw9,
+                Test.sw10,
+                Test.ss0,
+                Test.ss1,
+                Test.ss2,
+                Test.ss3,
+                Test.ss4,
+                Test.ss5,
+                Test.su0,
+                Test.su1,
+                Test.su2,
+            ]
+        )
 
     def opWStringLiterals(self, current=None):
         return self.opStringLiterals(current)
 
     def opMStruct1(self, current):
-        return Ice.Future.completed(Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current))
+        return Ice.Future.completed(
+            Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current)
+        )
 
     def opMStruct2(self, p1, current):
-        return Ice.Future.completed(Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed(
+            Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current)
+        )
 
     def opMSeq1(self, current):
         return Ice.Future.completed(Test.MyClass.OpMSeq1MarshaledResult([], current))
 
     def opMSeq2(self, p1, current):
-        return Ice.Future.completed(Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed(
+            Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current)
+        )
 
     def opMDict1(self, current):
         return Ice.Future.completed(Test.MyClass.OpMDict1MarshaledResult({}, current))
 
     def opMDict2(self, p1, current):
-        return Ice.Future.completed(Test.MyClass.OpMDict2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed(
+            Test.MyClass.OpMDict2MarshaledResult((p1, p1), current)
+        )

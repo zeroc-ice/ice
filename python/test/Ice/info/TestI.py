@@ -4,18 +4,17 @@
 
 import Ice
 import Test
-import time
 
 
 def getIPEndpointInfo(info):
-    while (info):
+    while info:
         if isinstance(info, Ice.IPEndpointInfo):
             return info
         info = info.underlying
 
 
 def getIPConnectionInfo(info):
-    while (info):
+    while info:
         if isinstance(info, Ice.IPConnectionInfo):
             return info
         info = info.underlying

@@ -4,15 +4,13 @@
 
 import Ice
 import Test
-import array
-import sys
 import threading
 import time
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class Callback:
@@ -33,7 +31,6 @@ class Callback:
 
 
 def batchOneways(p):
-
     bs1 = bytes([0 for x in range(0, 10 * 1024)])
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
@@ -53,7 +50,6 @@ def batchOneways(p):
         time.sleep(0.01)
 
     if p.ice_getConnection():
-
         batch1 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
         batch2 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 

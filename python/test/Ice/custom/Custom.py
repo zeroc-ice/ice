@@ -4,11 +4,10 @@
 
 import Ice
 
-try:
-    import numpy
-    hasNumPy = True
-except ImportError:
-    hasNumPy = False
+
+from importlib.util import find_spec
+
+hasNumPy = find_spec("numpy") is not None
 
 
 def myBoolSeq(buffer, type, copy):
@@ -64,6 +63,7 @@ if hasNumPy:
 
     def myNumPyComplex128Seq(buffer, type, copy):
         import numpy
+
         return numpy.frombuffer(buffer.tobytes() if copy else buffer, numpy.complex128)
 
     def myNumPyMatrix3x3(buffer, type, copy):

@@ -30,59 +30,59 @@ import Ice.FacetMap_local
 import Ice.Connection_local
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Included module Ice.Instrumentation
-_M_Ice.Instrumentation = Ice.openModule('Ice.Instrumentation')
+_M_Ice.Instrumentation = Ice.openModule("Ice.Instrumentation")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 _M_Ice.__doc__ = """
  The Ice core library. Among many other features, the Ice core library manages all the communication tasks using an
  efficient protocol (including protocol compression and support for both TCP and UDP), provides a thread pool for
  multi-threaded servers, and additional functionality that supports high scalability.
 """
 
-if 'Communicator' not in _M_Ice.__dict__:
+if "Communicator" not in _M_Ice.__dict__:
     _M_Ice.Communicator = Ice.createTempClass()
 
     class Communicator(object):
         """
-         The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
-         instantiation is language-specific, and not specified in Slice code.
+        The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
+        instantiation is language-specific, and not specified in Slice code.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.Communicator:
-                raise RuntimeError('Ice.Communicator is an abstract class')
+                raise RuntimeError("Ice.Communicator is an abstract class")
 
         def destroy(self):
             """
-             Destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
-             memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
-             calls to destroy are ignored.
+            Destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
+            memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
+            calls to destroy are ignored.
             """
             raise NotImplementedError("method 'destroy' not implemented")
 
         def shutdown(self):
             """
-             Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-             Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
-             shutdown are ignored.
-             After shutdown returns, no new requests are processed. However, requests that have been started before shutdown
-             was called might still be active. You can use waitForShutdown to wait for the completion of all
-             requests.
+            Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
+            Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
+            shutdown are ignored.
+            After shutdown returns, no new requests are processed. However, requests that have been started before shutdown
+            was called might still be active. You can use waitForShutdown to wait for the completion of all
+            requests.
             """
             raise NotImplementedError("method 'shutdown' not implemented")
 
         def waitForShutdown(self):
             """
-             Wait until the application has called shutdown (or destroy). On the server side, this
-             operation blocks the calling thread until all currently-executing operations have completed. On the client
-             side, the operation simply blocks until another thread has called shutdown or destroy.
-             A typical use of this operation is to call it from the main thread, which then waits until some other thread
-             calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
-             before it finally calls destroy to shut down the client functionality, and then exits the application.
+            Wait until the application has called shutdown (or destroy). On the server side, this
+            operation blocks the calling thread until all currently-executing operations have completed. On the client
+            side, the operation simply blocks until another thread has called shutdown or destroy.
+            A typical use of this operation is to call it from the main thread, which then waits until some other thread
+            calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
+            before it finally calls destroy to shut down the client functionality, and then exits the application.
             """
             raise NotImplementedError("method 'waitForShutdown' not implemented")
 
@@ -172,7 +172,9 @@ if 'Communicator' not in _M_Ice.__dict__:
             endpoints -- The endpoints for the object adapter.
             Returns: The new object adapter.
             """
-            raise NotImplementedError("method 'createObjectAdapterWithEndpoints' not implemented")
+            raise NotImplementedError(
+                "method 'createObjectAdapterWithEndpoints' not implemented"
+            )
 
         def createObjectAdapterWithRouter(self, name, rtr):
             """
@@ -183,7 +185,9 @@ if 'Communicator' not in _M_Ice.__dict__:
             rtr -- The router.
             Returns: The new object adapter.
             """
-            raise NotImplementedError("method 'createObjectAdapterWithRouter' not implemented")
+            raise NotImplementedError(
+                "method 'createObjectAdapterWithRouter' not implemented"
+            )
 
         def getImplicitContext(self):
             """
@@ -339,13 +343,15 @@ if 'Communicator' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_Communicator = IcePy.defineValue('::Ice::Communicator', Communicator, -1, (), False, True, None, ())
+    _M_Ice._t_Communicator = IcePy.defineValue(
+        "::Ice::Communicator", Communicator, -1, (), False, True, None, ()
+    )
     Communicator._ice_type = _M_Ice._t_Communicator
 
     _M_Ice.Communicator = Communicator
     del Communicator
 
-if 'ToStringMode' not in _M_Ice.__dict__:
+if "ToStringMode" not in _M_Ice.__dict__:
     _M_Ice.ToStringMode = Ice.createTempClass()
 
     class ToStringMode(Ice.EnumBase):
@@ -371,14 +377,21 @@ if 'ToStringMode' not in _M_Ice.__dict__:
             if _n in self._enumerators:
                 return self._enumerators[_n]
             return None
+
         valueOf = classmethod(valueOf)
 
     ToStringMode.Unicode = ToStringMode("Unicode", 0)
     ToStringMode.ASCII = ToStringMode("ASCII", 1)
     ToStringMode.Compat = ToStringMode("Compat", 2)
-    ToStringMode._enumerators = {0: ToStringMode.Unicode, 1: ToStringMode.ASCII, 2: ToStringMode.Compat}
+    ToStringMode._enumerators = {
+        0: ToStringMode.Unicode,
+        1: ToStringMode.ASCII,
+        2: ToStringMode.Compat,
+    }
 
-    _M_Ice._t_ToStringMode = IcePy.defineEnum('::Ice::ToStringMode', ToStringMode, (), ToStringMode._enumerators)
+    _M_Ice._t_ToStringMode = IcePy.defineEnum(
+        "::Ice::ToStringMode", ToStringMode, (), ToStringMode._enumerators
+    )
 
     _M_Ice.ToStringMode = ToStringMode
     del ToStringMode

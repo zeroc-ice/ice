@@ -82,7 +82,6 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
 
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
-
     def createCommunicator(self, props, current=None):
         #
         # Prepare the property set using the given properties.
@@ -101,7 +100,9 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         #
         communicator = Ice.initialize(init)
 
-        proxy = current.adapter.addWithUUID(RemoteCommunicatorI(communicator, init.threadHook))
+        proxy = current.adapter.addWithUUID(
+            RemoteCommunicatorI(communicator, init.threadHook)
+        )
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 
     def shutdown(self, current=None):

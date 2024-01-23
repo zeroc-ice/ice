@@ -18,10 +18,10 @@ import Ice
 import IcePy
 
 # Start of module Ice
-_M_Ice = Ice.openModule('Ice')
-__name__ = 'Ice'
+_M_Ice = Ice.openModule("Ice")
+__name__ = "Ice"
 
-if 'Communicator' not in _M_Ice.__dict__:
-    _M_Ice._t_Communicator = IcePy.declareValue('::Ice::Communicator')
+if "Communicator" not in _M_Ice.__dict__:
+    _M_Ice._t_Communicator = IcePy.declareValue("::Ice::Communicator")
 
 # End of module Ice

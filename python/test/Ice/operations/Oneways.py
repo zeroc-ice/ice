@@ -3,18 +3,15 @@
 #
 
 import Ice
-import math
 import Test
-import array
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def oneways(helper, p):
-    communicator = helper.communicator()
     p = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
 
     #
@@ -41,6 +38,6 @@ def oneways(helper, p):
     # opByte
     #
     try:
-        p.opByte(0xff, 0x0f)
+        p.opByte(0xFF, 0x0F)
     except Ice.TwowayOnlyException:
         pass

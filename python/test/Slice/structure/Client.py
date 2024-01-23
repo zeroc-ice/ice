@@ -4,7 +4,8 @@
 #
 
 from TestHelper import TestHelper
-TestHelper.loadSlice('Test.ice')
+
+TestHelper.loadSlice("Test.ice")
 import sys
 import copy
 import Test
@@ -12,7 +13,7 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests(communicator):
@@ -178,8 +179,6 @@ def allTests(communicator):
 
 
 class Client(TestHelper):
-
     def run(self, args):
-
         with self.initialize(args=args) as communicator:
             allTests(communicator)

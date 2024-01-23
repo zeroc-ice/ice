@@ -11,7 +11,7 @@ from TestHelper import TestHelper
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 class App(Ice.Application):
@@ -25,7 +25,6 @@ class App(Ice.Application):
 
 
 class Client(TestHelper):
-
     def run(sef, args):
         sys.stdout.write("testing load properties from UTF-8 path... ")
         sys.stdout.flush()
@@ -37,7 +36,9 @@ class Client(TestHelper):
         test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
         print("ok")
 
-        sys.stdout.write("testing load properties from UTF-8 path using Ice::Application... ")
+        sys.stdout.write(
+            "testing load properties from UTF-8 path using Ice::Application... "
+        )
         sys.stdout.flush()
         app = App()
         app.main(args, "./config/中国_client.config")
@@ -45,7 +46,9 @@ class Client(TestHelper):
 
         sys.stdout.write("testing using Ice.Config with multiple config files... ")
         sys.stdout.flush()
-        properties = Ice.createProperties(["--Ice.Config=config/config.1, config/config.2, config/config.3"])
+        properties = Ice.createProperties(
+            ["--Ice.Config=config/config.1, config/config.2, config/config.3"]
+        )
         test(properties.getProperty("Config1") == "Config1")
         test(properties.getProperty("Config2") == "Config2")
         test(properties.getProperty("Config3") == "Config3")
@@ -76,7 +79,7 @@ class Client(TestHelper):
             "B": "2 3 4",
             "C": "5=#6",
             "AServer": "\\\\server\\dir",
-            "BServer": "\\server\\dir"
+            "BServer": "\\server\\dir",
         }
 
         for k in props.keys():

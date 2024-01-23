@@ -9,19 +9,17 @@ import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
-
         properties = self.createTestProperties(args)
 
         #
         # This test aborts servers, so we don't want warnings.
         #
-        properties.setProperty('Ice.Warn.Connections', '0')
+        properties.setProperty("Ice.Warn.Connections", "0")
 
         ports = []
         for arg in args:
-            if arg[0] == '-':
+            if arg[0] == "-":
                 continue
             ports.append(int(arg))
 

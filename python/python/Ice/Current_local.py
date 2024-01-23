@@ -24,12 +24,12 @@ import Ice.OperationMode_ice
 import Ice.Version_ice
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 
-if 'Current' not in _M_Ice.__dict__:
+if "Current" not in _M_Ice.__dict__:
     _M_Ice.Current = Ice.createTempClass()
 
     class Current(object):
@@ -50,7 +50,18 @@ if 'Current' not in _M_Ice.__dict__:
         encoding --  The encoding version used to encode the input and output parameters.
         """
 
-        def __init__(self, adapter=None, con=None, id=Ice._struct_marker, facet='', operation='', mode=_M_Ice.OperationMode.Normal, ctx=None, requestId=0, encoding=Ice._struct_marker):
+        def __init__(
+            self,
+            adapter=None,
+            con=None,
+            id=Ice._struct_marker,
+            facet="",
+            operation="",
+            mode=_M_Ice.OperationMode.Normal,
+            ctx=None,
+            requestId=0,
+            encoding=Ice._struct_marker,
+        ):
             self.adapter = adapter
             self.con = con
             if id is Ice._struct_marker:
@@ -101,17 +112,22 @@ if 'Current' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-    _M_Ice._t_Current = IcePy.defineStruct('::Ice::Current', Current, (), (
-        ('adapter', (), _M_Ice._t_ObjectAdapter),
-        ('con', (), _M_Ice._t_Connection),
-        ('id', (), _M_Ice._t_Identity),
-        ('facet', (), IcePy._t_string),
-        ('operation', (), IcePy._t_string),
-        ('mode', (), _M_Ice._t_OperationMode),
-        ('ctx', (), _M_Ice._t_Context),
-        ('requestId', (), IcePy._t_int),
-        ('encoding', (), _M_Ice._t_EncodingVersion)
-    ))
+    _M_Ice._t_Current = IcePy.defineStruct(
+        "::Ice::Current",
+        Current,
+        (),
+        (
+            ("adapter", (), _M_Ice._t_ObjectAdapter),
+            ("con", (), _M_Ice._t_Connection),
+            ("id", (), _M_Ice._t_Identity),
+            ("facet", (), IcePy._t_string),
+            ("operation", (), IcePy._t_string),
+            ("mode", (), _M_Ice._t_OperationMode),
+            ("ctx", (), _M_Ice._t_Context),
+            ("requestId", (), IcePy._t_int),
+            ("encoding", (), _M_Ice._t_EncodingVersion),
+        ),
+    )
 
     _M_Ice.Current = Current
     del Current

@@ -21,12 +21,12 @@ import Ice.Version_ice
 import Ice.BuiltinSequences_ice
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 
-if 'InitializationException' not in _M_Ice.__dict__:
+if "InitializationException" not in _M_Ice.__dict__:
     _M_Ice.InitializationException = Ice.createTempClass()
 
     class InitializationException(Ice.LocalException):
@@ -36,7 +36,7 @@ if 'InitializationException' not in _M_Ice.__dict__:
         reason --  The reason for the failure.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             self.reason = reason
 
         def __str__(self):
@@ -44,16 +44,22 @@ if 'InitializationException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::InitializationException'
+        _ice_id = "::Ice::InitializationException"
 
     _M_Ice._t_InitializationException = IcePy.defineException(
-        '::Ice::InitializationException', InitializationException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
+        "::Ice::InitializationException",
+        InitializationException,
+        (),
+        False,
+        None,
+        (("reason", (), IcePy._t_string, False, 0),),
+    )
     InitializationException._ice_type = _M_Ice._t_InitializationException
 
     _M_Ice.InitializationException = InitializationException
     del InitializationException
 
-if 'PluginInitializationException' not in _M_Ice.__dict__:
+if "PluginInitializationException" not in _M_Ice.__dict__:
     _M_Ice.PluginInitializationException = Ice.createTempClass()
 
     class PluginInitializationException(Ice.LocalException):
@@ -63,7 +69,7 @@ if 'PluginInitializationException' not in _M_Ice.__dict__:
         reason --  The reason for the failure.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             self.reason = reason
 
         def __str__(self):
@@ -71,21 +77,27 @@ if 'PluginInitializationException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::PluginInitializationException'
+        _ice_id = "::Ice::PluginInitializationException"
 
     _M_Ice._t_PluginInitializationException = IcePy.defineException(
-        '::Ice::PluginInitializationException', PluginInitializationException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
+        "::Ice::PluginInitializationException",
+        PluginInitializationException,
+        (),
+        False,
+        None,
+        (("reason", (), IcePy._t_string, False, 0),),
+    )
     PluginInitializationException._ice_type = _M_Ice._t_PluginInitializationException
 
     _M_Ice.PluginInitializationException = PluginInitializationException
     del PluginInitializationException
 
-if 'CollocationOptimizationException' not in _M_Ice.__dict__:
+if "CollocationOptimizationException" not in _M_Ice.__dict__:
     _M_Ice.CollocationOptimizationException = Ice.createTempClass()
 
     class CollocationOptimizationException(Ice.LocalException):
         """
-         This exception is raised if a feature is requested that is not supported with collocation optimization.
+        This exception is raised if a feature is requested that is not supported with collocation optimization.
         """
 
         def __init__(self):
@@ -96,16 +108,24 @@ if 'CollocationOptimizationException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::CollocationOptimizationException'
+        _ice_id = "::Ice::CollocationOptimizationException"
 
     _M_Ice._t_CollocationOptimizationException = IcePy.defineException(
-        '::Ice::CollocationOptimizationException', CollocationOptimizationException, (), False, None, ())
-    CollocationOptimizationException._ice_type = _M_Ice._t_CollocationOptimizationException
+        "::Ice::CollocationOptimizationException",
+        CollocationOptimizationException,
+        (),
+        False,
+        None,
+        (),
+    )
+    CollocationOptimizationException._ice_type = (
+        _M_Ice._t_CollocationOptimizationException
+    )
 
     _M_Ice.CollocationOptimizationException = CollocationOptimizationException
     del CollocationOptimizationException
 
-if 'AlreadyRegisteredException' not in _M_Ice.__dict__:
+if "AlreadyRegisteredException" not in _M_Ice.__dict__:
     _M_Ice.AlreadyRegisteredException = Ice.createTempClass()
 
     class AlreadyRegisteredException(Ice.LocalException):
@@ -119,7 +139,7 @@ if 'AlreadyRegisteredException' not in _M_Ice.__dict__:
         id --  The ID (or name) of the object that is registered already.
         """
 
-        def __init__(self, kindOfObject='', id=''):
+        def __init__(self, kindOfObject="", id=""):
             self.kindOfObject = kindOfObject
             self.id = id
 
@@ -128,18 +148,25 @@ if 'AlreadyRegisteredException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::AlreadyRegisteredException'
+        _ice_id = "::Ice::AlreadyRegisteredException"
 
-    _M_Ice._t_AlreadyRegisteredException = IcePy.defineException('::Ice::AlreadyRegisteredException', AlreadyRegisteredException, (), False, None, (
-        ('kindOfObject', (), IcePy._t_string, False, 0),
-        ('id', (), IcePy._t_string, False, 0)
-    ))
+    _M_Ice._t_AlreadyRegisteredException = IcePy.defineException(
+        "::Ice::AlreadyRegisteredException",
+        AlreadyRegisteredException,
+        (),
+        False,
+        None,
+        (
+            ("kindOfObject", (), IcePy._t_string, False, 0),
+            ("id", (), IcePy._t_string, False, 0),
+        ),
+    )
     AlreadyRegisteredException._ice_type = _M_Ice._t_AlreadyRegisteredException
 
     _M_Ice.AlreadyRegisteredException = AlreadyRegisteredException
     del AlreadyRegisteredException
 
-if 'NotRegisteredException' not in _M_Ice.__dict__:
+if "NotRegisteredException" not in _M_Ice.__dict__:
     _M_Ice.NotRegisteredException = Ice.createTempClass()
 
     class NotRegisteredException(Ice.LocalException):
@@ -155,7 +182,7 @@ if 'NotRegisteredException' not in _M_Ice.__dict__:
         id --  The ID (or name) of the object that could not be removed.
         """
 
-        def __init__(self, kindOfObject='', id=''):
+        def __init__(self, kindOfObject="", id=""):
             self.kindOfObject = kindOfObject
             self.id = id
 
@@ -164,18 +191,25 @@ if 'NotRegisteredException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::NotRegisteredException'
+        _ice_id = "::Ice::NotRegisteredException"
 
-    _M_Ice._t_NotRegisteredException = IcePy.defineException('::Ice::NotRegisteredException', NotRegisteredException, (), False, None, (
-        ('kindOfObject', (), IcePy._t_string, False, 0),
-        ('id', (), IcePy._t_string, False, 0)
-    ))
+    _M_Ice._t_NotRegisteredException = IcePy.defineException(
+        "::Ice::NotRegisteredException",
+        NotRegisteredException,
+        (),
+        False,
+        None,
+        (
+            ("kindOfObject", (), IcePy._t_string, False, 0),
+            ("id", (), IcePy._t_string, False, 0),
+        ),
+    )
     NotRegisteredException._ice_type = _M_Ice._t_NotRegisteredException
 
     _M_Ice.NotRegisteredException = NotRegisteredException
     del NotRegisteredException
 
-if 'TwowayOnlyException' not in _M_Ice.__dict__:
+if "TwowayOnlyException" not in _M_Ice.__dict__:
     _M_Ice.TwowayOnlyException = Ice.createTempClass()
 
     class TwowayOnlyException(Ice.LocalException):
@@ -187,7 +221,7 @@ if 'TwowayOnlyException' not in _M_Ice.__dict__:
         operation --  The name of the operation that was invoked.
         """
 
-        def __init__(self, operation=''):
+        def __init__(self, operation=""):
             self.operation = operation
 
         def __str__(self):
@@ -195,24 +229,30 @@ if 'TwowayOnlyException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::TwowayOnlyException'
+        _ice_id = "::Ice::TwowayOnlyException"
 
     _M_Ice._t_TwowayOnlyException = IcePy.defineException(
-        '::Ice::TwowayOnlyException', TwowayOnlyException, (), False, None, (('operation', (), IcePy._t_string, False, 0),))
+        "::Ice::TwowayOnlyException",
+        TwowayOnlyException,
+        (),
+        False,
+        None,
+        (("operation", (), IcePy._t_string, False, 0),),
+    )
     TwowayOnlyException._ice_type = _M_Ice._t_TwowayOnlyException
 
     _M_Ice.TwowayOnlyException = TwowayOnlyException
     del TwowayOnlyException
 
-if 'CloneNotImplementedException' not in _M_Ice.__dict__:
+if "CloneNotImplementedException" not in _M_Ice.__dict__:
     _M_Ice.CloneNotImplementedException = Ice.createTempClass()
 
     class CloneNotImplementedException(Ice.LocalException):
         """
-         An attempt was made to clone a class that does not support cloning. This exception is raised if
-         ice_clone is called on a class that is derived from an abstract Slice class (that is, a class
-         containing operations), and the derived class does not provide an implementation of the ice_clone
-         operation (C++ only).
+        An attempt was made to clone a class that does not support cloning. This exception is raised if
+        ice_clone is called on a class that is derived from an abstract Slice class (that is, a class
+        containing operations), and the derived class does not provide an implementation of the ice_clone
+        operation (C++ only).
         """
 
         def __init__(self):
@@ -223,16 +263,22 @@ if 'CloneNotImplementedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::CloneNotImplementedException'
+        _ice_id = "::Ice::CloneNotImplementedException"
 
     _M_Ice._t_CloneNotImplementedException = IcePy.defineException(
-        '::Ice::CloneNotImplementedException', CloneNotImplementedException, (), False, None, ())
+        "::Ice::CloneNotImplementedException",
+        CloneNotImplementedException,
+        (),
+        False,
+        None,
+        (),
+    )
     CloneNotImplementedException._ice_type = _M_Ice._t_CloneNotImplementedException
 
     _M_Ice.CloneNotImplementedException = CloneNotImplementedException
     del CloneNotImplementedException
 
-if 'UnknownException' not in _M_Ice.__dict__:
+if "UnknownException" not in _M_Ice.__dict__:
     _M_Ice.UnknownException = Ice.createTempClass()
 
     class UnknownException(Ice.LocalException):
@@ -244,7 +290,7 @@ if 'UnknownException' not in _M_Ice.__dict__:
         unknown --  This field is set to the textual representation of the unknown exception if available.
         """
 
-        def __init__(self, unknown=''):
+        def __init__(self, unknown=""):
             self.unknown = unknown
 
         def __str__(self):
@@ -252,28 +298,34 @@ if 'UnknownException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnknownException'
+        _ice_id = "::Ice::UnknownException"
 
     _M_Ice._t_UnknownException = IcePy.defineException(
-        '::Ice::UnknownException', UnknownException, (), False, None, (('unknown', (), IcePy._t_string, False, 0),))
+        "::Ice::UnknownException",
+        UnknownException,
+        (),
+        False,
+        None,
+        (("unknown", (), IcePy._t_string, False, 0),),
+    )
     UnknownException._ice_type = _M_Ice._t_UnknownException
 
     _M_Ice.UnknownException = UnknownException
     del UnknownException
 
-if 'UnknownLocalException' not in _M_Ice.__dict__:
+if "UnknownLocalException" not in _M_Ice.__dict__:
     _M_Ice.UnknownLocalException = Ice.createTempClass()
 
     class UnknownLocalException(_M_Ice.UnknownException):
         """
-         This exception is raised if an operation call on a server raises a  local exception. Because local exceptions are
-         not transmitted by the Ice protocol, the client receives all local exceptions raised by the server as
-         UnknownLocalException. The only exception to this rule are all exceptions derived from
-         RequestFailedException, which are transmitted by the Ice protocol even though they are declared
-         local.
+        This exception is raised if an operation call on a server raises a  local exception. Because local exceptions are
+        not transmitted by the Ice protocol, the client receives all local exceptions raised by the server as
+        UnknownLocalException. The only exception to this rule are all exceptions derived from
+        RequestFailedException, which are transmitted by the Ice protocol even though they are declared
+        local.
         """
 
-        def __init__(self, unknown=''):
+        def __init__(self, unknown=""):
             _M_Ice.UnknownException.__init__(self, unknown)
 
         def __str__(self):
@@ -281,28 +333,34 @@ if 'UnknownLocalException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnknownLocalException'
+        _ice_id = "::Ice::UnknownLocalException"
 
     _M_Ice._t_UnknownLocalException = IcePy.defineException(
-        '::Ice::UnknownLocalException', UnknownLocalException, (), False, _M_Ice._t_UnknownException, ())
+        "::Ice::UnknownLocalException",
+        UnknownLocalException,
+        (),
+        False,
+        _M_Ice._t_UnknownException,
+        (),
+    )
     UnknownLocalException._ice_type = _M_Ice._t_UnknownLocalException
 
     _M_Ice.UnknownLocalException = UnknownLocalException
     del UnknownLocalException
 
-if 'UnknownUserException' not in _M_Ice.__dict__:
+if "UnknownUserException" not in _M_Ice.__dict__:
     _M_Ice.UnknownUserException = Ice.createTempClass()
 
     class UnknownUserException(_M_Ice.UnknownException):
         """
-         An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
-         that is not declared in the exception's throws clause. Such undeclared exceptions are not transmitted
-         from the server to the client by the Ice protocol, but instead the client just gets an UnknownUserException.
-         This is necessary in order to not violate the contract established by an operation's signature: Only local
-         exceptions and user exceptions declared in the throws clause can be raised.
+        An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
+        that is not declared in the exception's throws clause. Such undeclared exceptions are not transmitted
+        from the server to the client by the Ice protocol, but instead the client just gets an UnknownUserException.
+        This is necessary in order to not violate the contract established by an operation's signature: Only local
+        exceptions and user exceptions declared in the throws clause can be raised.
         """
 
-        def __init__(self, unknown=''):
+        def __init__(self, unknown=""):
             _M_Ice.UnknownException.__init__(self, unknown)
 
         def __str__(self):
@@ -310,21 +368,27 @@ if 'UnknownUserException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnknownUserException'
+        _ice_id = "::Ice::UnknownUserException"
 
     _M_Ice._t_UnknownUserException = IcePy.defineException(
-        '::Ice::UnknownUserException', UnknownUserException, (), False, _M_Ice._t_UnknownException, ())
+        "::Ice::UnknownUserException",
+        UnknownUserException,
+        (),
+        False,
+        _M_Ice._t_UnknownException,
+        (),
+    )
     UnknownUserException._ice_type = _M_Ice._t_UnknownUserException
 
     _M_Ice.UnknownUserException = UnknownUserException
     del UnknownUserException
 
-if 'VersionMismatchException' not in _M_Ice.__dict__:
+if "VersionMismatchException" not in _M_Ice.__dict__:
     _M_Ice.VersionMismatchException = Ice.createTempClass()
 
     class VersionMismatchException(Ice.LocalException):
         """
-         This exception is raised if the Ice library version does not match the version in the Ice header files.
+        This exception is raised if the Ice library version does not match the version in the Ice header files.
         """
 
         def __init__(self):
@@ -335,21 +399,22 @@ if 'VersionMismatchException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::VersionMismatchException'
+        _ice_id = "::Ice::VersionMismatchException"
 
     _M_Ice._t_VersionMismatchException = IcePy.defineException(
-        '::Ice::VersionMismatchException', VersionMismatchException, (), False, None, ())
+        "::Ice::VersionMismatchException", VersionMismatchException, (), False, None, ()
+    )
     VersionMismatchException._ice_type = _M_Ice._t_VersionMismatchException
 
     _M_Ice.VersionMismatchException = VersionMismatchException
     del VersionMismatchException
 
-if 'CommunicatorDestroyedException' not in _M_Ice.__dict__:
+if "CommunicatorDestroyedException" not in _M_Ice.__dict__:
     _M_Ice.CommunicatorDestroyedException = Ice.createTempClass()
 
     class CommunicatorDestroyedException(Ice.LocalException):
         """
-         This exception is raised if the Communicator has been destroyed.
+        This exception is raised if the Communicator has been destroyed.
         """
 
         def __init__(self):
@@ -360,16 +425,22 @@ if 'CommunicatorDestroyedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::CommunicatorDestroyedException'
+        _ice_id = "::Ice::CommunicatorDestroyedException"
 
     _M_Ice._t_CommunicatorDestroyedException = IcePy.defineException(
-        '::Ice::CommunicatorDestroyedException', CommunicatorDestroyedException, (), False, None, ())
+        "::Ice::CommunicatorDestroyedException",
+        CommunicatorDestroyedException,
+        (),
+        False,
+        None,
+        (),
+    )
     CommunicatorDestroyedException._ice_type = _M_Ice._t_CommunicatorDestroyedException
 
     _M_Ice.CommunicatorDestroyedException = CommunicatorDestroyedException
     del CommunicatorDestroyedException
 
-if 'ObjectAdapterDeactivatedException' not in _M_Ice.__dict__:
+if "ObjectAdapterDeactivatedException" not in _M_Ice.__dict__:
     _M_Ice.ObjectAdapterDeactivatedException = Ice.createTempClass()
 
     class ObjectAdapterDeactivatedException(Ice.LocalException):
@@ -379,7 +450,7 @@ if 'ObjectAdapterDeactivatedException' not in _M_Ice.__dict__:
         name --  Name of the adapter.
         """
 
-        def __init__(self, name=''):
+        def __init__(self, name=""):
             self.name = name
 
         def __str__(self):
@@ -387,16 +458,24 @@ if 'ObjectAdapterDeactivatedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ObjectAdapterDeactivatedException'
+        _ice_id = "::Ice::ObjectAdapterDeactivatedException"
 
     _M_Ice._t_ObjectAdapterDeactivatedException = IcePy.defineException(
-        '::Ice::ObjectAdapterDeactivatedException', ObjectAdapterDeactivatedException, (), False, None, (('name', (), IcePy._t_string, False, 0),))
-    ObjectAdapterDeactivatedException._ice_type = _M_Ice._t_ObjectAdapterDeactivatedException
+        "::Ice::ObjectAdapterDeactivatedException",
+        ObjectAdapterDeactivatedException,
+        (),
+        False,
+        None,
+        (("name", (), IcePy._t_string, False, 0),),
+    )
+    ObjectAdapterDeactivatedException._ice_type = (
+        _M_Ice._t_ObjectAdapterDeactivatedException
+    )
 
     _M_Ice.ObjectAdapterDeactivatedException = ObjectAdapterDeactivatedException
     del ObjectAdapterDeactivatedException
 
-if 'ObjectAdapterIdInUseException' not in _M_Ice.__dict__:
+if "ObjectAdapterIdInUseException" not in _M_Ice.__dict__:
     _M_Ice.ObjectAdapterIdInUseException = Ice.createTempClass()
 
     class ObjectAdapterIdInUseException(Ice.LocalException):
@@ -407,7 +486,7 @@ if 'ObjectAdapterIdInUseException' not in _M_Ice.__dict__:
         id --  Adapter ID.
         """
 
-        def __init__(self, id=''):
+        def __init__(self, id=""):
             self.id = id
 
         def __str__(self):
@@ -415,16 +494,22 @@ if 'ObjectAdapterIdInUseException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ObjectAdapterIdInUseException'
+        _ice_id = "::Ice::ObjectAdapterIdInUseException"
 
     _M_Ice._t_ObjectAdapterIdInUseException = IcePy.defineException(
-        '::Ice::ObjectAdapterIdInUseException', ObjectAdapterIdInUseException, (), False, None, (('id', (), IcePy._t_string, False, 0),))
+        "::Ice::ObjectAdapterIdInUseException",
+        ObjectAdapterIdInUseException,
+        (),
+        False,
+        None,
+        (("id", (), IcePy._t_string, False, 0),),
+    )
     ObjectAdapterIdInUseException._ice_type = _M_Ice._t_ObjectAdapterIdInUseException
 
     _M_Ice.ObjectAdapterIdInUseException = ObjectAdapterIdInUseException
     del ObjectAdapterIdInUseException
 
-if 'NoEndpointException' not in _M_Ice.__dict__:
+if "NoEndpointException" not in _M_Ice.__dict__:
     _M_Ice.NoEndpointException = Ice.createTempClass()
 
     class NoEndpointException(Ice.LocalException):
@@ -434,7 +519,7 @@ if 'NoEndpointException' not in _M_Ice.__dict__:
         proxy --  The stringified proxy for which no suitable endpoint is available.
         """
 
-        def __init__(self, proxy=''):
+        def __init__(self, proxy=""):
             self.proxy = proxy
 
         def __str__(self):
@@ -442,16 +527,22 @@ if 'NoEndpointException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::NoEndpointException'
+        _ice_id = "::Ice::NoEndpointException"
 
     _M_Ice._t_NoEndpointException = IcePy.defineException(
-        '::Ice::NoEndpointException', NoEndpointException, (), False, None, (('proxy', (), IcePy._t_string, False, 0),))
+        "::Ice::NoEndpointException",
+        NoEndpointException,
+        (),
+        False,
+        None,
+        (("proxy", (), IcePy._t_string, False, 0),),
+    )
     NoEndpointException._ice_type = _M_Ice._t_NoEndpointException
 
     _M_Ice.NoEndpointException = NoEndpointException
     del NoEndpointException
 
-if 'EndpointParseException' not in _M_Ice.__dict__:
+if "EndpointParseException" not in _M_Ice.__dict__:
     _M_Ice.EndpointParseException = Ice.createTempClass()
 
     class EndpointParseException(Ice.LocalException):
@@ -461,7 +552,7 @@ if 'EndpointParseException' not in _M_Ice.__dict__:
         str --  Describes the failure and includes the string that could not be parsed.
         """
 
-        def __init__(self, str=''):
+        def __init__(self, str=""):
             self.str = str
 
         def __str__(self):
@@ -469,16 +560,22 @@ if 'EndpointParseException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::EndpointParseException'
+        _ice_id = "::Ice::EndpointParseException"
 
     _M_Ice._t_EndpointParseException = IcePy.defineException(
-        '::Ice::EndpointParseException', EndpointParseException, (), False, None, (('str', (), IcePy._t_string, False, 0),))
+        "::Ice::EndpointParseException",
+        EndpointParseException,
+        (),
+        False,
+        None,
+        (("str", (), IcePy._t_string, False, 0),),
+    )
     EndpointParseException._ice_type = _M_Ice._t_EndpointParseException
 
     _M_Ice.EndpointParseException = EndpointParseException
     del EndpointParseException
 
-if 'EndpointSelectionTypeParseException' not in _M_Ice.__dict__:
+if "EndpointSelectionTypeParseException" not in _M_Ice.__dict__:
     _M_Ice.EndpointSelectionTypeParseException = Ice.createTempClass()
 
     class EndpointSelectionTypeParseException(Ice.LocalException):
@@ -488,7 +585,7 @@ if 'EndpointSelectionTypeParseException' not in _M_Ice.__dict__:
         str --  Describes the failure and includes the string that could not be parsed.
         """
 
-        def __init__(self, str=''):
+        def __init__(self, str=""):
             self.str = str
 
         def __str__(self):
@@ -496,16 +593,24 @@ if 'EndpointSelectionTypeParseException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::EndpointSelectionTypeParseException'
+        _ice_id = "::Ice::EndpointSelectionTypeParseException"
 
     _M_Ice._t_EndpointSelectionTypeParseException = IcePy.defineException(
-        '::Ice::EndpointSelectionTypeParseException', EndpointSelectionTypeParseException, (), False, None, (('str', (), IcePy._t_string, False, 0),))
-    EndpointSelectionTypeParseException._ice_type = _M_Ice._t_EndpointSelectionTypeParseException
+        "::Ice::EndpointSelectionTypeParseException",
+        EndpointSelectionTypeParseException,
+        (),
+        False,
+        None,
+        (("str", (), IcePy._t_string, False, 0),),
+    )
+    EndpointSelectionTypeParseException._ice_type = (
+        _M_Ice._t_EndpointSelectionTypeParseException
+    )
 
     _M_Ice.EndpointSelectionTypeParseException = EndpointSelectionTypeParseException
     del EndpointSelectionTypeParseException
 
-if 'VersionParseException' not in _M_Ice.__dict__:
+if "VersionParseException" not in _M_Ice.__dict__:
     _M_Ice.VersionParseException = Ice.createTempClass()
 
     class VersionParseException(Ice.LocalException):
@@ -515,7 +620,7 @@ if 'VersionParseException' not in _M_Ice.__dict__:
         str --  Describes the failure and includes the string that could not be parsed.
         """
 
-        def __init__(self, str=''):
+        def __init__(self, str=""):
             self.str = str
 
         def __str__(self):
@@ -523,16 +628,22 @@ if 'VersionParseException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::VersionParseException'
+        _ice_id = "::Ice::VersionParseException"
 
     _M_Ice._t_VersionParseException = IcePy.defineException(
-        '::Ice::VersionParseException', VersionParseException, (), False, None, (('str', (), IcePy._t_string, False, 0),))
+        "::Ice::VersionParseException",
+        VersionParseException,
+        (),
+        False,
+        None,
+        (("str", (), IcePy._t_string, False, 0),),
+    )
     VersionParseException._ice_type = _M_Ice._t_VersionParseException
 
     _M_Ice.VersionParseException = VersionParseException
     del VersionParseException
 
-if 'IdentityParseException' not in _M_Ice.__dict__:
+if "IdentityParseException" not in _M_Ice.__dict__:
     _M_Ice.IdentityParseException = Ice.createTempClass()
 
     class IdentityParseException(Ice.LocalException):
@@ -542,7 +653,7 @@ if 'IdentityParseException' not in _M_Ice.__dict__:
         str --  Describes the failure and includes the string that could not be parsed.
         """
 
-        def __init__(self, str=''):
+        def __init__(self, str=""):
             self.str = str
 
         def __str__(self):
@@ -550,16 +661,22 @@ if 'IdentityParseException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::IdentityParseException'
+        _ice_id = "::Ice::IdentityParseException"
 
     _M_Ice._t_IdentityParseException = IcePy.defineException(
-        '::Ice::IdentityParseException', IdentityParseException, (), False, None, (('str', (), IcePy._t_string, False, 0),))
+        "::Ice::IdentityParseException",
+        IdentityParseException,
+        (),
+        False,
+        None,
+        (("str", (), IcePy._t_string, False, 0),),
+    )
     IdentityParseException._ice_type = _M_Ice._t_IdentityParseException
 
     _M_Ice.IdentityParseException = IdentityParseException
     del IdentityParseException
 
-if 'ProxyParseException' not in _M_Ice.__dict__:
+if "ProxyParseException" not in _M_Ice.__dict__:
     _M_Ice.ProxyParseException = Ice.createTempClass()
 
     class ProxyParseException(Ice.LocalException):
@@ -569,7 +686,7 @@ if 'ProxyParseException' not in _M_Ice.__dict__:
         str --  Describes the failure and includes the string that could not be parsed.
         """
 
-        def __init__(self, str=''):
+        def __init__(self, str=""):
             self.str = str
 
         def __str__(self):
@@ -577,16 +694,22 @@ if 'ProxyParseException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ProxyParseException'
+        _ice_id = "::Ice::ProxyParseException"
 
     _M_Ice._t_ProxyParseException = IcePy.defineException(
-        '::Ice::ProxyParseException', ProxyParseException, (), False, None, (('str', (), IcePy._t_string, False, 0),))
+        "::Ice::ProxyParseException",
+        ProxyParseException,
+        (),
+        False,
+        None,
+        (("str", (), IcePy._t_string, False, 0),),
+    )
     ProxyParseException._ice_type = _M_Ice._t_ProxyParseException
 
     _M_Ice.ProxyParseException = ProxyParseException
     del ProxyParseException
 
-if 'IllegalIdentityException' not in _M_Ice.__dict__:
+if "IllegalIdentityException" not in _M_Ice.__dict__:
     _M_Ice.IllegalIdentityException = Ice.createTempClass()
 
     class IllegalIdentityException(Ice.LocalException):
@@ -607,16 +730,22 @@ if 'IllegalIdentityException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::IllegalIdentityException'
+        _ice_id = "::Ice::IllegalIdentityException"
 
     _M_Ice._t_IllegalIdentityException = IcePy.defineException(
-        '::Ice::IllegalIdentityException', IllegalIdentityException, (), False, None, (('id', (), _M_Ice._t_Identity, False, 0),))
+        "::Ice::IllegalIdentityException",
+        IllegalIdentityException,
+        (),
+        False,
+        None,
+        (("id", (), _M_Ice._t_Identity, False, 0),),
+    )
     IllegalIdentityException._ice_type = _M_Ice._t_IllegalIdentityException
 
     _M_Ice.IllegalIdentityException = IllegalIdentityException
     del IllegalIdentityException
 
-if 'IllegalServantException' not in _M_Ice.__dict__:
+if "IllegalServantException" not in _M_Ice.__dict__:
     _M_Ice.IllegalServantException = Ice.createTempClass()
 
     class IllegalServantException(Ice.LocalException):
@@ -626,7 +755,7 @@ if 'IllegalServantException' not in _M_Ice.__dict__:
         reason --  Describes why this servant is illegal.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             self.reason = reason
 
         def __str__(self):
@@ -634,16 +763,22 @@ if 'IllegalServantException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::IllegalServantException'
+        _ice_id = "::Ice::IllegalServantException"
 
     _M_Ice._t_IllegalServantException = IcePy.defineException(
-        '::Ice::IllegalServantException', IllegalServantException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
+        "::Ice::IllegalServantException",
+        IllegalServantException,
+        (),
+        False,
+        None,
+        (("reason", (), IcePy._t_string, False, 0),),
+    )
     IllegalServantException._ice_type = _M_Ice._t_IllegalServantException
 
     _M_Ice.IllegalServantException = IllegalServantException
     del IllegalServantException
 
-if 'RequestFailedException' not in _M_Ice.__dict__:
+if "RequestFailedException" not in _M_Ice.__dict__:
     _M_Ice.RequestFailedException = Ice.createTempClass()
 
     class RequestFailedException(Ice.LocalException):
@@ -657,7 +792,7 @@ if 'RequestFailedException' not in _M_Ice.__dict__:
         operation --  The operation name of the request.
         """
 
-        def __init__(self, id=Ice._struct_marker, facet='', operation=''):
+        def __init__(self, id=Ice._struct_marker, facet="", operation=""):
             if id is Ice._struct_marker:
                 self.id = _M_Ice.Identity()
             else:
@@ -670,28 +805,35 @@ if 'RequestFailedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::RequestFailedException'
+        _ice_id = "::Ice::RequestFailedException"
 
-    _M_Ice._t_RequestFailedException = IcePy.defineException('::Ice::RequestFailedException', RequestFailedException, (), False, None, (
-        ('id', (), _M_Ice._t_Identity, False, 0),
-        ('facet', (), IcePy._t_string, False, 0),
-        ('operation', (), IcePy._t_string, False, 0)
-    ))
+    _M_Ice._t_RequestFailedException = IcePy.defineException(
+        "::Ice::RequestFailedException",
+        RequestFailedException,
+        (),
+        False,
+        None,
+        (
+            ("id", (), _M_Ice._t_Identity, False, 0),
+            ("facet", (), IcePy._t_string, False, 0),
+            ("operation", (), IcePy._t_string, False, 0),
+        ),
+    )
     RequestFailedException._ice_type = _M_Ice._t_RequestFailedException
 
     _M_Ice.RequestFailedException = RequestFailedException
     del RequestFailedException
 
-if 'ObjectNotExistException' not in _M_Ice.__dict__:
+if "ObjectNotExistException" not in _M_Ice.__dict__:
     _M_Ice.ObjectNotExistException = Ice.createTempClass()
 
     class ObjectNotExistException(_M_Ice.RequestFailedException):
         """
-         This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
-         exist.
+        This exception is raised if an object does not exist on the server, that is, if no facets with the given identity
+        exist.
         """
 
-        def __init__(self, id=Ice._struct_marker, facet='', operation=''):
+        def __init__(self, id=Ice._struct_marker, facet="", operation=""):
             _M_Ice.RequestFailedException.__init__(self, id, facet, operation)
 
         def __str__(self):
@@ -699,25 +841,31 @@ if 'ObjectNotExistException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ObjectNotExistException'
+        _ice_id = "::Ice::ObjectNotExistException"
 
     _M_Ice._t_ObjectNotExistException = IcePy.defineException(
-        '::Ice::ObjectNotExistException', ObjectNotExistException, (), False, _M_Ice._t_RequestFailedException, ())
+        "::Ice::ObjectNotExistException",
+        ObjectNotExistException,
+        (),
+        False,
+        _M_Ice._t_RequestFailedException,
+        (),
+    )
     ObjectNotExistException._ice_type = _M_Ice._t_ObjectNotExistException
 
     _M_Ice.ObjectNotExistException = ObjectNotExistException
     del ObjectNotExistException
 
-if 'FacetNotExistException' not in _M_Ice.__dict__:
+if "FacetNotExistException" not in _M_Ice.__dict__:
     _M_Ice.FacetNotExistException = Ice.createTempClass()
 
     class FacetNotExistException(_M_Ice.RequestFailedException):
         """
-         This exception is raised if no facet with the given name exists, but at least one facet with the given identity
-         exists.
+        This exception is raised if no facet with the given name exists, but at least one facet with the given identity
+        exists.
         """
 
-        def __init__(self, id=Ice._struct_marker, facet='', operation=''):
+        def __init__(self, id=Ice._struct_marker, facet="", operation=""):
             _M_Ice.RequestFailedException.__init__(self, id, facet, operation)
 
         def __str__(self):
@@ -725,25 +873,31 @@ if 'FacetNotExistException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::FacetNotExistException'
+        _ice_id = "::Ice::FacetNotExistException"
 
     _M_Ice._t_FacetNotExistException = IcePy.defineException(
-        '::Ice::FacetNotExistException', FacetNotExistException, (), False, _M_Ice._t_RequestFailedException, ())
+        "::Ice::FacetNotExistException",
+        FacetNotExistException,
+        (),
+        False,
+        _M_Ice._t_RequestFailedException,
+        (),
+    )
     FacetNotExistException._ice_type = _M_Ice._t_FacetNotExistException
 
     _M_Ice.FacetNotExistException = FacetNotExistException
     del FacetNotExistException
 
-if 'OperationNotExistException' not in _M_Ice.__dict__:
+if "OperationNotExistException" not in _M_Ice.__dict__:
     _M_Ice.OperationNotExistException = Ice.createTempClass()
 
     class OperationNotExistException(_M_Ice.RequestFailedException):
         """
-         This exception is raised if an operation for a given object does not exist on the server. Typically this is caused
-         by either the client or the server using an outdated Slice specification.
+        This exception is raised if an operation for a given object does not exist on the server. Typically this is caused
+        by either the client or the server using an outdated Slice specification.
         """
 
-        def __init__(self, id=Ice._struct_marker, facet='', operation=''):
+        def __init__(self, id=Ice._struct_marker, facet="", operation=""):
             _M_Ice.RequestFailedException.__init__(self, id, facet, operation)
 
         def __str__(self):
@@ -751,16 +905,22 @@ if 'OperationNotExistException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::OperationNotExistException'
+        _ice_id = "::Ice::OperationNotExistException"
 
     _M_Ice._t_OperationNotExistException = IcePy.defineException(
-        '::Ice::OperationNotExistException', OperationNotExistException, (), False, _M_Ice._t_RequestFailedException, ())
+        "::Ice::OperationNotExistException",
+        OperationNotExistException,
+        (),
+        False,
+        _M_Ice._t_RequestFailedException,
+        (),
+    )
     OperationNotExistException._ice_type = _M_Ice._t_OperationNotExistException
 
     _M_Ice.OperationNotExistException = OperationNotExistException
     del OperationNotExistException
 
-if 'SyscallException' not in _M_Ice.__dict__:
+if "SyscallException" not in _M_Ice.__dict__:
     _M_Ice.SyscallException = Ice.createTempClass()
 
     class SyscallException(Ice.LocalException):
@@ -781,21 +941,27 @@ if 'SyscallException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::SyscallException'
+        _ice_id = "::Ice::SyscallException"
 
     _M_Ice._t_SyscallException = IcePy.defineException(
-        '::Ice::SyscallException', SyscallException, (), False, None, (('error', (), IcePy._t_int, False, 0),))
+        "::Ice::SyscallException",
+        SyscallException,
+        (),
+        False,
+        None,
+        (("error", (), IcePy._t_int, False, 0),),
+    )
     SyscallException._ice_type = _M_Ice._t_SyscallException
 
     _M_Ice.SyscallException = SyscallException
     del SyscallException
 
-if 'SocketException' not in _M_Ice.__dict__:
+if "SocketException" not in _M_Ice.__dict__:
     _M_Ice.SocketException = Ice.createTempClass()
 
     class SocketException(_M_Ice.SyscallException):
         """
-         This exception indicates socket errors.
+        This exception indicates socket errors.
         """
 
         def __init__(self, error=0):
@@ -806,16 +972,22 @@ if 'SocketException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::SocketException'
+        _ice_id = "::Ice::SocketException"
 
     _M_Ice._t_SocketException = IcePy.defineException(
-        '::Ice::SocketException', SocketException, (), False, _M_Ice._t_SyscallException, ())
+        "::Ice::SocketException",
+        SocketException,
+        (),
+        False,
+        _M_Ice._t_SyscallException,
+        (),
+    )
     SocketException._ice_type = _M_Ice._t_SocketException
 
     _M_Ice.SocketException = SocketException
     del SocketException
 
-if 'CFNetworkException' not in _M_Ice.__dict__:
+if "CFNetworkException" not in _M_Ice.__dict__:
     _M_Ice.CFNetworkException = Ice.createTempClass()
 
     class CFNetworkException(_M_Ice.SocketException):
@@ -825,7 +997,7 @@ if 'CFNetworkException' not in _M_Ice.__dict__:
         domain --  The domain of the error.
         """
 
-        def __init__(self, error=0, domain=''):
+        def __init__(self, error=0, domain=""):
             _M_Ice.SocketException.__init__(self, error)
             self.domain = domain
 
@@ -834,16 +1006,22 @@ if 'CFNetworkException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::CFNetworkException'
+        _ice_id = "::Ice::CFNetworkException"
 
     _M_Ice._t_CFNetworkException = IcePy.defineException(
-        '::Ice::CFNetworkException', CFNetworkException, (), False, _M_Ice._t_SocketException, (('domain', (), IcePy._t_string, False, 0),))
+        "::Ice::CFNetworkException",
+        CFNetworkException,
+        (),
+        False,
+        _M_Ice._t_SocketException,
+        (("domain", (), IcePy._t_string, False, 0),),
+    )
     CFNetworkException._ice_type = _M_Ice._t_CFNetworkException
 
     _M_Ice.CFNetworkException = CFNetworkException
     del CFNetworkException
 
-if 'FileException' not in _M_Ice.__dict__:
+if "FileException" not in _M_Ice.__dict__:
     _M_Ice.FileException = Ice.createTempClass()
 
     class FileException(_M_Ice.SyscallException):
@@ -853,7 +1031,7 @@ if 'FileException' not in _M_Ice.__dict__:
         path --  The path of the file responsible for the error.
         """
 
-        def __init__(self, error=0, path=''):
+        def __init__(self, error=0, path=""):
             _M_Ice.SyscallException.__init__(self, error)
             self.path = path
 
@@ -862,21 +1040,27 @@ if 'FileException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::FileException'
+        _ice_id = "::Ice::FileException"
 
     _M_Ice._t_FileException = IcePy.defineException(
-        '::Ice::FileException', FileException, (), False, _M_Ice._t_SyscallException, (('path', (), IcePy._t_string, False, 0),))
+        "::Ice::FileException",
+        FileException,
+        (),
+        False,
+        _M_Ice._t_SyscallException,
+        (("path", (), IcePy._t_string, False, 0),),
+    )
     FileException._ice_type = _M_Ice._t_FileException
 
     _M_Ice.FileException = FileException
     del FileException
 
-if 'ConnectFailedException' not in _M_Ice.__dict__:
+if "ConnectFailedException" not in _M_Ice.__dict__:
     _M_Ice.ConnectFailedException = Ice.createTempClass()
 
     class ConnectFailedException(_M_Ice.SocketException):
         """
-         This exception indicates connection failures.
+        This exception indicates connection failures.
         """
 
         def __init__(self, error=0):
@@ -887,21 +1071,27 @@ if 'ConnectFailedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ConnectFailedException'
+        _ice_id = "::Ice::ConnectFailedException"
 
     _M_Ice._t_ConnectFailedException = IcePy.defineException(
-        '::Ice::ConnectFailedException', ConnectFailedException, (), False, _M_Ice._t_SocketException, ())
+        "::Ice::ConnectFailedException",
+        ConnectFailedException,
+        (),
+        False,
+        _M_Ice._t_SocketException,
+        (),
+    )
     ConnectFailedException._ice_type = _M_Ice._t_ConnectFailedException
 
     _M_Ice.ConnectFailedException = ConnectFailedException
     del ConnectFailedException
 
-if 'ConnectionRefusedException' not in _M_Ice.__dict__:
+if "ConnectionRefusedException" not in _M_Ice.__dict__:
     _M_Ice.ConnectionRefusedException = Ice.createTempClass()
 
     class ConnectionRefusedException(_M_Ice.ConnectFailedException):
         """
-         This exception indicates a connection failure for which the server host actively refuses a connection.
+        This exception indicates a connection failure for which the server host actively refuses a connection.
         """
 
         def __init__(self, error=0):
@@ -912,21 +1102,27 @@ if 'ConnectionRefusedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ConnectionRefusedException'
+        _ice_id = "::Ice::ConnectionRefusedException"
 
     _M_Ice._t_ConnectionRefusedException = IcePy.defineException(
-        '::Ice::ConnectionRefusedException', ConnectionRefusedException, (), False, _M_Ice._t_ConnectFailedException, ())
+        "::Ice::ConnectionRefusedException",
+        ConnectionRefusedException,
+        (),
+        False,
+        _M_Ice._t_ConnectFailedException,
+        (),
+    )
     ConnectionRefusedException._ice_type = _M_Ice._t_ConnectionRefusedException
 
     _M_Ice.ConnectionRefusedException = ConnectionRefusedException
     del ConnectionRefusedException
 
-if 'ConnectionLostException' not in _M_Ice.__dict__:
+if "ConnectionLostException" not in _M_Ice.__dict__:
     _M_Ice.ConnectionLostException = Ice.createTempClass()
 
     class ConnectionLostException(_M_Ice.SocketException):
         """
-         This exception indicates a lost connection.
+        This exception indicates a lost connection.
         """
 
         def __init__(self, error=0):
@@ -937,16 +1133,22 @@ if 'ConnectionLostException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ConnectionLostException'
+        _ice_id = "::Ice::ConnectionLostException"
 
     _M_Ice._t_ConnectionLostException = IcePy.defineException(
-        '::Ice::ConnectionLostException', ConnectionLostException, (), False, _M_Ice._t_SocketException, ())
+        "::Ice::ConnectionLostException",
+        ConnectionLostException,
+        (),
+        False,
+        _M_Ice._t_SocketException,
+        (),
+    )
     ConnectionLostException._ice_type = _M_Ice._t_ConnectionLostException
 
     _M_Ice.ConnectionLostException = ConnectionLostException
     del ConnectionLostException
 
-if 'DNSException' not in _M_Ice.__dict__:
+if "DNSException" not in _M_Ice.__dict__:
     _M_Ice.DNSException = Ice.createTempClass()
 
     class DNSException(Ice.LocalException):
@@ -958,7 +1160,7 @@ if 'DNSException' not in _M_Ice.__dict__:
         host --  The host name that could not be resolved.
         """
 
-        def __init__(self, error=0, host=''):
+        def __init__(self, error=0, host=""):
             self.error = error
             self.host = host
 
@@ -967,23 +1169,30 @@ if 'DNSException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::DNSException'
+        _ice_id = "::Ice::DNSException"
 
-    _M_Ice._t_DNSException = IcePy.defineException('::Ice::DNSException', DNSException, (), False, None, (
-        ('error', (), IcePy._t_int, False, 0),
-        ('host', (), IcePy._t_string, False, 0)
-    ))
+    _M_Ice._t_DNSException = IcePy.defineException(
+        "::Ice::DNSException",
+        DNSException,
+        (),
+        False,
+        None,
+        (
+            ("error", (), IcePy._t_int, False, 0),
+            ("host", (), IcePy._t_string, False, 0),
+        ),
+    )
     DNSException._ice_type = _M_Ice._t_DNSException
 
     _M_Ice.DNSException = DNSException
     del DNSException
 
-if 'OperationInterruptedException' not in _M_Ice.__dict__:
+if "OperationInterruptedException" not in _M_Ice.__dict__:
     _M_Ice.OperationInterruptedException = Ice.createTempClass()
 
     class OperationInterruptedException(Ice.LocalException):
         """
-         This exception indicates a request was interrupted.
+        This exception indicates a request was interrupted.
         """
 
         def __init__(self):
@@ -994,21 +1203,27 @@ if 'OperationInterruptedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::OperationInterruptedException'
+        _ice_id = "::Ice::OperationInterruptedException"
 
     _M_Ice._t_OperationInterruptedException = IcePy.defineException(
-        '::Ice::OperationInterruptedException', OperationInterruptedException, (), False, None, ())
+        "::Ice::OperationInterruptedException",
+        OperationInterruptedException,
+        (),
+        False,
+        None,
+        (),
+    )
     OperationInterruptedException._ice_type = _M_Ice._t_OperationInterruptedException
 
     _M_Ice.OperationInterruptedException = OperationInterruptedException
     del OperationInterruptedException
 
-if 'TimeoutException' not in _M_Ice.__dict__:
+if "TimeoutException" not in _M_Ice.__dict__:
     _M_Ice.TimeoutException = Ice.createTempClass()
 
     class TimeoutException(Ice.LocalException):
         """
-         This exception indicates a timeout condition.
+        This exception indicates a timeout condition.
         """
 
         def __init__(self):
@@ -1019,20 +1234,22 @@ if 'TimeoutException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::TimeoutException'
+        _ice_id = "::Ice::TimeoutException"
 
-    _M_Ice._t_TimeoutException = IcePy.defineException('::Ice::TimeoutException', TimeoutException, (), False, None, ())
+    _M_Ice._t_TimeoutException = IcePy.defineException(
+        "::Ice::TimeoutException", TimeoutException, (), False, None, ()
+    )
     TimeoutException._ice_type = _M_Ice._t_TimeoutException
 
     _M_Ice.TimeoutException = TimeoutException
     del TimeoutException
 
-if 'ConnectTimeoutException' not in _M_Ice.__dict__:
+if "ConnectTimeoutException" not in _M_Ice.__dict__:
     _M_Ice.ConnectTimeoutException = Ice.createTempClass()
 
     class ConnectTimeoutException(_M_Ice.TimeoutException):
         """
-         This exception indicates a connection establishment timeout condition.
+        This exception indicates a connection establishment timeout condition.
         """
 
         def __init__(self):
@@ -1043,21 +1260,27 @@ if 'ConnectTimeoutException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ConnectTimeoutException'
+        _ice_id = "::Ice::ConnectTimeoutException"
 
     _M_Ice._t_ConnectTimeoutException = IcePy.defineException(
-        '::Ice::ConnectTimeoutException', ConnectTimeoutException, (), False, _M_Ice._t_TimeoutException, ())
+        "::Ice::ConnectTimeoutException",
+        ConnectTimeoutException,
+        (),
+        False,
+        _M_Ice._t_TimeoutException,
+        (),
+    )
     ConnectTimeoutException._ice_type = _M_Ice._t_ConnectTimeoutException
 
     _M_Ice.ConnectTimeoutException = ConnectTimeoutException
     del ConnectTimeoutException
 
-if 'CloseTimeoutException' not in _M_Ice.__dict__:
+if "CloseTimeoutException" not in _M_Ice.__dict__:
     _M_Ice.CloseTimeoutException = Ice.createTempClass()
 
     class CloseTimeoutException(_M_Ice.TimeoutException):
         """
-         This exception indicates a connection closure timeout condition.
+        This exception indicates a connection closure timeout condition.
         """
 
         def __init__(self):
@@ -1068,21 +1291,27 @@ if 'CloseTimeoutException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::CloseTimeoutException'
+        _ice_id = "::Ice::CloseTimeoutException"
 
     _M_Ice._t_CloseTimeoutException = IcePy.defineException(
-        '::Ice::CloseTimeoutException', CloseTimeoutException, (), False, _M_Ice._t_TimeoutException, ())
+        "::Ice::CloseTimeoutException",
+        CloseTimeoutException,
+        (),
+        False,
+        _M_Ice._t_TimeoutException,
+        (),
+    )
     CloseTimeoutException._ice_type = _M_Ice._t_CloseTimeoutException
 
     _M_Ice.CloseTimeoutException = CloseTimeoutException
     del CloseTimeoutException
 
-if 'ConnectionTimeoutException' not in _M_Ice.__dict__:
+if "ConnectionTimeoutException" not in _M_Ice.__dict__:
     _M_Ice.ConnectionTimeoutException = Ice.createTempClass()
 
     class ConnectionTimeoutException(_M_Ice.TimeoutException):
         """
-         This exception indicates that a connection has been shut down because it has been idle for some time.
+        This exception indicates that a connection has been shut down because it has been idle for some time.
         """
 
         def __init__(self):
@@ -1093,21 +1322,27 @@ if 'ConnectionTimeoutException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ConnectionTimeoutException'
+        _ice_id = "::Ice::ConnectionTimeoutException"
 
     _M_Ice._t_ConnectionTimeoutException = IcePy.defineException(
-        '::Ice::ConnectionTimeoutException', ConnectionTimeoutException, (), False, _M_Ice._t_TimeoutException, ())
+        "::Ice::ConnectionTimeoutException",
+        ConnectionTimeoutException,
+        (),
+        False,
+        _M_Ice._t_TimeoutException,
+        (),
+    )
     ConnectionTimeoutException._ice_type = _M_Ice._t_ConnectionTimeoutException
 
     _M_Ice.ConnectionTimeoutException = ConnectionTimeoutException
     del ConnectionTimeoutException
 
-if 'InvocationTimeoutException' not in _M_Ice.__dict__:
+if "InvocationTimeoutException" not in _M_Ice.__dict__:
     _M_Ice.InvocationTimeoutException = Ice.createTempClass()
 
     class InvocationTimeoutException(_M_Ice.TimeoutException):
         """
-         This exception indicates that an invocation failed because it timed out.
+        This exception indicates that an invocation failed because it timed out.
         """
 
         def __init__(self):
@@ -1118,21 +1353,27 @@ if 'InvocationTimeoutException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::InvocationTimeoutException'
+        _ice_id = "::Ice::InvocationTimeoutException"
 
     _M_Ice._t_InvocationTimeoutException = IcePy.defineException(
-        '::Ice::InvocationTimeoutException', InvocationTimeoutException, (), False, _M_Ice._t_TimeoutException, ())
+        "::Ice::InvocationTimeoutException",
+        InvocationTimeoutException,
+        (),
+        False,
+        _M_Ice._t_TimeoutException,
+        (),
+    )
     InvocationTimeoutException._ice_type = _M_Ice._t_InvocationTimeoutException
 
     _M_Ice.InvocationTimeoutException = InvocationTimeoutException
     del InvocationTimeoutException
 
-if 'InvocationCanceledException' not in _M_Ice.__dict__:
+if "InvocationCanceledException" not in _M_Ice.__dict__:
     _M_Ice.InvocationCanceledException = Ice.createTempClass()
 
     class InvocationCanceledException(Ice.LocalException):
         """
-         This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
+        This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
         """
 
         def __init__(self):
@@ -1143,16 +1384,22 @@ if 'InvocationCanceledException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::InvocationCanceledException'
+        _ice_id = "::Ice::InvocationCanceledException"
 
     _M_Ice._t_InvocationCanceledException = IcePy.defineException(
-        '::Ice::InvocationCanceledException', InvocationCanceledException, (), False, None, ())
+        "::Ice::InvocationCanceledException",
+        InvocationCanceledException,
+        (),
+        False,
+        None,
+        (),
+    )
     InvocationCanceledException._ice_type = _M_Ice._t_InvocationCanceledException
 
     _M_Ice.InvocationCanceledException = InvocationCanceledException
     del InvocationCanceledException
 
-if 'ProtocolException' not in _M_Ice.__dict__:
+if "ProtocolException" not in _M_Ice.__dict__:
     _M_Ice.ProtocolException = Ice.createTempClass()
 
     class ProtocolException(Ice.LocalException):
@@ -1162,7 +1409,7 @@ if 'ProtocolException' not in _M_Ice.__dict__:
         reason --  The reason for the failure.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             self.reason = reason
 
         def __str__(self):
@@ -1170,16 +1417,22 @@ if 'ProtocolException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ProtocolException'
+        _ice_id = "::Ice::ProtocolException"
 
     _M_Ice._t_ProtocolException = IcePy.defineException(
-        '::Ice::ProtocolException', ProtocolException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
+        "::Ice::ProtocolException",
+        ProtocolException,
+        (),
+        False,
+        None,
+        (("reason", (), IcePy._t_string, False, 0),),
+    )
     ProtocolException._ice_type = _M_Ice._t_ProtocolException
 
     _M_Ice.ProtocolException = ProtocolException
     del ProtocolException
 
-if 'BadMagicException' not in _M_Ice.__dict__:
+if "BadMagicException" not in _M_Ice.__dict__:
     _M_Ice.BadMagicException = Ice.createTempClass()
 
     class BadMagicException(_M_Ice.ProtocolException):
@@ -1189,7 +1442,7 @@ if 'BadMagicException' not in _M_Ice.__dict__:
         badMagic --  A sequence containing the first four bytes of the incorrect message.
         """
 
-        def __init__(self, reason='', badMagic=None):
+        def __init__(self, reason="", badMagic=None):
             _M_Ice.ProtocolException.__init__(self, reason)
             self.badMagic = badMagic
 
@@ -1198,16 +1451,22 @@ if 'BadMagicException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::BadMagicException'
+        _ice_id = "::Ice::BadMagicException"
 
     _M_Ice._t_BadMagicException = IcePy.defineException(
-        '::Ice::BadMagicException', BadMagicException, (), False, _M_Ice._t_ProtocolException, (('badMagic', (), _M_Ice._t_ByteSeq, False, 0),))
+        "::Ice::BadMagicException",
+        BadMagicException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (("badMagic", (), _M_Ice._t_ByteSeq, False, 0),),
+    )
     BadMagicException._ice_type = _M_Ice._t_BadMagicException
 
     _M_Ice.BadMagicException = BadMagicException
     del BadMagicException
 
-if 'UnsupportedProtocolException' not in _M_Ice.__dict__:
+if "UnsupportedProtocolException" not in _M_Ice.__dict__:
     _M_Ice.UnsupportedProtocolException = Ice.createTempClass()
 
     class UnsupportedProtocolException(_M_Ice.ProtocolException):
@@ -1218,7 +1477,9 @@ if 'UnsupportedProtocolException' not in _M_Ice.__dict__:
         supported --  The version of the protocol that is supported.
         """
 
-        def __init__(self, reason='', bad=Ice._struct_marker, supported=Ice._struct_marker):
+        def __init__(
+            self, reason="", bad=Ice._struct_marker, supported=Ice._struct_marker
+        ):
             _M_Ice.ProtocolException.__init__(self, reason)
             if bad is Ice._struct_marker:
                 self.bad = _M_Ice.ProtocolVersion()
@@ -1234,18 +1495,25 @@ if 'UnsupportedProtocolException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnsupportedProtocolException'
+        _ice_id = "::Ice::UnsupportedProtocolException"
 
-    _M_Ice._t_UnsupportedProtocolException = IcePy.defineException('::Ice::UnsupportedProtocolException', UnsupportedProtocolException, (), False, _M_Ice._t_ProtocolException, (
-        ('bad', (), _M_Ice._t_ProtocolVersion, False, 0),
-        ('supported', (), _M_Ice._t_ProtocolVersion, False, 0)
-    ))
+    _M_Ice._t_UnsupportedProtocolException = IcePy.defineException(
+        "::Ice::UnsupportedProtocolException",
+        UnsupportedProtocolException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (
+            ("bad", (), _M_Ice._t_ProtocolVersion, False, 0),
+            ("supported", (), _M_Ice._t_ProtocolVersion, False, 0),
+        ),
+    )
     UnsupportedProtocolException._ice_type = _M_Ice._t_UnsupportedProtocolException
 
     _M_Ice.UnsupportedProtocolException = UnsupportedProtocolException
     del UnsupportedProtocolException
 
-if 'UnsupportedEncodingException' not in _M_Ice.__dict__:
+if "UnsupportedEncodingException" not in _M_Ice.__dict__:
     _M_Ice.UnsupportedEncodingException = Ice.createTempClass()
 
     class UnsupportedEncodingException(_M_Ice.ProtocolException):
@@ -1256,7 +1524,9 @@ if 'UnsupportedEncodingException' not in _M_Ice.__dict__:
         supported --  The version of the encoding that is supported.
         """
 
-        def __init__(self, reason='', bad=Ice._struct_marker, supported=Ice._struct_marker):
+        def __init__(
+            self, reason="", bad=Ice._struct_marker, supported=Ice._struct_marker
+        ):
             _M_Ice.ProtocolException.__init__(self, reason)
             if bad is Ice._struct_marker:
                 self.bad = _M_Ice.EncodingVersion()
@@ -1272,26 +1542,33 @@ if 'UnsupportedEncodingException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnsupportedEncodingException'
+        _ice_id = "::Ice::UnsupportedEncodingException"
 
-    _M_Ice._t_UnsupportedEncodingException = IcePy.defineException('::Ice::UnsupportedEncodingException', UnsupportedEncodingException, (), False, _M_Ice._t_ProtocolException, (
-        ('bad', (), _M_Ice._t_EncodingVersion, False, 0),
-        ('supported', (), _M_Ice._t_EncodingVersion, False, 0)
-    ))
+    _M_Ice._t_UnsupportedEncodingException = IcePy.defineException(
+        "::Ice::UnsupportedEncodingException",
+        UnsupportedEncodingException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (
+            ("bad", (), _M_Ice._t_EncodingVersion, False, 0),
+            ("supported", (), _M_Ice._t_EncodingVersion, False, 0),
+        ),
+    )
     UnsupportedEncodingException._ice_type = _M_Ice._t_UnsupportedEncodingException
 
     _M_Ice.UnsupportedEncodingException = UnsupportedEncodingException
     del UnsupportedEncodingException
 
-if 'UnknownMessageException' not in _M_Ice.__dict__:
+if "UnknownMessageException" not in _M_Ice.__dict__:
     _M_Ice.UnknownMessageException = Ice.createTempClass()
 
     class UnknownMessageException(_M_Ice.ProtocolException):
         """
-         This exception indicates that an unknown protocol message has been received.
+        This exception indicates that an unknown protocol message has been received.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1299,24 +1576,30 @@ if 'UnknownMessageException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnknownMessageException'
+        _ice_id = "::Ice::UnknownMessageException"
 
     _M_Ice._t_UnknownMessageException = IcePy.defineException(
-        '::Ice::UnknownMessageException', UnknownMessageException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::UnknownMessageException",
+        UnknownMessageException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     UnknownMessageException._ice_type = _M_Ice._t_UnknownMessageException
 
     _M_Ice.UnknownMessageException = UnknownMessageException
     del UnknownMessageException
 
-if 'ConnectionNotValidatedException' not in _M_Ice.__dict__:
+if "ConnectionNotValidatedException" not in _M_Ice.__dict__:
     _M_Ice.ConnectionNotValidatedException = Ice.createTempClass()
 
     class ConnectionNotValidatedException(_M_Ice.ProtocolException):
         """
-         This exception is raised if a message is received over a connection that is not yet validated.
+        This exception is raised if a message is received over a connection that is not yet validated.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1324,24 +1607,32 @@ if 'ConnectionNotValidatedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ConnectionNotValidatedException'
+        _ice_id = "::Ice::ConnectionNotValidatedException"
 
     _M_Ice._t_ConnectionNotValidatedException = IcePy.defineException(
-        '::Ice::ConnectionNotValidatedException', ConnectionNotValidatedException, (), False, _M_Ice._t_ProtocolException, ())
-    ConnectionNotValidatedException._ice_type = _M_Ice._t_ConnectionNotValidatedException
+        "::Ice::ConnectionNotValidatedException",
+        ConnectionNotValidatedException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
+    ConnectionNotValidatedException._ice_type = (
+        _M_Ice._t_ConnectionNotValidatedException
+    )
 
     _M_Ice.ConnectionNotValidatedException = ConnectionNotValidatedException
     del ConnectionNotValidatedException
 
-if 'UnknownRequestIdException' not in _M_Ice.__dict__:
+if "UnknownRequestIdException" not in _M_Ice.__dict__:
     _M_Ice.UnknownRequestIdException = Ice.createTempClass()
 
     class UnknownRequestIdException(_M_Ice.ProtocolException):
         """
-         This exception indicates that a response for an unknown request ID has been received.
+        This exception indicates that a response for an unknown request ID has been received.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1349,24 +1640,30 @@ if 'UnknownRequestIdException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnknownRequestIdException'
+        _ice_id = "::Ice::UnknownRequestIdException"
 
     _M_Ice._t_UnknownRequestIdException = IcePy.defineException(
-        '::Ice::UnknownRequestIdException', UnknownRequestIdException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::UnknownRequestIdException",
+        UnknownRequestIdException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     UnknownRequestIdException._ice_type = _M_Ice._t_UnknownRequestIdException
 
     _M_Ice.UnknownRequestIdException = UnknownRequestIdException
     del UnknownRequestIdException
 
-if 'UnknownReplyStatusException' not in _M_Ice.__dict__:
+if "UnknownReplyStatusException" not in _M_Ice.__dict__:
     _M_Ice.UnknownReplyStatusException = Ice.createTempClass()
 
     class UnknownReplyStatusException(_M_Ice.ProtocolException):
         """
-         This exception indicates that an unknown reply status has been received.
+        This exception indicates that an unknown reply status has been received.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1374,28 +1671,34 @@ if 'UnknownReplyStatusException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnknownReplyStatusException'
+        _ice_id = "::Ice::UnknownReplyStatusException"
 
     _M_Ice._t_UnknownReplyStatusException = IcePy.defineException(
-        '::Ice::UnknownReplyStatusException', UnknownReplyStatusException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::UnknownReplyStatusException",
+        UnknownReplyStatusException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     UnknownReplyStatusException._ice_type = _M_Ice._t_UnknownReplyStatusException
 
     _M_Ice.UnknownReplyStatusException = UnknownReplyStatusException
     del UnknownReplyStatusException
 
-if 'CloseConnectionException' not in _M_Ice.__dict__:
+if "CloseConnectionException" not in _M_Ice.__dict__:
     _M_Ice.CloseConnectionException = Ice.createTempClass()
 
     class CloseConnectionException(_M_Ice.ProtocolException):
         """
-         This exception indicates that the connection has been gracefully shut down by the server. The operation call that
-         caused this exception has not been executed by the server. In most cases you will not get this exception, because
-         the client will automatically retry the operation call in case the server shut down the connection. However, if
-         upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
-         propagated to the application code.
+        This exception indicates that the connection has been gracefully shut down by the server. The operation call that
+        caused this exception has not been executed by the server. In most cases you will not get this exception, because
+        the client will automatically retry the operation call in case the server shut down the connection. However, if
+        upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
+        propagated to the application code.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1403,16 +1706,22 @@ if 'CloseConnectionException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::CloseConnectionException'
+        _ice_id = "::Ice::CloseConnectionException"
 
     _M_Ice._t_CloseConnectionException = IcePy.defineException(
-        '::Ice::CloseConnectionException', CloseConnectionException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::CloseConnectionException",
+        CloseConnectionException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     CloseConnectionException._ice_type = _M_Ice._t_CloseConnectionException
 
     _M_Ice.CloseConnectionException = CloseConnectionException
     del CloseConnectionException
 
-if 'ConnectionManuallyClosedException' not in _M_Ice.__dict__:
+if "ConnectionManuallyClosedException" not in _M_Ice.__dict__:
     _M_Ice.ConnectionManuallyClosedException = Ice.createTempClass()
 
     class ConnectionManuallyClosedException(Ice.LocalException):
@@ -1431,24 +1740,32 @@ if 'ConnectionManuallyClosedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ConnectionManuallyClosedException'
+        _ice_id = "::Ice::ConnectionManuallyClosedException"
 
     _M_Ice._t_ConnectionManuallyClosedException = IcePy.defineException(
-        '::Ice::ConnectionManuallyClosedException', ConnectionManuallyClosedException, (), False, None, (('graceful', (), IcePy._t_bool, False, 0),))
-    ConnectionManuallyClosedException._ice_type = _M_Ice._t_ConnectionManuallyClosedException
+        "::Ice::ConnectionManuallyClosedException",
+        ConnectionManuallyClosedException,
+        (),
+        False,
+        None,
+        (("graceful", (), IcePy._t_bool, False, 0),),
+    )
+    ConnectionManuallyClosedException._ice_type = (
+        _M_Ice._t_ConnectionManuallyClosedException
+    )
 
     _M_Ice.ConnectionManuallyClosedException = ConnectionManuallyClosedException
     del ConnectionManuallyClosedException
 
-if 'IllegalMessageSizeException' not in _M_Ice.__dict__:
+if "IllegalMessageSizeException" not in _M_Ice.__dict__:
     _M_Ice.IllegalMessageSizeException = Ice.createTempClass()
 
     class IllegalMessageSizeException(_M_Ice.ProtocolException):
         """
-         This exception indicates that a message size is less than the minimum required size.
+        This exception indicates that a message size is less than the minimum required size.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1456,24 +1773,30 @@ if 'IllegalMessageSizeException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::IllegalMessageSizeException'
+        _ice_id = "::Ice::IllegalMessageSizeException"
 
     _M_Ice._t_IllegalMessageSizeException = IcePy.defineException(
-        '::Ice::IllegalMessageSizeException', IllegalMessageSizeException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::IllegalMessageSizeException",
+        IllegalMessageSizeException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     IllegalMessageSizeException._ice_type = _M_Ice._t_IllegalMessageSizeException
 
     _M_Ice.IllegalMessageSizeException = IllegalMessageSizeException
     del IllegalMessageSizeException
 
-if 'CompressionException' not in _M_Ice.__dict__:
+if "CompressionException" not in _M_Ice.__dict__:
     _M_Ice.CompressionException = Ice.createTempClass()
 
     class CompressionException(_M_Ice.ProtocolException):
         """
-         This exception indicates a problem with compressing or uncompressing data.
+        This exception indicates a problem with compressing or uncompressing data.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1481,25 +1804,31 @@ if 'CompressionException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::CompressionException'
+        _ice_id = "::Ice::CompressionException"
 
     _M_Ice._t_CompressionException = IcePy.defineException(
-        '::Ice::CompressionException', CompressionException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::CompressionException",
+        CompressionException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     CompressionException._ice_type = _M_Ice._t_CompressionException
 
     _M_Ice.CompressionException = CompressionException
     del CompressionException
 
-if 'DatagramLimitException' not in _M_Ice.__dict__:
+if "DatagramLimitException" not in _M_Ice.__dict__:
     _M_Ice.DatagramLimitException = Ice.createTempClass()
 
     class DatagramLimitException(_M_Ice.ProtocolException):
         """
-         A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
-         receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
+        A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
+        receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1507,24 +1836,30 @@ if 'DatagramLimitException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::DatagramLimitException'
+        _ice_id = "::Ice::DatagramLimitException"
 
     _M_Ice._t_DatagramLimitException = IcePy.defineException(
-        '::Ice::DatagramLimitException', DatagramLimitException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::DatagramLimitException",
+        DatagramLimitException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     DatagramLimitException._ice_type = _M_Ice._t_DatagramLimitException
 
     _M_Ice.DatagramLimitException = DatagramLimitException
     del DatagramLimitException
 
-if 'MarshalException' not in _M_Ice.__dict__:
+if "MarshalException" not in _M_Ice.__dict__:
     _M_Ice.MarshalException = Ice.createTempClass()
 
     class MarshalException(_M_Ice.ProtocolException):
         """
-         This exception is raised for errors during marshaling or unmarshaling data.
+        This exception is raised for errors during marshaling or unmarshaling data.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.ProtocolException.__init__(self, reason)
 
         def __str__(self):
@@ -1532,24 +1867,30 @@ if 'MarshalException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::MarshalException'
+        _ice_id = "::Ice::MarshalException"
 
     _M_Ice._t_MarshalException = IcePy.defineException(
-        '::Ice::MarshalException', MarshalException, (), False, _M_Ice._t_ProtocolException, ())
+        "::Ice::MarshalException",
+        MarshalException,
+        (),
+        False,
+        _M_Ice._t_ProtocolException,
+        (),
+    )
     MarshalException._ice_type = _M_Ice._t_MarshalException
 
     _M_Ice.MarshalException = MarshalException
     del MarshalException
 
-if 'ProxyUnmarshalException' not in _M_Ice.__dict__:
+if "ProxyUnmarshalException" not in _M_Ice.__dict__:
     _M_Ice.ProxyUnmarshalException = Ice.createTempClass()
 
     class ProxyUnmarshalException(_M_Ice.MarshalException):
         """
-         This exception is raised if inconsistent data is received while unmarshaling a proxy.
+        This exception is raised if inconsistent data is received while unmarshaling a proxy.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.MarshalException.__init__(self, reason)
 
         def __str__(self):
@@ -1557,24 +1898,30 @@ if 'ProxyUnmarshalException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ProxyUnmarshalException'
+        _ice_id = "::Ice::ProxyUnmarshalException"
 
     _M_Ice._t_ProxyUnmarshalException = IcePy.defineException(
-        '::Ice::ProxyUnmarshalException', ProxyUnmarshalException, (), False, _M_Ice._t_MarshalException, ())
+        "::Ice::ProxyUnmarshalException",
+        ProxyUnmarshalException,
+        (),
+        False,
+        _M_Ice._t_MarshalException,
+        (),
+    )
     ProxyUnmarshalException._ice_type = _M_Ice._t_ProxyUnmarshalException
 
     _M_Ice.ProxyUnmarshalException = ProxyUnmarshalException
     del ProxyUnmarshalException
 
-if 'UnmarshalOutOfBoundsException' not in _M_Ice.__dict__:
+if "UnmarshalOutOfBoundsException" not in _M_Ice.__dict__:
     _M_Ice.UnmarshalOutOfBoundsException = Ice.createTempClass()
 
     class UnmarshalOutOfBoundsException(_M_Ice.MarshalException):
         """
-         This exception is raised if an out-of-bounds condition occurs during unmarshaling.
+        This exception is raised if an out-of-bounds condition occurs during unmarshaling.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.MarshalException.__init__(self, reason)
 
         def __str__(self):
@@ -1582,16 +1929,22 @@ if 'UnmarshalOutOfBoundsException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnmarshalOutOfBoundsException'
+        _ice_id = "::Ice::UnmarshalOutOfBoundsException"
 
     _M_Ice._t_UnmarshalOutOfBoundsException = IcePy.defineException(
-        '::Ice::UnmarshalOutOfBoundsException', UnmarshalOutOfBoundsException, (), False, _M_Ice._t_MarshalException, ())
+        "::Ice::UnmarshalOutOfBoundsException",
+        UnmarshalOutOfBoundsException,
+        (),
+        False,
+        _M_Ice._t_MarshalException,
+        (),
+    )
     UnmarshalOutOfBoundsException._ice_type = _M_Ice._t_UnmarshalOutOfBoundsException
 
     _M_Ice.UnmarshalOutOfBoundsException = UnmarshalOutOfBoundsException
     del UnmarshalOutOfBoundsException
 
-if 'NoValueFactoryException' not in _M_Ice.__dict__:
+if "NoValueFactoryException" not in _M_Ice.__dict__:
     _M_Ice.NoValueFactoryException = Ice.createTempClass()
 
     class NoValueFactoryException(_M_Ice.MarshalException):
@@ -1601,7 +1954,7 @@ if 'NoValueFactoryException' not in _M_Ice.__dict__:
         type --  The Slice type ID of the class instance for which no factory could be found.
         """
 
-        def __init__(self, reason='', type=''):
+        def __init__(self, reason="", type=""):
             _M_Ice.MarshalException.__init__(self, reason)
             self.type = type
 
@@ -1610,16 +1963,22 @@ if 'NoValueFactoryException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::NoValueFactoryException'
+        _ice_id = "::Ice::NoValueFactoryException"
 
     _M_Ice._t_NoValueFactoryException = IcePy.defineException(
-        '::Ice::NoValueFactoryException', NoValueFactoryException, (), False, _M_Ice._t_MarshalException, (('type', (), IcePy._t_string, False, 0),))
+        "::Ice::NoValueFactoryException",
+        NoValueFactoryException,
+        (),
+        False,
+        _M_Ice._t_MarshalException,
+        (("type", (), IcePy._t_string, False, 0),),
+    )
     NoValueFactoryException._ice_type = _M_Ice._t_NoValueFactoryException
 
     _M_Ice.NoValueFactoryException = NoValueFactoryException
     del NoValueFactoryException
 
-if 'UnexpectedObjectException' not in _M_Ice.__dict__:
+if "UnexpectedObjectException" not in _M_Ice.__dict__:
     _M_Ice.UnexpectedObjectException = Ice.createTempClass()
 
     class UnexpectedObjectException(_M_Ice.MarshalException):
@@ -1633,7 +1992,7 @@ if 'UnexpectedObjectException' not in _M_Ice.__dict__:
         expectedType --  The Slice type ID that was expected by the receiving operation.
         """
 
-        def __init__(self, reason='', type='', expectedType=''):
+        def __init__(self, reason="", type="", expectedType=""):
             _M_Ice.MarshalException.__init__(self, reason)
             self.type = type
             self.expectedType = expectedType
@@ -1643,27 +2002,34 @@ if 'UnexpectedObjectException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::UnexpectedObjectException'
+        _ice_id = "::Ice::UnexpectedObjectException"
 
-    _M_Ice._t_UnexpectedObjectException = IcePy.defineException('::Ice::UnexpectedObjectException', UnexpectedObjectException, (), False, _M_Ice._t_MarshalException, (
-        ('type', (), IcePy._t_string, False, 0),
-        ('expectedType', (), IcePy._t_string, False, 0)
-    ))
+    _M_Ice._t_UnexpectedObjectException = IcePy.defineException(
+        "::Ice::UnexpectedObjectException",
+        UnexpectedObjectException,
+        (),
+        False,
+        _M_Ice._t_MarshalException,
+        (
+            ("type", (), IcePy._t_string, False, 0),
+            ("expectedType", (), IcePy._t_string, False, 0),
+        ),
+    )
     UnexpectedObjectException._ice_type = _M_Ice._t_UnexpectedObjectException
 
     _M_Ice.UnexpectedObjectException = UnexpectedObjectException
     del UnexpectedObjectException
 
-if 'MemoryLimitException' not in _M_Ice.__dict__:
+if "MemoryLimitException" not in _M_Ice.__dict__:
     _M_Ice.MemoryLimitException = Ice.createTempClass()
 
     class MemoryLimitException(_M_Ice.MarshalException):
         """
-         This exception is raised when Ice receives a request or reply message whose size exceeds the limit specified by the
-         Ice.MessageSizeMax property.
+        This exception is raised when Ice receives a request or reply message whose size exceeds the limit specified by the
+        Ice.MessageSizeMax property.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.MarshalException.__init__(self, reason)
 
         def __str__(self):
@@ -1671,24 +2037,30 @@ if 'MemoryLimitException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::MemoryLimitException'
+        _ice_id = "::Ice::MemoryLimitException"
 
     _M_Ice._t_MemoryLimitException = IcePy.defineException(
-        '::Ice::MemoryLimitException', MemoryLimitException, (), False, _M_Ice._t_MarshalException, ())
+        "::Ice::MemoryLimitException",
+        MemoryLimitException,
+        (),
+        False,
+        _M_Ice._t_MarshalException,
+        (),
+    )
     MemoryLimitException._ice_type = _M_Ice._t_MemoryLimitException
 
     _M_Ice.MemoryLimitException = MemoryLimitException
     del MemoryLimitException
 
-if 'StringConversionException' not in _M_Ice.__dict__:
+if "StringConversionException" not in _M_Ice.__dict__:
     _M_Ice.StringConversionException = Ice.createTempClass()
 
     class StringConversionException(_M_Ice.MarshalException):
         """
-         This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
+        This exception is raised when a string conversion to or from UTF-8 fails during marshaling or unmarshaling.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.MarshalException.__init__(self, reason)
 
         def __str__(self):
@@ -1696,24 +2068,30 @@ if 'StringConversionException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::StringConversionException'
+        _ice_id = "::Ice::StringConversionException"
 
     _M_Ice._t_StringConversionException = IcePy.defineException(
-        '::Ice::StringConversionException', StringConversionException, (), False, _M_Ice._t_MarshalException, ())
+        "::Ice::StringConversionException",
+        StringConversionException,
+        (),
+        False,
+        _M_Ice._t_MarshalException,
+        (),
+    )
     StringConversionException._ice_type = _M_Ice._t_StringConversionException
 
     _M_Ice.StringConversionException = StringConversionException
     del StringConversionException
 
-if 'EncapsulationException' not in _M_Ice.__dict__:
+if "EncapsulationException" not in _M_Ice.__dict__:
     _M_Ice.EncapsulationException = Ice.createTempClass()
 
     class EncapsulationException(_M_Ice.MarshalException):
         """
-         This exception indicates a malformed data encapsulation.
+        This exception indicates a malformed data encapsulation.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             _M_Ice.MarshalException.__init__(self, reason)
 
         def __str__(self):
@@ -1721,16 +2099,22 @@ if 'EncapsulationException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::EncapsulationException'
+        _ice_id = "::Ice::EncapsulationException"
 
     _M_Ice._t_EncapsulationException = IcePy.defineException(
-        '::Ice::EncapsulationException', EncapsulationException, (), False, _M_Ice._t_MarshalException, ())
+        "::Ice::EncapsulationException",
+        EncapsulationException,
+        (),
+        False,
+        _M_Ice._t_MarshalException,
+        (),
+    )
     EncapsulationException._ice_type = _M_Ice._t_EncapsulationException
 
     _M_Ice.EncapsulationException = EncapsulationException
     del EncapsulationException
 
-if 'FeatureNotSupportedException' not in _M_Ice.__dict__:
+if "FeatureNotSupportedException" not in _M_Ice.__dict__:
     _M_Ice.FeatureNotSupportedException = Ice.createTempClass()
 
     class FeatureNotSupportedException(Ice.LocalException):
@@ -1741,7 +2125,7 @@ if 'FeatureNotSupportedException' not in _M_Ice.__dict__:
         unsupportedFeature --  The name of the unsupported feature.
         """
 
-        def __init__(self, unsupportedFeature=''):
+        def __init__(self, unsupportedFeature=""):
             self.unsupportedFeature = unsupportedFeature
 
         def __str__(self):
@@ -1749,16 +2133,22 @@ if 'FeatureNotSupportedException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::FeatureNotSupportedException'
+        _ice_id = "::Ice::FeatureNotSupportedException"
 
     _M_Ice._t_FeatureNotSupportedException = IcePy.defineException(
-        '::Ice::FeatureNotSupportedException', FeatureNotSupportedException, (), False, None, (('unsupportedFeature', (), IcePy._t_string, False, 0),))
+        "::Ice::FeatureNotSupportedException",
+        FeatureNotSupportedException,
+        (),
+        False,
+        None,
+        (("unsupportedFeature", (), IcePy._t_string, False, 0),),
+    )
     FeatureNotSupportedException._ice_type = _M_Ice._t_FeatureNotSupportedException
 
     _M_Ice.FeatureNotSupportedException = FeatureNotSupportedException
     del FeatureNotSupportedException
 
-if 'SecurityException' not in _M_Ice.__dict__:
+if "SecurityException" not in _M_Ice.__dict__:
     _M_Ice.SecurityException = Ice.createTempClass()
 
     class SecurityException(Ice.LocalException):
@@ -1768,7 +2158,7 @@ if 'SecurityException' not in _M_Ice.__dict__:
         reason --  The reason for the failure.
         """
 
-        def __init__(self, reason=''):
+        def __init__(self, reason=""):
             self.reason = reason
 
         def __str__(self):
@@ -1776,21 +2166,27 @@ if 'SecurityException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::SecurityException'
+        _ice_id = "::Ice::SecurityException"
 
     _M_Ice._t_SecurityException = IcePy.defineException(
-        '::Ice::SecurityException', SecurityException, (), False, None, (('reason', (), IcePy._t_string, False, 0),))
+        "::Ice::SecurityException",
+        SecurityException,
+        (),
+        False,
+        None,
+        (("reason", (), IcePy._t_string, False, 0),),
+    )
     SecurityException._ice_type = _M_Ice._t_SecurityException
 
     _M_Ice.SecurityException = SecurityException
     del SecurityException
 
-if 'FixedProxyException' not in _M_Ice.__dict__:
+if "FixedProxyException" not in _M_Ice.__dict__:
     _M_Ice.FixedProxyException = Ice.createTempClass()
 
     class FixedProxyException(Ice.LocalException):
         """
-         This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
+        This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
         """
 
         def __init__(self):
@@ -1801,21 +2197,22 @@ if 'FixedProxyException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::FixedProxyException'
+        _ice_id = "::Ice::FixedProxyException"
 
     _M_Ice._t_FixedProxyException = IcePy.defineException(
-        '::Ice::FixedProxyException', FixedProxyException, (), False, None, ())
+        "::Ice::FixedProxyException", FixedProxyException, (), False, None, ()
+    )
     FixedProxyException._ice_type = _M_Ice._t_FixedProxyException
 
     _M_Ice.FixedProxyException = FixedProxyException
     del FixedProxyException
 
-if 'ResponseSentException' not in _M_Ice.__dict__:
+if "ResponseSentException" not in _M_Ice.__dict__:
     _M_Ice.ResponseSentException = Ice.createTempClass()
 
     class ResponseSentException(Ice.LocalException):
         """
-         Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
+        Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
         """
 
         def __init__(self):
@@ -1826,10 +2223,11 @@ if 'ResponseSentException' not in _M_Ice.__dict__:
 
         __repr__ = __str__
 
-        _ice_id = '::Ice::ResponseSentException'
+        _ice_id = "::Ice::ResponseSentException"
 
     _M_Ice._t_ResponseSentException = IcePy.defineException(
-        '::Ice::ResponseSentException', ResponseSentException, (), False, None, ())
+        "::Ice::ResponseSentException", ResponseSentException, (), False, None, ()
+    )
     ResponseSentException._ice_type = _M_Ice._t_ResponseSentException
 
     _M_Ice.ResponseSentException = ResponseSentException

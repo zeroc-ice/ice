@@ -20,38 +20,38 @@ import Ice.LocalException_local
 import Ice.Current_local
 
 # Included module Ice
-_M_Ice = Ice.openModule('Ice')
+_M_Ice = Ice.openModule("Ice")
 
 # Start of module Ice
-__name__ = 'Ice'
+__name__ = "Ice"
 
-if 'ImplicitContext' not in _M_Ice.__dict__:
+if "ImplicitContext" not in _M_Ice.__dict__:
     _M_Ice.ImplicitContext = Ice.createTempClass()
 
     class ImplicitContext(object):
         """
-         An interface to associate implict contexts with communicators. When you make a remote invocation without an
-         explicit context parameter, Ice uses the per-proxy context (if any) combined with the ImplicitContext
-         associated with the communicator.
-         Ice provides several implementations of ImplicitContext. The implementation used depends on the value
-         of the Ice.ImplicitContext property.
+        An interface to associate implict contexts with communicators. When you make a remote invocation without an
+        explicit context parameter, Ice uses the per-proxy context (if any) combined with the ImplicitContext
+        associated with the communicator.
+        Ice provides several implementations of ImplicitContext. The implementation used depends on the value
+        of the Ice.ImplicitContext property.
 
-         None (default)
-         No implicit context at all.
-         PerThread
-         The implementation maintains a context per thread.
-         Shared
-         The implementation maintains a single context shared by all threads.
+        None (default)
+        No implicit context at all.
+        PerThread
+        The implementation maintains a context per thread.
+        Shared
+        The implementation maintains a single context shared by all threads.
 
-         ImplicitContext also provides a number of operations to create, update or retrieve an entry in the
-         underlying context without first retrieving a copy of the entire context. These operations correspond to a subset
-         of the java.util.Map methods, with java.lang.Object replaced by string and
-         null replaced by the empty-string.
+        ImplicitContext also provides a number of operations to create, update or retrieve an entry in the
+        underlying context without first retrieving a copy of the entire context. These operations correspond to a subset
+        of the java.util.Map methods, with java.lang.Object replaced by string and
+        null replaced by the empty-string.
         """
 
         def __init__(self):
             if Ice.getType(self) == _M_Ice.ImplicitContext:
-                raise RuntimeError('Ice.ImplicitContext is an abstract class')
+                raise RuntimeError("Ice.ImplicitContext is an abstract class")
 
         def getContext(self):
             """
@@ -113,7 +113,8 @@ if 'ImplicitContext' not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_ImplicitContext = IcePy.defineValue(
-        '::Ice::ImplicitContext', ImplicitContext, -1, (), False, True, None, ())
+        "::Ice::ImplicitContext", ImplicitContext, -1, (), False, True, None, ()
+    )
     ImplicitContext._ice_type = _M_Ice._t_ImplicitContext
 
     _M_Ice.ImplicitContext = ImplicitContext

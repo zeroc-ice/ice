@@ -4,13 +4,13 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("Test.ice")
 import Ice
 import Test
 
 
 class InitialI(Test.Initial):
-
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
@@ -149,28 +149,40 @@ class InitialI(Test.Initial):
         return Ice.Future.completed(None)
 
     def opMStruct1(self, current):
-        return Ice.Future.completed(Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current))
+        return Ice.Future.completed(
+            Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current)
+        )
 
     def opMStruct2(self, p1, current):
-        return Ice.Future.completed(Test.Initial.OpMStruct2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed(
+            Test.Initial.OpMStruct2MarshaledResult((p1, p1), current)
+        )
 
     def opMSeq1(self, current):
         return Ice.Future.completed(Test.Initial.OpMSeq1MarshaledResult([], current))
 
     def opMSeq2(self, p1, current):
-        return Ice.Future.completed(Test.Initial.OpMSeq2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed(
+            Test.Initial.OpMSeq2MarshaledResult((p1, p1), current)
+        )
 
     def opMDict1(self, current):
         return Ice.Future.completed(Test.Initial.OpMDict1MarshaledResult({}, current))
 
     def opMDict2(self, p1, current):
-        return Ice.Future.completed(Test.Initial.OpMDict2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed(
+            Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
+        )
 
     def opMG1(self, current):
-        return Ice.Future.completed(Test.Initial.OpMG1MarshaledResult(Test.G(), current))
+        return Ice.Future.completed(
+            Test.Initial.OpMG1MarshaledResult(Test.G(), current)
+        )
 
     def opMG2(self, p1, current):
-        return Ice.Future.completed(Test.Initial.OpMG2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed(
+            Test.Initial.OpMG2MarshaledResult((p1, p1), current)
+        )
 
     def opRequiredAfterOptional(self, p1, p2, p3, current):
         return Ice.Future.completed((p1, p2, p3))
@@ -195,10 +207,11 @@ class InitialI(Test.Initial):
 
 
 class ServerAMD(TestHelper):
-
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", self.getTestEndpoint()
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             initial = InitialI()
             adapter.add(initial, Ice.stringToIdentity("initial"))

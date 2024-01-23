@@ -2,18 +2,16 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-import Ice
 import Test
 import sys
 
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 def allTests():
-
     sys.stdout.write("testing default values... ")
     sys.stdout.flush()
 
@@ -26,14 +24,14 @@ def allTests():
     test(v.l == 4)
     test(v.f == 5.1)
     test(v.d == 6.2)
-    test(v.str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007")
+    test(v.str == 'foo \\ "bar\n \r\n\t\013\f\007\b? \007 \007')
     test(v.c1 == Test.Color.red)
     test(v.c2 == Test.Color.green)
     test(v.c3 == Test.Color.blue)
     test(v.nc1 == Test.Nested.Color.red)
     test(v.nc2 == Test.Nested.Color.green)
     test(v.nc3 == Test.Nested.Color.blue)
-    test(v.noDefault == '')
+    test(v.noDefault == "")
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)
@@ -72,8 +70,8 @@ def allTests():
     test(v.l == 4)
     test(v.f == 5.1)
     test(v.d == 6.2)
-    test(v.str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007")
-    test(v.noDefault == '')
+    test(v.str == 'foo \\ "bar\n \r\n\t\013\f\007\b? \007 \007')
+    test(v.noDefault == "")
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)
@@ -90,14 +88,14 @@ def allTests():
     test(v.l == 4)
     test(v.f == 5.1)
     test(v.d == 6.2)
-    test(v.str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007")
+    test(v.str == 'foo \\ "bar\n \r\n\t\013\f\007\b? \007 \007')
     test(v.c1 == Test.Color.red)
     test(v.c2 == Test.Color.green)
     test(v.c3 == Test.Color.blue)
     test(v.nc1 == Test.Nested.Color.red)
     test(v.nc2 == Test.Nested.Color.green)
     test(v.nc3 == Test.Nested.Color.blue)
-    test(v.noDefault == '')
+    test(v.noDefault == "")
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)
@@ -114,8 +112,8 @@ def allTests():
     test(v.l == 4)
     test(v.f == 5.1)
     test(v.d == 6.2)
-    test(v.str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007")
-    test(v.noDefault == '')
+    test(v.str == 'foo \\ "bar\n \r\n\t\013\f\007\b? \007 \007')
+    test(v.noDefault == "")
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)
@@ -132,8 +130,8 @@ def allTests():
     test(v.l == 4)
     test(v.f == 5.1)
     test(v.d == 6.2)
-    test(v.str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007")
-    test(v.noDefault == '')
+    test(v.str == 'foo \\ "bar\n \r\n\t\013\f\007\b? \007 \007')
+    test(v.noDefault == "")
     test(v.c1 == Test.Color.red)
     test(v.c2 == Test.Color.green)
     test(v.c3 == Test.Color.blue)
@@ -152,14 +150,14 @@ def allTests():
     sys.stdout.write("testing default constructor... ")
     sys.stdout.flush()
     v = Test.StructNoDefaults()
-    test(v.bo == False)
+    test(v.bo is False)
     test(v.b == 0)
     test(v.s == 0)
     test(v.i == 0)
     test(v.l == 0)
     test(v.f == 0.0)
     test(v.d == 0.0)
-    test(v.str == '')
+    test(v.str == "")
     test(v.c1 == Test.Color.red)
     test(v.bs is None)
     test(v.iseq is None)
@@ -167,14 +165,14 @@ def allTests():
     test(v.dict is None)
 
     e = Test.ExceptionNoDefaults()
-    test(e.str == '')
+    test(e.str == "")
     test(e.c1 == Test.Color.red)
     test(e.bs is None)
     test(isinstance(e.st, Test.InnerStruct))
     test(e.dict is None)
 
     c = Test.ClassNoDefaults()
-    test(c.str == '')
+    test(c.str == "")
     test(c.c1 == Test.Color.red)
     test(c.bs is None)
     test(isinstance(c.st, Test.InnerStruct))

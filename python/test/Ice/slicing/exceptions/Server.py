@@ -4,6 +4,7 @@
 #
 
 from TestHelper import TestHelper
+
 TestHelper.loadSlice("-I. --all ServerPrivate.ice")
 import Ice
 import Test
@@ -157,8 +158,9 @@ class Server(TestHelper):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                     "{0} -t 10000".format(self.getTestEndpoint()))
+            communicator.getProperties().setProperty(
+                "TestAdapter.Endpoints", "{0} -t 10000".format(self.getTestEndpoint())
+            )
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI(), Ice.stringToIdentity("Test"))
             adapter.activate()

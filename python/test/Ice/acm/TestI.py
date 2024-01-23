@@ -7,7 +7,7 @@ import Test
 import threading
 
 
-class ConnectionCallbackI():
+class ConnectionCallbackI:
     def __init__(self):
         self.m = threading.Condition()
         self.count = 0
@@ -38,7 +38,9 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
             properties.setProperty(name + ".ACM.Heartbeat", str(heartbeat))
         properties.setProperty(name + ".ThreadPool.Size", "2")
         adapter = com.createObjectAdapterWithEndpoints(name, protocol + " -h 127.0.0.1")
-        return Test.RemoteObjectAdapterPrx.uncheckedCast(current.adapter.addWithUUID(RemoteObjectAdapterI(adapter)))
+        return Test.RemoteObjectAdapterPrx.uncheckedCast(
+            current.adapter.addWithUUID(RemoteObjectAdapterI(adapter))
+        )
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
@@ -47,8 +49,9 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
 class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
     def __init__(self, adapter):
         self._adapter = adapter
-        self._testIntf = Test.TestIntfPrx.uncheckedCast(adapter.add(TestIntfI(),
-                                                        Ice.stringToIdentity("test")))
+        self._testIntf = Test.TestIntfPrx.uncheckedCast(
+            adapter.add(TestIntfI(), Ice.stringToIdentity("test"))
+        )
         adapter.activate()
 
     def getTestIntf(self, current=None):
