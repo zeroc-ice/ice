@@ -180,62 +180,6 @@ private:
     PyObject* _con;
 };
 
-class HeartbeatAsyncCallback : public IceUtil::Shared
-{
-public:
-
-    HeartbeatAsyncCallback(PyObject* ex, PyObject* sent, const string& op) :
-        _ex(ex), _sent(sent), _op(op)
-    {
-        assert(_ex);
-        Py_INCREF(_ex);
-        Py_XINCREF(_sent);
-    }
-
-    ~HeartbeatAsyncCallback()
-    {
-        AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-        Py_DECREF(_ex);
-        Py_XDECREF(_sent);
-    }
-
-    void exception(const Ice::Exception& ex)
-    {
-        AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-        PyObjectHandle exh = convertException(ex);
-        assert(exh.get());
-        PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), exh.get());
-        PyObjectHandle tmp = PyObject_Call(_ex, args.get(), 0);
-        if(PyErr_Occurred())
-        {
-            throwPythonException(); // Callback raised an exception.
-        }
-    }
-
-    void sent(bool sentSynchronously)
-    {
-        if(_sent)
-        {
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-            PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), sentSynchronously ? getTrue() : getFalse());
-            PyObjectHandle tmp = PyObject_Call(_sent, args.get(), 0);
-            if(PyErr_Occurred())
-            {
-                throwPythonException(); // Callback raised an exception.
-            }
-        }
-    }
-
-protected:
-
-    PyObject* _ex;
-    PyObject* _sent;
-    std::string _op;
-};
-typedef IceUtil::Handle<HeartbeatAsyncCallback> HeartbeatAsyncCallbackPtr;
-
 }
 
 #ifdef WIN32
