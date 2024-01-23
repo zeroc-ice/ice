@@ -286,17 +286,6 @@ gulp.task("test:common:generate",
                     gulp.dest("test/Common")], cb);
           });
 
-gulp.task("test:common:babel",
-          cb =>
-          {
-              pump([gulp.src(["test/Common/Controller.js",
-                              "test/Common/ControllerI.js",
-                              "test/Common/ControllerWorker.js",
-                              "test/Common/TestHelper.js",
-                              "test/Common/run.js"]),
-                    babel({compact: false})], cb);
-          });
-
 gulp.task("test:common:clean",
           cb =>
           {
@@ -346,7 +335,6 @@ gulp.task("test:import:clean",
           });
 
 const testTask = name => name.replace(/\//g, "_");
-const testBabelTask = name => testTask(name) + ":babel";
 const testCleanTask = name => testTask(name) + ":clean";
 const testBuildTask = name => testTask(name) + ":build";
 
