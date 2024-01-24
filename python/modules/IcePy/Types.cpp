@@ -3841,25 +3841,22 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
 
     _slicedData = is->endValue();
 
-    if(_slicedData)
+    StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
+    assert(util);
+    util->add(ValueReaderPtr(shared_from_this()));
+
+    //
+    // Define the "unknownTypeId" member for an instance of UnknownSlicedObject.
+    //
+    if(unknown)
     {
-        StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
-        assert(util);
-        util->add(ValueReaderPtr(shared_from_this()));
+        assert(!_slicedData->slices.empty());
 
-        //
-        // Define the "unknownTypeId" member for an instance of UnknownSlicedObject.
-        //
-        if(unknown)
+        PyObjectHandle typeId = createString(_slicedData->slices[0]->typeId);
+        if(!typeId.get() || PyObject_SetAttrString(_object, STRCAST("unknownTypeId"), typeId.get()) < 0)
         {
-            assert(!_slicedData->slices.empty());
-
-            PyObjectHandle typeId = createString(_slicedData->slices[0]->typeId);
-            if(!typeId.get() || PyObject_SetAttrString(_object, STRCAST("unknownTypeId"), typeId.get()) < 0)
-            {
-                assert(PyErr_Occurred());
-                throw AbortMarshaling();
-            }
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
         }
     }
 }
