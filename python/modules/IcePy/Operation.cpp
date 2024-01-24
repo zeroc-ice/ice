@@ -415,21 +415,6 @@ callException(PyObject* method, const Ice::Exception& ex)
     callException(method, exh.get());
 }
 
-void
-callSent(PyObject* method, bool sentSynchronously, bool passArg)
-{
-    PyObject* arg = 0;
-    if(passArg)
-    {
-        arg = sentSynchronously ? getTrue() : getFalse();
-    }
-    PyObjectHandle tmp = callMethod(method, arg);
-    if(PyErr_Occurred())
-    {
-        handleException(); // Callback raised an exception.
-    }
-}
-
 }
 
 #ifdef WIN32
@@ -3143,43 +3128,6 @@ IcePy::getAsyncResult(PyObject* p)
     assert(PyObject_IsInstance(p, reinterpret_cast<PyObject*>(&AsyncResultType)) == 1);
     AsyncResultObject* obj = reinterpret_cast<AsyncResultObject*>(p);
     return *obj->result;
-}
-
-//
-// FlushCallback
-//
-IcePy::FlushCallback::FlushCallback(PyObject* ex, PyObject* sent, const string& op) :
-    _ex(ex), _sent(sent), _op(op)
-{
-    assert(_ex);
-    Py_INCREF(_ex);
-    Py_XINCREF(_sent);
-}
-
-IcePy::FlushCallback::~FlushCallback()
-{
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-    Py_DECREF(_ex);
-    Py_XDECREF(_sent);
-}
-
-void
-IcePy::FlushCallback::exception(const Ice::Exception& ex)
-{
-    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-    callException(_ex, ex);
-}
-
-void
-IcePy::FlushCallback::sent(bool sentSynchronously)
-{
-    if(_sent)
-    {
-        AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-        callSent(_sent, sentSynchronously, true);
-    }
 }
 
 IcePy::FlushAsyncCallback::FlushAsyncCallback(const string& op) :

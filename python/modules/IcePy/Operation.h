@@ -81,27 +81,6 @@ protected:
 typedef IceUtil::Handle<GetConnectionAsyncCallback> GetConnectionAsyncCallbackPtr;
 
 //
-// Used as the callback for the various flushBatchRequest operations.
-//
-class FlushCallback : public IceUtil::Shared
-{
-public:
-
-    FlushCallback(PyObject*, PyObject*, const std::string&);
-    ~FlushCallback();
-
-    void exception(const Ice::Exception&);
-    void sent(bool);
-
-protected:
-
-    PyObject* _ex;
-    PyObject* _sent;
-    std::string _op;
-};
-typedef IceUtil::Handle<FlushCallback> FlushCallbackPtr;
-
-//
 // Used as the callback for the various flushBatchRequestAsync operations.
 //
 class FlushAsyncCallback : public IceUtil::Shared
