@@ -661,36 +661,6 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     throw ude;
 }
 
-#ifdef ICE_CPP11_MAPPING
-void
-TestI::throwPreservedExceptionAsync(function<void()>,
-                                     function<void(exception_ptr)> exception,
-                                     const ::Ice::Current&)
-#else
-void
-TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionPtr& cb, const ::Ice::Current&)
-#endif
-{
-    PSUnknownException ue;
-    ue.p = ICE_MAKE_SHARED(PSUnknown2);
-    ue.p->pi = 5;
-    ue.p->ps = "preserved";
-    ue.p->pb = ue.p;
-#ifdef ICE_CPP11_MAPPING
-    try
-    {
-        throw ue;
-    }
-    catch(...)
-    {
-        exception(current_exception());
-    }
-#else
-    cb->ice_exception(ue);
-#endif
-    ue.p->pb = 0; // Break the cycle.
-}
-
 void
 TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
 {

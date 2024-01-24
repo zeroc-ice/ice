@@ -403,7 +403,7 @@ if "ObjectAdapter" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_ObjectAdapter = IcePy.defineValue(
-        "::Ice::ObjectAdapter", ObjectAdapter, -1, (), False, True, None, ()
+        "::Ice::ObjectAdapter", ObjectAdapter, -1, (), True, None, ()
     )
     ObjectAdapter._ice_type = _M_Ice._t_ObjectAdapter
 

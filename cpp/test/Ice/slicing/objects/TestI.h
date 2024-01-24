@@ -77,14 +77,6 @@ public:
     virtual void throwDerivedAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsDerived(const ::Ice::Current&);
     virtual void throwUnknownDerivedAsBase(const ::Ice::Current&);
-#ifdef ICE_CPP11_MAPPING
-    virtual void throwPreservedExceptionAsync(std::function<void()>,
-                                               std::function<void(std::exception_ptr)>,
-                                               const ::Ice::Current&);
-#else
-    virtual void throwPreservedException_async(const ::Test::AMD_TestIntf_throwPreservedExceptionPtr&,
-                                               const ::Ice::Current&);
-#endif
 
     virtual void useForward(::Test::ForwardPtr&, const ::Ice::Current&);
 

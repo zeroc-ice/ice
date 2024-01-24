@@ -615,27 +615,6 @@ TestI::throwUnknownDerivedAsBaseAsync(function<void()>,
 }
 
 void
-TestI::throwPreservedExceptionAsync(function<void()>,
-                                     function<void(exception_ptr)> exception,
-                                     const ::Ice::Current&)
-{
-    try
-    {
-        PSUnknownException ue;
-        ue.p = make_shared<PSUnknown2>();
-        ue.p->pi = 5;
-        ue.p->ps = "preserved";
-        ue.p->pb = ue.p;
-        ue.p->pb = nullptr; // Break the cycle.
-        throw ue;
-    }
-    catch(...)
-    {
-        exception(current_exception());
-    }
-}
-
-void
 TestI::useForwardAsync(function<void(const shared_ptr<::Test::Forward>&)> response,
                         function<void(exception_ptr)>,
                         const ::Ice::Current&)
@@ -1148,18 +1127,6 @@ TestI::throwUnknownDerivedAsBase_async(const AMD_TestIntf_throwUnknownDerivedAsB
     ude.sude = "sude";
     ude.pd2 = d2;
     cb->ice_exception(ude);
-}
-
-void
-TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionPtr& cb, const ::Ice::Current&)
-{
-    PSUnknownException ue;
-    ue.p = new PSUnknown2;
-    ue.p->pi = 5;
-    ue.p->ps = "preserved";
-    ue.p->pb = ue.p;
-    cb->ice_exception(ue);
-    ue.p->pb = 0; // Break the cycle.
 }
 
 void

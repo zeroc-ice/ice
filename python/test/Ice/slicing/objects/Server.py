@@ -341,17 +341,6 @@ class TestI(Test.TestIntf):
         ude.pd2 = d2
         raise ude
 
-    def throwPreservedException(self, current=None):
-        ue = Test.PSUnknownException()
-        ue.p = Test.PSUnknown2()
-        ue.p.pi = 5
-        ue.p.ps = "preserved"
-        ue.p.pb = ue.p
-        f = Ice.Future()
-        f.set_exception(ue)
-        return f
-        # ue.p.pb = None      # Break the cycle.
-
     def useForward(self, current=None):
         f = Test.Forward()
         f.h = Test.Hidden()

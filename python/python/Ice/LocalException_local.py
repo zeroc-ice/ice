@@ -50,7 +50,6 @@ if "InitializationException" not in _M_Ice.__dict__:
         "::Ice::InitializationException",
         InitializationException,
         (),
-        False,
         None,
         (("reason", (), IcePy._t_string, False, 0),),
     )
@@ -83,7 +82,6 @@ if "PluginInitializationException" not in _M_Ice.__dict__:
         "::Ice::PluginInitializationException",
         PluginInitializationException,
         (),
-        False,
         None,
         (("reason", (), IcePy._t_string, False, 0),),
     )
@@ -114,7 +112,6 @@ if "CollocationOptimizationException" not in _M_Ice.__dict__:
         "::Ice::CollocationOptimizationException",
         CollocationOptimizationException,
         (),
-        False,
         None,
         (),
     )
@@ -154,7 +151,6 @@ if "AlreadyRegisteredException" not in _M_Ice.__dict__:
         "::Ice::AlreadyRegisteredException",
         AlreadyRegisteredException,
         (),
-        False,
         None,
         (
             ("kindOfObject", (), IcePy._t_string, False, 0),
@@ -197,7 +193,6 @@ if "NotRegisteredException" not in _M_Ice.__dict__:
         "::Ice::NotRegisteredException",
         NotRegisteredException,
         (),
-        False,
         None,
         (
             ("kindOfObject", (), IcePy._t_string, False, 0),
@@ -235,7 +230,6 @@ if "TwowayOnlyException" not in _M_Ice.__dict__:
         "::Ice::TwowayOnlyException",
         TwowayOnlyException,
         (),
-        False,
         None,
         (("operation", (), IcePy._t_string, False, 0),),
     )
@@ -269,7 +263,6 @@ if "CloneNotImplementedException" not in _M_Ice.__dict__:
         "::Ice::CloneNotImplementedException",
         CloneNotImplementedException,
         (),
-        False,
         None,
         (),
     )
@@ -304,7 +297,6 @@ if "UnknownException" not in _M_Ice.__dict__:
         "::Ice::UnknownException",
         UnknownException,
         (),
-        False,
         None,
         (("unknown", (), IcePy._t_string, False, 0),),
     )
@@ -339,7 +331,6 @@ if "UnknownLocalException" not in _M_Ice.__dict__:
         "::Ice::UnknownLocalException",
         UnknownLocalException,
         (),
-        False,
         _M_Ice._t_UnknownException,
         (),
     )
@@ -374,7 +365,6 @@ if "UnknownUserException" not in _M_Ice.__dict__:
         "::Ice::UnknownUserException",
         UnknownUserException,
         (),
-        False,
         _M_Ice._t_UnknownException,
         (),
     )
@@ -402,7 +392,7 @@ if "VersionMismatchException" not in _M_Ice.__dict__:
         _ice_id = "::Ice::VersionMismatchException"
 
     _M_Ice._t_VersionMismatchException = IcePy.defineException(
-        "::Ice::VersionMismatchException", VersionMismatchException, (), False, None, ()
+        "::Ice::VersionMismatchException", VersionMismatchException, (), None, ()
     )
     VersionMismatchException._ice_type = _M_Ice._t_VersionMismatchException
 
@@ -431,7 +421,6 @@ if "CommunicatorDestroyedException" not in _M_Ice.__dict__:
         "::Ice::CommunicatorDestroyedException",
         CommunicatorDestroyedException,
         (),
-        False,
         None,
         (),
     )
@@ -464,7 +453,6 @@ if "ObjectAdapterDeactivatedException" not in _M_Ice.__dict__:
         "::Ice::ObjectAdapterDeactivatedException",
         ObjectAdapterDeactivatedException,
         (),
-        False,
         None,
         (("name", (), IcePy._t_string, False, 0),),
     )
@@ -500,7 +488,6 @@ if "ObjectAdapterIdInUseException" not in _M_Ice.__dict__:
         "::Ice::ObjectAdapterIdInUseException",
         ObjectAdapterIdInUseException,
         (),
-        False,
         None,
         (("id", (), IcePy._t_string, False, 0),),
     )
@@ -533,7 +520,6 @@ if "NoEndpointException" not in _M_Ice.__dict__:
         "::Ice::NoEndpointException",
         NoEndpointException,
         (),
-        False,
         None,
         (("proxy", (), IcePy._t_string, False, 0),),
     )
@@ -566,7 +552,6 @@ if "EndpointParseException" not in _M_Ice.__dict__:
         "::Ice::EndpointParseException",
         EndpointParseException,
         (),
-        False,
         None,
         (("str", (), IcePy._t_string, False, 0),),
     )
@@ -599,7 +584,6 @@ if "EndpointSelectionTypeParseException" not in _M_Ice.__dict__:
         "::Ice::EndpointSelectionTypeParseException",
         EndpointSelectionTypeParseException,
         (),
-        False,
         None,
         (("str", (), IcePy._t_string, False, 0),),
     )
@@ -634,7 +618,6 @@ if "VersionParseException" not in _M_Ice.__dict__:
         "::Ice::VersionParseException",
         VersionParseException,
         (),
-        False,
         None,
         (("str", (), IcePy._t_string, False, 0),),
     )
@@ -667,7 +650,6 @@ if "IdentityParseException" not in _M_Ice.__dict__:
         "::Ice::IdentityParseException",
         IdentityParseException,
         (),
-        False,
         None,
         (("str", (), IcePy._t_string, False, 0),),
     )
@@ -700,7 +682,6 @@ if "ProxyParseException" not in _M_Ice.__dict__:
         "::Ice::ProxyParseException",
         ProxyParseException,
         (),
-        False,
         None,
         (("str", (), IcePy._t_string, False, 0),),
     )
@@ -736,7 +717,6 @@ if "IllegalIdentityException" not in _M_Ice.__dict__:
         "::Ice::IllegalIdentityException",
         IllegalIdentityException,
         (),
-        False,
         None,
         (("id", (), _M_Ice._t_Identity, False, 0),),
     )
@@ -769,7 +749,6 @@ if "IllegalServantException" not in _M_Ice.__dict__:
         "::Ice::IllegalServantException",
         IllegalServantException,
         (),
-        False,
         None,
         (("reason", (), IcePy._t_string, False, 0),),
     )
@@ -811,7 +790,6 @@ if "RequestFailedException" not in _M_Ice.__dict__:
         "::Ice::RequestFailedException",
         RequestFailedException,
         (),
-        False,
         None,
         (
             ("id", (), _M_Ice._t_Identity, False, 0),
@@ -847,7 +825,6 @@ if "ObjectNotExistException" not in _M_Ice.__dict__:
         "::Ice::ObjectNotExistException",
         ObjectNotExistException,
         (),
-        False,
         _M_Ice._t_RequestFailedException,
         (),
     )
@@ -879,7 +856,6 @@ if "FacetNotExistException" not in _M_Ice.__dict__:
         "::Ice::FacetNotExistException",
         FacetNotExistException,
         (),
-        False,
         _M_Ice._t_RequestFailedException,
         (),
     )
@@ -911,7 +887,6 @@ if "OperationNotExistException" not in _M_Ice.__dict__:
         "::Ice::OperationNotExistException",
         OperationNotExistException,
         (),
-        False,
         _M_Ice._t_RequestFailedException,
         (),
     )
@@ -947,7 +922,6 @@ if "SyscallException" not in _M_Ice.__dict__:
         "::Ice::SyscallException",
         SyscallException,
         (),
-        False,
         None,
         (("error", (), IcePy._t_int, False, 0),),
     )
@@ -978,7 +952,6 @@ if "SocketException" not in _M_Ice.__dict__:
         "::Ice::SocketException",
         SocketException,
         (),
-        False,
         _M_Ice._t_SyscallException,
         (),
     )
@@ -1012,7 +985,6 @@ if "CFNetworkException" not in _M_Ice.__dict__:
         "::Ice::CFNetworkException",
         CFNetworkException,
         (),
-        False,
         _M_Ice._t_SocketException,
         (("domain", (), IcePy._t_string, False, 0),),
     )
@@ -1046,7 +1018,6 @@ if "FileException" not in _M_Ice.__dict__:
         "::Ice::FileException",
         FileException,
         (),
-        False,
         _M_Ice._t_SyscallException,
         (("path", (), IcePy._t_string, False, 0),),
     )
@@ -1077,7 +1048,6 @@ if "ConnectFailedException" not in _M_Ice.__dict__:
         "::Ice::ConnectFailedException",
         ConnectFailedException,
         (),
-        False,
         _M_Ice._t_SocketException,
         (),
     )
@@ -1108,7 +1078,6 @@ if "ConnectionRefusedException" not in _M_Ice.__dict__:
         "::Ice::ConnectionRefusedException",
         ConnectionRefusedException,
         (),
-        False,
         _M_Ice._t_ConnectFailedException,
         (),
     )
@@ -1139,7 +1108,6 @@ if "ConnectionLostException" not in _M_Ice.__dict__:
         "::Ice::ConnectionLostException",
         ConnectionLostException,
         (),
-        False,
         _M_Ice._t_SocketException,
         (),
     )
@@ -1175,7 +1143,6 @@ if "DNSException" not in _M_Ice.__dict__:
         "::Ice::DNSException",
         DNSException,
         (),
-        False,
         None,
         (
             ("error", (), IcePy._t_int, False, 0),
@@ -1209,7 +1176,6 @@ if "OperationInterruptedException" not in _M_Ice.__dict__:
         "::Ice::OperationInterruptedException",
         OperationInterruptedException,
         (),
-        False,
         None,
         (),
     )
@@ -1237,7 +1203,7 @@ if "TimeoutException" not in _M_Ice.__dict__:
         _ice_id = "::Ice::TimeoutException"
 
     _M_Ice._t_TimeoutException = IcePy.defineException(
-        "::Ice::TimeoutException", TimeoutException, (), False, None, ()
+        "::Ice::TimeoutException", TimeoutException, (), None, ()
     )
     TimeoutException._ice_type = _M_Ice._t_TimeoutException
 
@@ -1266,7 +1232,6 @@ if "ConnectTimeoutException" not in _M_Ice.__dict__:
         "::Ice::ConnectTimeoutException",
         ConnectTimeoutException,
         (),
-        False,
         _M_Ice._t_TimeoutException,
         (),
     )
@@ -1297,7 +1262,6 @@ if "CloseTimeoutException" not in _M_Ice.__dict__:
         "::Ice::CloseTimeoutException",
         CloseTimeoutException,
         (),
-        False,
         _M_Ice._t_TimeoutException,
         (),
     )
@@ -1328,7 +1292,6 @@ if "ConnectionTimeoutException" not in _M_Ice.__dict__:
         "::Ice::ConnectionTimeoutException",
         ConnectionTimeoutException,
         (),
-        False,
         _M_Ice._t_TimeoutException,
         (),
     )
@@ -1359,7 +1322,6 @@ if "InvocationTimeoutException" not in _M_Ice.__dict__:
         "::Ice::InvocationTimeoutException",
         InvocationTimeoutException,
         (),
-        False,
         _M_Ice._t_TimeoutException,
         (),
     )
@@ -1390,7 +1352,6 @@ if "InvocationCanceledException" not in _M_Ice.__dict__:
         "::Ice::InvocationCanceledException",
         InvocationCanceledException,
         (),
-        False,
         None,
         (),
     )
@@ -1423,7 +1384,6 @@ if "ProtocolException" not in _M_Ice.__dict__:
         "::Ice::ProtocolException",
         ProtocolException,
         (),
-        False,
         None,
         (("reason", (), IcePy._t_string, False, 0),),
     )
@@ -1457,7 +1417,6 @@ if "BadMagicException" not in _M_Ice.__dict__:
         "::Ice::BadMagicException",
         BadMagicException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (("badMagic", (), _M_Ice._t_ByteSeq, False, 0),),
     )
@@ -1501,7 +1460,6 @@ if "UnsupportedProtocolException" not in _M_Ice.__dict__:
         "::Ice::UnsupportedProtocolException",
         UnsupportedProtocolException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (
             ("bad", (), _M_Ice._t_ProtocolVersion, False, 0),
@@ -1548,7 +1506,6 @@ if "UnsupportedEncodingException" not in _M_Ice.__dict__:
         "::Ice::UnsupportedEncodingException",
         UnsupportedEncodingException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (
             ("bad", (), _M_Ice._t_EncodingVersion, False, 0),
@@ -1582,7 +1539,6 @@ if "UnknownMessageException" not in _M_Ice.__dict__:
         "::Ice::UnknownMessageException",
         UnknownMessageException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1613,7 +1569,6 @@ if "ConnectionNotValidatedException" not in _M_Ice.__dict__:
         "::Ice::ConnectionNotValidatedException",
         ConnectionNotValidatedException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1646,7 +1601,6 @@ if "UnknownRequestIdException" not in _M_Ice.__dict__:
         "::Ice::UnknownRequestIdException",
         UnknownRequestIdException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1677,7 +1631,6 @@ if "UnknownReplyStatusException" not in _M_Ice.__dict__:
         "::Ice::UnknownReplyStatusException",
         UnknownReplyStatusException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1712,7 +1665,6 @@ if "CloseConnectionException" not in _M_Ice.__dict__:
         "::Ice::CloseConnectionException",
         CloseConnectionException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1746,7 +1698,6 @@ if "ConnectionManuallyClosedException" not in _M_Ice.__dict__:
         "::Ice::ConnectionManuallyClosedException",
         ConnectionManuallyClosedException,
         (),
-        False,
         None,
         (("graceful", (), IcePy._t_bool, False, 0),),
     )
@@ -1779,7 +1730,6 @@ if "IllegalMessageSizeException" not in _M_Ice.__dict__:
         "::Ice::IllegalMessageSizeException",
         IllegalMessageSizeException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1810,7 +1760,6 @@ if "CompressionException" not in _M_Ice.__dict__:
         "::Ice::CompressionException",
         CompressionException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1842,7 +1791,6 @@ if "DatagramLimitException" not in _M_Ice.__dict__:
         "::Ice::DatagramLimitException",
         DatagramLimitException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1873,7 +1821,6 @@ if "MarshalException" not in _M_Ice.__dict__:
         "::Ice::MarshalException",
         MarshalException,
         (),
-        False,
         _M_Ice._t_ProtocolException,
         (),
     )
@@ -1904,7 +1851,6 @@ if "ProxyUnmarshalException" not in _M_Ice.__dict__:
         "::Ice::ProxyUnmarshalException",
         ProxyUnmarshalException,
         (),
-        False,
         _M_Ice._t_MarshalException,
         (),
     )
@@ -1935,7 +1881,6 @@ if "UnmarshalOutOfBoundsException" not in _M_Ice.__dict__:
         "::Ice::UnmarshalOutOfBoundsException",
         UnmarshalOutOfBoundsException,
         (),
-        False,
         _M_Ice._t_MarshalException,
         (),
     )
@@ -1969,7 +1914,6 @@ if "NoValueFactoryException" not in _M_Ice.__dict__:
         "::Ice::NoValueFactoryException",
         NoValueFactoryException,
         (),
-        False,
         _M_Ice._t_MarshalException,
         (("type", (), IcePy._t_string, False, 0),),
     )
@@ -2008,7 +1952,6 @@ if "UnexpectedObjectException" not in _M_Ice.__dict__:
         "::Ice::UnexpectedObjectException",
         UnexpectedObjectException,
         (),
-        False,
         _M_Ice._t_MarshalException,
         (
             ("type", (), IcePy._t_string, False, 0),
@@ -2043,7 +1986,6 @@ if "MemoryLimitException" not in _M_Ice.__dict__:
         "::Ice::MemoryLimitException",
         MemoryLimitException,
         (),
-        False,
         _M_Ice._t_MarshalException,
         (),
     )
@@ -2074,7 +2016,6 @@ if "StringConversionException" not in _M_Ice.__dict__:
         "::Ice::StringConversionException",
         StringConversionException,
         (),
-        False,
         _M_Ice._t_MarshalException,
         (),
     )
@@ -2105,7 +2046,6 @@ if "EncapsulationException" not in _M_Ice.__dict__:
         "::Ice::EncapsulationException",
         EncapsulationException,
         (),
-        False,
         _M_Ice._t_MarshalException,
         (),
     )
@@ -2139,7 +2079,6 @@ if "FeatureNotSupportedException" not in _M_Ice.__dict__:
         "::Ice::FeatureNotSupportedException",
         FeatureNotSupportedException,
         (),
-        False,
         None,
         (("unsupportedFeature", (), IcePy._t_string, False, 0),),
     )
@@ -2172,7 +2111,6 @@ if "SecurityException" not in _M_Ice.__dict__:
         "::Ice::SecurityException",
         SecurityException,
         (),
-        False,
         None,
         (("reason", (), IcePy._t_string, False, 0),),
     )
@@ -2200,7 +2138,7 @@ if "FixedProxyException" not in _M_Ice.__dict__:
         _ice_id = "::Ice::FixedProxyException"
 
     _M_Ice._t_FixedProxyException = IcePy.defineException(
-        "::Ice::FixedProxyException", FixedProxyException, (), False, None, ()
+        "::Ice::FixedProxyException", FixedProxyException, (), None, ()
     )
     FixedProxyException._ice_type = _M_Ice._t_FixedProxyException
 
@@ -2226,7 +2164,7 @@ if "ResponseSentException" not in _M_Ice.__dict__:
         _ice_id = "::Ice::ResponseSentException"
 
     _M_Ice._t_ResponseSentException = IcePy.defineException(
-        "::Ice::ResponseSentException", ResponseSentException, (), False, None, ()
+        "::Ice::ResponseSentException", ResponseSentException, (), None, ()
     )
     ResponseSentException._ice_type = _M_Ice._t_ResponseSentException
 

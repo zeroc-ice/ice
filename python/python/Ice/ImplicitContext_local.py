@@ -113,7 +113,7 @@ if "ImplicitContext" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_ImplicitContext = IcePy.defineValue(
-        "::Ice::ImplicitContext", ImplicitContext, -1, (), False, True, None, ()
+        "::Ice::ImplicitContext", ImplicitContext, -1, (), True, None, ()
     )
     ImplicitContext._ice_type = _M_Ice._t_ImplicitContext
 

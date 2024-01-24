@@ -85,10 +85,6 @@ class PNode
     PNode next;
 }
 
-exception PreservedException
-{
-}
-
 ["amd", "format:sliced"]
 interface TestIntf
 {

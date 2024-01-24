@@ -609,8 +609,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', " << valueName << ", "
          << p->compactId() << ", ";
     writeMetaData(p->getMetaData());
-    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << ", " << (preserved ? "True" : "False") << ", False, ";
+    _out << ", False, ";
     if(!base)
     {
         _out << "None";
@@ -693,7 +692,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // TODO: remove this interface-by-value.
     _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', Ice.Value, -1, ";
     writeMetaData(p->getMetaData());
-    _out << ", False, True, None, ())";
+    _out << ", True, None, ())";
 
     _out << sp << nl << "if " << getDictLookup(p, "", "Prx") << ':';
     _out.inc();
@@ -1182,8 +1181,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string type = getAbsolute(p, "_t_");
     _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << name << ", ";
     writeMetaData(p->getMetaData());
-    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << ", " << (preserved ? "True" : "False") << ", ";
+    _out << ", ";
     if(!base)
     {
         _out << "None";
