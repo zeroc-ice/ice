@@ -43,7 +43,7 @@ public:
         in->startValue();
         in->startSlice();
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
 protected:
@@ -72,7 +72,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
 protected:
@@ -104,7 +104,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
 protected:
@@ -122,7 +122,7 @@ public:
 
     virtual void _iceWrite(Ice::OutputStream* out) const
     {
-        out->startValue(0);
+        out->startValue(ICE_NULLPTR);
         // ::Test::D
         out->startSlice("::Test::D", -1, false);
         string s = "test";
@@ -189,7 +189,7 @@ public:
         in->startSlice();
         in->read(v);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
     void check()
@@ -226,7 +226,7 @@ public:
         in->startSlice();
         in->read(_f->ae);
         in->endSlice();
-        in->endValue(false);
+        in->endValue();
     }
 
     FPtr

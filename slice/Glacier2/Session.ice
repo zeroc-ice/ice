@@ -23,7 +23,6 @@
 module Glacier2
 {
     /// This exception is raised if an attempt to create a new session failed.
-    ["preserve-slice"]
     exception CannotCreateSessionException
     {
         /// The reason why session creation has failed.

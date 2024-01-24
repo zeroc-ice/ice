@@ -98,6 +98,10 @@ protected:
     virtual void _iceWriteImpl(Ice::OutputStream*) const {}
     virtual void _iceReadImpl(Ice::InputStream*) {}
     /// \endcond
+
+private:
+
+    ::std::shared_ptr<Ice::SlicedData> _slicedData;
 };
 
 /// \cond INTERNAL

@@ -99,16 +99,10 @@ Ice::UserException::ice_clone() const
 }
 #endif
 
-Ice::SlicedDataPtr
-Ice::UserException::ice_getSlicedData() const
-{
-    return ICE_NULLPTR;
-}
-
 void
 Ice::UserException::_write(::Ice::OutputStream* os) const
 {
-    os->startException(0);
+    os->startException();
     _writeImpl(os);
     os->endException();
 }
@@ -118,7 +112,7 @@ Ice::UserException::_read(::Ice::InputStream* is)
 {
     is->startException();
     _readImpl(is);
-    is->endException(false);
+    is->endException();
 }
 
 bool

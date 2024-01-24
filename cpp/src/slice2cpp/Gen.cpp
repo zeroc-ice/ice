@@ -1397,30 +1397,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string factoryName;
 
     ExceptionPtr base = p->base();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
-
-    if(preserved && !basePreserved)
-    {
-        H << sp;
-        H << nl << "/**";
-        H << nl << " * Obtains the SlicedData object created when an unknown exception type was marshaled";
-        H << nl << " * in the sliced format and the Ice run time sliced it to a known type.";
-        H << nl << " * @return The SlicedData object, or nil if the exception was not sliced or was not";
-        H << nl << " * marshaled in the sliced format.";
-        H << nl << " */";
-        H << nl << "virtual ::Ice::SlicedDataPtr ice_getSlicedData() const;";
-
-        H << sp;
-        H << nl << "/// \\cond STREAM";
-        H << nl << "virtual void _write(::Ice::OutputStream*) const;";
-        H << nl << "virtual void _read(::Ice::InputStream*);";
-
-        string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
-        H << nl << "using " << baseName << "::_write;";
-        H << nl << "using " << baseName << "::_read;";
-        H << nl << "/// \\endcond";
-    }
 
     H.dec();
     H << sp << nl << "protected:";
@@ -1433,36 +1409,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     H << nl << "/// \\endcond";
 
     string baseName = getUnqualified(base ? fixKwd(base->scoped()) : "::Ice::UserException", scope);
-
-    if(preserved && !basePreserved)
-    {
-        H << sp;
-        H << nl << "/// \\cond STREAM";
-        H << nl << "::Ice::SlicedDataPtr _slicedData;";
-        H << nl << "/// \\endcond";
-
-        C << sp;
-        C << nl << "::Ice::SlicedDataPtr" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
-        C << sb;
-        C << nl << "return _slicedData;";
-        C << eb;
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::_write("
-          << getUnqualified("::Ice::OutputStream*", scope) << " ostr) const";
-        C << sb;
-        C << nl << "ostr->startException(_slicedData);";
-        C << nl << "_writeImpl(ostr);";
-        C << nl << "ostr->endException();";
-        C << eb;
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::_read(" << getUnqualified("::Ice::InputStream*", scope)
-          << " istr)";
-        C << sb;
-        C << nl << "istr->startException();";
-        C << nl << "_readImpl(istr);";
-        C << nl << "_slicedData = istr->endException(true);";
-        C << eb;
-    }
 
     C << sp;
     C << nl << "/// \\cond STREAM";
@@ -3211,52 +3157,6 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
     string name = fixKwd(p->name());
     ClassDefPtr base = p->base();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
-
-    if(preserved && !basePreserved)
-    {
-        H << sp;
-        H << nl << "/**";
-        H << nl << " * Obtains the SlicedData object created when an unknown value type was marshaled";
-        H << nl << " * in the sliced format and the Ice run time sliced it to a known type.";
-        H << nl << " * @return The SlicedData object, or nil if the value was not sliced or was not";
-        H << nl << " * marshaled in the sliced format.";
-        H << nl << " */";
-        H << nl << "virtual " << getUnqualified("::Ice::SlicedDataPtr", scope) << " ice_getSlicedData() const override;";
-
-        C << sp;
-        C << nl << "::Ice::SlicedDataPtr" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
-        C << sb;
-        C << nl << "return _iceSlicedData;";
-        C << eb;
-
-        H << sp;
-        H << nl << "/// \\cond STREAM";
-        H << nl << "virtual void _iceWrite(" << getUnqualified("::Ice::OutputStream*", scope) << ") const override;";
-        H << nl << "virtual void _iceRead(" << getUnqualified("::Ice::InputStream*", scope) << ") override;";
-        H << nl << "/// \\endcond";
-
-        C << sp;
-        C << nl << "/// \\cond STREAM";
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceWrite(" << getUnqualified("::Ice::OutputStream*", scope)
-          << " ostr) const";
-        C << sb;
-        C << nl << "ostr->startValue(_iceSlicedData);";
-        C << nl << "_iceWriteImpl(ostr);";
-        C << nl << "ostr->endValue();";
-        C << eb;
-
-        C << sp;
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceRead(" << getUnqualified("::Ice::InputStream*", scope)
-          << " istr)";
-        C << sb;
-        C << nl << "istr->startValue();";
-        C << nl << "_iceReadImpl(istr);";
-        C << nl << "_iceSlicedData = istr->endValue(true);";
-        C << eb;
-        C << nl << "/// \\endcond";
-    }
 
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
@@ -3310,21 +3210,6 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
 
         emitDataMember(*q);
-    }
-
-    if(preserved && !basePreserved)
-    {
-        if(!inProtected)
-        {
-            H.dec();
-            H << sp << nl << "protected:";
-            H.inc();
-            inProtected = true;
-        }
-        H << sp;
-        H << nl << "/// \\cond STREAM";
-        H << nl << getUnqualified("::Ice::SlicedDataPtr", scope) << " _iceSlicedData;";
-        H << nl << "/// \\endcond";
     }
 
     if(generateFriend)
@@ -5686,55 +5571,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string factoryName;
 
     ExceptionPtr base = p->base();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
 
-    if(preserved && !basePreserved)
-    {
-        H << sp;
-        H << nl << "/**";
-        H << nl << " * Obtains the SlicedData object created when an unknown exception type was marshaled";
-        H << nl << " * in the sliced format and the Ice run time sliced it to a known type.";
-        H << nl << " * @return The SlicedData object, or nil if the exception was not sliced or was not";
-        H << nl << " * marshaled in the sliced format.";
-        H << nl << " */";
-        H << nl << _dllMemberExport << "virtual ::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope)
-          << "> ice_getSlicedData() const override;";
-        H << sp;
-        H << nl << "/// \\cond STREAM";
-        H << nl << _dllMemberExport << "virtual void _write(" << getUnqualified("::Ice::OutputStream*", scope)
-          << ") const override;";
-        H << nl << _dllMemberExport << "virtual void _read(" << getUnqualified("::Ice::InputStream*", scope)
-          << ") override;";
-
-        H << sp << nl << "::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope) << "> _slicedData;";
-        H << nl << "/// \\endcond";
-
-        C << sp;
-        C << nl << "::std::shared_ptr<::Ice::SlicedData>" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
-        C << sb;
-        C << nl << "return _slicedData;";
-        C << eb;
-
-        C << sp;
-        C << nl << "/// \\cond STREAM";
-        C << nl << "void" << nl << scoped.substr(2) << "::_write(" << getUnqualified("::Ice::OutputStream*", scope)
-          << " ostr) const";
-        C << sb;
-        C << nl << "ostr->startException(_slicedData);";
-        C << nl << "_writeImpl(ostr);";
-        C << nl << "ostr->endException();";
-        C << eb;
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::_read(" << getUnqualified("::Ice::InputStream*", scope)
-          << " istr)";
-        C << sb;
-        C << nl << "istr->startException();";
-        C << nl << "_readImpl(istr);";
-        C << nl << "_slicedData = istr->endException(true);";
-        C << eb;
-        C << nl << "/// \\endcond";
-    }
     H << eb << ';';
 
     //
@@ -7221,53 +7058,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
     string name = fixKwd(p->name());
     ClassDefPtr base = p->base();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
-
-    if(preserved && !basePreserved)
-    {
-        H << sp;
-        H << nl << "/**";
-        H << nl << " * Obtains the SlicedData object created when an unknown value type was marshaled";
-        H << nl << " * in the sliced format and the Ice run time sliced it to a known type.";
-        H << nl << " * @return The SlicedData object, or nil if the value was not sliced or was not";
-        H << nl << " * marshaled in the sliced format.";
-        H << nl << " */";
-        H << nl << "virtual ::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope)
-          << "> ice_getSlicedData() const override;";
-
-        C << sp;
-        C << nl << "::std::shared_ptr<::Ice::SlicedData>" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
-        C << sb;
-        C << nl << "return _iceSlicedData;";
-        C << eb;
-
-        H << sp;
-        H << nl << "/// \\cond STREAM";
-        H << nl << "virtual void _iceWrite(" << getUnqualified("::Ice::OutputStream*", scope) << ") const override;";
-        H << nl << "virtual void _iceRead(" << getUnqualified("::Ice::InputStream*", scope) << ") override;";
-        H << nl << "/// \\endcond";
-
-        C << sp;
-        C << nl << "/// \\cond STREAM";
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceWrite(" << getUnqualified("::Ice::OutputStream*", scope)
-          << " ostr) const";
-        C << sb;
-        C << nl << "ostr->startValue(_iceSlicedData);";
-        C << nl << "_iceWriteImpl(ostr);";
-        C << nl << "ostr->endValue();";
-        C << eb;
-
-        C << sp;
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceRead(" << getUnqualified("::Ice::InputStream*", scope)
-          << " istr)";
-        C << sb;
-        C << nl << "istr->startValue();";
-        C << nl << "_iceReadImpl(istr);";
-        C << nl << "_iceSlicedData = istr->endValue(true);";
-        C << eb;
-        C << nl << "/// \\endcond";
-    }
 
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
@@ -7321,21 +7111,6 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
 
         emitDataMember(*q);
-    }
-
-    if(preserved && !basePreserved)
-    {
-        if(!inProtected)
-        {
-            H.dec();
-            H << sp << nl << "protected:";
-            H.inc();
-            inProtected = true;
-        }
-        H << sp;
-        H << nl << "/// \\cond STREAM";
-        H << nl << "::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope) << "> _iceSlicedData;";
-        H << nl << "/// \\endcond";
     }
 
     if(generateFriend)

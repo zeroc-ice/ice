@@ -5,7 +5,6 @@
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
-#include <Test.h>
 #include <TestHelper.h>
 
 using namespace std;
@@ -19,7 +18,7 @@ public:
     {
         if(c.ctx.find("throw") != c.ctx.end())
         {
-            throw Test::ExtendedPermissionDeniedException("reason");
+            throw Glacier2::PermissionDeniedException("reason");
         }
         return (userId == "admin1" && passwd == "test1") ||
                (userId == "admin2" && passwd == "test2") ||

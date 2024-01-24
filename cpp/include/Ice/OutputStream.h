@@ -161,13 +161,11 @@ public:
 
     /**
      * Marks the start of an exception instance.
-     * @param data Contains the marshaled form of unknown slices from this instance. If not nil,
-     * these slices will be marshaled with the instance.
      */
-    void startException(const SlicedDataPtr& data)
+    void startException()
     {
         assert(_currentEncaps && _currentEncaps->encoder);
-        _currentEncaps->encoder->startInstance(ExceptionSlice, data);
+        _currentEncaps->encoder->startInstance(ExceptionSlice, ICE_NULLPTR);
     }
 
     /**
