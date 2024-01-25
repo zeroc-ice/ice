@@ -379,7 +379,7 @@ public:
     ClassInfo(VALUE, bool);
     void init();
 
-    void define(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+    void define(VALUE, VALUE, VALUE, VALUE, VALUE);
 
     std::string getId() const final;
 
@@ -406,7 +406,6 @@ public:
     const Ice::Int compactId;
     const bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
     const bool isLocal;
-    const bool preserve;
     const bool interface;
     const ClassInfoPtr base;
     const DataMemberList members;
@@ -462,7 +461,6 @@ public:
     void printMembers(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
-    bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
     DataMemberList optionalMembers;
@@ -541,8 +539,6 @@ public:
 
     VALUE getException() const;
 
-    Ice::SlicedDataPtr getSlicedData() const;
-
 protected:
 
     void _writeImpl(Ice::OutputStream*) const final {}
@@ -552,7 +548,6 @@ private:
 
     ExceptionInfoPtr _info;
     VALUE _ex;
-    Ice::SlicedDataPtr _slicedData;
 };
 
 ClassInfoPtr lookupClassInfo(const std::string&);

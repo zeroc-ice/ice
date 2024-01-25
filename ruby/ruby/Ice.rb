@@ -138,7 +138,7 @@ module Ice
         attr_accessor :_ice_slicedData  # Only used for instances of preserved classes.
     end
 
-    T_Value.defineClass(Value, -1, false, false, nil, [])
+    T_Value.defineClass(Value, -1, false, nil, [])
 
     T_ObjectPrx.defineProxy(ObjectPrx, nil, [])
 
@@ -161,7 +161,7 @@ module Ice
         end
     end
     T_UnknownSlicedValue = Ice.__declareClass('::Ice::UnknownSlicedValue')
-    T_UnknownSlicedValue.defineClass(UnknownSlicedValue, -1, true, false, T_Value, [])
+    T_UnknownSlicedValue.defineClass(UnknownSlicedValue, -1, false, T_Value, [])
 
     #
     # InitializationData.

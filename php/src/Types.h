@@ -402,7 +402,7 @@ public:
 
     ClassInfo(const std::string&);
 
-    void define(const std::string&, Ice::Int, bool, bool, zval*, zval*);
+    void define(const std::string&, Ice::Int, bool, zval*, zval*);
 
     std::string getId() const final;
 
@@ -431,7 +431,6 @@ public:
     const std::string id;
     const std::string name; // PHP class name
     const Ice::Int compactId;
-    const bool preserve;
     const bool interface;
     ClassInfoPtr base;
     const DataMemberList members;
@@ -499,7 +498,6 @@ public:
 
     std::string id;
     std::string name; // PHP class name
-    bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
     DataMemberList optionalMembers;
@@ -591,8 +589,6 @@ public:
 
     zval* getException() const;
 
-    Ice::SlicedDataPtr getSlicedData() const;
-
 protected:
 
     void _writeImpl(Ice::OutputStream*) const final {}
@@ -603,7 +599,6 @@ private:
     CommunicatorInfoPtr _communicatorInfo;
     ExceptionInfoPtr _info;
     zval _ex;
-    Ice::SlicedDataPtr _slicedData;
 };
 
 } // End of namespace IcePHP

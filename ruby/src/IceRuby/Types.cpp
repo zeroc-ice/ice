@@ -317,8 +317,8 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
 }
 
 //
-// Instances of preserved class and exception types may have a data member
-// named _ice_slicedData which is an instance of the Ruby class Ice::SlicedData.
+// Instances of class types may have a data member named _ice_slicedData which is an instance of the Ruby class
+// Ice::SlicedData. This data member is only set for unmarshaled instances.
 //
 Ice::SlicedDataPtr
 IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
@@ -1969,8 +1969,7 @@ IceRuby::DictionaryInfo::destroy()
 // ClassInfo implementation.
 //
 IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc) :
-    compactId(-1), isBase(false), isLocal(loc), preserve(false), interface(false), rubyClass(Qnil), typeObj(Qnil),
-    defined(false)
+    compactId(-1), isBase(false), isLocal(loc), interface(false), rubyClass(Qnil), typeObj(Qnil), defined(false)
 {
     const_cast<string&>(id) = getString(ident);
     if(isLocal)
@@ -1990,7 +1989,7 @@ IceRuby::ClassInfo::init()
 }
 
 void
-IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE pres, VALUE intf, VALUE b, VALUE m)
+IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE intf, VALUE b, VALUE m)
 {
     if(!NIL_P(b))
     {
@@ -1999,7 +1998,6 @@ IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE pres, VALUE intf, VALUE
     }
 
     const_cast<Ice::Int&>(compactId) = static_cast<Ice::Int>(getInteger(compact));
-    const_cast<bool&>(preserve) = RTEST(pres);
     const_cast<bool&>(interface) = RTEST(intf);
     convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);
     const_cast<VALUE&>(rubyClass) = t;
@@ -2525,15 +2523,10 @@ IceRuby::ValueWriter::ice_preMarshal()
 void
 IceRuby::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 {
-    Ice::SlicedDataPtr slicedData;
-
-    if(_info && _info->preserve)
-    {
-        //
-        // Retrieve the SlicedData object that we stored as a hidden member of the Ruby object.
-        //
-        slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ValueMap*>(_map));
-    }
+    //
+    // Retrieve the SlicedData object that we stored as a hidden member of the Ruby object.
+    //
+    Ice::SlicedDataPtr slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ValueMap*>(_map));
 
     os->startValue(slicedData);
     if(_formal && _formal->interface)
@@ -2674,7 +2667,7 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
         }
     }
 
-    _slicedData = is->endValue(_info->preserve);
+    _slicedData = is->endValue();
 
     if(_slicedData)
     {
@@ -2896,8 +2889,7 @@ IceRuby::ExceptionReader::ExceptionReader(const ExceptionInfoPtr& info) :
 
 IceRuby::ExceptionReader::ExceptionReader(const ExceptionReader& reader) :
     _info(reader._info),
-    _ex(reader._ex),
-    _slicedData(reader._slicedData)
+    _ex(reader._ex)
 {
     rb_gc_register_address(&_ex);
 }
@@ -2939,8 +2931,6 @@ IceRuby::ExceptionReader::_read(Ice::InputStream* is)
 
     const_cast<VALUE&>(_ex) = _info->unmarshal(is);
     rb_gc_register_address(&_ex);
-
-    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
 }
 
 bool
@@ -2953,12 +2943,6 @@ VALUE
 IceRuby::ExceptionReader::getException() const
 {
     return _ex;
-}
-
-Ice::SlicedDataPtr
-IceRuby::ExceptionReader::getSlicedData() const
-{
-    return _slicedData;
 }
 
 extern "C"
@@ -3080,14 +3064,12 @@ IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
 
 extern "C"
 VALUE
-IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE preserve, VALUE base, VALUE members)
+IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE members)
 {
     ICE_RUBY_TRY
     {
         ExceptionInfoPtr info = make_shared<ExceptionInfo>();
         info->id = getString(id);
-
-        info->preserve = preserve == Qtrue;
 
         if(!NIL_P(base))
         {
@@ -3139,15 +3121,14 @@ IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type, VALUE base, VALUE interface
 
 extern "C"
 VALUE
-IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE preserve, VALUE interface, VALUE base,
-                             VALUE members)
+IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE interface, VALUE base, VALUE members)
 {
     ICE_RUBY_TRY
     {
         ClassInfoPtr info = dynamic_pointer_cast<ClassInfo>(getType(self));
         assert(info);
 
-        info->define(type, compactId, preserve, interface, base, members);
+        info->define(type, compactId, interface, base, members);
 
         if(info->compactId != -1)
         {
@@ -3266,9 +3247,9 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__declareProxy", CAST_METHOD(IceRuby_declareProxy), 1);
     rb_define_module_function(iceModule, "__declareClass", CAST_METHOD(IceRuby_declareClass), 1);
     rb_define_module_function(iceModule, "__declareLocalClass", CAST_METHOD(IceRuby_declareLocalClass), 1);
-    rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 5);
+    rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 4);
 
-    rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 6);
+    rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 5);
     rb_define_method(_typeInfoClass, "defineProxy", CAST_METHOD(IceRuby_TypeInfo_defineProxy), 3);
 
     rb_define_module_function(iceModule, "__stringify", CAST_METHOD(IceRuby_stringify), 2);

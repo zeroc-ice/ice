@@ -312,9 +312,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     // Emit the type information.
-    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
     _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', "
-         << p->compactId() << ", " << (preserved ? "true" : "false") << ", false, ";
+         << p->compactId() << ", false, ";
     if(!base)
     {
         _out << "$Ice__t_Value";
@@ -684,9 +683,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     // Emit the type information.
-    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', "
-         << (preserved ? "true" : "false") << ", ";
+    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', ";
     if(!base)
     {
         _out << "null";
