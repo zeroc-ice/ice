@@ -556,8 +556,8 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
 }
 
 //
-// Instances of preserved class types may have a data member named _ice_slicedData which is an instance of the Python
-// class Ice.SlicedData.
+// Instances of class types may have a data member named _ice_slicedData which is an instance of the Python class
+// Ice.SlicedData. This data member is only set for unmarshaled instances.
 //
 Ice::SlicedDataPtr
 IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
