@@ -1145,8 +1145,8 @@ def allTests(helper, communicator):
             test(not isinstance(p3, Test.D3))
         else:
             test(isinstance(p3, Test.D3))
-            test(p3.sd3 == "D3.sd3");
-            test(p3.pd3.ice_id() == "::Test::D1");
+            test(p3.sd3 == "D3.sd3")
+            test(p3.pd3.ice_id() == "::Test::D1")
 
     except Ice.Exception:
         test(False)
@@ -1187,8 +1187,8 @@ def allTests(helper, communicator):
             test(not isinstance(p3, Test.D3))
         else:
             test(isinstance(p3, Test.D3))
-            test(p3.sd3 == "D3.sd3");
-            test(p3.pd3.ice_id() == "::Test::D1");
+            test(p3.sd3 == "D3.sd3")
+            test(p3.pd3.ice_id() == "::Test::D1")
 
     except Ice.Exception:
         test(False)

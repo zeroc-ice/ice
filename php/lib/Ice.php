@@ -122,7 +122,6 @@ namespace Ice
 
     $Ice__t_Value = IcePHP_defineClass('::Ice::Object', "\\Ice\\Value", -1, false, null, null);
     $Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Value);
-    // $Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "\\Ice\\LocalObject", -1, false, null, null);
     $Ice__t_ObjectPrx = IcePHP_defineProxy('::Ice::Object', null, null);
     $Ice__t_ObjectProxySeq = IcePHP_defineSequence('::Ice::ObjectProxySeq', $Ice__t_ObjectPrx);
 

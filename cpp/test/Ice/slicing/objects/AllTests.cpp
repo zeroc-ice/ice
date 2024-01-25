@@ -1586,7 +1586,6 @@ allTests(Test::TestHelper* helper)
                 test(p3->sd3 == "D3.sd3");
             }
 
-
             test(b1 != d1);
             test(b1 != d3);
             test(b2 != d1);

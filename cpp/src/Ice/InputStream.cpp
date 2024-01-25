@@ -2469,7 +2469,6 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
     }
 
-
     _current->indirectionTables.push_back(IndexList());
 
     //
