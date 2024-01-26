@@ -377,15 +377,6 @@ struct OperationObject
     OperationPtr* op;
 };
 
-struct DoneCallbackObject
-{
-    PyObject_HEAD
-    UpcallPtr* upcall;
-#if PY_VERSION_HEX >= 0x03050000
-    PyObject* coroutine;
-#endif
-};
-
 struct DispatchCallbackObject
 {
     PyObject_HEAD
@@ -645,83 +636,6 @@ operationDeprecate(OperationObject* self, PyObject* args)
 
     assert(self->op);
     (*self->op)->deprecate(msg);
-
-    return incRef(Py_None);
-}
-
-//
-// DoneCallback operations
-//
-
-#ifdef WIN32
-extern "C"
-#endif
-static DoneCallbackObject*
-doneCallbackNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
-{
-    DoneCallbackObject* self = reinterpret_cast<DoneCallbackObject*>(type->tp_alloc(type, 0));
-    if(!self)
-    {
-        return 0;
-    }
-    self->upcall = 0;
-#if PY_VERSION_HEX >= 0x03050000
-    self->coroutine = 0;
-#endif
-    return self;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static void
-doneCallbackDealloc(DoneCallbackObject* self)
-{
-    delete self->upcall;
-#if PY_VERSION_HEX >= 0x03050000
-    Py_XDECREF(self->coroutine);
-#endif
-    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-doneCallbackInvoke(DoneCallbackObject* self, PyObject* args)
-{
-    PyObject* future = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &future))
-    {
-        return 0;
-    }
-
-    try
-    {
-        assert(self->upcall);
-
-        PyObjectHandle resultMethod = getAttr(future, "result", false);
-        assert(resultMethod.get());
-        PyObjectHandle empty = PyTuple_New(0);
-        PyObjectHandle result = PyObject_Call(resultMethod.get(), empty.get(), 0);
-
-        if(PyErr_Occurred())
-        {
-            PyException ex;
-            (*self->upcall)->exception(ex);
-        }
-        else
-        {
-            (*self->upcall)->response(result.get());
-        }
-    }
-    catch(...)
-    {
-        //
-        // No exceptions should propagate to Python.
-        //
-        assert(false);
-    }
 
     return incRef(Py_None);
 }
@@ -1568,13 +1482,6 @@ static PyMethodDef OperationMethods[] =
     { 0, 0 } /* sentinel */
 };
 
-static PyMethodDef DoneCallbackMethods[] =
-{
-    { STRCAST("invoke"), reinterpret_cast<PyCFunction>(doneCallbackInvoke), METH_VARARGS,
-      PyDoc_STR(STRCAST("internal function")) },
-    { 0, 0 } /* sentinel */
-};
-
 static PyMethodDef DispatchCallbackMethods[] =
 {
     { STRCAST("response"), reinterpret_cast<PyCFunction>(dispatchCallbackResponse), METH_VARARGS,
@@ -1659,53 +1566,6 @@ PyTypeObject OperationType =
     reinterpret_cast<initproc>(operationInit), /* tp_init */
     0,                               /* tp_alloc */
     reinterpret_cast<newfunc>(operationNew), /* tp_new */
-    0,                               /* tp_free */
-    0,                               /* tp_is_gc */
-};
-
-static PyTypeObject DoneCallbackType =
-{
-    /* The ob_type field must be initialized in the module init function
-     * to be portable to Windows without using C++. */
-    PyVarObject_HEAD_INIT(0, 0)
-    STRCAST("IcePy.DoneCallback"),   /* tp_name */
-    sizeof(DoneCallbackObject),      /* tp_basicsize */
-    0,                               /* tp_itemsize */
-    /* methods */
-    reinterpret_cast<destructor>(doneCallbackDealloc), /* tp_dealloc */
-    0,                               /* tp_print */
-    0,                               /* tp_getattr */
-    0,                               /* tp_setattr */
-    0,                               /* tp_reserved */
-    0,                               /* tp_repr */
-    0,                               /* tp_as_number */
-    0,                               /* tp_as_sequence */
-    0,                               /* tp_as_mapping */
-    0,                               /* tp_hash */
-    0,                               /* tp_call */
-    0,                               /* tp_str */
-    0,                               /* tp_getattro */
-    0,                               /* tp_setattro */
-    0,                               /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,              /* tp_flags */
-    0,                               /* tp_doc */
-    0,                               /* tp_traverse */
-    0,                               /* tp_clear */
-    0,                               /* tp_richcompare */
-    0,                               /* tp_weaklistoffset */
-    0,                               /* tp_iter */
-    0,                               /* tp_iternext */
-    DoneCallbackMethods,             /* tp_methods */
-    0,                               /* tp_members */
-    0,                               /* tp_getset */
-    0,                               /* tp_base */
-    0,                               /* tp_dict */
-    0,                               /* tp_descr_get */
-    0,                               /* tp_descr_set */
-    0,                               /* tp_dictoffset */
-    0,                               /* tp_init */
-    0,                               /* tp_alloc */
-    reinterpret_cast<newfunc>(doneCallbackNew), /* tp_new */
     0,                               /* tp_free */
     0,                               /* tp_is_gc */
 };
@@ -1862,16 +1722,6 @@ IcePy::initOperation(PyObject* module)
     }
     PyTypeObject* opType = &OperationType; // Necessary to prevent GCC's strict-alias warnings.
     if(PyModule_AddObject(module, STRCAST("Operation"), reinterpret_cast<PyObject*>(opType)) < 0)
-    {
-        return false;
-    }
-
-    if(PyType_Ready(&DoneCallbackType) < 0)
-    {
-        return false;
-    }
-    PyTypeObject* cbType = &DoneCallbackType; // Necessary to prevent GCC's strict-alias warnings.
-    if(PyModule_AddObject(module, STRCAST("DoneCallback"), reinterpret_cast<PyObject*>(cbType)) < 0)
     {
         return false;
     }
