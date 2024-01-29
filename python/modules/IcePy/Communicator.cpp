@@ -239,7 +239,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if (batchRequestInterceptor.get())
             {
-                auto batchRequestInterceptorWrapper = make_shared<BatchRequestInterceptor>(batchRequestInterceptor.get());
+                auto batchRequestInterceptorWrapper = make_shared<BatchRequestInterceptorWrapper>(batchRequestInterceptor.get());
                 data.batchRequestInterceptor = [batchRequestInterceptorWrapper](const Ice::BatchRequest& req, int count, int size)
                 {
                     batchRequestInterceptorWrapper->enqueue(req, count, size);

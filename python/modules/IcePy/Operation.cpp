@@ -309,7 +309,6 @@ struct DispatchCallbackObject
 struct AsyncInvocationContextObject
 {
     PyObject_HEAD
-    InvocationPtr* invocation;
     function<void()>* cancel;
     Ice::CommunicatorPtr* communicator;
 };
@@ -579,7 +578,6 @@ asyncInvocationContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kw
     {
         return 0;
     }
-    self->invocation = 0;
     self->cancel = 0;
     self->communicator = 0;
     return self;
@@ -591,7 +589,6 @@ extern "C"
 static void
 asyncInvocationContextDealloc(AsyncInvocationContextObject* self)
 {
-    delete self->invocation;
     delete self->cancel;
     delete self->communicator;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
@@ -633,16 +630,16 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
         return 0;
     }
 
-    class Callback final
+    class CallbackWrapper final
     {
     public:
 
-        Callback(PyObject* callback) :
+        CallbackWrapper(PyObject* callback) :
             _callback(incRef(callback))
         {
         }
 
-        ~Callback()
+        ~CallbackWrapper()
         {
             AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -667,7 +664,7 @@ asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* ar
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     try
     {
-        auto callbackWrapper = make_shared<Callback>(callback);
+        auto callbackWrapper = make_shared<CallbackWrapper>(callback);
         (*self->communicator)->postToClientThreadPool([callbackWrapper]() { callbackWrapper->run(); });
     }
     catch(const Ice::CommunicatorDestroyedException& ex)

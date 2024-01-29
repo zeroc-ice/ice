@@ -18,11 +18,11 @@ extern PyTypeObject BatchRequestType;
 
 bool initBatchRequest(PyObject*);
 
-class BatchRequestInterceptor final
+class BatchRequestInterceptorWrapper final
 {
 public:
 
-    BatchRequestInterceptor(PyObject*);
+    BatchRequestInterceptorWrapper(PyObject*);
 
     void enqueue(const Ice::BatchRequest&, int, int);
 
@@ -30,7 +30,6 @@ private:
 
     PyObjectHandle _interceptor;
 };
-using BatchRequestInterceptorPtr = std::shared_ptr<BatchRequestInterceptor>;
 
 }
 

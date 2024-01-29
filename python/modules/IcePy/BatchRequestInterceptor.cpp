@@ -227,7 +227,7 @@ IcePy::initBatchRequest(PyObject* module)
     return true;
 }
 
-IcePy::BatchRequestInterceptor::BatchRequestInterceptor(PyObject* interceptor) : _interceptor(interceptor)
+IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* interceptor) : _interceptor(interceptor)
 {
     if(!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, STRCAST("enqueue")))
     {
@@ -239,7 +239,7 @@ IcePy::BatchRequestInterceptor::BatchRequestInterceptor(PyObject* interceptor) :
 }
 
 void
-IcePy::BatchRequestInterceptor::enqueue(const Ice::BatchRequest& request, int queueCount, int queueSize)
+IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request, int queueCount, int queueSize)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
