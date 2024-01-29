@@ -43,26 +43,22 @@ private:
     PyGILState_STATE _state;
 };
 
-//
-// ThreadHook ensures that every Ice thread is ready to invoke the Python API.
-// It also acts as a wrapper for an optional ThreadNotification object.
-//
-class ThreadHook : public Ice::ThreadNotification
+// ThreadHook ensures that every Ice thread is ready to invoke the Python API. It also acts as a wrapper thread
+// notification callbacks.
+class ThreadHook final
 {
 public:
 
-    ThreadHook(PyObject*, PyObject*, PyObject*);
+    ThreadHook(PyObject*, PyObject*);
 
-    virtual void start();
-    virtual void stop();
+    void start();
+    void stop();
 
 private:
 
-    PyObjectHandle _threadNotification;
     PyObjectHandle _threadStart;
     PyObjectHandle _threadStop;
 };
-typedef IceUtil::Handle<ThreadHook> ThreadHookPtr;
 
 }
 

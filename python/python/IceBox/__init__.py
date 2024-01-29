@@ -2,7 +2,6 @@
 #
 
 import Ice
-
 Ice.updateModule("IceBox")
 
 # Modules:

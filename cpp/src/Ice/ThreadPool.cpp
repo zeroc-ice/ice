@@ -623,6 +623,33 @@ IceInternal::ThreadPool::dispatch(const DispatchWorkItemPtr& workItem)
 }
 
 void
+IceInternal::ThreadPool::dispatch(function<void()> call)
+{
+    class WorkItem final : public IceInternal::DispatchWorkItem
+    {
+    public:
+
+        WorkItem(function<void()> call)
+            : _call(std::move(call))
+        {
+        }
+
+        void run() final
+        {
+            _call();
+        }
+
+    private:
+
+        function<void()> _call;
+
+    };
+
+    DispatchWorkItemPtr workItem = new WorkItem(std::move(call));
+    dispatch(workItem);
+}
+
+void
 IceInternal::ThreadPool::joinWithAllThreads()
 {
     assert(_destroyed);

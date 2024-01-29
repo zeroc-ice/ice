@@ -29,7 +29,7 @@ def allTests(helper, communicator):
 
     obj = com.getObject()
 
-    startCount = com.getThreadHookStartCount()
+    startCount = com.getThreadStartCount()
 
     #
     # Start 5 async invocations that sleep for a little while to force new threads to be created.
@@ -43,7 +43,6 @@ def allTests(helper, communicator):
     #
     # The remote thread hook should detect at least 4 more threads. There could be more for other Ice threads.
     #
-    test(com.getThreadHookStartCount() - startCount >= 4)
     test(com.getThreadStartCount() - startCount >= 4)
 
     #
@@ -54,9 +53,7 @@ def allTests(helper, communicator):
     #
     # Finally, make sure we detected the same number of stops as starts.
     #
-    test(com.getThreadHookStopCount() == com.getThreadHookStartCount())
     test(com.getThreadStopCount() == com.getThreadStartCount())
-    test(com.getThreadHookStartCount() == com.getThreadStartCount())
 
     print("ok")
 

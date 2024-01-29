@@ -105,6 +105,7 @@ public:
 
     void dispatchFromThisThread(const DispatchWorkItemPtr&);
     void dispatch(const DispatchWorkItemPtr&);
+    void dispatch(std::function<void()>);
 
     void joinWithAllThreads();
 

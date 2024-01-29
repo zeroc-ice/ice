@@ -9,6 +9,8 @@
 #include <Util.h>
 #include <Ice/Logger.h>
 
+#include <memory>
+
 namespace IcePy
 {
 
@@ -33,7 +35,7 @@ private:
 
     PyObjectHandle _logger;
 };
-typedef IceUtil::Handle<LoggerWrapper> LoggerWrapperPtr;
+using LoggerWrapperPtr = std::shared_ptr<LoggerWrapper>;
 
 bool initLogger(PyObject*);
 

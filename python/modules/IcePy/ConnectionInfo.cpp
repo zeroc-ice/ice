@@ -75,7 +75,7 @@ extern "C"
 static PyObject*
 ipConnectionInfoGetLocalAddress(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return createString(info->localAddress);
 }
@@ -86,7 +86,7 @@ extern "C"
 static PyObject*
 ipConnectionInfoGetLocalPort(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->localPort);
 }
@@ -97,7 +97,7 @@ extern "C"
 static PyObject*
 ipConnectionInfoGetRemoteAddress(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return createString(info->remoteAddress);
 }
@@ -108,7 +108,7 @@ extern "C"
 static PyObject*
 ipConnectionInfoGetRemotePort(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::IPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->remotePort);
 }
@@ -119,7 +119,7 @@ extern "C"
 static PyObject*
 tcpConnectionInfoGetRcvSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::TCPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->rcvSize);
 }
@@ -130,7 +130,7 @@ extern "C"
 static PyObject*
 tcpConnectionInfoGetSndSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::TCPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->sndSize);
 }
@@ -141,7 +141,7 @@ extern "C"
 static PyObject*
 udpConnectionInfoGetMcastAddress(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::UDPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return createString(info->mcastAddress);
 }
@@ -152,7 +152,7 @@ extern "C"
 static PyObject*
 udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::UDPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->mcastPort);
 }
@@ -163,7 +163,7 @@ extern "C"
 static PyObject*
 udpConnectionInfoGetRcvSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::UDPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->rcvSize);
 }
@@ -174,7 +174,7 @@ extern "C"
 static PyObject*
 udpConnectionInfoGetSndSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::UDPConnectionInfo>(*self->connectionInfo);
     assert(info);
     return PyLong_FromLong(info->sndSize);
 }
@@ -185,7 +185,7 @@ extern "C"
 static PyObject*
 wsConnectionInfoGetHeaders(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    Ice::WSConnectionInfoPtr info = Ice::WSConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<Ice::WSConnectionInfo>(*self->connectionInfo);
     assert(info);
 
     PyObjectHandle result = PyDict_New();
@@ -211,7 +211,7 @@ extern "C"
 static PyObject*
 sslConnectionInfoGetCipher(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
     return createString(info->cipher);
 }
@@ -222,7 +222,7 @@ extern "C"
 static PyObject*
 sslConnectionInfoGetCerts(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
     PyObject* certs = PyList_New(0);
     Ice::StringSeq encoded;
@@ -240,7 +240,7 @@ extern "C"
 static PyObject*
 sslConnectionInfoGetVerified(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
     return info->incoming ? incTrue() : incFalse();
 }
@@ -685,23 +685,23 @@ IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
     }
 
     PyTypeObject* type;
-    if(Ice::WSConnectionInfoPtr::dynamicCast(connectionInfo))
+    if(dynamic_pointer_cast<Ice::WSConnectionInfo>(connectionInfo))
     {
         type = &WSConnectionInfoType;
     }
-    else if(Ice::TCPConnectionInfoPtr::dynamicCast(connectionInfo))
+    else if(dynamic_pointer_cast<Ice::TCPConnectionInfo>(connectionInfo))
     {
         type = &TCPConnectionInfoType;
     }
-    else if(Ice::UDPConnectionInfoPtr::dynamicCast(connectionInfo))
+    else if(dynamic_pointer_cast<Ice::UDPConnectionInfo>(connectionInfo))
     {
         type = &UDPConnectionInfoType;
     }
-    else if(IceSSL::ConnectionInfoPtr::dynamicCast(connectionInfo))
+    else if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(connectionInfo))
     {
         type = &SSLConnectionInfoType;
     }
-    else if(Ice::IPConnectionInfoPtr::dynamicCast(connectionInfo))
+    else if(dynamic_pointer_cast<Ice::IPConnectionInfo>(connectionInfo))
     {
         type = &IPConnectionInfoType;
     }

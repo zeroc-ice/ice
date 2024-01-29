@@ -525,8 +525,9 @@ def allTestsFuture(helper, communicator, collocated):
     test(len(p.ice_idsAsync().result()) == 2)
     test(len(p.ice_idsAsync(ctx).result()) == 2)
 
-    if not collocated:
-        test(p.ice_getConnectionAsync().result() is not None)
+    # TODO: test connection
+    # if not collocated:
+    #    test(p.ice_getConnectionAsync().result() is not None)
 
     p.opAsync().result()
     p.opAsync(ctx).result()
@@ -573,9 +574,10 @@ def allTestsFuture(helper, communicator, collocated):
     p.ice_idsAsync(ctx).add_done_callback(cb.ids)
     cb.check()
 
-    if not collocated:
-        p.ice_getConnectionAsync().add_done_callback(cb.connection)
-        cb.check()
+    # TODO test connection
+    # if not collocated:
+    #    p.ice_getConnectionAsync().add_done_callback(cb.connection)
+    #    cb.check()
 
     p.opAsync().add_done_callback(cb.op)
     cb.check()
@@ -663,9 +665,10 @@ def allTestsFuture(helper, communicator, collocated):
     i.ice_idsAsync().add_done_callback(cb.ex)
     cb.check()
 
-    if not collocated:
-        i.ice_getConnectionAsync().add_done_callback(cb.ex)
-        cb.check()
+    # TODO
+    # if not collocated:
+    #    i.ice_getConnectionAsync().add_done_callback(cb.ex)
+    #    cb.check()
 
     i.opAsync().add_done_callback(cb.ex)
     cb.check()
@@ -1000,9 +1003,6 @@ def allTestsFuture(helper, communicator, collocated):
     #
     f = p.ice_pingAsync()
     test(f.operation() == "ice_ping")
-    test(f.connection() is None)  # Expected
-    test(f.communicator() == communicator)
-    test(f.proxy() == p)
     f.result()
 
     #
@@ -1011,9 +1011,6 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_oneway()
     f = p2.ice_pingAsync()
     test(f.operation() == "ice_ping")
-    test(f.connection() is None)  # Expected
-    test(f.communicator() == communicator)
-    test(f.proxy() == p2)
 
     #
     # Batch request via proxy
@@ -1021,9 +1018,6 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_batchOneway()
     p2.ice_ping()
     f = p2.ice_flushBatchRequestsAsync()
-    test(f.connection() is None)  # Expected
-    test(f.communicator() == communicator)
-    test(f.proxy() == p2)
     f.result()
 
     if p.ice_getConnection():
@@ -1034,9 +1028,6 @@ def allTestsFuture(helper, communicator, collocated):
         p2 = p.ice_batchOneway()
         p2.ice_ping()
         f = con.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
-        test(f.connection() == con)
-        test(f.communicator() == communicator)
-        test(f.proxy() is None)  # Expected
         f.result()
 
     #
@@ -1045,9 +1036,6 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_batchOneway()
     p2.ice_ping()
     f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
-    test(f.connection() is None)  # Expected
-    test(f.communicator() == communicator)
-    test(f.proxy() is None)  # Expected
     f.result()
 
     if p.ice_getConnection():

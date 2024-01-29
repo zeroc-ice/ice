@@ -55,22 +55,22 @@ endpointCompare(EndpointObject* p1, PyObject* other, int op)
         switch(op)
         {
         case Py_EQ:
-            result = *p1->endpoint == *p2->endpoint;
+            result = Ice::targetEqualTo(*p1->endpoint, *p2->endpoint);
             break;
         case Py_NE:
-            result = *p1->endpoint != *p2->endpoint;
+            result = !Ice::targetEqualTo(*p1->endpoint, *p2->endpoint);
             break;
         case Py_LE:
-            result = *p1->endpoint <= *p2->endpoint;
+            result = Ice::targetLessEqual(*p1->endpoint, *p2->endpoint);
             break;
         case Py_GE:
-            result = *p1->endpoint >= *p2->endpoint;
+            result = Ice::targetGreaterEqual(*p1->endpoint, *p2->endpoint);
             break;
         case Py_LT:
-            result = *p1->endpoint < *p2->endpoint;
+            result = Ice::targetLess(*p1->endpoint, *p2->endpoint);
             break;
         case Py_GT:
-            result = *p1->endpoint > *p2->endpoint;
+            result = Ice::targetGreater(*p1->endpoint, *p2->endpoint);
             break;
         }
     }
