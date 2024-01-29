@@ -39,9 +39,9 @@ namespace Ice
                     }
                 }
 
-                public static int Main(string[] args)
+                public static System.Threading.Tasks.Task<int> Main(string[] args)
                 {
-                    return TestDriver.runTest<Server>(args);
+                    return TestDriver.runTestAsync<Server>(args);
                 }
             }
         }

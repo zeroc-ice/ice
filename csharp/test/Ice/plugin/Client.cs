@@ -14,9 +14,9 @@ using System.Reflection;
 
 public class Client : Test.TestHelper
 {
-    public static int Main(string[] args)
+    public static System.Threading.Tasks.Task<int> Main(string[] args)
     {
-        return Test.TestDriver.runTest<Client>(args);
+        return Test.TestDriver.runTestAsync<Client>(args);
     }
 
     public override void run(string[] args)

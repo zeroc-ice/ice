@@ -44,8 +44,8 @@ public class Collocated : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
+    public static System.Threading.Tasks.Task<int> Main(string[] args)
     {
-        return Test.TestDriver.runTest<Collocated>(args);
+        return Test.TestDriver.runTestAsync<Collocated>(args);
     }
 }

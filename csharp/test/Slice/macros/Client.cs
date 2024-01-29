@@ -25,8 +25,8 @@ public class Client : TestHelper
         Console.Out.WriteLine("ok");
     }
 
-    public static int Main(string[] args)
+    public static System.Threading.Tasks.Task<int> Main(string[] args)
     {
-        return TestDriver.runTest<Client>(args);
+        return TestDriver.runTestAsync<Client>(args);
     }
 }
