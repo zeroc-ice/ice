@@ -1741,7 +1741,6 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
                 rb.second = &result[0] + result.size();
             }
 
-
             if(!status)
             {
                 //

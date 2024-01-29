@@ -25,7 +25,6 @@ extern PyTypeObject AsyncInvocationContextType;
 PyObject* invokeBuiltin(PyObject*, const std::string&, PyObject*);
 PyObject* invokeBuiltinAsync(PyObject*, const std::string&, PyObject*);
 
-
 // Blobject invocations.
 PyObject* iceInvoke(PyObject*, PyObject*);
 PyObject* iceInvokeAsync(PyObject*, PyObject*);
