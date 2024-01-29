@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.AMICallback", "0");
@@ -27,13 +28,12 @@ namespace Ice
                 // send() blocking after sending a given amount of data.
                 //
                 properties.setProperty("Ice.TCP.SndSize", "50000");
-                using(var communicator = initialize(properties))
-                {
-                    AllTests.allTests(this, false);
-                }
+                using var communicator = initialize(properties);
+
+                await AllTests.allTestsAsync(this, false);
             }
 
-            public static System.Threading.Tasks.Task<int> Main(string[] args)
+            public static Task<int> Main(string[] args)
             {
                 return TestDriver.runTestAsync<Client>(args);
             }

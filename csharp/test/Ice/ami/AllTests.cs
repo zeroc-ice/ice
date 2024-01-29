@@ -152,7 +152,7 @@ namespace Ice
                 Thread _thread;
             }
 
-            public static void allTests(global::Test.TestHelper helper, bool collocated)
+            public static async Task allTestsAsync(global::Test.TestHelper helper, bool collocated)
             {
                 Ice.Communicator communicator = helper.communicator();
                 string sref = "test:" + helper.getTestEndpoint(0);
@@ -173,11 +173,11 @@ namespace Ice
                 {
                     Dictionary<string, string> ctx = new Dictionary<string, string>();
 
-                    test(p.ice_isAAsync("::Test::TestIntf").Result);
-                    test(p.ice_isAAsync("::Test::TestIntf", ctx).Result);
+                    test(await p.ice_isAAsync("::Test::TestIntf"));
+                    test(await p.ice_isAAsync("::Test::TestIntf", ctx));
 
-                    p.ice_pingAsync().Wait();
-                    p.ice_pingAsync(ctx).Wait();
+                    await p.ice_pingAsync();
+                    await p.ice_pingAsync(ctx);
 
                     test(p.ice_idAsync().Result.Equals("::Test::TestIntf"));
                     test(p.ice_idAsync(ctx).Result.Equals("::Test::TestIntf"));
@@ -390,7 +390,7 @@ namespace Ice
 
                     try
                     {
-                       ((Test.TestIntfPrx)p.ice_oneway()).opWithResultAsync();
+                       _ = ((Test.TestIntfPrx)p.ice_oneway()).opWithResultAsync();
                         test(false);
                     }
                     catch(Ice.TwowayOnlyException)
@@ -411,7 +411,7 @@ namespace Ice
 
                         try
                         {
-                            p2.opAsync();
+                            _ = p2.opAsync();
                             test(false);
                         }
                         catch(Ice.CommunicatorDestroyedException)
@@ -822,7 +822,7 @@ namespace Ice
                             for(int i = 0; i < 200; ++i) // 2MB
                             {
                                 cb = new ProgressCallback();
-                                p.opWithPayloadAsync(seq, progress: cb);
+                                _ = p.opWithPayloadAsync(seq, progress: cb);
                             }
 
                             test(!cb.Sent);
@@ -925,7 +925,7 @@ namespace Ice
                             }
 
                             ProgressCallback cb = new ProgressCallback();
-                            p.closeAsync(Test.CloseMode.GracefullyWithWait, progress: cb);
+                            _ = p.closeAsync(Test.CloseMode.GracefullyWithWait, progress: cb);
 
                             if(!cb.SentSynchronously)
                             {

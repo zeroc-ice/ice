@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 Ice.Properties properties = createTestProperties(ref args);
 
@@ -25,23 +26,23 @@ namespace Ice
                 // that task inlining works.
                 //
                 properties.setProperty("Ice.ThreadPool.Client.Size", "5");
-                using(var communicator = initialize(properties))
-                {
-                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+                using var communicator = initialize(properties);
 
-                    adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-                    adapter.add(new TestII(), Ice.Util.stringToIdentity("test2"));
-                    //adapter.activate(); // Collocated test doesn't need to activate the OA
-                    adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-                    //adapter2.activate(); // Collocated test doesn't need to activate the OA
+                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+                communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-                    AllTests.allTests(this, true);
-                }
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+
+                adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+                adapter.add(new TestII(), Ice.Util.stringToIdentity("test2"));
+                //adapter.activate(); // Collocated test doesn't need to activate the OA
+                adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+                //adapter2.activate(); // Collocated test doesn't need to activate the OA
+
+                await AllTests.allTestsAsync(this, true);
             }
 
             public static System.Threading.Tasks.Task<int> Main(string[] args)
