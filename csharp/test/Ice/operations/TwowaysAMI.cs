@@ -1005,144 +1005,11 @@ namespace Ice
                 }
 
                 {
-                    Ice.AsyncResult r = p.begin_ice_ping();
-                    p.end_ice_ping(r);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_ping().whenCompleted(cb.ice_ping, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_ping().whenCompleted(
-                        () =>
-                        {
-                            cb.ice_ping();
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
-                    test(p.ice_isAAsync(Test.MyClassDisp_.ice_staticId()).Result);
-                }
-
-                {
-                    Ice.AsyncResult r = p.begin_ice_isA(Test.MyClassDisp_.ice_staticId());
-                    test(p.end_ice_isA(r));
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_isA(Test.MyClassDisp_.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_isA(Test.MyClassDisp_.ice_staticId()).whenCompleted(
-                        (bool v) =>
-                        {
-                            cb.ice_isA(v);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     test(p.ice_idsAsync().Result.Length == 3);
                 }
 
                 {
-                    Ice.AsyncResult r = p.begin_ice_ids();
-                    test(p.end_ice_ids(r).Length == 3);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_ids().whenCompleted(cb.ice_ids, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_ids().whenCompleted(
-                        (string[] ids) =>
-                        {
-                            cb.ice_ids(ids);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     test(p.ice_idAsync().Result.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
-                }
-
-                {
-                    Ice.AsyncResult r = p.begin_ice_id();
-                    test(p.end_ice_id(r).Equals(Test.MyDerivedClassDisp_.ice_staticId()));
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_id().whenCompleted(cb.ice_id, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_ice_id().whenCompleted(
-                        (string id) =>
-                        {
-                            cb.ice_id(id);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
-                    p.opVoidAsync().Wait();
-                }
-
-                {
-                    Ice.AsyncResult r = p.begin_opVoid();
-                    p.end_opVoid(r);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opVoid().whenCompleted(cb.opVoid, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opVoid().whenCompleted(
-                        () =>
-                        {
-                            cb.opVoid();
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1152,57 +1019,9 @@ namespace Ice
                 }
 
                 {
-                    Ice.AsyncResult r = p.begin_opByte(0xff, 0x0f);
-                    byte p3;
-                    byte ret = p.end_opByte(out p3, r);
-                    test(p3 == 0xf0);
-                    test(ret == 0xff);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opByte(0xff, 0x0f).whenCompleted(cb.opByte, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opByte(0xff, 0x0f).whenCompleted(
-                        (byte r, byte b) =>
-                        {
-                            cb.opByte(r, b);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     var cb = new Callback();
                     var ret = p.opBoolAsync(true, false).Result;
                     cb.opBool(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opBool(true, false).whenCompleted(cb.opBool, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opBool(true, false).whenCompleted(
-                        (bool r, bool b) =>
-                        {
-                            cb.opBool(r, b);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1210,51 +1029,10 @@ namespace Ice
                     var ret = p.opShortIntLongAsync(10, 11, 12).Result;
                     cb.opShortIntLong(ret.returnValue, ret.p4, ret.p5, ret.p6);
                 }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opShortIntLong(10, 11, 12).whenCompleted(cb.opShortIntLong, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opShortIntLong(10, 11, 12).whenCompleted(
-                        (long r, short s, int i, long l) =>
-                        {
-                            cb.opShortIntLong(r, s, i, l);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
                 {
                     var cb = new Callback();
                     var ret = p.opFloatDoubleAsync(3.14f, 1.1E10).Result;
                     cb.opFloatDouble(ret.returnValue, ret.p3, ret.p4);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opFloatDouble(3.14f, 1.1E10).whenCompleted(cb.opFloatDouble, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opFloatDouble(3.14f, 1.1E10).whenCompleted(
-                        (double r, float f, double d) =>
-                        {
-                            cb.opFloatDouble(r, f, d);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1264,75 +1042,15 @@ namespace Ice
                 }
 
                 {
-                    Callback cb = new Callback();
-                    p.begin_opString("hello", "world").whenCompleted(cb.opString, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opString("hello", "world").whenCompleted(
-                        (string r, string s) =>
-                        {
-                            cb.opString(r, s);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     var cb = new Callback();
                     var ret = p.opMyEnumAsync(Test.MyEnum.enum2).Result;
                     cb.opMyEnum(ret.returnValue, ret.p2);
                 }
 
                 {
-                    Callback cb = new Callback();
-                    p.begin_opMyEnum(Test.MyEnum.enum2).whenCompleted(cb.opMyEnum, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opMyEnum(Test.MyEnum.enum2).whenCompleted(
-                        (Test.MyEnum r, Test.MyEnum e) =>
-                        {
-                            cb.opMyEnum(r, e);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     var cb = new Callback(communicator);
                     var ret = p.opMyClassAsync(p).Result;
                     cb.opMyClass(ret.returnValue, ret.p2, ret.p3);
-                }
-
-                {
-                    Callback cb = new Callback(communicator);
-                    p.begin_opMyClass(p).whenCompleted(cb.opMyClass, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback(communicator);
-                    p.begin_opMyClass(p).whenCompleted(
-                        (Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2) =>
-                        {
-                            cb.opMyClass(r, c1, c2);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1353,48 +1071,6 @@ namespace Ice
                 }
 
                 {
-                    var si1 = new Test.Structure();
-                    si1.p = p;
-                    si1.e = Test.MyEnum.enum3;
-                    si1.s = new Test.AnotherStruct();
-                    si1.s.s = "abc";
-                    var si2 = new Test.Structure();
-                    si2.p = null;
-                    si2.e = Test.MyEnum.enum2;
-                    si2.s = new Test.AnotherStruct();
-                    si2.s.s = "def";
-
-                    Callback cb = new Callback(communicator);
-                    p.begin_opStruct(si1, si2).whenCompleted(cb.opStruct, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    var si1 = new Test.Structure();
-                    si1.p = p;
-                    si1.e = Test.MyEnum.enum3;
-                    si1.s = new Test.AnotherStruct();
-                    si1.s.s = "abc";
-                    var si2 = new Test.Structure();
-                    si2.p = null;
-                    si2.e = Test.MyEnum.enum2;
-                    si2.s = new Test.AnotherStruct();
-                    si2.s.s = "def";
-
-                    Callback cb = new Callback(communicator);
-                    p.begin_opStruct(si1, si2).whenCompleted(
-                        (Test.Structure rso, Test.Structure so) =>
-                        {
-                            cb.opStruct(rso, so);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
                     byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
 
@@ -1404,64 +1080,12 @@ namespace Ice
                 }
 
                 {
-                    byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
-                    byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
-
-                    Callback cb = new Callback();
-                    p.begin_opByteS(bsi1, bsi2).whenCompleted(cb.opByteS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
-                    byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
-
-                    Callback cb = new Callback();
-                    p.begin_opByteS(bsi1, bsi2).whenCompleted(
-                        (byte[] rso, byte[] bso) =>
-                        {
-                            cb.opByteS(rso, bso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     bool[] bsi1 = new bool[] { true, true, false };
                     bool[] bsi2 = new bool[] { false };
 
                     var cb = new Callback();
                     var ret = p.opBoolSAsync(bsi1, bsi2).Result;
                     cb.opBoolS(ret.returnValue, ret.p3);
-                }
-
-                {
-                    bool[] bsi1 = new bool[] { true, true, false };
-                    bool[] bsi2 = new bool[] { false };
-
-                    Callback cb = new Callback();
-                    p.begin_opBoolS(bsi1, bsi2).whenCompleted(cb.opBoolS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    bool[] bsi1 = new bool[] { true, true, false };
-                    bool[] bsi2 = new bool[] { false };
-
-                    Callback cb = new Callback();
-                    p.begin_opBoolS(bsi1, bsi2).whenCompleted(
-                        (bool[] rso, bool[] bso) =>
-                        {
-                            cb.opBoolS(rso, bso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1475,34 +1099,6 @@ namespace Ice
                 }
 
                 {
-                    short[] ssi = new short[] { 1, 2, 3 };
-                    int[] isi = new int[] { 5, 6, 7, 8 };
-                    long[] lsi = new long[] { 10, 30, 20 };
-
-                    Callback cb = new Callback();
-                    p.begin_opShortIntLongS(ssi, isi, lsi).whenCompleted(cb.opShortIntLongS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    short[] ssi = new short[] { 1, 2, 3 };
-                    int[] isi = new int[] { 5, 6, 7, 8 };
-                    long[] lsi = new long[] { 10, 30, 20 };
-
-                    Callback cb = new Callback();
-                    p.begin_opShortIntLongS(ssi, isi, lsi).whenCompleted(
-                        (long[] rso, short[] sso, int[] iso, long[] lso) =>
-                        {
-                            cb.opShortIntLongS(rso, sso, iso, lso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     float[] fsi = new float[] { 3.14f, 1.11f };
                     double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
 
@@ -1512,64 +1108,12 @@ namespace Ice
                 }
 
                 {
-                    float[] fsi = new float[] { 3.14f, 1.11f };
-                    double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
-
-                    Callback cb = new Callback();
-                    p.begin_opFloatDoubleS(fsi, dsi).whenCompleted(cb.opFloatDoubleS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    float[] fsi = new float[] { 3.14f, 1.11f };
-                    double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
-
-                    Callback cb = new Callback();
-                    p.begin_opFloatDoubleS(fsi, dsi).whenCompleted(
-                        (double[] rso, float[] fso, double[] dso) =>
-                        {
-                            cb.opFloatDoubleS(rso, fso, dso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     string[] ssi1 = new string[] { "abc", "de", "fghi" };
                     string[] ssi2 = new string[] { "xyz" };
 
                     var cb = new Callback();
                     var ret = p.opStringSAsync(ssi1, ssi2).Result;
                     cb.opStringS(ret.returnValue, ret.p3);
-                }
-
-                {
-                    string[] ssi1 = new string[] { "abc", "de", "fghi" };
-                    string[] ssi2 = new string[] { "xyz" };
-
-                    Callback cb = new Callback();
-                    p.begin_opStringS(ssi1, ssi2).whenCompleted(cb.opStringS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    string[] ssi1 = new string[] { "abc", "de", "fghi" };
-                    string[] ssi2 = new string[] { "xyz" };
-
-                    Callback cb = new Callback();
-                    p.begin_opStringS(ssi1, ssi2).whenCompleted(
-                        (string[] rso, string[] sso) =>
-                        {
-                            cb.opStringS(rso, sso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1587,42 +1131,6 @@ namespace Ice
                 }
 
                 {
-                    byte[] s11 = new byte[] { 0x01, 0x11, 0x12 };
-                    byte[] s12 = new byte[] { 0xff };
-                    byte[][] bsi1 = new byte[][] { s11, s12 };
-
-                    byte[] s21 = new byte[] { 0x0e };
-                    byte[] s22 = new byte[] { 0xf2, 0xf1 };
-                    byte[][] bsi2 = new byte[][] { s21, s22 };
-
-                    Callback cb = new Callback();
-                    p.begin_opByteSS(bsi1, bsi2).whenCompleted(cb.opByteSS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    byte[] s11 = new byte[] { 0x01, 0x11, 0x12 };
-                    byte[] s12 = new byte[] { 0xff };
-                    byte[][] bsi1 = new byte[][] { s11, s12 };
-
-                    byte[] s21 = new byte[] { 0x0e };
-                    byte[] s22 = new byte[] { 0xf2, 0xf1 };
-                    byte[][] bsi2 = new byte[][] { s21, s22 };
-
-                    Callback cb = new Callback();
-                    p.begin_opByteSS(bsi1, bsi2).whenCompleted(
-                        (byte[][] rso, byte[][] bso) =>
-                        {
-                            cb.opByteSS(rso, bso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     bool[] s11 = new bool[] { true };
                     bool[] s12 = new bool[] { false };
                     bool[] s13 = new bool[] { true, true };
@@ -1634,42 +1142,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opBoolSSAsync(bsi1, bsi2).Result;
                     cb.opBoolSS(ret.returnValue, ret.p3);
-                }
-
-                {
-                    bool[] s11 = new bool[] { true };
-                    bool[] s12 = new bool[] { false };
-                    bool[] s13 = new bool[] { true, true };
-                    bool[][] bsi1 = new bool[][] { s11, s12, s13 };
-
-                    bool[] s21 = new bool[] { false, false, true };
-                    bool[][] bsi2 = new bool[][] { s21 };
-
-                    Callback cb = new Callback();
-                    p.begin_opBoolSS(bsi1, bsi2).whenCompleted(cb.opBoolSS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    bool[] s11 = new bool[] { true };
-                    bool[] s12 = new bool[] { false };
-                    bool[] s13 = new bool[] { true, true };
-                    bool[][] bsi1 = new bool[][] { s11, s12, s13 };
-
-                    bool[] s21 = new bool[] { false, false, true };
-                    bool[][] bsi2 = new bool[][] { s21 };
-
-                    Callback cb = new Callback();
-                    p.begin_opBoolSS(bsi1, bsi2).whenCompleted(
-                        (bool[][] rso, bool[][] bso) =>
-                        {
-                            cb.opBoolSS(rso, bso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1691,50 +1163,6 @@ namespace Ice
                 }
 
                 {
-                    short[] s11 = new short[] { 1, 2, 5 };
-                    short[] s12 = new short[] { 13 };
-                    short[] s13 = new short[] { };
-                    short[][] ssi = new short[][] { s11, s12, s13 };
-
-                    int[] i11 = new int[] { 24, 98 };
-                    int[] i12 = new int[] { 42 };
-                    int[][] isi = new int[][] { i11, i12 };
-
-                    long[] l11 = new long[] { 496, 1729 };
-                    long[][] lsi = new long[][] { l11 };
-
-                    Callback cb = new Callback();
-                    p.begin_opShortIntLongSS(ssi, isi, lsi).whenCompleted(cb.opShortIntLongSS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    short[] s11 = new short[] { 1, 2, 5 };
-                    short[] s12 = new short[] { 13 };
-                    short[] s13 = new short[] { };
-                    short[][] ssi = new short[][] { s11, s12, s13 };
-
-                    int[] i11 = new int[] { 24, 98 };
-                    int[] i12 = new int[] { 42 };
-                    int[][] isi = new int[][] { i11, i12 };
-
-                    long[] l11 = new long[] { 496, 1729 };
-                    long[][] lsi = new long[][] { l11 };
-
-                    Callback cb = new Callback();
-                    p.begin_opShortIntLongSS(ssi, isi, lsi).whenCompleted(
-                        (long[][] rso, short[][] sso, int[][] iso, long[][] lso) =>
-                        {
-                            cb.opShortIntLongSS(rso, sso, iso, lso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     float[] f11 = new float[] { 3.14f };
                     float[] f12 = new float[] { 1.11f };
                     float[] f13 = new float[] { };
@@ -1746,42 +1174,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opFloatDoubleSSAsync(fsi, dsi).Result;
                     cb.opFloatDoubleSS(ret.returnValue, ret.p3, ret.p4);
-                }
-
-                {
-                    float[] f11 = new float[] { 3.14f };
-                    float[] f12 = new float[] { 1.11f };
-                    float[] f13 = new float[] { };
-                    float[][] fsi = new float[][] { f11, f12, f13 };
-
-                    double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
-                    double[][] dsi = new double[][] { d11 };
-
-                    Callback cb = new Callback();
-                    p.begin_opFloatDoubleSS(fsi, dsi).whenCompleted(cb.opFloatDoubleSS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    float[] f11 = new float[] { 3.14f };
-                    float[] f12 = new float[] { 1.11f };
-                    float[] f13 = new float[] { };
-                    float[][] fsi = new float[][] { f11, f12, f13 };
-
-                    double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
-                    double[][] dsi = new double[][] { d11 };
-
-                    Callback cb = new Callback();
-                    p.begin_opFloatDoubleSS(fsi, dsi).whenCompleted(
-                        (double[][] rso, float[][] fso, double[][] dso) =>
-                        {
-                            cb.opFloatDoubleSS(rso, fso, dso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1797,44 +1189,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opStringSSAsync(ssi1, ssi2).Result;
                     cb.opStringSS(ret.returnValue, ret.p3);
-                }
-
-                {
-                    string[] s11 = new string[] { "abc" };
-                    string[] s12 = new string[] { "de", "fghi" };
-                    string[][] ssi1 = new string[][] { s11, s12 };
-
-                    string[] s21 = new string[] { };
-                    string[] s22 = new string[] { };
-                    string[] s23 = new string[] { "xyz" };
-                    string[][] ssi2 = new string[][] { s21, s22, s23 };
-
-                    Callback cb = new Callback();
-                    p.begin_opStringSS(ssi1, ssi2).whenCompleted(cb.opStringSS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    string[] s11 = new string[] { "abc" };
-                    string[] s12 = new string[] { "de", "fghi" };
-                    string[][] ssi1 = new string[][] { s11, s12 };
-
-                    string[] s21 = new string[] { };
-                    string[] s22 = new string[] { };
-                    string[] s23 = new string[] { "xyz" };
-                    string[][] ssi2 = new string[][] { s21, s22, s23 };
-
-                    Callback cb = new Callback();
-                    p.begin_opStringSS(ssi1, ssi2).whenCompleted(
-                        (string[][] rso, string[][] sso) =>
-                        {
-                            cb.opStringSS(rso, sso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1859,56 +1213,6 @@ namespace Ice
                 }
 
                 {
-                    string[] s111 = new string[] { "abc", "de" };
-                    string[] s112 = new string[] { "xyz" };
-                    string[][] ss11 = new string[][] { s111, s112 };
-                    string[] s121 = new string[] { "hello" };
-                    string[][] ss12 = new string[][] { s121 };
-                    string[][][] sssi1 = new string[][][] { ss11, ss12 };
-
-                    string[] s211 = new string[] { "", "" };
-                    string[] s212 = new string[] { "abcd" };
-                    string[][] ss21 = new string[][] { s211, s212 };
-                    string[] s221 = new string[] { "" };
-                    string[][] ss22 = new string[][] { s221 };
-                    string[][] ss23 = new string[][] { };
-                    string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
-
-                    Callback cb = new Callback();
-                    p.begin_opStringSSS(sssi1, sssi2).whenCompleted(cb.opStringSSS, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    string[] s111 = new string[] { "abc", "de" };
-                    string[] s112 = new string[] { "xyz" };
-                    string[][] ss11 = new string[][] { s111, s112 };
-                    string[] s121 = new string[] { "hello" };
-                    string[][] ss12 = new string[][] { s121 };
-                    string[][][] sssi1 = new string[][][] { ss11, ss12 };
-
-                    string[] s211 = new string[] { "", "" };
-                    string[] s212 = new string[] { "abcd" };
-                    string[][] ss21 = new string[][] { s211, s212 };
-                    string[] s221 = new string[] { "" };
-                    string[][] ss22 = new string[][] { s221 };
-                    string[][] ss23 = new string[][] { };
-                    string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
-
-                    Callback cb = new Callback();
-                    p.begin_opStringSSS(sssi1, sssi2).whenCompleted(
-                        (string[][][] rsso, string[][][] ssso) =>
-                        {
-                            cb.opStringSSS(rsso, ssso);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
                     di1[10] = true;
                     di1[100] = false;
@@ -1920,42 +1224,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opByteBoolDAsync(di1, di2).Result;
                     cb.opByteBoolD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
-                    di1[10] = true;
-                    di1[100] = false;
-                    Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
-                    di2[10] = true;
-                    di2[11] = false;
-                    di2[101] = true;
-
-                    Callback cb = new Callback();
-                    p.begin_opByteBoolD(di1, di2).whenCompleted(cb.opByteBoolD, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
-                    di1[10] = true;
-                    di1[100] = false;
-                    Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
-                    di2[10] = true;
-                    di2[11] = false;
-                    di2[101] = true;
-
-                    Callback cb = new Callback();
-                    p.begin_opByteBoolD(di1, di2).whenCompleted(
-                        (Dictionary<byte, bool> ro, Dictionary<byte, bool> _do) =>
-                        {
-                            cb.opByteBoolD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -1973,42 +1241,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<short, int> di1 = new Dictionary<short, int>();
-                    di1[110] = -1;
-                    di1[1100] = 123123;
-                    Dictionary<short, int> di2 = new Dictionary<short, int>();
-                    di2[110] = -1;
-                    di2[111] = -100;
-                    di2[1101] = 0;
-
-                    Callback cb = new Callback();
-                    p.begin_opShortIntD(di1, di2).whenCompleted(cb.opShortIntD, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Dictionary<short, int> di1 = new Dictionary<short, int>();
-                    di1[110] = -1;
-                    di1[1100] = 123123;
-                    Dictionary<short, int> di2 = new Dictionary<short, int>();
-                    di2[110] = -1;
-                    di2[111] = -100;
-                    di2[1101] = 0;
-
-                    Callback cb = new Callback();
-                    p.begin_opShortIntD(di1, di2).whenCompleted(
-                        (Dictionary<short, int> ro, Dictionary<short, int> _do) =>
-                        {
-                            cb.opShortIntD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<long, float> di1 = new Dictionary<long, float>();
                     di1[999999110L] = -1.1f;
                     di1[999999111L] = 123123.2f;
@@ -2020,42 +1252,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opLongFloatDAsync(di1, di2).Result;
                     cb.opLongFloatD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<long, float> di1 = new Dictionary<long, float>();
-                    di1[999999110L] = -1.1f;
-                    di1[999999111L] = 123123.2f;
-                    Dictionary<long, float> di2 = new Dictionary<long, float>();
-                    di2[999999110L] = -1.1f;
-                    di2[999999120L] = -100.4f;
-                    di2[999999130L] = 0.5f;
-
-                    Callback cb = new Callback();
-                    p.begin_opLongFloatD(di1, di2).whenCompleted(cb.opLongFloatD, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Dictionary<long, float> di1 = new Dictionary<long, float>();
-                    di1[999999110L] = -1.1f;
-                    di1[999999111L] = 123123.2f;
-                    Dictionary<long, float> di2 = new Dictionary<long, float>();
-                    di2[999999110L] = -1.1f;
-                    di2[999999120L] = -100.4f;
-                    di2[999999130L] = 0.5f;
-
-                    Callback cb = new Callback();
-                    p.begin_opLongFloatD(di1, di2).whenCompleted(
-                        (Dictionary<long, float> ro, Dictionary<long, float> _do) =>
-                        {
-                            cb.opLongFloatD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2073,42 +1269,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<string, string> di1 = new Dictionary<string, string>();
-                    di1["foo"] = "abc -1.1";
-                    di1["bar"] = "abc 123123.2";
-                    Dictionary<string, string> di2 = new Dictionary<string, string>();
-                    di2["foo"] = "abc -1.1";
-                    di2["FOO"] = "abc -100.4";
-                    di2["BAR"] = "abc 0.5";
-
-                    Callback cb = new Callback();
-                    p.begin_opStringStringD(di1, di2).whenCompleted(cb.opStringStringD, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Dictionary<string, string> di1 = new Dictionary<string, string>();
-                    di1["foo"] = "abc -1.1";
-                    di1["bar"] = "abc 123123.2";
-                    Dictionary<string, string> di2 = new Dictionary<string, string>();
-                    di2["foo"] = "abc -1.1";
-                    di2["FOO"] = "abc -100.4";
-                    di2["BAR"] = "abc 0.5";
-
-                    Callback cb = new Callback();
-                    p.begin_opStringStringD(di1, di2).whenCompleted(
-                        (Dictionary<string, string> ro, Dictionary<string, string> _do) =>
-                        {
-                            cb.opStringStringD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     var di1 = new Dictionary<string, Test.MyEnum>();
                     di1["abc"] = Test.MyEnum.enum1;
                     di1[""] = Test.MyEnum.enum2;
@@ -2123,42 +1283,6 @@ namespace Ice
                 }
 
                 {
-                    var di1 = new Dictionary<string, Test.MyEnum>();
-                    di1["abc"] = Test.MyEnum.enum1;
-                    di1[""] = Test.MyEnum.enum2;
-                    var di2 = new Dictionary<string, Test.MyEnum>();
-                    di2["abc"] = Test.MyEnum.enum1;
-                    di2["qwerty"] = Test.MyEnum.enum3;
-                    di2["Hello!!"] = Test.MyEnum.enum2;
-
-                    Callback cb = new Callback();
-                    p.begin_opStringMyEnumD(di1, di2).whenCompleted(cb.opStringMyEnumD, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    var di1 = new Dictionary<string, Test.MyEnum>();
-                    di1["abc"] = Test.MyEnum.enum1;
-                    di1[""] = Test.MyEnum.enum2;
-                    var di2 = new Dictionary<string, Test.MyEnum>();
-                    di2["abc"] = Test.MyEnum.enum1;
-                    di2["qwerty"] = Test.MyEnum.enum3;
-                    di2["Hello!!"] = Test.MyEnum.enum2;
-
-                    Callback cb = new Callback();
-                    p.begin_opStringMyEnumD(di1, di2).whenCompleted(
-                        (Dictionary<string, Test.MyEnum> ro, Dictionary<string, Test.MyEnum> _do) =>
-                        {
-                            cb.opStringMyEnumD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     var di1 = new Dictionary<Test.MyEnum, string>();
                     di1[Test.MyEnum.enum1] = "abc";
                     var di2 = new Dictionary<Test.MyEnum, string>();
@@ -2168,38 +1292,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opMyEnumStringDAsync(di1, di2).Result;
                     cb.opMyEnumStringD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    var di1 = new Dictionary<Test.MyEnum, string>();
-                    di1[Test.MyEnum.enum1] = "abc";
-                    var di2 = new Dictionary<Test.MyEnum, string>();
-                    di2[Test.MyEnum.enum2] = "Hello!!";
-                    di2[Test.MyEnum.enum3] = "qwerty";
-
-                    Callback cb = new Callback();
-                    p.begin_opMyEnumStringD(di1, di2).whenCompleted(cb.opMyEnumStringD, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    var di1 = new Dictionary<Test.MyEnum, string>();
-                    di1[Test.MyEnum.enum1] = "abc";
-                    var di2 = new Dictionary<Test.MyEnum, string>();
-                    di2[Test.MyEnum.enum2] = "Hello!!";
-                    di2[Test.MyEnum.enum3] = "qwerty";
-
-                    Callback cb = new Callback();
-                    p.begin_opMyEnumStringD(di1, di2).whenCompleted(
-                        (Dictionary<Test.MyEnum, string> ro, Dictionary<Test.MyEnum, string> _do) =>
-                        {
-                            cb.opMyEnumStringD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2219,53 +1311,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opMyStructMyEnumDAsync(di1, di2).Result;
                     cb.opMyStructMyEnumD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    var s11 = new Test.MyStruct(1, 1);
-                    var s12 = new Test.MyStruct(1, 2);
-                    var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                    di1[s11] = Test.MyEnum.enum1;
-                    di1[s12] = Test.MyEnum.enum2;
-
-                    var s22 = new Test.MyStruct(2, 2);
-                    var s23 = new Test.MyStruct(2, 3);
-                    var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                    di2[s11] = Test.MyEnum.enum1;
-                    di2[s22] = Test.MyEnum.enum3;
-                    di2[s23] = Test.MyEnum.enum2;
-
-                    Callback cb = new Callback();
-                    p.begin_opMyStructMyEnumD(di1, di2).whenCompleted(cb.opMyStructMyEnumD, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    var s11 = new Test.MyStruct(1, 1);
-                    var s12 = new Test.MyStruct(1, 2);
-                    var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                    di1[s11] = Test.MyEnum.enum1;
-                    di1[s12] = Test.MyEnum.enum2;
-
-                    var s22 = new Test.MyStruct(2, 2);
-                    var s23 = new Test.MyStruct(2, 3);
-                    var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                    di2[s11] = Test.MyEnum.enum1;
-                    di2[s22] = Test.MyEnum.enum3;
-                    di2[s23] = Test.MyEnum.enum2;
-
-                    Callback cb = new Callback();
-                    p.begin_opMyStructMyEnumD(di1, di2).whenCompleted(
-                        (Dictionary<Test.MyStruct, Test.MyEnum> ro,
-                         Dictionary<Test.MyStruct, Test.MyEnum> _do) =>
-                        {
-                            cb.opMyStructMyEnumD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2293,39 +1338,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
-                    Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
-
-                    Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
-                    di1[10] = true;
-                    di1[100] = false;
-                    Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
-                    di2[10] = true;
-                    di2[11] = false;
-                    di2[101] = true;
-                    Dictionary<byte, bool> di3 = new Dictionary<byte, bool>();
-                    di3[100] = false;
-                    di3[101] = false;
-
-                    dsi1[0] = di1;
-                    dsi1[1] = di2;
-                    dsi2[0] = di3;
-
-                    Callback cb = new Callback();
-                    p.begin_opByteBoolDS(dsi1, dsi2).whenCompleted(
-                        (Dictionary<byte, bool>[] ro,
-                         Dictionary<byte, bool>[] _do) =>
-                        {
-                            cb.opByteBoolDS(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
                     Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
 
@@ -2346,38 +1358,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opShortIntDSAsync(dsi1, dsi2).Result;
                     cb.opShortIntDS(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
-                    Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
-
-                    Dictionary<short, int> di1 = new Dictionary<short, int>();
-                    di1[110] = -1;
-                    di1[1100] = 123123;
-                    Dictionary<short, int> di2 = new Dictionary<short, int>();
-                    di2[110] = -1;
-                    di2[111] = -100;
-                    di2[1101] = 0;
-                    Dictionary<short, int> di3 = new Dictionary<short, int>();
-                    di3[100] = -1001;
-
-                    dsi1[0] = di1;
-                    dsi1[1] = di2;
-                    dsi2[0] = di3;
-
-                    Callback cb = new Callback();
-                    p.begin_opShortIntDS(dsi1, dsi2).whenCompleted(
-                        (Dictionary<short, int>[] ro,
-                         Dictionary<short, int>[] _do) =>
-                        {
-                            cb.opShortIntDS(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2404,38 +1384,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
-                    Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
-
-                    Dictionary<long, float> di1 = new Dictionary<long, float>();
-                    di1[999999110L] = -1.1f;
-                    di1[999999111L] = 123123.2f;
-                    Dictionary<long, float> di2 = new Dictionary<long, float>();
-                    di2[999999110L] = -1.1f;
-                    di2[999999120L] = -100.4f;
-                    di2[999999130L] = 0.5f;
-                    Dictionary<long, float> di3 = new Dictionary<long, float>();
-                    di3[999999140L] = 3.14f;
-
-                    dsi1[0] = di1;
-                    dsi1[1] = di2;
-                    dsi2[0] = di3;
-
-                    Callback cb = new Callback();
-                    p.begin_opLongFloatDS(dsi1, dsi2).whenCompleted(
-                        (Dictionary<long, float>[] ro,
-                         Dictionary<long, float>[] _do) =>
-                        {
-                            cb.opLongFloatDS(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
                     Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
 
@@ -2456,38 +1404,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opStringStringDSAsync(dsi1, dsi2).Result;
                     cb.opStringStringDS(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
-                    Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
-
-                    Dictionary<string, string> di1 = new Dictionary<string, string>();
-                    di1["foo"] = "abc -1.1";
-                    di1["bar"] = "abc 123123.2";
-                    Dictionary<string, string> di2 = new Dictionary<string, string>();
-                    di2["foo"] = "abc -1.1";
-                    di2["FOO"] = "abc -100.4";
-                    di2["BAR"] = "abc 0.5";
-                    Dictionary<string, string> di3 = new Dictionary<string, string>();
-                    di3["f00"] = "ABC -3.14";
-
-                    dsi1[0] = di1;
-                    dsi1[1] = di2;
-                    dsi2[0] = di3;
-
-                    Callback cb = new Callback();
-                    p.begin_opStringStringDS(dsi1, dsi2).whenCompleted(
-                        (Dictionary<string, string>[] ro,
-                         Dictionary<string, string>[] _do) =>
-                        {
-                            cb.opStringStringDS(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2514,38 +1430,6 @@ namespace Ice
                 }
 
                 {
-                    var dsi1 = new Dictionary<string, Test.MyEnum>[2];
-                    var dsi2 = new Dictionary<string, Test.MyEnum>[1];
-
-                    var di1 = new Dictionary<string, Test.MyEnum>();
-                    di1["abc"] = Test.MyEnum.enum1;
-                    di1[""] = Test.MyEnum.enum2;
-                    var di2 = new Dictionary<string, Test.MyEnum>();
-                    di2["abc"] = Test.MyEnum.enum1;
-                    di2["qwerty"] = Test.MyEnum.enum3;
-                    di2["Hello!!"] = Test.MyEnum.enum2;
-                    var di3 = new Dictionary<string, Test.MyEnum>();
-                    di3["Goodbye"] = Test.MyEnum.enum1;
-
-                    dsi1[0] = di1;
-                    dsi1[1] = di2;
-                    dsi2[0] = di3;
-
-                    Callback cb = new Callback();
-                    p.begin_opStringMyEnumDS(dsi1, dsi2).whenCompleted(
-                        (Dictionary<string, Test.MyEnum>[] ro,
-                         Dictionary<string, Test.MyEnum>[] _do) =>
-                        {
-                            cb.opStringMyEnumDS(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     var dsi1 = new Dictionary<Test.MyEnum, string>[2];
                     var dsi2 = new Dictionary<Test.MyEnum, string>[1];
 
@@ -2564,36 +1448,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opMyEnumStringDSAsync(dsi1, dsi2).Result;
                     cb.opMyEnumStringDS(ret.returnValue, ret.p3);
-                }
-
-                {
-                    var dsi1 = new Dictionary<Test.MyEnum, string>[2];
-                    var dsi2 = new Dictionary<Test.MyEnum, string>[1];
-
-                    var di1 = new Dictionary<Test.MyEnum, string>();
-                    di1[Test.MyEnum.enum1] = "abc";
-                    var di2 = new Dictionary<Test.MyEnum, string>();
-                    di2[Test.MyEnum.enum2] = "Hello!!";
-                    di2[Test.MyEnum.enum3] = "qwerty";
-                    var di3 = new Dictionary<Test.MyEnum, string>();
-                    di3[Test.MyEnum.enum1] = "Goodbye";
-
-                    dsi1[0] = di1;
-                    dsi1[1] = di2;
-                    dsi2[0] = di3;
-
-                    Callback cb = new Callback();
-                    p.begin_opMyEnumStringDS(dsi1, dsi2).whenCompleted(
-                        (Dictionary<Test.MyEnum, string>[] ro,
-                         Dictionary<Test.MyEnum, string>[] _do) =>
-                        {
-                            cb.opMyEnumStringDS(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2626,44 +1480,6 @@ namespace Ice
                 }
 
                 {
-                    var dsi1 = new Dictionary<Test.MyStruct, Test.MyEnum>[2];
-                    var dsi2 = new Dictionary<Test.MyStruct, Test.MyEnum>[1];
-
-                    var s11 = new Test.MyStruct(1, 1);
-                    var s12 = new Test.MyStruct(1, 2);
-                    var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                    di1[s11] = Test.MyEnum.enum1;
-                    di1[s12] = Test.MyEnum.enum2;
-
-                    var s22 = new Test.MyStruct(2, 2);
-                    var s23 = new Test.MyStruct(2, 3);
-                    var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                    di2[s11] = Test.MyEnum.enum1;
-                    di2[s22] = Test.MyEnum.enum3;
-                    di2[s23] = Test.MyEnum.enum2;
-
-                    var di3 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                    di3[s23] = Test.MyEnum.enum3;
-
-                    dsi1[0] = di1;
-                    dsi1[1] = di2;
-                    dsi2[0] = di3;
-
-                    Callback cb = new Callback();
-                    p.begin_opMyStructMyEnumDS(dsi1, dsi2).whenCompleted(
-                        (Dictionary<Test.MyStruct, Test.MyEnum>[] ro,
-                         Dictionary<Test.MyStruct, Test.MyEnum>[] _do) =>
-                        {
-                            cb.opMyStructMyEnumDS(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<byte, byte[]> sdi1 = new Dictionary<byte, byte[]>();
                     Dictionary<byte, byte[]> sdi2 = new Dictionary<byte, byte[]>();
 
@@ -2681,32 +1497,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<byte, byte[]> sdi1 = new Dictionary<byte, byte[]>();
-                    Dictionary<byte, byte[]> sdi2 = new Dictionary<byte, byte[]>();
-
-                    byte[] si1 = new byte[] { 0x01, 0x11 };
-                    byte[] si2 = new byte[] { 0x12 };
-                    byte[] si3 = new byte[] { 0xf2, 0xf3 };
-
-                    sdi1[0x01] = si1;
-                    sdi1[0x22] = si2;
-                    sdi2[0xf1] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opByteByteSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<byte, byte[]> ro,
-                         Dictionary<byte, byte[]> _do) =>
-                        {
-                            cb.opByteByteSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<bool, bool[]> sdi1 = new Dictionary<bool, bool[]>();
                     Dictionary<bool, bool[]> sdi2 = new Dictionary<bool, bool[]>();
 
@@ -2720,31 +1510,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opBoolBoolSDAsync(sdi1, sdi2).Result;
                     cb.opBoolBoolSD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<bool, bool[]> sdi1 = new Dictionary<bool, bool[]>();
-                    Dictionary<bool, bool[]> sdi2 = new Dictionary<bool, bool[]>();
-
-                    bool[] si1 = new bool[] { true, false };
-                    bool[] si2 = new bool[] { false, true, true };
-
-                    sdi1[false] = si1;
-                    sdi1[true] = si2;
-                    sdi2[false] = si1;
-
-                    Callback cb = new Callback();
-                    p.begin_opBoolBoolSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<bool, bool[]> ro,
-                         Dictionary<bool, bool[]> _do) =>
-                        {
-                            cb.opBoolBoolSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2765,32 +1530,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<short, short[]> sdi1 = new Dictionary<short, short[]>();
-                    Dictionary<short, short[]> sdi2 = new Dictionary<short, short[]>();
-
-                    short[] si1 = new short[] { 1, 2, 3 };
-                    short[] si2 = new short[] { 4, 5 };
-                    short[] si3 = new short[] { 6, 7 };
-
-                    sdi1[1] = si1;
-                    sdi1[2] = si2;
-                    sdi2[4] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opShortShortSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<short, short[]> ro,
-                         Dictionary<short, short[]> _do) =>
-                        {
-                            cb.opShortShortSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<int, int[]> sdi1 = new Dictionary<int, int[]>();
                     Dictionary<int, int[]> sdi2 = new Dictionary<int, int[]>();
 
@@ -2805,32 +1544,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opIntIntSDAsync(sdi1, sdi2).Result;
                     cb.opIntIntSD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<int, int[]> sdi1 = new Dictionary<int, int[]>();
-                    Dictionary<int, int[]> sdi2 = new Dictionary<int, int[]>();
-
-                    int[] si1 = new int[] { 100, 200, 300 };
-                    int[] si2 = new int[] { 400, 500 };
-                    int[] si3 = new int[] { 600, 700 };
-
-                    sdi1[100] = si1;
-                    sdi1[200] = si2;
-                    sdi2[400] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opIntIntSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<int, int[]> ro,
-                         Dictionary<int, int[]> _do) =>
-                        {
-                            cb.opIntIntSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2851,32 +1564,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<long, long[]> sdi1 = new Dictionary<long, long[]>();
-                    Dictionary<long, long[]> sdi2 = new Dictionary<long, long[]>();
-
-                    long[] si1 = new long[] { 999999110L, 999999111L, 999999110L };
-                    long[] si2 = new long[] { 999999120L, 999999130L };
-                    long[] si3 = new long[] { 999999110L, 999999120L };
-
-                    sdi1[999999990L] = si1;
-                    sdi1[999999991L] = si2;
-                    sdi2[999999992L] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opLongLongSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<long, long[]> ro,
-                         Dictionary<long, long[]> _do) =>
-                        {
-                            cb.opLongLongSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<string, float[]> sdi1 = new Dictionary<string, float[]>();
                     Dictionary<string, float[]> sdi2 = new Dictionary<string, float[]>();
 
@@ -2891,32 +1578,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opStringFloatSDAsync(sdi1, sdi2).Result;
                     cb.opStringFloatSD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<string, float[]> sdi1 = new Dictionary<string, float[]>();
-                    Dictionary<string, float[]> sdi2 = new Dictionary<string, float[]>();
-
-                    float[] si1 = new float[] { -1.1f, 123123.2f, 100.0f };
-                    float[] si2 = new float[] { 42.24f, -1.61f };
-                    float[] si3 = new float[] { -3.14f, 3.14f };
-
-                    sdi1["abc"] = si1;
-                    sdi1["ABC"] = si2;
-                    sdi2["aBc"] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opStringFloatSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<string, float[]> ro,
-                         Dictionary<string, float[]> _do) =>
-                        {
-                            cb.opStringFloatSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -2937,32 +1598,6 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<string, double[]> sdi1 = new Dictionary<string, double[]>();
-                    Dictionary<string, double[]> sdi2 = new Dictionary<string, double[]>();
-
-                    double[] si1 = new double[] { 1.1E10, 1.2E10, 1.3E10 };
-                    double[] si2 = new double[] { 1.4E10, 1.5E10 };
-                    double[] si3 = new double[] { 1.6E10, 1.7E10 };
-
-                    sdi1["Hello!!"] = si1;
-                    sdi1["Goodbye"] = si2;
-                    sdi2[""] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opStringDoubleSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<string, double[]> ro,
-                         Dictionary<string, double[]> _do) =>
-                        {
-                            cb.opStringDoubleSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     Dictionary<string, string[]> sdi1 = new Dictionary<string, string[]>();
                     Dictionary<string, string[]> sdi2 = new Dictionary<string, string[]>();
 
@@ -2977,32 +1612,6 @@ namespace Ice
                     var cb = new Callback();
                     var ret = p.opStringStringSDAsync(sdi1, sdi2).Result;
                     cb.opStringStringSD(ret.returnValue, ret.p3);
-                }
-
-                {
-                    Dictionary<string, string[]> sdi1 = new Dictionary<string, string[]>();
-                    Dictionary<string, string[]> sdi2 = new Dictionary<string, string[]>();
-
-                    string[] si1 = new string[] { "abc", "de", "fghi" };
-                    string[] si2 = new string[] { "xyz", "or" };
-                    string[] si3 = new string[] { "and", "xor" };
-
-                    sdi1["abc"] = si1;
-                    sdi1["def"] = si2;
-                    sdi2["ghi"] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opStringStringSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<string, string[]> ro,
-                         Dictionary<string, string[]> _do) =>
-                        {
-                            cb.opStringStringSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -3023,32 +1632,6 @@ namespace Ice
                 }
 
                 {
-                    var sdi1 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
-                    var sdi2 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
-
-                    var si1 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2 };
-                    var si2 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum2 };
-                    var si3 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum3 };
-
-                    sdi1[Test.MyEnum.enum3] = si1;
-                    sdi1[Test.MyEnum.enum2] = si2;
-                    sdi2[Test.MyEnum.enum1] = si3;
-
-                    Callback cb = new Callback();
-                    p.begin_opMyEnumMyEnumSD(sdi1, sdi2).whenCompleted(
-                        (Dictionary<Test.MyEnum, Test.MyEnum[]> ro,
-                         Dictionary<Test.MyEnum, Test.MyEnum[]> _do) =>
-                        {
-                            cb.opMyEnumMyEnumSD(ro, _do);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
                     for (int l = 0; l < lengths.Length; ++l)
@@ -3061,48 +1644,6 @@ namespace Ice
 
                         var cb = new Callback(lengths[l]);
                         cb.opIntS(p.opIntSAsync(s).Result);
-                    }
-                }
-
-                {
-                    int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
-
-                    for (int l = 0; l < lengths.Length; ++l)
-                    {
-                        int[] s = new int[lengths[l]];
-                        for (int i = 0; i < lengths[l]; ++i)
-                        {
-                            s[i] = i;
-                        }
-
-                        Callback cb = new Callback(lengths[l]);
-                        p.begin_opIntS(s).whenCompleted(cb.opIntS, cb.exCB);
-                        cb.check();
-                    }
-                }
-
-                {
-                    int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
-
-                    for (int l = 0; l < lengths.Length; ++l)
-                    {
-                        int[] s = new int[lengths[l]];
-                        for (int i = 0; i < lengths[l]; ++i)
-                        {
-                            s[i] = i;
-                        }
-
-                        Callback cb = new Callback(lengths[l]);
-                        p.begin_opIntS(s).whenCompleted(
-                            (int[] r) =>
-                            {
-                                cb.opIntS(r);
-                            },
-                            (Ice.Exception ex) =>
-                            {
-                                cb.exCB(ex);
-                            });
-                        cb.check();
                     }
                 }
 
@@ -3131,102 +1672,6 @@ namespace Ice
                         var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
                         Callback cb = new Callback(ctx);
                         cb.opContextEqual(p2.opContextAsync(ctx).Result);
-                    }
-                }
-
-                {
-                    Dictionary<string, string> ctx = new Dictionary<string, string>();
-                    ctx["one"] = "ONE";
-                    ctx["two"] = "TWO";
-                    ctx["three"] = "THREE";
-                    {
-                        test(p.ice_getContext().Count == 0);
-                        Callback cb = new Callback(ctx);
-                        p.begin_opContext().whenCompleted(cb.opContextNotEqual, cb.exCB);
-                        cb.check();
-                    }
-                    {
-                        test(p.ice_getContext().Count == 0);
-                        Callback cb = new Callback(ctx);
-                        p.begin_opContext(ctx).whenCompleted(cb.opContextEqual, cb.exCB);
-                        cb.check();
-                    }
-                    {
-                        var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
-                        Callback cb = new Callback(ctx);
-                        p2.begin_opContext().whenCompleted(cb.opContextEqual, cb.exCB);
-                        cb.check();
-                    }
-                    {
-                        var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        Callback cb = new Callback(ctx);
-                        p2.begin_opContext(ctx).whenCompleted(cb.opContextEqual, cb.exCB);
-                        cb.check();
-                    }
-                }
-
-                {
-                    Dictionary<string, string> ctx = new Dictionary<string, string>();
-                    ctx["one"] = "ONE";
-                    ctx["two"] = "TWO";
-                    ctx["three"] = "THREE";
-                    {
-                        test(p.ice_getContext().Count == 0);
-                        Callback cb = new Callback(ctx);
-                        p.begin_opContext().whenCompleted(
-                            (Dictionary<string, string> r) =>
-                            {
-                                cb.opContextNotEqual(r);
-                            },
-                            (Ice.Exception ex) =>
-                            {
-                                cb.exCB(ex);
-                            });
-                        cb.check();
-                    }
-                    {
-                        test(p.ice_getContext().Count == 0);
-                        Callback cb = new Callback(ctx);
-                        p.begin_opContext(ctx).whenCompleted(
-                            (Dictionary<string, string> r) =>
-                            {
-                                cb.opContextEqual(r);
-                            },
-                            (Ice.Exception ex) =>
-                            {
-                                cb.exCB(ex);
-                            });
-                        cb.check();
-                    }
-                    {
-                        var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
-                        Callback cb = new Callback(ctx);
-                        p2.begin_opContext().whenCompleted(
-                            (Dictionary<string, string> r) =>
-                            {
-                                cb.opContextEqual(r);
-                            },
-                            (Ice.Exception ex) =>
-                            {
-                                cb.exCB(ex);
-                            });
-                        cb.check();
-                    }
-                    {
-                        var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                        Callback cb = new Callback(ctx);
-                        p2.begin_opContext(ctx).whenCompleted(
-                            (Dictionary<string, string> r) =>
-                            {
-                                cb.opContextEqual(r);
-                            },
-                            (Ice.Exception ex) =>
-                            {
-                                cb.exCB(ex);
-                            });
-                        cb.check();
                     }
                 }
 
@@ -3322,8 +1767,10 @@ namespace Ice
                         var p3 =
                             Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
 
+                        // TODO: need to convert code below to async/await
+
                         ic.getImplicitContext().setContext(ctx);
-                        test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
+                                    test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
                         {
                             Ice.AsyncResult r = p3.begin_opContext();
                             Dictionary<string, string> c = p3.end_opContext(r);
@@ -3383,57 +1830,7 @@ namespace Ice
                 }
 
                 {
-                    Ice.AsyncResult r = p.begin_opIdempotent();
-                    p.end_opIdempotent(r);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opIdempotent().whenCompleted(cb.opIdempotent, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opIdempotent().whenCompleted(
-                        () =>
-                        {
-                            cb.opIdempotent();
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     p.opNonmutatingAsync().Wait();
-                }
-
-                {
-                    Ice.AsyncResult r = p.begin_opNonmutating();
-                    p.end_opNonmutating(r);
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opNonmutating().whenCompleted(cb.opNonmutating, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    Callback cb = new Callback();
-                    p.begin_opNonmutating().whenCompleted(
-                        () =>
-                        {
-                            cb.opNonmutating();
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
                 }
 
                 {
@@ -3444,45 +1841,7 @@ namespace Ice
                 }
 
                 {
-                    var derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
-                    test(derived != null);
-                    Callback cb = new Callback();
-                    derived.begin_opDerived().whenCompleted(cb.opDerived, cb.exCB);
-                    cb.check();
-                }
-
-                {
-                    var derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
-                    test(derived != null);
-                    Callback cb = new Callback();
-                    derived.begin_opDerived().whenCompleted(
-                        () =>
-                        {
-                            cb.opDerived();
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exCB(ex);
-                        });
-                    cb.check();
-                }
-
-                {
                     test(p.opByte1Async(0xFF).Result == 0xFF);
-                }
-
-                {
-                    GenericCallback<byte> cb = new GenericCallback<byte>(0);
-                    p.begin_opByte1(0xFF).whenCompleted(
-                        (byte value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value() == 0xFF);
                 }
 
                 {
@@ -3490,35 +1849,7 @@ namespace Ice
                 }
 
                 {
-                    GenericCallback<short> cb = new GenericCallback<short>(0);
-                    p.begin_opShort1(0x7FFF).whenCompleted(
-                        (short value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value() == 0x7FFF);
-                }
-
-                {
                     test(p.opInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
-                }
-
-                {
-                    GenericCallback<int> cb = new GenericCallback<int>(0);
-                    p.begin_opInt1(0x7FFFFFFF).whenCompleted(
-                        (int value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value() == 0x7FFFFFFF);
                 }
 
                 {
@@ -3526,35 +1857,7 @@ namespace Ice
                 }
 
                 {
-                    GenericCallback<long> cb = new GenericCallback<long>(0);
-                    p.begin_opLong1(0x7FFFFFFFFFFFFFFF).whenCompleted(
-                        (long value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value() == 0x7FFFFFFFFFFFFFFF);
-                }
-
-                {
                     test(p.opFloat1Async(1.0f).Result == 1.0f);
-                }
-
-                {
-                    GenericCallback<float> cb = new GenericCallback<float>(0);
-                    p.begin_opFloat1(1.0f).whenCompleted(
-                        (float value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value() == 1.0f);
                 }
 
                 {
@@ -3562,35 +1865,7 @@ namespace Ice
                 }
 
                 {
-                    GenericCallback<double> cb = new GenericCallback<double>(0);
-                    p.begin_opDouble1(1.0d).whenCompleted(
-                        (double value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value() == 1.0d);
-                }
-
-                {
                     test(p.opString1Async("opString1").Result.Equals("opString1"));
-                }
-
-                {
-                    GenericCallback<string> cb = new GenericCallback<string>("");
-                    p.begin_opString1("opString1").whenCompleted(
-                        (string value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value().Equals("opString1"));
                 }
 
                 {
@@ -3598,35 +1873,7 @@ namespace Ice
                 }
 
                 {
-                    GenericCallback<string[]> cb = new GenericCallback<string[]>(null);
-                    p.begin_opStringS1(null).whenCompleted(
-                        (string[] seq) =>
-                        {
-                            cb.response(seq);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value().Length == 0);
-                }
-
-                {
                     test(p.opByteBoolD1Async(null).Result.Count == 0);
-                }
-
-                {
-                    GenericCallback<Dictionary<byte, bool>> cb = new GenericCallback<Dictionary<byte, bool>>(null);
-                    p.begin_opByteBoolD1(null).whenCompleted(
-                        (Dictionary<byte, bool> value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value().Count == 0);
                 }
 
                 {
@@ -3634,35 +1881,7 @@ namespace Ice
                 }
 
                 {
-                    GenericCallback<string[]> cb = new GenericCallback<string[]>(null);
-                    p.begin_opStringS2(null).whenCompleted(
-                        (string[] seq) =>
-                        {
-                            cb.response(seq);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value().Length == 0);
-                }
-
-                {
                     test(p.opByteBoolD2Async(null).Result.Count == 0);
-                }
-
-                {
-                    GenericCallback<Dictionary<byte, bool>> cb = new GenericCallback<Dictionary<byte, bool>>(null);
-                    p.begin_opByteBoolD2(null).whenCompleted(
-                        (Dictionary<byte, bool> value) =>
-                        {
-                            cb.response(value);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            cb.exception(ex);
-                        });
-                    test(cb.succeeded() && cb.value().Count == 0);
                 }
 
                 Func<Task> task = async () =>
