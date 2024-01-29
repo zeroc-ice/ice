@@ -3156,7 +3156,7 @@ IcePy::TypedServantWrapper::ice_invokeAsync(
             current.adapter->getCommunicator());
         up->dispatch(_servant, inParams, current);
     }
-    catch (const Ice::Exception& ex)
+    catch (const Ice::Exception&)
     {
         error(current_exception());
     }
