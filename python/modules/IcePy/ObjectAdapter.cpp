@@ -478,6 +478,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
             }
             catch(const Ice::Exception& ex)
             {
+                // Clone the exception and take ownership of the object.
                 self->holdException = ex.ice_clone().release();
             }
         }
@@ -585,6 +586,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
             }
             catch(const Ice::Exception& ex)
             {
+                // Clone the exception and take ownership of the object.
                 self->deactivateException = ex.ice_clone().release();
             }
         }

@@ -140,7 +140,7 @@ IcePy::Dispatcher::setCommunicator(const Ice::CommunicatorPtr& communicator)
 }
 
 void
-IcePy::Dispatcher::dispatch(std::function<void()> call, const Ice::ConnectionPtr& con)
+IcePy::Dispatcher::dispatch(function<void()> call, const Ice::ConnectionPtr& con)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 

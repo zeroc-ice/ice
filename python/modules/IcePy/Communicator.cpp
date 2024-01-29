@@ -286,7 +286,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
     argv[argc] = 0;
 
-    data.compactIdResolver = [](Ice::Int id) { return resolveCompactId(id); };
+    data.compactIdResolver = resolveCompactId;
 
     // Always accept cycles in Python
     data.properties->setProperty("Ice.AcceptClassCycles", "1");
@@ -496,6 +496,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
             }
             catch(const Ice::Exception& ex)
             {
+                // Clone the exception and take ownership of the object.
                 self->shutdownException = ex.ice_clone().release();
             }
         }
@@ -810,10 +811,6 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
                 catch (const Ice::Exception& ex)
                 {
                     callback->exception(ex);
-                }
-                catch (...)
-                {
-                    assert(false);
                 }
             },
             [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });

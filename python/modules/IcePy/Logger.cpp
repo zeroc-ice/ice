@@ -336,7 +336,7 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
     // return it directly. Otherwise, we create a Python object
     // that delegates to the C++ object.
     //
-    LoggerWrapperPtr wrapper = dynamic_pointer_cast<LoggerWrapper>(clone);
+    auto wrapper = dynamic_pointer_cast<LoggerWrapper>(clone);
     if(wrapper)
     {
         PyObject* obj = wrapper->getObject();
@@ -474,7 +474,7 @@ IcePy_getProcessLogger(PyObject* /*self*/, PyObject* /*args*/)
     // return it directly. Otherwise, we create a Python object
     // that delegates to the C++ object.
     //
-    LoggerWrapperPtr wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
+    auto wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
     if(wrapper)
     {
         PyObject* obj = wrapper->getObject();
@@ -498,7 +498,7 @@ IcePy_setProcessLogger(PyObject* /*self*/, PyObject* args)
         return 0;
     }
 
-    Ice::LoggerPtr wrapper = make_shared<LoggerWrapper>(logger);
+    auto wrapper = make_shared<LoggerWrapper>(logger);
     try
     {
         Ice::setProcessLogger(wrapper);

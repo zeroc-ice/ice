@@ -1057,7 +1057,7 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
     assert(PyTuple_Check(p));
     assert(PyTuple_GET_SIZE(p) == 4);
 
-    ParamInfoPtr param = make_shared<ParamInfo>();
+    auto param = make_shared<ParamInfo>();
 
     //
     // metaData
@@ -1732,9 +1732,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         //
         if(_prx->ice_isTwoway())
         {
-            pair<const Ice::Byte*, const Ice::Byte*> rb(
-                static_cast<const Ice::Byte*>(0),
-                static_cast<const Ice::Byte*>(0));
+            pair<const Ice::Byte*, const Ice::Byte*> rb { 0, 0 };
             if(!result.empty())
             {
                 rb.first = &result[0];
@@ -2326,9 +2324,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     assert(!PyErr_Occurred());
 
     Py_ssize_t sz = PyBytes_GET_SIZE(inParams);
-    pair<const ::Ice::Byte*, const ::Ice::Byte*> params(
-        static_cast<const Ice::Byte*>(0),
-        static_cast<const Ice::Byte*>(0));
+    pair<const ::Ice::Byte*, const ::Ice::Byte*> params { 0, 0 };
     if(sz > 0)
     {
         params.first = reinterpret_cast<Ice::Byte*>(PyBytes_AS_STRING(inParams));
@@ -2755,9 +2751,7 @@ IcePy::BlobjectUpcall::response(PyObject* result)
         }
 
         Py_ssize_t sz = PyBytes_GET_SIZE(arg);
-        pair<const ::Ice::Byte*, const ::Ice::Byte*> r(
-            static_cast<const Ice::Byte*>(0),
-            static_cast<const Ice::Byte*>(0));
+        pair<const ::Ice::Byte*, const ::Ice::Byte*> r { 0, 0 };
         if(sz > 0)
         {
             r.first = reinterpret_cast<Ice::Byte*>(PyBytes_AS_STRING(arg));

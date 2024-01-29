@@ -211,7 +211,7 @@ extern "C"
 static PyObject*
 sslConnectionInfoGetCipher(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    IceSSL::ConnectionInfoPtr info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
     return createString(info->cipher);
 }
@@ -222,7 +222,7 @@ extern "C"
 static PyObject*
 sslConnectionInfoGetCerts(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    IceSSL::ConnectionInfoPtr info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
     PyObject* certs = PyList_New(0);
     Ice::StringSeq encoded;
@@ -240,7 +240,7 @@ extern "C"
 static PyObject*
 sslConnectionInfoGetVerified(ConnectionInfoObject* self, PyObject* /*args*/)
 {
-    IceSSL::ConnectionInfoPtr info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
+    auto info = dynamic_pointer_cast<IceSSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
     return info->incoming ? incTrue() : incFalse();
 }
