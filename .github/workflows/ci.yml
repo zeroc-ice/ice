@@ -65,5 +65,4 @@ jobs:
         timeout-minutes: 90
         with:
           # See https://github.com/zeroc-ice/ice/issues/1653
-          # Remove --filter csharp/Ice/binding to test when https://github.com/zeroc-ice/ice/issues/1673 is fixed
-          flags: "--rfilter IceGrid/replication --rfilter csharp/Ice/binding"
+          flags: "--rfilter IceGrid/replication"
