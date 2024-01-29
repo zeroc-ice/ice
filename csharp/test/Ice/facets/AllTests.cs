@@ -20,17 +20,17 @@ namespace Ice
                 test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").Length == 0);
                 communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
                 String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 1 && facetFilter[0].Equals("foobar"));
+                test(facetFilter.Length == 1 && facetFilter[0] == "foobar");
                 communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
                 facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 1 && facetFilter[0].Equals("foo'bar"));
+                test(facetFilter.Length == 1 && facetFilter[0] == "foo'bar");
                 communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
                 facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 3 && facetFilter[0].Equals("foo bar") && facetFilter[1].Equals("toto")
-                     && facetFilter[2].Equals("titi"));
+                test(facetFilter.Length == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto"
+                     && facetFilter[2] == "titi");
                 communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
                 facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
-                test(facetFilter.Length == 2 && facetFilter[0].Equals("foo bar' toto") && facetFilter[1].Equals("titi"));
+                test(facetFilter.Length == 2 && facetFilter[0] == "foo bar' toto" && facetFilter[1] == "titi");
                 // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
                 // facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
                 // test(facetFilter.Length == 0);
@@ -145,43 +145,43 @@ namespace Ice
                 d = Test.DPrxHelper.checkedCast(db);
                 test(d != null);
                 test(d.Equals(db));
-                test(d.callA().Equals("A"));
-                test(d.callB().Equals("B"));
-                test(d.callC().Equals("C"));
-                test(d.callD().Equals("D"));
+                test(d.callA() == "A");
+                test(d.callB() == "B");
+                test(d.callC() == "C");
+                test(d.callD() == "D");
                 output.WriteLine("ok");
 
                 output.Write("testing facets A, B, C, and D... ");
                 output.Flush();
                 df = Test.DPrxHelper.checkedCast(d, "facetABCD");
                 test(df != null);
-                test(df.callA().Equals("A"));
-                test(df.callB().Equals("B"));
-                test(df.callC().Equals("C"));
-                test(df.callD().Equals("D"));
+                test(df.callA() == "A");
+                test(df.callB() == "B");
+                test(df.callC() == "C");
+                test(df.callD() == "D");
                 output.WriteLine("ok");
 
                 output.Write("testing facets E and F... ");
                 output.Flush();
                 var ff = Test.FPrxHelper.checkedCast(d, "facetEF");
                 test(ff != null);
-                test(ff.callE().Equals("E"));
-                test(ff.callF().Equals("F"));
+                test(ff.callE() == "E");
+                test(ff.callF() == "F");
                 output.WriteLine("ok");
 
                 output.Write("testing facet G... ");
                 output.Flush();
                 var gf = Test.GPrxHelper.checkedCast(ff, "facetGH");
                 test(gf != null);
-                test(gf.callG().Equals("G"));
+                test(gf.callG() == "G");
                 output.WriteLine("ok");
 
                 output.Write("testing whether casting preserves the facet... ");
                 output.Flush();
                 var hf = Test.HPrxHelper.checkedCast(gf);
                 test(hf != null);
-                test(hf.callG().Equals("G"));
-                test(hf.callH().Equals("H"));
+                test(hf.callG() == "G");
+                test(hf.callH() == "H");
                 output.WriteLine("ok");
                 return gf;
             }

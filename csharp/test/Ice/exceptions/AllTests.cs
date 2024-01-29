@@ -114,7 +114,7 @@ namespace Ice
                     }
                     catch(Ice.IllegalIdentityException e)
                     {
-                        test(e.id.name.Equals(""));
+                        test(e.id.name == "");
                     }
 
                     try
@@ -499,7 +499,7 @@ namespace Ice
                     }
                     catch(Ice.FacetNotExistException ex)
                     {
-                        test(ex.facet.Equals("no such facet"));
+                        test(ex.facet == "no such facet");
                     }
                 }
                 catch(Exception)
@@ -520,7 +520,7 @@ namespace Ice
                 }
                 catch(Ice.OperationNotExistException ex)
                 {
-                    test(ex.operation.Equals("noSuchOperation"));
+                    test(ex.operation == "noSuchOperation");
                 }
                 catch(Exception)
                 {
@@ -967,7 +967,7 @@ namespace Ice
                             }
                             catch(Ice.FacetNotExistException ex)
                             {
-                                test(ex.facet.Equals("no such facet"));
+                                test(ex.facet == "no such facet");
                             }
                             catch(Exception)
                             {
@@ -999,7 +999,7 @@ namespace Ice
                             }
                             catch(Ice.OperationNotExistException ex)
                             {
-                                test(ex.operation.Equals("noSuchOperation"));
+                                test(ex.operation == "noSuchOperation");
                             }
                             catch(Exception)
                             {
@@ -1238,7 +1238,7 @@ namespace Ice
                             }
                             catch(Ice.FacetNotExistException ex)
                             {
-                                test(ex.facet.Equals("no such facet"));
+                                test(ex.facet == "no such facet");
                             }
                             catch(Exception)
                             {
@@ -1270,7 +1270,7 @@ namespace Ice
                             }
                             catch(Ice.OperationNotExistException ex)
                             {
-                                test(ex.operation.Equals("noSuchOperation"));
+                                test(ex.operation == "noSuchOperation");
                             }
                             catch(Exception)
                             {

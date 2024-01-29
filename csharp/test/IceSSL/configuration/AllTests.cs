@@ -560,7 +560,7 @@ public class AllTests
                 // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
                 // as that is the IP address used in the test certificates.
                 //
-                if(defaultHost.Equals("127.0.0.1"))
+                if(defaultHost == "127.0.0.1")
                 {
                     //
                     // Test using localhost as target host

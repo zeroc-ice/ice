@@ -13,11 +13,11 @@ namespace Ice
         {
             public static Ice.Value MyValueFactory(string type)
             {
-                if(type.Equals("::Test::I"))
+                if(type == "::Test::I")
                 {
                     return new II();
                 }
-                else if(type.Equals("::Test::J"))
+                else if(type == "::Test::J")
                 {
                     return new JI();
                 }

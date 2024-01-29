@@ -113,8 +113,8 @@ public class AllTests : Test.AllTests
             }
             catch(Base b)
             {
-                test(b.b.Equals("Base.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                test(b.b == "Base.b");
+                test(b.GetType().FullName == "Test.Base");
             }
             catch(Exception)
             {
@@ -140,8 +140,8 @@ public class AllTests : Test.AllTests
                     }
                     catch(Base b)
                     {
-                        test(b.b.Equals("Base.b"));
-                        test(b.GetType().Name.Equals("Base"));
+                        test(b.b == "Base.b");
+                        test(b.GetType().Name == "Base");
                     }
                     catch(Exception)
                     {
@@ -164,8 +164,8 @@ public class AllTests : Test.AllTests
                 }
                 catch(Base b)
                 {
-                    test(b.b.Equals("Base.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    test(b.b == "Base.b");
+                    test(b.GetType().Name == "Base");
                 }
                 catch(Exception)
                 {
@@ -185,8 +185,8 @@ public class AllTests : Test.AllTests
             }
             catch(Base b)
             {
-                test(b.b.Equals("UnknownDerived.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                test(b.b == "UnknownDerived.b");
+                test(b.GetType().FullName == "Test.Base");
             }
             catch(Exception)
             {
@@ -212,8 +212,8 @@ public class AllTests : Test.AllTests
                     }
                     catch(Base b)
                     {
-                        test(b.b.Equals("UnknownDerived.b"));
-                        test(b.GetType().Name.Equals("Base"));
+                        test(b.b == "UnknownDerived.b");
+                        test(b.GetType().Name == "Base");
                     }
                     catch(Exception)
                     {
@@ -236,8 +236,8 @@ public class AllTests : Test.AllTests
                 }
                 catch(Base b)
                 {
-                    test(b.b.Equals("UnknownDerived.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    test(b.b == "UnknownDerived.b");
+                    test(b.GetType().Name == "Base");
                 }
                 catch(Exception)
                 {
@@ -257,9 +257,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownDerived k)
             {
-                test(k.b.Equals("KnownDerived.b"));
-                test(k.kd.Equals("KnownDerived.kd"));
-                test(k.GetType().FullName.Equals("Test.KnownDerived"));
+                test(k.b == "KnownDerived.b");
+                test(k.kd == "KnownDerived.kd");
+                test(k.GetType().FullName == "Test.KnownDerived");
             }
             catch(Exception)
             {
@@ -285,9 +285,9 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownDerived k)
                     {
-                        test(k.b.Equals("KnownDerived.b"));
-                        test(k.kd.Equals("KnownDerived.kd"));
-                        test(k.GetType().Name.Equals("KnownDerived"));
+                        test(k.b == "KnownDerived.b");
+                        test(k.kd == "KnownDerived.kd");
+                        test(k.GetType().Name == "KnownDerived");
                     }
                     catch(Exception)
                     {
@@ -310,9 +310,9 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownDerived k)
                 {
-                    test(k.b.Equals("KnownDerived.b"));
-                    test(k.kd.Equals("KnownDerived.kd"));
-                    test(k.GetType().Name.Equals("KnownDerived"));
+                    test(k.b == "KnownDerived.b");
+                    test(k.kd == "KnownDerived.kd");
+                    test(k.GetType().Name == "KnownDerived");
                 }
                 catch(Exception)
                 {
@@ -332,9 +332,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownDerived k)
             {
-                test(k.b.Equals("KnownDerived.b"));
-                test(k.kd.Equals("KnownDerived.kd"));
-                test(k.GetType().FullName.Equals("Test.KnownDerived"));
+                test(k.b == "KnownDerived.b");
+                test(k.kd == "KnownDerived.kd");
+                test(k.GetType().FullName == "Test.KnownDerived");
             }
             catch(Exception)
             {
@@ -360,9 +360,9 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownDerived k)
                     {
-                        test(k.b.Equals("KnownDerived.b"));
-                        test(k.kd.Equals("KnownDerived.kd"));
-                        test(k.GetType().Name.Equals("KnownDerived"));
+                        test(k.b == "KnownDerived.b");
+                        test(k.kd == "KnownDerived.kd");
+                        test(k.GetType().Name == "KnownDerived");
                     }
                     catch(Exception)
                     {
@@ -385,9 +385,9 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownDerived k)
                 {
-                    test(k.b.Equals("KnownDerived.b"));
-                    test(k.kd.Equals("KnownDerived.kd"));
-                    test(k.GetType().Name.Equals("KnownDerived"));
+                    test(k.b == "KnownDerived.b");
+                    test(k.kd == "KnownDerived.kd");
+                    test(k.GetType().Name == "KnownDerived");
                 }
                 catch(Exception)
                 {
@@ -407,8 +407,8 @@ public class AllTests : Test.AllTests
             }
             catch(Base b)
             {
-                test(b.b.Equals("UnknownIntermediate.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                test(b.b == "UnknownIntermediate.b");
+                test(b.GetType().FullName == "Test.Base");
             }
             catch(Exception)
             {
@@ -434,8 +434,8 @@ public class AllTests : Test.AllTests
                     }
                     catch(Base b)
                     {
-                        test(b.b.Equals("UnknownIntermediate.b"));
-                        test(b.GetType().Name.Equals("Base"));
+                        test(b.b == "UnknownIntermediate.b");
+                        test(b.GetType().Name == "Base");
                     }
                     catch(Exception)
                     {
@@ -458,8 +458,8 @@ public class AllTests : Test.AllTests
                 }
                 catch(Base b)
                 {
-                    test(b.b.Equals("UnknownIntermediate.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    test(b.b == "UnknownIntermediate.b");
+                    test(b.GetType().Name == "Base");
                 }
                 catch(Exception)
                 {
@@ -479,9 +479,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownIntermediate ki)
             {
-                test(ki.b.Equals("KnownIntermediate.b"));
-                test(ki.ki.Equals("KnownIntermediate.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                test(ki.b == "KnownIntermediate.b");
+                test(ki.ki == "KnownIntermediate.ki");
+                test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
             catch(Exception)
             {
@@ -507,9 +507,9 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownIntermediate ki)
                     {
-                        test(ki.b.Equals("KnownIntermediate.b"));
-                        test(ki.ki.Equals("KnownIntermediate.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
+                        test(ki.b == "KnownIntermediate.b");
+                        test(ki.ki == "KnownIntermediate.ki");
+                        test(ki.GetType().Name == "KnownIntermediate");
                     }
                     catch(Exception)
                     {
@@ -532,9 +532,9 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("KnownIntermediate.b"));
-                    test(ki.ki.Equals("KnownIntermediate.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    test(ki.b == "KnownIntermediate.b");
+                    test(ki.ki == "KnownIntermediate.ki");
+                    test(ki.GetType().Name == "KnownIntermediate");
                 }
                 catch(Exception)
                 {
@@ -554,10 +554,10 @@ public class AllTests : Test.AllTests
             }
             catch(KnownMostDerived kmd)
             {
-                test(kmd.b.Equals("KnownMostDerived.b"));
-                test(kmd.ki.Equals("KnownMostDerived.ki"));
-                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
+                test(kmd.b == "KnownMostDerived.b");
+                test(kmd.ki == "KnownMostDerived.ki");
+                test(kmd.kmd == "KnownMostDerived.kmd");
+                test(kmd.GetType().FullName == "Test.KnownMostDerived");
             }
             catch(Exception)
             {
@@ -583,10 +583,10 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownMostDerived kmd)
                     {
-                        test(kmd.b.Equals("KnownMostDerived.b"));
-                        test(kmd.ki.Equals("KnownMostDerived.ki"));
-                        test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                        test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                        test(kmd.b == "KnownMostDerived.b");
+                        test(kmd.ki == "KnownMostDerived.ki");
+                        test(kmd.kmd == "KnownMostDerived.kmd");
+                        test(kmd.GetType().Name == "KnownMostDerived");
                     }
                     catch(Exception)
                     {
@@ -609,10 +609,10 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownMostDerived kmd)
                 {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                    test(kmd.b == "KnownMostDerived.b");
+                    test(kmd.ki == "KnownMostDerived.ki");
+                    test(kmd.kmd == "KnownMostDerived.kmd");
+                    test(kmd.GetType().Name == "KnownMostDerived");
                 }
                 catch(Exception)
                 {
@@ -632,9 +632,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownIntermediate ki)
             {
-                test(ki.b.Equals("KnownIntermediate.b"));
-                test(ki.ki.Equals("KnownIntermediate.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                test(ki.b == "KnownIntermediate.b");
+                test(ki.ki == "KnownIntermediate.ki");
+                test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
             catch(Exception)
             {
@@ -660,9 +660,9 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownIntermediate ki)
                     {
-                        test(ki.b.Equals("KnownIntermediate.b"));
-                        test(ki.ki.Equals("KnownIntermediate.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
+                        test(ki.b == "KnownIntermediate.b");
+                        test(ki.ki == "KnownIntermediate.ki");
+                        test(ki.GetType().Name == "KnownIntermediate");
                     }
                     catch(Exception)
                     {
@@ -685,9 +685,9 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("KnownIntermediate.b"));
-                    test(ki.ki.Equals("KnownIntermediate.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    test(ki.b == "KnownIntermediate.b");
+                    test(ki.ki == "KnownIntermediate.ki");
+                    test(ki.GetType().Name == "KnownIntermediate");
                 }
                 catch(Exception)
                 {
@@ -707,10 +707,10 @@ public class AllTests : Test.AllTests
             }
             catch(KnownMostDerived kmd)
             {
-                test(kmd.b.Equals("KnownMostDerived.b"));
-                test(kmd.ki.Equals("KnownMostDerived.ki"));
-                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
+                test(kmd.b == "KnownMostDerived.b");
+                test(kmd.ki == "KnownMostDerived.ki");
+                test(kmd.kmd == "KnownMostDerived.kmd");
+                test(kmd.GetType().FullName == "Test.KnownMostDerived");
             }
             catch(Exception)
             {
@@ -736,10 +736,10 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownMostDerived kmd)
                     {
-                        test(kmd.b.Equals("KnownMostDerived.b"));
-                        test(kmd.ki.Equals("KnownMostDerived.ki"));
-                        test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                        test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                        test(kmd.b == "KnownMostDerived.b");
+                        test(kmd.ki == "KnownMostDerived.ki");
+                        test(kmd.kmd == "KnownMostDerived.kmd");
+                        test(kmd.GetType().Name == "KnownMostDerived");
                     }
                     catch(Exception)
                     {
@@ -762,10 +762,10 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownMostDerived kmd)
                 {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                    test(kmd.b == "KnownMostDerived.b");
+                    test(kmd.ki == "KnownMostDerived.ki");
+                    test(kmd.kmd == "KnownMostDerived.kmd");
+                    test(kmd.GetType().Name == "KnownMostDerived");
                 }
                 catch(Exception)
                 {
@@ -785,10 +785,10 @@ public class AllTests : Test.AllTests
             }
             catch(KnownMostDerived kmd)
             {
-                test(kmd.b.Equals("KnownMostDerived.b"));
-                test(kmd.ki.Equals("KnownMostDerived.ki"));
-                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
+                test(kmd.b == "KnownMostDerived.b");
+                test(kmd.ki == "KnownMostDerived.ki");
+                test(kmd.kmd == "KnownMostDerived.kmd");
+                test(kmd.GetType().FullName == "Test.KnownMostDerived");
             }
             catch(Exception)
             {
@@ -814,10 +814,10 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownMostDerived kmd)
                     {
-                        test(kmd.b.Equals("KnownMostDerived.b"));
-                        test(kmd.ki.Equals("KnownMostDerived.ki"));
-                        test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                        test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                        test(kmd.b == "KnownMostDerived.b");
+                        test(kmd.ki == "KnownMostDerived.ki");
+                        test(kmd.kmd == "KnownMostDerived.kmd");
+                        test(kmd.GetType().Name == "KnownMostDerived");
                     }
                     catch(Exception)
                     {
@@ -840,10 +840,10 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownMostDerived kmd)
                 {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                    test(kmd.b == "KnownMostDerived.b");
+                    test(kmd.ki == "KnownMostDerived.ki");
+                    test(kmd.kmd == "KnownMostDerived.kmd");
+                    test(kmd.GetType().Name == "KnownMostDerived");
                 }
                 catch(Exception)
                 {
@@ -863,9 +863,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownIntermediate ki)
             {
-                test(ki.b.Equals("UnknownMostDerived1.b"));
-                test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                test(ki.b == "UnknownMostDerived1.b");
+                test(ki.ki == "UnknownMostDerived1.ki");
+                test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
             catch(Exception)
             {
@@ -891,9 +891,9 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownIntermediate ki)
                     {
-                        test(ki.b.Equals("UnknownMostDerived1.b"));
-                        test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
+                        test(ki.b == "UnknownMostDerived1.b");
+                        test(ki.ki == "UnknownMostDerived1.ki");
+                        test(ki.GetType().Name == "KnownIntermediate");
                     }
                     catch(Exception)
                     {
@@ -916,9 +916,9 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("UnknownMostDerived1.b"));
-                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    test(ki.b == "UnknownMostDerived1.b");
+                    test(ki.ki == "UnknownMostDerived1.ki");
+                    test(ki.GetType().Name == "KnownIntermediate");
                 }
                 catch(Exception)
                 {
@@ -938,9 +938,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownIntermediate ki)
             {
-                test(ki.b.Equals("UnknownMostDerived1.b"));
-                test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                test(ki.b == "UnknownMostDerived1.b");
+                test(ki.ki == "UnknownMostDerived1.ki");
+                test(ki.GetType().FullName == "Test.KnownIntermediate");
             }
             catch(Exception)
             {
@@ -966,9 +966,9 @@ public class AllTests : Test.AllTests
                     }
                     catch(KnownIntermediate ki)
                     {
-                        test(ki.b.Equals("UnknownMostDerived1.b"));
-                        test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
+                        test(ki.b == "UnknownMostDerived1.b");
+                        test(ki.ki == "UnknownMostDerived1.ki");
+                        test(ki.GetType().Name == "KnownIntermediate");
                     }
                     catch(Exception)
                     {
@@ -991,9 +991,9 @@ public class AllTests : Test.AllTests
                 }
                 catch(KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("UnknownMostDerived1.b"));
-                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    test(ki.b == "UnknownMostDerived1.b");
+                    test(ki.ki == "UnknownMostDerived1.ki");
+                    test(ki.GetType().Name == "KnownIntermediate");
                 }
                 catch(Exception)
                 {
@@ -1013,8 +1013,8 @@ public class AllTests : Test.AllTests
             }
             catch(Base b)
             {
-                test(b.b.Equals("UnknownMostDerived2.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                test(b.b == "UnknownMostDerived2.b");
+                test(b.GetType().FullName == "Test.Base");
             }
             catch(Exception)
             {
@@ -1040,8 +1040,8 @@ public class AllTests : Test.AllTests
                     }
                     catch(Base b)
                     {
-                        test(b.b.Equals("UnknownMostDerived2.b"));
-                        test(b.GetType().Name.Equals("Base"));
+                        test(b.b == "UnknownMostDerived2.b");
+                        test(b.GetType().Name == "Base");
                     }
                     catch(Exception)
                     {
@@ -1064,8 +1064,8 @@ public class AllTests : Test.AllTests
                 }
                 catch(Base b)
                 {
-                    test(b.b.Equals("UnknownMostDerived2.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    test(b.b == "UnknownMostDerived2.b");
+                    test(b.GetType().Name == "Base");
                 }
                 catch(Exception)
                 {
@@ -1127,8 +1127,8 @@ public class AllTests : Test.AllTests
                     Ice.SlicedData slicedData = ex.ice_getSlicedData();
                     test(slicedData != null);
                     test(slicedData.slices.Length == 2);
-                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
-                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                    test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+                    test(slicedData.slices[0].typeId == "::Test::SPreserved2");
                 }
             }
 
@@ -1139,7 +1139,7 @@ public class AllTests : Test.AllTests
             }
             catch(KnownPreserved ex)
             {
-                test(ex.kp.Equals("preserved"));
+                test(ex.kp == "preserved");
                 if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
                 {
                     test(ex.ice_getSlicedData() == null);
@@ -1149,8 +1149,8 @@ public class AllTests : Test.AllTests
                     Ice.SlicedData slicedData = ex.ice_getSlicedData();
                     test(slicedData != null);
                     test(slicedData.slices.Length == 2);
-                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
-                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                    test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+                    test(slicedData.slices[0].typeId == "::Test::SPreserved2");
                 }
             }
 
@@ -1166,9 +1166,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownPreservedDerived ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                test(ex.b == "base");
+                test(ex.kp == "preserved");
+                test(ex.kpd == "derived");
             }
             catch(Ice.OperationNotExistException)
             {
@@ -1185,9 +1185,9 @@ public class AllTests : Test.AllTests
             }
             catch(KnownPreservedDerived ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                test(ex.b == "base");
+                test(ex.kp == "preserved");
+                test(ex.kpd == "derived");
             }
             catch(Ice.OperationNotExistException)
             {
@@ -1204,13 +1204,13 @@ public class AllTests : Test.AllTests
             }
             catch(Preserved2 ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                test(ex.b == "base");
+                test(ex.kp == "preserved");
+                test(ex.kpd == "derived");
                 test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
                 PreservedClass pc = ex.p1 as PreservedClass;
-                test(pc.bc.Equals("bc"));
-                test(pc.pc.Equals("pc"));
+                test(pc.bc == "bc");
+                test(pc.pc == "pc");
                 test(ex.p2 == ex.p1);
             }
             catch(KnownPreservedDerived ex)
@@ -1219,9 +1219,9 @@ public class AllTests : Test.AllTests
                 // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
                 //
                 test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                test(ex.b == "base");
+                test(ex.kp == "preserved");
+                test(ex.kpd == "derived");
             }
             catch(Ice.OperationNotExistException)
             {
@@ -1238,13 +1238,13 @@ public class AllTests : Test.AllTests
             }
             catch(Preserved2 ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                test(ex.b == "base");
+                test(ex.kp == "preserved");
+                test(ex.kpd == "derived");
                 test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
                 PreservedClass pc = ex.p1 as PreservedClass;
-                test(pc.bc.Equals("bc"));
-                test(pc.pc.Equals("pc"));
+                test(pc.bc == "bc");
+                test(pc.pc == "pc");
                 test(ex.p2 == ex.p1);
             }
             catch(KnownPreservedDerived ex)
@@ -1253,9 +1253,9 @@ public class AllTests : Test.AllTests
                 // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
                 //
                 test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                test(ex.b == "base");
+                test(ex.kp == "preserved");
+                test(ex.kpd == "derived");
             }
             catch(Ice.OperationNotExistException)
             {

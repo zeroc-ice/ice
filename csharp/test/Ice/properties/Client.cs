@@ -19,10 +19,10 @@ public class Client : Test.TestHelper
         run(String[] args)
         {
             Ice.Properties properties = communicator().getProperties();
-            test(properties.getProperty("Ice.Trace.Network").Equals("1"));
-            test(properties.getProperty("Ice.Trace.Protocol").Equals("1"));
-            test(properties.getProperty("Config.Path").Equals("./config/中国_client.config"));
-            test(properties.getProperty("Ice.ProgramName").Equals("PropertiesClient"));
+            test(properties.getProperty("Ice.Trace.Network") == "1");
+            test(properties.getProperty("Ice.Trace.Protocol") == "1");
+            test(properties.getProperty("Config.Path") == "./config/中国_client.config");
+            test(properties.getProperty("Ice.ProgramName") == "PropertiesClient");
             test(appName().Equals(properties.getProperty("Ice.ProgramName")));
             return 0;
         }
@@ -35,10 +35,10 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             Ice.Properties properties = Ice.Util.createProperties();
             properties.load("./config/中国_client.config");
-            test(properties.getProperty("Ice.Trace.Network").Equals("1"));
-            test(properties.getProperty("Ice.Trace.Protocol").Equals("1"));
-            test(properties.getProperty("Config.Path").Equals("./config/中国_client.config"));
-            test(properties.getProperty("Ice.ProgramName").Equals("PropertiesClient"));
+            test(properties.getProperty("Ice.Trace.Network") == "1");
+            test(properties.getProperty("Ice.Trace.Protocol") == "1");
+            test(properties.getProperty("Config.Path") == "./config/中国_client.config");
+            test(properties.getProperty("Ice.ProgramName") == "PropertiesClient");
             Console.Out.WriteLine("ok");
             Console.Out.Write("testing load properties from UTF-8 path using Ice::Application... ");
             Console.Out.Flush();
@@ -55,9 +55,9 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             string[] args1 = new string[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
             Ice.Properties properties = Ice.Util.createProperties(ref args1);
-            test(properties.getProperty("Config1").Equals("Config1"));
-            test(properties.getProperty("Config2").Equals("Config2"));
-            test(properties.getProperty("Config3").Equals("Config3"));
+            test(properties.getProperty("Config1") == "Config1");
+            test(properties.getProperty("Config2") == "Config2");
+            test(properties.getProperty("Config3") == "Config3");
             Console.Out.WriteLine("ok");
         }
 

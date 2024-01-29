@@ -47,7 +47,7 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                bool async = args.Any(v => v.Equals("--async"));
+                bool async = args.Any(v => v == "--async");
                 using(var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

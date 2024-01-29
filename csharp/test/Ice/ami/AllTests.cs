@@ -179,8 +179,8 @@ namespace Ice
                     await p.ice_pingAsync();
                     await p.ice_pingAsync(ctx);
 
-                    test(p.ice_idAsync().Result.Equals("::Test::TestIntf"));
-                    test(p.ice_idAsync(ctx).Result.Equals("::Test::TestIntf"));
+                    test(p.ice_idAsync().Result == "::Test::TestIntf");
+                    test(p.ice_idAsync(ctx).Result == "::Test::TestIntf");
 
                     test(p.ice_idsAsync().Result.Length == 2);
                     test(p.ice_idsAsync(ctx).Result.Length == 2);
@@ -232,9 +232,9 @@ namespace Ice
                             await p.ice_pingAsync(ctx);
 
                             var id = await p.ice_idAsync();
-                            test(id.Equals("::Test::TestIntf"));
+                            test(id == "::Test::TestIntf");
                             id = await p.ice_idAsync(ctx);
-                            test(id.Equals("::Test::TestIntf"));
+                            test(id == "::Test::TestIntf");
 
                             var ids = await p.ice_idsAsync();
                             test(ids.Length == 2);
@@ -305,12 +305,12 @@ namespace Ice
 
                     p.ice_idAsync().ContinueWith(previous =>
                         {
-                            test(previous.Result.Equals("::Test::TestIntf"));
+                            test(previous.Result == "::Test::TestIntf");
                         }).Wait();
 
                     p.ice_idAsync(ctx).ContinueWith(previous =>
                         {
-                            test(previous.Result.Equals("::Test::TestIntf"));
+                            test(previous.Result == "::Test::TestIntf");
                         }).Wait();
 
                     p.ice_idsAsync().ContinueWith(previous =>

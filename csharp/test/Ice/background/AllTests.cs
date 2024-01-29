@@ -312,8 +312,8 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
 
-        bool ws = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("test-ws");
-        bool wss = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss");
+        bool ws = communicator.getProperties().getProperty("Ice.Default.Protocol") == "test-ws";
+        bool wss = communicator.getProperties().getProperty("Ice.Default.Protocol") == "test-wss";
         if(!ws && !wss)
         {
             Console.Write("testing buffered transport... ");
@@ -671,8 +671,8 @@ public class AllTests
             configuration.readException(null);
         }
 
-        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
-           !background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss"))
+        if(background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol") != "test-ssl" &&
+           background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol") != "test-wss")
         {
             try
             {

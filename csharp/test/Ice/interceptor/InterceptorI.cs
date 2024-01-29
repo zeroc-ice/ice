@@ -33,15 +33,15 @@ namespace Ice
                 string context;
                 if(current.ctx.TryGetValue("raiseBeforeDispatch", out context))
                 {
-                    if(context.Equals("user"))
+                    if(context == "user")
                     {
                         throw new Test.InvalidInputException();
                     }
-                    else if(context.Equals("notExist"))
+                    else if(context == "notExist")
                     {
                         throw new Ice.ObjectNotExistException();
                     }
-                    else if(context.Equals("system"))
+                    else if(context == "system")
                     {
                         throw new MySystemException();
                     }
@@ -49,7 +49,7 @@ namespace Ice
 
                 lastOperation_ = current.operation;
 
-                if(lastOperation_.Equals("addWithRetry") || lastOperation_.Equals("amdAddWithRetry"))
+                if(lastOperation_ == "addWithRetry" || lastOperation_ == "amdAddWithRetry")
                 {
                     for(int i = 0; i < 10; ++i)
                     {
@@ -75,7 +75,7 @@ namespace Ice
 
                     current.ctx["retry"] = "no";
                 }
-                else if(current.ctx.TryGetValue("retry", out context) && context.Equals("yes"))
+                else if(current.ctx.TryGetValue("retry", out context) && context == "yes")
                 {
                     //
                     // Retry the dispatch to ensure that abandoning the result of the dispatch
@@ -90,15 +90,15 @@ namespace Ice
 
                 if(current.ctx.TryGetValue("raiseAfterDispatch", out context))
                 {
-                    if(context.Equals("user"))
+                    if(context == "user")
                     {
                         throw new Test.InvalidInputException();
                     }
-                    else if(context.Equals("notExist"))
+                    else if(context == "notExist")
                     {
                         throw new Ice.ObjectNotExistException();
                     }
-                    else if(context.Equals("system"))
+                    else if(context == "system")
                     {
                         throw new MySystemException();
                     }

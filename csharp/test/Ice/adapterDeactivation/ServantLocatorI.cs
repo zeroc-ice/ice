@@ -63,14 +63,14 @@ namespace Ice
                     test(!_deactivated);
                 }
 
-                if(current.id.name.Equals("router"))
+                if(current.id.name == "router")
                 {
                     cookie = null;
                     return _router;
                 }
 
                 test(current.id.category.Length == 0);
-                test(current.id.name.Equals("test"));
+                test(current.id.name == "test");
 
                 cookie = new Cookie();
 
@@ -84,13 +84,13 @@ namespace Ice
                     test(!_deactivated);
                 }
 
-                if(current.id.name.Equals("router"))
+                if(current.id.name == "router")
                 {
                     return;
                 }
 
                 Cookie co = (Cookie)cookie;
-                test(co.message().Equals("blahblah"));
+                test(co.message() == "blahblah");
             }
 
             public void deactivate(string category)

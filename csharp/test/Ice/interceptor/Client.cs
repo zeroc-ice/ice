@@ -20,22 +20,22 @@ namespace Ice
                 test(interceptor.getLastOperation() == null);
                 test(!interceptor.getLastStatus());
                 prx.ice_ping();
-                test(interceptor.getLastOperation().Equals("ice_ping"));
+                test(interceptor.getLastOperation() == "ice_ping");
                 test(!interceptor.getLastStatus());
                 String typeId = prx.ice_id();
-                test(interceptor.getLastOperation().Equals("ice_id"));
+                test(interceptor.getLastOperation() == "ice_id");
                 test(!interceptor.getLastStatus());
                 test(prx.ice_isA(typeId));
-                test(interceptor.getLastOperation().Equals("ice_isA"));
+                test(interceptor.getLastOperation() == "ice_isA");
                 test(!interceptor.getLastStatus());
                 test(prx.add(33, 12) == 45);
-                test(interceptor.getLastOperation().Equals("add"));
+                test(interceptor.getLastOperation() == "add");
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
                 output.Write("testing retry... ");
                 output.Flush();
                 test(prx.addWithRetry(33, 12) == 45);
-                test(interceptor.getLastOperation().Equals("addWithRetry"));
+                test(interceptor.getLastOperation() == "addWithRetry");
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
                 output.Write("testing user exception... ");
@@ -49,7 +49,7 @@ namespace Ice
                 {
                     // expected
                 }
-                test(interceptor.getLastOperation().Equals("badAdd"));
+                test(interceptor.getLastOperation() == "badAdd");
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
                 output.Write("testing ONE... ");
@@ -64,7 +64,7 @@ namespace Ice
                 {
                     // expected
                 }
-                test(interceptor.getLastOperation().Equals("notExistAdd"));
+                test(interceptor.getLastOperation() == "notExistAdd");
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
                 output.Write("testing system exception... ");
@@ -87,7 +87,7 @@ namespace Ice
                 {
                     test(false);
                 }
-                test(interceptor.getLastOperation().Equals("badSystemAdd"));
+                test(interceptor.getLastOperation() == "badSystemAdd");
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
 
@@ -105,14 +105,14 @@ namespace Ice
                 test(interceptor.getLastOperation() == null);
                 test(!interceptor.getLastStatus());
                 test(prx.amdAdd(33, 12) == 45);
-                test(interceptor.getLastOperation().Equals("amdAdd"));
+                test(interceptor.getLastOperation() == "amdAdd");
                 test(interceptor.getLastStatus());
                 output.WriteLine("ok");
 
                 output.Write("testing retry... ");
                 output.Flush();
                 test(prx.amdAddWithRetry(33, 12) == 45);
-                test(interceptor.getLastOperation().Equals("amdAddWithRetry"));
+                test(interceptor.getLastOperation() == "amdAddWithRetry");
                 test(interceptor.getLastStatus());
 
                 {
@@ -121,7 +121,7 @@ namespace Ice
                     for(int i = 0; i < 10; ++i)
                     {
                         test(prx.amdAdd(33, 12, ctx) == 45);
-                        test(interceptor.getLastOperation().Equals("amdAdd"));
+                        test(interceptor.getLastOperation() == "amdAdd");
                         test(interceptor.getLastStatus());
                     }
                 }
@@ -138,7 +138,7 @@ namespace Ice
                 {
                     // expected
                 }
-                test(interceptor.getLastOperation().Equals("amdBadAdd"));
+                test(interceptor.getLastOperation() == "amdBadAdd");
                 test(interceptor.getLastStatus());
                 Console.WriteLine("ok");
 
@@ -154,7 +154,7 @@ namespace Ice
                 {
                     // expected
                 }
-                test(interceptor.getLastOperation().Equals("amdNotExistAdd"));
+                test(interceptor.getLastOperation() == "amdNotExistAdd");
                 test(interceptor.getLastStatus());
                 output.WriteLine("ok");
 
@@ -178,7 +178,7 @@ namespace Ice
                 {
                     test(false);
                 }
-                test(interceptor.getLastOperation().Equals("amdBadSystemAdd"));
+                test(interceptor.getLastOperation() == "amdBadSystemAdd");
                 test(interceptor.getLastStatus());
                 output.WriteLine("ok");
 
@@ -250,19 +250,19 @@ namespace Ice
                     }
                     catch(Ice.UnknownUserException)
                     {
-                        test(e.Item2.Equals("user"));
+                        test(e.Item2 == "user");
                     }
                     catch(Ice.ObjectNotExistException)
                     {
-                        test(e.Item2.Equals("notExist"));
+                        test(e.Item2 == "notExist");
                     }
                     catch(Ice.UnknownException)
                     {
-                        test(e.Item2.Equals("system")); // non-collocated
+                        test(e.Item2 == "system"); // non-collocated
                     }
                     catch(MySystemException)
                     {
-                        test(e.Item2.Equals("system")); // collocated
+                        test(e.Item2 == "system"); // collocated
                     }
                     {
                         Ice.ObjectPrx batch = prx.ice_batchOneway();

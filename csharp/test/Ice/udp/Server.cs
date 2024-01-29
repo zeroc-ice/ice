@@ -50,7 +50,7 @@ namespace Ice
                     //
                     // Use loopback to prevent other machines to answer.
                     //
-                    if(properties.getProperty("Ice.IPv6").Equals("1"))
+                    if(properties.getProperty("Ice.IPv6") == "1")
                     {
                         endpoint.Append("udp -h \"ff15::1:1\"");
                         if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)

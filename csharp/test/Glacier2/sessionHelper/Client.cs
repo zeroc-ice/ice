@@ -296,7 +296,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    test(!session.categoryForClient().Equals(""));
+                    test(session.categoryForClient() != "");
                 }
                 catch(Glacier2.SessionNotExistException)
                 {
@@ -352,7 +352,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    test(!session.categoryForClient().Equals(""));
+                    test(session.categoryForClient() != "");
                     test(false);
                 }
                 catch(Glacier2.SessionNotExistException)
