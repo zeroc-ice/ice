@@ -404,7 +404,7 @@ public:
 
     const std::string id;
     const Ice::Int compactId;
-    const bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
+    const bool isBase; // Is this the ClassInfo for Value?
     const bool isLocal;
     const bool preserve;
     const bool interface;
