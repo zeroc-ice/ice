@@ -19,9 +19,6 @@ interface RemoteCommunicator
 {
     TestIntf* getObject();
 
-    int getThreadHookStartCount();
-    int getThreadHookStopCount();
-
     int getThreadStartCount();
     int getThreadStopCount();
 

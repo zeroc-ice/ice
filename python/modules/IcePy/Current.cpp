@@ -175,13 +175,13 @@ currentGetter(CurrentObject* self, void* closure)
             const char* enumerator = 0;
             switch(self->current->mode)
             {
-            case Ice::Normal:
+            case Ice::OperationMode::Normal:
                 enumerator = "Normal";
                 break;
-            case Ice::Nonmutating:
+            case Ice::OperationMode::Nonmutating:
                 enumerator = "Nonmutating";
                 break;
-            case Ice::Idempotent:
+            case Ice::OperationMode::Idempotent:
                 enumerator = "Idempotent";
                 break;
             }

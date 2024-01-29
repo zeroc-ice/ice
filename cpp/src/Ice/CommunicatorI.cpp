@@ -13,12 +13,10 @@
 #include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/ThreadPool.h>
 #include <Ice/Router.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/UUID.h>
-#ifdef ICE_SWIFT
-#   include <Ice/ThreadPool.h>
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -376,6 +374,12 @@ Ice::CommunicatorI::getServerDispatchQueue() const
 }
 
 #endif
+
+void
+Ice::CommunicatorI::postToClientThreadPool(function<void()> call)
+{
+    _instance->clientThreadPool()->dispatch(call);
+}
 
 namespace
 {

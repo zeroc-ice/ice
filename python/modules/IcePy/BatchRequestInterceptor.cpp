@@ -107,7 +107,7 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
     assert(self->request);
     if(!self->proxy)
     {
-        Ice::ObjectPrx proxy;
+        shared_ptr<Ice::ObjectPrx> proxy;
         try
         {
             proxy = self->request->getProxy();

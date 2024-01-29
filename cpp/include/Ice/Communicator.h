@@ -436,6 +436,8 @@ public:
      */
     virtual dispatch_queue_t getServerDispatchQueue() const = 0;
 #endif
+
+    virtual void postToClientThreadPool(::std::function<void()> call) = 0;
 };
 
 }

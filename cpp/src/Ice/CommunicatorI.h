@@ -13,6 +13,8 @@
 #include <Ice/CommunicatorAsync.h>
 #include <Ice/OutgoingAsync.h>
 
+#include <functional>
+
 namespace IceInternal
 {
 
@@ -97,6 +99,8 @@ public:
     virtual dispatch_queue_t getClientDispatchQueue() const;
     virtual dispatch_queue_t getServerDispatchQueue() const;
 #endif
+
+    virtual void postToClientThreadPool(::std::function<void()> call);
 
 #ifdef ICE_CPP11_MAPPING
     virtual ::std::function<void()>

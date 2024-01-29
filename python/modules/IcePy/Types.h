@@ -14,24 +14,25 @@
 #include <Ice/SlicedDataF.h>
 #include <IceUtil/OutputUtil.h>
 
+#include <memory>
 #include <set>
 
 namespace IcePy
 {
 
 class Buffer;
-typedef IceUtil::Handle<Buffer> BufferPtr;
+using BufferPtr = std::shared_ptr<Buffer>;
 
 class ExceptionInfo;
-typedef IceUtil::Handle<ExceptionInfo> ExceptionInfoPtr;
-typedef std::vector<ExceptionInfoPtr> ExceptionInfoList;
+using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
+using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
 
 class ClassInfo;
-typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
-typedef std::vector<ClassInfoPtr> ClassInfoList;
+using ClassInfoPtr = std::shared_ptr<ClassInfo>;
+using ClassInfoList = std::vector<ClassInfoPtr>;
 
 class ValueInfo;
-typedef IceUtil::Handle<ValueInfo> ValueInfoPtr;
+using ValueInfoPtr = std::shared_ptr<ValueInfo>;
 
 //
 // This class is raised as an exception when object marshaling needs to be aborted.
@@ -40,7 +41,7 @@ class AbortMarshaling
 {
 };
 
-typedef std::map<PyObject*, std::shared_ptr<Ice::Value>> ObjectMap;
+using ObjectMap = std::map<PyObject*, std::shared_ptr<Ice::Value>>;
 
 class ValueReader;
 using ValueReaderPtr = std::shared_ptr<ValueReader>;
@@ -53,7 +54,7 @@ using ValueReaderPtr = std::shared_ptr<ValueReader>;
 // returns. For class instances, however, the callback may not be invoked until
 // the stream's finished() function is called.
 //
-class UnmarshalCallback : public IceUtil::Shared
+class UnmarshalCallback
 {
 public:
 
@@ -66,13 +67,13 @@ public:
     //
     virtual void unmarshaled(PyObject*, PyObject*, void*) = 0;
 };
-typedef IceUtil::Handle<UnmarshalCallback> UnmarshalCallbackPtr;
+using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback>;
 
 //
 // ReadValueCallback retains all of the information necessary to store an unmarshaled
 // Slice value as a Python object.
 //
-class ReadValueCallback : public IceUtil::Shared
+class ReadValueCallback
 {
 public:
 
@@ -88,7 +89,7 @@ private:
     PyObject* _target;
     void* _closure;
 };
-typedef IceUtil::Handle<ReadValueCallback> ReadValueCallbackPtr;
+using ReadValueCallbackPtr = std::shared_ptr<ReadValueCallback>;
 
 //
 // This class assists during unmarshaling of Slice classes and exceptions.
@@ -140,6 +141,7 @@ class TypeInfo : public UnmarshalCallback
 {
 public:
 
+    TypeInfo();
     virtual std::string getId() const = 0;
 
     virtual bool validate(PyObject*) = 0;
@@ -153,13 +155,6 @@ public:
     virtual void unmarshaled(PyObject*, PyObject*, void*); // Default implementation is assert(false).
 
     virtual void destroy();
-
-protected:
-
-    TypeInfo();
-
-public:
-
     //
     // The marshal and unmarshal functions can raise Ice exceptions, and may raise
     // AbortMarshaling if an error occurs.
@@ -170,7 +165,7 @@ public:
 
     virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
 };
-typedef IceUtil::Handle<TypeInfo> TypeInfoPtr;
+using TypeInfoPtr = std::shared_ptr<TypeInfo>;
 
 //
 // Primitive type information.
@@ -209,20 +204,20 @@ public:
 
     const Kind kind;
 };
-typedef IceUtil::Handle<PrimitiveInfo> PrimitiveInfoPtr;
+using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
 
 //
 // Enum information.
 //
-typedef std::map<Ice::Int, PyObjectHandle> EnumeratorMap;
+using EnumeratorMap = std::map<Ice::Int, PyObjectHandle>;
 
-class EnumInfo : public TypeInfo
+class EnumInfo final : public TypeInfo
 {
 public:
 
     EnumInfo(const std::string&, PyObject*, PyObject*);
 
-    virtual std::string getId() const;
+    std::string getId() const final;
 
     virtual bool validate(PyObject*);
 
@@ -246,7 +241,7 @@ public:
     const Ice::Int maxValue;
     const EnumeratorMap enumerators;
 };
-typedef IceUtil::Handle<EnumInfo> EnumInfoPtr;
+using EnumInfoPtr = std::shared_ptr<EnumInfo>;
 
 class DataMember : public UnmarshalCallback
 {
@@ -260,8 +255,8 @@ public:
     bool optional;
     int tag;
 };
-typedef IceUtil::Handle<DataMember> DataMemberPtr;
-typedef std::vector<DataMemberPtr> DataMemberList;
+using DataMemberPtr = std::shared_ptr<DataMember>;
+using DataMemberList = std::vector<DataMemberPtr>;
 
 //
 // Struct information.
@@ -302,7 +297,7 @@ private:
     int _wireSize;
     PyObjectHandle _nullMarshalValue;
 };
-typedef IceUtil::Handle<StructInfo> StructInfoPtr;
+using StructInfoPtr = std::shared_ptr<StructInfo>;
 
 //
 // Sequence information.
@@ -363,14 +358,14 @@ private:
         Type type;
         PyObject* factory;
     };
-    typedef IceUtil::Handle<SequenceMapping> SequenceMappingPtr;
+    using SequenceMappingPtr = std::shared_ptr<SequenceMapping>;
 
     PyObject* getSequence(const PrimitiveInfoPtr&, PyObject*);
     void marshalPrimitiveSequence(const PrimitiveInfoPtr&, PyObject*, Ice::OutputStream*);
     void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
                                     PyObject*, void*, const SequenceMappingPtr&);
 
-    PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType, bool);
+    PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType);
 
 public:
 
@@ -378,24 +373,7 @@ public:
     const SequenceMappingPtr mapping;
     const TypeInfoPtr elementType;
 };
-typedef IceUtil::Handle<SequenceInfo> SequenceInfoPtr;
-
-class Buffer : public IceUtil::Shared
-{
-public:
-
-    Buffer(const char*, Py_ssize_t, SequenceInfo::BuiltinType);
-    ~Buffer();
-    const char* data() const;
-    Py_ssize_t size() const;
-    SequenceInfo::BuiltinType type();
-
-private:
-
-    const char* _data;
-    const Py_ssize_t _size;
-    const SequenceInfo::BuiltinType _type;
-};
+using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
 //
 // Custom information.
@@ -425,12 +403,12 @@ public:
     const std::string id;
     PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
 };
-typedef IceUtil::Handle<CustomInfo> CustomInfoPtr;
+using CustomInfoPtr = std::shared_ptr<CustomInfo>;
 
 //
 // Dictionary information.
 //
-class DictionaryInfo : public TypeInfo
+class DictionaryInfo : public TypeInfo, public std::enable_shared_from_this<DictionaryInfo>
 {
 public:
 
@@ -463,7 +441,7 @@ public:
 
         PyObjectHandle key;
     };
-    typedef IceUtil::Handle<KeyCallback> KeyCallbackPtr;
+    using KeyCallbackPtr = std::shared_ptr<KeyCallback>;
 
     std::string id;
     TypeInfoPtr keyType;
@@ -474,15 +452,15 @@ private:
     bool _variableLength;
     int _wireSize;
 };
-typedef IceUtil::Handle<DictionaryInfo> DictionaryInfoPtr;
+using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
+using TypeInfoList = std::vector<TypeInfoPtr>;
 
-typedef std::vector<TypeInfoPtr> TypeInfoList;
-
-class ClassInfo : public TypeInfo
+class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<ClassInfo>
 {
 public:
 
     ClassInfo(const std::string&);
+    void init();
 
     void define(PyObject*, PyObject*, PyObject*);
 
@@ -516,11 +494,12 @@ public:
 // Value type information
 //
 
-class ValueInfo : public TypeInfo
+class ValueInfo final : public TypeInfo, public std::enable_shared_from_this<ValueInfo>
 {
 public:
 
     ValueInfo(const std::string&);
+    void init();
 
     void define(PyObject*, int, bool, bool, PyObject*, PyObject*);
 
@@ -559,11 +538,12 @@ public:
 //
 // Proxy information.
 //
-class ProxyInfo : public TypeInfo
+class ProxyInfo final : public TypeInfo, public std::enable_shared_from_this<ProxyInfo>
 {
 public:
 
     ProxyInfo(const std::string&);
+    void init();
 
     void define(PyObject*);
 
@@ -585,12 +565,12 @@ public:
     PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
     PyObject* typeObj; // Borrowed reference - the "_t_XXX" variable owns the reference.
 };
-typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
+using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
 
 //
 // Exception information.
 //
-class ExceptionInfo : public IceUtil::Shared
+class ExceptionInfo : public std::enable_shared_from_this<ExceptionInfo>
 {
 public:
 
@@ -679,9 +659,7 @@ public:
     ExceptionWriter(const ExceptionWriter&) = default;
 
     virtual std::string ice_id() const;
-#ifndef ICE_CPP11_MAPPING
-    virtual Ice::UserException* ice_clone() const;
-#endif
+    virtual Ice::UserException* ice_cloneImpl() const;
     virtual void ice_throw() const;
 
     virtual void _write(Ice::OutputStream*) const;
@@ -714,9 +692,7 @@ public:
     ExceptionReader(const ExceptionReader&) = default;
 
     virtual std::string ice_id() const;
-#ifndef ICE_CPP11_MAPPING
-    virtual Ice::UserException* ice_clone() const;
-#endif
+    virtual Ice::UserException* ice_cloneImpl() const;
     virtual void ice_throw() const;
 
     virtual void _write(Ice::OutputStream*) const;
@@ -740,12 +716,7 @@ private:
     Ice::SlicedDataPtr _slicedData;
 };
 
-class IdResolver : public Ice::CompactIdResolver
-{
-public:
-
-    virtual ::std::string resolve(Ice::Int) const;
-};
+std::string resolveCompactId(Ice::Int id);
 
 ClassInfoPtr lookupClassInfo(const std::string&);
 ValueInfoPtr lookupValueInfo(const std::string&);

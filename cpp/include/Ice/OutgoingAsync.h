@@ -102,8 +102,6 @@ public:
     virtual void _readEmptyParams();
     virtual void _readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&);
     virtual void _throwUserException();
-
-    virtual void _scheduleCallback(const CallbackPtr&);
 #endif
 
     void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, Ice::Int requestId)

@@ -81,7 +81,7 @@ stringToEncodingVersion = IcePy.stringToEncodingVersion
 encodingVersionToString = IcePy.encodingVersionToString
 generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
-AsyncResult = IcePy.AsyncResult
+AsyncInvocationContext = IcePy.AsyncInvocationContext
 Unset = IcePy.Unset
 
 from Ice.IceFuture import FutureBase, wrap_future  # noqa
@@ -136,6 +136,7 @@ class Future(FutureBase):
         with self._condition:
             if not self._wait(timeout, lambda: self._state == Future.StateRunning):
                 raise TimeoutException()
+
             if self._state == Future.StateCancelled:
                 raise InvocationCanceledException()
             elif self._exception:
@@ -216,17 +217,17 @@ class Future(FutureBase):
 
 
 class InvocationFuture(Future):
-    def __init__(self, operation, asyncResult):
+    def __init__(self, operation, asyncInvocationContext):
         Future.__init__(self)
-        assert asyncResult
+        assert asyncInvocationContext
         self._operation = operation
-        self._asyncResult = asyncResult  # May be None for a batch invocation.
+        self._asyncInvocationContext = asyncInvocationContext
         self._sent = False
         self._sentSynchronously = False
         self._sentCallbacks = []
 
     def cancel(self):
-        self._asyncResult.cancel()
+        self._asyncInvocationContext.cancel()
         return Future.cancel(self)
 
     def add_done_callback_async(self, fn):
@@ -240,7 +241,7 @@ class InvocationFuture(Future):
             if self._state == Future.StateRunning:
                 self._doneCallbacks.append(fn)
                 return
-        self._asyncResult.callLater(callback)
+        self._asyncInvocationContext.callLater(callback)
 
     def is_sent(self):
         with self._condition:
@@ -268,12 +269,13 @@ class InvocationFuture(Future):
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
-        self._asyncResult.callLater(callback)
+        self._asyncInvocationContext.callLater(callback)
 
     def sent(self, timeout=None):
         with self._condition:
             if not self._wait(timeout, lambda: not self._sent):
                 raise TimeoutException()
+
             if self._state == Future.StateCancelled:
                 raise InvocationCanceledException()
             elif self._exception:
@@ -301,16 +303,6 @@ class InvocationFuture(Future):
 
     def operation(self):
         return self._operation
-
-    def proxy(self):
-        return self._asyncResult.getProxy()
-
-    def connection(self):
-        return self._asyncResult.getConnection()
-
-    def communicator(self):
-        return self._asyncResult.getCommunicator()
-
     def _warn(self, msg):
         communicator = self.communicator()
         if communicator:
@@ -853,23 +845,6 @@ WSConnectionInfo = IcePy.WSConnectionInfo
 SSLConnectionInfo = IcePy.SSLConnectionInfo
 
 
-class ThreadNotification(object):
-    """Base class for thread notification callbacks. A subclass must
-    define the start and stop methods."""
-
-    def __init__(self):
-        pass
-
-    def start():
-        """Invoked in the context of a thread created by the Ice run time."""
-        pass
-
-    def stop():
-        """Invoked in the context of an Ice run-time thread that is about
-        to terminate."""
-        pass
-
-
 class BatchRequestInterceptor(object):
     """Base class for batch request interceptor. A subclass must
     define the enqueue method."""
@@ -915,7 +890,6 @@ class InitializationData(object):
     def __init__(self):
         self.properties = None
         self.logger = None
-        self.threadHook = None  # Deprecated.
         self.threadStart = None
         self.threadStop = None
         self.dispatcher = None
