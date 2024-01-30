@@ -478,7 +478,8 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
             }
             catch(const Ice::Exception& ex)
             {
-                self->holdException = ex.ice_clone();
+                // Clone the exception and take ownership of the object.
+                self->holdException = ex.ice_clone().release();
             }
         }
 
@@ -585,7 +586,8 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
             }
             catch(const Ice::Exception& ex)
             {
-                self->deactivateException = ex.ice_clone();
+                // Clone the exception and take ownership of the object.
+                self->deactivateException = ex.ice_clone().release();
             }
         }
 
@@ -683,7 +685,7 @@ adapterAdd(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->add(wrapper, ident);
@@ -731,7 +733,7 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->addFacet(wrapper, ident, facet);
@@ -764,7 +766,7 @@ adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->addWithUUID(wrapper);
@@ -804,7 +806,7 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->addFacetWithUUID(wrapper, facet);
@@ -1199,7 +1201,7 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx prx = getProxy(proxy);
+    shared_ptr<Ice::ObjectPrx> prx = getProxy(proxy);
 
     assert(self->adapter);
     shared_ptr<Ice::Object> obj;
@@ -1403,7 +1405,7 @@ adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->createProxy(ident);
@@ -1437,7 +1439,7 @@ adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->createDirectProxy(ident);
@@ -1471,7 +1473,7 @@ adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->createIndirectProxy(ident);
@@ -1497,13 +1499,13 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "setLocator", "loc", proxy, "Ice.LocatorPrx"))
     {
         return 0;
     }
 
-    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(proxy);
+    shared_ptr<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
 
     assert(self->adapter);
     try
@@ -1528,7 +1530,7 @@ static PyObject*
 adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
-    Ice::LocatorPrx locator;
+    shared_ptr<Ice::LocatorPrx> locator;
     try
     {
         locator = (*self->adapter)->getLocator();
@@ -1672,6 +1674,11 @@ adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->setPublishedEndpoints(seq);
+    }
+    catch(const invalid_argument& ex)
+    {
+        PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
+        return 0;
     }
     catch(const Ice::Exception& ex)
     {

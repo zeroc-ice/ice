@@ -51,7 +51,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
@@ -65,5 +65,4 @@ jobs:
         timeout-minutes: 90
         with:
           # See https://github.com/zeroc-ice/ice/issues/1653
-          # Remove --filter csharp/Ice/binding to test when https://github.com/zeroc-ice/ice/issues/1673 is fixed
-          flags: "--rfilter IceGrid/replication --rfilter csharp/Ice/binding"
+          flags: "--rfilter IceGrid/replication"

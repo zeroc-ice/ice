@@ -39,7 +39,7 @@ using namespace IcePy;
 
 static unsigned long _mainThreadId;
 
-typedef map<Ice::CommunicatorPtr, PyObject*> CommunicatorMap;
+using CommunicatorMap = map<Ice::CommunicatorPtr, PyObject*>;
 static CommunicatorMap _communicatorMap;
 
 namespace IcePy
@@ -196,11 +196,10 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     try
     {
-        if(initData)
+        if (initData)
         {
             PyObjectHandle properties = getAttr(initData, "properties", false);
             PyObjectHandle logger = getAttr(initData, "logger", false);
-            PyObjectHandle threadHook = getAttr(initData, "threadHook", false);
             PyObjectHandle threadStart = getAttr(initData, "threadStart", false);
             PyObjectHandle threadStop = getAttr(initData, "threadStop", false);
             PyObjectHandle batchRequestInterceptor = getAttr(initData, "batchRequestInterceptor", false);
@@ -218,23 +217,33 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
             if(logger.get())
             {
-                data.logger = new LoggerWrapper(logger.get());
+                data.logger = make_shared<LoggerWrapper>(logger.get());
             }
 
-            if(threadHook.get() || threadStart.get() || threadStop.get())
+            if(threadStart.get() || threadStop.get())
             {
-                data.threadHook = new ThreadHook(threadHook.get(), threadStart.get(), threadStop.get());
+                auto threadHook = make_shared<ThreadHook>(threadStart.get(), threadStop.get());
+                data.threadStart = [threadHook]() { threadHook->start(); };
+                data.threadStop = [threadHook]() { threadHook->stop(); };
             }
 
-            if(dispatcher.get())
+            if (dispatcher.get())
             {
-                dispatcherWrapper = new Dispatcher(dispatcher.get());
-                data.dispatcher = dispatcherWrapper;
+                dispatcherWrapper = make_shared<Dispatcher>(dispatcher.get());
+                data.dispatcher =
+                    [dispatcherWrapper] (function<void()> call, const shared_ptr<Ice::Connection>& connection)
+                    {
+                        dispatcherWrapper->dispatch(call, connection);
+                    };
             }
 
-            if(batchRequestInterceptor.get())
+            if (batchRequestInterceptor.get())
             {
-                data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
+                auto batchRequestInterceptorWrapper = make_shared<BatchRequestInterceptorWrapper>(batchRequestInterceptor.get());
+                data.batchRequestInterceptor = [batchRequestInterceptorWrapper](const Ice::BatchRequest& req, int count, int size)
+                {
+                    batchRequestInterceptorWrapper->enqueue(req, count, size);
+                };
             }
         }
 
@@ -277,7 +286,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
     argv[argc] = 0;
 
-    data.compactIdResolver = new IdResolver;
+    data.compactIdResolver = resolveCompactId;
 
     // Always accept cycles in Python
     data.properties->setProperty("Ice.AcceptClassCycles", "1");
@@ -328,12 +337,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     delete[] argv;
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
-
-    CommunicatorMap::iterator p = _communicatorMap.find(communicator);
-    if(p != _communicatorMap.end())
-    {
-        _communicatorMap.erase(p);
-    }
     _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<PyObject*>(self)));
 
     if(dispatcherWrapper)
@@ -392,9 +395,9 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 
     vfm->destroy();
 
-    if(self->dispatcher)
+    if (self->dispatcher)
     {
-        (*self->dispatcher)->setCommunicator(0); // Break cyclic reference.
+        (*self->dispatcher)->setCommunicator(nullptr); // Break cyclic reference.
     }
 
     //
@@ -493,7 +496,8 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
             }
             catch(const Ice::Exception& ex)
             {
-                self->shutdownException = ex.ice_clone();
+                // Clone the exception and take ownership of the object.
+                self->shutdownException = ex.ice_clone().release();
             }
         }
 
@@ -561,7 +565,7 @@ communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
     }
 
     assert(self->communicator);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->stringToProxy(str);
@@ -592,7 +596,7 @@ communicatorProxyToString(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     if(!getProxyArg(obj, "proxyToString", "obj", proxy))
     {
         return 0;
@@ -633,7 +637,7 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
     }
 
     assert(self->communicator);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->propertyToProxy(str);
@@ -669,7 +673,7 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx proxy = getProxy(proxyObj);
+    shared_ptr<Ice::ObjectPrx> proxy = getProxy(proxyObj);
     string str;
     if(!getStringArg(strObj, "property", str))
     {
@@ -787,39 +791,48 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
 
     PyObjectHandle v = getAttr(compressBatch, "_value", false);
     assert(v.get());
-    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
+    Ice::CompressBatch compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
     assert(self->communicator);
     const string op = "flushBatchRequests";
 
-    FlushAsyncCallbackPtr d = new FlushAsyncCallback(op);
-    Ice::Callback_Communicator_flushBatchRequestsPtr callback =
-        Ice::newCallback_Communicator_flushBatchRequests(d, &FlushAsyncCallback::exception, &FlushAsyncCallback::sent);
-
-    Ice::AsyncResultPtr result;
-
+    auto callback = make_shared<FlushAsyncCallback>(op);
+    function<void()> cancel;
     try
     {
-        result = (*self->communicator)->begin_flushBatchRequests(cb, callback);
+        cancel = (*self->communicator)->flushBatchRequestsAsync(
+            compress,
+            [callback](exception_ptr exptr)
+            {
+                try
+                {
+                    rethrow_exception(exptr);
+                }
+                catch (const Ice::Exception& ex)
+                {
+                    callback->exception(ex);
+                }
+            },
+            [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    PyObjectHandle asyncResultObj = createAsyncResult(result, 0, 0, self->wrapper);
-    if(!asyncResultObj.get())
+    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
+    if (!asyncInvocationContextObj.get())
     {
         return 0;
     }
 
-    PyObjectHandle future = createFuture(op, asyncResultObj.get());
-    if(!future.get())
+    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
+    if (!future.get())
     {
         return 0;
     }
-    d->setFuture(future.get());
+    callback->setFuture(future.get());
     return future.release();
 }
 
@@ -858,7 +871,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     }
 
     assert(self->communicator);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->createAdmin(oa, identity);
@@ -880,7 +893,7 @@ static PyObject*
 communicatorGetAdmin(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->getAdmin();
@@ -975,7 +988,7 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
                 return wrapper->getObject();
             }
 
-            Ice::NativePropertiesAdminPtr props = Ice::NativePropertiesAdminPtr::dynamicCast(obj);
+            Ice::NativePropertiesAdminPtr props = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(obj);
             if(props)
             {
                 return createNativePropertiesAdmin(props);
@@ -1035,7 +1048,7 @@ communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
         }
         else
         {
-            Ice::NativePropertiesAdminPtr props = Ice::NativePropertiesAdminPtr::dynamicCast(p->second);
+            Ice::NativePropertiesAdminPtr props = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(p->second);
             if(props)
             {
                 obj = createNativePropertiesAdmin(props);
@@ -1172,7 +1185,7 @@ communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
     // return it directly. Otherwise, we create a Python object
     // that delegates to the C++ object.
     //
-    LoggerWrapperPtr wrapper = LoggerWrapperPtr::dynamicCast(logger);
+    LoggerWrapperPtr wrapper = dynamic_pointer_cast<LoggerWrapper>(logger);
     if(wrapper)
     {
         PyObject* obj = wrapper->getObject();
@@ -1325,13 +1338,13 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
         return 0;
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "createObjectAdapterWithRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
         return 0;
     }
 
-    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(proxy);
+    shared_ptr<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
 
     assert(self->communicator);
     Ice::ObjectAdapterPtr adapter;
@@ -1368,18 +1381,18 @@ static PyObject*
 communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    Ice::RouterPrx router;
+    shared_ptr<Ice::RouterPrx> router;
     try
     {
         router = (*self->communicator)->getDefaultRouter();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    if(!router)
+    if (!router)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1402,13 +1415,13 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "setDefaultRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
         return 0;
     }
 
-    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(proxy);
+    shared_ptr<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
 
     assert(self->communicator);
     try
@@ -1432,7 +1445,7 @@ static PyObject*
 communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    Ice::LocatorPrx locator;
+    shared_ptr<Ice::LocatorPrx> locator;
     try
     {
         locator = (*self->communicator)->getDefaultLocator();
@@ -1466,13 +1479,13 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "setDefaultLocator", "loc", proxy, "Ice.LocatorPrx"))
     {
         return 0;
     }
 
-    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(proxy);
+    shared_ptr<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
 
     assert(self->communicator);
     try
@@ -1691,7 +1704,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
         return 0;
     }
 
-    Ice::ToStringMode toStringMode = Ice::Unicode;
+    Ice::ToStringMode toStringMode = Ice::ToStringMode::Unicode;
     if(mode != Py_None && PyObject_HasAttrString(mode, STRCAST("value")))
     {
         PyObjectHandle modeValue = getAttr(mode, "value", true);

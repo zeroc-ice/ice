@@ -137,8 +137,6 @@ public:
         virtual void run() = 0;
     };
     typedef IceUtil::Handle<Callback> CallbackPtr;
-
-    virtual void _scheduleCallback(const CallbackPtr&) = 0;
     /// \endcond
 
 protected:

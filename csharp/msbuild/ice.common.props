@@ -23,7 +23,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-    <RollForward>LatestMajor</RollForward>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
 
   <!-- Import Ice version settings -->

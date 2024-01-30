@@ -31,7 +31,7 @@ namespace IcePy
 struct ProxyObject
 {
     PyObject_HEAD
-    Ice::ObjectPrx* proxy;
+    shared_ptr<Ice::ObjectPrx>* proxy;
     Ice::CommunicatorPtr* communicator;
 };
 
@@ -41,7 +41,7 @@ struct ProxyObject
 // Proxy implementation.
 //
 static ProxyObject*
-allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
+allocateProxy(const shared_ptr<Ice::ObjectPrx>& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
 {
     PyTypeObject* typeObj = reinterpret_cast<PyTypeObject*>(type);
     ProxyObject* p = reinterpret_cast<ProxyObject*>(typeObj->tp_alloc(typeObj, 0));
@@ -60,7 +60,7 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
     //    p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimized(false));
     //}
     //
-    p->proxy = new Ice::ObjectPrx(proxy);
+    p->proxy = new shared_ptr<Ice::ObjectPrx>(proxy);
     p->communicator = new Ice::CommunicatorPtr(communicator);
 
     return p;
@@ -102,22 +102,22 @@ proxyCompare(ProxyObject* p1, PyObject* other, int op)
         switch(op)
         {
         case Py_EQ:
-            result = *p1->proxy == *p2->proxy;
+            result = Ice::targetEqualTo(*p1->proxy, *p2->proxy);
             break;
         case Py_NE:
-            result = *p1->proxy != *p2->proxy;
+            result = !Ice::targetEqualTo(*p1->proxy, *p2->proxy);
             break;
         case Py_LE:
-            result = *p1->proxy <= *p2->proxy;
+            result = Ice::targetLessEqual(*p1->proxy, *p2->proxy);
             break;
         case Py_GE:
-            result = *p1->proxy >= *p2->proxy;
+            result = Ice::targetGreaterEqual(*p1->proxy, *p2->proxy);
             break;
         case Py_LT:
-            result = *p1->proxy < *p2->proxy;
+            result = Ice::targetLess(*p1->proxy, *p2->proxy);
             break;
         case Py_GT:
-            result = *p1->proxy > *p2->proxy;
+            result = Ice::targetGreater(*p1->proxy, *p2->proxy);
             break;
         }
     }
@@ -379,7 +379,7 @@ proxyIceIdentity(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_identity(ident);
@@ -440,7 +440,7 @@ proxyIceContext(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_context(ctx);
@@ -496,7 +496,7 @@ proxyIceFacet(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_facet(facet);
@@ -552,7 +552,7 @@ proxyIceAdapterId(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_adapterId(id);
@@ -627,7 +627,7 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_endpoints(seq);
@@ -715,14 +715,14 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_locatorCacheTimeout(timeout);
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
+    catch(const invalid_argument& ex)
     {
-        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
     catch(const Ice::Exception& ex)
@@ -748,14 +748,14 @@ proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_invocationTimeout(timeout);
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
+    catch(const invalid_argument& ex)
     {
-        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
     catch(const Ice::Exception& ex)
@@ -810,7 +810,7 @@ proxyIceConnectionCached(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_connectionCached(n == 1);
@@ -844,7 +844,7 @@ proxyIceGetEndpointSelection(ProxyObject* self,  PyObject* /*args*/)
     try
     {
         Ice::EndpointSelectionType val = (*self->proxy)->ice_getEndpointSelection();
-        if(val == Ice::Random)
+        if(val == Ice::EndpointSelectionType::Random)
         {
             type = rnd.get();
         }
@@ -884,11 +884,11 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     assert(ord.get());
     if(rnd.get() == type)
     {
-        val = Ice::Random;
+        val = Ice::EndpointSelectionType::Random;
     }
     else if(ord.get() == type)
     {
-        val = Ice::Ordered;
+        val = Ice::EndpointSelectionType::Ordered;
     }
     else
     {
@@ -898,7 +898,7 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_endpointSelection(val);
@@ -955,7 +955,7 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_secure(n == 1);
@@ -1014,7 +1014,7 @@ proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_encodingVersion(val);
@@ -1071,7 +1071,7 @@ proxyIcePreferSecure(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_preferSecure(n == 1);
@@ -1093,7 +1093,7 @@ proxyIceGetRouter(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    Ice::RouterPrx router;
+    shared_ptr<Ice::RouterPrx> router;
     try
     {
         router = (*self->proxy)->ice_getRouter();
@@ -1127,17 +1127,17 @@ proxyIceRouter(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "ice_router", "rtr", proxy, "Ice.RouterPrx"))
     {
         return 0;
     }
 
-    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(proxy);
+    shared_ptr<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_router(router);
@@ -1159,7 +1159,7 @@ proxyIceGetLocator(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    Ice::LocatorPrx locator;
+    shared_ptr<Ice::LocatorPrx> locator;
     try
     {
         locator = (*self->proxy)->ice_getLocator();
@@ -1193,17 +1193,17 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "ice_locator", "loc", proxy, "Ice.LocatorPrx"))
     {
         return 0;
     }
 
-    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(proxy);
+    shared_ptr<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_locator(locator);
@@ -1225,7 +1225,7 @@ proxyIceTwoway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_twoway();
@@ -1270,7 +1270,7 @@ proxyIceOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_oneway();
@@ -1315,7 +1315,7 @@ proxyIceBatchOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_batchOneway();
@@ -1360,7 +1360,7 @@ proxyIceDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_datagram();
@@ -1405,7 +1405,7 @@ proxyIceBatchDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_batchDatagram();
@@ -1462,7 +1462,7 @@ proxyIceCompress(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_compress(n == 1);
@@ -1520,14 +1520,14 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_timeout(timeout);
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
+    catch(const invalid_argument& ex)
     {
-        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
     catch(const Ice::Exception& ex)
@@ -1610,7 +1610,7 @@ proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_collocationOptimized(n == 1);
@@ -1644,7 +1644,7 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_connectionId(id);
@@ -1678,10 +1678,15 @@ proxyIceFixed(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::ObjectPrx newProxy;
+    shared_ptr<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_fixed(connection);
+    }
+    catch(const invalid_argument& ex)
+    {
+        PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
+        return 0;
     }
     catch(const Ice::Exception& ex)
     {
@@ -1754,37 +1759,45 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
     assert(self->proxy);
     const string op = "ice_getConnection";
 
-    GetConnectionAsyncCallbackPtr d = new GetConnectionAsyncCallback(*self->communicator, op);
-    Ice::Callback_Object_ice_getConnectionPtr cb =
-        Ice::newCallback_Object_ice_getConnection(d, &GetConnectionAsyncCallback::response,
-                                                  &GetConnectionAsyncCallback::exception);
-
-    Ice::AsyncResultPtr result;
-
+    auto callback = make_shared<GetConnectionAsyncCallback>(*self->communicator, op);
+    function<void()> cancel;
     try
     {
-        result = (*self->proxy)->begin_ice_getConnection(cb);
+        cancel = (*self->proxy)->ice_getConnectionAsync(
+            [callback](const Ice::ConnectionPtr& connection)
+            {
+                callback->response(connection);
+            },
+            [callback](exception_ptr exptr)
+            {
+                try
+                {
+                    rethrow_exception(exptr);
+                }
+                catch (const Ice::Exception& ex)
+                {
+                    callback->exception(ex);
+                }
+            });
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
     }
 
-    PyObjectHandle communicatorObj = getCommunicatorWrapper(*self->communicator);
-    PyObjectHandle asyncResultObj =
-        createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicatorObj.get());
-    if(!asyncResultObj.get())
+    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(cancel, *self->communicator);
+    if (!asyncInvocationContextObj.get())
     {
         return 0;
     }
 
-    PyObjectHandle future = createFuture(op, asyncResultObj.get());
-    if(!future.get())
+    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
+    if (!future.get())
     {
         return 0;
     }
-    d->setFuture(future.get());
+    callback->setFuture(future.get());
     return future.release();
 }
 
@@ -1850,15 +1863,30 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
     assert(self->proxy);
     const string op = "ice_flushBatchRequests";
 
-    FlushAsyncCallbackPtr d = new FlushAsyncCallback(op);
-    Ice::Callback_Object_ice_flushBatchRequestsPtr cb =
-        Ice::newCallback_Object_ice_flushBatchRequests(d, &FlushAsyncCallback::exception, &FlushAsyncCallback::sent);
-
-    Ice::AsyncResultPtr result;
-
+    auto callback = make_shared<FlushAsyncCallback>(op);
+    function<void()> cancel;
     try
     {
-        result = (*self->proxy)->begin_ice_flushBatchRequests(cb);
+        cancel = (*self->proxy)->ice_flushBatchRequestsAsync(
+            [callback](exception_ptr exptr)
+            {
+                try
+                {
+                    rethrow_exception(exptr);
+                }
+                catch (const Ice::Exception& ex)
+                {
+                    callback->exception(ex);
+                }
+                catch (...)
+                {
+                    assert(false);
+                }
+            },
+            [callback](bool sentSynchronously)
+            {
+                callback->sent(sentSynchronously);
+            });
     }
     catch(const Ice::Exception& ex)
     {
@@ -1866,20 +1894,18 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
         return 0;
     }
 
-    PyObjectHandle communicatorObj = getCommunicatorWrapper(*self->communicator);
-    PyObjectHandle asyncResultObj =
-        createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicatorObj.get());
-    if(!asyncResultObj.get())
+    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
+    if(!asyncInvocationContextObj.get())
     {
         return 0;
     }
 
-    PyObjectHandle future = createFuture(op, asyncResultObj.get());
+    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
     if(!future.get())
     {
         return 0;
     }
-    d->setFuture(future.get());
+    callback->setFuture(future.get());
     return future.release();
 }
 
@@ -1904,7 +1930,7 @@ proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
 static PyObject*
 checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx, PyObject* type)
 {
-    Ice::ObjectPrx target;
+    shared_ptr<Ice::ObjectPrx> target;
     if(!facet || facet == Py_None)
     {
         target = *p->proxy;
@@ -1918,7 +1944,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
     bool b = false;
     try
     {
-        Ice::Context c = ::Ice::noExplicitContext;
+        Ice::Context c;
         if(ctx && ctx != Py_None)
         {
             if(!dictionaryToContext(ctx, c))
@@ -1928,7 +1954,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
         }
 
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        b = target->ice_isA(id, c);
+        b = target->ice_isA(id, (ctx == 0 || ctx == Py_None) ? Ice::noExplicitContext : c);
     }
     catch(const Ice::FacetNotExistException&)
     {
@@ -2398,7 +2424,7 @@ IcePy::initProxy(PyObject* module)
 }
 
 PyObject*
-IcePy::createProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
+IcePy::createProxy(const shared_ptr<Ice::ObjectPrx>& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
 {
     assert(proxy);
 
@@ -2417,7 +2443,7 @@ IcePy::checkProxy(PyObject* p)
     return PyObject_IsInstance(p, reinterpret_cast<PyObject*>(type)) == 1;
 }
 
-Ice::ObjectPrx
+shared_ptr<Ice::ObjectPrx>
 IcePy::getProxy(PyObject* p)
 {
     assert(checkProxy(p));
@@ -2426,7 +2452,7 @@ IcePy::getProxy(PyObject* p)
 }
 
 bool
-IcePy::getProxyArg(PyObject* p, const string& func, const string& arg, Ice::ObjectPrx& proxy, const string& type)
+IcePy::getProxyArg(PyObject* p, const string& func, const string& arg, shared_ptr<Ice::ObjectPrx>& proxy, const string& type)
 {
     bool result = true;
 

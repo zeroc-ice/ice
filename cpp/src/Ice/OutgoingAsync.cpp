@@ -525,39 +525,6 @@ OutgoingAsyncBase::_throwUserException()
     }
 }
 
-void
-OutgoingAsyncBase::_scheduleCallback(const CallbackPtr& cb)
-{
-    //
-    // NOTE: for internal use only. This should only be called when the invocation has
-    // completed. Accessing _cachedConnection is not safe otherwise.
-    //
-
-    class WorkItem : public DispatchWorkItem
-    {
-    public:
-
-        WorkItem(const ConnectionPtr& connection, const CallbackPtr& cb) :
-            DispatchWorkItem(connection), _cb(cb)
-        {
-        }
-
-        virtual void run()
-        {
-            _cb->run();
-        }
-
-    private:
-
-        CallbackPtr _cb;
-    };
-
-    //
-    // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
-    //
-    _instance->clientThreadPool()->dispatch(new WorkItem(_cachedConnection, cb));
-}
-
 #endif
 
 void

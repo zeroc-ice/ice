@@ -15,7 +15,7 @@
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
     <PropertyGroup>
-        <CppDistTargets>c++98\slice2py;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery;c++11\glacier2router++11;c++98\glacier2cryptpermissionsverifier</CppDistTargets>
+        <CppDistTargets>c++98\slice2py;c++11\icessl++11;c++11\icediscovery++11;c++11\icelocatordiscovery++11;c++11\glacier2router++11;c++11\glacier2cryptpermissionsverifier++11</CppDistTargets>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />

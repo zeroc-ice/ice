@@ -8,21 +8,11 @@ import time
 import threading
 
 
-class ThreadHook(Ice.ThreadNotification):
+class ThreadHook:
     def __init__(self):
-        self.threadHookStartCount = 0
-        self.threadHookStopCount = 0
         self.threadStartCount = 0
         self.threadStopCount = 0
         self.cond = threading.Condition()
-
-    def start(self):
-        with self.cond:
-            self.threadHookStartCount += 1
-
-    def stop(self):
-        with self.cond:
-            self.threadHookStopCount += 1
 
     def threadStart(self):
         with self.cond:
@@ -31,14 +21,6 @@ class ThreadHook(Ice.ThreadNotification):
     def threadStop(self):
         with self.cond:
             self.threadStopCount += 1
-
-    def getThreadHookStartCount(self):
-        with self.cond:
-            return self.threadHookStartCount
-
-    def getThreadHookStopCount(self):
-        with self.cond:
-            return self.threadHookStopCount
 
     def getThreadStartCount(self):
         with self.cond:
@@ -65,12 +47,6 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
     def getObject(self, current=None):
         return self.obj
 
-    def getThreadHookStartCount(self, current=None):
-        return self.hook.getThreadHookStartCount()
-
-    def getThreadHookStopCount(self, current=None):
-        return self.hook.getThreadHookStopCount()
-
     def getThreadStartCount(self, current=None):
         return self.hook.getThreadStartCount()
 
@@ -91,9 +67,10 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         for k, v in props.items():
             init.properties.setProperty(k, v)
 
-        init.threadHook = ThreadHook()
-        init.threadStart = init.threadHook.threadStart
-        init.threadStop = init.threadHook.threadStop
+        threadHook = ThreadHook()
+
+        init.threadStart = threadHook.threadStart
+        init.threadStop = threadHook.threadStop
 
         #
         # Initialize a new communicator.
@@ -101,7 +78,7 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         communicator = Ice.initialize(init)
 
         proxy = current.adapter.addWithUUID(
-            RemoteCommunicatorI(communicator, init.threadHook)
+            RemoteCommunicatorI(communicator, threadHook)
         )
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 

@@ -1972,13 +1972,14 @@ IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc) :
     compactId(-1), isBase(false), isLocal(loc), interface(false), rubyClass(Qnil), typeObj(Qnil), defined(false)
 {
     const_cast<string&>(id) = getString(ident);
-    if(isLocal)
+    if (isLocal)
     {
-        const_cast<bool&>(isBase) = id == "::Ice::LocalObject";
+        // We don't define LocalObject anymore.
+        assert(id != "::Ice::LocalObject");
     }
     else
     {
-        const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
+        const_cast<bool&>(isBase) = id == Ice::Value::ice_staticId();
     }
 }
 
@@ -2024,27 +2025,7 @@ IceRuby::ClassInfo::validate(VALUE val)
     //
     volatile VALUE cls = CLASS_OF(val);
     volatile VALUE type = Qnil;
-    try
-    {
-        type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
-    }
-    catch(const RubyException& ex)
-    {
-        if(callRuby(rb_obj_is_instance_of, ex.ex, rb_eNameError) == Qtrue)
-        {
-            //
-            // The ICE_TYPE constant will be missing from an instance of LocalObject
-            // if it does not implement a user-defined type. This means the user
-            // could potentially pass any kind of object; there isn't much we can do
-            // since LocalObject maps to the base object type.
-            //
-            return id == "::Ice::LocalObject";
-        }
-        else
-        {
-            throw;
-        }
-    }
+    type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
     assert(!NIL_P(type));
     ClassInfoPtr info = dynamic_pointer_cast<ClassInfo>(getType(type));
     assert(info);
@@ -2091,7 +2072,7 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
     }
 
     //
-    // Ice::ValueWriter is a subclass of Ice::Object that wraps a Ruby object for marshaling.
+    // Ice::ValueWriter is a subclass of Ice::Value that wraps a Ruby object for marshaling.
     // It is possible that this Ruby object has already been marshaled, therefore we first must
     // check the object map to see if this object is present. If so, we use the existing ValueWriter,
     // otherwise we create a new one.
@@ -2173,36 +2154,8 @@ IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObject
             volatile VALUE cls = CLASS_OF(value);
             volatile VALUE type = Qnil;
             ClassInfoPtr info;
-            try
-            {
-                type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
-                info = dynamic_pointer_cast<ClassInfo>(getType(type));
-            }
-            catch(const RubyException& ex)
-            {
-                if(callRuby(rb_obj_is_instance_of, ex.ex, rb_eNameError) == Qtrue)
-                {
-                    //
-                    // The ICE_TYPE constant will be missing from an instance of LocalObject
-                    // if it does not implement a user-defined type. This means the user
-                    // could potentially pass any kind of object; there isn't much we can do
-                    // since LocalObject maps to the base object type.
-                    //
-                    if(id == "::Ice::LocalObject")
-                    {
-                        info = shared_from_this();
-                    }
-                    else
-                    {
-                        out << "<invalid value - expected " << id << ">";
-                        return;
-                    }
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+            info = dynamic_pointer_cast<ClassInfo>(getType(type));
             assert(info);
             out << "object #" << history->index << " (" << info->id << ')';
             history->objects.insert(map<VALUE, int>::value_type(value, history->index));
@@ -2302,7 +2255,7 @@ IceRuby::ProxyInfo::ProxyInfo(VALUE ident) :
     isBase(false), rubyClass(Qnil), typeObj(Qnil)
 {
     const_cast<string&>(id) = getString(ident);
-    const_cast<bool&>(isBase) = id == "::Ice::Object";
+    const_cast<bool&>(isBase) = id == Ice::Object::ice_staticId();
 }
 
 void
@@ -2630,7 +2583,7 @@ IceRuby::ValueReader::_iceRead(Ice::InputStream* is)
     //
     // Unmarshal the slices of a user-defined class.
     //
-    if(!unknown && _info->id != Ice::Object::ice_staticId())
+    if(!unknown && _info->id != Ice::Value::ice_staticId())
     {
         ClassInfoPtr info = _info;
         while(info)

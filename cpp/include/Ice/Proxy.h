@@ -187,7 +187,8 @@ public:
         {
             if(this->_is.b.empty())
             {
-                this->_promise.set_value(R { ok, { 0, 0 }});
+                std::vector<Ice::Byte> encaps;
+                this->_promise.set_value(R { ok, encaps});
             }
             else
             {
@@ -200,7 +201,8 @@ public:
     {
         if(done)
         {
-            this->_promise.set_value(R { true, { 0, 0 }});
+            std::vector<Ice::Byte> encaps;
+            this->_promise.set_value(R { true, encaps});
         }
         return false;
     }

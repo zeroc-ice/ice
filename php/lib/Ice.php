@@ -116,7 +116,6 @@ namespace Ice
 
     global $Ice__t_Value;
     global $Ice__t_ObjectSeq;
-    global $Ice__t_LocalObject;
     global $Ice__t_ObjectPrx;
     global $Ice__t_ObjectProxySeq;
 

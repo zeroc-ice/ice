@@ -12,53 +12,25 @@
 #include <Ice/CommunicatorF.h>
 #include <Util.h>
 
+#include <functional>
+
 namespace IcePy
 {
 
 bool initOperation(PyObject*);
 
-//
+extern PyTypeObject AsyncInvocationContextType;
+
 // Builtin operations.
-//
 PyObject* invokeBuiltin(PyObject*, const std::string&, PyObject*);
 PyObject* invokeBuiltinAsync(PyObject*, const std::string&, PyObject*);
 
-//
 // Blobject invocations.
-//
 PyObject* iceInvoke(PyObject*, PyObject*);
 PyObject* iceInvokeAsync(PyObject*, PyObject*);
 
-extern PyTypeObject AsyncResultType;
-PyObject* createAsyncResult(const Ice::AsyncResultPtr&, PyObject*, PyObject*, PyObject*);
-Ice::AsyncResultPtr getAsyncResult(PyObject*);
-
-//
-// Used as the callback for getConnection operation.
-//
-class GetConnectionCallback : public IceUtil::Shared
-{
-public:
-
-    GetConnectionCallback(const Ice::CommunicatorPtr&, PyObject*, PyObject*, const std::string&);
-    ~GetConnectionCallback();
-
-    void response(const Ice::ConnectionPtr&);
-    void exception(const Ice::Exception&);
-
-protected:
-
-    Ice::CommunicatorPtr _communicator;
-    PyObject* _response;
-    PyObject* _ex;
-    std::string _op;
-};
-typedef IceUtil::Handle<GetConnectionCallback> GetConnectionCallbackPtr;
-
-//
 // Used as the callback for getConnectionAsync operation.
-//
-class GetConnectionAsyncCallback : public IceUtil::Shared
+class GetConnectionAsyncCallback
 {
 public:
 
@@ -78,12 +50,10 @@ protected:
     Ice::ConnectionPtr _connection;
     PyObject* _exception;
 };
-typedef IceUtil::Handle<GetConnectionAsyncCallback> GetConnectionAsyncCallbackPtr;
+using GetConnectionAsyncCallbackPtr = std::shared_ptr<GetConnectionAsyncCallback>;
 
-//
 // Used as the callback for the various flushBatchRequestAsync operations.
-//
-class FlushAsyncCallback : public IceUtil::Shared
+class FlushAsyncCallback
 {
 public:
 
@@ -103,11 +73,9 @@ protected:
     bool _sentSynchronously;
     PyObject* _exception;
 };
-typedef IceUtil::Handle<FlushAsyncCallback> FlushAsyncCallbackPtr;
+using FlushAsyncCallbackPtr = std::shared_ptr<FlushAsyncCallback>;
 
-//
 // ServantWrapper handles dispatching to a Python servant.
-//
 class ServantWrapper : public Ice::BlobjectArrayAsync
 {
 public:
@@ -125,7 +93,7 @@ using ServantWrapperPtr = std::shared_ptr<ServantWrapper>;
 
 ServantWrapperPtr createServantWrapper(PyObject*);
 
-PyObject* createFuture();
+PyObject* createAsyncInvocationContext(std::function<void()>, Ice::CommunicatorPtr);
 PyObject* createFuture(const std::string&, PyObject*);
 
 }

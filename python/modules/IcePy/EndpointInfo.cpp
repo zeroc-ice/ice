@@ -145,7 +145,7 @@ extern "C"
 static PyObject*
 ipEndpointInfoGetHost(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->host);
 }
@@ -156,7 +156,7 @@ extern "C"
 static PyObject*
 ipEndpointInfoGetSourceAddress(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->sourceAddress);
 }
@@ -167,7 +167,7 @@ extern "C"
 static PyObject*
 ipEndpointInfoGetPort(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return PyLong_FromLong(info->port);
 }
@@ -178,7 +178,7 @@ extern "C"
 static PyObject*
 udpEndpointInfoGetMcastInterface(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->mcastInterface);
 }
@@ -189,7 +189,7 @@ extern "C"
 static PyObject*
 udpEndpointInfoGetMcastTtl(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(*self->endpointInfo);
     assert(info);
     return PyLong_FromLong(info->mcastTtl);
 }
@@ -200,7 +200,7 @@ extern "C"
 static PyObject*
 wsEndpointInfoGetResource(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::WSEndpointInfoPtr info = Ice::WSEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::WSEndpointInfo>(*self->endpointInfo);
     assert(info);
     return createString(info->resource);
 }
@@ -211,7 +211,7 @@ extern "C"
 static PyObject*
 opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(*self->endpointInfo);
     assert(info);
     return PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&info->rawBytes[0]),
                                      static_cast<int>(info->rawBytes.size()));
@@ -223,7 +223,7 @@ extern "C"
 static PyObject*
 opaqueEndpointInfoGetRawEncoding(EndpointInfoObject* self, PyObject* /*args*/)
 {
-    Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(*self->endpointInfo);
     assert(info);
     return IcePy::createEncodingVersion(info->rawEncoding);
 }
@@ -720,27 +720,27 @@ IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
     }
 
     PyTypeObject* type;
-    if(Ice::WSEndpointInfoPtr::dynamicCast(endpointInfo))
+    if(dynamic_pointer_cast<Ice::WSEndpointInfo>(endpointInfo))
     {
         type = &WSEndpointInfoType;
     }
-    else if(Ice::TCPEndpointInfoPtr::dynamicCast(endpointInfo))
+    else if(dynamic_pointer_cast<Ice::TCPEndpointInfo>(endpointInfo))
     {
         type = &TCPEndpointInfoType;
     }
-    else if(Ice::UDPEndpointInfoPtr::dynamicCast(endpointInfo))
+    else if(dynamic_pointer_cast<Ice::UDPEndpointInfo>(endpointInfo))
     {
         type = &UDPEndpointInfoType;
     }
-    else if(IceSSL::EndpointInfoPtr::dynamicCast(endpointInfo))
+    else if(dynamic_pointer_cast<IceSSL::EndpointInfo>(endpointInfo))
     {
         type = &SSLEndpointInfoType;
     }
-    else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(endpointInfo))
+    else if(dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(endpointInfo))
     {
         type = &OpaqueEndpointInfoType;
     }
-    else if(Ice::IPEndpointInfoPtr::dynamicCast(endpointInfo))
+    else if(dynamic_pointer_cast<Ice::IPEndpointInfo>(endpointInfo))
     {
         type = &IPEndpointInfoType;
     }

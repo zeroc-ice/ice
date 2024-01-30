@@ -77,6 +77,10 @@ module Ice
     # Ice::Value
     #
     T_Value = Ice.__declareClass('::Ice::Object')
+
+    #
+    # Object proxy
+    #
     T_ObjectPrx = Ice.__declareProxy('::Ice::Object')
 
     #

@@ -84,18 +84,19 @@ struct ConnectionObject
     Ice::CommunicatorPtr* communicator;
 };
 
-class CloseCallbackWrapper : public Ice::CloseCallback
+class CloseCallbackWrapper final
 {
 public:
 
     CloseCallbackWrapper(PyObject* cb, PyObject* con) :
-        _cb(cb), _con(con)
+        _cb(cb),
+        _con(con)
     {
         Py_INCREF(cb);
         Py_INCREF(con);
     }
 
-    virtual ~CloseCallbackWrapper()
+    ~CloseCallbackWrapper()
     {
         AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -103,7 +104,7 @@ public:
         Py_DECREF(_con);
     }
 
-    virtual void closed(const Ice::ConnectionPtr&)
+    void closed()
     {
         AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -131,19 +132,21 @@ private:
     PyObject* _cb;
     PyObject* _con;
 };
+using CloseCallbackWrapperPtr = shared_ptr<CloseCallbackWrapper>;
 
-class HeartbeatCallbackWrapper : public Ice::HeartbeatCallback
+class HeartbeatCallbackWrapper final
 {
 public:
 
     HeartbeatCallbackWrapper(PyObject* cb, PyObject* con) :
-        _cb(cb), _con(con)
+        _cb(cb),
+        _con(con)
     {
         Py_INCREF(cb);
         Py_INCREF(con);
     }
 
-    virtual ~HeartbeatCallbackWrapper()
+    ~HeartbeatCallbackWrapper()
     {
         AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -151,7 +154,7 @@ public:
         Py_DECREF(_con);
     }
 
-    virtual void heartbeat(const Ice::ConnectionPtr&)
+    void heartbeat()
     {
         AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -179,6 +182,7 @@ private:
     PyObject* _cb;
     PyObject* _con;
 };
+using HeartbeatCallbackWrapperPtr = shared_ptr<HeartbeatCallbackWrapper>;
 
 }
 
@@ -327,7 +331,7 @@ connectionCreateProxy(ConnectionObject* self, PyObject* args)
 
     assert(self->connection);
     assert(self->communicator);
-    Ice::ObjectPrx proxy;
+    shared_ptr<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->connection)->createProxy(ident);
@@ -457,20 +461,33 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
 
     PyObjectHandle v = getAttr(compressBatch, "_value", true);
     assert(v.get());
-    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
+    Ice::CompressBatch compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
     assert(self->connection);
     const string op = "flushBatchRequests";
 
-    FlushAsyncCallbackPtr d = new FlushAsyncCallback(op);
-    Ice::Callback_Connection_flushBatchRequestsPtr callback =
-        Ice::newCallback_Connection_flushBatchRequests(d, &FlushAsyncCallback::exception, &FlushAsyncCallback::sent);
-
-    Ice::AsyncResultPtr result;
-
+    auto callback = make_shared<FlushAsyncCallback>(op);
+    function<void()> cancel;
     try
     {
-        result = (*self->connection)->begin_flushBatchRequests(cb, callback);
+        cancel = (*self->connection)->flushBatchRequestsAsync(
+            compress,
+            [callback](exception_ptr exptr)
+            {
+                try
+                {
+                    rethrow_exception(exptr);
+                }
+                catch (const Ice::Exception& ex)
+                {
+                    callback->exception(ex);
+                }
+                catch (...)
+                {
+                    assert(false);
+                }
+            },
+            [callback](bool sentSynchronously) { callback->sent(sentSynchronously); });
     }
     catch(const Ice::Exception& ex)
     {
@@ -478,20 +495,18 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    PyObjectHandle communicatorObj = getCommunicatorWrapper(*self->communicator);
-    PyObjectHandle asyncResultObj =
-        createAsyncResult(result, 0, reinterpret_cast<PyObject*>(self), communicatorObj.get());
-    if(!asyncResultObj.get())
+    PyObjectHandle asyncInvocationContextObj = createAsyncInvocationContext(std::move(cancel), *self->communicator);
+    if (!asyncInvocationContextObj.get())
     {
         return 0;
     }
 
-    PyObjectHandle future = createFuture(op, asyncResultObj.get());
+    PyObjectHandle future = createFuture(op, asyncInvocationContextObj.get());
     if(!future.get())
     {
         return 0;
     }
-    d->setFuture(future.get());
+    callback->setFuture(future.get());
     return future.release();
 }
 
@@ -516,18 +531,25 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::CloseCallbackPtr wrapper;
+    CloseCallbackWrapperPtr wrapper;
     if(cb != Py_None)
     {
-        wrapper = new CloseCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+        wrapper = make_shared<CloseCallbackWrapper>(cb, reinterpret_cast<PyObject*>(self));
     }
 
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
-        (*self->connection)->setCloseCallback(wrapper);
+        if (wrapper)
+        {
+            (*self->connection)->setCloseCallback([wrapper](const Ice::ConnectionPtr&) { wrapper->closed(); });
+        }
+        else
+        {
+            (*self->connection)->setCloseCallback(nullptr);
+        }
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -558,16 +580,23 @@ connectionSetHeartbeatCallback(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    Ice::HeartbeatCallbackPtr wrapper;
+    HeartbeatCallbackWrapperPtr wrapper;
     if(cb != Py_None)
     {
-        wrapper = new HeartbeatCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+        wrapper = make_shared<HeartbeatCallbackWrapper>(cb, reinterpret_cast<PyObject*>(self));
     }
 
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
-        (*self->connection)->setHeartbeatCallback(wrapper);
+        if (wrapper)
+        {
+            (*self->connection)->setHeartbeatCallback([wrapper](const Ice::ConnectionPtr&){ wrapper->heartbeat(); });
+        }
+        else
+        {
+            (*self->connection)->setHeartbeatCallback(nullptr);
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -661,9 +690,9 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
     {
         (*self->connection)->setACM(timeout, close, heartbeat);
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
+    catch(const invalid_argument& ex)
     {
-        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        PyErr_Format(PyExc_RuntimeError, "%s", ex.what());
         return 0;
     }
     catch(const Ice::Exception& ex)
@@ -718,7 +747,7 @@ connectionGetACM(ConnectionObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    EnumInfoPtr acmCloseEnum = EnumInfoPtr::dynamicCast(getType(acmCloseType));
+    EnumInfoPtr acmCloseEnum = dynamic_pointer_cast<EnumInfo>(getType(acmCloseType));
     assert(acmCloseEnum);
     PyObjectHandle close = acmCloseEnum->enumeratorForValue(static_cast<Ice::Int>(acm.close));
     if(!close.get())
@@ -732,7 +761,7 @@ connectionGetACM(ConnectionObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    EnumInfoPtr acmHeartbeatEnum = EnumInfoPtr::dynamicCast(getType(acmHeartbeatType));
+    EnumInfoPtr acmHeartbeatEnum = dynamic_pointer_cast<EnumInfo>(getType(acmHeartbeatType));
     assert(acmHeartbeatEnum);
     PyObjectHandle heartbeat = acmHeartbeatEnum->enumeratorForValue(static_cast<Ice::Int>(acm.heartbeat));
     if(!heartbeat.get())
