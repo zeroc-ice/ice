@@ -996,60 +996,60 @@ namespace Ice
                 private Dictionary<string, string> _d;
             }
 
-            internal static void twowaysAMI(global::Test.TestHelper helper, Test.MyClassPrx p)
+            internal static async Task twowaysAMIAsync(global::Test.TestHelper helper, Test.MyClassPrx p)
             {
                 Ice.Communicator communicator = helper.communicator();
 
                 {
-                    p.ice_pingAsync().Wait();
+                    await p.ice_pingAsync();
                 }
 
                 {
-                    test(p.ice_idsAsync().Result.Length == 3);
+                    test((await p.ice_idsAsync()).Length == 3);
                 }
 
                 {
-                    test(p.ice_idAsync().Result.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
+                    test(await p.ice_idAsync() == Test.MyDerivedClassDisp_.ice_staticId());
                 }
 
                 {
-                    var ret = p.opByteAsync(0xff, 0x0f).Result;
+                    var ret = await p.opByteAsync(0xff, 0x0f);
                     test(ret.p3 == 0xf0);
                     test(ret.returnValue == 0xff);
                 }
 
                 {
                     var cb = new Callback();
-                    var ret = p.opBoolAsync(true, false).Result;
+                    var ret = await p.opBoolAsync(true, false);
                     cb.opBool(ret.returnValue, ret.p3);
                 }
 
                 {
                     var cb = new Callback();
-                    var ret = p.opShortIntLongAsync(10, 11, 12).Result;
+                    var ret = await p.opShortIntLongAsync(10, 11, 12);
                     cb.opShortIntLong(ret.returnValue, ret.p4, ret.p5, ret.p6);
                 }
                 {
                     var cb = new Callback();
-                    var ret = p.opFloatDoubleAsync(3.14f, 1.1E10).Result;
+                    var ret = await p.opFloatDoubleAsync(3.14f, 1.1E10);
                     cb.opFloatDouble(ret.returnValue, ret.p3, ret.p4);
                 }
 
                 {
                     var cb = new Callback();
-                    var ret = p.opStringAsync("hello", "world").Result;
+                    var ret = await p.opStringAsync("hello", "world");
                     cb.opString(ret.returnValue, ret.p3);
                 }
 
                 {
                     var cb = new Callback();
-                    var ret = p.opMyEnumAsync(Test.MyEnum.enum2).Result;
+                    var ret = await p.opMyEnumAsync(Test.MyEnum.enum2);
                     cb.opMyEnum(ret.returnValue, ret.p2);
                 }
 
                 {
                     var cb = new Callback(communicator);
-                    var ret = p.opMyClassAsync(p).Result;
+                    var ret = await p.opMyClassAsync(p);
                     cb.opMyClass(ret.returnValue, ret.p2, ret.p3);
                 }
 
@@ -1066,7 +1066,7 @@ namespace Ice
                     si2.s.s = "def";
 
                     var cb = new Callback(communicator);
-                    var ret = p.opStructAsync(si1, si2).Result;
+                    var ret = await p.opStructAsync(si1, si2);
                     cb.opStruct(ret.returnValue, ret.p3);
                 }
 
@@ -1075,7 +1075,7 @@ namespace Ice
                     byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
 
                     var cb = new Callback();
-                    var ret = p.opByteSAsync(bsi1, bsi2).Result;
+                    var ret = await p.opByteSAsync(bsi1, bsi2);
                     cb.opByteS(ret.returnValue, ret.p3);
                 }
 
@@ -1084,7 +1084,7 @@ namespace Ice
                     bool[] bsi2 = new bool[] { false };
 
                     var cb = new Callback();
-                    var ret = p.opBoolSAsync(bsi1, bsi2).Result;
+                    var ret = await p.opBoolSAsync(bsi1, bsi2);
                     cb.opBoolS(ret.returnValue, ret.p3);
                 }
 
@@ -1094,7 +1094,7 @@ namespace Ice
                     long[] lsi = new long[] { 10, 30, 20 };
 
                     var cb = new Callback();
-                    var ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
+                    var ret = await p.opShortIntLongSAsync(ssi, isi, lsi);
                     cb.opShortIntLongS(ret.returnValue, ret.p4, ret.p5, ret.p6);
                 }
 
@@ -1103,7 +1103,7 @@ namespace Ice
                     double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
 
                     var cb = new Callback();
-                    var ret = p.opFloatDoubleSAsync(fsi, dsi).Result;
+                    var ret = await p.opFloatDoubleSAsync(fsi, dsi);
                     cb.opFloatDoubleS(ret.returnValue, ret.p3, ret.p4);
                 }
 
@@ -1112,7 +1112,7 @@ namespace Ice
                     string[] ssi2 = new string[] { "xyz" };
 
                     var cb = new Callback();
-                    var ret = p.opStringSAsync(ssi1, ssi2).Result;
+                    var ret = await p.opStringSAsync(ssi1, ssi2);
                     cb.opStringS(ret.returnValue, ret.p3);
                 }
 
@@ -1126,7 +1126,7 @@ namespace Ice
                     byte[][] bsi2 = new byte[][] { s21, s22 };
 
                     var cb = new Callback();
-                    var ret = p.opByteSSAsync(bsi1, bsi2).Result;
+                    var ret = await p.opByteSSAsync(bsi1, bsi2);
                     cb.opByteSS(ret.returnValue, ret.p3);
                 }
 
@@ -1140,7 +1140,7 @@ namespace Ice
                     bool[][] bsi2 = new bool[][] { s21 };
 
                     var cb = new Callback();
-                    var ret = p.opBoolSSAsync(bsi1, bsi2).Result;
+                    var ret = await p.opBoolSSAsync(bsi1, bsi2);
                     cb.opBoolSS(ret.returnValue, ret.p3);
                 }
 
@@ -1158,7 +1158,7 @@ namespace Ice
                     long[][] lsi = new long[][] { l11 };
 
                     var cb = new Callback();
-                    var ret = p.opShortIntLongSSAsync(ssi, isi, lsi).Result;
+                    var ret = await p.opShortIntLongSSAsync(ssi, isi, lsi);
                     cb.opShortIntLongSS(ret.returnValue, ret.p4, ret.p5, ret.p6);
                 }
 
@@ -1172,7 +1172,7 @@ namespace Ice
                     double[][] dsi = new double[][] { d11 };
 
                     var cb = new Callback();
-                    var ret = p.opFloatDoubleSSAsync(fsi, dsi).Result;
+                    var ret = await p.opFloatDoubleSSAsync(fsi, dsi);
                     cb.opFloatDoubleSS(ret.returnValue, ret.p3, ret.p4);
                 }
 
@@ -1187,7 +1187,7 @@ namespace Ice
                     string[][] ssi2 = new string[][] { s21, s22, s23 };
 
                     var cb = new Callback();
-                    var ret = p.opStringSSAsync(ssi1, ssi2).Result;
+                    var ret = await p.opStringSSAsync(ssi1, ssi2);
                     cb.opStringSS(ret.returnValue, ret.p3);
                 }
 
@@ -1208,7 +1208,7 @@ namespace Ice
                     string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
 
                     var cb = new Callback();
-                    var ret = p.opStringSSSAsync(sssi1, sssi2).Result;
+                    var ret = await p.opStringSSSAsync(sssi1, sssi2);
                     cb.opStringSSS(ret.returnValue, ret.p3);
                 }
 
@@ -1222,7 +1222,7 @@ namespace Ice
                     di2[101] = true;
 
                     var cb = new Callback();
-                    var ret = p.opByteBoolDAsync(di1, di2).Result;
+                    var ret = await p.opByteBoolDAsync(di1, di2);
                     cb.opByteBoolD(ret.returnValue, ret.p3);
                 }
 
@@ -1236,7 +1236,7 @@ namespace Ice
                     di2[1101] = 0;
 
                     var cb = new Callback();
-                    var ret = p.opShortIntDAsync(di1, di2).Result;
+                    var ret = await p.opShortIntDAsync(di1, di2);
                     cb.opShortIntD(ret.returnValue, ret.p3);
                 }
 
@@ -1250,7 +1250,7 @@ namespace Ice
                     di2[999999130L] = 0.5f;
 
                     var cb = new Callback();
-                    var ret = p.opLongFloatDAsync(di1, di2).Result;
+                    var ret = await p.opLongFloatDAsync(di1, di2);
                     cb.opLongFloatD(ret.returnValue, ret.p3);
                 }
 
@@ -1264,7 +1264,7 @@ namespace Ice
                     di2["BAR"] = "abc 0.5";
 
                     var cb = new Callback();
-                    var ret = p.opStringStringDAsync(di1, di2).Result;
+                    var ret = await p.opStringStringDAsync(di1, di2);
                     cb.opStringStringD(ret.returnValue, ret.p3);
                 }
 
@@ -1278,7 +1278,7 @@ namespace Ice
                     di2["Hello!!"] = Test.MyEnum.enum2;
 
                     var cb = new Callback();
-                    var ret = p.opStringMyEnumDAsync(di1, di2).Result;
+                    var ret = await p.opStringMyEnumDAsync(di1, di2);
                     cb.opStringMyEnumD(ret.returnValue, ret.p3);
                 }
 
@@ -1290,7 +1290,7 @@ namespace Ice
                     di2[Test.MyEnum.enum3] = "qwerty";
 
                     var cb = new Callback();
-                    var ret = p.opMyEnumStringDAsync(di1, di2).Result;
+                    var ret = await p.opMyEnumStringDAsync(di1, di2);
                     cb.opMyEnumStringD(ret.returnValue, ret.p3);
                 }
 
@@ -1309,7 +1309,7 @@ namespace Ice
                     di2[s23] = Test.MyEnum.enum2;
 
                     var cb = new Callback();
-                    var ret = p.opMyStructMyEnumDAsync(di1, di2).Result;
+                    var ret = await p.opMyStructMyEnumDAsync(di1, di2);
                     cb.opMyStructMyEnumD(ret.returnValue, ret.p3);
                 }
 
@@ -1333,7 +1333,7 @@ namespace Ice
                     dsi2[0] = di3;
 
                     var cb = new Callback();
-                    var ret = p.opByteBoolDSAsync(dsi1, dsi2).Result;
+                    var ret = await p.opByteBoolDSAsync(dsi1, dsi2);
                     cb.opByteBoolDS(ret.returnValue, ret.p3);
                 }
 
@@ -1356,7 +1356,7 @@ namespace Ice
                     dsi2[0] = di3;
 
                     var cb = new Callback();
-                    var ret = p.opShortIntDSAsync(dsi1, dsi2).Result;
+                    var ret = await p.opShortIntDSAsync(dsi1, dsi2);
                     cb.opShortIntDS(ret.returnValue, ret.p3);
                 }
 
@@ -1379,7 +1379,7 @@ namespace Ice
                     dsi2[0] = di3;
 
                     var cb = new Callback();
-                    var ret = p.opLongFloatDSAsync(dsi1, dsi2).Result;
+                    var ret = await p.opLongFloatDSAsync(dsi1, dsi2);
                     cb.opLongFloatDS(ret.returnValue, ret.p3);
                 }
 
@@ -1402,7 +1402,7 @@ namespace Ice
                     dsi2[0] = di3;
 
                     var cb = new Callback();
-                    var ret = p.opStringStringDSAsync(dsi1, dsi2).Result;
+                    var ret = await p.opStringStringDSAsync(dsi1, dsi2);
                     cb.opStringStringDS(ret.returnValue, ret.p3);
                 }
 
@@ -1425,7 +1425,7 @@ namespace Ice
                     dsi2[0] = di3;
 
                     var cb = new Callback();
-                    var ret = p.opStringMyEnumDSAsync(dsi1, dsi2).Result;
+                    var ret = await p.opStringMyEnumDSAsync(dsi1, dsi2);
                     cb.opStringMyEnumDS(ret.returnValue, ret.p3);
                 }
 
@@ -1446,7 +1446,7 @@ namespace Ice
                     dsi2[0] = di3;
 
                     var cb = new Callback();
-                    var ret = p.opMyEnumStringDSAsync(dsi1, dsi2).Result;
+                    var ret = await p.opMyEnumStringDSAsync(dsi1, dsi2);
                     cb.opMyEnumStringDS(ret.returnValue, ret.p3);
                 }
 
@@ -1475,7 +1475,7 @@ namespace Ice
                     dsi2[0] = di3;
 
                     var cb = new Callback();
-                    var ret = p.opMyStructMyEnumDSAsync(dsi1, dsi2).Result;
+                    var ret = await p.opMyStructMyEnumDSAsync(dsi1, dsi2);
                     cb.opMyStructMyEnumDS(ret.returnValue, ret.p3);
                 }
 
@@ -1492,7 +1492,7 @@ namespace Ice
                     sdi2[0xf1] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opByteByteSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opByteByteSDAsync(sdi1, sdi2);
                     cb.opByteByteSD(ret.returnValue, ret.p3);
                 }
 
@@ -1508,7 +1508,7 @@ namespace Ice
                     sdi2[false] = si1;
 
                     var cb = new Callback();
-                    var ret = p.opBoolBoolSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opBoolBoolSDAsync(sdi1, sdi2);
                     cb.opBoolBoolSD(ret.returnValue, ret.p3);
                 }
 
@@ -1525,7 +1525,7 @@ namespace Ice
                     sdi2[4] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opShortShortSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opShortShortSDAsync(sdi1, sdi2);
                     cb.opShortShortSD(ret.returnValue, ret.p3);
                 }
 
@@ -1542,7 +1542,7 @@ namespace Ice
                     sdi2[400] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opIntIntSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opIntIntSDAsync(sdi1, sdi2);
                     cb.opIntIntSD(ret.returnValue, ret.p3);
                 }
 
@@ -1559,7 +1559,7 @@ namespace Ice
                     sdi2[999999992L] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opLongLongSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opLongLongSDAsync(sdi1, sdi2);
                     cb.opLongLongSD(ret.returnValue, ret.p3);
                 }
 
@@ -1576,7 +1576,7 @@ namespace Ice
                     sdi2["aBc"] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opStringFloatSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opStringFloatSDAsync(sdi1, sdi2);
                     cb.opStringFloatSD(ret.returnValue, ret.p3);
                 }
 
@@ -1593,7 +1593,7 @@ namespace Ice
                     sdi2[""] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opStringDoubleSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opStringDoubleSDAsync(sdi1, sdi2);
                     cb.opStringDoubleSD(ret.returnValue, ret.p3);
                 }
 
@@ -1610,7 +1610,7 @@ namespace Ice
                     sdi2["ghi"] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opStringStringSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opStringStringSDAsync(sdi1, sdi2);
                     cb.opStringStringSD(ret.returnValue, ret.p3);
                 }
 
@@ -1627,7 +1627,7 @@ namespace Ice
                     sdi2[Test.MyEnum.enum1] = si3;
 
                     var cb = new Callback();
-                    var ret = p.opMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
+                    var ret = await p.opMyEnumMyEnumSDAsync(sdi1, sdi2);
                     cb.opMyEnumMyEnumSD(ret.returnValue, ret.p3);
                 }
 
@@ -1643,7 +1643,7 @@ namespace Ice
                         }
 
                         var cb = new Callback(lengths[l]);
-                        cb.opIntS(p.opIntSAsync(s).Result);
+                        cb.opIntS(await p.opIntSAsync(s));
                     }
                 }
 
@@ -1655,23 +1655,23 @@ namespace Ice
                     {
                         test(p.ice_getContext().Count == 0);
                         var cb = new Callback(ctx);
-                        cb.opContextNotEqual(p.opContextAsync().Result);
+                        cb.opContextNotEqual(await p.opContextAsync());
                     }
                     {
                         test(p.ice_getContext().Count == 0);
                         var cb = new Callback(ctx);
-                        cb.opContextEqual(p.opContextAsync(ctx).Result);
+                        cb.opContextEqual(await p.opContextAsync(ctx));
                     }
                     {
                         var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
                         test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
                         var cb = new Callback(ctx);
-                        cb.opContextEqual(p2.opContextAsync().Result);
+                        cb.opContextEqual(await p2.opContextAsync());
                     }
                     {
                         var p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
                         Callback cb = new Callback(ctx);
-                        cb.opContextEqual(p2.opContextAsync(ctx).Result);
+                        cb.opContextEqual(await p2.opContextAsync(ctx));
                     }
                 }
 
@@ -1680,6 +1680,7 @@ namespace Ice
                 //
                 if (p.ice_getConnection() != null)
                 {
+                    // TODO: revise this test and use await instead of Result.
                     string[] impls = { "Shared", "PerThread" };
                     for (int i = 0; i < 2; i++)
                     {
@@ -1745,175 +1746,54 @@ namespace Ice
                     }
                 }
 
-                //
-                // Test implicit context propagation with async result
-                //
-                if (p.ice_getConnection() != null)
-                {
-                    string[] impls = { "Shared", "PerThread" };
-                    for (int i = 0; i < 2; i++)
-                    {
-                        Ice.InitializationData initData = new Ice.InitializationData();
-                        initData.properties = communicator.getProperties().ice_clone_();
-                        initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
-
-                        Ice.Communicator ic = helper.initialize(initData);
-
-                        Dictionary<string, string> ctx = new Dictionary<string, string>();
-                        ctx["one"] = "ONE";
-                        ctx["two"] = "TWO";
-                        ctx["three"] = "THREE";
-
-                        var p3 =
-                            Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
-
-                        // TODO: need to convert code below to async/await
-
-                        ic.getImplicitContext().setContext(ctx);
-                                    test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
-                        {
-                            Ice.AsyncResult r = p3.begin_opContext();
-                            Dictionary<string, string> c = p3.end_opContext(r);
-                            test(Ice.CollectionComparer.Equals(c, ctx));
-                        }
-
-                        ic.getImplicitContext().put("zero", "ZERO");
-
-                        ctx = ic.getImplicitContext().getContext();
-                        {
-                            Ice.AsyncResult r = p3.begin_opContext();
-                            Dictionary<string, string> c = p3.end_opContext(r);
-                            test(Ice.CollectionComparer.Equals(c, ctx));
-                        }
-
-                        Dictionary<string, string> prxContext = new Dictionary<string, string>();
-                        prxContext["one"] = "UN";
-                        prxContext["four"] = "QUATRE";
-
-                        Dictionary<string, string> combined = prxContext;
-                        foreach (KeyValuePair<string, string> e in ctx)
-                        {
-                            try
-                            {
-                                combined.Add(e.Key, e.Value);
-                            }
-                            catch (ArgumentException)
-                            {
-                                // Ignore.
-                            }
-                        }
-                        test(combined["one"] == "UN");
-
-                        p3 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(prxContext));
-
-                        ic.getImplicitContext().setContext(null);
-                        {
-                            Ice.AsyncResult r = p3.begin_opContext();
-                            Dictionary<string, string> c = p3.end_opContext(r);
-                            test(Ice.CollectionComparer.Equals(c, prxContext));
-                        }
-
-                        ic.getImplicitContext().setContext(ctx);
-                        {
-                            Ice.AsyncResult r = p3.begin_opContext();
-                            Dictionary<string, string> c = p3.end_opContext(r);
-                            test(Ice.CollectionComparer.Equals(c, combined));
-                        }
-
-                        //ic.getImplicitContext().setContext(null);
-                        ic.destroy();
-                    }
-                }
-
-                {
-                    p.opIdempotentAsync().Wait();
-                }
-
-                {
-                    p.opNonmutatingAsync().Wait();
-                }
+                await p.opIdempotentAsync();
+                await p.opNonmutatingAsync();
 
                 {
                     var derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
                     test(derived != null);
-                    var cb = new Callback();
-                    derived.opDerivedAsync().Wait();
+                    await derived.opDerivedAsync();
+                }
+
+                test(await p.opByte1Async(0xFF) == 0xFF);
+                test(await p.opShort1Async(0x7FFF) == 0x7FFF);
+                test(await p.opInt1Async(0x7FFFFFFF) == 0x7FFFFFFF);
+                test(await p.opLong1Async(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
+                test(await p.opFloat1Async(1.0f) == 1.0f);
+                test(await p.opDouble1Async(1.0d) == 1.0d);
+                test(await p.opString1Async("opString1") == "opString1");
+                test((await p.opStringS1Async(null)).Length == 0);
+                test((await p.opByteBoolD1Async(null)).Count == 0);
+                test((await p.opStringS2Async(null)).Length == 0);
+                test((await p.opByteBoolD2Async(null)).Count == 0);
+
+                {
+                    var p1 = await p.opMStruct1Async();
+
+                    p1.e = Test.MyEnum.enum3;
+                    var r = await p.opMStruct2Async(p1);
+                    test(r.p2.Equals(p1) && r.returnValue.Equals(p1));
                 }
 
                 {
-                    test(p.opByte1Async(0xFF).Result == 0xFF);
+                    await p.opMSeq1Async();
+
+                    var p1 = new string[1];
+                    p1[0] = "test";
+                    var r = await p.opMSeq2Async(p1);
+                    test(Ice.CollectionComparer.Equals(r.p2, p1) &&
+                         Ice.CollectionComparer.Equals(r.returnValue, p1));
                 }
 
                 {
-                    test(p.opShort1Async(0x7FFF).Result == 0x7FFF);
+                    await p.opMDict1Async();
+
+                    var p1 = new Dictionary<string, string>();
+                    p1["test"] = "test";
+                    var r = await p.opMDict2Async(p1);
+                    test(Ice.CollectionComparer.Equals(r.p2, p1) &&
+                         Ice.CollectionComparer.Equals(r.returnValue, p1));
                 }
-
-                {
-                    test(p.opInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
-                }
-
-                {
-                    test(p.opLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
-                }
-
-                {
-                    test(p.opFloat1Async(1.0f).Result == 1.0f);
-                }
-
-                {
-                    test(p.opDouble1Async(1.0d).Result == 1.0d);
-                }
-
-                {
-                    test(p.opString1Async("opString1").Result == "opString1");
-                }
-
-                {
-                    test(p.opStringS1Async(null).Result.Length == 0);
-                }
-
-                {
-                    test(p.opByteBoolD1Async(null).Result.Count == 0);
-                }
-
-                {
-                    test(p.opStringS2Async(null).Result.Length == 0);
-                }
-
-                {
-                    test(p.opByteBoolD2Async(null).Result.Count == 0);
-                }
-
-                Func<Task> task = async () =>
-                {
-                    {
-                        var p1 = await p.opMStruct1Async();
-
-                        p1.e = Test.MyEnum.enum3;
-                        var r = await p.opMStruct2Async(p1);
-                        test(r.p2.Equals(p1) && r.returnValue.Equals(p1));
-                    }
-
-                    {
-                        await p.opMSeq1Async();
-
-                        var p1 = new string[1];
-                        p1[0] = "test";
-                        var r = await p.opMSeq2Async(p1);
-                        test(Ice.CollectionComparer.Equals(r.p2, p1) &&
-                             Ice.CollectionComparer.Equals(r.returnValue, p1));
-                    }
-
-                    {
-                        await p.opMDict1Async();
-
-                        var p1 = new Dictionary<string, string>();
-                        p1["test"] = "test";
-                        var r = await p.opMDict2Async(p1);
-                        test(Ice.CollectionComparer.Equals(r.p2, p1) &&
-                             Ice.CollectionComparer.Equals(r.returnValue, p1));
-                    }
-                };
             }
         }
     }

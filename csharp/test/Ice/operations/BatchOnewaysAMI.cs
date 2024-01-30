@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -52,27 +52,16 @@ namespace Ice
                 private bool _called;
             }
 
-            internal static void batchOneways(Test.MyClassPrx p)
+            internal static async Task batchOnewaysAsync(Test.MyClassPrx p)
             {
                 byte[] bs1 = new byte[10 * 1024];
 
                 Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
-                batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
-
-                test(batch.begin_ice_flushBatchRequests().isSent());
-                test(batch.begin_ice_flushBatchRequests().isCompleted_());
-                test(batch.begin_ice_flushBatchRequests().sentSynchronously());
+                await batch.ice_flushBatchRequestsAsync();
 
                 for (int i = 0; i < 30; ++i)
                 {
-                    batch.begin_opByteSOneway(bs1).whenCompleted(
-                        () =>
-                        {
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            test(false);
-                        });
+                    await batch.opByteSOnewayAsync(bs1);
                 }
 
                 int count = 0;
@@ -87,34 +76,35 @@ namespace Ice
                     Test.MyClassPrx batch1 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
                     Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
 
-                    batch1.begin_ice_ping();
-                    batch2.begin_ice_ping();
-                    batch1.end_ice_flushBatchRequests(batch1.begin_ice_flushBatchRequests());
+                    _ = batch1.ice_pingAsync();
+                    _ = batch2.ice_pingAsync();
+                    await batch1.ice_flushBatchRequestsAsync();
                     batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-                    batch1.begin_ice_ping();
-                    batch2.begin_ice_ping();
+                    _ = batch1.ice_pingAsync();
+                    _ = batch2.ice_pingAsync();
 
                     batch1.ice_getConnection();
                     batch2.ice_getConnection();
 
-                    batch1.begin_ice_ping();
+                    _ = batch1.ice_pingAsync();
                     batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
-                    batch1.begin_ice_ping();
-                    batch2.begin_ice_ping();
+                    _ = batch1.ice_pingAsync();
+                    _ = batch2.ice_pingAsync();
                 }
 
                 Ice.Identity identity = new Ice.Identity();
                 identity.name = "invalid";
                 Ice.ObjectPrx batch3 = batch.ice_identity(identity);
-                batch3.begin_ice_ping();
-                batch3.end_ice_flushBatchRequests(batch3.begin_ice_flushBatchRequests());
+                _ = batch3.ice_pingAsync();
+
+                await batch3.ice_flushBatchRequestsAsync();
 
                 // Make sure that a bogus batch request doesn't cause troubles to other ones.
-                batch3.begin_ice_ping();
-                batch.begin_ice_ping();
-                batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
-                batch.begin_ice_ping();
+                _ = batch3.ice_pingAsync();
+                _ = batch.ice_pingAsync();
+                await batch.ice_flushBatchRequestsAsync();
+                _ = batch.ice_pingAsync();
             }
         }
     }

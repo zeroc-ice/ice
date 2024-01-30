@@ -29,16 +29,6 @@ namespace Ice
                 private bool _received = false;
             }
 
-            private class Cookie
-            {
-                public Cookie(int i)
-                {
-                    val = i;
-                }
-
-                public int val;
-            }
-
             public class Progress : IProgress<bool>
             {
                 public Progress(Action<bool> report)
@@ -168,205 +158,58 @@ namespace Ice
 
                 var output = helper.getWriter();
 
-                output.Write("testing async invocation...");
+                output.Write("testing async invocations...");
                 output.Flush();
                 {
                     Dictionary<string, string> ctx = new Dictionary<string, string>();
 
                     test(await p.ice_isAAsync("::Test::TestIntf"));
+
                     test(await p.ice_isAAsync("::Test::TestIntf", ctx));
 
                     await p.ice_pingAsync();
+
                     await p.ice_pingAsync(ctx);
 
-                    test(p.ice_idAsync().Result == "::Test::TestIntf");
-                    test(p.ice_idAsync(ctx).Result == "::Test::TestIntf");
+                    test(await p.ice_idAsync() == "::Test::TestIntf");
 
-                    test(p.ice_idsAsync().Result.Length == 2);
-                    test(p.ice_idsAsync(ctx).Result.Length == 2);
+                    test(await p.ice_idAsync(ctx) == "::Test::TestIntf");
 
-                    if(!collocated)
-                    {
-                        test(p.ice_getConnectionAsync().Result != null);
-                    }
+                    test((await p.ice_idsAsync()).Length == 2);
 
-                    p.opAsync().Wait();
-                    p.opAsync(ctx).Wait();
-
-                    test(p.opWithResultAsync().Result == 15);
-                    test(p.opWithResultAsync(ctx).Result == 15);
-
-                    try
-                    {
-                        p.opWithUEAsync().Wait();
-                        test(false);
-                    }
-                    catch(AggregateException ae)
-                    {
-                        ae.Handle(ex => ex is Test.TestIntfException);
-                    }
-
-                    try
-                    {
-                        p.opWithUEAsync(ctx).Wait();
-                        test(false);
-                    }
-                    catch(AggregateException ae)
-                    {
-                        ae.Handle(ex => ex is Test.TestIntfException);
-                    }
-                }
-                output.WriteLine("ok");
-
-                output.Write("testing async/await...");
-                output.Flush();
-                {
-                    Task.Run(async() =>
-                        {
-                            Dictionary<string, string> ctx = new Dictionary<string, string>();
-
-                            test(await p.ice_isAAsync("::Test::TestIntf"));
-                            test(await p.ice_isAAsync("::Test::TestIntf", ctx));
-
-                            await p.ice_pingAsync();
-                            await p.ice_pingAsync(ctx);
-
-                            var id = await p.ice_idAsync();
-                            test(id == "::Test::TestIntf");
-                            id = await p.ice_idAsync(ctx);
-                            test(id == "::Test::TestIntf");
-
-                            var ids = await p.ice_idsAsync();
-                            test(ids.Length == 2);
-                            ids = await p.ice_idsAsync(ctx);
-                            test(ids.Length == 2);
-
-                            if(!collocated)
-                            {
-                                var conn = await p.ice_getConnectionAsync();
-                                test(conn != null);
-                            }
-
-                            await p.opAsync();
-                            await p.opAsync(ctx);
-
-                            var result = await p.opWithResultAsync();
-                            test(result == 15);
-                            result = await p.opWithResultAsync(ctx);
-                            test(result == 15);
-
-                            try
-                            {
-                                await p.opWithUEAsync();
-                                test(false);
-                            }
-                            catch(System.Exception ex)
-                            {
-                                test(ex is Test.TestIntfException);
-                            }
-
-                            try
-                            {
-                                await p.opWithUEAsync(ctx);
-                                test(false);
-                            }
-                            catch(System.Exception ex)
-                            {
-                                test(ex is Test.TestIntfException);
-                            }
-                        }).Wait();
-                }
-                output.WriteLine("ok");
-
-                output.Write("testing async continuations...");
-                output.Flush();
-                {
-                    Dictionary<string, string> ctx = new Dictionary<string, string>();
-
-                    p.ice_isAAsync("::Test::TestIntf").ContinueWith(previous =>
-                        {
-                            test(previous.Result);
-                        }).Wait();
-
-                    p.ice_isAAsync("::Test::TestIntf", ctx).ContinueWith(previous =>
-                        {
-                            test(previous.Result);
-                        }).Wait();
-
-                    p.ice_pingAsync().ContinueWith(previous =>
-                        {
-                            previous.Wait();
-                        }).Wait();
-
-                    p.ice_pingAsync(ctx).ContinueWith(previous =>
-                        {
-                            previous.Wait();
-                        }).Wait();
-
-                    p.ice_idAsync().ContinueWith(previous =>
-                        {
-                            test(previous.Result == "::Test::TestIntf");
-                        }).Wait();
-
-                    p.ice_idAsync(ctx).ContinueWith(previous =>
-                        {
-                            test(previous.Result == "::Test::TestIntf");
-                        }).Wait();
-
-                    p.ice_idsAsync().ContinueWith(previous =>
-                        {
-                            test(previous.Result.Length == 2);
-                        }).Wait();
-
-                    p.ice_idsAsync(ctx).ContinueWith(previous =>
-                        {
-                            test(previous.Result.Length == 2);
-                        }).Wait();
+                    test((await p.ice_idsAsync(ctx)).Length == 2);
 
                     if(!collocated)
                     {
-                        p.ice_getConnectionAsync().ContinueWith(previous =>
-                            {
-                                test(previous.Result != null);
-                            }).Wait();
+                        test(await p.ice_getConnectionAsync() is not null);
                     }
 
-                    p.opAsync().ContinueWith(previous => previous.Wait()).Wait();
-                    p.opAsync(ctx).ContinueWith(previous => previous.Wait()).Wait();
+                    await p.opAsync();
+                    await p.opAsync(ctx);
 
-                    p.opWithResultAsync().ContinueWith(previous =>
-                        {
-                            test(previous.Result == 15);
-                        }).Wait();
+                    test(await p.opWithResultAsync() == 15);
 
-                    p.opWithResultAsync(ctx).ContinueWith(previous =>
-                        {
-                            test(previous.Result == 15);
-                        }).Wait();
+                    test(await p.opWithResultAsync(ctx) == 15);
 
-                    p.opWithUEAsync().ContinueWith(previous =>
-                        {
-                            try
-                            {
-                                previous.Wait();
-                            }
-                            catch(AggregateException ae)
-                            {
-                                ae.Handle(ex => ex is Test.TestIntfException);
-                            }
-                        }).Wait();
+                    try
+                    {
+                        await p.opWithUEAsync();
+                        test(false);
+                    }
+                    catch (Test.TestIntfException)
+                    {
+                        // expected
+                    }
 
-                    p.opWithUEAsync(ctx).ContinueWith(previous =>
-                        {
-                            try
-                            {
-                                previous.Wait();
-                            }
-                            catch(AggregateException ae)
-                            {
-                                ae.Handle(ex => ex is Test.TestIntfException);
-                            }
-                        }).Wait();
+                    try
+                    {
+                        await p.opWithUEAsync(ctx);
+                        test(false);
+                    }
+                    catch (Test.TestIntfException)
+                    {
+                        // expected
+                    }
                 }
                 output.WriteLine("ok");
 
@@ -377,15 +220,12 @@ namespace Ice
 
                     try
                     {
-                        indirect.opAsync().Wait();
+                        await indirect.opAsync();
                         test(false);
                     }
-                    catch(AggregateException ae)
+                    catch (NoEndpointException)
                     {
-                        ae.Handle((ex) =>
-                        {
-                            return ex is Ice.NoEndpointException;
-                        });
+                        // expected
                     }
 
                     try
@@ -400,7 +240,7 @@ namespace Ice
                     //
                     // Check that CommunicatorDestroyedException is raised directly.
                     //
-                    if(p.ice_getConnection() != null)
+                    if (p.ice_getConnection() != null)
                     {
                         Ice.InitializationData initData = new Ice.InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
@@ -414,72 +254,10 @@ namespace Ice
                             _ = p2.opAsync();
                             test(false);
                         }
-                        catch(Ice.CommunicatorDestroyedException)
+                        catch (Ice.CommunicatorDestroyedException)
                         {
                             // Expected.
                         }
-                    }
-                }
-                output.WriteLine("ok");
-
-                output.Write("testing exception with async task... ");
-                output.Flush();
-                {
-                    Test.TestIntfPrx i = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-
-                    try
-                    {
-                        i.ice_isAAsync("::Test::TestIntf").Wait();
-                        test(false);
-                    }
-                    catch(AggregateException)
-                    {
-                    }
-
-                    try
-                    {
-                        i.opAsync().Wait();
-                        test(false);
-                    }
-                    catch(AggregateException)
-                    {
-                    }
-
-                    try
-                    {
-                        i.opWithResultAsync().Wait();
-                        test(false);
-                    }
-                    catch(AggregateException)
-                    {
-                    }
-
-                    try
-                    {
-                        i.opWithUEAsync().Wait();
-                        test(false);
-                    }
-                    catch(AggregateException)
-                    {
-                    }
-
-                    // Ensures no exception is called when response is received
-                    test(p.ice_isAAsync("::Test::TestIntf").Result);
-                    p.opAsync().Wait();
-                    p.opWithResultAsync().Wait();
-
-                    // If response is a user exception, it should be received.
-                    try
-                    {
-                        p.opWithUEAsync().Wait();
-                        test(false);
-                    }
-                    catch(AggregateException ae)
-                    {
-                        ae.Handle((ex) =>
-                        {
-                            return ex is Test.TestIntfException;
-                        });
                     }
                 }
                 output.WriteLine("ok");
@@ -488,6 +266,7 @@ namespace Ice
                 output.Flush();
                 {
                     {
+                        // TODO: revisit the logic of this test and replace t.Wait() with await t.
                         SentCallback cb = new SentCallback();
 
                         Task t = p.ice_isAAsync("",
@@ -533,7 +312,7 @@ namespace Ice
 
                     List<Task> tasks = new List<Task>();
                     byte[] seq = new byte[10024];
-                   (new Random()).NextBytes(seq);
+                    (new Random()).NextBytes(seq);
                     testController.holdAdapter();
                     try
                     {
@@ -551,10 +330,8 @@ namespace Ice
                     {
                         testController.resumeAdapter();
                     }
-                    foreach(Task t in tasks)
-                    {
-                        t.Wait();
-                    }
+
+                    await Task.WhenAll(tasks);
                 }
                 output.WriteLine("ok");
 
@@ -576,9 +353,9 @@ namespace Ice
                             Task t = b1.ice_getConnection().flushBatchRequestsAsync(
                                 Ice.CompressBatch.BasedOnProxy,
                                 progress: new Progress(
-                                    sentSyncrhonously =>
+                                    sentSynchronously =>
                                     {
-                                        cb.sent(sentSyncrhonously);
+                                        cb.sent(sentSynchronously);
                                     }));
 
                             cb.check();
@@ -605,10 +382,10 @@ namespace Ice
                                     }));
                             try
                             {
-                                t.Wait();
+                                await t;
                                 test(false);
                             }
-                            catch(System.AggregateException)
+                            catch
                             {
                             }
                             test(p.opBatchCount() == 0);
@@ -760,48 +537,6 @@ namespace Ice
                     }
                     output.WriteLine("ok");
                 }
-
-                output.Write("testing async/await... ");
-                output.Flush();
-                Func<Task> task = async() =>
-                {
-                    try
-                    {
-                        await p.opAsync();
-
-                        var r = await p.opWithResultAsync();
-                        test(r == 15);
-
-                        try
-                        {
-                            await p.opWithUEAsync();
-                        }
-                        catch(Test.TestIntfException)
-                        {
-                        }
-
-                            // Operations implemented with amd and async.
-                            await p.opAsyncDispatchAsync();
-
-                        r = await p.opWithResultAsyncDispatchAsync();
-                        test(r == 15);
-
-                        try
-                        {
-                            await p.opWithUEAsyncDispatchAsync();
-                            test(false);
-                        }
-                        catch(Test.TestIntfException)
-                        {
-                        }
-                    }
-                    catch(Ice.OperationNotExistException)
-                    {
-                            // Expected with cross testing, this opXxxAsyncDispatch methods are C# only.
-                        }
-                };
-                task().Wait();
-                output.WriteLine("ok");
 
                 if(p.ice_getConnection() != null)
                 {
@@ -1126,12 +861,10 @@ namespace Ice
                 {
                     var q = Test.Outer.Inner.TestIntfPrxHelper.uncheckedCast(
                         communicator.stringToProxy("test2:" + helper.getTestEndpoint(0)));
-                    q.opAsync(1).ContinueWith(t =>
-                        {
-                            var r = t.Result;
-                            test(r.returnValue == 1);
-                            test(r.j == 1);
-                        }).Wait();
+
+                    var r = await q.opAsync(1);
+                    test(r.returnValue == 1);
+                    test(r.j == 1);
                 }
                 output.WriteLine("ok");
 
