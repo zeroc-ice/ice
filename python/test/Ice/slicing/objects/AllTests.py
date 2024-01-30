@@ -912,7 +912,9 @@ def allTests(helper, communicator):
         p3 = b2
         test(isinstance(p3, Test.D1))
         test(p3.sd1 == "D1.sd1")
-        test(p3.pd1 == b1)
+        test(p3.pd1 == b1)        p1 = b1
+        test(!p1.is_a?(Test::D3))
+
 
         p1 = b1
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:

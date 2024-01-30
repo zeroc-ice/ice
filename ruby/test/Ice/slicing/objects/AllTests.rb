@@ -304,10 +304,16 @@ def allTests(helper, communicator)
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D3.sb")
-        test(b2.ice_id() == "::Test::B")        # Sliced by server
         test(b2.pb == b1)
+
         p3 = b2
-        test(!p3.is_a?(Test::D3))
+        if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+            test(!p3.is_a?(Test::D3))
+        else
+            test(p3.is_a?(Test::D3))
+            test(p3.pd3 == p1)
+            test(p3.sd3 == "D3.sd3")
+        end
 
         test(b1 != d1)
         test(b1 != d3)
@@ -336,19 +342,26 @@ def allTests(helper, communicator)
 
         test(b1)
         test(b1.sb == "D3.sb")
-        test(b1.ice_id() == "::Test::B")        # Sliced by server
-        p1 = b1
-        test(!p1.is_a?(Test::D3))
 
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D1.sb")
         test(b2.ice_id() == "::Test::D1")
         test(b2.pb == b1)
+
         p3 = b2
         test(p3.is_a?(Test::D1))
         test(p3.sd1 == "D1.sd1")
         test(p3.pd1 == b1)
+
+        p1 = b1
+        if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+            test(!p1.is_a?(Test::D3))
+        else
+            test(p1.is_a?(Test::D3))
+            test(p1.pd3 == b2)
+            test(p1.sd3 == "D3.sd3")
+        end
 
         test(b1 != d1)
         test(b1 != d3)
@@ -422,9 +435,24 @@ def allTests(helper, communicator)
         r = t.returnTest3(d3, b2)
 
         test(r)
-        test(r.ice_id() == "::Test::B")
         test(r.sb == "D3.sb")
         test(r.pb == r)
+
+        p3 = r
+        if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+            test(!p3.is_a?(Test::D3))
+        else
+            test(p3.is_a?(Test::D3))
+
+            test(p3.sb == "D3.sb")
+            test(p3.pb == r)
+            test(p3.sd3 == "D3.sd3")
+
+            test(p3.pd3.ice_id() == "::Test::B")
+            test(p3.pd3.sb == "B.sb(1)")
+            test(p3.pd3.pb == p3.pd3)
+        end
+
     rescue Ice::Exception
         test(false)
     end
@@ -452,11 +480,20 @@ def allTests(helper, communicator)
         d12.pd1 = d11
 
         r = t.returnTest3(d3, d12)
+
         test(r)
-        test(r.ice_id() == "::Test::B")
         test(r.sb == "D3.sb")
         test(r.pb == r)
-    rescue Ice::Exception
+        p3 = r
+        if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+            test(!p3.is_a?(Test::D3))
+        else
+            test(p3.is_a?(Test::D3))
+            test(p3.sd3 == "D3.sd3")
+            test(p3.pd3.ice_id() == "::Test::D1")
+        end
+
+        rescue Ice::Exception
         test(false)
     end
     puts "ok"
@@ -528,11 +565,18 @@ def allTests(helper, communicator)
 
         test(ss1b.ice_id() == "::Test::B")
         test(ss1d1.ice_id() == "::Test::D1")
-        test(ss1d3.ice_id() == "::Test::B")
 
         test(ss2b.ice_id() == "::Test::B")
         test(ss2d1.ice_id() == "::Test::D1")
-        test(ss2d3.ice_id() == "::Test::B")
+
+        if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+            test(ss1d3.ice_id() == "::Test::B")
+            test(ss2d3.ice_id() == "::Test::B")
+        else
+            test(ss1d3.ice_id() == "::Test::D3")
+            test(ss2d3.ice_id() == "::Test::D3")
+        end
+
     rescue Ice::Exception
         test(false)
     end
@@ -698,8 +742,15 @@ def allTests(helper, communicator)
     pu.pu = "preserved"
 
     r = t.exchangePBase(pu)
-    test(!r.is_a?(Test::PCUnknown))
     test(r.pi == 3)
+
+    p2 = r
+    if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+        test(!p2.is_a?(Test::PCUnknown))
+    else
+        test(p2.is_a?(Test::PCUnknown))
+        test(p2.pu == "preserved")
+    end
 
     #
     # Server only knows the intermediate type Preserved. The object will be sliced to
