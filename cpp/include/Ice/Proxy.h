@@ -138,7 +138,7 @@ public:
             const ::Ice::Byte* encaps;
             ::Ice::Int sz;
             stream->readEncapsulation(encaps, sz);
-            return R{ ok, { encaps, encaps + sz } };
+            return R { ok, { encaps, encaps + sz } };
         };
 
         try
@@ -224,8 +224,7 @@ public:
     {
         if(done)
         {
-            Ice::ByteSeq empty;
-            this->_promise.set_value(R { true, empty });
+            this->_promise.set_value(R { true, { static_cast<Ice::Byte*>(nullptr), static_cast<Ice::Byte*>(nullptr) } });
         }
         return false;
     }
