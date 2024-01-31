@@ -377,7 +377,7 @@ class EncapsDecoder10 extends EncapsDecoder
         this._skipFirstSlice = true;
     }
 
-    endInstance(preserve)
+    endInstance()
     {
         //
         // Read the Ice::Object slice.
@@ -634,13 +634,9 @@ class EncapsDecoder11 extends EncapsDecoder
         this._current.skipFirstSlice = true;
     }
 
-    endInstance(preserve)
+    endInstance()
     {
-        let slicedData = null;
-        if(preserve)
-        {
-            slicedData = this.readSlicedData();
-        }
+        let slicedData = this.readSlicedData();
         if(this._current.slices !== null)
         {
             this._current.slices.length = 0; // Clear the array.
@@ -1297,10 +1293,10 @@ class InputStream
         this._encapsStack.decoder.startInstance(SliceType.ValueSlice);
     }
 
-    endValue(preserve)
+    endValue()
     {
         Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
-        return this._encapsStack.decoder.endInstance(preserve);
+        return this._encapsStack.decoder.endInstance();
     }
 
     startException()
@@ -1309,10 +1305,10 @@ class InputStream
         this._encapsStack.decoder.startInstance(SliceType.ExceptionSlice);
     }
 
-    endException(preserve)
+    endException()
     {
         Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
-        return this._encapsStack.decoder.endInstance(preserve);
+        return this._encapsStack.decoder.endInstance();
     }
 
     startEncapsulation()
@@ -2917,10 +2913,10 @@ class OutputStream
         this._encapsStack.encoder.endInstance();
     }
 
-    startException(data)
+    startException()
     {
         Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
-        this._encapsStack.encoder.startInstance(SliceType.ExceptionSlice, data);
+        this._encapsStack.encoder.startInstance(SliceType.ExceptionSlice);
     }
 
     endException()
@@ -2966,7 +2962,7 @@ class OutputStream
         curr.next = this._encapsStack;
         this._encapsStack = curr;
 
-        this._encapsStack.format = format;
+        this._encapsStackformat;
         this._encapsStack.setEncoding(encoding);
         this._encapsStack.start = this._buf.limit;
 
@@ -3258,6 +3254,7 @@ class OutputStream
     writeException(e)
     {
         this.initEncaps();
+        this._encapsStack.format = FormatType.SlicedFormat;
         this._encapsStack.encoder.writeException(e);
     }
 
