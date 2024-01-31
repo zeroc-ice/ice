@@ -2717,18 +2717,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << name << "(const " << name << "&) = default;";
     H << nl <<  name << "& operator=(const " << name << "&) = default;";
 
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(
-        allBases.begin(), allBases.end(), back_inserter(ids), [](const ContainedPtr& it) { return it->scoped(); });
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
-    assert(scopedIter != ids.end());
+    StringList ids = p->ids();
 
     H << sp;
     H << nl << "/**";
@@ -2805,7 +2794,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << *scopedIter << "\";";
+    C << nl << "static const ::std::string typeId = \"" << scoped << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -6673,8 +6662,6 @@ Slice::Gen::Cpp11InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr&
     vector<string> allParamDecls;
 
     StringList ids = p->ids();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
-    assert(scopedIter != ids.end());
 
     H << sp;
     H << nl << "/**";
@@ -6739,7 +6726,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr&
     //
     // Use local static so that ice_staticId() is usable during static construction.
     //
-    C << nl << "static const ::std::string typeId = \"" << *scopedIter << "\";";
+    C << nl << "static const ::std::string typeId = \"" << scoped << "\";";
     C << nl << "return typeId;";
     C << eb;
     return true;
