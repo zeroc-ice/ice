@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace IceInternal
 {
@@ -191,15 +191,20 @@ namespace IceInternal
             override protected void
             send()
             {
-                try
-                {
-                    _locatorInfo.getLocator().begin_findObjectById(_ref.getIdentity()).whenCompleted(
-                        this.response, this.exception);
-                }
-                catch(Ice.Exception ex)
-                {
-                    exception(ex);
-                }
+                _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var locator = _locatorInfo.getLocator();
+                            var proxy = await locator.findObjectByIdAsync(_ref.getIdentity()).ConfigureAwait(false);                            
+                            response(proxy);
+                        }
+                        catch (Ice.Exception ex)
+                        {
+                            exception(ex);
+                        }
+                    });
+                
             }
         }
 
@@ -212,15 +217,19 @@ namespace IceInternal
             override protected void
             send()
             {
-                try
+                _ = Task.Run(async () =>
                 {
-                    _locatorInfo.getLocator().begin_findAdapterById(_ref.getAdapterId()).whenCompleted(
-                        response, exception);
-                }
-                catch(Ice.Exception ex)
-                {
-                    exception(ex);
-                }
+                    try
+                    {
+                        var locator = _locatorInfo.getLocator();
+                        var proxy = await locator.findAdapterByIdAsync(_ref.getAdapterId()).ConfigureAwait(false);
+                        response(proxy);
+                    }
+                    catch (Ice.Exception ex)
+                    {
+                        exception(ex);
+                    }
+                });
             }
         }
 

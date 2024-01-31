@@ -7,42 +7,10 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using Test;
+using System.Threading.Tasks;
 
 public class AllTests : Test.AllTests
 {
-    private class Callback
-    {
-        internal Callback()
-        {
-            _called = false;
-        }
-
-        public virtual void check()
-        {
-            lock(this)
-            {
-                while(!_called)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                _called = false;
-            }
-        }
-
-        public virtual void called()
-        {
-            lock(this)
-            {
-                Debug.Assert(!_called);
-                _called = true;
-                System.Threading.Monitor.Pulse(this);
-            }
-        }
-
-        private bool _called;
-    }
-
     private static void exceptAbortI(Ice.Exception ex, TextWriter output)
     {
         try
@@ -65,7 +33,7 @@ public class AllTests : Test.AllTests
         }
     }
 
-    public static void allTests(Test.TestHelper helper, List<int> ports)
+    public static async Task allTests(Test.TestHelper helper, List<int> ports)
     {
         Ice.Communicator communicator = helper.communicator();
         var output = helper.getWriter();
@@ -110,20 +78,7 @@ public class AllTests : Test.AllTests
             {
                 output.Write("testing server #" + i + " with AMI... ");
                 output.Flush();
-                Callback cb = new Callback();
-                int pid = -1;
-                obj.begin_pid().whenCompleted(
-                    (int p) =>
-                    {
-                        pid = p;
-                        cb.called();
-                    },
-                    (Ice.Exception ex) =>
-                    {
-                        output.WriteLine(ex.ToString());
-                        test(false);
-                    });
-                cb.check();
+                int pid = await obj.pidAsync();
                 test(pid != oldPid);
                 output.WriteLine("ok");
                 oldPid = pid;
@@ -141,18 +96,7 @@ public class AllTests : Test.AllTests
                 else
                 {
                     output.Write("shutting down server #" + i + " with AMI... ");
-                    Callback cb = new Callback();
-                    obj.begin_shutdown().whenCompleted(
-                        () =>
-                        {
-                            cb.called();
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            output.WriteLine(ex.ToString());
-                            test(false);
-                        });
-                    cb.check();
+                    await obj.shutdownAsync();
                     output.WriteLine("ok");
                 }
             }
@@ -184,18 +128,7 @@ public class AllTests : Test.AllTests
                 {
                     output.Write("aborting server #" + i + " with AMI... ");
                     output.Flush();
-                    Callback cb = new Callback();
-                    obj.begin_abort().whenCompleted(
-                        () =>
-                        {
-                            test(false);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            exceptAbortI(ex, output);
-                            cb.called();
-                        });
-                    cb.check();
+                    await obj.abortAsync();
                     output.WriteLine("ok");
                 }
             }
@@ -227,18 +160,7 @@ public class AllTests : Test.AllTests
                 {
                     output.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
                     output.Flush();
-                    Callback cb = new Callback();
-                    obj.begin_idempotentAbort().whenCompleted(
-                        () =>
-                        {
-                            test(false);
-                        },
-                        (Ice.Exception ex) =>
-                        {
-                            exceptAbortI(ex, output);
-                            cb.called();
-                        });
-                    cb.check();
+                    await obj.idempotentAbortAsync();
                     output.WriteLine("ok");
                 }
                 ++i;

@@ -189,11 +189,6 @@ namespace Ice
             return completed.Task;
         }
 
-        public AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch)
-        {
-            return begin_flushBatchRequests(compressBatch, null, null);
-        }
-
         private const string _flushBatchRequests_name = "flushBatchRequests";
 
         private class CommunicatorFlushBatchCompletionCallback : AsyncResultCompletionCallback
@@ -225,30 +220,6 @@ namespace Ice
                 };
             }
         };
-
-        public AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch, AsyncCallback cb, object cookie)
-        {
-            var result = new CommunicatorFlushBatchCompletionCallback(this,
-                                                                      _instance,
-                                                                      _flushBatchRequests_name,
-                                                                      cookie,
-                                                                      cb);
-            var outgoing = new CommunicatorFlushBatchAsync(_instance, result);
-            outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
-            return result;
-        }
-
-        public void end_flushBatchRequests(AsyncResult result)
-        {
-            if(result != null && result.getCommunicator() != this)
-            {
-                const string msg = "Communicator for call to end_" + _flushBatchRequests_name +
-                                   " does not match communicator that was used to call corresponding begin_" +
-                                   _flushBatchRequests_name + " method";
-                throw new ArgumentException(msg);
-            }
-            AsyncResultI.check(result, _flushBatchRequests_name).wait();
-        }
 
         public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
         {

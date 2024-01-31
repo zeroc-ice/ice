@@ -2,13 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace Ice
 {
     namespace seqMapping
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.MyClassPrx allTests(global::Test.TestHelper helper, bool collocated)
+            public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper, bool collocated)
             {
                 var communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -26,7 +28,7 @@ namespace Ice
                 {
                     output.Write("testing twoway operations with AMI... ");
                     output.Flush();
-                    TwowaysAMI.twowaysAMI(communicator, cl);
+                    await TwowaysAMI.twowaysAMI(communicator, cl);
                     output.WriteLine("ok");
                 }
                 return cl;

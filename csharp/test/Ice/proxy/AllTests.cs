@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -11,7 +12,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
+            public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)
             {
                 var communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -887,7 +888,7 @@ namespace Ice
                 string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
                 Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
                 cl13.ice_ping();
-                cl13.end_ice_ping(cl13.begin_ice_ping());
+                await cl13.ice_pingAsync();
 
                 try
                 {
@@ -956,7 +957,7 @@ namespace Ice
                 ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
                 cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
                 cl13.ice_ping();
-                cl13.end_ice_ping(cl13.begin_ice_ping());
+                await cl13.ice_pingAsync();
                 output.WriteLine("ok");
 
                 output.Write("testing opaque endpoints... ");

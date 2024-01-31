@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 var initData = new Ice.InitializationData();
                 initData.observer = Instrumentation.getObserver();
@@ -33,16 +34,14 @@ namespace Ice
                     initData.observer = Instrumentation.getObserver();
                     using(var communicator2 = initialize(initData))
                     {
-                        var retry = AllTests.allTests(this, communicator, communicator2, "retry:" + getTestEndpoint(0));
-                        retry.shutdown();
+                        var retry = await AllTests.allTests(this, communicator, communicator2, "retry:" + getTestEndpoint(0));
+                        await retry.shutdownAsync();
                     }
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Client>(args);
         }
     }
 }

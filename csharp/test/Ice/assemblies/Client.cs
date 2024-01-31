@@ -3,10 +3,10 @@
 //
 
 using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -53,8 +53,6 @@ public class Client : Test.TestHelper
         Console.Out.WriteLine("ok");
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        Test.TestDriver.runTestAsync<Client>(args);
 }

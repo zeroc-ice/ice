@@ -4,6 +4,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -13,7 +14,7 @@ using System.Reflection;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override async Task runAsync(string[] args)
     {
         Ice.Properties properties = createTestProperties(ref args);
 
@@ -42,13 +43,11 @@ public class Client : Test.TestHelper
             PluginI plugin = new PluginI(communicator);
             plugin.initialize();
             communicator.getPluginManager().addPlugin("Test", plugin);
-            Test.BackgroundPrx background = AllTests.allTests(this);
+            Test.BackgroundPrx background = await AllTests.allTests(this);
             background.shutdown();
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        Test.TestDriver.runTestAsync<Client>(args);
 }

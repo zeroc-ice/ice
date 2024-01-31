@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -11,7 +12,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static void allTests(global::Test.TestHelper helper)
+            public static async void allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var manager = Test.ServerManagerPrxHelper.checkedCast(
@@ -271,24 +272,14 @@ namespace Ice
                 count = locator.getRequestCount();
                 hello.ice_ping();
                 test(++count == locator.getRequestCount());
-                List<Ice.AsyncResult<Test.Callback_Hello_sayHello>> results =
-                    new List<Ice.AsyncResult<Test.Callback_Hello_sayHello>>();
+                var results = new List<Task>();
                 for(int i = 0; i < 1000; i++)
                 {
-                    Ice.AsyncResult<Test.Callback_Hello_sayHello> result = hello.begin_sayHello().
-                        whenCompleted(
-                           () =>
-                            {
-                            },
-                           (Ice.Exception ex) =>
-                            {
-                                test(false);
-                            });
-                    results.Add(result);
+                    results.Add(hello.sayHelloAsync());
                 }
-                foreach(Ice.AsyncResult<Test.Callback_Hello_sayHello> result in results)
+                foreach(Task t in results)
                 {
-                    result.waitForCompleted();
+                    await t;
                 }
                 results.Clear();
                 test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
@@ -300,21 +291,18 @@ namespace Ice
                 hello =(Test.HelloPrx)hello.ice_adapterId("unknown");
                 for(int i = 0; i < 1000; i++)
                 {
-                    Ice.AsyncResult<Test.Callback_Hello_sayHello> result = hello.begin_sayHello().
-                        whenCompleted(
-                           () =>
-                            {
-                                test(false);
-                            },
-                           (Ice.Exception ex) =>
-                            {
-                                test(ex is Ice.NotRegisteredException);
-                            });
-                    results.Add(result);
+                    results.Add(hello.sayHelloAsync());
                 }
-                foreach(Ice.AsyncResult<Test.Callback_Hello_sayHello> result in results)
+                foreach(var t in results)
                 {
-                    result.waitForCompleted();
+                    try
+                    {
+                        await t;
+                    }
+                    catch (NotRegisteredException)
+                    {
+
+                    }
                 }
                 results.Clear();
                 // XXX:

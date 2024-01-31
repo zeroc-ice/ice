@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -11,14 +12,14 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 var initData = new InitializationData();
                 initData.typeIdNamespaces = new string[]{"Ice.seqMapping.TypeId"};
                 initData.properties = createTestProperties(ref args);
                 using(var communicator = initialize(initData))
                 {
-                    var myClass = AllTests.allTests(this, false);
+                    var myClass = await AllTests.allTests(this, false);
                     Console.Out.Write("shutting down server... ");
                     Console.Out.Flush();
                     myClass.shutdown();
@@ -26,10 +27,8 @@ namespace Ice
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Client>(args);
         }
     }
 }

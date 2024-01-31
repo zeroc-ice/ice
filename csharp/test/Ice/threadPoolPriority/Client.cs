@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace Ice
 {
     namespace threadPoolPriority
@@ -23,10 +25,8 @@ namespace Ice
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return global::Test.TestDriver.runTest<Client>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                global::Test.TestDriver.runTestAsync<Client>(args);
         }
     }
 }

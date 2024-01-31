@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace Ice
 {
     namespace proxy
@@ -29,10 +31,8 @@ namespace Ice
                     }
                 }
 
-                public static int Main(string[] args)
-                {
-                    return global::Test.TestDriver.runTest<Server>(args);
-                }
+                public static Task<int> Main(string[] args) =>
+                    global::Test.TestDriver.runTestAsync<Server>(args);
             }
         }
     }

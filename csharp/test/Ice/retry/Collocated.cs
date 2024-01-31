@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,9 +11,9 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
-                var initData = new Ice.InitializationData();
+                var initData = new InitializationData();
                 initData.observer = Instrumentation.getObserver();
 
                 initData.properties = createTestProperties(ref args);
@@ -36,16 +37,13 @@ namespace Ice
                         communicator.createObjectAdapter("").add(new RetryI(), Ice.Util.stringToIdentity("retry"));
                         communicator2.createObjectAdapter("").add(new RetryI(), Ice.Util.stringToIdentity("retry"));
 
-                        Test.RetryPrx retry = AllTests.allTests(this, communicator, communicator2, "retry");
+                        Test.RetryPrx retry = await AllTests.allTests(this, communicator, communicator2, "retry");
                         retry.shutdown();
                     }
                 }
             }
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
-
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Collocated>(args);
         }
     }
 }

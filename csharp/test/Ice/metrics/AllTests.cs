@@ -8,6 +8,7 @@ using System.Threading;
 using System.IO;
 
 using Test;
+using System.Threading.Tasks;
 
 public class AllTests : Test.AllTests
 {
@@ -484,7 +485,7 @@ public class AllTests : Test.AllTests
         return m;
     }
 
-    public static MetricsPrx allTests(Test.TestHelper helper, CommunicatorObserverI obsv)
+    public static async Task<MetricsPrx> allTests(Test.TestHelper helper, CommunicatorObserverI obsv)
     {
         Ice.Communicator communicator = helper.communicator();
 
@@ -1016,14 +1017,8 @@ public class AllTests : Test.AllTests
         updateProps(clientProps, serverProps, update, props, "Invocation");
         test(serverMetrics.getMetricsView("View", out timestamp)["Invocation"].Length == 0);
 
-        CallbackBase cb = new Callback();
-
         metrics.op();
-        metrics.end_op(metrics.begin_op());
-        metrics.begin_op().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
-
-        cb = new UserExCallback();
+        await metrics.opAsync();
         try
         {
             metrics.opWithUserException();
@@ -1035,17 +1030,13 @@ public class AllTests : Test.AllTests
 
         try
         {
-            metrics.end_opWithUserException(metrics.begin_opWithUserException());
+            await metrics.opWithUserExceptionAsync();
             test(false);
         }
         catch(UserEx)
         {
         }
 
-        metrics.begin_opWithUserException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
-
-        cb = new RequestFailedExceptionCallback();
         try
         {
             metrics.opWithRequestFailedException();
@@ -1057,17 +1048,13 @@ public class AllTests : Test.AllTests
 
         try
         {
-            metrics.end_opWithRequestFailedException(metrics.begin_opWithRequestFailedException());
+            await metrics.opWithRequestFailedExceptionAsync();
             test(false);
         }
         catch(Ice.RequestFailedException)
         {
         }
 
-        metrics.begin_opWithRequestFailedException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
-
-        cb = new LocalExceptionCallback();
         try
         {
             metrics.opWithLocalException();
@@ -1079,17 +1066,13 @@ public class AllTests : Test.AllTests
 
         try
         {
-            metrics.end_opWithLocalException(metrics.begin_opWithLocalException());
+            await metrics.opWithLocalExceptionAsync();
             test(false);
         }
         catch(Ice.LocalException)
         {
         }
 
-        metrics.begin_opWithLocalException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
-
-        cb = new UnknownExceptionCallback();
         try
         {
             metrics.opWithUnknownException();
@@ -1101,19 +1084,15 @@ public class AllTests : Test.AllTests
 
         try
         {
-            metrics.end_opWithUnknownException(metrics.begin_opWithUnknownException());
+            await metrics.opWithUnknownExceptionAsync();
             test(false);
         }
         catch(Ice.UnknownException)
         {
         }
 
-        metrics.begin_opWithUnknownException().whenCompleted(cb.response, cb.exception);
-        cb.waitForResponse();
-
         if(!collocated)
         {
-            cb = new ConnectionLostExceptionCallback();
             try
             {
                 metrics.fail();
@@ -1125,15 +1104,12 @@ public class AllTests : Test.AllTests
 
             try
             {
-                metrics.end_fail(metrics.begin_fail());
+                await metrics.failAsync();
                 test(false);
             }
             catch(Ice.ConnectionLostException)
             {
             }
-
-            metrics.begin_fail().whenCompleted(cb.response, cb.exception);
-            cb.waitForResponse();
         }
 
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
@@ -1209,7 +1185,6 @@ public class AllTests : Test.AllTests
         //
         // Oneway tests
         //
-        cb = new Callback();
         clearView(clientProps, serverProps, update);
         props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
@@ -1217,8 +1192,7 @@ public class AllTests : Test.AllTests
 
         MetricsPrx metricsOneway = (MetricsPrx)metrics.ice_oneway();
         metricsOneway.op();
-        metricsOneway.end_op(metricsOneway.begin_op());
-        metricsOneway.begin_op().whenCompleted(cb.response, cb.exception).waitForSent();
+        await metricsOneway.opAsync();
 
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 1);
@@ -1242,8 +1216,7 @@ public class AllTests : Test.AllTests
 
         MetricsPrx metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
         metricsBatchOneway.op();
-        metricsBatchOneway.end_op(metricsBatchOneway.begin_op());
-        metricsBatchOneway.begin_op().whenCompleted(cb.response, cb.exception);
+        await metricsBatchOneway.opAsync();
 
         map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
         test(map.Count == 1);

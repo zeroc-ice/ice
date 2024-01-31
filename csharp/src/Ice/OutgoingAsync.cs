@@ -1482,7 +1482,7 @@ namespace IceInternal
             }
             if(done)
             {
-                SetResult(default(T));
+                SetResult(default);
             }
         }
 

@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -14,7 +15,7 @@ using System.Reflection;
 
 public class Collocated : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override async Task runAsync(string[] args)
     {
         CommunicatorObserverI observer = new CommunicatorObserverI();
         Ice.InitializationData initData = new Ice.InitializationData();
@@ -39,13 +40,11 @@ public class Collocated : Test.TestHelper
             controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
             //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
 
-            Test.MetricsPrx metrics = AllTests.allTests(this, observer);
+            Test.MetricsPrx metrics = await AllTests.allTests(this, observer);
             metrics.shutdown();
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Collocated>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        Test.TestDriver.runTestAsync<Collocated>(args);
 }

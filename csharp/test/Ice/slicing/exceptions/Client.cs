@@ -4,20 +4,17 @@
 
 using Test;
 using System;
+using System.Threading.Tasks;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override async Task runAsync(string[] args)
     {
-        using(var communicator = initialize(ref args))
-        {
-            TestIntfPrx test = AllTests.allTests(this, false);
-            test.shutdown();
-        }
+        using var communicator = initialize(ref args);
+        TestIntfPrx test = await AllTests.allTests(this, false);
+        test.shutdown();
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }

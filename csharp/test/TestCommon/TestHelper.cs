@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Test
 {
@@ -49,7 +50,15 @@ namespace Test
             Trace.Listeners.Add(new TestTraceListener());
         }
 
-        public abstract void run(string[] args);
+        public virtual void run(string[] args)
+        { 
+        }
+
+        public virtual Task runAsync(string[] args)
+        {
+            run(args);
+            return Task.CompletedTask;
+        }
 
         public string getTestEndpoint(int num = 0, string protocol = "")
         {
@@ -217,14 +226,14 @@ namespace Test
 
     public static class TestDriver
     {
-        public static int runTest<T>(string[] args)
+        public static async Task<int> runTestAsync<T>(string[] args)
             where T : TestHelper, new()
         {
             int status = 0;
             try
             {
-                T h = new T();
-                h.run(args);
+                var testHelper = new T();
+                await testHelper.runAsync(args);
             }
             catch (Exception ex)
             {

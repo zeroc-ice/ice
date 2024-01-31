@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -11,7 +12,7 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 var initData = new InitializationData();
                 initData.typeIdNamespaces = new string[]{"Ice.operations.TypeId"};
@@ -21,7 +22,7 @@ namespace Ice
                 initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
                 using(var communicator = initialize(initData))
                 {
-                    var myClass = AllTests.allTests(this);
+                    var myClass = await AllTests.allTests(this);
 
                     Console.Out.Write("testing server shutdown... ");
                     Console.Out.Flush();
@@ -38,10 +39,8 @@ namespace Ice
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Client>(args);
         }
     }
 }

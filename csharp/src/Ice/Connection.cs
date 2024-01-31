@@ -374,12 +374,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Threading.Tasks.Task flushBatchRequestsAsync(CompressBatch compress, global::System.IProgress<bool> progress = null, global::System.Threading.CancellationToken cancel = new global::System.Threading.CancellationToken());
 
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        AsyncResult begin_flushBatchRequests(CompressBatch compress, AsyncCallback callback = null, object cookie = null);
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        void end_flushBatchRequests(AsyncResult asyncResult);
-
         /// <summary>
         /// Set a close callback on the connection.
         /// The callback is called by the connection when it's closed. The callback
@@ -410,12 +404,6 @@ namespace Ice
 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Threading.Tasks.Task heartbeatAsync(global::System.IProgress<bool> progress = null, global::System.Threading.CancellationToken cancel = new global::System.Threading.CancellationToken());
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        AsyncResult begin_heartbeat(AsyncCallback callback = null, object cookie = null);
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        void end_heartbeat(AsyncResult asyncResult);
 
         /// <summary>
         /// Set the active connection management parameters.
