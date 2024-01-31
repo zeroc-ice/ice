@@ -196,7 +196,7 @@ namespace IceInternal
                         try
                         {
                             var locator = _locatorInfo.getLocator();
-                            var proxy = await locator.findObjectByIdAsync(_ref.getIdentity()).ConfigureAwait(false);                            
+                            var proxy = await locator.findObjectByIdAsync(_ref.getIdentity()).ConfigureAwait(false);
                             response(proxy);
                         }
                         catch (Ice.Exception ex)
@@ -204,7 +204,7 @@ namespace IceInternal
                             exception(ex);
                         }
                     });
-                
+
             }
         }
 

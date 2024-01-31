@@ -925,7 +925,6 @@ public class AllTests
         var t1 = background.opAsync(progress: p1);
         test(!p1.SentSynchronously && !tcs1.Task.IsCompleted);
 
-
         var tcs2 = new TaskCompletionSource();
         var p2 = new Progress(value => tcs2.SetResult());
         var t2 = background.opAsync(progress: p2);

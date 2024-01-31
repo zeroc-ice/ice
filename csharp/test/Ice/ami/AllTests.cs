@@ -352,7 +352,7 @@ namespace Ice
                         {
                             sentSynchronously = false;
                             t = p.opWithPayloadAsync(
-                                seq, 
+                                seq,
                                 progress: new Progress<bool>(value => sentSynchronously = value));
                             tasks.Add(t);
                         }

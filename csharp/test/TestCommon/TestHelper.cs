@@ -51,7 +51,7 @@ namespace Test
         }
 
         public virtual void run(string[] args)
-        { 
+        {
         }
 
         public virtual Task runAsync(string[] args)

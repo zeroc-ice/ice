@@ -89,7 +89,7 @@ namespace Ice
                 {
                 }
                 catch (UnknownLocalException)
-                { 
+                {
                 }
 
                 Instrumentation.testInvocationCount(1);
