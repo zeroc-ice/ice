@@ -101,20 +101,6 @@ typedef IceUtil::Handle<ProxyGetConnection> ProxyGetConnectionPtr;
 namespace IceInternal
 {
 
-template <typename T> T makeIceInvokeResult(bool ok, const Ice::Byte* first, ::Ice::Int size)
-{
-    return std::make_pair(ok, std::make_pair(first, first + size));
-}
-
-template <> inline ::Ice::Object::Ice_invokeResult
-makeIceInvokeResult<::Ice::Object::Ice_invokeResult>(
-    bool ok,
-    const Ice::Byte* first,
-    ::Ice::Int size)
-{
-    return Ice::Object::Ice_invokeResult { ok, Ice::ByteSeq(first, first + size) };
-}
-
 template<typename P>
 ::std::shared_ptr<P> createProxy()
 {
@@ -152,7 +138,7 @@ public:
             const ::Ice::Byte* encaps;
             ::Ice::Int sz;
             stream->readEncapsulation(encaps, sz);
-            return makeIceInvokeResult<R>(ok, encaps, sz);
+            return R{ ok, { encaps, encaps + sz } };
         };
 
         try
@@ -201,7 +187,7 @@ public:
             {
                 if(this->_is.b.empty())
                 {
-                    response(makeIceInvokeResult<R>(true, 0, 0));
+                    response(R { ok, { static_cast<Ice::Byte*>(nullptr), static_cast<Ice::Byte*>(nullptr) } });
                 }
                 else
                 {
@@ -225,7 +211,7 @@ public:
         {
             if(this->_is.b.empty())
             {
-                this->_promise.set_value(makeIceInvokeResult<R>(true, 0, 0));
+                this->_promise.set_value(R { ok, { static_cast<Ice::Byte*>(nullptr), static_cast<Ice::Byte*>(nullptr) } });
             }
             else
             {

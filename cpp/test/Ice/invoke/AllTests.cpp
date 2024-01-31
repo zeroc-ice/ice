@@ -385,7 +385,7 @@ allTests(Test::TestHelper* helper)
         Ice::ByteSeq inEncaps, outEncaps;
         bool returnValue = oneway->ice_invoke("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
         test(returnValue);
-        test(outEncaps.size() == 0 || outEncaps.size() == 6); // Empty encapsulation
+        test(outEncaps.size() == 0); // Empty encapsulation
     }
 
     cout << "ok" << endl;
@@ -442,54 +442,16 @@ allTests(Test::TestHelper* helper)
         test(completed.get_future().get());
     }
 
-    {
-        // Call oneway with a regular (twoway) proxy
-        promise<pair<bool, vector<Ice::Byte>>> completed;
-        Ice::ByteSeq inEncaps, outEncaps;
-        cl->ice_invokeAsync(
-            "opOneway",
-            Ice::OperationMode::Normal,
-            inEncaps,
-            [&](bool ok, vector<Ice::Byte> ouEncaps)
-            {
-                completed.set_value(make_pair(ok, std::move(ouEncaps)));
-            },
-            [&](exception_ptr ex)
-            {
-                completed.set_exception(ex);
-            });
-        pair<bool, vector<Ice::Byte>> result = completed.get_future().get();
-        test(result.first);
-        test(result.second.size() == 6); // Empty encapsulation
-    }
-
     //
     // repeat with the future API.
     //
-
-    {
-        // Oneway operation with a twoway proxy must return empty encapsulation.
-        Ice::ByteSeq inEncaps;
-        auto completed = cl->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps);
-        auto result = completed.get();
-        test(result.returnValue);
-        test(result.outParams.size() == 6); // Empty encapsulation
-    }
-
-    {
-        // Oneway operation with a twoway proxy must return empty encapsulation buffer.
-        Ice::ByteSeq inEncaps, outEncaps;
-        auto returnValue = cl->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps);
-        test(returnValue);
-        test(outEncaps.size() == 6); // Empty encapsulation
-    }
 
     {
         // Oneway operation with a oneway proxy must return empty encapsulation.
         Ice::ByteSeq inEncaps, outEncaps;
         bool returnValue = oneway->ice_invoke("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
         test(returnValue);
-        test(outEncaps.size() == 0 || outEncaps.size() == 6); // Empty encapsulation
+        test(outEncaps.size() == 0); // Empty encapsulation
     }
 
     {
@@ -498,7 +460,7 @@ allTests(Test::TestHelper* helper)
         auto completed = oneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps);
         auto result = completed.get();
         test(result.returnValue);
-        test(result.outParams.size() == 0 || result.outParams.size() == 6); // Empty encapsulation
+        test(result.outParams.size() == 0); // Empty encapsulation
     }
 
     {
