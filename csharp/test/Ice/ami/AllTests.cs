@@ -29,6 +29,54 @@ namespace Ice
                 private bool _received = false;
             }
 
+            public class ProgresCallback : IProgress<bool>
+            {
+                public bool Sent
+                {
+                    get
+                    {
+                        lock (this)
+                        {
+                            return _sent;
+                        }
+                    }
+                    set
+                    {
+                        lock (this)
+                        {
+                            _sent = value;
+                        }
+                    }
+                }
+
+                public bool SentSynchronously
+                {
+                    get
+                    {
+                        lock (this)
+                        {
+                            return _sentSynchronously;
+                        }
+                    }
+                    set
+                    {
+                        lock (this)
+                        {
+                            _sentSynchronously = value;
+                        }
+                    }
+                }
+
+                public void Report(bool sentSynchronously)
+                {
+                    SentSynchronously = sentSynchronously;
+                    Sent = true;
+                }
+
+                private bool _sent = false;
+                private bool _sentSynchronously = false;
+            }
+
             enum ThrowType { LocalException, UserException, OtherException };
 
             private class Thrower
@@ -597,16 +645,17 @@ namespace Ice
                         try
                         {
                             testController.holdAdapter();
-                            bool sent = false;
+                            ProgresCallback cb = null;
                             byte[] seq = new byte[10024];
                             for(int i = 0; i < 200; ++i) // 2MB
                             {
+                                cb = new ProgresCallback();
                                 _ = p.opWithPayloadAsync(
                                     seq,
-                                    progress: new Progress<bool>(_ => sent = true));
+                                    progress: cb);
                             }
 
-                            test(!sent);
+                            test(!cb.Sent);
 
                             t1 = p.ice_pingAsync(cancel: cs1.Token);
                             t2 = p.ice_pingAsync(cancel: cs2.Token);
