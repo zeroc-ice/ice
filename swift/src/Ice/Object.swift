@@ -41,8 +41,7 @@ public protocol Object {
     ///
     /// - parameter current: `Ice.Current` - The Current object for the dispatch.
     ///
-    /// - returns: `[String]` The Slice type IDs of the interfaces supported by this object, in base-to-derived
-    ///   order. The first element of the returned array is always `::Ice::Object`.
+    /// - returns: `[String]` The Slice type IDs of the interfaces supported by this object, in alphabetical order.
     func ice_ids(current: Current) throws -> [String]
 
     /// Tests whether this object supports a specific Slice interface.

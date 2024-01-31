@@ -4,6 +4,12 @@
 
 package com.zeroc.Ice;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Connection;
+
+import com.zeroc.IceGridGUI.LiveDeployment.Communicator;
+
 /**
  * Base interface of all object proxies.
  **/
@@ -84,8 +90,7 @@ public interface ObjectPrx
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-     * order. The first element of the returned array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
      **/
     String[] ice_ids();
 
@@ -93,8 +98,7 @@ public interface ObjectPrx
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
      * @param context The context map for the invocation.
-     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-     * order. The first element of the returned array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
      **/
     String[] ice_ids(java.util.Map<String, String> context);
 

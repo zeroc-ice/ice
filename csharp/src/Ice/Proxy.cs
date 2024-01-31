@@ -205,8 +205,8 @@ namespace Ice
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
+        /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+        /// </returns>
         string[] ice_ids(OptionalContext context = new OptionalContext());
 
         /// <summary>
@@ -248,8 +248,8 @@ namespace Ice
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
         /// <param name="result">The asynchronous result object returned by <code>begin_ice_ids</code>.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
+        /// <returns>The Slice type IDs of the interfaces supported by the target object, in in alphabetical order.
+        /// </returns>
         string[] end_ice_ids(AsyncResult result);
 
         /// <summary>
@@ -1107,8 +1107,8 @@ namespace Ice
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
+        /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+        /// </returns>
         public string[] ice_ids(OptionalContext context = new OptionalContext())
         {
             try
@@ -1197,8 +1197,8 @@ namespace Ice
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
         /// <param name="result">The asynchronous result object returned by <code>begin_ice_ids</code>.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
+        /// <returns>The Slice type IDs of the interfaces supported by the target object, n alphabetical order.
+        /// </returns>
         public string[] end_ice_ids(AsyncResult result)
         {
             var resultI = AsyncResultI.check(result, this, _ice_ids_name);
