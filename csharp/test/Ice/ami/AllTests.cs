@@ -29,7 +29,7 @@ namespace Ice
                 private bool _received = false;
             }
 
-            public class ProgresCallback : IProgress<bool>
+            public class ProgressCallback : IProgress<bool>
             {
                 public bool Sent
                 {
@@ -645,11 +645,11 @@ namespace Ice
                         try
                         {
                             testController.holdAdapter();
-                            ProgresCallback cb = null;
+                            ProgressCallback cb = null;
                             byte[] seq = new byte[10024];
                             for(int i = 0; i < 200; ++i) // 2MB
                             {
-                                cb = new ProgresCallback();
+                                cb = new ProgressCallback();
                                 _ = p.opWithPayloadAsync(
                                     seq,
                                     progress: cb);

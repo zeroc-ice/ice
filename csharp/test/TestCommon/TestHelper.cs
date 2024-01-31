@@ -52,6 +52,7 @@ namespace Test
 
         public virtual void run(string[] args)
         {
+            throw new NotImplementedException();
         }
 
         public virtual Task runAsync(string[] args)

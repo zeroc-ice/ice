@@ -44,7 +44,7 @@ namespace Ice
 
                 try
                 {
-                    await p.ice_idsAsync();
+                    _ = p.ice_idsAsync();
                     test(false);
                 }
                 catch (TwowayOnlyException)

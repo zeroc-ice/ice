@@ -718,23 +718,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     string scoped = p->scoped();
     string ns = getNamespace(p);
     ClassList allBases = p->allBases();
-    StringList ids;
     ClassDefPtr base = p->base();
-
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-    ids.sort();
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Value");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    assert(find(ids.begin(), ids.end(), scoped) != ids.end());
 
     //
     // Marshaling support
