@@ -12,7 +12,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static async void allTests(global::Test.TestHelper helper)
+            public static async Task allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var manager = Test.ServerManagerPrxHelper.checkedCast(
@@ -277,7 +277,7 @@ namespace Ice
                 {
                     results.Add(hello.sayHelloAsync());
                 }
-                foreach(Task t in results)
+                foreach (Task t in results)
                 {
                     await t;
                 }
@@ -298,6 +298,7 @@ namespace Ice
                     try
                     {
                         await t;
+                        test(false);
                     }
                     catch (NotRegisteredException)
                     {

@@ -732,7 +732,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     other.push_back("::Ice::Value");
     other.sort();
     ids.merge(other);
-    ids.sort();
     ids.unique();
 
     assert(find(ids.begin(), ids.end(), scoped) != ids.end());

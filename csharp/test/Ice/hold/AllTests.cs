@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Ice
@@ -126,14 +125,14 @@ namespace Ice
                         int expected = value;
                         var t = hold.setAsync(
                             ++value, value < 500 ? rand.Next(5) : 0,
-                            progress: new Progress<bool>(value => sentTcs.SetResult()));
+                            progress: new Progress<bool>(value => sentTcs.TrySetResult()));
                         _ = Task.Run(
                             async () =>
                             {
                                 var response = await t;
                                 if(response != expected)
                                 {
-                                    outOfOrderTcs.SetResult();
+                                    outOfOrderTcs.TrySetResult();
                                 }
                             });
                         if(value % 100 == 0)
@@ -167,7 +166,7 @@ namespace Ice
                         _ = holdSerialized.setAsync(
                             ++value,
                             0,
-                            progress: new Progress<bool>(value => sentTcs.SetResult()));
+                            progress: new Progress<bool>(value => sentTcs.TrySetResult()));
                         if(value % 100 == 0)
                         {
                             await sentTcs.Task;
@@ -203,7 +202,7 @@ namespace Ice
                         result = ((Test.HoldPrx)holdSerialized.ice_oneway()).setOnewayAsync(
                             value + 1,
                             value,
-                            progress: new Progress<bool>(value => sentTcs.SetResult()));
+                            progress: new Progress<bool>(value => sentTcs.TrySetResult()));
                         ++value;
                         if((i % 100) == 0)
                         {

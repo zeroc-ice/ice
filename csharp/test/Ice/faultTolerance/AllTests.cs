@@ -128,7 +128,15 @@ public class AllTests : Test.AllTests
                 {
                     output.Write("aborting server #" + i + " with AMI... ");
                     output.Flush();
-                    await obj.abortAsync();
+                    try
+                    {
+                        await obj.abortAsync();
+                        test(false);
+                    }
+                    catch (Ice.Exception ex)
+                    {
+                        exceptAbortI(ex, output);
+                    }
                     output.WriteLine("ok");
                 }
             }
@@ -160,7 +168,15 @@ public class AllTests : Test.AllTests
                 {
                     output.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
                     output.Flush();
-                    await obj.idempotentAbortAsync();
+                    try
+                    {
+                        await obj.idempotentAbortAsync();
+                        test(false);
+                    }
+                    catch (Ice.Exception ex)
+                    {
+                        exceptAbortI(ex, output);
+                    }
                     output.WriteLine("ok");
                 }
                 ++i;

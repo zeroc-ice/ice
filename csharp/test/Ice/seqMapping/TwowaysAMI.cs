@@ -510,8 +510,15 @@ namespace Ice
                     }
 
                     var result = await p.opAObjectSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    System.Collections.IEnumerator eo = result.o.GetEnumerator();
+                    System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
+                    foreach (Test.CV obj in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        test(obj.i == ((Test.CV)eo.Current).i);
+                        test(obj.i == ((Test.CV)er.Current).i);
+                    }
                 }
 
                 {
@@ -522,8 +529,15 @@ namespace Ice
                     }
 
                     var result = await p.opLObjectSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    System.Collections.IEnumerator eo = result.o.GetEnumerator();
+                    System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
+                    foreach (Test.CV obj in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        test(obj.i == ((Test.CV)eo.Current).i);
+                        test(obj.i == ((Test.CV)er.Current).i);
+                    }
                 }
 
                 {
@@ -654,8 +668,15 @@ namespace Ice
                     }
 
                     var result = await p.opACVSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    System.Collections.IEnumerator eo = result.o.GetEnumerator();
+                    System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
+                    foreach (Test.CV obj in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        test(obj.i == ((Test.CV)eo.Current).i);
+                        test(obj.i == ((Test.CV)er.Current).i);
+                    }
                 }
 
                 {
@@ -666,8 +687,15 @@ namespace Ice
                     }
 
                     var result = await p.opLCVSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    System.Collections.IEnumerator eo = result.o.GetEnumerator();
+                    System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
+                    foreach (Test.CV obj in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        test(obj.i == ((Test.CV)eo.Current).i);
+                        test(obj.i == ((Test.CV)er.Current).i);
+                    }
                 }
 
                 {
@@ -738,8 +766,15 @@ namespace Ice
                     }
 
                     var result = await p.opACRSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    System.Collections.IEnumerator eo = result.o.GetEnumerator();
+                    System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
+                    foreach (Test.CR obj in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        test(obj.v.i == ((Test.CR)eo.Current).v.i);
+                        test(obj.v.i == ((Test.CR)er.Current).v.i);
+                    }
                 }
 
                 {
@@ -750,8 +785,15 @@ namespace Ice
                     }
 
                     var result = await p.opLCRSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    System.Collections.IEnumerator eo = result.o.GetEnumerator();
+                    System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
+                    foreach (Test.CR obj in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        test(obj.v.i == ((Test.CR)eo.Current).v.i);
+                        test(obj.v.i == ((Test.CR)er.Current).v.i);
+                    }
                 }
 
                 {
@@ -834,8 +876,15 @@ namespace Ice
                     }
 
                     var result = await p.opCustomCVSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    System.Collections.IEnumerator eo = result.o.GetEnumerator();
+                    System.Collections.IEnumerator er = result.returnValue.GetEnumerator();
+                    foreach (Test.CV obj in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        test(obj.i == ((Test.CV)eo.Current).i);
+                        test(obj.i == ((Test.CV)er.Current).i);
+                    }
                 }
 
                 {
@@ -868,8 +917,30 @@ namespace Ice
                     }
 
                     var result = await p.opCustomCVSSAsync(i);
-                    test(CollectionComparer.Equals(i, result.o));
-                    test(CollectionComparer.Equals(i, result.returnValue));
+                    IEnumerator<Custom<Test.CV>> eo = result.o.GetEnumerator();
+                    IEnumerator<Custom<Test.CV>> er = result.returnValue.GetEnumerator();
+                    foreach (Custom<Test.CV> s in i)
+                    {
+                        eo.MoveNext();
+                        er.MoveNext();
+                        IEnumerator<Test.CV> io = eo.Current.GetEnumerator();
+                        IEnumerator<Test.CV> ir = er.Current.GetEnumerator();
+                        foreach (Test.CV obj in s)
+                        {
+                            io.MoveNext();
+                            ir.MoveNext();
+                            if (obj == null)
+                            {
+                                test(io.Current == null);
+                                test(ir.Current == null);
+                            }
+                            else
+                            {
+                                test(obj.i == io.Current.i);
+                                test(obj.i == ir.Current.i);
+                            }
+                        }
+                    }
                 }
             }
         }

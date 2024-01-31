@@ -11,13 +11,13 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0));
                 using(var communicator = initialize(properties))
                 {
-                    AllTests.allTests(this);
+                    await AllTests.allTests(this);
                 }
             }
 

@@ -115,14 +115,14 @@ public class AllTests
         Console.Write("testing connect... ");
         Console.Out.Flush();
         {
-            connectTests(configuration, background);
+            await connectTests(configuration, background);
         }
         Console.Out.WriteLine("ok");
 
         Console.Write("testing initialization... ");
         Console.Out.Flush();
         {
-            initializeTests(configuration, background, backgroundController);
+            await initializeTests(configuration, background, backgroundController);
         }
         Console.Out.WriteLine("ok");
 
@@ -136,7 +136,7 @@ public class AllTests
         Console.Write("testing read/write... ");
         Console.Out.Flush();
         {
-            readWriteTests(configuration, background, backgroundController);
+            await readWriteTests(configuration, background, backgroundController);
         }
         Console.Out.WriteLine("ok");
 
@@ -254,7 +254,7 @@ public class AllTests
         return background;
     }
 
-    private static async void connectTests(Configuration configuration, Test.BackgroundPrx background)
+    private static async Task connectTests(Configuration configuration, Test.BackgroundPrx background)
     {
         try
         {
@@ -353,7 +353,7 @@ public class AllTests
         }
     }
 
-    private static async void initializeTests(
+    private static async Task initializeTests(
         Configuration configuration,
         BackgroundPrx background,
         BackgroundControllerPrx ctl)
@@ -557,7 +557,7 @@ public class AllTests
             configuration.readException(null);
         }
 
-        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
+        if (!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
            !background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss"))
         {
             try
@@ -718,7 +718,7 @@ public class AllTests
         await closeConnection(backgroundBatchOneway);
     }
 
-    private static async void readWriteTests(
+    private static async Task readWriteTests(
         Configuration configuration,
         BackgroundPrx background,
         BackgroundControllerPrx ctl)

@@ -583,6 +583,7 @@ namespace Ice
                     };
 
                     var result = await p.opMyStructMyEnumDAsync(di1, di2);
+                    di2[s12] = Test.MyEnum.enum2;
 
                     test(CollectionComparer.Equals(result.p3, di1));
                     test(CollectionComparer.Equals(result.returnValue, di2));
@@ -597,12 +598,14 @@ namespace Ice
                         [10] = true,
                         [100] = false
                     };
+
                     var di2 = new Dictionary<byte, bool>
                     {
                         [10] = true,
                         [11] = false,
                         [101] = true
                     };
+
                     var di3 = new Dictionary<byte, bool>
                     {
                         [100] = false,
@@ -615,8 +618,26 @@ namespace Ice
 
                     var result = await p.opByteBoolDSAsync(dsi1, dsi2);
 
-                    test(CollectionComparer.Equals(result.p3, dsi1));
-                    test(CollectionComparer.Equals(result.returnValue, dsi2));
+                    test(result.returnValue.Length == 2);
+                    test(result.returnValue[0].Count == 3);
+                    test(result.returnValue[0][10]);
+                    test(!result.returnValue[0][11]);
+                    test(result.returnValue[0][101]);
+                    test(result.returnValue[1].Count == 2);
+                    test(result.returnValue[1][10]);
+                    test(!result.returnValue[1][100]);
+
+                    test(result.p3.Length == 3);
+                    test(result.p3[0].Count == 2);
+                    test(!result.p3[0][100]);
+                    test(!result.p3[0][101]);
+                    test(result.p3[1].Count == 2);
+                    test(result.p3[1][10]);
+                    test(!result.p3[1][100]);
+                    test(result.p3[2].Count == 3);
+                    test(result.p3[2][10]);
+                    test(!result.p3[2][11]);
+                    test(result.p3[2][101]);
                 }
 
                 {
@@ -645,8 +666,25 @@ namespace Ice
 
                     var result = p.opShortIntDSAsync(dsi1, dsi2).Result;
 
-                    test(CollectionComparer.Equals(result.p3, dsi1));
-                    test(CollectionComparer.Equals(result.returnValue, dsi2));
+                    test(result.returnValue.Length == 2);
+                    test(result.returnValue[0].Count == 3);
+                    test(result.returnValue[0][110] == -1);
+                    test(result.returnValue[0][111] == -100);
+                    test(result.returnValue[0][1101] == 0);
+                    test(result.returnValue[1].Count == 2);
+                    test(result.returnValue[1][110] == -1);
+                    test(result.returnValue[1][1100] == 123123);
+
+                    test(result.p3.Length == 3);
+                    test(result.p3[0].Count == 1);
+                    test(result.p3[0][100] == -1001);
+                    test(result.p3[1].Count == 2);
+                    test(result.p3[1][110] == -1);
+                    test(result.p3[1][1100] == 123123);
+                    test(result.p3[2].Count == 3);
+                    test(result.p3[2][110] == -1);
+                    test(result.p3[2][111] == -100);
+                    test(result.p3[2][1101] == 0);
                 }
 
                 {
@@ -675,8 +713,25 @@ namespace Ice
 
                     var result = await p.opLongFloatDSAsync(dsi1, dsi2);
 
-                    test(CollectionComparer.Equals(result.p3, dsi1));
-                    test(CollectionComparer.Equals(result.returnValue, dsi2));
+                    test(result.returnValue.Length == 2);
+                    test(result.returnValue[0].Count == 3);
+                    test(result.returnValue[0][999999110L] == -1.1f);
+                    test(result.returnValue[0][999999120L] == -100.4f);
+                    test(result.returnValue[0][999999130L] == 0.5f);
+                    test(result.returnValue[1].Count == 2);
+                    test(result.returnValue[1][999999110L] == -1.1f);
+                    test(result.returnValue[1][999999111L] == 123123.2f);
+
+                    test(result.p3.Length == 3);
+                    test(result.p3[0].Count == 1);
+                    test(result.p3[0][999999140L] == 3.14f);
+                    test(result.p3[1].Count == 2);
+                    test(result.p3[1][999999110L] == -1.1f);
+                    test(result.p3[1][999999111L] == 123123.2f);
+                    test(result.p3[2].Count == 3);
+                    test(result.p3[2][999999110L] == -1.1f);
+                    test(result.p3[2][999999120L] == -100.4f);
+                    test(result.p3[2][999999130L] == 0.5f);
                 }
 
                 {
@@ -705,8 +760,25 @@ namespace Ice
 
                     var result = p.opStringStringDSAsync(dsi1, dsi2).Result;
 
-                    test(CollectionComparer.Equals(result.p3, dsi1));
-                    test(CollectionComparer.Equals(result.returnValue, dsi2));
+                    test(result.returnValue.Length == 2);
+                    test(result.returnValue[0].Count == 3);
+                    test(result.returnValue[0]["foo"].Equals("abc -1.1"));
+                    test(result.returnValue[0]["FOO"].Equals("abc -100.4"));
+                    test(result.returnValue[0]["BAR"].Equals("abc 0.5"));
+                    test(result.returnValue[1].Count == 2);
+                    test(result.returnValue[1]["foo"] == "abc -1.1");
+                    test(result.returnValue[1]["bar"] == "abc 123123.2");
+
+                    test(result.p3.Length == 3);
+                    test(result.p3[0].Count == 1);
+                    test(result.p3[0]["f00"].Equals("ABC -3.14"));
+                    test(result.p3[1].Count == 2);
+                    test(result.p3[1]["foo"].Equals("abc -1.1"));
+                    test(result.p3[1]["bar"].Equals("abc 123123.2"));
+                    test(result.p3[2].Count == 3);
+                    test(result.p3[2]["foo"].Equals("abc -1.1"));
+                    test(result.p3[2]["FOO"].Equals("abc -100.4"));
+                    test(result.p3[2]["BAR"].Equals("abc 0.5"));
                 }
 
                 {
@@ -735,8 +807,25 @@ namespace Ice
 
                     var result = await p.opStringMyEnumDSAsync(dsi1, dsi2);
 
-                    test(CollectionComparer.Equals(result.p3, dsi1));
-                    test(CollectionComparer.Equals(result.returnValue, dsi2));
+                    test(result.returnValue.Length == 2);
+                    test(result.returnValue[0].Count == 3);
+                    test(result.returnValue[0]["abc"] == Test.MyEnum.enum1);
+                    test(result.returnValue[0]["qwerty"] == Test.MyEnum.enum3);
+                    test(result.returnValue[0]["Hello!!"] == Test.MyEnum.enum2);
+                    test(result.returnValue[1].Count == 2);
+                    test(result.returnValue[1]["abc"] == Test.MyEnum.enum1);
+                    test(result.returnValue[1][""] == Test.MyEnum.enum2);
+
+                    test(result.p3.Length == 3);
+                    test(result.p3[0].Count == 1);
+                    test(result.p3[0]["Goodbye"] == Test.MyEnum.enum1);
+                    test(result.p3[1].Count == 2);
+                    test(result.p3[1]["abc"] == Test.MyEnum.enum1);
+                    test(result.p3[1][""] == Test.MyEnum.enum2);
+                    test(result.p3[2].Count == 3);
+                    test(result.p3[2]["abc"] == Test.MyEnum.enum1);
+                    test(result.p3[2]["qwerty"] == Test.MyEnum.enum3);
+                    test(result.p3[2]["Hello!!"] == Test.MyEnum.enum2);
                 }
 
                 {
@@ -763,8 +852,21 @@ namespace Ice
 
                     var result = await p.opMyEnumStringDSAsync(dsi1, dsi2);
 
-                    test(CollectionComparer.Equals(result.p3, dsi1));
-                    test(CollectionComparer.Equals(result.returnValue, dsi2));
+                    test(result.returnValue.Length == 2);
+                    test(result.returnValue[0].Count == 2);
+                    test(result.returnValue[0][Test.MyEnum.enum2].Equals("Hello!!"));
+                    test(result.returnValue[0][Test.MyEnum.enum3].Equals("qwerty"));
+                    test(result.returnValue[1].Count == 1);
+                    test(result.returnValue[1][Test.MyEnum.enum1].Equals("abc"));
+
+                    test(result.p3.Length == 3);
+                    test(result.p3[0].Count == 1);
+                    test(result.p3[0][Test.MyEnum.enum1].Equals("Goodbye"));
+                    test(result.p3[1].Count == 1);
+                    test(result.p3[1][Test.MyEnum.enum1].Equals("abc"));
+                    test(result.p3[2].Count == 2);
+                    test(result.p3[2][Test.MyEnum.enum2].Equals("Hello!!"));
+                    test(result.p3[2][Test.MyEnum.enum3].Equals("qwerty"));
                 }
 
                 {
@@ -799,8 +901,25 @@ namespace Ice
 
                     var result = await p.opMyStructMyEnumDSAsync(dsi1, dsi2);
 
-                    test(CollectionComparer.Equals(result.p3, dsi1));
-                    test(CollectionComparer.Equals(result.returnValue, dsi2));
+                    test(result.returnValue.Length == 2);
+                    test(result.returnValue[0].Count == 3);
+                    test(result.returnValue[0][s11] == Test.MyEnum.enum1);
+                    test(result.returnValue[0][s22] == Test.MyEnum.enum3);
+                    test(result.returnValue[0][s23] == Test.MyEnum.enum2);
+                    test(result.returnValue[1].Count == 2);
+                    test(result.returnValue[1][s11] == Test.MyEnum.enum1);
+                    test(result.returnValue[1][s12] == Test.MyEnum.enum2);
+
+                    test(result.p3.Length == 3);
+                    test(result.p3[0].Count == 1);
+                    test(result.p3[0][s23] == Test.MyEnum.enum3);
+                    test(result.p3[1].Count == 2);
+                    test(result.p3[1][s11] == Test.MyEnum.enum1);
+                    test(result.p3[1][s12] == Test.MyEnum.enum2);
+                    test(result.p3[2].Count == 3);
+                    test(result.p3[2][s11] == Test.MyEnum.enum1);
+                    test(result.p3[2][s22] == Test.MyEnum.enum3);
+                    test(result.p3[2][s23] == Test.MyEnum.enum2);
                 }
 
                 {
@@ -817,8 +936,20 @@ namespace Ice
 
                     var result = await p.opByteByteSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3[0xf1].Length == 2);
+                    test(result.p3[0xf1][0] == 0xf2);
+                    test(result.p3[0xf1][1] == 0xf3);
+
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue[0x01].Length == 2);
+                    test(result.returnValue[0x01][0] == 0x01);
+                    test(result.returnValue[0x01][1] == 0x11);
+                    test(result.returnValue[0x22].Length == 1);
+                    test(result.returnValue[0x22][0] == 0x12);
+                    test(result.returnValue[0xf1].Length == 2);
+                    test(result.returnValue[0xf1][0] == 0xf2);
+                    test(result.returnValue[0xf1][1] == 0xf3);
                 }
 
                 {
@@ -834,8 +965,18 @@ namespace Ice
 
                     var result = await p.opBoolBoolSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3[false].Length == 2);
+                    test(result.p3[false][0]);
+                    test(!result.p3[false][1]);
+                    test(result.returnValue.Count == 2);
+                    test(result.returnValue[false].Length == 2);
+                    test(result.returnValue[false][0]);
+                    test(!result.returnValue[false][1]);
+                    test(result.returnValue[true].Length == 3);
+                    test(!result.returnValue[true][0]);
+                    test(result.returnValue[true][1]);
+                    test(result.returnValue[true][2]);
                 }
 
                 {
@@ -852,8 +993,22 @@ namespace Ice
 
                     var result = await p.opShortShortSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3[4].Length == 2);
+                    test(result.p3[4][0] == 6);
+                    test(result.p3[4][1] == 7);
+
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue[1].Length == 3);
+                    test(result.returnValue[1][0] == 1);
+                    test(result.returnValue[1][1] == 2);
+                    test(result.returnValue[1][2] == 3);
+                    test(result.returnValue[2].Length == 2);
+                    test(result.returnValue[2][0] == 4);
+                    test(result.returnValue[2][1] == 5);
+                    test(result.returnValue[4].Length == 2);
+                    test(result.returnValue[4][0] == 6);
+                    test(result.returnValue[4][1] == 7);
                 }
 
                 {
@@ -870,8 +1025,22 @@ namespace Ice
 
                     var result = await p.opIntIntSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3[400].Length == 2);
+                    test(result.p3[400][0] == 600);
+                    test(result.p3[400][1] == 700);
+
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue[100].Length == 3);
+                    test(result.returnValue[100][0] == 100);
+                    test(result.returnValue[100][1] == 200);
+                    test(result.returnValue[100][2] == 300);
+                    test(result.returnValue[200].Length == 2);
+                    test(result.returnValue[200][0] == 400);
+                    test(result.returnValue[200][1] == 500);
+                    test(result.returnValue[400].Length == 2);
+                    test(result.returnValue[400][0] == 600);
+                    test(result.returnValue[400][1] == 700);
                 }
 
                 {
@@ -888,8 +1057,21 @@ namespace Ice
 
                     var result = await p.opLongLongSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3[999999992L].Length == 2);
+                    test(result.p3[999999992L][0] == 999999110L);
+                    test(result.p3[999999992L][1] == 999999120L);
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue[999999990L].Length == 3);
+                    test(result.returnValue[999999990L][0] == 999999110L);
+                    test(result.returnValue[999999990L][1] == 999999111L);
+                    test(result.returnValue[999999990L][2] == 999999110L);
+                    test(result.returnValue[999999991L].Length == 2);
+                    test(result.returnValue[999999991L][0] == 999999120L);
+                    test(result.returnValue[999999991L][1] == 999999130L);
+                    test(result.returnValue[999999992L].Length == 2);
+                    test(result.returnValue[999999992L][0] == 999999110L);
+                    test(result.returnValue[999999992L][1] == 999999120L);
                 }
 
                 {
@@ -906,8 +1088,22 @@ namespace Ice
 
                     var result = await p.opStringFloatSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3["aBc"].Length == 2);
+                    test(result.p3["aBc"][0] == -3.14f);
+                    test(result.p3["aBc"][1] == 3.14f);
+
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue["abc"].Length == 3);
+                    test(result.returnValue["abc"][0] == -1.1f);
+                    test(result.returnValue["abc"][1] == 123123.2f);
+                    test(result.returnValue["abc"][2] == 100.0f);
+                    test(result.returnValue["ABC"].Length == 2);
+                    test(result.returnValue["ABC"][0] == 42.24f);
+                    test(result.returnValue["ABC"][1] == -1.61f);
+                    test(result.returnValue["aBc"].Length == 2);
+                    test(result.returnValue["aBc"][0] == -3.14f);
+                    test(result.returnValue["aBc"][1] == 3.14f);
                 }
 
                 {
@@ -924,8 +1120,21 @@ namespace Ice
 
                     var result = await p.opStringDoubleSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3[""].Length == 2);
+                    test(result.p3[""][0] == 1.6E10);
+                    test(result.p3[""][1] == 1.7E10);
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue["Hello!!"].Length == 3);
+                    test(result.returnValue["Hello!!"][0] == 1.1E10);
+                    test(result.returnValue["Hello!!"][1] == 1.2E10);
+                    test(result.returnValue["Hello!!"][2] == 1.3E10);
+                    test(result.returnValue["Goodbye"].Length == 2);
+                    test(result.returnValue["Goodbye"][0] == 1.4E10);
+                    test(result.returnValue["Goodbye"][1] == 1.5E10);
+                    test(result.returnValue[""].Length == 2);
+                    test(result.returnValue[""][0] == 1.6E10);
+                    test(result.returnValue[""][1] == 1.7E10);
                 }
 
                 {
@@ -942,8 +1151,22 @@ namespace Ice
 
                     var result = await p.opStringStringSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3["ghi"].Length == 2);
+                    test(result.p3["ghi"][0].Equals("and"));
+                    test(result.p3["ghi"][1].Equals("xor"));
+
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue["abc"].Length == 3);
+                    test(result.returnValue["abc"][0].Equals("abc"));
+                    test(result.returnValue["abc"][1].Equals("de"));
+                    test(result.returnValue["abc"][2].Equals("fghi"));
+                    test(result.returnValue["def"].Length == 2);
+                    test(result.returnValue["def"][0].Equals("xyz"));
+                    test(result.returnValue["def"][1].Equals("or"));
+                    test(result.returnValue["ghi"].Length == 2);
+                    test(result.returnValue["ghi"][0].Equals("and"));
+                    test(result.returnValue["ghi"][1].Equals("xor"));
                 }
 
                 {
@@ -960,8 +1183,21 @@ namespace Ice
 
                     var result = await p.opMyEnumMyEnumSDAsync(sdi1, sdi2);
 
-                    test(CollectionComparer.Equals(result.p3, sdi1));
-                    test(CollectionComparer.Equals(result.returnValue, sdi2));
+                    test(result.p3.Count == 1);
+                    test(result.p3[Test.MyEnum.enum1].Length == 2);
+                    test(result.p3[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+                    test(result.p3[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+                    test(result.returnValue.Count == 3);
+                    test(result.returnValue[Test.MyEnum.enum3].Length == 3);
+                    test(result.returnValue[Test.MyEnum.enum3][0] == Test.MyEnum.enum1);
+                    test(result.returnValue[Test.MyEnum.enum3][1] == Test.MyEnum.enum1);
+                    test(result.returnValue[Test.MyEnum.enum3][2] == Test.MyEnum.enum2);
+                    test(result.returnValue[Test.MyEnum.enum2].Length == 2);
+                    test(result.returnValue[Test.MyEnum.enum2][0] == Test.MyEnum.enum1);
+                    test(result.returnValue[Test.MyEnum.enum2][1] == Test.MyEnum.enum2);
+                    test(result.returnValue[Test.MyEnum.enum1].Length == 2);
+                    test(result.returnValue[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+                    test(result.returnValue[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
                 }
 
                 {
@@ -977,7 +1213,10 @@ namespace Ice
 
                         var result = await p.opIntSAsync(s);
 
-                        test(CollectionComparer.Equals(s, result));
+                        for (int j = 0; j < result.Length; ++j)
+                        {
+                            test(result[j] == -j);
+                        }
                     }
                 }
 
