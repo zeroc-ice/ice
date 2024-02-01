@@ -245,7 +245,7 @@ private:
     State _state;
 
 #if defined(ICE_USE_IOCP)
-    IceInternal::UniquePtr<Ice::LocalException> _acceptorException;
+    std::unique_ptr<Ice::LocalException> _acceptorException;
 #endif
 };
 

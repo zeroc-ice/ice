@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <IceLanguageMapping Condition="'$(IceLanguageMapping)' == ''">cpp</IceLanguageMapping>
+    <IceBuildingSrc>yes</IceBuildingSrc>
+  </PropertyGroup>
   <!--
       If we are building a source distribution, set IceHome to this
       source distribution.
@@ -54,7 +59,7 @@
   </Choose>
 
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
-      <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(IceConfiguration)</IceToolsPath>
+      <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
   </PropertyGroup>
 
   <!--
@@ -94,17 +99,17 @@
   <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(IceCppMapping)\$(Platform)\$(IceConfiguration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\cpp11\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(IceHome)\cpp\lib\$(Platform)\$(IceConfiguration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
 
   <!--
       Common properties set for all debug builds and platforms.
   -->
-  <ItemDefinitionGroup Condition="'$(IceConfiguration)'=='Debug'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -126,7 +131,7 @@
   <!--
       Common properties for all release builds and platforms.
   -->
-  <ItemDefinitionGroup Condition="'$(IceConfiguration)'=='Release'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -159,7 +164,7 @@
 
   <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'DynamicLibrary|yes'">
     <Link>
-      <ImportLibrary>$(IceHome)\cpp\lib\$(Platform)\$(IceConfiguration)\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
 
@@ -181,37 +186,21 @@
   </ItemDefinitionGroup>
 
   <!-- Base target names. -->
-  <Choose>
-    <!-- C++11 mapping target names. -->
-    <When Condition="'$(IceCppMapping)' == 'cpp11' and ('$(ConfigurationType)' == 'DynamicLibrary' or '$(ConfigurationType)' == 'StaticLibrary')">
-      <PropertyGroup Condition="'$(IceConfiguration)' == 'Debug'">
-        <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
-      </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+      <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
+  </PropertyGroup>
 
-      <PropertyGroup Condition="'$(IceConfiguration)' == 'Release'">
-        <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11"))</TargetName>
-      </PropertyGroup>
-    </When>
+  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
+      <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
+  </PropertyGroup>
 
-    <!-- C++98 mapping target names. -->
-    <Otherwise>
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
-        <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
-      </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
+      <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
 
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
-        <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
-      </PropertyGroup>
-
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
-        <TargetName>$(ProjectName)d</TargetName>
-      </PropertyGroup>
-
-      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
-        <TargetName>$(ProjectName)</TargetName>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+  <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
+      <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
 
   <!--
       Workaround to avoid annoying warnings from NuGet restore.

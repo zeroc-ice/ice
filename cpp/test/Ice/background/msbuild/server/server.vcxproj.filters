@@ -22,26 +22,14 @@
     <Filter Include="Source Files\x64">
       <UniqueIdentifier>{f9f17a9b-fa99-49fe-a1df-c6bb1f02c26e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\x64\Cpp11-Debug">
-      <UniqueIdentifier>{77e12886-4ebb-4cf5-93cb-2365968707e1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\x64">
       <UniqueIdentifier>{a3680ce8-9595-4d06-88e5-c1e704545eeb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\x64\Cpp11-Debug">
-      <UniqueIdentifier>{0a267269-8a20-4a49-9997-fd85398a3b39}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32">
       <UniqueIdentifier>{338eb60c-577b-48f6-b588-41b6afb72659}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Win32\Cpp11-Debug">
-      <UniqueIdentifier>{d36d1997-a03c-4557-9119-dd14d90207f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Win32">
       <UniqueIdentifier>{170d87c1-c8d5-4544-808b-7f98d3d0d54a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Win32\Cpp11-Debug">
-      <UniqueIdentifier>{9f0d12f3-7911-4508-9659-b899bbb3b57d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
       <UniqueIdentifier>{52d4a9ae-5cbb-42f7-b34d-ed05922a800c}</UniqueIdentifier>
@@ -66,18 +54,6 @@
     </Filter>
     <Filter Include="Header Files\Win32\Release">
       <UniqueIdentifier>{f19705e4-f825-4e7f-a89d-6a5b7a0b7be1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\x64\Cpp11-Release">
-      <UniqueIdentifier>{b8492d39-a49b-4d83-bbff-415a5cdd453b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\x64\Cpp11-Release">
-      <UniqueIdentifier>{b0769d87-0ed9-46ac-b8b1-709ace759294}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Win32\Cpp11-Release">
-      <UniqueIdentifier>{63da9652-fee3-4965-b6df-71404c6f1d6c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Win32\Cpp11-Release">
-      <UniqueIdentifier>{7294dfba-54ef-44ba-99e0-e573c10dee75}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

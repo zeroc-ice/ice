@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{81C8FC6A-CAC3-4B6D-AE4D-5DEAD29726C5}</ProjectGuid>
+    <ProjectGuid>{96161748-CE5E-4548-BC1D-AFD2F137A1DC}</ProjectGuid>
     <RootNamespace>IceBox</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -44,7 +44,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.cpp98.props" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -67,14 +67,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemGroup>
-    <ResourceCompile Include="../../IceBoxExe.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="../../ServiceManagerI.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\IceBoxService.cpp" />
     <ClCompile Include="..\..\ServiceManagerI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\ServiceManagerI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\IceBoxExe.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
