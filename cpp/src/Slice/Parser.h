@@ -655,7 +655,6 @@ public:
     virtual ContainedType containedType() const;
     virtual void visit(ParserVisitor*, bool);
     int compactId() const;
-    StringList ids() const;
     virtual std::string kindOf() const;
 
 protected:
@@ -793,6 +792,8 @@ public:
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
+
+    // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
     StringList ids() const;
 
 protected:

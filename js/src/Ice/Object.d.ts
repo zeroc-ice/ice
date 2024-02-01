@@ -26,8 +26,7 @@ declare module "ice"
             /**
              * Returns the Slice type IDs of the interfaces supported by this object.
              * @param current The Current object for the invocation.
-             * @return The Slice type IDs of the interfaces supported by this object, in base-to-derived
-             * order. The first element of the returned array is always "::Ice::Object".
+             * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
              */
             ice_ids(current?:Current):string[]|PromiseLike<string[]>;
 

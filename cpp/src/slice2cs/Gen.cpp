@@ -386,11 +386,6 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
 
     StringList ids = p->ids();
 
-     StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
-
     _out << sp << nl << "#region Slice type-related members";
 
     _out << sp;
@@ -425,14 +420,14 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current = null)";
     _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
+    _out << nl << "return ice_staticId();";
     _out << eb;
 
     _out << sp;
 
     _out << nl << "public static new string ice_staticId()";
     _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
+    _out << nl << "return \"" << scoped << "\";";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Slice type-related members
@@ -717,7 +712,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     string name = fixId(p->name());
     string scoped = p->scoped();
     string ns = getNamespace(p);
-    ClassList allBases = p->allBases();
     ClassDefPtr base = p->base();
 
     //
@@ -4246,24 +4240,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     string scoped = p->scoped();
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
+    StringList ids = p->ids();
 
     //
     // Need static-readonly for arrays in C# (not const)
@@ -4284,10 +4261,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << eb << ";";
 
-    _out << sp << nl << "public static string ice_staticId()";
-    _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
-    _out << eb;
+    _out << sp << nl << "public static string ice_staticId() => \"" << scoped << "\";";
 
     _out << sp << nl << "#endregion"; // Checked and unchecked cast operations
 

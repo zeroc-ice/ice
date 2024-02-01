@@ -562,7 +562,7 @@ function addProxyOperation(proxyType, name, data)
 }
 
 const Slice = Ice.Slice;
-Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
+Slice.defineOperations = function(classType, proxyType, ids, id, ops)
 {
     if(ops)
     {
@@ -594,12 +594,12 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
     });
 
     Object.defineProperty(classType, "_iceId", {
-        get: () => ids[pos]
+        get: () => id
     });
 
     classType.ice_staticId = function()
     {
-        return classType._iceId;
+        return id
     };
 
     if(proxyType !== undefined)
@@ -631,7 +631,7 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
         }
 
         Object.defineProperty(proxyType, "_id", {
-            get: () => ids[pos]
+            get: () => id
         });
     }
 };
@@ -639,7 +639,7 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
 //
 // Define the "built-in" operations for all Ice objects.
 //
-Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], 0,
+Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], "::Ice::Object",
 {
     ice_ping: [undefined, 1, 1, undefined, undefined, undefined, undefined, undefined],
     ice_isA: [undefined, 1, 1, undefined, [1], [[7]], undefined, undefined],
