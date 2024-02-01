@@ -139,20 +139,6 @@
   </ItemDefinitionGroup>
 
   <!--
-      ICE_CPP11_MAPPING is required with the cpp11 mapping
-  -->
-  <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11'">
-    <ClCompile>
-      <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-
-    <ResourceCompile>
-      <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
-  </ItemDefinitionGroup>
-
-  <!--
       Definitions when building the Ice C++ sources (as opposed to the test suite).
   -->
   <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">

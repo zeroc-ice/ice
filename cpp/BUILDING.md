@@ -375,10 +375,6 @@ When compiling Ice programs, you must pass the location of the
 `<prefix>/include` directory to the compiler with the `-I` option, and the
 location of the library directory with the `-L` option.
 
-If building a C++11 program, you must define the `ICE_CPP11_MAPPING` macro
-during compilation with the `-D` option (`c++ -DICE_CPP11_MAPPING`) and add the
-`++11` suffix to the library name when linking (such as `-lIce++11`).
-
 ## Creating a NuGet Package on Windows
 
 You can create a NuGet package with the following command:

@@ -36,11 +36,7 @@ public:
     }
 
     virtual Ice::ObjectProxySeq
-#ifdef ICE_CPP11_MAPPING
     addProxies(Ice::ObjectProxySeq, const Ice::Current&)
-#else
-    addProxies(const Ice::ObjectProxySeq&, const Ice::Current&)
-#endif
     {
         return Ice::ObjectProxySeq();
     }

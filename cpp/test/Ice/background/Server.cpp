@@ -28,7 +28,6 @@ class LocatorI : public Ice::Locator
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     virtual void
     findAdapterByIdAsync(string,
                          function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
@@ -50,25 +49,7 @@ public:
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
         response(current.adapter->createDirectProxy(id));
     }
-#else
-    virtual void
-    findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string&,
-                          const Ice::Current& current) const
-    {
-        _controller->checkCallPause(current);
-        Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-        response->ice_response(current.adapter->createDirectProxy(Ice::stringToIdentity("dummy")));
-    }
 
-    virtual void
-    findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& response, const Ice::Identity& id,
-                         const Ice::Current& current) const
-    {
-        _controller->checkCallPause(current);
-        Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-        response->ice_response(current.adapter->createDirectProxy(id));
-    }
-#endif
     virtual Ice::LocatorRegistryPrxPtr
     getRegistry(const Ice::Current&) const
     {
@@ -163,11 +144,7 @@ Server::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
-#ifdef ICE_CPP11_MAPPING
     shared_ptr<PluginI> plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
-#else
-    PluginI* plugin = dynamic_cast<PluginI*>(communicator->getPluginManager()->getPlugin("Test").get());
-#endif
     assert(plugin);
     ConfigurationPtr configuration = plugin->getConfiguration();
     BackgroundControllerIPtr backgroundController = ICE_MAKE_SHARED(BackgroundControllerI, adapter, configuration);

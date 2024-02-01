@@ -11,50 +11,12 @@ using namespace std;
 
 AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
     InterceptorI(servant)
-#ifndef ICE_CPP11_MAPPING
-    , _defaultCb(new DispatchInterceptorAsyncCallbackI(*this))
-#endif
 {
 }
 
 bool
 AMDInterceptorI::dispatch(Ice::Request& request)
 {
-#ifndef ICE_CPP11_MAPPING
-    class CallbackI : public Ice::DispatchInterceptorAsyncCallback
-    {
-    public:
-        CallbackI() : _count(0)
-        {
-        }
-
-        virtual bool response()
-        {
-            return false;
-        }
-
-        virtual bool exception(const std::exception& ex)
-        {
-            test(_count++ == 0); // Ensure it's only called once
-            test(dynamic_cast<const MyRetryException*>(&ex) != 0);
-            return false;
-        }
-
-        virtual bool exception()
-        {
-            //
-            // Unexpected
-            //
-            test(false);
-            return false;
-        }
-
-    private:
-
-        int _count;
-    };
-#endif
-
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
 
     Ice::Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
@@ -80,7 +42,6 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     {
         for(int i = 0; i < 10; ++i)
         {
-#ifdef ICE_CPP11_MAPPING
             _lastStatus = _servant->ice_dispatch(request, nullptr, [](exception_ptr ex) {
                 try
                 {
@@ -95,9 +56,6 @@ AMDInterceptorI::dispatch(Ice::Request& request)
                 }
                 return false;
             });
-#else
-            _lastStatus =  _servant->ice_dispatch(request, new CallbackI());
-#endif
             test(!_lastStatus);
         }
 
@@ -113,7 +71,6 @@ AMDInterceptorI::dispatch(Ice::Request& request)
         _servant->ice_dispatch(request);
     }
 
-#ifdef ICE_CPP11_MAPPING
     _lastStatus = _servant->ice_dispatch(request, []() { return true; }, [this](exception_ptr ex) {
         try
         {
@@ -129,9 +86,6 @@ AMDInterceptorI::dispatch(Ice::Request& request)
         }
         return true;
     });
-#else
-    _lastStatus = _servant->ice_dispatch(request, _defaultCb);
-#endif
 
     p = current.ctx.find("raiseAfterDispatch");
     if(p != current.ctx.end())
@@ -174,38 +128,3 @@ AMDInterceptorI::clear()
     IceUtil::Mutex::Lock lock(_mutex);
     _exception.reset();
 }
-
-#ifndef ICE_CPP11_MAPPING
-DispatchInterceptorAsyncCallbackI::DispatchInterceptorAsyncCallbackI(AMDInterceptorI& interceptor) :
-    _interceptor(interceptor)
-{
-}
-
-bool
-DispatchInterceptorAsyncCallbackI::response()
-{
-    return true;
-}
-
-bool
-DispatchInterceptorAsyncCallbackI::exception(const std::exception& ex)
-{
-    //
-    // Only Ice exceptions are raised by this test
-    //
-    const IceUtil::Exception& ue = dynamic_cast<const IceUtil::Exception&>(ex);
-     _interceptor.setException(ue);
-    return true;
-
-}
-
-bool
-DispatchInterceptorAsyncCallbackI::exception()
-{
-    //
-    // Unexpected
-    //
-    test(false);
-    return true;
-}
-#endif

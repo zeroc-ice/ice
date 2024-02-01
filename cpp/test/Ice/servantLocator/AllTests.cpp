@@ -221,11 +221,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(obj, base));
-#else
-    test(obj == base);
-#endif
     cout << "ok" << endl;
 
     cout << "testing ice_ids... " << flush;

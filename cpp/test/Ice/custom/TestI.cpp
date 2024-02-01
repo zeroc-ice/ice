@@ -41,8 +41,6 @@ TestIntfI::opVariableArray(ICE_IN(std::pair<const Test::Variable*, const Test::V
     return outSeq;
 }
 
-#ifdef ICE_CPP11_MAPPING
-
 Test::BoolSeq
 TestIntfI::opBoolRange(Test::BoolSeq inSeq, Test::BoolSeq& outSeq, const Ice::Current&)
 {
@@ -77,60 +75,6 @@ TestIntfI::opVariableRangeType(Test::VariableList inSeq, Test::VariableList& out
     outSeq.swap(inSeq);
     return outSeq;
 }
-
-#else
-
-Test::BoolSeq
-TestIntfI::opBoolRange(const std::pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& inSeq,
-                       Test::BoolSeq& outSeq,
-                       const Ice::Current&)
-{
-    Test::BoolSeq(inSeq.first, inSeq.second).swap(outSeq);
-    return outSeq;
-}
-
-Test::ByteList
-TestIntfI::opByteRange(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
-                       Test::ByteList& outSeq,
-                       const Ice::Current&)
-{
-    Test::ByteList(inSeq.first, inSeq.second).swap(outSeq);
-    return outSeq;
-}
-
-Test::VariableList
-TestIntfI::opVariableRange(
-    const std::pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& inSeq,
-    Test::VariableList& outSeq,
-    const Ice::Current&)
-{
-    Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
-    return outSeq;
-}
-
-Test::ByteList
-TestIntfI::opByteRangeType(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
-                           Test::ByteList& outSeq,
-                           const Ice::Current&)
-{
-    Test::ByteList(inSeq.first, inSeq.second).swap(outSeq);
-    return outSeq;
-}
-
-Test::VariableList
-TestIntfI::opVariableRangeType(
-    const std::pair<std::deque<Test::Variable>::const_iterator, std::deque<Test::Variable>::const_iterator>& inSeq,
-    Test::VariableList& outSeq,
-    const Ice::Current&)
-{
-    for(std::deque<Test::Variable>::const_iterator p = inSeq.first; p != inSeq.second; ++p)
-    {
-        outSeq.push_back(*p);
-    }
-    return outSeq;
-}
-
-#endif
 
 std::deque<bool>
 TestIntfI::opBoolSeq(ICE_IN(std::deque<bool>) inSeq,
@@ -169,27 +113,12 @@ TestIntfI::opBoolDequeListArray(ICE_IN(::std::pair<const std::deque<bool>*, cons
     return outSeq;
 }
 
-#ifdef ICE_CPP11_MAPPING
 Test::BoolDequeList
 TestIntfI::opBoolDequeListRange(Test::BoolDequeList inSeq, Test::BoolDequeList& outSeq, const ::Ice::Current&)
 {
     outSeq.swap(inSeq);
     return outSeq;
 }
-#else
-::Test::BoolDequeList
-TestIntfI::opBoolDequeListRange(const ::std::pair< ::Test::BoolDequeList::const_iterator,
-                                                   ::Test::BoolDequeList::const_iterator>& inSeq,
-                                ::Test::BoolDequeList& outSeq,
-                                const ::Ice::Current&)
-{
-    for(::Test::BoolDequeList::const_iterator p = inSeq.first; p != inSeq.second; ++p)
-    {
-        outSeq.push_back(*p);
-    }
-    return outSeq;
-}
-#endif
 
 std::deque< ::Ice::Byte>
 TestIntfI::opByteSeq(ICE_IN(std::deque< ::Ice::Byte>) inSeq,
@@ -353,7 +282,6 @@ TestIntfI::opCList(ICE_IN(std::list< ::Test::CPtr>) inSeq,
     return inSeq;
 }
 
-#ifdef ICE_CPP11_MAPPING
 Test::ClassStruct
 TestIntfI::opClassStruct(Test::ClassStruct inS,
                          Test::ClassStructSeq inSeq,
@@ -365,20 +293,6 @@ TestIntfI::opClassStruct(Test::ClassStruct inS,
     out = inS;
     return inS;
 }
-
-#else
-::Test::ClassStructPtr
-TestIntfI::opClassStruct(const ::Test::ClassStructPtr& inS,
-                         const ::Test::ClassStructSeq& inSeq,
-                         ::Test::ClassStructPtr& out,
-                         ::Test::ClassStructSeq& outSeq,
-                         const Ice::Current&)
-{
-    outSeq = inSeq;
-    out = inS;
-    return inS;
-}
-#endif
 
 void
 TestIntfI::opOutArrayByteSeq(ICE_IN(Test::ByteSeq) data, Test::ByteSeq& copy, const Ice::Current&)

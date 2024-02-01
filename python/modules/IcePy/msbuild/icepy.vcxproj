@@ -153,7 +153,6 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -162,7 +161,6 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -171,7 +169,6 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -180,7 +177,6 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

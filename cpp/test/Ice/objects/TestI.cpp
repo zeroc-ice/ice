@@ -191,7 +191,6 @@ InitialI::acceptsClassCycles(const Ice::Current& c)
     return c.adapter->getCommunicator()->getProperties()->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 }
 
-#ifdef ICE_CPP11_MAPPING
 InitialI::GetMBMarshaledResult
 InitialI::getMB(const Ice::Current& current)
 {
@@ -205,19 +204,6 @@ InitialI::getAMDMBAsync(function<void(const GetAMDMBMarshaledResult&)> response,
 {
     response(GetAMDMBMarshaledResult(_b1, current));
 }
-#else
-Test::BPtr
-InitialI::getMB(const Ice::Current&)
-{
-    return _b1;
-}
-
-void
-InitialI::getAMDMB_async(const Test::AMD_Initial_getAMDMBPtr& cb, const Ice::Current&)
-{
-    cb->ice_response(_b1);
-}
-#endif
 
 void
 InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)

@@ -29,12 +29,8 @@ public:
     virtual bool waitForBatch(Ice::Int, const Ice::Current&);
     virtual void close(Test::CloseMode, const Ice::Current&);
     virtual void sleep(Ice::Int, const Ice::Current&);
-#ifdef ICE_CPP11_MAPPING
     virtual void startDispatchAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
                                     const Ice::Current&);
-#else
-    virtual void startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr&, const Ice::Current&);
-#endif
     virtual void finishDispatch(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
@@ -47,11 +43,7 @@ private:
 
     int _batchCount;
     bool _shutdown;
-#ifdef ICE_CPP11_MAPPING
     std::function<void()> _pending;
-#else
-    Test::AMD_TestIntf_startDispatchPtr _pending;
-#endif
 };
 
 class TestIntfControllerI : public Test::TestIntfController, IceUtil::Monitor<IceUtil::Mutex>

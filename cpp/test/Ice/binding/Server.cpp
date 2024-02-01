@@ -15,10 +15,7 @@ namespace
 // A no-op Logger, used when testing the Logger Admin
 //
 
-class NullLogger : public Ice::Logger
-#ifdef ICE_CPP11_MAPPING
-                 , public std::enable_shared_from_this<NullLogger>
-#endif
+class NullLogger : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
 {
 public:
 

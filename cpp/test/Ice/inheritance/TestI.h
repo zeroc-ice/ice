@@ -28,8 +28,6 @@ private:
     Test::MA::ICPrxPtr _ic;
 };
 
-#ifdef ICE_CPP11_MAPPING
-
 class IAI : public virtual Test::MA::IA
 {
 public:
@@ -58,37 +56,5 @@ public:
 
     virtual std::shared_ptr<Test::MA::ICPrx> icop(std::shared_ptr<Test::MA::ICPrx>, const Ice::Current&);
 };
-
-#else
-
-class IAI : public virtual Test::MA::IA
-{
-public:
-
-    virtual Test::MA::IAPrx iaop(const Test::MA::IAPrx&, const Ice::Current&);
-};
-
-class IB1I : public virtual Test::MB::IB1, public virtual IAI
-{
-public:
-
-    virtual Test::MB::IB1Prx ib1op(const Test::MB::IB1Prx&, const Ice::Current&);
-};
-
-class IB2I : public virtual Test::MB::IB2, public virtual IAI
-{
-public:
-
-    virtual Test::MB::IB2Prx ib2op(const Test::MB::IB2Prx&, const Ice::Current&);
-};
-
-class ICI : public virtual Test::MA::IC, public virtual IB1I, public virtual IB2I
-{
-public:
-
-    virtual Test::MA::ICPrx icop(const Test::MA::ICPrx&, const Ice::Current&);
-};
-
-#endif
 
 #endif

@@ -31,8 +31,6 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace Glacier2;
 
-#ifdef ICE_CPP11_MAPPING
-
 namespace
 {
 

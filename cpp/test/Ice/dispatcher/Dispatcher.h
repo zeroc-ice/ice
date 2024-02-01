@@ -13,7 +13,6 @@
 
 #include <deque>
 
-#ifdef ICE_CPP11_MAPPING
 class DispatcherCall
 {
 public:
@@ -32,23 +31,14 @@ private:
 
     std::function<void()> _call;
 };
-#endif
 
-class Dispatcher :
-#ifndef ICE_CPP11_MAPPING
-    public Ice::Dispatcher,
-#endif
-public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class Dispatcher : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
     Dispatcher();
 
-#ifdef ICE_CPP11_MAPPING
     void dispatch(const std::shared_ptr<DispatcherCall>&, const std::shared_ptr<Ice::Connection>&);
-#else
-    virtual void dispatch(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
-#endif
 
     void run();
 
@@ -58,11 +48,7 @@ public:
 private:
 
     static IceUtil::Handle<Dispatcher> _instance;
-#ifdef ICE_CPP11_MAPPING
     std::deque<std::shared_ptr<DispatcherCall>> _calls;
-#else
-    std::deque<Ice::DispatcherCallPtr> _calls;
-#endif
     bool _terminated;
 };
 

@@ -22,11 +22,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     InitialPrxPtr initial = ICE_CHECKED_CAST(InitialPrx, base);
     test(initial);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(initial, base));
-#else
-    test(initial == base);
-#endif
     cout << "ok" << endl;
 
     cout << "getting proxies for interface hierarchy... " << flush;
@@ -34,19 +30,11 @@ allTests(Test::TestHelper* helper)
     MB::IB1PrxPtr ib1 = initial->ib1op();
     MB::IB2PrxPtr ib2 = initial->ib2op();
     MA::ICPrxPtr ic = initial->icop();
-#ifdef ICE_CPP11_MAPPING
     test(!Ice::targetEqualTo(ia, ib1));
     test(!Ice::targetEqualTo(ia, ib2));
     test(!Ice::targetEqualTo(ia, ic));
     test(!Ice::targetEqualTo(ib1, ic));
     test(!Ice::targetEqualTo(ib2, ic));
-#else
-    test(ia != ib1);
-    test(ia != ib2);
-    test(ia != ic);
-    test(ib1 != ic);
-    test(ib2 != ic);
-#endif
     cout << "ok" << endl;
 
     cout << "invoking proxy operations on interface hierarchy... " << flush;
@@ -56,255 +44,111 @@ allTests(Test::TestHelper* helper)
     MA::ICPrxPtr ico;
 
     iao = ia->iaop(ia);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ia));
-#else
-    test(iao == ia);
-#endif
 
     iao = ia->iaop(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib1));
-#else
-    test(iao == ib1);
-#endif
 
     iao = ia->iaop(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib2));
-#else
-    test(iao == ib2);
-#endif
 
     iao = ia->iaop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     iao = ib1->iaop(ia);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ia));
-#else
-    test(iao == ia);
-#endif
 
     iao = ib1->iaop(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib1));
-#else
-    test(iao == ib1);
-#endif
 
     iao = ib1->iaop(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib2));
-#else
-    test(iao == ib2);
-#endif
 
     iao = ib1->iaop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     iao = ib2->iaop(ia);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ia));
-#else
-    test(iao == ia);
-#endif
 
     iao = ib2->iaop(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib1));
-#else
-    test(iao == ib1);
-#endif
 
     iao = ib2->iaop(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib2));
-#else
-    test(iao == ib2);
-#endif
 
     iao = ib2->iaop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     iao = ic->iaop(ia);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ia));
-#else
-    test(iao == ia);
-#endif
 
     iao = ic->iaop(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib1));
-#else
-    test(iao == ib1);
-#endif
 
     iao = ic->iaop(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib2));
-#else
-    test(iao == ib2);
-#endif
 
     iao = ic->iaop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     iao = ib1->ib1op(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib1));
-#else
-    test(iao == ib1);
-#endif
 
     ib1o = ib1->ib1op(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib1o, ib1));
-#else
-    test(ib1o == ib1);
-#endif
 
     iao = ib1->ib1op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     ib1o = ib1->ib1op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib1o, ic));
-#else
-    test(ib1o == ic);
-#endif
 
     iao = ic->ib1op(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib1));
-#else
-    test(iao == ib1);
-#endif
 
     ib1o = ic->ib1op(ib1);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib1o, ib1));
-#else
-    test(ib1o == ib1);
-#endif
 
     iao = ic->ib1op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
     ib1o = ic->ib1op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib1o, ic));
-#else
-    test(ib1o == ic);
-#endif
 
     iao = ib2->ib2op(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib2));
-#else
-    test(iao == ib2);
-#endif
 
     ib2o = ib2->ib2op(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib2o, ib2));
-#else
-    test(ib2o == ib2);
-#endif
 
     iao = ib2->ib2op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     ib2o = ib2->ib2op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib2o, ic));
-#else
-    test(ib2o == ic);
-#endif
 
     iao = ic->ib2op(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ib2));
-#else
-    test(iao == ib2);
-#endif
 
     ib2o = ic->ib2op(ib2);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib2o, ib2));
-#else
-    test(ib2o == ib2);
-#endif
 
     iao = ic->ib2op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     ib2o = ic->ib2op(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib2o, ic));
-#else
-    test(ib2o == ic);
-#endif
 
     iao = ic->icop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(iao, ic));
-#else
-    test(iao == ic);
-#endif
 
     ib1o = ic->icop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib1o, ic));
-#else
-    test(ib1o == ic);
-#endif
 
     ib2o = ic->icop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ib2o, ic));
-#else
-    test(ib2o == ic);
-#endif
 
     ico = ic->icop(ic);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(ico, ic));
-#else
-    test(ico == ic);
-#endif
 
     cout << "ok" << endl;
 

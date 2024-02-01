@@ -121,11 +121,7 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(obj, base));
-#else
-    test(obj == base);
-#endif
     cout << "ok" << endl;
 
     int oldPid = 0;
@@ -149,7 +145,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
         else
         {
             cout << "testing server #" << i << " with AMI... " << flush;
-#ifdef ICE_CPP11_MAPPING
             try
             {
                 int pid = obj->pidAsync().get();
@@ -161,15 +156,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
             {
                 test(false);
             }
-#else
-            CallbackPtr cb = new Callback();
-            obj->begin_pid(newCallback_TestIntf_pid(cb, &Callback::opPidI, &Callback::exception));
-            cb->check();
-            int pid = cb->pid();
-            test(pid != oldPid);
-            cout << "ok" << endl;
-            oldPid = pid;
-#endif
         }
 
         if(j == 0)
@@ -182,7 +168,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
             }
             else
             {
-#ifdef ICE_CPP11_MAPPING
                 cout << "shutting down server #" << i << " with AMI... " << flush;
                 try
                 {
@@ -193,13 +178,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                     test(false);
                 }
                 cout << "ok" << endl;
-#else
-                cout << "shutting down server #" << i << " with AMI... " << flush;
-                CallbackPtr cb = new Callback;
-                obj->begin_shutdown(newCallback_TestIntf_shutdown(cb, &Callback::opShutdownI, &Callback::exception));
-                cb->check();
-                cout << "ok" << endl;
-#endif
             }
         }
         else if(j == 1 || i + 1 > ports.size())
@@ -223,7 +201,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
             }
             else
             {
-#ifdef ICE_CPP11_MAPPING
                 cout << "aborting server #" << i << " with AMI... " << flush;
                 try
                 {
@@ -234,13 +211,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                 {
                 }
                 cout << "ok" << endl;
-#else
-                cout << "aborting server #" << i << " with AMI... " << flush;
-                CallbackPtr cb = new Callback;
-                obj->begin_abort(newCallback_TestIntf_abort(cb, &Callback::response, &Callback::exceptAbortI));
-                cb->check();
-                cout << "ok" << endl;
-#endif
             }
         }
         else if(j == 2 || j == 3)
@@ -264,7 +234,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
             }
             else
             {
-#ifdef ICE_CPP11_MAPPING
                 cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
                 try
                 {
@@ -275,14 +244,6 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
                 {
                 }
                 cout << "ok" << endl;
-#else
-                cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
-                CallbackPtr cb = new Callback;
-                obj->begin_idempotentAbort(newCallback_TestIntf_idempotentAbort(cb, &Callback::response,
-                                                                                &Callback::exceptAbortI));
-                cb->check();
-                cout << "ok" << endl;
-#endif
             }
 
             ++i;

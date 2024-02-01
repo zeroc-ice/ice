@@ -14,15 +14,9 @@ public:
 
     RemoteCommunicatorI();
 
-#ifdef ICE_CPP11_MAPPING
     virtual std::shared_ptr<Test::RemoteObjectAdapterPrx> createObjectAdapter(std::string, std::string,
                                                                               const Ice::Current&);
     virtual void deactivateObjectAdapter(std::shared_ptr<Test::RemoteObjectAdapterPrx>, const Ice::Current&);
-#else
-    virtual Test::RemoteObjectAdapterPrx createObjectAdapter(const std::string&, const std::string&,
-                                                             const Ice::Current&);
-    virtual void deactivateObjectAdapter(const Test::RemoteObjectAdapterPrx&, const Ice::Current&);
-#endif
     virtual void shutdown(const Ice::Current&);
 
 private:

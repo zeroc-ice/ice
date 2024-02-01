@@ -6,7 +6,6 @@
 #define TEST_CONFIGURATION_H
 
 #include <IceUtil/IceUtil.h>
-#include <Ice/UniquePtr.h>
 
 #include <Ice/LocalException.h>
 #include <Ice/Selector.h>
@@ -59,15 +58,15 @@ public:
 
 private:
 
-    IceInternal::UniquePtr<Ice::LocalException> _connectorsException;
-    IceInternal::UniquePtr<Ice::LocalException> _connectException;
+    std::unique_ptr<Ice::LocalException> _connectorsException;
+    std::unique_ptr<Ice::LocalException> _connectException;
     IceInternal::SocketOperation _initializeSocketOperation;
     int _initializeResetCount;
-    IceInternal::UniquePtr<Ice::LocalException> _initializeException;
+    std::unique_ptr<Ice::LocalException> _initializeException;
     int _readReadyCount;
-    IceInternal::UniquePtr<Ice::LocalException> _readException;
+    std::unique_ptr<Ice::LocalException> _readException;
     int _writeReadyCount;
-    IceInternal::UniquePtr<Ice::LocalException> _writeException;
+    std::unique_ptr<Ice::LocalException> _writeException;
     bool _buffered;
 
     static Configuration* _instance;
