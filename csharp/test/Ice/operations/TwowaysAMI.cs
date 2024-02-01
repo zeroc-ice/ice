@@ -436,10 +436,10 @@ namespace Ice
                     test(result.p3[0][0][1] == "de");
                     test(result.p3[0][1][0] == "xyz");
                     test(result.p3[1][0][0] == "hello");
-                    test(result.p3[2][0][0] == "");
-                    test(result.p3[2][0][1] == "");
+                    test(result.p3[2][0][0].Length == 0);
+                    test(result.p3[2][0][1].Length == 0);
                     test(result.p3[2][1][0] == "abcd");
-                    test(result.p3[3][0][0] == "");
+                    test(result.p3[3][0][0].Length == 0);
 
                     test(result.returnValue.Length == 3);
                     test(result.returnValue[0].Length == 0);
@@ -448,9 +448,9 @@ namespace Ice
                     test(result.returnValue[2].Length == 2);
                     test(result.returnValue[2][0].Length == 2);
                     test(result.returnValue[2][1].Length == 1);
-                    test(result.returnValue[1][0][0] == "");
-                    test(result.returnValue[2][0][0] == "");
-                    test(result.returnValue[2][0][1] == "");
+                    test(result.returnValue[1][0][0].Length == 0);
+                    test(result.returnValue[2][0][0].Length == 0);
+                    test(result.returnValue[2][0][1].Length == 0);
                     test(result.returnValue[2][1][0] == "abcd");
                 }
 

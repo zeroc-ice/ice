@@ -37,7 +37,7 @@ public class AllTests : Test.AllTests
             // Test: PropertiesAdmin::getProperty()
             //
             test(pa.getProperty("Prop1") == "1");
-            test(pa.getProperty("Bogus") == "");
+            test(pa.getProperty("Bogus").Length == 0);
 
             //
             // Test: PropertiesAdmin::getProperties()
@@ -65,14 +65,14 @@ public class AllTests : Test.AllTests
             pa.setProperties(setProps);
             test(pa.getProperty("Prop1") == "10");
             test(pa.getProperty("Prop2") == "20");
-            test(pa.getProperty("Prop3") == "");
+            test(pa.getProperty("Prop3").Length == 0);
             test(pa.getProperty("Prop4") == "4");
             test(pa.getProperty("Prop5") == "5");
             changes = facet.getChanges();
             test(changes.Count == 5);
             test(changes["Prop1"] == "10");
             test(changes["Prop2"] == "20");
-            test(changes["Prop3"] == "");
+            test(changes["Prop3"].Length == 0);
             test(changes["Prop4"] == "4");
             test(changes["Prop5"] == "5");
             pa.setProperties(setProps);

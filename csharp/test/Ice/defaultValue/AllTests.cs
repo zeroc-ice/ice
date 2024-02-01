@@ -31,7 +31,7 @@ namespace Ice
                     test(v.nc1 == Test.Nested.Color.red);
                     test(v.nc2 == Test.Nested.Color.green);
                     test(v.nc3 == Test.Nested.Color.blue);
-                    test(v.noDefault == "");
+                    test(v.noDefault.Length == 0);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -129,7 +129,7 @@ namespace Ice
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
                     test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-                    test(v.noDefault == "");
+                    test(v.noDefault.Length == 0);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -155,7 +155,7 @@ namespace Ice
                     test(v.nc1 == Test.Nested.Color.red);
                     test(v.nc2 == Test.Nested.Color.green);
                     test(v.nc3 == Test.Nested.Color.blue);
-                    test(v.noDefault == "");
+                    test(v.noDefault.Length == 0);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -175,7 +175,7 @@ namespace Ice
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
                     test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
-                    test(v.noDefault == "");
+                    test(v.noDefault.Length == 0);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -195,7 +195,7 @@ namespace Ice
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
                     test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
-                    test(v.noDefault == "");
+                    test(v.noDefault.Length == 0);
                     test(v.c1 == Test.Color.red);
                     test(v.c2 == Test.Color.green);
                     test(v.c3 == Test.Color.blue);
@@ -221,7 +221,7 @@ namespace Ice
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
                     test(v.str == "foo bar");
-                    test(v.noDefault == "");
+                    test(v.noDefault.Length == 0);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -259,7 +259,7 @@ namespace Ice
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
                     test(v.str == "foo bar");
-                    test(v.noDefault == "");
+                    test(v.noDefault.Length == 0);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -281,7 +281,7 @@ namespace Ice
                     test(v.l == 0);
                     test(v.f == 0.0);
                     test(v.d == 0.0);
-                    test(v.str == "");
+                    test(v.str.Length == 0);
                     test(v.c1 == Test.Color.red);
                     test(v.bs == null);
                     test(v.iseq == null);
@@ -290,7 +290,7 @@ namespace Ice
                     test(v.dict == null);
 
                     Test.ExceptionNoDefaults e = new Test.ExceptionNoDefaults();
-                    test(e.str == "");
+                    test(e.str.Length == 0);
                     test(e.c1 == Test.Color.red);
                     test(e.bs == null);
                     test(e.st.a == 0);
@@ -298,7 +298,7 @@ namespace Ice
                     test(e.dict == null);
 
                     Test.ClassNoDefaults cl = new Test.ClassNoDefaults();
-                    test(cl.str == "");
+                    test(cl.str.Length == 0);
                     test(cl.c1 == Test.Color.red);
                     test(cl.bs == null);
                     test(cl.st.a == 0);

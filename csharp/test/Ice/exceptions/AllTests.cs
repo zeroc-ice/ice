@@ -115,7 +115,7 @@ namespace Ice
                     }
                     catch(IllegalIdentityException e)
                     {
-                        test(e.id.name == "");
+                        test(e.id.name.Length == 0);
                     }
 
                     try

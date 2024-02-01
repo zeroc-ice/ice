@@ -184,7 +184,7 @@ public class AllTests : Test.AllTests
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             {
                 string intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
-                if(intf != "")
+                if(intf.Length > 0)
                 {
                     intf = " --interface \"" + intf + "\"";
                 }

@@ -1032,7 +1032,7 @@ namespace Ice
 
                     // Test null struct
                     p2 = initial.opVarStruct((Test.VarStruct)null, out p3);
-                    test(p2.Value.m == "" && p3.Value.m == "");
+                    test(p2.Value.m.Length == 0 && p3.Value.m.Length == 0);
 
                     var result = await initial.opVarStructAsync(p1);
                     test(result.returnValue.Value.m == "test" && result.p3.Value.m == "test");

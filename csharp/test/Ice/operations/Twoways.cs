@@ -296,7 +296,7 @@ namespace Ice
                     rso = p.opStruct(si1, si2, out so);
                     test(rso.p == null);
                     test(rso.e == Test.MyEnum.enum1);
-                    test(rso.s.s == "");
+                    test(rso.s.s.Length == 0);
                     test(so.p == null);
                     test(so.e == Test.MyEnum.enum1);
                     test(so.s.s == "a new string");
@@ -639,10 +639,10 @@ namespace Ice
                     test(ssso[0][0][1] == "de");
                     test(ssso[0][1][0] == "xyz");
                     test(ssso[1][0][0] == "hello");
-                    test(ssso[2][0][0] == "");
-                    test(ssso[2][0][1] == "");
+                    test(ssso[2][0][0].Length == 0);
+                    test(ssso[2][0][1].Length == 0);
                     test(ssso[2][1][0] == "abcd");
-                    test(ssso[3][0][0] == "");
+                    test(ssso[3][0][0].Length == 0);
 
                     test(rsso.Length == 3);
                     test(rsso[0].Length == 0);
@@ -651,9 +651,9 @@ namespace Ice
                     test(rsso[2].Length == 2);
                     test(rsso[2][0].Length == 2);
                     test(rsso[2][1].Length == 1);
-                    test(rsso[1][0][0] == "");
-                    test(rsso[2][0][0] == "");
-                    test(rsso[2][0][1] == "");
+                    test(rsso[1][0][0].Length == 0);
+                    test(rsso[2][0][0].Length == 0);
+                    test(rsso[2][0][1].Length == 0);
                     test(rsso[2][1][0] == "abcd");
                 }
 
@@ -1457,7 +1457,7 @@ namespace Ice
 
                         test(ic.getImplicitContext().containsKey("zero") == false);
                         String r = ic.getImplicitContext().put("zero", "ZERO");
-                        test(r == "");
+                        test(r.Length == 0);
                         test(ic.getImplicitContext().get("zero") == "ZERO");
 
                         ctx = ic.getImplicitContext().getContext();

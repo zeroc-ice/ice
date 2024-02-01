@@ -227,7 +227,7 @@ public class AllTests : Test.AllTests
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().ice_clone_();
                 string intf = initData.properties.getProperty("IceDiscovery.Interface");
-                if(intf != "")
+                if(intf.Length > 0)
                 {
                     intf = " --interface \"" + intf + "\"";
                 }

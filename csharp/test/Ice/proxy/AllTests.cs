@@ -307,7 +307,7 @@ namespace Ice
 
                 // Input string with various pitfalls
                 id = Ice.Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
-                test(id.name == "€0\t0\\" && id.category == "");
+                test(id.name == "€0\t0\\" && id.category.Length == 0);
 
                 try
                 {

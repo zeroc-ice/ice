@@ -18,11 +18,11 @@ public class Client : Test.TestHelper
             test(IceUtilInternal.Options.split("").Length == 0);
 
             args = IceUtilInternal.Options.split("\"\"");
-            test(args.Length == 1 && args[0] == "");
+            test(args.Length == 1 && args[0].Length == 0);
             args = IceUtilInternal.Options.split("''");
-            test(args.Length == 1 && args[0] == "");
+            test(args.Length == 1 && args[0].Length == 0);
             args = IceUtilInternal.Options.split("$''");
-            test(args.Length == 1 && args[0] == "");
+            test(args.Length == 1 && args[0].Length == 0);
 
             args = IceUtilInternal.Options.split("-a -b -c");
             test(args.Length == 3 && args[0] == "-a" && args[1] == "-b" && args[2] == "-c");
