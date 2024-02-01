@@ -163,7 +163,7 @@ namespace Ice
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
         /// <param name="current">The Current object for the invocation.</param>
-        /// /// <returns>The return value is always ::Ice::Object.</returns>
+        /// <returns>The return value is always ::Ice::Object.</returns>
         public virtual string ice_id(Current current = null)
         {
             return _ids[0];
