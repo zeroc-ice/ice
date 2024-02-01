@@ -6,6 +6,7 @@ using Test;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -271,7 +272,7 @@ public class Client : Test.TestHelper
                 catch(CallbackException ex)
                 {
                     test(ex.someValue == 3.14);
-                    test(ex.someString.Equals("3.14"));
+                    test(ex.someString == "3.14");
                 }
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -335,7 +336,7 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            if(args.Length >= 1 && args[0].Equals("--shutdown"))
+            if(args.Length >= 1 && args[0] == "--shutdown")
             {
                 Console.Out.Write("testing server shutdown... ");
                 Console.Out.Flush();
@@ -391,7 +392,7 @@ public class Client : Test.TestHelper
                 }
             }
 
-            if(args.Length >= 1 && args[0].Equals("--shutdown"))
+            if(args.Length >= 1 && args[0] == "--shutdown")
             {
                 {
                     Console.Out.Write("uninstalling router with communicator... ");
@@ -440,8 +441,6 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }

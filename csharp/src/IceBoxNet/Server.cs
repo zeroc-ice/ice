@@ -35,12 +35,12 @@ public class Server
 
         foreach(string arg in args)
         {
-            if(arg.Equals("-h") || arg.Equals("--help"))
+            if(arg == "-h" || arg == "--help")
             {
                 usage();
                 return 0;
             }
-            else if(arg.Equals("-v") || arg.Equals("--version"))
+            else if(arg == "-v" || arg == "--version")
             {
                 Console.Out.WriteLine(Ice.Util.stringVersion());
                 return 0;

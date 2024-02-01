@@ -522,7 +522,7 @@ public extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - returns: `Ice.StringSeq` - The Slice type IDs of the interfaces supported by the target object,
-    ///   in base-to-derived order. The first element of the returned array is always `::Ice::Object`.
+    ///   in alphabetical order.
     func ice_ids(context: Context? = nil) throws -> StringSeq {
         return try _impl._invoke(operation: "ice_ids",
                                  mode: .Nonmutating,

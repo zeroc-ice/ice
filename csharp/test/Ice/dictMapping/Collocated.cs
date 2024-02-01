@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,22 +11,20 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 using(var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
+                    adapter.add(new MyClassI(), Util.stringToIdentity("test"));
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.
-                    AllTests.allTests(this, true);
+                    await AllTests.allTests(this, true);
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Collocated>(args);
         }
     }
 }

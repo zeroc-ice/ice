@@ -1290,41 +1290,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    ClassList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-    StringList other;
-    other.push_back(scoped);
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
-
-    _out << sp;
-    _out << nl << "const iceC_" << getLocalScope(scoped, "_") << "_ids = [";
-    _out.inc();
-
-    for(StringList::const_iterator q = ids.begin(); q != ids.end(); ++q)
-    {
-        if(q != ids.begin())
-        {
-            _out << ',';
-        }
-        _out << nl << '"' << *q << '"';
-    }
-
-    _out.dec();
-    _out << nl << "];";
-
     _out << sp;
     writeDocComment(p, getDeprecateReason(p, 0, "type"));
     _out << nl << localScope << '.' << name << " = class";
@@ -1401,8 +1366,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp;
     bool preserved = p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice");
 
-    _out << nl << "Slice.defineValue(" << localScope << "." << name << ", "
-         << "iceC_" << getLocalScope(scoped, "_") << "_ids[" << scopedPos << "], " << (preserved ? "true" : "false");
+    _out << nl << "Slice.defineValue(" << localScope << "." << name << ", \""
+         << scoped << "\", " << (preserved ? "true" : "false");
     if(p->compactId() >= 0)
     {
         _out << ", " << p->compactId();
@@ -1422,25 +1387,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string prxName = p->name() + "Prx";
 
     InterfaceList bases = p->bases();
-
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-    StringList other;
-    other.push_back(scoped);
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
+    StringList ids = p->ids();
 
     _out << sp;
     _out << nl << "const iceC_" << getLocalScope(scoped, "_") << "_ids = [";
@@ -1528,7 +1475,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "Slice.defineOperations(" << localScope << "."
          << p->name() << ", " << proxyType << ", "
-         << "iceC_" << getLocalScope(scoped, "_") << "_ids, " << scopedPos;
+         << "iceC_" << getLocalScope(scoped, "_") << "_ids, \"" << scoped << "\"";
 
     const OperationList ops = p->operations();
     if(!ops.empty())

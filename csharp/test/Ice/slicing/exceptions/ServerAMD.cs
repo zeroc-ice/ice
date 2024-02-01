@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 public class Server : Test.TestHelper
 {
@@ -20,8 +21,6 @@ public class Server : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        Test.TestDriver.runTestAsync<Server>(args);
 }

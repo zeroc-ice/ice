@@ -4,6 +4,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -45,8 +46,6 @@ public class Collocated : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Collocated>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        Test.TestDriver.runTestAsync<Collocated>(args);
 }

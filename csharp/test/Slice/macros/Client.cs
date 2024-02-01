@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 public class Client : TestHelper
@@ -20,13 +21,11 @@ public class Client : TestHelper
         test(nd.y != 10);
 
         CsOnly c = new CsOnly();
-        test(c.lang.Equals("cs"));
+        test(c.lang == "cs");
         test(c.version == Ice.Util.intVersion());
         Console.Out.WriteLine("ok");
     }
 
-    public static int Main(string[] args)
-    {
-        return TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }

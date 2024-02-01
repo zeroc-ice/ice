@@ -21,7 +21,7 @@ namespace Ice
                 {
                     test(ex.id.Equals(obj.ice_getIdentity()));
                     test(ex.facet.Equals(obj.ice_getFacet()));
-                    test(ex.operation.Equals("requestFailedException"));
+                    test(ex.operation == "requestFailedException");
                 }
                 catch(Exception)
                 {
@@ -35,7 +35,7 @@ namespace Ice
                 }
                 catch(Ice.UnknownUserException ex)
                 {
-                    test(ex.unknown.Equals("reason"));
+                    test(ex.unknown == "reason");
                 }
                 catch(Exception)
                 {
@@ -49,7 +49,7 @@ namespace Ice
                 }
                 catch(Ice.UnknownLocalException ex)
                 {
-                    test(ex.unknown.Equals("reason"));
+                    test(ex.unknown == "reason");
                 }
                 catch(Exception)
                 {
@@ -63,7 +63,7 @@ namespace Ice
                 }
                 catch(Ice.UnknownException ex)
                 {
-                    test(ex.unknown.Equals("reason"));
+                    test(ex.unknown == "reason");
                 }
                 catch(Exception)
                 {
@@ -127,7 +127,7 @@ namespace Ice
                 }
                 catch(Ice.UnknownException ex)
                 {
-                    test(ex.unknown.Equals("reason"));
+                    test(ex.unknown == "reason");
                 }
                 catch(Exception)
                 {
@@ -221,7 +221,7 @@ namespace Ice
                 }
                 catch(Ice.UnknownUserException ex)
                 {
-                    test(ex.unknown.Equals("::Test::TestIntfUserException"));
+                    test(ex.unknown == "::Test::TestIntfUserException");
                 }
                 catch(Exception)
                 {
@@ -236,7 +236,7 @@ namespace Ice
                 }
                 catch(Ice.UnknownUserException ex)
                 {
-                    test(ex.unknown.Equals("::Test::TestIntfUserException"));
+                    test(ex.unknown == "::Test::TestIntfUserException");
                 }
                 catch(Exception)
                 {

@@ -6,6 +6,7 @@ using Test;
 using System;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -296,7 +297,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    test(!session.categoryForClient().Equals(""));
+                    test(session.categoryForClient().Length > 0);
                 }
                 catch(Glacier2.SessionNotExistException)
                 {
@@ -352,7 +353,7 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    test(!session.categoryForClient().Equals(""));
+                    test(session.categoryForClient().Length > 0);
                     test(false);
                 }
                 catch(Glacier2.SessionNotExistException)
@@ -467,8 +468,6 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }

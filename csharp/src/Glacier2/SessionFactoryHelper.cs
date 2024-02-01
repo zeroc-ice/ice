@@ -140,7 +140,7 @@ public class SessionFactoryHelper
     public bool
     getSecure()
     {
-        return getProtocol().Equals("ssl");
+        return getProtocol() == "ssl";
     }
 
     /// <summary>
@@ -157,10 +157,10 @@ public class SessionFactoryHelper
                 throw new ArgumentException("You must use a valid protocol");
             }
 
-            if(!protocol.Equals("tcp") &&
-               !protocol.Equals("ssl") &&
-               !protocol.Equals("wss") &&
-               !protocol.Equals("ws"))
+            if(protocol != "tcp" &&
+               protocol != "ssl" &&
+               protocol != "wss" &&
+               protocol != "ws")
             {
                 throw new ArgumentException("Unknown protocol `" + protocol + "'");
             }
@@ -239,8 +239,8 @@ public class SessionFactoryHelper
     private int
     getPortInternal()
     {
-        return _port == 0 ? ((_protocol.Equals("ssl") ||
-                              _protocol.Equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
+        return _port == 0 ? ((_protocol == "ssl" ||
+                              _protocol == "wss")? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
 
     /**
@@ -357,7 +357,7 @@ public class SessionFactoryHelper
         // plug-in has already been setup we don't want to override the
         // configuration so it can be loaded from a custom location.
         //
-        if((_protocol.Equals("ssl") || _protocol.Equals("wss")) &&
+        if((_protocol == "ssl" || _protocol == "wss") &&
            initData.properties.getProperty("Ice.Plugin.IceSSL").Length == 0)
         {
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");

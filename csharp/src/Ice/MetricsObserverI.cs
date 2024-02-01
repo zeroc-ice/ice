@@ -164,7 +164,7 @@ namespace IceMX
                 Resolver resolver;
                 if(!_attributes.TryGetValue(attribute, out resolver))
                 {
-                    if(attribute.Equals("none"))
+                    if(attribute == "none")
                     {
                         return "";
                     }

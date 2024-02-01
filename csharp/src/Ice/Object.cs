@@ -46,8 +46,7 @@ namespace Ice
         /// Returns the Slice type IDs of the interfaces supported by this object.
         /// </summary>
         /// <param name="current">The Current object for the invocation.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by this object, in base-to-derived
-        /// order. The first element of the returned array is always ::Ice::Object.</returns>
+        /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
         string[] ice_ids(Current current = null);
 
         /// <summary>

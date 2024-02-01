@@ -2,13 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace Ice
 {
     namespace timeout
     {
         public class Client : global::Test.TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 var properties = createTestProperties(ref args);
 
@@ -27,16 +29,12 @@ namespace Ice
                 // send() blocking after sending a given amount of data.
                 //
                 properties.setProperty("Ice.TCP.SndSize", "50000");
-                using(var communicator = initialize(properties))
-                {
-                    AllTests.allTests(this);
-                }
+                using var communicator = initialize(properties);
+                await AllTests.allTests(this);
             }
 
-            public static int Main(string[] args)
-            {
-                return global::Test.TestDriver.runTest<Client>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                global::Test.TestDriver.runTestAsync<Client>(args);
         }
     }
 }

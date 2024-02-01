@@ -62,31 +62,31 @@ namespace Ice
             {
                 public static Ice.Value MyValueFactory(string type)
                 {
-                    if(type.Equals("::Test::B"))
+                    if(type == "::Test::B")
                     {
                         return new BI();
                     }
-                    else if(type.Equals("::Test::C"))
+                    else if(type == "::Test::C")
                     {
                         return new CI();
                     }
-                    else if(type.Equals("::Test::D"))
+                    else if(type == "::Test::D")
                     {
                         return new DI();
                     }
-                    else if(type.Equals("::Test::E"))
+                    else if(type == "::Test::E")
                     {
                         return new EI();
                     }
-                    else if(type.Equals("::Test::F"))
+                    else if(type == "::Test::F")
                     {
                         return new FI();
                     }
-                    else if(type.Equals("::Test::I"))
+                    else if(type == "::Test::I")
                     {
                         return new II();
                     }
-                    else if(type.Equals("::Test::J"))
+                    else if(type == "::Test::J")
                     {
                         return new JI();
                     }
@@ -233,7 +233,7 @@ namespace Ice
                         var k = initial.getK();
                         var l = k.value as L;
                         test(l != null);
-                        test(l.data.Equals("l"));
+                        test(l.data == "l");
                     }
                     output.WriteLine("ok");
 
@@ -243,24 +243,24 @@ namespace Ice
                         Ice.Value v1 = new L("l");
                         Ice.Value v2;
                         Ice.Value v3 = initial.opValue(v1, out v2);
-                        test(((L)v2).data.Equals("l"));
-                        test(((L)v3).data.Equals("l"));
+                        test(((L)v2).data == "l");
+                        test(((L)v3).data == "l");
                     }
                     {
                         L l = new L("l");
                         Ice.Value[] v1 = new Ice.Value[]{ l };
                         Ice.Value[] v2;
                         Ice.Value[] v3 = initial.opValueSeq(v1, out v2);
-                        test(((L)v2[0]).data.Equals("l"));
-                        test(((L)v3[0]).data.Equals("l"));
+                        test(((L)v2[0]).data == "l");
+                        test(((L)v3[0]).data == "l");
                     }
                     {
                         L l = new L("l");
                         Dictionary<string, Ice.Value> v1 = new Dictionary<string, Ice.Value>{ {"l", l} };
                         Dictionary<string, Ice.Value> v2;
                         Dictionary<string, Ice.Value> v3 = initial.opValueMap(v1, out v2);
-                        test(((L)v2["l"]).data.Equals("l"));
-                        test(((L)v3["l"]).data.Equals("l"));
+                        test(((L)v2["l"]).data == "l");
+                        test(((L)v3["l"]).data == "l");
                     }
                     output.WriteLine("ok");
 
@@ -268,10 +268,10 @@ namespace Ice
                     output.Flush();
                     D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
                     d1 = initial.getD1(d1);
-                    test(d1.a1.name.Equals("a1"));
-                    test(d1.a2.name.Equals("a2"));
-                    test(d1.a3.name.Equals("a3"));
-                    test(d1.a4.name.Equals("a4"));
+                    test(d1.a1.name == "a1");
+                    test(d1.a2.name == "a2");
+                    test(d1.a3.name == "a3");
+                    test(d1.a4.name == "a4");
                     output.WriteLine("ok");
 
                     output.Write("throw EDerived... ");
@@ -283,10 +283,10 @@ namespace Ice
                     }
                     catch(EDerived ederived)
                     {
-                        test(ederived.a1.name.Equals("a1"));
-                        test(ederived.a2.name.Equals("a2"));
-                        test(ederived.a3.name.Equals("a3"));
-                        test(ederived.a4.name.Equals("a4"));
+                        test(ederived.a1.name == "a1");
+                        test(ederived.a2.name == "a2");
+                        test(ederived.a3.name == "a3");
+                        test(ederived.a4.name == "a4");
                     }
                     output.WriteLine("ok");
 
@@ -385,8 +385,8 @@ namespace Ice
                     }
                     catch(Ice.UnexpectedObjectException ex)
                     {
-                        test(ex.type.Equals("::Test::AlsoEmpty"));
-                        test(ex.expectedType.Equals("::Test::Empty"));
+                        test(ex.type == "::Test::AlsoEmpty");
+                        test(ex.expectedType == "::Test::Empty");
                     }
                     catch(System.Exception ex)
                     {
@@ -398,13 +398,13 @@ namespace Ice
                     output.Write("testing partial ice_initialize...");
                     output.Flush();
                     var ib1 = new IBase();
-                    test(ib1.id.Equals("My id"));
+                    test(ib1.id == "My id");
                     var id1 = new IDerived();
-                    test(id1.id.Equals("My id"));
-                    test(id1.name.Equals("My name"));
+                    test(id1.id == "My id");
+                    test(id1.name == "My name");
 
                     var id2 = new Test.IDerived2();
-                    test(id2.id.Equals("My id"));
+                    test(id2.id == "My id");
                     var i2 = new I2();
                     test(i2.called);
 
@@ -416,7 +416,7 @@ namespace Ice
                     test(s1.id == 1);
 
                     var sc1 = new SC1();
-                    test(sc1.id.Equals("My id"));
+                    test(sc1.id == "My id");
                     output.WriteLine("ok");
 
                     output.Write("testing class containing complex dictionary... ");
@@ -433,11 +433,11 @@ namespace Ice
                         test(m1.v.Count == 2);
                         test(m2.v.Count == 2);
 
-                        test(m1.v[k1].data.Equals("one"));
-                        test(m2.v[k1].data.Equals("one"));
+                        test(m1.v[k1].data == "one");
+                        test(m2.v[k1].data == "one");
 
-                        test(m1.v[k2].data.Equals("two"));
-                        test(m2.v[k2].data.Equals("two"));
+                        test(m1.v[k2].data == "two");
+                        test(m2.v[k2].data == "two");
 
                     }
                     output.WriteLine("ok");
@@ -447,16 +447,16 @@ namespace Ice
                     {
                         F1 f12;
                         F1 f11 = initial.opF1(new F1("F11"), out f12);
-                        test(f11.name.Equals("F11"));
-                        test(f12.name.Equals("F12"));
+                        test(f11.name == "F11");
+                        test(f12.name == "F12");
 
                         F2Prx f22;
                         F2Prx f21 = initial.opF2(
                             F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())),
                             out f22);
-                        test(f21.ice_getIdentity().name.Equals("F21"));
+                        test(f21.ice_getIdentity().name == "F21");
                         f21.op();
-                        test(f22.ice_getIdentity().name.Equals("F22"));
+                        test(f22.ice_getIdentity().name == "F22");
 
                         if(initial.hasF3())
                         {
@@ -465,11 +465,11 @@ namespace Ice
                                                          F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
                                                   out f32);
 
-                            test(f31.f1.name.Equals("F11"));
-                            test(f31.f2.ice_getIdentity().name.Equals("F21"));
+                            test(f31.f1.name == "F11");
+                            test(f31.f2.ice_getIdentity().name == "F21");
 
-                            test(f32.f1.name.Equals("F12"));
-                            test(f32.f2.ice_getIdentity().name.Equals("F22"));
+                            test(f32.f1.name == "F12");
+                            test(f32.f2.ice_getIdentity().name == "F22");
                         }
                     }
                     output.WriteLine("ok");

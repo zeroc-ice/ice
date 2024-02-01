@@ -128,7 +128,7 @@ public class AllTests : Test.AllTests
             com.destroy();
 
             string multicast;
-            if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            if(communicator.getProperties().getProperty("Ice.IPv6") == "1")
             {
                 multicast = "\"ff15::1\"";
             }
@@ -184,7 +184,7 @@ public class AllTests : Test.AllTests
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             {
                 string intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
-                if(!intf.Equals(""))
+                if(intf.Length > 0)
                 {
                     intf = " --interface \"" + intf + "\"";
                 }
@@ -278,8 +278,8 @@ public class AllTests : Test.AllTests
         }
         catch(Ice.NotRegisteredException ex)
         {
-            test(ex.kindOfObject.Equals("object"));
-            test(ex.id.Equals("unknown/unknown"));
+            test(ex.kindOfObject == "object");
+            test(ex.id == "unknown/unknown");
         }
         Console.Out.WriteLine("ok");
 
@@ -292,8 +292,8 @@ public class AllTests : Test.AllTests
         }
         catch(Ice.NotRegisteredException ex)
         {
-            test(ex.kindOfObject.Equals("object adapter"));
-            test(ex.id.Equals("TestAdapterUnknown"));
+            test(ex.kindOfObject == "object adapter");
+            test(ex.id == "TestAdapterUnknown");
         }
         Console.Out.WriteLine("ok");
 

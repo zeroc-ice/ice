@@ -305,12 +305,6 @@ namespace Ice
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
         global::System.Threading.Tasks.Task flushBatchRequestsAsync(CompressBatch compress, global::System.IProgress<bool> progress = null, global::System.Threading.CancellationToken cancel = new global::System.Threading.CancellationToken());
 
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        AsyncResult begin_flushBatchRequests(CompressBatch compress, AsyncCallback callback = null, object cookie = null);
-
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("slice2cs", "3.7.10")]
-        void end_flushBatchRequests(AsyncResult asyncResult);
-
         /// <summary>
         /// Add the Admin object with all its facets to the provided object adapter.
         /// If Ice.Admin.ServerId is

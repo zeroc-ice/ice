@@ -244,7 +244,7 @@ namespace Ice
                     outS.writeString("hello world");
                     var data = outS.finished();
                     inS = new Ice.InputStream(communicator, data);
-                    test(inS.readString().Equals("hello world"));
+                    test(inS.readString() == "hello world");
                 }
 
                 output.WriteLine("ok");
@@ -297,7 +297,7 @@ namespace Ice
                     var o2 =(Test.OptionalClass)cb.obj;
                     test(o2.bo == o.bo);
                     test(o2.by == o.by);
-                    if(communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0"))
+                    if(communicator.getProperties().getProperty("Ice.Default.EncodingVersion") == "1.0")
                     {
                         test(!o2.sh.HasValue);
                         test(!o2.i.HasValue);

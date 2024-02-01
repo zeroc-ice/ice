@@ -394,8 +394,7 @@ public:
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      * @param context The context map for the invocation.
-     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
-     * order. The first element of the returned array is always "::Ice::Object".
+     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
      */
     ::std::vector<::std::string>
     ice_ids(const ::Ice::Context& context = ::Ice::noExplicitContext)
@@ -1582,5 +1581,3 @@ checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Co
 }
 
 }
-
-#endif

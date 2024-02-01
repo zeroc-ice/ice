@@ -4,6 +4,7 @@
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -50,7 +51,7 @@ namespace Ice
                     //
                     // Use loopback to prevent other machines to answer.
                     //
-                    if(properties.getProperty("Ice.IPv6").Equals("1"))
+                    if(properties.getProperty("Ice.IPv6") == "1")
                     {
                         endpoint.Append("udp -h \"ff15::1:1\"");
                         if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
@@ -77,10 +78,8 @@ namespace Ice
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return global::Test.TestDriver.runTest<Server>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                global::Test.TestDriver.runTestAsync<Server>(args);
         }
     }
 }

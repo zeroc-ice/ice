@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 Ice.Properties properties = createTestProperties(ref args);
 
@@ -40,14 +41,12 @@ namespace Ice
                     adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
                     //adapter2.activate(); // Collocated test doesn't need to activate the OA
 
-                    AllTests.allTests(this, true);
+                    await AllTests.allTestsAsync(this, true);
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Collocated>(args);
         }
     }
 }
