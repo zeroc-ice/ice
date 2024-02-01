@@ -1622,38 +1622,6 @@ namespace Ice
             return _reference is IceInternal.FixedReference;
         }
 
-        private class ProxyGetConnectionAsyncCallback : ProxyAsyncResultCompletionCallback<Callback_Object_ice_getConnection>
-        {
-            public ProxyGetConnectionAsyncCallback(ObjectPrxHelperBase proxy, string operation, object cookie,
-                                                   AsyncCallback cb) :
-                base(proxy, operation, cookie, cb)
-            {
-            }
-
-            protected override AsyncCallback getCompletedCallback()
-            {
-                return (AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                        if(responseCallback_ != null)
-                        {
-                            responseCallback_.Invoke(((ProxyGetConnection)OutgoingAsync).getConnection());
-                        }
-
-                    }
-                    catch(Exception ex)
-                    {
-                        if(exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-        }
-
         public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>
         {
             public GetConnectionTaskCompletionCallback(ObjectPrx proxy,
@@ -1743,44 +1711,6 @@ namespace Ice
                 }
             }
             return null;
-        }
-
-        private class ProxyFlushBatchRequestsAsyncCallback : AsyncResultCompletionCallback
-        {
-            public ProxyFlushBatchRequestsAsyncCallback(ObjectPrx proxy,
-                                                        string operation,
-                                                        object cookie,
-                                                        AsyncCallback callback) :
-                base(proxy.ice_getCommunicator(), ((ObjectPrxHelperBase)proxy).iceReference().getInstance(),
-                     operation, cookie, callback)
-            {
-                _proxy = proxy;
-            }
-
-            public override ObjectPrx getProxy()
-            {
-                return _proxy;
-            }
-
-            protected override AsyncCallback getCompletedCallback()
-            {
-                return (AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                    }
-                    catch(Exception ex)
-                    {
-                        if(exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-
-            private ObjectPrx _proxy;
         }
 
         /// <summary>
@@ -2130,47 +2060,6 @@ namespace Ice
                 }
             }
         }
-
-        public class InvokeAsyncResultCompletionCallback : ProxyAsyncResultCompletionCallback<Callback_Object_ice_invoke>
-        {
-            public InvokeAsyncResultCompletionCallback(ObjectPrxHelperBase proxy,
-                                                       string operation,
-                                                       object cookie,
-                                                       AsyncCallback callback) :
-                base(proxy, operation, cookie, callback)
-            {
-            }
-
-            override protected AsyncCallback getCompletedCallback()
-            {
-                return (AsyncResult r) =>
-                {
-                    Debug.Assert(r == this);
-                    try
-                    {
-                        Object_Ice_invokeResult result = ((InvokeOutgoingAsyncT)outgoing_).getResult(wait());
-                        try
-                        {
-                            if(responseCallback_ != null)
-                            {
-                                responseCallback_.Invoke(result.returnValue, result.outEncaps);
-                            }
-                        }
-                        catch(Exception ex)
-                        {
-                            throw new AggregateException(ex);
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-                        if(exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-        };
 
         private class InvokeTaskCompletionCallback : TaskCompletionCallback<Object_Ice_invokeResult>
         {

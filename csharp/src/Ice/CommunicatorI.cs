@@ -191,36 +191,6 @@ namespace Ice
 
         private const string _flushBatchRequests_name = "flushBatchRequests";
 
-        private class CommunicatorFlushBatchCompletionCallback : AsyncResultCompletionCallback
-        {
-            public CommunicatorFlushBatchCompletionCallback(Communicator communicator,
-                                                            Instance instance,
-                                                            string op,
-                                                            object cookie,
-                                                            AsyncCallback callback)
-                : base(communicator, instance, op, cookie, callback)
-            {
-            }
-
-            protected override AsyncCallback getCompletedCallback()
-            {
-                return (AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                    }
-                    catch(Exception ex)
-                    {
-                        if(exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-        };
-
         public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
             return _instance.createAdmin(adminAdapter, adminIdentity);

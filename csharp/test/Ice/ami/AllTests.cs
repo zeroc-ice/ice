@@ -665,40 +665,29 @@ namespace Ice
                             cs2.Cancel();
                             try
                             {
-                                t1.Wait();
+                                await t1;
                                 test(false);
                             }
-                            catch(AggregateException ae)
+                            catch(InvocationCanceledException)
                             {
-                                ae.Handle(ex =>
-                                {
-                                    return ex is Ice.InvocationCanceledException;
-                                });
-                            }
-                            try
-                            {
-                                t2.Wait();
-                                test(false);
-                            }
-                            catch(AggregateException ae)
-                            {
-                                ae.Handle(ex =>
-                                {
-                                    return ex is Ice.InvocationCanceledException;
-                                });
                             }
 
                             try
                             {
-                                t3.Wait();
+                                await t2;
                                 test(false);
                             }
-                            catch(AggregateException ae)
+                            catch (InvocationCanceledException)
                             {
-                                ae.Handle(ex =>
-                                {
-                                    return ex is Ice.InvocationCanceledException;
-                                });
+                            }
+
+                            try
+                            {
+                                await t3;
+                                test(false);
+                            }
+                            catch (InvocationCanceledException)
+                            {
                             }
 
                         }
@@ -725,7 +714,7 @@ namespace Ice
                         con.setCloseCallback(_ => tcs.SetResult());
                         Task t = p.sleepAsync(100);
                         con.close(ConnectionClose.GracefullyWithWait);
-                        t.Wait(); // Should complete successfully.
+                        await t; // Should complete successfully.
                         await tcs.Task;
                     }
                     {
@@ -777,9 +766,10 @@ namespace Ice
                                 maxQueue *= 2;
                                 done = false;
                             }
+
                             foreach(Task q in results)
                             {
-                                q.Wait();
+                                await q;
                             }
                         }
                     }
@@ -801,13 +791,12 @@ namespace Ice
                         con.close(ConnectionClose.Gracefully);
                         try
                         {
-                            t.Wait();
+                            await t;
                             test(false);
                         }
-                        catch(System.AggregateException ex)
+                        catch(ConnectionManuallyClosedException ex)
                         {
-                            test(ex.InnerException is Ice.ConnectionManuallyClosedException);
-                            test((ex.InnerException as Ice.ConnectionManuallyClosedException).graceful);
+                            test(ex.graceful);
                         }
                         p.finishDispatch();
 
@@ -821,7 +810,7 @@ namespace Ice
                         t = p.sleepAsync(100);
                         p.close(Test.CloseMode.Gracefully); // Close is delayed until sleep completes.
                         await tcs.Task;
-                        t.Wait();
+                        await t;
                     }
                     output.WriteLine("ok");
 
@@ -841,13 +830,12 @@ namespace Ice
                         con.close(ConnectionClose.Forcefully);
                         try
                         {
-                            t.Wait();
+                            await t;
                             test(false);
                         }
-                        catch(AggregateException ex)
+                        catch(ConnectionManuallyClosedException ex)
                         {
-                            test(ex.InnerException is ConnectionManuallyClosedException);
-                            test(!(ex.InnerException as ConnectionManuallyClosedException).graceful);
+                            test(!ex.graceful);
                         }
                         p.finishDispatch();
 
@@ -946,12 +934,9 @@ namespace Ice
                 {
                     var q = Test.Outer.Inner.TestIntfPrxHelper.uncheckedCast(
                         communicator.stringToProxy("test2:" + helper.getTestEndpoint(0)));
-                    q.opAsync(1).ContinueWith(t =>
-                        {
-                            var r = t.Result;
-                            test(r.returnValue == 1);
-                            test(r.j == 1);
-                        }).Wait();
+                    var r = await q.opAsync(1);
+                    test(r.returnValue == 1);
+                    test(r.j == 1);
                 }
                 output.WriteLine("ok");
 

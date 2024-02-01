@@ -483,45 +483,6 @@ namespace Ice
             }
         }
 
-        private class ConnectionFlushBatchCompletionCallback : AsyncResultCompletionCallback
-        {
-            public ConnectionFlushBatchCompletionCallback(Connection connection,
-                                                          Communicator communicator,
-                                                          Instance instance,
-                                                          string op,
-                                                          object cookie,
-                                                          AsyncCallback callback)
-                : base(communicator, instance, op, cookie, callback)
-            {
-                _connection = connection;
-            }
-
-            public override Connection getConnection()
-            {
-                return _connection;
-            }
-
-            protected override AsyncCallback getCompletedCallback()
-            {
-                return (AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                    }
-                    catch(Exception ex)
-                    {
-                        if(exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-
-            private Connection _connection;
-        }
-
         public Task flushBatchRequestsAsync(CompressBatch compressBatch,
                                             IProgress<bool> progress = null,
                                             CancellationToken cancel = new CancellationToken())
@@ -577,44 +538,6 @@ namespace Ice
         public void heartbeat()
         {
             heartbeatAsync().Wait();
-        }
-
-        private class HeartbeatCompletionCallback : AsyncResultCompletionCallback
-        {
-            public HeartbeatCompletionCallback(Ice.Connection connection,
-                                               Ice.Communicator communicator,
-                                               Instance instance,
-                                               object cookie,
-                                               Ice.AsyncCallback callback)
-                : base(communicator, instance, "heartbeat", cookie, callback)
-            {
-                _connection = connection;
-            }
-
-            public override Ice.Connection getConnection()
-            {
-                return _connection;
-            }
-
-            protected override Ice.AsyncCallback getCompletedCallback()
-            {
-                return (Ice.AsyncResult result) =>
-                {
-                    try
-                    {
-                        result.throwLocalException();
-                    }
-                    catch(Ice.Exception ex)
-                    {
-                        if(exceptionCallback_ != null)
-                        {
-                            exceptionCallback_.Invoke(ex);
-                        }
-                    }
-                };
-            }
-
-            private Ice.Connection _connection;
         }
 
         private class HeartbeatTaskCompletionCallback : TaskCompletionCallback<object>
