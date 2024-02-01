@@ -2962,7 +2962,7 @@ class OutputStream
         curr.next = this._encapsStack;
         this._encapsStack = curr;
 
-        this._encapsStackformat;
+        this._encapsStack.format = format;
         this._encapsStack.setEncoding(encoding);
         this._encapsStack.start = this._buf.limit;
 
