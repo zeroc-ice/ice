@@ -11,61 +11,6 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            private class Condition
-            {
-                public Condition(bool value)
-                {
-                    _value = value;
-                }
-
-                public void
-                set(bool value)
-                {
-                    lock(this)
-                    {
-                        _value = value;
-                    }
-                }
-
-                public bool
-                value()
-                {
-                    lock(this)
-                    {
-                        return _value;
-                    }
-                }
-
-                private bool _value;
-            }
-
-            private class SetCB
-            {
-                public
-                SetCB(Condition condition, int expected)
-                {
-                    _condition = condition;
-                    _expected = expected;
-                }
-
-                public void
-                response(int value)
-                {
-                    if(value != _expected)
-                    {
-                        _condition.set(false);
-                    }
-                }
-
-                public void
-                exception(Ice.Exception ex)
-                {
-                }
-
-                private Condition _condition;
-                private int _expected;
-            }
-
             public static async Task allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();

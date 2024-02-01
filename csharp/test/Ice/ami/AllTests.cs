@@ -554,7 +554,7 @@ namespace Ice
                             Task t = communicator.flushBatchRequestsAsync(
                                 CompressBatch.BasedOnProxy,
                                 new Progress<bool>(_ => tcs.SetResult()));
-                            await tcs.Task; // Exceptions are ignored!
+                            await tcs.Task;
                             t.Wait();
                             test(t.IsCompleted);
                             test(p.waitForBatch(1));
@@ -580,7 +580,7 @@ namespace Ice
                             Task t = communicator.flushBatchRequestsAsync(
                                 CompressBatch.BasedOnProxy,
                                 new Progress<bool>(_ => tcs.SetResult()));
-                            await tcs.Task; // Exceptions are ignored!
+                            await tcs.Task;
                             await t;
                             test(t.IsCompleted);
                             test(p.opBatchCount() == 0);
