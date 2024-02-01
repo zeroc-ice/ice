@@ -76,8 +76,8 @@ namespace Ice
 
                 {
                     var result = await p.opStringAsync("hello", "world");
-                    test(result.p3.Equals("world hello"));
-                    test(result.returnValue.Equals("hello world"));
+                    test(result.p3 == "world hello");
+                    test(result.returnValue == "hello world");
                 }
 
                 {
@@ -125,9 +125,9 @@ namespace Ice
                     var ret = p.opStructAsync(si1, si2).Result;
                     test(ret.returnValue.p == null);
                     test(ret.returnValue.e == Test.MyEnum.enum2);
-                    test(ret.returnValue.s.s.Equals("def"));
+                    test(ret.returnValue.s.s == "def");
                     test(ret.p3.e == Test.MyEnum.enum3);
-                    test(ret.p3.s.s.Equals("a new string"));
+                    test(ret.p3.s.s == "a new string");
 
                     //
                     // We can't do the callbacks below in connection serialization mode.
@@ -229,14 +229,14 @@ namespace Ice
 
                     var result = await p.opStringSAsync(ssi1, ssi2);
                     test(result.p3.Length == 4);
-                    test(result.p3[0].Equals("abc"));
-                    test(result.p3[1].Equals("de"));
-                    test(result.p3[2].Equals("fghi"));
-                    test(result.p3[3].Equals("xyz"));
+                    test(result.p3[0] == "abc");
+                    test(result.p3[1] == "de");
+                    test(result.p3[2] == "fghi");
+                    test(result.p3[3] == "xyz");
                     test(result.returnValue.Length == 3);
-                    test(result.returnValue[0].Equals("fghi"));
-                    test(result.returnValue[1].Equals("de"));
-                    test(result.returnValue[2].Equals("abc"));
+                    test(result.returnValue[0] == "fghi");
+                    test(result.returnValue[1] == "de");
+                    test(result.returnValue[2] == "abc");
                 }
 
                 {
@@ -388,17 +388,17 @@ namespace Ice
                     var result = await p.opStringSSAsync(ssi1, ssi2);
                     test(result.p3.Length == 5);
                     test(result.p3[0].Length == 1);
-                    test(result.p3[0][0].Equals("abc"));
+                    test(result.p3[0][0] == "abc");
                     test(result.p3[1].Length == 2);
-                    test(result.p3[1][0].Equals("de"));
-                    test(result.p3[1][1].Equals("fghi"));
+                    test(result.p3[1][0] == "de");
+                    test(result.p3[1][1] == "fghi");
                     test(result.p3[2].Length == 0);
                     test(result.p3[3].Length == 0);
                     test(result.p3[4].Length == 1);
-                    test(result.p3[4][0].Equals("xyz"));
+                    test(result.p3[4][0] == "xyz");
                     test(result.returnValue.Length == 3);
                     test(result.returnValue[0].Length == 1);
-                    test(result.returnValue[0][0].Equals("xyz"));
+                    test(result.returnValue[0][0] == "xyz");
                     test(result.returnValue[1].Length == 0);
                     test(result.returnValue[2].Length == 0);
                 }
@@ -432,14 +432,14 @@ namespace Ice
                     test(result.p3[3].Length == 1);
                     test(result.p3[3][0].Length == 1);
                     test(result.p3[4].Length == 0);
-                    test(result.p3[0][0][0].Equals("abc"));
-                    test(result.p3[0][0][1].Equals("de"));
-                    test(result.p3[0][1][0].Equals("xyz"));
-                    test(result.p3[1][0][0].Equals("hello"));
-                    test(result.p3[2][0][0].Equals(""));
-                    test(result.p3[2][0][1].Equals(""));
-                    test(result.p3[2][1][0].Equals("abcd"));
-                    test(result.p3[3][0][0].Equals(""));
+                    test(result.p3[0][0][0] == "abc");
+                    test(result.p3[0][0][1] == "de");
+                    test(result.p3[0][1][0] == "xyz");
+                    test(result.p3[1][0][0] == "hello");
+                    test(result.p3[2][0][0].Length == 0);
+                    test(result.p3[2][0][1].Length == 0);
+                    test(result.p3[2][1][0] == "abcd");
+                    test(result.p3[3][0][0].Length == 0);
 
                     test(result.returnValue.Length == 3);
                     test(result.returnValue[0].Length == 0);
@@ -448,10 +448,10 @@ namespace Ice
                     test(result.returnValue[2].Length == 2);
                     test(result.returnValue[2][0].Length == 2);
                     test(result.returnValue[2][1].Length == 1);
-                    test(result.returnValue[1][0][0].Equals(""));
-                    test(result.returnValue[2][0][0].Equals(""));
-                    test(result.returnValue[2][0][1].Equals(""));
-                    test(result.returnValue[2][1][0].Equals("abcd"));
+                    test(result.returnValue[1][0][0].Length == 0);
+                    test(result.returnValue[2][0][0].Length == 0);
+                    test(result.returnValue[2][0][1].Length == 0);
+                    test(result.returnValue[2][1][0] == "abcd");
                 }
 
                 {
@@ -762,23 +762,23 @@ namespace Ice
 
                     test(result.returnValue.Length == 2);
                     test(result.returnValue[0].Count == 3);
-                    test(result.returnValue[0]["foo"].Equals("abc -1.1"));
-                    test(result.returnValue[0]["FOO"].Equals("abc -100.4"));
-                    test(result.returnValue[0]["BAR"].Equals("abc 0.5"));
+                    test(result.returnValue[0]["foo"] == "abc -1.1");
+                    test(result.returnValue[0]["FOO"] == "abc -100.4");
+                    test(result.returnValue[0]["BAR"] == "abc 0.5");
                     test(result.returnValue[1].Count == 2);
                     test(result.returnValue[1]["foo"] == "abc -1.1");
                     test(result.returnValue[1]["bar"] == "abc 123123.2");
 
                     test(result.p3.Length == 3);
                     test(result.p3[0].Count == 1);
-                    test(result.p3[0]["f00"].Equals("ABC -3.14"));
+                    test(result.p3[0]["f00"] == "ABC -3.14");
                     test(result.p3[1].Count == 2);
-                    test(result.p3[1]["foo"].Equals("abc -1.1"));
-                    test(result.p3[1]["bar"].Equals("abc 123123.2"));
+                    test(result.p3[1]["foo"] == "abc -1.1");
+                    test(result.p3[1]["bar"] == "abc 123123.2");
                     test(result.p3[2].Count == 3);
-                    test(result.p3[2]["foo"].Equals("abc -1.1"));
-                    test(result.p3[2]["FOO"].Equals("abc -100.4"));
-                    test(result.p3[2]["BAR"].Equals("abc 0.5"));
+                    test(result.p3[2]["foo"] == "abc -1.1");
+                    test(result.p3[2]["FOO"] == "abc -100.4");
+                    test(result.p3[2]["BAR"] == "abc 0.5");
                 }
 
                 {
@@ -854,19 +854,19 @@ namespace Ice
 
                     test(result.returnValue.Length == 2);
                     test(result.returnValue[0].Count == 2);
-                    test(result.returnValue[0][Test.MyEnum.enum2].Equals("Hello!!"));
-                    test(result.returnValue[0][Test.MyEnum.enum3].Equals("qwerty"));
+                    test(result.returnValue[0][Test.MyEnum.enum2] == "Hello!!");
+                    test(result.returnValue[0][Test.MyEnum.enum3] == "qwerty");
                     test(result.returnValue[1].Count == 1);
-                    test(result.returnValue[1][Test.MyEnum.enum1].Equals("abc"));
+                    test(result.returnValue[1][Test.MyEnum.enum1] == "abc");
 
                     test(result.p3.Length == 3);
                     test(result.p3[0].Count == 1);
-                    test(result.p3[0][Test.MyEnum.enum1].Equals("Goodbye"));
+                    test(result.p3[0][Test.MyEnum.enum1] == "Goodbye");
                     test(result.p3[1].Count == 1);
-                    test(result.p3[1][Test.MyEnum.enum1].Equals("abc"));
+                    test(result.p3[1][Test.MyEnum.enum1] == "abc");
                     test(result.p3[2].Count == 2);
-                    test(result.p3[2][Test.MyEnum.enum2].Equals("Hello!!"));
-                    test(result.p3[2][Test.MyEnum.enum3].Equals("qwerty"));
+                    test(result.p3[2][Test.MyEnum.enum2] == "Hello!!");
+                    test(result.p3[2][Test.MyEnum.enum3] == "qwerty");
                 }
 
                 {
@@ -1153,20 +1153,20 @@ namespace Ice
 
                     test(result.p3.Count == 1);
                     test(result.p3["ghi"].Length == 2);
-                    test(result.p3["ghi"][0].Equals("and"));
-                    test(result.p3["ghi"][1].Equals("xor"));
+                    test(result.p3["ghi"][0] == "and");
+                    test(result.p3["ghi"][1] == "xor");
 
                     test(result.returnValue.Count == 3);
                     test(result.returnValue["abc"].Length == 3);
-                    test(result.returnValue["abc"][0].Equals("abc"));
-                    test(result.returnValue["abc"][1].Equals("de"));
-                    test(result.returnValue["abc"][2].Equals("fghi"));
+                    test(result.returnValue["abc"][0] == "abc");
+                    test(result.returnValue["abc"][1] == "de");
+                    test(result.returnValue["abc"][2] == "fghi");
                     test(result.returnValue["def"].Length == 2);
-                    test(result.returnValue["def"][0].Equals("xyz"));
-                    test(result.returnValue["def"][1].Equals("or"));
+                    test(result.returnValue["def"][0] == "xyz");
+                    test(result.returnValue["def"][1] == "or");
                     test(result.returnValue["ghi"].Length == 2);
-                    test(result.returnValue["ghi"][0].Equals("and"));
-                    test(result.returnValue["ghi"][1].Equals("xor"));
+                    test(result.returnValue["ghi"][0] == "and");
+                    test(result.returnValue["ghi"][1] == "xor");
                 }
 
                 {
@@ -1303,7 +1303,7 @@ namespace Ice
                                 // Ignore.
                             }
                         }
-                        test(combined["one"].Equals("UN"));
+                        test(combined["one"] == "UN");
 
                         p3 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(prxContext));
 
@@ -1361,7 +1361,7 @@ namespace Ice
                 }
 
                 {
-                    test(p.opString1Async("opString1").Result.Equals("opString1"));
+                    test(p.opString1Async("opString1").Result == "opString1");
                 }
 
                 {

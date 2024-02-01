@@ -365,7 +365,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     // never added.
                     foreach(KeyValuePair<string, Ice.Object> p in _sharedCommunicator.findAllAdminFacets())
                     {
-                        if(!p.Key.Equals("Process"))
+                        if(p.Key != "Process")
                         {
                             _communicator.addAdminFacet(p.Value, facetNamePrefix + p.Key);
                         }
@@ -587,7 +587,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     // which is never added
                     foreach(KeyValuePair<string, Ice.Object> p in communicator.findAllAdminFacets())
                     {
-                        if(!p.Key.Equals("Process"))
+                        if(p.Key != "Process")
                         {
                             _communicator.addAdminFacet(p.Value, serviceFacetNamePrefix + p.Key);
                         }

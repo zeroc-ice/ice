@@ -115,7 +115,7 @@ namespace Ice
                     }
                     catch(IllegalIdentityException e)
                     {
-                        test(e.id.name.Equals(""));
+                        test(e.id.name.Length == 0);
                     }
 
                     try
@@ -494,7 +494,7 @@ namespace Ice
                     }
                     catch(FacetNotExistException ex)
                     {
-                        test(ex.facet.Equals("no such facet"));
+                        test(ex.facet == "no such facet");
                     }
                 }
                 catch(Exception)
@@ -515,7 +515,7 @@ namespace Ice
                 }
                 catch(OperationNotExistException ex)
                 {
-                    test(ex.operation.Equals("noSuchOperation"));
+                    test(ex.operation == "noSuchOperation");
                 }
 
                 output.WriteLine("ok");
@@ -754,7 +754,7 @@ namespace Ice
                 }
                 catch(FacetNotExistException ex)
                 {
-                    test(ex.facet.Equals("no such facet"));
+                    test(ex.facet == "no such facet");
                 }
 
                 output.WriteLine("ok");
@@ -770,7 +770,7 @@ namespace Ice
                 }
                 catch (OperationNotExistException ex)
                 {
-                    test(ex.operation.Equals("noSuchOperation"));
+                    test(ex.operation == "noSuchOperation");
                 }
 
                 output.WriteLine("ok");
@@ -880,7 +880,7 @@ namespace Ice
                 }
                 catch (FacetNotExistException ex)
                 {
-                    test(ex.facet.Equals("no such facet"));
+                    test(ex.facet == "no such facet");
                 }
 
                 output.WriteLine("ok");
@@ -896,7 +896,7 @@ namespace Ice
                 }
                 catch (OperationNotExistException ex)
                 {
-                    test(ex.operation.Equals("noSuchOperation"));
+                    test(ex.operation == "noSuchOperation");
                 }
 
                 output.WriteLine("ok");

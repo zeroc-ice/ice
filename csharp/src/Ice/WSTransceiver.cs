@@ -757,7 +757,7 @@ namespace IceInternal
             {
                 throw new WebSocketException("missing value for Upgrade field");
             }
-            else if(!val.Equals("websocket"))
+            else if(val != "websocket")
             {
                 throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
             }
@@ -784,7 +784,7 @@ namespace IceInternal
             {
                 throw new WebSocketException("missing value for WebSocket version");
             }
-            else if(!val.Equals("13"))
+            else if(val != "13")
             {
                 throw new WebSocketException("unsupported WebSocket version `" + val + "'");
             }
@@ -910,7 +910,7 @@ namespace IceInternal
             {
                 throw new WebSocketException("missing value for Upgrade field");
             }
-            else if(!val.Equals("websocket"))
+            else if(val != "websocket")
             {
                 throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
             }

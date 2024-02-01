@@ -23,19 +23,19 @@ namespace Ice
                 test(baseProxy != null);
 
                 var b1 = communicator.stringToProxy("test");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
                 b1 = communicator.stringToProxy("test ");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getFacet().Length == 0);
                 b1 = communicator.stringToProxy(" test ");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getFacet().Length == 0);
                 b1 = communicator.stringToProxy(" test");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getFacet().Length == 0);
                 b1 = communicator.stringToProxy("'test -f facet'");
-                test(b1.ice_getIdentity().name.Equals("test -f facet") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test -f facet" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getFacet().Length == 0);
                 try
                 {
@@ -46,13 +46,13 @@ namespace Ice
                 {
                 }
                 b1 = communicator.stringToProxy("\"test -f facet\"");
-                test(b1.ice_getIdentity().name.Equals("test -f facet") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test -f facet" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getFacet().Length == 0);
                 b1 = communicator.stringToProxy("\"test -f facet@test\"");
-                test(b1.ice_getIdentity().name.Equals("test -f facet@test") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test -f facet@test" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getFacet().Length == 0);
                 b1 = communicator.stringToProxy("\"test -f facet@test @test\"");
-                test(b1.ice_getIdentity().name.Equals("test -f facet@test @test") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test -f facet@test @test" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getFacet().Length == 0);
                 try
                 {
@@ -63,7 +63,7 @@ namespace Ice
                 {
                 }
                 b1 = communicator.stringToProxy("test\\040test");
-                test(b1.ice_getIdentity().name.Equals("test test") && b1.ice_getIdentity().category.Length == 0);
+                test(b1.ice_getIdentity().name == "test test" && b1.ice_getIdentity().category.Length == 0);
                 try
                 {
                     b1 = communicator.stringToProxy("test\\777");
@@ -73,23 +73,23 @@ namespace Ice
                 {
                 }
                 b1 = communicator.stringToProxy("test\\40test");
-                test(b1.ice_getIdentity().name.Equals("test test"));
+                test(b1.ice_getIdentity().name == "test test");
 
                 // Test some octal and hex corner cases.
                 b1 = communicator.stringToProxy("test\\4test");
-                test(b1.ice_getIdentity().name.Equals("test\u0004test"));
+                test(b1.ice_getIdentity().name == "test\u0004test");
                 b1 = communicator.stringToProxy("test\\04test");
-                test(b1.ice_getIdentity().name.Equals("test\u0004test"));
+                test(b1.ice_getIdentity().name == "test\u0004test");
                 b1 = communicator.stringToProxy("test\\004test");
-                test(b1.ice_getIdentity().name.Equals("test\u0004test"));
+                test(b1.ice_getIdentity().name == "test\u0004test");
                 b1 = communicator.stringToProxy("test\\1114test");
-                test(b1.ice_getIdentity().name.Equals("test\u00494test"));
+                test(b1.ice_getIdentity().name == "test\u00494test");
 
                 b1 = communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
                 test(b1.ice_getIdentity().name.Equals("test\b\f\n\r\t\'\"\\test") && b1.ice_getIdentity().category.Length == 0);
 
                 b1 = communicator.stringToProxy("category/test");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category") &&
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" &&
                      b1.ice_getAdapterId().Length == 0);
 
                 b1 = communicator.stringToProxy("test:tcp --sourceAddress \"::1\"");
@@ -120,8 +120,8 @@ namespace Ice
                 }
 
                 b1 = communicator.stringToProxy("test@adapter");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getAdapterId().Equals("adapter"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getAdapterId() == "adapter");
                 try
                 {
                     b1 = communicator.stringToProxy("id@adapter test");
@@ -131,36 +131,36 @@ namespace Ice
                 {
                 }
                 b1 = communicator.stringToProxy("category/test@adapter");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category") &&
-                     b1.ice_getAdapterId().Equals("adapter"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" &&
+                     b1.ice_getAdapterId() == "adapter");
                 b1 = communicator.stringToProxy("category/test@adapter:tcp");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category") &&
-                     b1.ice_getAdapterId().Equals("adapter:tcp"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" &&
+                     b1.ice_getAdapterId() == "adapter:tcp");
                 b1 = communicator.stringToProxy("'category 1/test'@adapter");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category 1") &&
-                     b1.ice_getAdapterId().Equals("adapter"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category 1" &&
+                     b1.ice_getAdapterId() == "adapter");
                 b1 = communicator.stringToProxy("'category/test 1'@adapter");
-                test(b1.ice_getIdentity().name.Equals("test 1") && b1.ice_getIdentity().category.Equals("category") &&
-                     b1.ice_getAdapterId().Equals("adapter"));
+                test(b1.ice_getIdentity().name == "test 1" && b1.ice_getIdentity().category == "category" &&
+                     b1.ice_getAdapterId() == "adapter");
                 b1 = communicator.stringToProxy("'category/test'@'adapter 1'");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category") &&
-                     b1.ice_getAdapterId().Equals("adapter 1"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category" &&
+                     b1.ice_getAdapterId() == "adapter 1");
                 b1 = communicator.stringToProxy("\"category \\/test@foo/test\"@adapter");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category /test@foo") &&
-                     b1.ice_getAdapterId().Equals("adapter"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category /test@foo" &&
+                     b1.ice_getAdapterId() == "adapter");
                 b1 = communicator.stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category /test@foo") &&
-                     b1.ice_getAdapterId().Equals("adapter:tcp"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category == "category /test@foo" &&
+                     b1.ice_getAdapterId() == "adapter:tcp");
 
                 b1 = communicator.stringToProxy("id -f facet");
-                test(b1.ice_getIdentity().name.Equals("id") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet"));
+                test(b1.ice_getIdentity().name == "id" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet");
                 b1 = communicator.stringToProxy("id -f 'facet x'");
-                test(b1.ice_getIdentity().name.Equals("id") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet x"));
+                test(b1.ice_getIdentity().name == "id" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet x");
                 b1 = communicator.stringToProxy("id -f \"facet x\"");
-                test(b1.ice_getIdentity().name.Equals("id") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet x"));
+                test(b1.ice_getIdentity().name == "id" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet x");
                 try
                 {
                     b1 = communicator.stringToProxy("id -f \"facet x");
@@ -178,20 +178,20 @@ namespace Ice
                 {
                 }
                 b1 = communicator.stringToProxy("test -f facet:tcp");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet") && b1.ice_getAdapterId().Length == 0);
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet" && b1.ice_getAdapterId().Length == 0);
                 b1 = communicator.stringToProxy("test -f \"facet:tcp\"");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet:tcp") && b1.ice_getAdapterId().Length == 0);
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet:tcp" && b1.ice_getAdapterId().Length == 0);
                 b1 = communicator.stringToProxy("test -f facet@test");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet") && b1.ice_getAdapterId().Equals("test"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet" && b1.ice_getAdapterId() == "test");
                 b1 = communicator.stringToProxy("test -f 'facet@test'");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet@test") && b1.ice_getAdapterId().Length == 0);
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet@test" && b1.ice_getAdapterId().Length == 0);
                 b1 = communicator.stringToProxy("test -f 'facet@test'@test");
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
-                     b1.ice_getFacet().Equals("facet@test") && b1.ice_getAdapterId().Equals("test"));
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
+                     b1.ice_getFacet() == "facet@test" && b1.ice_getAdapterId() == "test");
                 try
                 {
                     b1 = communicator.stringToProxy("test -f facet@test @test");
@@ -226,10 +226,10 @@ namespace Ice
                 test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
 
                 b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
-                test(b1.ToString().Equals("test -t -e 1.0"));
+                test(b1.ToString() == "test -t -e 1.0");
 
                 b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
-                test(b1.ToString().Equals("test -t -p 6.5 -e 1.0"));
+                test(b1.ToString() == "test -t -p 6.5 -e 1.0");
 
                 try
                 {
@@ -307,7 +307,7 @@ namespace Ice
 
                 // Input string with various pitfalls
                 id = Ice.Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
-                test(id.name == "€0\t0\\" && id.category == "");
+                test(id.name == "€0\t0\\" && id.category.Length == 0);
 
                 try
                 {
@@ -397,7 +397,7 @@ namespace Ice
                 String propertyPrefix = "Foo.Proxy";
                 prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
+                test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
                      b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
 
                 string property;
@@ -406,7 +406,7 @@ namespace Ice
                 test(b1.ice_getLocator() == null);
                 prop.setProperty(property, "locator:default -p 10000");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name.Equals("locator"));
+                test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name == "locator");
                 prop.setProperty(property, "");
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 test(b1.ice_getLocatorCacheTimeout() == -1);
@@ -420,7 +420,7 @@ namespace Ice
                 property = propertyPrefix + ".Locator";
                 prop.setProperty(property, "locator:default -p 10000");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name.Equals("locator"));
+                test(b1.ice_getLocator() != null && b1.ice_getLocator().ice_getIdentity().name == "locator");
                 prop.setProperty(property, "");
 
                 property = propertyPrefix + ".LocatorCacheTimeout";
@@ -444,7 +444,7 @@ namespace Ice
                 test(b1.ice_getRouter() == null);
                 prop.setProperty(property, "router:default -p 10000");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getRouter() != null && b1.ice_getRouter().ice_getIdentity().name.Equals("router"));
+                test(b1.ice_getRouter() != null && b1.ice_getRouter().ice_getIdentity().name == "router");
                 prop.setProperty(property, "");
 
                 property = propertyPrefix + ".PreferSecure";
@@ -489,13 +489,13 @@ namespace Ice
                 test(!b1.ice_getContext().ContainsKey("c1"));
                 prop.setProperty(property, "TEST");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getContext()["c1"].Equals("TEST"));
+                test(b1.ice_getContext()["c1"] == "TEST");
 
                 property = propertyPrefix + ".Context.c2";
                 test(!b1.ice_getContext().ContainsKey("c2"));
                 prop.setProperty(property, "TEST");
                 b1 = communicator.propertyToProxy(propertyPrefix);
-                test(b1.ice_getContext()["c2"].Equals("TEST"));
+                test(b1.ice_getContext()["c2"] == "TEST");
 
                 prop.setProperty(propertyPrefix + ".Context.c1", "");
                 prop.setProperty(propertyPrefix + ".Context.c2", "");
@@ -536,32 +536,32 @@ namespace Ice
                 Dictionary<string, string> proxyProps = communicator.proxyToProperty(b1, "Test");
                 test(proxyProps.Count == 21);
 
-                test(proxyProps["Test"].Equals("test -t -e 1.0"));
-                test(proxyProps["Test.CollocationOptimized"].Equals("1"));
-                test(proxyProps["Test.ConnectionCached"].Equals("1"));
-                test(proxyProps["Test.PreferSecure"].Equals("0"));
-                test(proxyProps["Test.EndpointSelection"].Equals("Ordered"));
-                test(proxyProps["Test.LocatorCacheTimeout"].Equals("100"));
-                test(proxyProps["Test.InvocationTimeout"].Equals("1234"));
+                test(proxyProps["Test"] == "test -t -e 1.0");
+                test(proxyProps["Test.CollocationOptimized"] == "1");
+                test(proxyProps["Test.ConnectionCached"] == "1");
+                test(proxyProps["Test.PreferSecure"] == "0");
+                test(proxyProps["Test.EndpointSelection"] == "Ordered");
+                test(proxyProps["Test.LocatorCacheTimeout"] == "100");
+                test(proxyProps["Test.InvocationTimeout"] == "1234");
 
                 test(proxyProps["Test.Locator"].Equals(
                          "locator -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding)));
                 // Locator collocation optimization is always disabled.
-                //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
-                test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
-                test(proxyProps["Test.Locator.PreferSecure"].Equals("1"));
-                test(proxyProps["Test.Locator.EndpointSelection"].Equals("Random"));
-                test(proxyProps["Test.Locator.LocatorCacheTimeout"].Equals("300"));
-                test(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
+                //test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
+                test(proxyProps["Test.Locator.ConnectionCached"] == "0");
+                test(proxyProps["Test.Locator.PreferSecure"] == "1");
+                test(proxyProps["Test.Locator.EndpointSelection"] == "Random");
+                test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
+                test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
                 test(proxyProps["Test.Locator.Router"].Equals(
                          "router -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding)));
-                test(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
-                test(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
-                test(proxyProps["Test.Locator.Router.PreferSecure"].Equals("1"));
-                test(proxyProps["Test.Locator.Router.EndpointSelection"].Equals("Random"));
-                test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"].Equals("200"));
-                test(proxyProps["Test.Locator.Router.InvocationTimeout"].Equals("1500"));
+                test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
+                test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
+                test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");
+                test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
+                test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
+                test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
 
                 output.WriteLine("ok");
 
@@ -573,9 +573,9 @@ namespace Ice
                 output.Write("testing proxy methods... ");
 
                 test(communicator.identityToString(
-                    baseProxy.ice_identity(Util.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
-                test(baseProxy.ice_facet("facet").ice_getFacet().Equals("facet"));
-                test(baseProxy.ice_adapterId("id").ice_getAdapterId().Equals("id"));
+                    baseProxy.ice_identity(Util.stringToIdentity("other")).ice_getIdentity()) == "other");
+                test(baseProxy.ice_facet("facet").ice_getFacet() == "facet");
+                test(baseProxy.ice_adapterId("id").ice_getAdapterId() == "id");
                 test(baseProxy.ice_twoway().ice_isTwoway());
                 test(baseProxy.ice_oneway().ice_isOneway());
                 test(baseProxy.ice_batchOneway().ice_isBatchOneway());
@@ -702,8 +702,8 @@ namespace Ice
 
                 test(compObj.ice_connectionId("id2").Equals(compObj.ice_connectionId("id2")));
                 test(!compObj.ice_connectionId("id1").Equals(compObj.ice_connectionId("id2")));
-                test(compObj.ice_connectionId("id1").ice_getConnectionId().Equals("id1"));
-                test(compObj.ice_connectionId("id2").ice_getConnectionId().Equals("id2"));
+                test(compObj.ice_connectionId("id1").ice_getConnectionId() == "id1");
+                test(compObj.ice_connectionId("id2").ice_getConnectionId() == "id2");
 
                 test(compObj.ice_compress(true).Equals(compObj.ice_compress(true)));
                 test(!compObj.ice_compress(false).Equals(compObj.ice_compress(true)));
@@ -818,7 +818,7 @@ namespace Ice
                         test(prx.ice_isFixed());
                         prx.ice_ping();
                         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
-                        test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().Equals("facet"));
+                        test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");
                         test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
                         Dictionary<string, string> ctx = new Dictionary<string, string>();
                         ctx["one"] = "hello";
@@ -1086,29 +1086,29 @@ namespace Ice
                 // Legal TCP endpoint expressed as opaque endpoint
                 Ice.ObjectPrx p1 = communicator.stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
                 string pstr = communicator.proxyToString(p1);
-                test(pstr.Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+                test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
                 // Opaque endpoint encoded with 1.1 encoding.
                 Ice.ObjectPrx p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-                test(communicator.proxyToString(p2).Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+                test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
                 if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
                 {
                     // Working?
-                    bool ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("ssl");
-                    bool tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("tcp");
+                    bool ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
+                    bool tcp = communicator.getProperties().getProperty("Ice.Default.Protocol") == "tcp";
 
                     // Two legal TCP endpoints expressed as opaque endpoints
                     p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
                     pstr = communicator.proxyToString(p1);
-                    test(pstr.Equals("test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
+                    test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
                     // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
                     p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
                     pstr = communicator.proxyToString(p1);
                     if(ssl)
                     {
-                        test(pstr.Equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
+                        test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
                     }
                     else if(tcp)
                     {

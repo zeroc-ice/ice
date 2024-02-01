@@ -548,11 +548,11 @@ namespace IceSSL
             }
 
             string sloc = store.Substring(0, pos).ToUpperInvariant();
-            if(sloc.Equals("CURRENTUSER"))
+            if(sloc == "CURRENTUSER")
             {
                 loc = StoreLocation.CurrentUser;
             }
-            else if(sloc.Equals("LOCALMACHINE"))
+            else if(sloc == "LOCALMACHINE")
             {
                 loc = StoreLocation.LocalMachine;
             }
@@ -770,31 +770,31 @@ namespace IceSSL
                         //
                         string field = value.Substring(start, pos - start).Trim().ToUpperInvariant();
                         X509FindType findType;
-                        if(field.Equals("SUBJECT"))
+                        if(field == "SUBJECT")
                         {
                             findType = X509FindType.FindBySubjectName;
                         }
-                        else if(field.Equals("SUBJECTDN"))
+                        else if(field == "SUBJECTDN")
                         {
                             findType = X509FindType.FindBySubjectDistinguishedName;
                         }
-                        else if(field.Equals("ISSUER"))
+                        else if(field == "ISSUER")
                         {
                             findType = X509FindType.FindByIssuerName;
                         }
-                        else if(field.Equals("ISSUERDN"))
+                        else if(field == "ISSUERDN")
                         {
                             findType = X509FindType.FindByIssuerDistinguishedName;
                         }
-                        else if(field.Equals("THUMBPRINT"))
+                        else if(field == "THUMBPRINT")
                         {
                             findType = X509FindType.FindByThumbprint;
                         }
-                        else if(field.Equals("SUBJECTKEYID"))
+                        else if(field == "SUBJECTKEYID")
                         {
                             findType = X509FindType.FindBySubjectKeyIdentifier;
                         }
-                        else if(field.Equals("SERIAL"))
+                        else if(field == "SERIAL")
                         {
                             findType = X509FindType.FindBySerialNumber;
                         }

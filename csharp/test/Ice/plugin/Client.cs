@@ -46,7 +46,7 @@ public class Client : Test.TestHelper
             }
             catch(Ice.PluginInitializationException ex)
             {
-                test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
+                test(ex.InnerException.Message == "PluginInitializeFailException");
             }
             Console.WriteLine("ok");
         }
@@ -110,7 +110,7 @@ public class Client : Test.TestHelper
             }
             catch(Ice.PluginInitializationException ex)
             {
-                test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
+                test(ex.InnerException.Message == "PluginInitializeFailException");
             }
             Console.WriteLine("ok");
         }

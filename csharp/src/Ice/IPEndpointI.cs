@@ -326,7 +326,7 @@ namespace IceInternal
             {
                 host_ = instance_.defaultHost();
             }
-            else if(host_.Equals("*"))
+            else if(host_ == "*")
             {
                 if(oaEndpoint)
                 {
@@ -359,7 +359,7 @@ namespace IceInternal
 
         protected override bool checkOption(string option, string argument, string endpoint)
         {
-            if(option.Equals("-h"))
+            if(option == "-h")
             {
                 if(argument == null)
                 {
@@ -368,7 +368,7 @@ namespace IceInternal
                 }
                 host_ = argument;
             }
-            else if(option.Equals("-p"))
+            else if(option == "-p")
             {
                 if(argument == null)
                 {
@@ -393,7 +393,7 @@ namespace IceInternal
                                                          "' out of range in endpoint " + endpoint);
                 }
             }
-            else if(option.Equals("--sourceAddress"))
+            else if(option == "--sourceAddress")
             {
                 if(argument == null)
                 {

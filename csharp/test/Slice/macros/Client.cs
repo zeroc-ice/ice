@@ -21,7 +21,7 @@ public class Client : TestHelper
         test(nd.y != 10);
 
         CsOnly c = new CsOnly();
-        test(c.lang.Equals("cs"));
+        test(c.lang == "cs");
         test(c.version == Ice.Util.intVersion());
         Console.Out.WriteLine("ok");
     }

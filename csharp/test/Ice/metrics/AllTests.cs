@@ -322,7 +322,7 @@ public class AllTests : Test.AllTests
     {
         Dictionary<string, string> dict = new Dictionary<string, string>();
         dict.Add("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
-        if(props.ice_getIdentity().category.Equals("client"))
+        if(props.ice_getIdentity().category == "client")
         {
             props.setProperties(getClientProps(props, dict, map));
             update.waitForUpdate();
@@ -351,7 +351,7 @@ public class AllTests : Test.AllTests
         }
 
         dict.Clear();
-        if(props.ice_getIdentity().category.Equals("client"))
+        if(props.ice_getIdentity().category == "client")
         {
             props.setProperties(getClientProps(props, dict, map));
             update.waitForUpdate();

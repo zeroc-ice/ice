@@ -96,7 +96,7 @@ namespace Ice
                 test(mo1.e.Value == 99);
                 test(mo1.f.Value ==(float)5.5);
                 test(mo1.g.Value == 1.0);
-                test(mo1.h.Value.Equals("test"));
+                test(mo1.h.Value == "test");
                 test(mo1.i.Value == Test.MyEnum.MyEnumMember);
                 test(mo1.j.Value.Equals(communicator.stringToProxy("test")));
                 test(mo1.k.Value == mo1);
@@ -509,7 +509,7 @@ namespace Ice
                 {
                     Test.WD wd =(Test.WD)initial.pingPong(new Test.WD());
                     test(wd.a.Value == 5);
-                    test(wd.s.Value.Equals("test"));
+                    test(wd.s.Value == "test");
                     wd.a = Ice.Util.None;
                     wd.s = Ice.Util.None;
                     wd =(Test.WD)initial.pingPong(wd);
@@ -862,10 +862,10 @@ namespace Ice
 
                     p1 = "test";
                     p2 = initial.opString(p1, out p3);
-                    test(p2.Value.Equals("test") && p3.Value.Equals("test"));
+                    test(p2.Value == "test" && p3.Value == "test");
 
                     var result = await initial.opStringAsync(p1);
-                    test(result.returnValue.Value.Equals("test") && result.p3.Value.Equals("test"));
+                    test(result.returnValue.Value == "test" && result.p3.Value == "test");
 
                     p2 = initial.opString(new Optional<string>(), out p3);
                     test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
@@ -880,9 +880,9 @@ namespace Ice
                     @in = new InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
-                    test(@in.readString().Equals("test"));
+                    test(@in.readString() == "test");
                     test(@in.readOptional(3, OptionalFormat.VSize));
-                    test(@in.readString().Equals("test"));
+                    test(@in.readString() == "test");
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1028,14 +1028,14 @@ namespace Ice
 
                     p1 = new Test.VarStruct("test");
                     p2 = initial.opVarStruct(p1, out p3);
-                    test(p2.Value.m.Equals("test") && p3.Value.m.Equals("test"));
+                    test(p2.Value.m == "test" && p3.Value.m == "test");
 
                     // Test null struct
                     p2 = initial.opVarStruct((Test.VarStruct)null, out p3);
-                    test(p2.Value.m.Equals("") && p3.Value.m.Equals(""));
+                    test(p2.Value.m.Length == 0 && p3.Value.m.Length == 0);
 
                     var result = await initial.opVarStructAsync(p1);
-                    test(result.returnValue.Value.m.Equals("test") && result.p3.Value.m.Equals("test"));
+                    test(result.returnValue.Value.m == "test" && result.p3.Value.m == "test");
 
                     p2 = initial.opVarStruct(new Optional<Test.VarStruct>(), out p3);
                     test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
@@ -1055,11 +1055,11 @@ namespace Ice
                     @in.skip(4);
                     Test.VarStruct v = new Test.VarStruct();
                     v.ice_readMembers(@in);
-                    test(v.m.Equals("test"));
+                    test(v.m == "test");
                     test(@in.readOptional(3, OptionalFormat.FSize));
                     @in.skip(4);
                     v.ice_readMembers(@in);
-                    test(v.m.Equals("test"));
+                    test(v.m == "test");
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);
@@ -1994,7 +1994,7 @@ namespace Ice
                     catch(Test.OptionalException ex)
                     {
                         test(ex.a.Value == 30);
-                        test(ex.b.Value.Equals("test"));
+                        test(ex.b.Value == "test");
                         test(ex.o.Value.a.Value == 53);
                     }
 
@@ -2043,9 +2043,9 @@ namespace Ice
                     catch(Test.DerivedException ex)
                     {
                         test(ex.a.Value == 30);
-                        test(ex.b.Value.Equals("test2"));
+                        test(ex.b.Value == "test2");
                         test(ex.o.Value.a.Value == 53);
-                        test(ex.ss.Value.Equals("test2"));
+                        test(ex.ss.Value == "test2");
                         test(ex.o2.Value.a.Value == 53);
                         test(ex.d1 == "d1");
                         test(ex.d2 == "d2");
@@ -2063,7 +2063,7 @@ namespace Ice
                         test(!ex.a.HasValue);
                         test(!ex.b.HasValue);
                         test(!ex.o.HasValue);
-                        test(ex.ss.Equals("test"));
+                        test(ex.ss == "test");
                         test(ex.o2 == null);
                     }
 
@@ -2077,9 +2077,9 @@ namespace Ice
                     catch(Test.RequiredException ex)
                     {
                         test(ex.a.Value == 30);
-                        test(ex.b.Value.Equals("test2"));
+                        test(ex.b.Value == "test2");
                         test(ex.o.Value.a.Value == 53);
-                        test(ex.ss.Equals("test2"));
+                        test(ex.ss == "test2");
                         test(ex.o2.a.Value == 53);
                     }
                 }
@@ -2323,12 +2323,12 @@ namespace Ice
                     // ::Test::D
                     @in.startSlice();
                     string s = @in.readString();
-                    test(s.Equals("test"));
+                    test(s == "test");
                     test(@in.readOptional(1, Ice.OptionalFormat.FSize));
                     @in.skip(4);
                     string[] o = @in.readStringSeq();
                     test(o.Length == 4 &&
-                         o[0].Equals("test1") && o[1].Equals("test2") && o[2].Equals("test3") && o[3].Equals("test4"));
+                         o[0] == "test1" && o[1] == "test2" && o[2] == "test3" && o[3] == "test4");
                     test(@in.readOptional(1000, Ice.OptionalFormat.Class));
                     @in.readValue(a.invoke);
                     @in.endSlice();
@@ -2402,11 +2402,11 @@ namespace Ice
                     {
                         return new CValueReader();
                     }
-                    else if(typeId.Equals("::Test::D"))
+                    else if(typeId == "::Test::D")
                     {
                         return new DValueReader();
                     }
-                    else if(typeId.Equals("::Test::F"))
+                    else if(typeId == "::Test::F")
                     {
                         return new FValueReader();
                     }

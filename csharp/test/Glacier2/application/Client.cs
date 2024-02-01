@@ -80,7 +80,7 @@ public class Client : Test.TestHelper
         public override int runWithSession(string[] args)
         {
             test(router() != null);
-            test(categoryForClient() != "");
+            test(categoryForClient().Length > 0);
             test(objectAdapter() != null);
 
             if(_restart == 0)
