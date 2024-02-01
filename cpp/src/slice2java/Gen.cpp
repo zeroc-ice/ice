@@ -1111,11 +1111,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
     StringList ids = p->ids();
 
-#ifndef NDEBUG
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-#endif
-
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "static final String[] _iceIds =";
