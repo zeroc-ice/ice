@@ -197,8 +197,8 @@ namespace Ice
                 }
                 catch(Ice.NotRegisteredException ex)
                 {
-                    test(ex.kindOfObject.Equals("object"));
-                    test(ex.id.Equals("unknown/unknown"));
+                    test(ex.kindOfObject == "object");
+                    test(ex.id == "unknown/unknown");
                 }
                 output.WriteLine("ok");
 
@@ -212,8 +212,8 @@ namespace Ice
                 }
                 catch(Ice.NotRegisteredException ex)
                 {
-                    test(ex.kindOfObject.Equals("object adapter"));
-                    test(ex.id.Equals("TestAdapterUnknown"));
+                    test(ex.kindOfObject == "object adapter");
+                    test(ex.id == "TestAdapterUnknown");
                 }
                 output.WriteLine("ok");
 
@@ -259,10 +259,10 @@ namespace Ice
                 output.Flush();
                 obj = Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("test@TestAdapter"));
                 var hello = obj.getHello();
-                test(hello.ice_getAdapterId().Equals("TestAdapter"));
+                test(hello.ice_getAdapterId() == "TestAdapter");
                 hello.sayHello();
                 hello = obj.getReplicatedHello();
-                test(hello.ice_getAdapterId().Equals("ReplicatedAdapter"));
+                test(hello.ice_getAdapterId() == "ReplicatedAdapter");
                 hello.sayHello();
                 output.WriteLine("ok");
 
@@ -325,7 +325,7 @@ namespace Ice
                 catch(Ice.NotRegisteredException ex)
                 {
                     test(ex.kindOfObject == "object adapter");
-                    test(ex.id.Equals("TestAdapter3"));
+                    test(ex.id == "TestAdapter3");
                 }
                 registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
                 try
@@ -378,7 +378,7 @@ namespace Ice
                 catch(Ice.NotRegisteredException ex)
                 {
                     test(ex.kindOfObject == "object adapter");
-                    test(ex.id.Equals("TestUnknown"));
+                    test(ex.id == "TestUnknown");
                 }
                 registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
                 registry.setAdapterDirectProxy("TestAdapter4",

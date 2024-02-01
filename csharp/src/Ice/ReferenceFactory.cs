@@ -828,11 +828,11 @@ namespace IceInternal
                 if(properties.getProperty(property).Length > 0)
                 {
                     string type = properties.getProperty(property);
-                    if(type.Equals("Random"))
+                    if(type == "Random")
                     {
                         endpointSelection = Ice.EndpointSelectionType.Random;
                     }
-                    else if(type.Equals("Ordered"))
+                    else if(type == "Ordered")
                     {
                         endpointSelection = Ice.EndpointSelectionType.Ordered;
                     }

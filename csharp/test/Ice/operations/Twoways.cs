@@ -56,57 +56,57 @@ namespace Ice
                 Ice.Communicator communicator = helper.communicator();
                 string[] literals = p.opStringLiterals();
 
-                test(Test.s0.value.Equals("\\") &&
+                test(Test.s0.value == "\\" &&
                      Test.s0.value.Equals(Test.sw0.value) &&
                      Test.s0.value.Equals(literals[0]) &&
                      Test.s0.value.Equals(literals[11]));
 
-                test(Test.s1.value.Equals("A") &&
+                test(Test.s1.value == "A" &&
                      Test.s1.value.Equals(Test.sw1.value) &&
                      Test.s1.value.Equals(literals[1]) &&
                      Test.s1.value.Equals(literals[12]));
 
-                test(Test.s2.value.Equals("Ice") &&
+                test(Test.s2.value == "Ice" &&
                      Test.s2.value.Equals(Test.sw2.value) &&
                      Test.s2.value.Equals(literals[2]) &&
                      Test.s2.value.Equals(literals[13]));
 
-                test(Test.s3.value.Equals("A21") &&
+                test(Test.s3.value == "A21" &&
                      Test.s3.value.Equals(Test.sw3.value) &&
                      Test.s3.value.Equals(literals[3]) &&
                      Test.s3.value.Equals(literals[14]));
 
-                test(Test.s4.value.Equals("\\u0041 \\U00000041") &&
+                test(Test.s4.value == "\\u0041 \\U00000041" &&
                      Test.s4.value.Equals(Test.sw4.value) &&
                      Test.s4.value.Equals(literals[4]) &&
                      Test.s4.value.Equals(literals[15]));
 
-                test(Test.s5.value.Equals("\u00FF") &&
+                test(Test.s5.value == "\u00FF" &&
                      Test.s5.value.Equals(Test.sw5.value) &&
                      Test.s5.value.Equals(literals[5]) &&
                      Test.s5.value.Equals(literals[16]));
 
-                test(Test.s6.value.Equals("\u03FF") &&
+                test(Test.s6.value == "\u03FF" &&
                      Test.s6.value.Equals(Test.sw6.value) &&
                      Test.s6.value.Equals(literals[6]) &&
                      Test.s6.value.Equals(literals[17]));
 
-                test(Test.s7.value.Equals("\u05F0") &&
+                test(Test.s7.value == "\u05F0" &&
                      Test.s7.value.Equals(Test.sw7.value) &&
                      Test.s7.value.Equals(literals[7]) &&
                      Test.s7.value.Equals(literals[18]));
 
-                test(Test.s8.value.Equals("\U00010000") &&
+                test(Test.s8.value == "\U00010000" &&
                      Test.s8.value.Equals(Test.sw8.value) &&
                      Test.s8.value.Equals(literals[8]) &&
                      Test.s8.value.Equals(literals[19]));
 
-                test(Test.s9.value.Equals("\U0001F34C") &&
+                test(Test.s9.value == "\U0001F34C" &&
                      Test.s9.value.Equals(Test.sw9.value) &&
                      Test.s9.value.Equals(literals[9]) &&
                      Test.s9.value.Equals(literals[20]));
 
-                test(Test.s10.value.Equals("\u0DA7") &&
+                test(Test.s10.value == "\u0DA7" &&
                      Test.s10.value.Equals(Test.sw10.value) &&
                      Test.s10.value.Equals(literals[10]) &&
                      Test.s10.value.Equals(literals[21]));
@@ -118,13 +118,13 @@ namespace Ice
                      Test.ss0.value.Equals(literals[23]) &&
                      Test.ss0.value.Equals(literals[24]));
 
-                test(Test.ss3.value.Equals("\\\\U\\u\\") &&
+                test(Test.ss3.value == "\\\\U\\u\\" &&
                      Test.ss3.value.Equals(literals[25]));
 
-                test(Test.ss4.value.Equals("\\A\\") &&
+                test(Test.ss4.value == "\\A\\" &&
                     Test.ss4.value.Equals(literals[26]));
 
-                test(Test.ss5.value.Equals("\\u0041\\") &&
+                test(Test.ss5.value == "\\u0041\\" &&
                      Test.ss5.value.Equals(literals[27]));
 
                 test(Test.su0.value.Equals(Test.su1.value) &&
@@ -144,9 +144,9 @@ namespace Ice
                 {
                     string[] ids = p.ice_ids();
                     test(ids.Length == 3);
-                    test(ids[0].Equals("::Ice::Object"));
-                    test(ids[1].Equals("::Test::MyClass"));
-                    test(ids[2].Equals("::Test::MyDerivedClass"));
+                    test(ids[0] == "::Ice::Object");
+                    test(ids[1] == "::Test::MyClass");
+                    test(ids[2] == "::Test::MyDerivedClass");
                 }
 
                 {
@@ -222,8 +222,8 @@ namespace Ice
                     string r;
 
                     r = p.opString("hello", "world", out s);
-                    test(s.Equals("world hello"));
-                    test(r.Equals("hello world"));
+                    test(s == "world hello");
+                    test(r == "hello world");
                 }
 
                 {
@@ -281,10 +281,10 @@ namespace Ice
                     Test.Structure rso = p.opStruct(si1, si2, out so);
                     test(rso.p == null);
                     test(rso.e == Test.MyEnum.enum2);
-                    test(rso.s.s.Equals("def"));
+                    test(rso.s.s == "def");
                     test(so.p.Equals(p));
                     test(so.e == Test.MyEnum.enum3);
-                    test(so.s.s.Equals("a new string"));
+                    test(so.s.s == "a new string");
                     so.p.opVoid();
 
                     //
@@ -296,10 +296,10 @@ namespace Ice
                     rso = p.opStruct(si1, si2, out so);
                     test(rso.p == null);
                     test(rso.e == Test.MyEnum.enum1);
-                    test(rso.s.s.Equals(""));
+                    test(rso.s.s == "");
                     test(so.p == null);
                     test(so.e == Test.MyEnum.enum1);
-                    test(so.s.s.Equals("a new string"));
+                    test(so.s.s == "a new string");
                 }
 
                 {
@@ -411,14 +411,14 @@ namespace Ice
 
                     rso = p.opStringS(ssi1, ssi2, out sso);
                     test(sso.Length == 4);
-                    test(sso[0].Equals("abc"));
-                    test(sso[1].Equals("de"));
-                    test(sso[2].Equals("fghi"));
-                    test(sso[3].Equals("xyz"));
+                    test(sso[0] == "abc");
+                    test(sso[1] == "de");
+                    test(sso[2] == "fghi");
+                    test(sso[3] == "xyz");
                     test(rso.Length == 3);
-                    test(rso[0].Equals("fghi"));
-                    test(rso[1].Equals("de"));
-                    test(rso[2].Equals("abc"));
+                    test(rso[0] == "fghi");
+                    test(rso[1] == "de");
+                    test(rso[2] == "abc");
                 }
 
                 {
@@ -588,17 +588,17 @@ namespace Ice
                     rso = p.opStringSS(ssi1, ssi2, out sso);
                     test(sso.Length == 5);
                     test(sso[0].Length == 1);
-                    test(sso[0][0].Equals("abc"));
+                    test(sso[0][0] == "abc");
                     test(sso[1].Length == 2);
-                    test(sso[1][0].Equals("de"));
-                    test(sso[1][1].Equals("fghi"));
+                    test(sso[1][0] == "de");
+                    test(sso[1][1] == "fghi");
                     test(sso[2].Length == 0);
                     test(sso[3].Length == 0);
                     test(sso[4].Length == 1);
-                    test(sso[4][0].Equals("xyz"));
+                    test(sso[4][0] == "xyz");
                     test(rso.Length == 3);
                     test(rso[0].Length == 1);
-                    test(rso[0][0].Equals("xyz"));
+                    test(rso[0][0] == "xyz");
                     test(rso[1].Length == 0);
                     test(rso[2].Length == 0);
                 }
@@ -635,14 +635,14 @@ namespace Ice
                     test(ssso[3].Length == 1);
                     test(ssso[3][0].Length == 1);
                     test(ssso[4].Length == 0);
-                    test(ssso[0][0][0].Equals("abc"));
-                    test(ssso[0][0][1].Equals("de"));
-                    test(ssso[0][1][0].Equals("xyz"));
-                    test(ssso[1][0][0].Equals("hello"));
-                    test(ssso[2][0][0].Equals(""));
-                    test(ssso[2][0][1].Equals(""));
-                    test(ssso[2][1][0].Equals("abcd"));
-                    test(ssso[3][0][0].Equals(""));
+                    test(ssso[0][0][0] == "abc");
+                    test(ssso[0][0][1] == "de");
+                    test(ssso[0][1][0] == "xyz");
+                    test(ssso[1][0][0] == "hello");
+                    test(ssso[2][0][0] == "");
+                    test(ssso[2][0][1] == "");
+                    test(ssso[2][1][0] == "abcd");
+                    test(ssso[3][0][0] == "");
 
                     test(rsso.Length == 3);
                     test(rsso[0].Length == 0);
@@ -651,10 +651,10 @@ namespace Ice
                     test(rsso[2].Length == 2);
                     test(rsso[2][0].Length == 2);
                     test(rsso[2][1].Length == 1);
-                    test(rsso[1][0][0].Equals(""));
-                    test(rsso[2][0][0].Equals(""));
-                    test(rsso[2][0][1].Equals(""));
-                    test(rsso[2][1][0].Equals("abcd"));
+                    test(rsso[1][0][0] == "");
+                    test(rsso[2][0][0] == "");
+                    test(rsso[2][0][1] == "");
+                    test(rsso[2][1][0] == "abcd");
                 }
 
                 {
@@ -731,10 +731,10 @@ namespace Ice
 
                     test(Ice.CollectionComparer.Equals(_do, di1));
                     test(ro.Count == 4);
-                    test(ro["foo"].Equals("abc -1.1"));
-                    test(ro["FOO"].Equals("abc -100.4"));
-                    test(ro["bar"].Equals("abc 123123.2"));
-                    test(ro["BAR"].Equals("abc 0.5"));
+                    test(ro["foo"] == "abc -1.1");
+                    test(ro["FOO"] == "abc -100.4");
+                    test(ro["bar"] == "abc 123123.2");
+                    test(ro["BAR"] == "abc 0.5");
                 }
 
                 {
@@ -769,9 +769,9 @@ namespace Ice
 
                     test(Ice.CollectionComparer.Equals(_do, di1));
                     test(ro.Count == 3);
-                    test(ro[Test.MyEnum.enum1].Equals("abc"));
-                    test(ro[Test.MyEnum.enum2].Equals("Hello!!"));
-                    test(ro[Test.MyEnum.enum3].Equals("qwerty"));
+                    test(ro[Test.MyEnum.enum1] == "abc");
+                    test(ro[Test.MyEnum.enum2] == "Hello!!");
+                    test(ro[Test.MyEnum.enum3] == "qwerty");
                 }
 
                 {
@@ -951,23 +951,23 @@ namespace Ice
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 3);
-                    test(ro[0]["foo"].Equals("abc -1.1"));
-                    test(ro[0]["FOO"].Equals("abc -100.4"));
-                    test(ro[0]["BAR"].Equals("abc 0.5"));
+                    test(ro[0]["foo"] == "abc -1.1");
+                    test(ro[0]["FOO"] == "abc -100.4");
+                    test(ro[0]["BAR"] == "abc 0.5");
                     test(ro[1].Count == 2);
                     test(ro[1]["foo"] == "abc -1.1");
                     test(ro[1]["bar"] == "abc 123123.2");
 
                     test(_do.Length == 3);
                     test(_do[0].Count == 1);
-                    test(_do[0]["f00"].Equals("ABC -3.14"));
+                    test(_do[0]["f00"] == "ABC -3.14");
                     test(_do[1].Count == 2);
-                    test(_do[1]["foo"].Equals("abc -1.1"));
-                    test(_do[1]["bar"].Equals("abc 123123.2"));
+                    test(_do[1]["foo"] == "abc -1.1");
+                    test(_do[1]["bar"] == "abc 123123.2");
                     test(_do[2].Count == 3);
-                    test(_do[2]["foo"].Equals("abc -1.1"));
-                    test(_do[2]["FOO"].Equals("abc -100.4"));
-                    test(_do[2]["BAR"].Equals("abc 0.5"));
+                    test(_do[2]["foo"] == "abc -1.1");
+                    test(_do[2]["FOO"] == "abc -100.4");
+                    test(_do[2]["BAR"] == "abc 0.5");
                 }
 
                 {
@@ -1033,19 +1033,19 @@ namespace Ice
 
                     test(ro.Length == 2);
                     test(ro[0].Count == 2);
-                    test(ro[0][Test.MyEnum.enum2].Equals("Hello!!"));
-                    test(ro[0][Test.MyEnum.enum3].Equals("qwerty"));
+                    test(ro[0][Test.MyEnum.enum2] == "Hello!!");
+                    test(ro[0][Test.MyEnum.enum3] == "qwerty");
                     test(ro[1].Count == 1);
-                    test(ro[1][Test.MyEnum.enum1].Equals("abc"));
+                    test(ro[1][Test.MyEnum.enum1] == "abc");
 
                     test(_do.Length == 3);
                     test(_do[0].Count == 1);
-                    test(_do[0][Test.MyEnum.enum1].Equals("Goodbye"));
+                    test(_do[0][Test.MyEnum.enum1] == "Goodbye");
                     test(_do[1].Count == 1);
-                    test(_do[1][Test.MyEnum.enum1].Equals("abc"));
+                    test(_do[1][Test.MyEnum.enum1] == "abc");
                     test(_do[2].Count == 2);
-                    test(_do[2][Test.MyEnum.enum2].Equals("Hello!!"));
-                    test(_do[2][Test.MyEnum.enum3].Equals("qwerty"));
+                    test(_do[2][Test.MyEnum.enum2] == "Hello!!");
+                    test(_do[2][Test.MyEnum.enum3] == "qwerty");
                 }
 
                 {
@@ -1335,20 +1335,20 @@ namespace Ice
 
                     test(_do.Count == 1);
                     test(_do["ghi"].Length == 2);
-                    test(_do["ghi"][0].Equals("and"));
-                    test(_do["ghi"][1].Equals("xor"));
+                    test(_do["ghi"][0] == "and");
+                    test(_do["ghi"][1] == "xor");
 
                     test(ro.Count == 3);
                     test(ro["abc"].Length == 3);
-                    test(ro["abc"][0].Equals("abc"));
-                    test(ro["abc"][1].Equals("de"));
-                    test(ro["abc"][2].Equals("fghi"));
+                    test(ro["abc"][0] == "abc");
+                    test(ro["abc"][1] == "de");
+                    test(ro["abc"][2] == "fghi");
                     test(ro["def"].Length == 2);
-                    test(ro["def"][0].Equals("xyz"));
-                    test(ro["def"][1].Equals("or"));
+                    test(ro["def"][0] == "xyz");
+                    test(ro["def"][1] == "or");
                     test(ro["ghi"].Length == 2);
-                    test(ro["ghi"][0].Equals("and"));
-                    test(ro["ghi"][1].Equals("xor"));
+                    test(ro["ghi"][0] == "and");
+                    test(ro["ghi"][1] == "xor");
                 }
 
                 {
@@ -1457,8 +1457,8 @@ namespace Ice
 
                         test(ic.getImplicitContext().containsKey("zero") == false);
                         String r = ic.getImplicitContext().put("zero", "ZERO");
-                        test(r.Equals(""));
-                        test(ic.getImplicitContext().get("zero").Equals("ZERO"));
+                        test(r == "");
+                        test(ic.getImplicitContext().get("zero") == "ZERO");
 
                         ctx = ic.getImplicitContext().getContext();
                         test(Ice.CollectionComparer.Equals(p3.opContext(), ctx));
@@ -1479,7 +1479,7 @@ namespace Ice
                                 // Ignore.
                             }
                         }
-                        test(combined["one"].Equals("UN"));
+                        test(combined["one"] == "UN");
 
                         p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
 
@@ -1489,9 +1489,9 @@ namespace Ice
                         ic.getImplicitContext().setContext(ctx);
                         test(Ice.CollectionComparer.Equals(p3.opContext(), combined));
 
-                        test(ic.getImplicitContext().remove("one").Equals("ONE"));
+                        test(ic.getImplicitContext().remove("one") == "ONE");
 
-                        if (impls[i].Equals("PerThread"))
+                        if (impls[i] == "PerThread")
                         {
                             var thread = new PerThreadContextInvokeThread(
                                 Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(null)));
@@ -1517,7 +1517,7 @@ namespace Ice
                     test(p.opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
                     test(p.opFloat1(1.0f) == 1.0f);
                     test(p.opDouble1(1.0d) == 1.0d);
-                    test(p.opString1("opString1").Equals("opString1"));
+                    test(p.opString1("opString1") == "opString1");
                     test(p.opStringS1(null).Length == 0);
                     test(p.opByteBoolD1(null).Count == 0);
                     test(p.opStringS2(null).Length == 0);
@@ -1529,17 +1529,17 @@ namespace Ice
                     s.myClass = null;
                     s.myStruct1 = "MyStruct1.myStruct1";
                     s = d.opMyStruct1(s);
-                    test(s.tesT.Equals("MyStruct1.s"));
+                    test(s.tesT == "MyStruct1.s");
                     test(s.myClass == null);
-                    test(s.myStruct1.Equals("MyStruct1.myStruct1"));
+                    test(s.myStruct1 == "MyStruct1.myStruct1");
                     var c = new Test.MyClass1();
                     c.tesT = "MyClass1.testT";
                     c.myClass = null;
                     c.myClass1 = "MyClass1.myClass1";
                     c = d.opMyClass1(c);
-                    test(c.tesT.Equals("MyClass1.testT"));
+                    test(c.tesT == "MyClass1.testT");
                     test(c.myClass == null);
-                    test(c.myClass1.Equals("MyClass1.myClass1"));
+                    test(c.myClass1 == "MyClass1.myClass1");
                 }
 
                 {

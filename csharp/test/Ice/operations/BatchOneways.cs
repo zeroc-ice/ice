@@ -20,7 +20,7 @@ namespace Ice
             {
                 public void enqueue(Ice.BatchRequest request, int count, int size)
                 {
-                    test(request.getOperation().Equals("opByteSOneway") || request.getOperation().Equals("ice_ping"));
+                    test(request.getOperation() == "opByteSOneway" || request.getOperation() == "ice_ping");
                     test(request.getProxy().ice_isBatchOneway());
 
                     if (count > 0)
@@ -171,7 +171,7 @@ namespace Ice
                 }
 
                 if (supportsCompress && p.ice_getConnection() != null &&
-                   p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress").Equals(""))
+                   p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress") == "")
                 {
                     Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 

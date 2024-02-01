@@ -306,14 +306,14 @@ namespace Ice
                 if(dotPos != -1)
                 {
                     string suffix = name.Substring(dotPos + 1);
-                    if(suffix.Equals("cpp") || suffix.Equals("java"))
+                    if(suffix == "cpp" || suffix == "java")
                     {
                         //
                         // Ignored
                         //
                         plugins.Remove(key);
                     }
-                    else if(suffix.Equals("clr"))
+                    else if(suffix == "clr")
                     {
                         name = name.Substring(0, dotPos);
                         loadPlugin(name, val, ref cmdArgs);

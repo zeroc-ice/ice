@@ -97,7 +97,7 @@ public class AllTests : Test.AllTests
             {
                 o = testPrx.SBaseAsObject();
                 test(o != null);
-                test(o.ice_id().Equals("::Test::SBase"));
+                test(o.ice_id() == "::Test::SBase");
                 sb = (SBase) o;
             }
             catch(Exception ex)
@@ -106,7 +106,7 @@ public class AllTests : Test.AllTests
                 test(false);
             }
             test(sb != null);
-            test(sb.sb.Equals("SBase.sb"));
+            test(sb.sb == "SBase.sb");
         }
         output.WriteLine("ok");
 
@@ -115,10 +115,10 @@ public class AllTests : Test.AllTests
         {
             Ice.Value o = testPrx.SBaseAsObjectAsync().Result;
             test(o != null);
-            test(o.ice_id().Equals("::Test::SBase"));
+            test(o.ice_id() == "::Test::SBase");
             SBase sb = (SBase)o;
             test(sb != null);
-            test(sb.sb.Equals("SBase.sb"));
+            test(sb.sb == "SBase.sb");
         }
         output.WriteLine("ok");
 
@@ -129,7 +129,7 @@ public class AllTests : Test.AllTests
             try
             {
                 sb = testPrx.SBaseAsSBase();
-                test(sb.sb.Equals("SBase.sb"));
+                test(sb.sb == "SBase.sb");
             }
             catch(Exception ex)
             {
@@ -143,7 +143,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             SBase sb = testPrx.SBaseAsSBaseAsync().Result;
-            test(sb.sb.Equals("SBase.sb"));
+            test(sb.sb == "SBase.sb");
         }
         output.WriteLine("ok");
 
@@ -155,7 +155,7 @@ public class AllTests : Test.AllTests
             try
             {
                 sb = testPrx.SBSKnownDerivedAsSBase();
-                test(sb.sb.Equals("SBSKnownDerived.sb"));
+                test(sb.sb == "SBSKnownDerived.sb");
                 sbskd = (SBSKnownDerived) sb;
             }
             catch(Exception ex)
@@ -164,7 +164,7 @@ public class AllTests : Test.AllTests
                 test(false);
             }
             test(sbskd != null);
-            test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
+            test(sbskd.sbskd == "SBSKnownDerived.sbskd");
         }
         output.WriteLine("ok");
 
@@ -172,10 +172,10 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             SBase sb = testPrx.SBSKnownDerivedAsSBaseAsync().Result;
-            test(sb.sb.Equals("SBSKnownDerived.sb"));
+            test(sb.sb == "SBSKnownDerived.sb");
             SBSKnownDerived sbskd = (SBSKnownDerived)sb;
             test(sbskd != null);
-            test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
+            test(sbskd.sbskd == "SBSKnownDerived.sbskd");
         }
         output.WriteLine("ok");
 
@@ -186,7 +186,7 @@ public class AllTests : Test.AllTests
             try
             {
                 sbskd = testPrx.SBSKnownDerivedAsSBSKnownDerived();
-                test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
+                test(sbskd.sbskd == "SBSKnownDerived.sbskd");
             }
             catch(Exception ex)
             {
@@ -200,7 +200,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             SBSKnownDerived sbskd = testPrx.SBSKnownDerivedAsSBSKnownDerivedAsync().Result;
-            test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
+            test(sbskd.sbskd == "SBSKnownDerived.sbskd");
         }
         output.WriteLine("ok");
 
@@ -211,7 +211,7 @@ public class AllTests : Test.AllTests
             try
             {
                 sb = testPrx.SBSUnknownDerivedAsSBase();
-                test(sb.sb.Equals("SBSUnknownDerived.sb"));
+                test(sb.sb == "SBSUnknownDerived.sb");
             }
             catch(Exception ex)
             {
@@ -224,7 +224,7 @@ public class AllTests : Test.AllTests
             try
             {
                 SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompact();
-                test(sb.sb.Equals("SBSUnknownDerived.sb"));
+                test(sb.sb == "SBSUnknownDerived.sb");
             }
             catch(Exception ex)
             {
@@ -259,7 +259,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             SBase sb = testPrx.SBSUnknownDerivedAsSBaseAsync().Result;
-            test(sb.sb.Equals("SBSUnknownDerived.sb"));
+            test(sb.sb == "SBSUnknownDerived.sb");
         }
         if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
         {
@@ -268,7 +268,7 @@ public class AllTests : Test.AllTests
             //
             {
                 SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompactAsync().Result;
-                test(sb.sb.Equals("SBSUnknownDerived.sb"));
+                test(sb.sb == "SBSUnknownDerived.sb");
             }
         }
         else
@@ -296,7 +296,7 @@ public class AllTests : Test.AllTests
                 Ice.Value o = testPrx.SUnknownAsObject();
                 test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
                 test(o is Ice.UnknownSlicedValue);
-                test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
+                test((o as Ice.UnknownSlicedValue).ice_id() == "::Test::SUnknown");
                 test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
                 testPrx.checkSUnknown(o);
             }
@@ -331,7 +331,7 @@ public class AllTests : Test.AllTests
                         }
                         catch(Ice.Exception ex)
                         {
-                            test(ex.GetType().FullName.Equals("Ice.NoValueFactoryException"));
+                            test(ex.GetType().FullName == "Ice.NoValueFactoryException");
                         }
                     }
                 }
@@ -341,7 +341,7 @@ public class AllTests : Test.AllTests
                     {
                         var o = testPrx.SUnknownAsObjectAsync().Result;
                         test(o is Ice.UnknownSlicedValue);
-                        test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
+                        test((o as Ice.UnknownSlicedValue).ice_id() == "::Test::SUnknown");
                     }
                     catch(AggregateException ex)
                     {
@@ -365,8 +365,8 @@ public class AllTests : Test.AllTests
             {
                 B b = testPrx.oneElementCycle();
                 test(b != null);
-                test(b.ice_id().Equals("::Test::B"));
-                test(b.sb.Equals("B1.sb"));
+                test(b.ice_id() == "::Test::B");
+                test(b.sb == "B1.sb");
                 test(b.pb == b);
             }
             catch(Exception ex)
@@ -382,8 +382,8 @@ public class AllTests : Test.AllTests
         {
             var b = testPrx.oneElementCycleAsync().Result;
             test(b != null);
-            test(b.ice_id().Equals("::Test::B"));
-            test(b.sb.Equals("B1.sb"));
+            test(b.ice_id() == "::Test::B");
+            test(b.sb == "B1.sb");
             test(b.pb == b);
         }
         output.WriteLine("ok");
@@ -395,13 +395,13 @@ public class AllTests : Test.AllTests
             {
                 B b1 = testPrx.twoElementCycle();
                 test(b1 != null);
-                test(b1.ice_id().Equals("::Test::B"));
-                test(b1.sb.Equals("B1.sb"));
+                test(b1.ice_id() == "::Test::B");
+                test(b1.sb == "B1.sb");
 
                 B b2 = b1.pb;
                 test(b2 != null);
-                test(b2.ice_id().Equals("::Test::B"));
-                test(b2.sb.Equals("B2.sb"));
+                test(b2.ice_id() == "::Test::B");
+                test(b2.sb == "B2.sb");
                 test(b2.pb == b1);
             }
             catch(Exception ex)
@@ -417,13 +417,13 @@ public class AllTests : Test.AllTests
         {
             B b1 = testPrx.twoElementCycleAsync().Result;
             test(b1 != null);
-            test(b1.ice_id().Equals("::Test::B"));
-            test(b1.sb.Equals("B1.sb"));
+            test(b1.ice_id() == "::Test::B");
+            test(b1.sb == "B1.sb");
 
             B b2 = b1.pb;
             test(b2 != null);
-            test(b2.ice_id().Equals("::Test::B"));
-            test(b2.sb.Equals("B2.sb"));
+            test(b2.ice_id() == "::Test::B");
+            test(b2.sb == "B2.sb");
             test(b2.pb == b1);
         }
         output.WriteLine("ok");
@@ -436,13 +436,13 @@ public class AllTests : Test.AllTests
                 B b1;
                 b1 = testPrx.D1AsB();
                 test(b1 != null);
-                test(b1.ice_id().Equals("::Test::D1"));
-                test(b1.sb.Equals("D1.sb"));
+                test(b1.ice_id() == "::Test::D1");
+                test(b1.sb == "D1.sb");
                 test(b1.pb != null);
                 test(b1.pb != b1);
                 D1 d1 = (D1) b1;
                 test(d1 != null);
-                test(d1.sd1.Equals("D1.sd1"));
+                test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 != null);
                 test(d1.pd1 != b1);
                 test(b1.pb == d1.pd1);
@@ -450,8 +450,8 @@ public class AllTests : Test.AllTests
                 B b2 = b1.pb;
                 test(b2 != null);
                 test(b2.pb == b1);
-                test(b2.sb.Equals("D2.sb"));
-                test(b2.ice_id().Equals("::Test::B"));
+                test(b2.sb == "D2.sb");
+                test(b2.ice_id() == "::Test::B");
             }
             catch(Exception ex)
             {
@@ -466,13 +466,13 @@ public class AllTests : Test.AllTests
         {
             B b1 = testPrx.D1AsBAsync().Result;
             test(b1 != null);
-            test(b1.ice_id().Equals("::Test::D1"));
-            test(b1.sb.Equals("D1.sb"));
+            test(b1.ice_id() == "::Test::D1");
+            test(b1.sb == "D1.sb");
             test(b1.pb != null);
             test(b1.pb != b1);
             D1 d1 = (D1)b1;
             test(d1 != null);
-            test(d1.sd1.Equals("D1.sd1"));
+            test(d1.sd1 == "D1.sd1");
             test(d1.pd1 != null);
             test(d1.pd1 != b1);
             test(b1.pb == d1.pd1);
@@ -480,8 +480,8 @@ public class AllTests : Test.AllTests
             B b2 = b1.pb;
             test(b2 != null);
             test(b2.pb == b1);
-            test(b2.sb.Equals("D2.sb"));
-            test(b2.ice_id().Equals("::Test::B"));
+            test(b2.sb == "D2.sb");
+            test(b2.ice_id() == "::Test::B");
         }
         output.WriteLine("ok");
 
@@ -493,15 +493,15 @@ public class AllTests : Test.AllTests
                 D1 d1;
                 d1 = testPrx.D1AsD1();
                 test(d1 != null);
-                test(d1.ice_id().Equals("::Test::D1"));
-                test(d1.sb.Equals("D1.sb"));
+                test(d1.ice_id() == "::Test::D1");
+                test(d1.sb == "D1.sb");
                 test(d1.pb != null);
                 test(d1.pb != d1);
 
                 B b2 = d1.pb;
                 test(b2 != null);
-                test(b2.ice_id().Equals("::Test::B"));
-                test(b2.sb.Equals("D2.sb"));
+                test(b2.ice_id() == "::Test::B");
+                test(b2.sb == "D2.sb");
                 test(b2.pb == d1);
             }
             catch(Exception ex)
@@ -517,15 +517,15 @@ public class AllTests : Test.AllTests
         {
             D1 d1 = testPrx.D1AsD1Async().Result;
             test(d1 != null);
-            test(d1.ice_id().Equals("::Test::D1"));
-            test(d1.sb.Equals("D1.sb"));
+            test(d1.ice_id() == "::Test::D1");
+            test(d1.sb == "D1.sb");
             test(d1.pb != null);
             test(d1.pb != d1);
 
             B b2 = d1.pb;
             test(b2 != null);
-            test(b2.ice_id().Equals("::Test::B"));
-            test(b2.sb.Equals("D2.sb"));
+            test(b2.ice_id() == "::Test::B");
+            test(b2.sb == "D2.sb");
             test(b2.pb == d1);
         }
         output.WriteLine("ok");
@@ -538,19 +538,19 @@ public class AllTests : Test.AllTests
                 B b2;
                 b2 = testPrx.D2AsB();
                 test(b2 != null);
-                test(b2.ice_id().Equals("::Test::B"));
-                test(b2.sb.Equals("D2.sb"));
+                test(b2.ice_id() == "::Test::B");
+                test(b2.sb == "D2.sb");
                 test(b2.pb != null);
                 test(b2.pb != b2);
 
                 B b1 = b2.pb;
                 test(b1 != null);
-                test(b1.ice_id().Equals("::Test::D1"));
-                test(b1.sb.Equals("D1.sb"));
+                test(b1.ice_id() == "::Test::D1");
+                test(b1.sb == "D1.sb");
                 test(b1.pb == b2);
                 D1 d1 = (D1) b1;
                 test(d1 != null);
-                test(d1.sd1.Equals("D1.sd1"));
+                test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 == b2);
             }
             catch(Exception ex)
@@ -566,19 +566,19 @@ public class AllTests : Test.AllTests
         {
             B b2 = testPrx.D2AsBAsync().Result;
             test(b2 != null);
-            test(b2.ice_id().Equals("::Test::B"));
-            test(b2.sb.Equals("D2.sb"));
+            test(b2.ice_id() == "::Test::B");
+            test(b2.sb == "D2.sb");
             test(b2.pb != null);
             test(b2.pb != b2);
 
             B b1 = b2.pb;
             test(b1 != null);
-            test(b1.ice_id().Equals("::Test::D1"));
-            test(b1.sb.Equals("D1.sb"));
+            test(b1.ice_id() == "::Test::D1");
+            test(b1.sb == "D1.sb");
             test(b1.pb == b2);
             D1 d1 = (D1)b1;
             test(d1 != null);
-            test(d1.sd1.Equals("D1.sd1"));
+            test(d1.sd1 == "D1.sd1");
             test(d1.pd1 == b2);
         }
         output.WriteLine("ok");
@@ -593,17 +593,17 @@ public class AllTests : Test.AllTests
                 testPrx.paramTest1(out b1, out b2);
 
                 test(b1 != null);
-                test(b1.ice_id().Equals("::Test::D1"));
-                test(b1.sb.Equals("D1.sb"));
+                test(b1.ice_id() == "::Test::D1");
+                test(b1.sb == "D1.sb");
                 test(b1.pb == b2);
                 D1 d1 = (D1) b1;
                 test(d1 != null);
-                test(d1.sd1.Equals("D1.sd1"));
+                test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 == b2);
 
                 test(b2 != null);
-                test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
-                test(b2.sb.Equals("D2.sb"));
+                test(b2.ice_id() == "::Test::B"); // No factory, must be sliced
+                test(b2.sb == "D2.sb");
                 test(b2.pb == b1);
             }
             catch(Exception ex)
@@ -622,17 +622,17 @@ public class AllTests : Test.AllTests
             B b2 = result.p2;
 
             test(b1 != null);
-            test(b1.ice_id().Equals("::Test::D1"));
-            test(b1.sb.Equals("D1.sb"));
+            test(b1.ice_id() == "::Test::D1");
+            test(b1.sb == "D1.sb");
             test(b1.pb == b2);
             D1 d1 = (D1)b1;
             test(d1 != null);
-            test(d1.sd1.Equals("D1.sd1"));
+            test(d1.sd1 == "D1.sd1");
             test(d1.pd1 == b2);
 
             test(b2 != null);
-            test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
-            test(b2.sb.Equals("D2.sb"));
+            test(b2.ice_id() == "::Test::B"); // No factory, must be sliced
+            test(b2.sb == "D2.sb");
             test(b2.pb == b1);
         }
         output.WriteLine("ok");
@@ -647,17 +647,17 @@ public class AllTests : Test.AllTests
                 testPrx.paramTest2(out b2, out b1);
 
                 test(b1 != null);
-                test(b1.ice_id().Equals("::Test::D1"));
-                test(b1.sb.Equals("D1.sb"));
+                test(b1.ice_id() == "::Test::D1");
+                test(b1.sb == "D1.sb");
                 test(b1.pb == b2);
                 D1 d1 = (D1) b1;
                 test(d1 != null);
-                test(d1.sd1.Equals("D1.sd1"));
+                test(d1.sd1 == "D1.sd1");
                 test(d1.pd1 == b2);
 
                 test(b2 != null);
-                test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
-                test(b2.sb.Equals("D2.sb"));
+                test(b2.ice_id() == "::Test::B"); // No factory, must be sliced
+                test(b2.sb == "D2.sb");
                 test(b2.pb == b1);
             }
             catch(Exception ex)
@@ -675,17 +675,17 @@ public class AllTests : Test.AllTests
             B b2 = result.p2;
             B b1 = result.p1;
             test(b1 != null);
-            test(b1.ice_id().Equals("::Test::D1"));
-            test(b1.sb.Equals("D1.sb"));
+            test(b1.ice_id() == "::Test::D1");
+            test(b1.sb == "D1.sb");
             test(b1.pb == b2);
             D1 d1 = (D1)b1;
             test(d1 != null);
-            test(d1.sd1.Equals("D1.sd1"));
+            test(d1.sd1 == "D1.sd1");
             test(d1.pd1 == b2);
 
             test(b2 != null);
-            test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
-            test(b2.sb.Equals("D2.sb"));
+            test(b2.ice_id() == "::Test::B"); // No factory, must be sliced
+            test(b2.sb == "D2.sb");
             test(b2.pb == b1);
         }
         output.WriteLine("ok");
@@ -761,17 +761,17 @@ public class AllTests : Test.AllTests
                 B b1 = testPrx.returnTest3(d1, d3);
 
                 test(b1 != null);
-                test(b1.sb.Equals("D1.sb"));
-                test(b1.ice_id().Equals("::Test::D1"));
+                test(b1.sb == "D1.sb");
+                test(b1.ice_id() == "::Test::D1");
                 D1 p1 = (D1) b1;
                 test(p1 != null);
-                test(p1.sd1.Equals("D1.sd1"));
+                test(p1.sd1 == "D1.sd1");
                 test(p1.pd1 == b1.pb);
 
                 B b2 = b1.pb;
                 test(b2 != null);
-                test(b2.sb.Equals("D3.sb"));
-                test(b2.ice_id().Equals("::Test::B")); // Sliced by server
+                test(b2.sb == "D3.sb");
+                test(b2.ice_id() == "::Test::B"); // Sliced by server
                 test(b2.pb == b1);
                 try
                 {
@@ -813,17 +813,17 @@ public class AllTests : Test.AllTests
             B b1 = testPrx.returnTest3Async(d1, d3).Result;
 
             test(b1 != null);
-            test(b1.sb.Equals("D1.sb"));
-            test(b1.ice_id().Equals("::Test::D1"));
+            test(b1.sb == "D1.sb");
+            test(b1.ice_id() == "::Test::D1");
             D1 p1 = (D1)b1;
             test(p1 != null);
-            test(p1.sd1.Equals("D1.sd1"));
+            test(p1.sd1 == "D1.sd1");
             test(p1.pd1 == b1.pb);
 
             B b2 = b1.pb;
             test(b2 != null);
-            test(b2.sb.Equals("D3.sb"));
-            test(b2.ice_id().Equals("::Test::B")); // Sliced by server
+            test(b2.sb == "D3.sb");
+            test(b2.ice_id() == "::Test::B"); // Sliced by server
             test(b2.pb == b1);
             try
             {
@@ -862,8 +862,8 @@ public class AllTests : Test.AllTests
                 B b1 = testPrx.returnTest3(d3, d1);
 
                 test(b1 != null);
-                test(b1.sb.Equals("D3.sb"));
-                test(b1.ice_id().Equals("::Test::B")); // Sliced by server
+                test(b1.sb == "D3.sb");
+                test(b1.ice_id() == "::Test::B"); // Sliced by server
 
                 try
                 {
@@ -877,12 +877,12 @@ public class AllTests : Test.AllTests
 
                 B b2 = b1.pb;
                 test(b2 != null);
-                test(b2.sb.Equals("D1.sb"));
-                test(b2.ice_id().Equals("::Test::D1"));
+                test(b2.sb == "D1.sb");
+                test(b2.ice_id() == "::Test::D1");
                 test(b2.pb == b1);
                 D1 p3 = (D1) b2;
                 test(p3 != null);
-                test(p3.sd1.Equals("D1.sd1"));
+                test(p3.sd1 == "D1.sd1");
                 test(p3.pd1 == b1);
 
                 test(b1 != d1);
@@ -915,8 +915,8 @@ public class AllTests : Test.AllTests
             B b1 = testPrx.returnTest3Async(d3, d1).Result;
 
             test(b1 != null);
-            test(b1.sb.Equals("D3.sb"));
-            test(b1.ice_id().Equals("::Test::B")); // Sliced by server
+            test(b1.sb == "D3.sb");
+            test(b1.ice_id() == "::Test::B"); // Sliced by server
 
             try
             {
@@ -931,12 +931,12 @@ public class AllTests : Test.AllTests
 
             B b2 = b1.pb;
             test(b2 != null);
-            test(b2.sb.Equals("D1.sb"));
-            test(b2.ice_id().Equals("::Test::D1"));
+            test(b2.sb == "D1.sb");
+            test(b2.ice_id() == "::Test::D1");
             test(b2.pb == b1);
             D1 p3 = (D1)b2;
             test(p3 != null);
-            test(p3.sd1.Equals("D1.sd1"));
+            test(p3.sd1 == "D1.sd1");
             test(p3.pd1 == b1);
 
             test(b1 != d1);
@@ -956,19 +956,19 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.paramTest3(out p1, out p2);
 
                 test(p1 != null);
-                test(p1.sb.Equals("D2.sb (p1 1)"));
+                test(p1.sb == "D2.sb (p1 1)");
                 test(p1.pb == null);
-                test(p1.ice_id().Equals("::Test::B"));
+                test(p1.ice_id() == "::Test::B");
 
                 test(p2 != null);
-                test(p2.sb.Equals("D2.sb (p2 1)"));
+                test(p2.sb == "D2.sb (p2 1)");
                 test(p2.pb == null);
-                test(p2.ice_id().Equals("::Test::B"));
+                test(p2.ice_id() == "::Test::B");
 
                 test(ret != null);
-                test(ret.sb.Equals("D1.sb (p2 2)"));
+                test(ret.sb == "D1.sb (p2 2)");
                 test(ret.pb == null);
-                test(ret.ice_id().Equals("::Test::D1"));
+                test(ret.ice_id() == "::Test::D1");
             }
             catch(Exception ex)
             {
@@ -987,19 +987,19 @@ public class AllTests : Test.AllTests
             B p1 = result.p1;
             B p2 = result.p2;
             test(p1 != null);
-            test(p1.sb.Equals("D2.sb (p1 1)"));
+            test(p1.sb == "D2.sb (p1 1)");
             test(p1.pb == null);
-            test(p1.ice_id().Equals("::Test::B"));
+            test(p1.ice_id() == "::Test::B");
 
             test(p2 != null);
-            test(p2.sb.Equals("D2.sb (p2 1)"));
+            test(p2.sb == "D2.sb (p2 1)");
             test(p2.pb == null);
-            test(p2.ice_id().Equals("::Test::B"));
+            test(p2.ice_id() == "::Test::B");
 
             test(ret != null);
-            test(ret.sb.Equals("D1.sb (p2 2)"));
+            test(ret.sb == "D1.sb (p2 2)");
             test(ret.pb == null);
-            test(ret.ice_id().Equals("::Test::D1"));
+            test(ret.ice_id() == "::Test::D1");
         }
         output.WriteLine("ok");
 
@@ -1012,14 +1012,14 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.paramTest4(out b);
 
                 test(b != null);
-                test(b.sb.Equals("D4.sb (1)"));
+                test(b.sb == "D4.sb (1)");
                 test(b.pb == null);
-                test(b.ice_id().Equals("::Test::B"));
+                test(b.ice_id() == "::Test::B");
 
                 test(ret != null);
-                test(ret.sb.Equals("B.sb (2)"));
+                test(ret.sb == "B.sb (2)");
                 test(ret.pb == null);
-                test(ret.ice_id().Equals("::Test::B"));
+                test(ret.ice_id() == "::Test::B");
             }
             catch(Exception ex)
             {
@@ -1037,14 +1037,14 @@ public class AllTests : Test.AllTests
             B b = result.p;
 
             test(b != null);
-            test(b.sb.Equals("D4.sb (1)"));
+            test(b.sb == "D4.sb (1)");
             test(b.pb == null);
-            test(b.ice_id().Equals("::Test::B"));
+            test(b.ice_id() == "::Test::B");
 
             test(ret != null);
-            test(ret.sb.Equals("B.sb (2)"));
+            test(ret.sb == "B.sb (2)");
             test(ret.pb == null);
-            test(ret.ice_id().Equals("::Test::B"));
+            test(ret.ice_id() == "::Test::B");
         }
         output.WriteLine("ok");
 
@@ -1070,8 +1070,8 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.returnTest3(d3, b2);
 
                 test(ret != null);
-                test(ret.ice_id().Equals("::Test::B"));
-                test(ret.sb.Equals("D3.sb"));
+                test(ret.ice_id() == "::Test::B");
+                test(ret.sb == "D3.sb");
                 test(ret.pb == ret);
             }
             catch(Exception ex)
@@ -1102,8 +1102,8 @@ public class AllTests : Test.AllTests
             B rv = testPrx.returnTest3Async(d3, b2).Result;
 
             test(rv != null);
-            test(rv.ice_id().Equals("::Test::B"));
-            test(rv.sb.Equals("D3.sb"));
+            test(rv.ice_id() == "::Test::B");
+            test(rv.sb == "D3.sb");
             test(rv.pb == rv);
         }
         output.WriteLine("ok");
@@ -1132,8 +1132,8 @@ public class AllTests : Test.AllTests
 
                 B ret = testPrx.returnTest3(d3, d12);
                 test(ret != null);
-                test(ret.ice_id().Equals("::Test::B"));
-                test(ret.sb.Equals("D3.sb"));
+                test(ret.ice_id() == "::Test::B");
+                test(ret.sb == "D3.sb");
                 test(ret.pb == ret);
             }
             catch(Exception ex)
@@ -1167,8 +1167,8 @@ public class AllTests : Test.AllTests
             B rv = testPrx.returnTest3Async(d3, d12).Result;
 
             test(rv != null);
-            test(rv.ice_id().Equals("::Test::B"));
-            test(rv.sb.Equals("D3.sb"));
+            test(rv.ice_id() == "::Test::B");
+            test(rv.sb == "D3.sb");
             test(rv.pb == rv);
         }
         output.WriteLine("ok");
@@ -1248,13 +1248,13 @@ public class AllTests : Test.AllTests
                 test(ss2d2.pb == ss2b2);
                 test(ss2d4.pb == ss2b2);
 
-                test(ss1b2.ice_id().Equals("::Test::B"));
-                test(ss1d2.ice_id().Equals("::Test::D1"));
-                test(ss1d4.ice_id().Equals("::Test::B"));
+                test(ss1b2.ice_id() == "::Test::B");
+                test(ss1d2.ice_id() == "::Test::D1");
+                test(ss1d4.ice_id() == "::Test::B");
 
-                test(ss2b2.ice_id().Equals("::Test::B"));
-                test(ss2d2.ice_id().Equals("::Test::D1"));
-                test(ss2d4.ice_id().Equals("::Test::B"));
+                test(ss2b2.ice_id() == "::Test::B");
+                test(ss2d2.ice_id() == "::Test::D1");
+                test(ss2d4.ice_id() == "::Test::B");
             }
             catch(Exception ex)
             {
@@ -1336,13 +1336,13 @@ public class AllTests : Test.AllTests
             test(ss2d6.pb == ss2b3);
             test(ss2d6.pb == ss2b3);
 
-            test(ss1b3.ice_id().Equals("::Test::B"));
-            test(ss1d5.ice_id().Equals("::Test::D1"));
-            test(ss1d6.ice_id().Equals("::Test::B"));
+            test(ss1b3.ice_id() == "::Test::B");
+            test(ss1d5.ice_id() == "::Test::D1");
+            test(ss1d6.ice_id() == "::Test::B");
 
-            test(ss2b3.ice_id().Equals("::Test::B"));
-            test(ss2d5.ice_id().Equals("::Test::D1"));
-            test(ss2d6.ice_id().Equals("::Test::B"));
+            test(ss2b3.ice_id() == "::Test::B");
+            test(ss2d5.ice_id() == "::Test::D1");
+            test(ss2d6.ice_id() == "::Test::B");
         }
         output.WriteLine("ok");
 
@@ -1462,10 +1462,10 @@ public class AllTests : Test.AllTests
             }
             catch(BaseException e)
             {
-                test(e.GetType().FullName.Equals("Test.BaseException"));
-                test(e.sbe.Equals("sbe"));
+                test(e.GetType().FullName == "Test.BaseException");
+                test(e.sbe == "sbe");
                 test(e.pb != null);
-                test(e.pb.sb.Equals("sb"));
+                test(e.pb.sb == "sb");
                 test(e.pb.pb == e.pb);
             }
             catch(Exception ex)
@@ -1488,9 +1488,9 @@ public class AllTests : Test.AllTests
                 try
                 {
                     BaseException e = (BaseException)ae.InnerException;
-                    test(e.sbe.Equals("sbe"));
+                    test(e.sbe == "sbe");
                     test(e.pb != null);
-                    test(e.pb.sb.Equals("sb"));
+                    test(e.pb.sb == "sb");
                     test(e.pb.pb == e.pb);
                 }
                 catch(Exception ex)
@@ -1512,16 +1512,16 @@ public class AllTests : Test.AllTests
             }
             catch(DerivedException e)
             {
-                test(e.GetType().FullName.Equals("Test.DerivedException"));
-                test(e.sbe.Equals("sbe"));
+                test(e.GetType().FullName == "Test.DerivedException");
+                test(e.sbe == "sbe");
                 test(e.pb != null);
-                test(e.pb.sb.Equals("sb1"));
+                test(e.pb.sb == "sb1");
                 test(e.pb.pb == e.pb);
-                test(e.sde.Equals("sde1"));
+                test(e.sde == "sde1");
                 test(e.pd1 != null);
-                test(e.pd1.sb.Equals("sb2"));
+                test(e.pd1.sb == "sb2");
                 test(e.pd1.pb == e.pd1);
-                test(e.pd1.sd1.Equals("sd2"));
+                test(e.pd1.sd1 == "sd2");
                 test(e.pd1.pd1 == e.pd1);
             }
             catch(Exception ex)
@@ -1544,15 +1544,15 @@ public class AllTests : Test.AllTests
                 try
                 {
                     DerivedException e = (DerivedException)ae.InnerException;
-                    test(e.sbe.Equals("sbe"));
+                    test(e.sbe == "sbe");
                     test(e.pb != null);
-                    test(e.pb.sb.Equals("sb1"));
+                    test(e.pb.sb == "sb1");
                     test(e.pb.pb == e.pb);
-                    test(e.sde.Equals("sde1"));
+                    test(e.sde == "sde1");
                     test(e.pd1 != null);
-                    test(e.pd1.sb.Equals("sb2"));
+                    test(e.pd1.sb == "sb2");
                     test(e.pd1.pb == e.pd1);
-                    test(e.pd1.sd1.Equals("sd2"));
+                    test(e.pd1.sd1 == "sd2");
                     test(e.pd1.pd1 == e.pd1);
                 }
                 catch(Exception ex)
@@ -1574,16 +1574,16 @@ public class AllTests : Test.AllTests
             }
             catch(DerivedException e)
             {
-                test(e.GetType().FullName.Equals("Test.DerivedException"));
-                test(e.sbe.Equals("sbe"));
+                test(e.GetType().FullName == "Test.DerivedException");
+                test(e.sbe == "sbe");
                 test(e.pb != null);
-                test(e.pb.sb.Equals("sb1"));
+                test(e.pb.sb == "sb1");
                 test(e.pb.pb == e.pb);
-                test(e.sde.Equals("sde1"));
+                test(e.sde == "sde1");
                 test(e.pd1 != null);
-                test(e.pd1.sb.Equals("sb2"));
+                test(e.pd1.sb == "sb2");
                 test(e.pd1.pb == e.pd1);
-                test(e.pd1.sd1.Equals("sd2"));
+                test(e.pd1.sd1 == "sd2");
                 test(e.pd1.pd1 == e.pd1);
             }
             catch(Exception ex)
@@ -1606,15 +1606,15 @@ public class AllTests : Test.AllTests
                 try
                 {
                     DerivedException e = (DerivedException)ae.InnerException;
-                    test(e.sbe.Equals("sbe"));
+                    test(e.sbe == "sbe");
                     test(e.pb != null);
-                    test(e.pb.sb.Equals("sb1"));
+                    test(e.pb.sb == "sb1");
                     test(e.pb.pb == e.pb);
-                    test(e.sde.Equals("sde1"));
+                    test(e.sde == "sde1");
                     test(e.pd1 != null);
-                    test(e.pd1.sb.Equals("sb2"));
+                    test(e.pd1.sb == "sb2");
                     test(e.pd1.pb == e.pd1);
-                    test(e.pd1.sd1.Equals("sd2"));
+                    test(e.pd1.sd1 == "sd2");
                     test(e.pd1.pd1 == e.pd1);
                 }
                 catch(Exception ex)
@@ -1636,10 +1636,10 @@ public class AllTests : Test.AllTests
             }
             catch(BaseException e)
             {
-                test(e.GetType().FullName.Equals("Test.BaseException"));
-                test(e.sbe.Equals("sbe"));
+                test(e.GetType().FullName == "Test.BaseException");
+                test(e.sbe == "sbe");
                 test(e.pb != null);
-                test(e.pb.sb.Equals("sb d2"));
+                test(e.pb.sb == "sb d2");
                 test(e.pb.pb == e.pb);
             }
             catch(Exception ex)
@@ -1662,9 +1662,9 @@ public class AllTests : Test.AllTests
                 try
                 {
                     BaseException e = (BaseException)ae.InnerException;
-                    test(e.sbe.Equals("sbe"));
+                    test(e.sbe == "sbe");
                     test(e.pb != null);
-                    test(e.pb.sb.Equals("sb d2"));
+                    test(e.pb.sb == "sb d2");
                     test(e.pb.pb == e.pb);
                 }
                 catch(Exception ex)
@@ -1726,7 +1726,7 @@ public class AllTests : Test.AllTests
             PBase r = testPrx.exchangePBase(pd);
             PDerived p2 = r as PDerived;
             test(p2.pi == 3);
-            test(p2.ps.Equals("preserved"));
+            test(p2.ps == "preserved");
             test(p2.pb == p2);
         }
         catch(Ice.OperationNotExistException)
@@ -1869,7 +1869,7 @@ public class AllTests : Test.AllTests
                 Ice.SlicedData slicedData = p.ice_getSlicedData();
                 test(slicedData != null);
                 test(slicedData.slices.Length == 1);
-                test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
+                test(slicedData.slices[0].typeId == "::Test::PSUnknown");
                 (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
             }
             else
@@ -1896,7 +1896,7 @@ public class AllTests : Test.AllTests
 
             PDerived p2 = (PDerived)testPrx.exchangePBaseAsync(pd).Result;
             test(p2.pi == 3);
-            test(p2.ps.Equals("preserved"));
+            test(p2.ps == "preserved");
             test(p2.pb == p2);
         }
 

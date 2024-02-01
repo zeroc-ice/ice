@@ -226,7 +226,7 @@ namespace IceInternal
                                                              endpoint);
                     }
 
-                    if(argument.Equals("infinite"))
+                    if(argument == "infinite")
                     {
                         _timeout = -1;
                     }

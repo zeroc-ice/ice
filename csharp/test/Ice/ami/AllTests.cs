@@ -152,9 +152,9 @@ namespace Ice
                     await p.ice_pingAsync(ctx);
 
                     var id = await p.ice_idAsync();
-                    test(id.Equals("::Test::TestIntf"));
+                    test(id == "::Test::TestIntf");
                     id = await p.ice_idAsync(ctx);
-                    test(id.Equals("::Test::TestIntf"));
+                    test(id == "::Test::TestIntf");
 
                     var ids = await p.ice_idsAsync();
                     test(ids.Length == 2);

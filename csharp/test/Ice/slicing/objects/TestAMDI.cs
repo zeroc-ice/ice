@@ -74,7 +74,7 @@ public sealed class TestI : TestIntfDisp_
         else
         {
             SUnknown su = obj as SUnknown;
-            test(su.su.Equals("SUnknown.su"));
+            test(su.su == "SUnknown.su");
         }
         return null;
     }
@@ -323,14 +323,14 @@ public sealed class TestI : TestIntfDisp_
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
+            test(p.ps == "preserved");
         }
         else
         {
             var pu = p as PSUnknown;
             test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.psu.Equals("unknown"));
+            test(pu.ps == "preserved");
+            test(pu.psu == "unknown");
             test(pu.graph == null);
             test(pu.cl != null && pu.cl.i == 15);
         }
@@ -358,14 +358,14 @@ public sealed class TestI : TestIntfDisp_
         {
             test(!(p is PSUnknown));
             test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
+            test(p.ps == "preserved");
         }
         else
         {
             var pu = p as PSUnknown;
             test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
-            test(pu.psu.Equals("unknown"));
+            test(pu.ps == "preserved");
+            test(pu.psu == "unknown");
             test(pu.graph != pu.graph.next);
             test(pu.graph.next != pu.graph.next.next);
             test(pu.graph.next.next.next == pu.graph);
@@ -390,13 +390,13 @@ public sealed class TestI : TestIntfDisp_
         {
             test(!(p is PSUnknown2));
             test(p.pi == 5);
-            test(p.ps.Equals("preserved"));
+            test(p.ps == "preserved");
         }
         else
         {
             var pu = p as PSUnknown2;
             test(pu.pi == 5);
-            test(pu.ps.Equals("preserved"));
+            test(pu.ps == "preserved");
             test(pu.pb == pu);
         }
         return null;

@@ -14,7 +14,7 @@ namespace Ice
 
             public bool checkValues()
             {
-                return i == 1 && s.Equals("hello");
+                return i == 1 && s == "hello";
             }
         }
     }

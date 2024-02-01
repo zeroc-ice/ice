@@ -14,15 +14,15 @@ namespace Ice
     {
         public static ImplicitContextI create(string kind)
         {
-            if(kind.Equals("None") || kind.Length == 0)
+            if(kind == "None" || kind.Length == 0)
             {
                 return null;
             }
-            else if(kind.Equals("Shared"))
+            else if(kind == "Shared")
             {
                 return new SharedImplicitContext();
             }
-            else if(kind.Equals("PerThread"))
+            else if(kind == "PerThread")
             {
                 return new PerThreadImplicitContext();
             }

@@ -157,7 +157,7 @@ namespace IceInternal
         {
             base.initWithOptions(args, oaEndpoint);
 
-            if(_mcastInterface.Equals("*"))
+            if(_mcastInterface == "*")
             {
                 if(oaEndpoint)
                 {
@@ -326,7 +326,7 @@ namespace IceInternal
                 return true;
             }
 
-            if(option.Equals("-c"))
+            if(option == "-c")
             {
                 if(argument != null)
                 {
@@ -337,7 +337,7 @@ namespace IceInternal
 
                 _connect = true;
             }
-            else if(option.Equals("-z"))
+            else if(option == "-z")
             {
                 if(argument != null)
                 {
@@ -348,7 +348,7 @@ namespace IceInternal
 
                 _compress = true;
             }
-            else if(option.Equals("-v") || option.Equals("-e"))
+            else if(option == "-v" || option == "-e")
             {
                 if(argument == null)
                 {
@@ -372,7 +372,7 @@ namespace IceInternal
                     throw e;
                 }
             }
-            else if(option.Equals("--ttl"))
+            else if(option == "--ttl")
             {
                 if(argument == null)
                 {
@@ -399,7 +399,7 @@ namespace IceInternal
                     throw e;
                 }
             }
-            else if(option.Equals("--interface"))
+            else if(option == "--interface")
             {
                 if(argument == null)
                 {

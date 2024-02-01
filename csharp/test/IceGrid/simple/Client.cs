@@ -19,7 +19,7 @@ public class Client : Test.TestHelper
     {
         using(var communicator = initialize(ref args))
         {
-            if(args.Any(v => v.Equals("--with-deploy")))
+            if(args.Any(v => v == "--with-deploy"))
             {
                 AllTests.allTestsWithDeploy(this);
             }

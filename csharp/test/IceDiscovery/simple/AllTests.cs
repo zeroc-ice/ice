@@ -183,13 +183,13 @@ public class AllTests : Test.AllTests
             proxies[0].deactivateObjectAdapter("oa");
             proxies[1].deactivateObjectAdapter("oa");
             test(TestIntfPrxHelper.uncheckedCast(
-                     communicator.stringToProxy("object @ rg")).getAdapterId().Equals("oa3"));
+                     communicator.stringToProxy("object @ rg")).getAdapterId() == "oa3");
             proxies[2].deactivateObjectAdapter("oa");
 
             proxies[0].activateObjectAdapter("oa", "oa1", "rg");
             proxies[0].addObject("oa", "object");
             test(TestIntfPrxHelper.uncheckedCast(
-                     communicator.stringToProxy("object @ rg")).getAdapterId().Equals("oa1"));
+                     communicator.stringToProxy("object @ rg")).getAdapterId() == "oa1");
             proxies[0].deactivateObjectAdapter("oa");
         }
         output.WriteLine("ok");
@@ -198,7 +198,7 @@ public class AllTests : Test.AllTests
         output.Flush();
         {
             String multicast;
-            if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            if(communicator.getProperties().getProperty("Ice.IPv6") == "1")
             {
                 multicast = "\"ff15::1\"";
             }
@@ -227,7 +227,7 @@ public class AllTests : Test.AllTests
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().ice_clone_();
                 string intf = initData.properties.getProperty("IceDiscovery.Interface");
-                if(!intf.Equals(""))
+                if(intf != "")
                 {
                     intf = " --interface \"" + intf + "\"";
                 }

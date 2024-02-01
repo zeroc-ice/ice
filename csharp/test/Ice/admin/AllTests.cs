@@ -209,19 +209,19 @@ namespace Ice
                     //
                     // Test: PropertiesAdmin::getProperty()
                     //
-                    test(pa.getProperty("Prop2").Equals("2"));
-                    test(pa.getProperty("Bogus").Equals(""));
+                    test(pa.getProperty("Prop2") == "2");
+                    test(pa.getProperty("Bogus") == "");
 
                     //
                     // Test: PropertiesAdmin::getProperties()
                     //
                     Dictionary<string, string> pd = pa.getPropertiesForPrefix("");
                     test(pd.Count == 5);
-                    test(pd["Ice.Admin.Endpoints"].Equals("tcp -h 127.0.0.1"));
-                    test(pd["Ice.Admin.InstanceName"].Equals("Test"));
-                    test(pd["Prop1"].Equals("1"));
-                    test(pd["Prop2"].Equals("2"));
-                    test(pd["Prop3"].Equals("3"));
+                    test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1");
+                    test(pd["Ice.Admin.InstanceName"] == "Test");
+                    test(pd["Prop1"] == "1");
+                    test(pd["Prop2"] == "2");
+                    test(pd["Prop3"] == "3");
 
                     Dictionary<string, string> changes;
 
@@ -235,18 +235,18 @@ namespace Ice
                     setProps.Add("Prop4", "4"); // Added
                     setProps.Add("Prop5", "5"); // Added
                     pa.setProperties(setProps);
-                    test(pa.getProperty("Prop1").Equals("10"));
-                    test(pa.getProperty("Prop2").Equals("20"));
-                    test(pa.getProperty("Prop3").Equals(""));
-                    test(pa.getProperty("Prop4").Equals("4"));
-                    test(pa.getProperty("Prop5").Equals("5"));
+                    test(pa.getProperty("Prop1") == "10");
+                    test(pa.getProperty("Prop2") == "20");
+                    test(pa.getProperty("Prop3") == "");
+                    test(pa.getProperty("Prop4") == "4");
+                    test(pa.getProperty("Prop5") == "5");
                     changes = com.getChanges();
                     test(changes.Count == 5);
-                    test(changes["Prop1"].Equals("10"));
-                    test(changes["Prop2"].Equals("20"));
-                    test(changes["Prop3"].Equals(""));
-                    test(changes["Prop4"].Equals("4"));
-                    test(changes["Prop5"].Equals("5"));
+                    test(changes["Prop1"] == "10");
+                    test(changes["Prop2"] == "20");
+                    test(changes["Prop3"] == "");
+                    test(changes["Prop4"] == "4");
+                    test(changes["Prop5"] == "5");
                     pa.setProperties(setProps);
                     changes = com.getChanges();
                     test(changes.Count == 0);
@@ -281,11 +281,11 @@ namespace Ice
                     Ice.LogMessage[] logMessages = logger.getLog(null, null, -1, out prefix);
 
                     test(logMessages.Length == 4);
-                    test(prefix.Equals("NullLogger"));
-                    test(logMessages[0].traceCategory.Equals("testCat") && logMessages[0].message.Equals("trace"));
-                    test(logMessages[1].message.Equals("warning"));
-                    test(logMessages[2].message.Equals("error"));
-                    test(logMessages[3].message.Equals("print"));
+                    test(prefix == "NullLogger");
+                    test(logMessages[0].traceCategory == "testCat" && logMessages[0].message == "trace");
+                    test(logMessages[1].message == "warning");
+                    test(logMessages[2].message == "error");
+                    test(logMessages[3].message == "print");
 
                     //
                     // Get only errors and warnings
@@ -303,7 +303,7 @@ namespace Ice
                     logMessages = logger.getLog(messageTypes, null, -1, out prefix);
 
                     test(logMessages.Length == 4);
-                    test(prefix.Equals("NullLogger"));
+                    test(prefix == "NullLogger");
 
                     foreach(var msg in logMessages)
                     {
@@ -325,12 +325,12 @@ namespace Ice
                     string[] categories = { "testCat" };
                     logMessages = logger.getLog(messageTypes, categories, -1, out prefix);
                     test(logMessages.Length == 5);
-                    test(prefix.Equals("NullLogger"));
+                    test(prefix == "NullLogger");
 
                     foreach(var msg in logMessages)
                     {
                         test(msg.type == Ice.LogMessageType.ErrorMessage ||
-                            (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory.Equals("testCat")));
+                            (msg.type == Ice.LogMessageType.TraceMessage && msg.traceCategory == "testCat"));
                     }
 
                     //
@@ -340,10 +340,10 @@ namespace Ice
 
                     logMessages = logger.getLog(messageTypes, categories, 2, out prefix);
                     test(logMessages.Length == 2);
-                    test(prefix.Equals("NullLogger"));
+                    test(prefix == "NullLogger");
 
-                    test(logMessages[0].message.Equals("trace3"));
-                    test(logMessages[1].message.Equals("error3"));
+                    test(logMessages[0].message == "trace3");
+                    test(logMessages[1].message == "error3");
 
                     //
                     // Now, test RemoteLogger
@@ -511,7 +511,7 @@ namespace Ice
                     var com = factory.createCommunicator(props);
                     Ice.ObjectPrx obj = com.getAdmin();
                     Ice.PropertiesAdminPrx pa = Ice.PropertiesAdminPrxHelper.checkedCast(obj, "Properties");
-                    test(pa.getProperty("Ice.Admin.InstanceName").Equals("Test"));
+                    test(pa.getProperty("Ice.Admin.InstanceName") == "Test");
                     var tf = Test.TestFacetPrxHelper.checkedCast(obj, "TestFacet");
                     tf.op();
                     Ice.ProcessPrx proc = Ice.ProcessPrxHelper.checkedCast(obj, "Process");

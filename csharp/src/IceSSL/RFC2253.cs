@@ -271,8 +271,8 @@ namespace IceSSL
             // First the OID case.
             //
             if(char.IsDigit(data[pos]) ||
-               (data.Length - pos >= 4 && (data.Substring(pos, 4).Equals("oid.") ||
-                                                       data.Substring(pos, 4).Equals("OID."))))
+               (data.Length - pos >= 4 && (data.Substring(pos, 4) == "oid." ||
+                                                       data.Substring(pos, 4) == "OID.")))
             {
                 if(!char.IsDigit(data[pos]))
                 {

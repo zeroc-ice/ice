@@ -135,11 +135,11 @@ namespace IceInternal
                 properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
 
             val = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
-            if(val.Equals("Random"))
+            if(val == "Random")
             {
                 defaultEndpointSelection = Ice.EndpointSelectionType.Random;
             }
-            else if(val.Equals("Ordered"))
+            else if(val == "Ordered")
             {
                 defaultEndpointSelection = Ice.EndpointSelectionType.Ordered;
             }

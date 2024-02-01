@@ -739,23 +739,23 @@ namespace IceInternal
             {
                 s = s.Substring("ThreadPriority.".Length, s.Length);
             }
-            if(s.Equals("Lowest"))
+            if(s == "Lowest")
             {
                 return ThreadPriority.Lowest;
             }
-            else if(s.Equals("BelowNormal"))
+            else if(s == "BelowNormal")
             {
                 return ThreadPriority.BelowNormal;
             }
-            else if(s.Equals("Normal"))
+            else if(s == "Normal")
             {
                 return ThreadPriority.Normal;
             }
-            else if(s.Equals("AboveNormal"))
+            else if(s == "AboveNormal")
             {
                 return ThreadPriority.AboveNormal;
             }
-            else if(s.Equals("Highest"))
+            else if(s == "Highest")
             {
                 return ThreadPriority.Highest;
             }
