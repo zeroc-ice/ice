@@ -24,9 +24,6 @@ namespace IceInternal
 {
 
 class ICE_API EndpointI_connectors
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 
@@ -144,14 +141,6 @@ public:
     //
     virtual bool equivalent(const EndpointIPtr&) const = 0;
 
-    //
-    // Compare endpoints for sorting purposes.
-    //
-#ifndef ICE_CPP11_MAPPING
-    virtual bool operator==(const Ice::LocalObject&) const = 0;
-    virtual bool operator<(const Ice::LocalObject&) const = 0;
-#endif
-
     virtual ::Ice::Int hash() const = 0;
 
     //
@@ -167,18 +156,6 @@ protected:
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
 
 };
-
-#ifndef ICE_CPP11_MAPPING
-inline bool operator==(const EndpointI& l, const EndpointI& r)
-{
-    return static_cast<const ::Ice::LocalObject&>(l) == static_cast<const ::Ice::LocalObject&>(r);
-}
-
-inline bool operator<(const EndpointI& l, const EndpointI& r)
-{
-    return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);
-}
-#endif
 
 template<typename T> class InfoI : public T
 {

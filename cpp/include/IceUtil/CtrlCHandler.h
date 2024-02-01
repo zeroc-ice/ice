@@ -17,11 +17,7 @@ namespace IceUtil
  * functions that are not async-signal safe.
  * @param sig The signal number that occurred.
  */
-#ifdef ICE_CPP11_MAPPING
 using CtrlCHandlerCallback = std::function<void(int sig)>;
-#else
-typedef void (*CtrlCHandlerCallback)(int sig);
-#endif
 
 /**
  * Provides a portable way to handle Ctrl-C and Ctrl-C like signals.
@@ -81,10 +77,6 @@ public:
 
     CtrlCHandlerException(const char*, int);
     virtual std::string ice_id() const;
-
-#ifndef ICE_CPP11_MAPPING
-    virtual CtrlCHandlerException* ice_clone() const;
-#endif
 };
 
 }

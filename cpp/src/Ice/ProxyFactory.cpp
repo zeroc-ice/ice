@@ -80,11 +80,7 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
     if(ref)
     {
-#ifdef ICE_CPP11_MAPPING
         auto proxy = createProxy<ObjectPrx>();
-#else
-        ObjectPrx proxy = new ::IceProxy::Ice::Object();
-#endif
         proxy->setup(ref);
         return proxy;
     }

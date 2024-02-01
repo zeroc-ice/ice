@@ -5,7 +5,6 @@
 #ifndef __IceBT_Types_h__
 #define __IceBT_Types_h__
 
-#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
@@ -13,7 +12,6 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
 #include <Ice/ExceptionHelpers.h>
 #include <IceUtil/UndefSysMacros.h>
@@ -27,8 +25,6 @@
 #       define ICEBT_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
-
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 namespace IceBT
 {
@@ -94,80 +90,4 @@ public:
 
 }
 
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#else // C++98 mapping
-
-namespace IceBT
-{
-
-/**
- * Indicates a failure in the Bluetooth plug-in.
- * \headerfile IceBT/IceBT.h
- */
-class ICEBT_API BluetoothException : public ::Ice::LocalException
-{
-public:
-
-    /**
-     * The file and line number are required for all local exceptions.
-     * @param file The file name in which the exception was raised, typically __FILE__.
-     * @param line The line number at which the exception was raised, typically __LINE__.
-     */
-    BluetoothException(const char* file, int line);
-    /**
-     * One-shot constructor to initialize all data members.
-     * The file and line number are required for all local exceptions.
-     * @param file The file name in which the exception was raised, typically __FILE__.
-     * @param line The line number at which the exception was raised, typically __LINE__.
-     * @param reason Provides more information about the failure.
-     */
-    BluetoothException(const char* file, int line, const ::std::string& reason);
-
-    BluetoothException(const BluetoothException&) = default;
-    virtual ~BluetoothException();
-
-    /**
-     * Obtains the Slice type ID of this exception.
-     * @return The fully-scoped type ID.
-     */
-    virtual ::std::string ice_id() const;
-    /**
-     * Prints this exception to the given stream.
-     * @param stream The target stream.
-     */
-    virtual void ice_print(::std::ostream& stream) const;
-    /**
-     * Polymorphically clones this exception.
-     * @return A shallow copy of this exception.
-     */
-    virtual BluetoothException* ice_clone() const;
-    /**
-     * Throws this exception.
-     */
-    virtual void ice_throw() const;
-
-    /**
-     * Provides more information about the failure.
-     */
-    ::std::string reason;
-};
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
-
-#include <IceUtil/PopDisableWarnings.h>
 #endif

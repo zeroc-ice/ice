@@ -933,15 +933,6 @@ Slice::Gen::generate(const UnitPtr& p)
         _dllExport += " ";
     }
 
-    H << sp;
-    H.zeroIndent();
-    H << nl << "#ifdef ICE_CPP11_MAPPING // C++11 mapping";
-    H.restoreIndent();
-
-    C << sp;
-    C.zeroIndent();
-    C << nl << "#ifdef ICE_CPP11_MAPPING // C++11 mapping";
-    C.restoreIndent();
     {
         normalizeMetaData(p, true);
 
@@ -987,95 +978,6 @@ Slice::Gen::generate(const UnitPtr& p)
         Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
         p->visit(&compatibilityVisitor, false);
     }
-
-    H << sp;
-    H.zeroIndent();
-    H << nl << "#else // C++98 mapping";
-    H.restoreIndent();
-
-    C << sp;
-    C.zeroIndent();
-    C << nl << "#else // C++98 mapping";
-    C.restoreIndent();
-    {
-        normalizeMetaData(p, false);
-
-        ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
-        p->visit(&proxyDeclVisitor, false);
-
-        DeclVisitor objectDeclVisitor(H, C, _dllExport);
-        p->visit(&objectDeclVisitor, false);
-
-        TypesVisitor typesVisitor(H, C, _dllExport);
-        p->visit(&typesVisitor, false);
-
-        AsyncVisitor asyncVisitor(H, C, _dllExport);
-        p->visit(&asyncVisitor, false);
-
-        AsyncImplVisitor asyncImplVisitor(H, C, _dllExport);
-        p->visit(&asyncImplVisitor, false);
-
-        //
-        // The templates are emitted before the proxy definition
-        // so the derivation hierarchy is known to the proxy:
-        // the proxy relies on knowing the hierarchy to make the begin_
-        // methods type-safe.
-        //
-        AsyncCallbackVisitor asyncCallbackVisitor(H, C, _dllExport);
-        p->visit(&asyncCallbackVisitor, false);
-
-        ProxyVisitor proxyVisitor(H, C, _dllExport);
-        p->visit(&proxyVisitor, false);
-
-        InterfaceVisitor interfaceVisitor(H, C, _dllExport);
-        p->visit(&interfaceVisitor, false);
-
-        ValueVisitor valueVisitor(H, C, _dllExport);
-        p->visit(&valueVisitor, false);
-
-        StreamVisitor streamVisitor(H, C, _dllExport);
-        p->visit(&streamVisitor, false);
-
-        //
-        // We need to delay generating the template after the proxy
-        // definition, because completed calls the begin_ method in the
-        // proxy.
-        //
-        AsyncCallbackTemplateVisitor asyncCallbackTemplateVisitor(H, C, _dllExport);
-        p->visit(&asyncCallbackTemplateVisitor, false);
-
-        if(_implCpp98)
-        {
-            implH << "\n#include <";
-            if(_include.size())
-            {
-                implH << _include << '/';
-            }
-            implH << _base << "." << _headerExtension << ">";
-
-            writeExtraHeaders(implC);
-
-            implC << "\n#include <";
-            if(_include.size())
-            {
-                implC << _include << '/';
-            }
-            implC << _base << "I." << _implHeaderExtension << ">";
-
-            ImplVisitor implVisitor(implH, implC, _dllExport);
-            p->visit(&implVisitor, false);
-        }
-    }
-
-    H << sp;
-    H.zeroIndent();
-    H << nl << "#endif";
-    H.restoreIndent();
-
-    C << sp;
-    C.zeroIndent();
-    C << nl << "#endif";
-    C.restoreIndent();
 }
 
 void

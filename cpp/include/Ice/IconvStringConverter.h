@@ -59,14 +59,6 @@ public:
      */
     virtual void ice_print(std::ostream& str) const;
 
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Polymorphically clones this exception.
-     * @return A shallow copy of this exception.
-     */
-    virtual IconvInitializationException* ice_clone() const;
-#endif
-
     /**
      * Obtains the reason for the failure.
      * @return The reason.

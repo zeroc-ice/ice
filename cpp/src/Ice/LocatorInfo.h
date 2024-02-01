@@ -17,8 +17,6 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/Version.h>
 
-#include <Ice/UniquePtr.h>
-
 namespace IceInternal
 {
 
@@ -40,13 +38,9 @@ private:
 
     const bool _background;
 
-#ifdef ICE_CPP11_MAPPING
     using LocatorInfoTable = std::map<std::shared_ptr<Ice::LocatorPrx>,
                                       LocatorInfoPtr,
                                       Ice::TargetCompare<std::shared_ptr<Ice::LocatorPrx>, std::less>>;
-#else
-    typedef std::map<Ice::LocatorPrx, LocatorInfoPtr> LocatorInfoTable;
-#endif
     LocatorInfoTable _table;
     LocatorInfoTable::iterator _tableHint;
 
@@ -133,7 +127,7 @@ public:
         bool _sent;
         bool _response;
         Ice::ObjectPrxPtr _proxy;
-        IceInternal::UniquePtr<Ice::Exception> _exception;
+        std::unique_ptr<Ice::Exception> _exception;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 

@@ -13,11 +13,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(ACMMonitor* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(FactoryACMMonitor* p) { return p; }
-#endif
-
 IceInternal::ACMConfig::ACMConfig(bool server) :
     timeout(IceUtil::Time::seconds(60)),
     heartbeat(ICE_ENUM(ACMHeartbeat, HeartbeatOnDispatch)),

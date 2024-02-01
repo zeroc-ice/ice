@@ -24,10 +24,6 @@ public:
     APIException(const char*, int, const ::std::string&);
     virtual ::std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifndef ICE_CPP11_MAPPING
-    virtual APIException* ice_clone() const;
-#endif
-
     ::std::string reason;
 };
 
@@ -40,10 +36,6 @@ public:
     BadOptException(const char*, int, const ::std::string&);
     virtual ::std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-
-#ifndef ICE_CPP11_MAPPING
-    virtual BadOptException* ice_clone() const;
-#endif
 
     ::std::string reason;
 };

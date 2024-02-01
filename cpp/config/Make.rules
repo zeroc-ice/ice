@@ -9,8 +9,8 @@
 #
 # Supported configurations
 #
-supported-configs = cpp98-shared cpp98-static cpp11-shared cpp11-static
-default-configs   = cpp11-shared cpp98-shared
+supported-configs = shared static
+default-configs   = shared
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
@@ -63,71 +63,13 @@ static_projects         = test/Common \
 static_excludes         = test/Ice/library test/Ice/plugin
 
 #
-# Components and projects which are built with C++98
-#
-cpp98_cppflags          = -std=c++17
-cpp98_projects          = %
-cpp98_excludes          = glacier2router \
-                          icebridge \
-                          icepatch2server icepatch2client icepatch2calc \
-                          icegridnode icegridregistry icegridadmin  icegriddb \
-                          IceStormService icestormadmin icestormdb \
-                          IceXML \
-                          IceDB \
-                          test/Glacier2/% \
-                          test/IceBridge/% \
-                          test/IceGrid/% \
-                          test/IceStorm/%
-
-#
-# Components and projects which are built with C++11
-#
-cpp11_components        = $(coreandstub_components) \
-                          glacier2router Glacier2CryptPermissionsVerifier \
-                          icebox icebridge \
-                          icepatch2server icepatch2client icepatch2calc \
-                          IceDB \
-                          IceXML \
-                          icegridnode icegridregistry icegridadmin icegriddb \
-                          IceStormService icestormadmin icestormdb \
-
-cpp11_projects          = test/Common \
-                          test/IceUtil/% \
-                          test/Slice/% \
-                          test/Ice/% \
-                          test/IceSSL/% \
-                          test/IceDiscovery/% \
-                          test/IceBox/% \
-                          test/IceGrid/% \
-                          test/IceStorm/% \
-                          test/Glacier2/% \
-                          test/IceGrid/% \
-                          test/IceBridge/simple
-
-#
 # If building on a Linux multilib platform, we restrict what we build for
-# the 32-bits architecture. We basically, build the same set of components
-# as C++11 (libraries and icebox executable).
+# the 32-bits architecture.
 #
 ifeq ($(multilib-platform),yes)
 x86_components          = $(coreandstub_components) IceDB IceStormService icebox
 x86_projects            = test/%
 endif
-
-#
-# C++11 configuration to build the C++11 mapping.
-#
-# Appends cpp11 to the configuration directory name. If we are building the
-# target outside the component build directory, we also append the ++11
-# suffix to the targetname. This is for example how icebox is compiled as
-# icebox++11 when compiled with the C++11 configuration. We also don't add
-# the cpp11 name to the target directory if building outside the build
-# directory.
-#
-cpp11_cppflags          = -DICE_CPP11_MAPPING
-cpp11_ldflags           = $(cpp11_cppflags)
-cpp11_targetname        = $(if $(or $(filter-out $($1_target),program),$(filter $(bindir)%,$($4_targetdir))),++11)
-cpp11_targetdir         = $(if $(filter %/build,$5),cpp11)
 
 #
 # $(call make-cpp-src-project,$1=project)
@@ -168,8 +110,6 @@ $1[static]_dependencies := IceSSL $(if $(IceBT_system_libs),IceBT)
 $1[xcodesdk]_dependencies                       := IceSSL
 $1[iphoneos-xcodesdk]_targetdir                 := test/ios/bundles/Bundles-iphoneos/$(subst /,_,$1)
 $1[iphonesimulator-xcodesdk]_targetdir          := test/ios/bundles/Bundles-iphonesimulator/$(subst /,_,$1)
-$1[iphoneos-cpp11-xcodesdk]_targetdir           := test/ios/bundles/Bundles++11-iphoneos/$(subst /,_,$1)
-$1[iphonesimulator-cpp11-xcodesdk]_targetdir    := test/ios/bundles/Bundles++11-iphonesimulator/$(subst /,_,$1)
 
 $(create-test-project)
 endef

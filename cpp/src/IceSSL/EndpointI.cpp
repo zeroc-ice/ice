@@ -37,10 +37,6 @@ getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
 
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceSSL::upCast(EndpointI* p) { return p; }
-#endif
-
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del) :
     _instance(instance), _delegate(del)
 {
@@ -276,11 +272,7 @@ IceSSL::EndpointI::options() const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceSSL::EndpointI::operator==(const Ice::Endpoint& r) const
-#else
-IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -302,11 +294,7 @@ IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceSSL::EndpointI::operator<(const Ice::Endpoint& r) const
-#else
-IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)

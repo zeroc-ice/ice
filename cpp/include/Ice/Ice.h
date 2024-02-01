@@ -9,7 +9,6 @@
 #include <Ice/Config.h>
 #include <Ice/Comparable.h>
 #include <Ice/StreamHelpers.h>
-#include <Ice/AsyncResult.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Proxy.h>
 #include <Ice/Current.h>
@@ -31,7 +30,6 @@
 #   include <Ice/Logger.h>
 #   include <Ice/LoggerUtil.h>
 #   include <Ice/Communicator.h>
-#   include <Ice/CommunicatorAsync.h>
 #   include <Ice/ObjectAdapter.h>
 #   include <Ice/ServantLocator.h>
 #   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -39,7 +37,6 @@
 #       include <Ice/Service.h>
 #   endif
 #   include <Ice/Connection.h>
-#   include <Ice/ConnectionAsync.h>
 #   include <Ice/ImplicitContext.h>
 #   include <Ice/DispatchInterceptor.h>
 #   include <Ice/Plugin.h>

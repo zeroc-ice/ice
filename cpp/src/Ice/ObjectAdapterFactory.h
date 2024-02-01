@@ -15,11 +15,7 @@ namespace IceInternal
 {
 
 class ObjectAdapterFactory : public ::IceUtil::Monitor< ::IceUtil::RecMutex>,
-#ifdef ICE_CPP11_MAPPING
                              public std::enable_shared_from_this<ObjectAdapterFactory>
-#else
-                             public virtual IceUtil::Shared
-#endif
 {
 public:
 

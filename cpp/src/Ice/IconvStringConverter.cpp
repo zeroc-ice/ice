@@ -29,14 +29,6 @@ IconvInitializationException::ice_id() const
     return "::Ice::IconvInitializationException";
 }
 
-#ifndef ICE_CPP11_MAPPING
-IconvInitializationException*
-IconvInitializationException::ice_clone() const
-{
-    return new IconvInitializationException(*this);
-}
-#endif
-
 string
 IconvInitializationException::reason() const
 {

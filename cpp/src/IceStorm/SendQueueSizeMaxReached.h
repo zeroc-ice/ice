@@ -8,8 +8,6 @@
 
 #include <Ice/Ice.h>
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace IceStorm
 {
 
@@ -47,42 +45,3 @@ public:
 };
 
 }
-
-#else
-
-namespace IceStorm
-{
-
-class SendQueueSizeMaxReached : public ::Ice::LocalException
-{
-public:
-
-    /**
-     * The file and line number are required for all local exceptions.
-     * @param file The file name in which the exception was raised, typically __FILE__.
-     * @param line The line number at which the exception was raised, typically __LINE__.
-     */
-    SendQueueSizeMaxReached(const char* file, int line);
-
-    SendQueueSizeMaxReached(const SendQueueSizeMaxReached&) = default;
-    virtual ~SendQueueSizeMaxReached();
-
-    /**
-     * Obtains the Slice type ID of this exception.
-     * @return The fully-scoped type ID.
-     */
-    virtual ::std::string ice_id() const;
-    /**
-     * Polymorphically clones this exception.
-     * @return A shallow copy of this exception.
-     */
-    virtual SendQueueSizeMaxReached* ice_clone() const;
-    /**
-     * Throws this exception.
-     */
-    virtual void ice_throw() const;
-};
-
-}
-
-#endif

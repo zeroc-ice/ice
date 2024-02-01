@@ -13,11 +13,7 @@ namespace Ice
 /**
  * Describes the possible formats for classes and exceptions.
  */
-#ifdef ICE_CPP11_MAPPING
 enum class FormatType : unsigned char
-#else
-enum FormatType
-#endif
 {
     /**
      * Indicates that no preference was specified.

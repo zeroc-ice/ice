@@ -507,9 +507,6 @@ class AsyncResult;
 typedef IceUtil::Handle<AsyncResult> AsyncResultPtr;
 
 class AsyncCallback
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 
@@ -541,9 +538,6 @@ typedef IceUtil::Handle<Connection> ConnectionPtr;
 // Allows a subclass to intercept DBus messages.
 //
 class Filter
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 
@@ -558,9 +552,6 @@ ICE_DEFINE_PTR(FilterPtr, Filter);
 // Allows a subclass to receive DBus method invocations.
 //
 class Service
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 

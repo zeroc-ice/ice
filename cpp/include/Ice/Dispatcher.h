@@ -5,7 +5,7 @@
 #ifndef ICE_DISPATCHER_H
 #define ICE_DISPATCHER_H
 
-#if !defined(ICE_CPP11_MAPPING) || defined(ICE_BUILDING_SRC)
+#if defined(ICE_BUILDING_SRC)
 //
 // Part of the C++98 mapping, and "internal" definitions when building Ice
 // with the C++11 mapping

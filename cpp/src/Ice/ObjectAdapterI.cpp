@@ -663,11 +663,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
         if(_routerInfo)
         {
             const string s("can't set published endpoints on object adapter associated with a router");
-    #ifdef ICE_CPP11_MAPPING
             throw invalid_argument(s);
-    #else
-            throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s);
-    #endif
         }
 
         oldPublishedEndpoints = _publishedEndpoints;

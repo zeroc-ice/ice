@@ -318,11 +318,7 @@ IceObjC::iAPEndpointI::equivalent(const EndpointIPtr& endpoint) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::iAPEndpointI::operator==(const Ice::Endpoint& r) const
-#else
-IceObjC::iAPEndpointI::operator==(const Ice::LocalObject& r) const
-#endif
 {
     const iAPEndpointI* p = dynamic_cast<const iAPEndpointI*>(&r);
     if(!p)
@@ -374,11 +370,7 @@ IceObjC::iAPEndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::iAPEndpointI::operator<(const Ice::Endpoint& r) const
-#else
-IceObjC::iAPEndpointI::operator<(const Ice::LocalObject& r) const
-#endif
 {
     const iAPEndpointI* p = dynamic_cast<const iAPEndpointI*>(&r);
     if(!p)

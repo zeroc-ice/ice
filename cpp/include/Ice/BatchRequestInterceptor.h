@@ -47,29 +47,6 @@ public:
     virtual const Ice::ObjectPrxPtr& getProxy() const = 0;
 };
 
-#ifndef ICE_CPP11_MAPPING
-
-/**
- * The base class for a batch request interceptor. Subclasses must implement enqueue.
- * The interceptor can be installed via InitializationData.
- * \headerfile Ice/Ice.h
- */
-class BatchRequestInterceptor : public IceUtil::Shared
-{
-public:
-
-    /**
-     * Called by the Ice run time to enqueue a batch request.
-     * @param req An object representing the batch request.
-     * @param count The number of requests currently in the queue.
-     * @param size The number of bytes consumed by the requests currently in the queue.
-     */
-    virtual void enqueue(const BatchRequest& req, int count, int size) = 0;
-};
-typedef IceUtil::Handle<BatchRequestInterceptor> BatchRequestInterceptorPtr;
-
-#endif
-
 }
 
 #endif

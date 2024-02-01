@@ -74,15 +74,9 @@ operator<<(LoggerOutputBase& out, const T& val)
     return LoggerOutputInserter<T, IsException<T>::value>::insert(out, val);
 }
 
-#ifdef ICE_CPP11_MAPPING
 template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr>
 inline LoggerOutputBase&
 operator<<(LoggerOutputBase& os, const ::std::shared_ptr<T>& p)
-#else
-template<typename T>
-inline LoggerOutputBase&
-operator<<(LoggerOutputBase& os, const ::IceInternal::ProxyHandle<T>& p)
-#endif
 {
     return os << (p ? p->ice_toString() : "");
 }

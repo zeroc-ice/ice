@@ -8,7 +8,6 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-#include <Ice/UniquePtr.h>
 
 #include <Ice/BatchRequestInterceptor.h>
 #include <Ice/BatchRequestQueueF.h>
@@ -39,18 +38,14 @@ private:
 
     void waitStreamInUse(bool);
 
-#ifdef ICE_CPP11_MAPPING
     std::function<void(const Ice::BatchRequest&, int, int)> _interceptor;
-#else
-    Ice::BatchRequestInterceptorPtr _interceptor;
-#endif
     Ice::OutputStream _batchStream;
     bool _batchStreamInUse;
     bool _batchStreamCanFlush;
     bool _batchCompress;
     int _batchRequestNum;
     size_t _batchMarker;
-    IceInternal::UniquePtr<Ice::LocalException> _exception;
+    std::unique_ptr<Ice::LocalException> _exception;
     size_t _maxSize;
 };
 

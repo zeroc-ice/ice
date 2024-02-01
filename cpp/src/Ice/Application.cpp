@@ -77,33 +77,28 @@ Ice::Application::main(int argc, const char* const argv[], ICE_CONFIG_FILE_STRIN
     }
 
     InitializationData initData;
-#ifndef ICE_CPP11_MAPPING
-    if(configFile)
-#endif
+    try
     {
-        try
-        {
-            initData.properties = createProperties();
-            initData.properties->load(configFile);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            Error out(getProcessLogger());
-            out << ex;
-            return EXIT_FAILURE;
-        }
-        catch(const std::exception& ex)
-        {
-            Error out(getProcessLogger());
-            out << ex;
-            return EXIT_FAILURE;
-        }
-        catch(...)
-        {
-            Error out(getProcessLogger());
-            out << "unknown exception";
-            return EXIT_FAILURE;
-        }
+        initData.properties = createProperties();
+        initData.properties->load(configFile);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << ex;
+        return EXIT_FAILURE;
+    }
+    catch(const std::exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << ex;
+        return EXIT_FAILURE;
+    }
+    catch(...)
+    {
+        Error out(getProcessLogger());
+        out << "unknown exception";
+        return EXIT_FAILURE;
     }
     return main(argc, argv, initData, version);
 }

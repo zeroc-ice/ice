@@ -12,10 +12,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(ObjectAdapterFactory* p) { return p; }
-#endif
-
 void
 IceInternal::ObjectAdapterFactory::shutdown()
 {

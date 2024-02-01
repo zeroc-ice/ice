@@ -12,11 +12,7 @@ namespace IceObjC
 {
 
 class StreamEndpointI;
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 typedef ::std::shared_ptr<StreamEndpointI> StreamEndpointIPtr;
-#else
-typedef IceUtil::Handle<StreamEndpointI> StreamEndpointIPtr;
-#endif
 
 class StreamAcceptor : public IceInternal::Acceptor, public IceInternal::NativeInfo
 {

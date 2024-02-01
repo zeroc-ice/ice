@@ -128,7 +128,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Random.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\RecMutex.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\ScopedArray.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Shared.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />

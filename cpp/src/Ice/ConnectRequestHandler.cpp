@@ -17,10 +17,6 @@
 using namespace std;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(ConnectRequestHandler* p) { return p; }
-#endif
-
 ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrxPtr& proxy) :
     RequestHandler(ref),
     _proxy(proxy),
@@ -273,11 +269,7 @@ ConnectRequestHandler::flushRequests()
         _flushing = true;
     }
 
-#ifdef ICE_CPP11_MAPPING
     std::unique_ptr<Ice::LocalException> exception;
-#else
-    IceInternal::UniquePtr<Ice::LocalException> exception;
-#endif
     while(!_requests.empty()) // _requests is immutable when _flushing = true
     {
         ProxyOutgoingAsyncBasePtr& req = _requests.front();
@@ -327,11 +319,7 @@ ConnectRequestHandler::flushRequests()
     {
         Lock sync(*this);
         assert(!_initialized);
-#ifdef ICE_CPP11_MAPPING
         swap(_exception, exception);
-#else
-        _exception.swap(exception);
-#endif
         _initialized = !_exception;
         _flushing = false;
 

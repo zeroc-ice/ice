@@ -13,16 +13,9 @@ namespace IceObjC
 {
 
 class iAPEndpointI;
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 typedef ::std::shared_ptr<iAPEndpointI> iAPEndpointIPtr;
-#else
-typedef IceUtil::Handle<iAPEndpointI> iAPEndpointIPtr;
-#endif
 
-class iAPEndpointI : public IceInternal::EndpointI
-#ifdef ICE_CPP11_MAPPING
-                   , public std::enable_shared_from_this<iAPEndpointI>
-#endif
+class iAPEndpointI : public IceInternal::EndpointI, public std::enable_shared_from_this<iAPEndpointI>
 {
 public:
 
@@ -53,13 +46,8 @@ public:
     virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
-#ifdef ICE_CPP11_MAPPING
     virtual bool operator==(const Ice::Endpoint&) const;
     virtual bool operator<(const Ice::Endpoint&) const;
-#else
-    virtual bool operator==(const Ice::LocalObject&) const;
-    virtual bool operator<(const Ice::LocalObject&) const;
-#endif
 
     virtual std::string options() const;
     virtual ::Ice::Int hash() const;

@@ -22,20 +22,12 @@ LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& com) :
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
                                               shared_ptr<ObjectPrx> proxy,
                                               function<void()> response,
                                               function<void(exception_ptr)>,
                                               const Ice::Current&)
-#else
-void
-LocatorRegistryI::setAdapterDirectProxy_async(const AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb,
-                                              const std::string& adapterId,
-                                              const ObjectPrxPtr& proxy,
-                                              const Current&)
-#endif
 {
     Lock sync(*this);
     if(proxy)
@@ -46,14 +38,9 @@ LocatorRegistryI::setAdapterDirectProxy_async(const AMD_LocatorRegistry_setAdapt
     {
         _adapters.erase(adapterId);
     }
-#ifdef ICE_CPP11_MAPPING
     response();
-#else
-    cb->ice_response();
-#endif
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
                                                         string replicaGroupId,
@@ -61,15 +48,6 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
                                                         function<void()> response,
                                                         function<void(exception_ptr)>,
                                                         const Ice::Current&)
-#else
-void
-LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
-    const AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr& cb,
-    const std::string& adapterId,
-    const std::string& replicaGroupId,
-    const ObjectPrxPtr& proxy,
-    const Current&)
-#endif
 {
     Lock sync(*this);
     if(proxy)
@@ -95,14 +73,9 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
             }
         }
     }
-#ifdef ICE_CPP11_MAPPING
     response();
-#else
-    cb->ice_response();
-#endif
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 LocatorRegistryI::setServerProcessProxyAsync(string,
                                               shared_ptr<ProcessPrx>,
@@ -112,16 +85,6 @@ LocatorRegistryI::setServerProcessProxyAsync(string,
 {
     response();
 }
-#else
-void
-LocatorRegistryI::setServerProcessProxy_async(const AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
-                                              const std::string&,
-                                              const ProcessPrxPtr&,
-                                              const Current&)
-{
-    cb->ice_response();
-}
-#endif
 
 Ice::ObjectPrxPtr
 LocatorRegistryI::findObject(const Ice::Identity& id) const
@@ -222,7 +185,6 @@ LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrxPtr& regist
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 LocatorI::findObjectByIdAsync(Ice::Identity id,
                               function<void(const shared_ptr<ObjectPrx>&)> response,
@@ -240,23 +202,6 @@ LocatorI::findAdapterByIdAsync(string adapterId,
 {
     _lookup->findAdapter(make_pair(response, ex), adapterId);
 }
-#else
-void
-LocatorI::findObjectById_async(const AMD_Locator_findObjectByIdPtr& cb,
-                               const Identity& id,
-                               const Current&) const
-{
-    _lookup->findObject(cb, id);
-}
-
-void
-LocatorI::findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb,
-                                const std::string& adapterId,
-                                const Current&) const
-{
-    _lookup->findAdapter(cb, adapterId);
-}
-#endif
 
 LocatorRegistryPrxPtr
 LocatorI::getRegistry(const Current&) const

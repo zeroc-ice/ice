@@ -15,10 +15,7 @@
 namespace IceInternal
 {
 
-class WSEndpoint : public EndpointI
-#ifdef ICE_CPP11_MAPPING
-                 , public std::enable_shared_from_this<WSEndpoint>
-#endif
+class WSEndpoint : public EndpointI, public std::enable_shared_from_this<WSEndpoint>
 {
 public:
 
@@ -52,13 +49,8 @@ public:
 
     WSEndpointPtr endpoint(const EndpointIPtr&) const;
 
-#ifdef ICE_CPP11_MAPPING
     virtual bool operator==(const Ice::Endpoint&) const;
     virtual bool operator<(const Ice::Endpoint&) const;
-#else
-    virtual bool operator==(const Ice::LocalObject&) const;
-    virtual bool operator<(const Ice::LocalObject&) const;
-#endif
 
 protected:
 
