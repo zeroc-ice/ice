@@ -248,7 +248,7 @@ namespace Ice
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
         /// <param name="result">The asynchronous result object returned by <code>begin_ice_ids</code>.</param>
-        /// <returns>The Slice type IDs of the interfaces supported by the target object, in in alphabetical order.
+        /// <returns>The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
         /// </returns>
         string[] end_ice_ids(AsyncResult result);
 
