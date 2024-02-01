@@ -767,12 +767,12 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         if(!(*d)->optional())
         {
-            writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+            writeMarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+        writeMarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
     }
     _out << nl << "ostr_.endSlice();";
     if(base)
@@ -791,12 +791,12 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         if(!(*d)->optional())
         {
-            writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+            writeUnmarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+        writeUnmarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
     }
     _out << nl << "istr_.endSlice();";
     if(base)
@@ -1130,23 +1130,13 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
-                                              bool propertyMapping)
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
         if((*p)->defaultValueType())
         {
-            _out << nl << "this.";
-            if(propertyMapping)
-            {
-                _out << "_" + (*p)->name();
-            }
-            else
-            {
-                _out << fixId((*p)->name(), baseTypes);
-            }
-            _out << " = ";
+            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = ";
             writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
         }
@@ -2289,8 +2279,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     else
     {
-        const bool propertyMapping = p->hasMetaData("cs:property");
-
         _out << sp << nl << "#region Constructors";
 
         _out << sp;
@@ -2301,7 +2289,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << " : base()";
         }
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable, propertyMapping);
+        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
 
@@ -2330,17 +2318,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sb;
         for(DataMemberList::const_iterator d = dataMembers.begin(); d != dataMembers.end(); ++d)
         {
-            _out << nl << "this.";
             const string paramName = fixId((*d)->name(), DotNet::ICloneable);
-            if(propertyMapping)
-            {
-                _out << "_" + (*d)->name();
-            }
-            else
-            {
-                _out << paramName;
-            }
-            _out << " = " << paramName << ';';
+            _out << nl << "this." << paramName << " = " << paramName << ';';
         }
         _out << nl << "ice_initialize();";
         _out << eb;
@@ -2779,9 +2758,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     DataMemberList classMembers = p->classDataMembers();
     DataMemberList dataMembers = p->dataMembers();
-
-    const bool propertyMapping = p->hasMetaData("cs:property");
-
     _out << sp << nl << "#endregion"; // Slice data members
 
     const bool isClass = !isValueType(p);
@@ -2800,7 +2776,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable, propertyMapping);
+        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
     }
@@ -2820,16 +2796,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string paramName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-        _out << nl << "this.";
-        if(propertyMapping)
-        {
-            _out << "_" + (*q)->name();
-        }
-        else
-        {
-            _out << paramName;
-        }
-        _out << " = " << paramName << ';';
+        _out << nl << "this." << paramName << " = " << paramName << ';';
     }
     _out << nl << "ice_initialize();";
     _out << eb;
@@ -2924,7 +2891,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeMarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), ns, true);
+        writeMarshalDataMember(*q, fixId((*q)->name(), isClass ? DotNet::ICloneable : 0), ns, true);
     }
     _out << eb;
 
@@ -2934,7 +2901,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeUnmarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), ns, true);
+        writeUnmarshalDataMember(*q, fixId((*q)->name(), isClass ? DotNet::ICloneable : 0), ns, true);
     }
     _out << eb;
 
@@ -3117,81 +3084,38 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     emitDeprecate(p, cont, _out, "member");
 
     string type = typeToString(p->type(), ns, isOptional);
-    string propertyName = fixId(p->name(), baseTypes, isClass);
-    string dataMemberName;
+    string dataMemberName = fixId(p->name(), baseTypes, isClass);
 
-    if(isProperty)
-    {
-        dataMemberName = "_" + p->name();
-    }
-    else
-    {
-        dataMemberName = propertyName;
-    }
-
-    if(isProperty)
+    emitAttributes(p);
+    emitGeneratedCodeAttribute();
+    if(isPrivate)
     {
         _out << nl << "private";
     }
-    else
+    else if(isProtected)
     {
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        if(isPrivate)
-        {
-            _out << nl << "private";
-        }
-        else if(isProtected)
-        {
-            _out << nl << "protected";
-        }
-        else
-        {
-            _out << nl << "public";
-        }
-    }
-
-    if(isOptional && isValue)
-    {
-        _out << ' ' << type << ' ' << dataMemberName << " = new " << type << "();";
+        _out << nl << "protected";
     }
     else
     {
-        _out << ' ' << type << ' ' << dataMemberName << ';';
+        _out << nl << "public";
     }
 
-    if(isProperty)
+    if (isProperty && !isValue)
     {
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        if(isPrivate)
-        {
-            _out << nl << "private";
-        }
-        else if(isProtected)
-        {
-            _out << nl << "protected";
-        }
-        else
-        {
-            _out << nl << "public";
-        }
+        // TODO: consider dropping this virtual
+        _out << " virtual";
+    }
 
-        if(!isValue)
-        {
-            _out << " virtual";
-        }
-        _out << ' ' << type << ' ' << propertyName;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "return " << dataMemberName << ';';
-        _out << eb;
-        _out << nl << "set";
-        _out << sb;
-        _out << nl << dataMemberName << " = value;";
-        _out << eb;
-        _out << eb;
+    _out << ' ' << type << ' ' << dataMemberName;
+
+    if (isProperty)
+    {
+        _out << " { get; set; }";
+    }
+    else
+    {
+        _out << ';';
     }
 }
 
