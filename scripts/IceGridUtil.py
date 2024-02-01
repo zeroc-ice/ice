@@ -70,7 +70,7 @@ class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
         IceGridClient.__init__(
             self,
             replica=replica,
-            exe="icegridadmin++11",
+            exe="icegridadmin",
             mapping=Mapping.getByName("cpp"),
             *args,
             **kargs,
@@ -92,7 +92,7 @@ class IceGridNode(ProcessFromBinDir, Server):
     def __init__(self, name="localnode", *args, **kargs):
         Server.__init__(
             self,
-            "icegridnode++11",
+            "icegridnode",
             mapping=Mapping.getByName("cpp"),
             desc="IceGrid node " + name,
             ready="node",
@@ -160,7 +160,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
     def __init__(self, name, portnum=20, ready="AdminSessionManager", *args, **kargs):
         Server.__init__(
             self,
-            "icegridregistry++11",
+            "icegridregistry",
             mapping=Mapping.getByName("cpp"),
             desc="IceGrid registry " + name,
             ready=ready,

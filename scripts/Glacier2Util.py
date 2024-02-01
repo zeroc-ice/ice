@@ -21,7 +21,7 @@ class Glacier2Router(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     def __init__(self, portnum=50, passwords={"userid": "abc123"}, *args, **kargs):
         Server.__init__(
             self,
-            "glacier2router++11",
+            "glacier2router",
             mapping=Mapping.getByName("cpp"),
             desc="Glacier2 router",
             readyCount=2,
