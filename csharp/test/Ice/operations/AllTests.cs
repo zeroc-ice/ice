@@ -2,13 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace Ice
 {
     namespace operations
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.MyClassPrx allTests(global::Test.TestHelper helper)
+            public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -32,13 +34,13 @@ namespace Ice
 
                 output.Write("testing twoway operations with AMI... ");
                 output.Flush();
-                TwowaysAMI.twowaysAMI(helper, cl);
-                TwowaysAMI.twowaysAMI(helper, derivedProxy);
+                await TwowaysAMI.twowaysAMI(helper, cl);
+                await TwowaysAMI.twowaysAMI(helper, derivedProxy);
                 output.WriteLine("ok");
 
                 output.Write("testing oneway operations with AMI... ");
                 output.Flush();
-                OnewaysAMI.onewaysAMI(helper, cl);
+                await OnewaysAMI.onewaysAMI(cl);
                 output.WriteLine("ok");
 
                 output.Write("testing batch oneway operations... ");
@@ -49,8 +51,8 @@ namespace Ice
 
                 output.Write("testing batch AMI oneway operations... ");
                 output.Flush();
-                BatchOnewaysAMI.batchOneways(cl);
-                BatchOnewaysAMI.batchOneways(derivedProxy);
+                await BatchOnewaysAMI.batchOneways(cl);
+                await BatchOnewaysAMI.batchOneways(derivedProxy);
                 output.WriteLine("ok");
                 return cl;
             }

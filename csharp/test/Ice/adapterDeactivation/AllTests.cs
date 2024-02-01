@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
+            public static async Task<Test.TestIntfPrx> allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -54,7 +55,7 @@ namespace Ice
                 output.Write("creating/activating/deactivating object adapter in one operation... ");
                 output.Flush();
                 obj.transient();
-                obj.end_transient(obj.begin_transient());
+                await obj.transientAsync();
                 output.WriteLine("ok");
 
                 {
@@ -65,7 +66,7 @@ namespace Ice
                         Ice.InitializationData initData = new Ice.InitializationData();
                         initData.properties = communicator.getProperties().ice_clone_();
                         Ice.Communicator comm = Ice.Util.initialize(initData);
-                        comm.stringToProxy("test:" + helper.getTestEndpoint(0)).begin_ice_ping();
+                        _ = comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
                         comm.destroy();
                     }
                     output.WriteLine("ok");

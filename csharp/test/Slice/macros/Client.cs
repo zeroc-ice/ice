@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 public class Client : TestHelper
@@ -25,8 +26,6 @@ public class Client : TestHelper
         Console.Out.WriteLine("ok");
     }
 
-    public static int Main(string[] args)
-    {
-        return TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }

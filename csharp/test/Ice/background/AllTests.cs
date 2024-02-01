@@ -2,129 +2,36 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
+using Test;
 
 public class AllTests
 {
+    public class Progress : IProgress<bool>
+    {
+        private readonly Action<bool> _onProgress;
+
+        public Progress(Action<bool> onProgress = null) =>
+            _onProgress = onProgress;
+
+        public bool SentSynchronously { get; private set; }
+
+        public void Report(bool value)
+        {
+            SentSynchronously = value;
+            _onProgress?.Invoke(value);
+        }
+    }
+
     private static void test(bool b)
     {
         if(!b)
         {
             throw new System.Exception();
         }
-    }
-
-    private class Callback
-    {
-        internal Callback()
-        {
-            _called = false;
-        }
-
-        public virtual void check()
-        {
-            lock(this)
-            {
-                while(!_called)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                _called = false;
-            }
-        }
-
-        public virtual void called()
-        {
-            lock(this)
-            {
-                Debug.Assert(!_called);
-                _called = true;
-                System.Threading.Monitor.Pulse(this);
-            }
-        }
-
-        public virtual bool isCalled()
-        {
-            lock(this)
-            {
-                return _called;
-            }
-        }
-
-        private bool _called;
-    }
-
-    private class OpAMICallback
-    {
-        public void response()
-        {
-            _response.called();
-        }
-
-        public void responseNoOp()
-        {
-        }
-
-        public void noResponse()
-        {
-            test(false);
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            _response.called();
-        }
-
-        public void noException(Ice.Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            test(false);
-        }
-
-        public void sent(bool ss)
-        {
-            _sent.called();
-        }
-
-        public bool checkException(bool wait)
-        {
-            if(wait)
-            {
-                _response.check();
-                return true;
-            }
-            else
-            {
-                return _response.isCalled();
-            }
-        }
-
-        public bool checkResponse(bool wait)
-        {
-            if(wait)
-            {
-                _response.check();
-                return true;
-            }
-            else
-            {
-                return _response.isCalled();
-            }
-        }
-
-        public void checkResponseAndSent()
-        {
-            _sent.check();
-            _response.check();
-        }
-
-        private Callback _response = new Callback();
-        private Callback _sent = new Callback();
     }
 
     private class OpThread
@@ -166,7 +73,7 @@ public class AllTests
                         count = 0;
                         _background.ice_twoway().ice_ping();
                     }
-                    _background.begin_op();
+                    _ = _background.opAsync();
                     Thread.Sleep(1);
                 }
                 catch(Ice.LocalException)
@@ -188,7 +95,7 @@ public class AllTests
         private Thread _thread;
     }
 
-    public static Test.BackgroundPrx allTests(Test.TestHelper helper)
+    public static async Task<BackgroundPrx> allTests(Test.TestHelper helper)
     {
         Ice.Communicator communicator = helper.communicator();
         string sref = "background:" + helper.getTestEndpoint(0);
@@ -208,28 +115,28 @@ public class AllTests
         Console.Write("testing connect... ");
         Console.Out.Flush();
         {
-            connectTests(configuration, background);
+            await connectTests(configuration, background);
         }
         Console.Out.WriteLine("ok");
 
         Console.Write("testing initialization... ");
         Console.Out.Flush();
         {
-            initializeTests(configuration, background, backgroundController);
+            await initializeTests(configuration, background, backgroundController);
         }
         Console.Out.WriteLine("ok");
 
         Console.Write("testing connection validation... ");
         Console.Out.Flush();
         {
-            validationTests(configuration, background, backgroundController);
+            await validationTests(configuration, background, backgroundController);
         }
         Console.Out.WriteLine("ok");
 
         Console.Write("testing read/write... ");
         Console.Out.Flush();
         {
-            readWriteTests(configuration, background, backgroundController);
+            await readWriteTests(configuration, background, backgroundController);
         }
         Console.Out.WriteLine("ok");
 
@@ -261,15 +168,13 @@ public class AllTests
             BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);
 
             backgroundController.pauseCall("findAdapterById");
-            Ice.AsyncResult r1 = bg.begin_op();
-            Ice.AsyncResult r2 = bg.begin_op();
-            test(!r1.IsCompleted);
-            test(!r2.IsCompleted);
+            Task t1 = bg.opAsync();
+            Task t2 = bg.opAsync();
+            test(!t1.IsCompleted);
+            test(!t2.IsCompleted);
             backgroundController.resumeCall("findAdapterById");
-            bg.end_op(r1);
-            bg.end_op(r2);
-            test(r1.IsCompleted);
-            test(r2.IsCompleted);
+            await t1;
+            await t2;
         }
         Console.Out.WriteLine("ok");
 
@@ -300,15 +205,13 @@ public class AllTests
             test(bg.ice_getRouter() != null);
 
             backgroundController.pauseCall("getClientProxy");
-            Ice.AsyncResult r1 = bg.begin_op();
-            Ice.AsyncResult r2 = bg.begin_op();
-            test(!r1.IsCompleted);
-            test(!r2.IsCompleted);
+            Task t1 = bg.opAsync();
+            Task t2 = bg.opAsync();
+            test(!t1.IsCompleted);
+            test(!t2.IsCompleted);
             backgroundController.resumeCall("getClientProxy");
-            bg.end_op(r1);
-            bg.end_op(r2);
-            test(r1.IsCompleted);
-            test(r2.IsCompleted);
+            await t1;
+            await t2;
         }
         Console.Out.WriteLine("ok");
 
@@ -321,16 +224,15 @@ public class AllTests
 
             configuration.buffered(true);
             backgroundController.buffered(true);
-            background.begin_op();
+            _ = background.opAsync();
             background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
-            background.begin_op();
+            _ = background.opAsync();
 
-            OpAMICallback cb = new OpAMICallback();
-            List<Ice.AsyncResult> results = new List<Ice.AsyncResult>();
+            var results = new List<Task>();
             for(int i = 0; i < 10000; ++i)
             {
-                Ice.AsyncResult r = background.begin_op().whenCompleted(cb.responseNoOp, cb.noException);
-                results.Add(r);
+                Task t = background.opAsync();
+                results.Add(t);
                 if(i % 50 == 0)
                 {
                     backgroundController.holdAdapter();
@@ -338,12 +240,13 @@ public class AllTests
                 }
                 if(i % 100 == 0)
                 {
-                    r.waitForCompleted();
+                    await t;
                 }
             }
-            foreach(Ice.AsyncResult r in results)
+
+            foreach(Task t in results)
             {
-                r.waitForCompleted();
+                await t;
             }
             Console.Out.WriteLine("ok");
         }
@@ -351,7 +254,7 @@ public class AllTests
         return background;
     }
 
-    private static void connectTests(Configuration configuration, Test.BackgroundPrx background)
+    private static async Task connectTests(Configuration configuration, Test.BackgroundPrx background)
     {
         try
         {
@@ -359,7 +262,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
-            System.Console.Out.WriteLine(ex);
+            Console.Out.WriteLine(ex);
             test(false);
         }
         background.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
@@ -385,23 +288,17 @@ public class AllTests
             {
             }
 
-            Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            var progress = new Progress();
+            Task t = prx.opAsync(progress: progress);
+            test(!progress.SentSynchronously);
             try
             {
-                prx.end_op(r);
+                await t;
                 test(false);
             }
             catch(Ice.Exception)
             {
             }
-            test(r.IsCompleted);
-
-            OpAMICallback cbEx = new OpAMICallback();
-            r = prx.begin_op().whenCompleted(cbEx.exception);
-            test(!r.sentSynchronously());
-            cbEx.checkException(true);
-            test(r.IsCompleted);
 
             if(i == 0 || i == 2)
             {
@@ -443,7 +340,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
-            System.Console.Out.WriteLine(ex);
+            Console.Out.WriteLine(ex);
             test(false);
         }
         finally
@@ -456,8 +353,10 @@ public class AllTests
         }
     }
 
-    private static void initializeTests(Configuration configuration, Test.BackgroundPrx background,
-                                        Test.BackgroundControllerPrx ctl)
+    private static async Task initializeTests(
+        Configuration configuration,
+        BackgroundPrx background,
+        BackgroundControllerPrx ctl)
     {
         try
         {
@@ -490,23 +389,17 @@ public class AllTests
             {
             }
 
-            Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            var progress = new Progress();
+            Task t = prx.opAsync(progress: progress);
+            test(!progress.SentSynchronously);
             try
             {
-                prx.end_op(r);
+                await t;
                 test(false);
             }
             catch(Ice.Exception)
             {
             }
-            test(r.IsCompleted);
-
-            OpAMICallback cbEx = new OpAMICallback();
-            r = prx.begin_op().whenCompleted(cbEx.exception);
-            test(!r.sentSynchronously());
-            cbEx.checkException(true);
-            test(r.IsCompleted);
 
             if(i == 0 || i == 2)
             {
@@ -608,28 +501,21 @@ public class AllTests
         thread2.Join();
     }
 
-    private sealed class CloseCallback : Callback
-    {
-
-        public void closed(Ice.Connection con)
-        {
-            called();
-        }
-    }
-
     //
     // Close the connection associated with the proxy and wait until the close completes.
     //
-    private static void closeConnection(Ice.ObjectPrx prx)
+    private static async Task closeConnection(Ice.ObjectPrx prx)
     {
-        CloseCallback cb = new CloseCallback();
-        prx.ice_getConnection().setCloseCallback(cb.closed);
+        var tcs = new TaskCompletionSource();
+        prx.ice_getConnection().setCloseCallback(value => tcs.SetResult());
         prx.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-        cb.check();
+        await tcs.Task;
     }
 
-    private static void validationTests(Configuration configuration, Test.BackgroundPrx background,
-                                        Test.BackgroundControllerPrx ctl)
+    private static async Task validationTests(
+        Configuration configuration,
+        BackgroundPrx background,
+        BackgroundControllerPrx ctl)
     {
         try
         {
@@ -639,7 +525,7 @@ public class AllTests
         {
             test(false);
         }
-        closeConnection(background);
+        await closeConnection(background);
 
         try
         {
@@ -657,21 +543,21 @@ public class AllTests
         {
             configuration.readException(new Ice.SocketException());
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
-            Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            var progress = new Progress();
+            var t = prx.opAsync(progress: progress);
+            test(!progress.SentSynchronously);
             try
             {
-                prx.end_op(r);
+                await t;
                 test(false);
             }
             catch(Ice.SocketException)
             {
             }
-            test(r.IsCompleted);
             configuration.readException(null);
         }
 
-        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
+        if (!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
            !background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss"))
         {
             try
@@ -686,7 +572,7 @@ public class AllTests
                 Console.Error.WriteLine(ex);
                 test(false);
             }
-            closeConnection(background);
+            await closeConnection(background);
 
             try
             {
@@ -706,17 +592,17 @@ public class AllTests
             {
                 configuration.readReady(false);
                 configuration.readException(new Ice.SocketException());
-                Ice.AsyncResult r = background.begin_op();
-                test(!r.sentSynchronously());
+                var progress = new Progress();
+                var t = background.opAsync(progress: progress);
+                test(!progress.SentSynchronously);
                 try
                 {
-                    background.end_op(r);
+                    await t;
                     test(false);
                 }
                 catch(Ice.SocketException)
                 {
                 }
-                test(r.IsCompleted);
                 configuration.readException(null);
                 configuration.readReady(true);
             }
@@ -724,14 +610,15 @@ public class AllTests
 
         {
             ctl.holdAdapter(); // Hold to block in connection validation
-            Ice.AsyncResult r = background.begin_op();
-            Ice.AsyncResult r2 = background.begin_op();
-            test(!r.sentSynchronously() && !r2.sentSynchronously());
-            test(!r.IsCompleted && !r2.IsCompleted);
+            var p1 = new Progress();
+            var p2 = new Progress();
+            var t1 = background.opAsync(progress: p1);
+            var t2 = background.opAsync(progress: p2);
+            test(!p1.SentSynchronously && !p2.SentSynchronously);
+            test(!t1.IsCompleted && !t2.IsCompleted);
             ctl.resumeAdapter();
-            background.end_op(r);
-            background.end_op(r2);
-            test(r.IsCompleted && r2.IsCompleted);
+            await t1;
+            await t2;
         }
 
         try
@@ -758,7 +645,7 @@ public class AllTests
             Console.Error.WriteLine(ex);
             test(false);
         }
-        closeConnection(background);
+        await closeConnection(background);
 
         try
         {
@@ -810,8 +697,8 @@ public class AllTests
         backgroundBatchOneway.op();
         backgroundBatchOneway.op();
         ctl.resumeAdapter();
-        backgroundBatchOneway.begin_ice_flushBatchRequests();
-        closeConnection(backgroundBatchOneway);
+        _ = backgroundBatchOneway.ice_flushBatchRequestsAsync();
+        await closeConnection(backgroundBatchOneway);
 
         ctl.holdAdapter();
         backgroundBatchOneway.opWithPayload(seq);
@@ -819,7 +706,7 @@ public class AllTests
         backgroundBatchOneway.opWithPayload(seq);
         backgroundBatchOneway.opWithPayload(seq);
         ctl.resumeAdapter();
-        Ice.AsyncResult r3 = backgroundBatchOneway.begin_ice_flushBatchRequests();
+        await backgroundBatchOneway.ice_flushBatchRequestsAsync();
         //
         // We can't close the connection before ensuring all the batches have been sent since
         // with auto-flushing the close connection message might be sent once the first call
@@ -828,12 +715,13 @@ public class AllTests
         // with the same callback to wait for the first flush to complete.
         //
         //backgroundBatchOneway.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-        backgroundBatchOneway.end_ice_flushBatchRequests(r3);
-        closeConnection(backgroundBatchOneway);
+        await closeConnection(backgroundBatchOneway);
     }
 
-    private static void readWriteTests(Configuration configuration, Test.BackgroundPrx background,
-                                       Test.BackgroundControllerPrx ctl)
+    private static async Task readWriteTests(
+        Configuration configuration,
+        BackgroundPrx background,
+        BackgroundControllerPrx ctl)
     {
         try
         {
@@ -863,17 +751,17 @@ public class AllTests
 
             background.ice_ping();
             configuration.writeException(new Ice.SocketException());
-            Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            var progress = new Progress();
+            var t = prx.opAsync(progress: progress);
+            test(!progress.SentSynchronously);
             try
             {
-                prx.end_op(r);
+                await t;
                 test(false);
             }
             catch(Ice.SocketException)
             {
             }
-            test(r.IsCompleted);
             configuration.writeException(null);
         }
 
@@ -893,16 +781,14 @@ public class AllTests
             background.ice_ping();
             configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
             configuration.readException(new Ice.SocketException());
-            Ice.AsyncResult r = background.begin_op();
             try
             {
-                background.end_op(r);
+                await background.opAsync();
                 test(false);
             }
             catch(Ice.SocketException)
             {
             }
-            test(r.IsCompleted);
             configuration.readException(null);
             configuration.readReady(true);
         }
@@ -952,17 +838,17 @@ public class AllTests
             background.ice_ping();
             configuration.writeReady(false);
             configuration.writeException(new Ice.SocketException());
-            Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            var progress = new Progress();
+            var t = prx.opAsync(progress: progress);
+            test(!progress.SentSynchronously);
             try
             {
-                prx.end_op(r);
+                await t;
                 test(false);
             }
             catch(Ice.SocketException)
             {
             }
-            test(r.IsCompleted);
             configuration.writeReady(true);
             configuration.writeException(null);
         }
@@ -985,16 +871,14 @@ public class AllTests
             background.ice_ping();
             configuration.readReady(false);
             configuration.readException(new Ice.SocketException());
-            Ice.AsyncResult r = background.begin_op();
             try
             {
-                background.end_op(r);
+                await background.opAsync();
                 test(false);
             }
             catch(Ice.SocketException)
             {
             }
-            test(r.IsCompleted);
             configuration.readReady(true);
             configuration.readException(null);
         }
@@ -1004,18 +888,17 @@ public class AllTests
             configuration.readReady(false);
             configuration.writeReady(false);
             configuration.readException(new Ice.SocketException());
-            Ice.AsyncResult r = background.begin_op();
+            var t = background.opAsync();
             // The read exception might propagate before the message send is seen as completed on IOCP.
             //r.waitForSent();
             try
             {
-                background.end_op(r);
+                await t;
                 test(false);
             }
             catch(Ice.SocketException)
             {
             }
-            test(r.IsCompleted);
             configuration.writeReady(true);
             configuration.readReady(true);
             configuration.readException(null);
@@ -1029,35 +912,39 @@ public class AllTests
         ctl.holdAdapter(); // Hold to block in request send.
 
         byte[] seq = new byte[10024];
-        (new System.Random()).NextBytes(seq);
-        OpAMICallback cbWP = new OpAMICallback();
+        new Random().NextBytes(seq);
 
         // Fill up the receive and send buffers
         for(int i = 0; i < 200; ++i) // 2MB
         {
-            backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, cbWP.noException);
+            _ = backgroundOneway.opWithPayloadAsync(seq);
         }
 
-        OpAMICallback cb = new OpAMICallback();
-        Ice.AsyncResult r1 = background.begin_op().whenCompleted(cb.response, cb.noException).whenSent(cb.sent);
-        test(!r1.sentSynchronously() && !r1.isSent());
+        var tcs1 = new TaskCompletionSource();
+        var p1 = new Progress(value => tcs1.SetResult());
+        var t1 = background.opAsync(progress: p1);
+        test(!p1.SentSynchronously && !tcs1.Task.IsCompleted);
 
-        OpAMICallback cb2 = new OpAMICallback();
-        Ice.AsyncResult r2 = background.begin_op().whenCompleted(cb2.response, cb2.noException).whenSent(cb2.sent);
-        test(!r2.sentSynchronously() && !r2.isSent());
+        var tcs2 = new TaskCompletionSource();
+        var p2 = new Progress(value => tcs2.SetResult());
+        var t2 = background.opAsync(progress: p2);
+        test(!p2.SentSynchronously && !tcs2.Task.IsCompleted);
 
-        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse,
-                                                                      cbWP.noException).sentSynchronously());
-        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse,
-                                                                      cbWP.noException).sentSynchronously());
+        var p0 = new Progress();
+        _ = backgroundOneway.opWithPayloadAsync(seq, progress: p0);
+        test(!p0.SentSynchronously);
 
-        test(!cb.checkResponse(false));
-        test(!cb2.checkResponse(false));
+        p0 = new Progress();
+        _ = backgroundOneway.opWithPayloadAsync(seq, progress: p0);
+        test(!p0.SentSynchronously);
+
+        test(!t1.IsCompleted && !tcs1.Task.IsCompleted);
+        test(!t2.IsCompleted && !tcs2.Task.IsCompleted);
         ctl.resumeAdapter();
-        cb.checkResponseAndSent();
-        cb2.checkResponseAndSent();
-        test(r1.isSent() && r1.IsCompleted);
-        test(r2.isSent() && r2.IsCompleted);
+        await t1;
+        await t2;
+        test(tcs1.Task.IsCompleted);
+        test(tcs2.Task.IsCompleted);
 
         try
         {

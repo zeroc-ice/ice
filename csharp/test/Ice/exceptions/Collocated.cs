@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 var initData = new InitializationData();
                 initData.typeIdNamespaces = new string[]{"Ice.exceptions.TypeId"};
@@ -24,14 +25,12 @@ namespace Ice
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
                     Ice.Object obj = new ThrowerI();
                     adapter.add(obj, Ice.Util.stringToIdentity("thrower"));
-                    AllTests.allTests(this);
+                    await AllTests.allTests(this);
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Collocated>(args);
         }
     }
 }

@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 public class AllTests : Test.AllTests
@@ -85,7 +86,7 @@ public class AllTests : Test.AllTests
         }
     }
 
-    public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
+    public static async Task<TestIntfPrx> allTests(Test.TestHelper helper, bool collocated)
     {
         Ice.Communicator communicator = helper.communicator();
         var output = helper.getWriter();
@@ -126,51 +127,14 @@ public class AllTests : Test.AllTests
         output.Write("base (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_baseAsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(Base b)
-                    {
-                        test(b.b.Equals("Base.b"));
-                        test(b.GetType().Name.Equals("Base"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.baseAsBaseAsync().Wait();
-                test(false);
+                await testPrx.baseAsBaseAsync();
             }
-            catch(AggregateException ae)
+            catch (Base b)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(Base b)
-                {
-                    test(b.b.Equals("Base.b"));
-                    test(b.GetType().Name.Equals("Base"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(b.b.Equals("Base.b"));
+                test(b.GetType().Name.Equals("Base"));
             }
         }
         output.WriteLine("ok");
@@ -198,51 +162,15 @@ public class AllTests : Test.AllTests
         output.Write("slicing of unknown derived (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_unknownDerivedAsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(Base b)
-                    {
-                        test(b.b.Equals("UnknownDerived.b"));
-                        test(b.GetType().Name.Equals("Base"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.unknownDerivedAsBaseAsync().Wait();
+                await testPrx.unknownDerivedAsBaseAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(Base b)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(Base b)
-                {
-                    test(b.b.Equals("UnknownDerived.b"));
-                    test(b.GetType().Name.Equals("Base"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(b.b.Equals("UnknownDerived.b"));
+                test(b.GetType().Name.Equals("Base"));
             }
         }
         output.WriteLine("ok");
@@ -271,53 +199,16 @@ public class AllTests : Test.AllTests
         output.Write("non-slicing of known derived as base (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_knownDerivedAsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownDerived k)
-                    {
-                        test(k.b.Equals("KnownDerived.b"));
-                        test(k.kd.Equals("KnownDerived.kd"));
-                        test(k.GetType().Name.Equals("KnownDerived"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.knownDerivedAsBaseAsync().Wait();
+                await testPrx.knownDerivedAsBaseAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownDerived k)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownDerived k)
-                {
-                    test(k.b.Equals("KnownDerived.b"));
-                    test(k.kd.Equals("KnownDerived.kd"));
-                    test(k.GetType().Name.Equals("KnownDerived"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(k.b.Equals("KnownDerived.b"));
+                test(k.kd.Equals("KnownDerived.kd"));
+                test(k.GetType().Name.Equals("KnownDerived"));
             }
         }
         output.WriteLine("ok");
@@ -346,53 +237,16 @@ public class AllTests : Test.AllTests
         output.Write("non-slicing of known derived as derived (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_knownDerivedAsKnownDerived().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownDerived k)
-                    {
-                        test(k.b.Equals("KnownDerived.b"));
-                        test(k.kd.Equals("KnownDerived.kd"));
-                        test(k.GetType().Name.Equals("KnownDerived"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.knownDerivedAsKnownDerivedAsync().Wait();
+                await testPrx.knownDerivedAsKnownDerivedAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownDerived k)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownDerived k)
-                {
-                    test(k.b.Equals("KnownDerived.b"));
-                    test(k.kd.Equals("KnownDerived.kd"));
-                    test(k.GetType().Name.Equals("KnownDerived"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(k.b.Equals("KnownDerived.b"));
+                test(k.kd.Equals("KnownDerived.kd"));
+                test(k.GetType().Name.Equals("KnownDerived"));
             }
         }
         output.WriteLine("ok");
@@ -420,51 +274,15 @@ public class AllTests : Test.AllTests
         output.Write("slicing of unknown intermediate as base (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_unknownIntermediateAsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(Base b)
-                    {
-                        test(b.b.Equals("UnknownIntermediate.b"));
-                        test(b.GetType().Name.Equals("Base"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.unknownIntermediateAsBaseAsync().Wait();
+                await testPrx.unknownIntermediateAsBaseAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(Base b)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(Base b)
-                {
-                    test(b.b.Equals("UnknownIntermediate.b"));
-                    test(b.GetType().Name.Equals("Base"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(b.b.Equals("UnknownIntermediate.b"));
+                test(b.GetType().Name.Equals("Base"));
             }
         }
         output.WriteLine("ok");
@@ -493,53 +311,16 @@ public class AllTests : Test.AllTests
         output.Write("slicing of known intermediate as base (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_knownIntermediateAsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownIntermediate ki)
-                    {
-                        test(ki.b.Equals("KnownIntermediate.b"));
-                        test(ki.ki.Equals("KnownIntermediate.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.knownIntermediateAsBaseAsync().Wait();
+                await testPrx.knownIntermediateAsBaseAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownIntermediate ki)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownIntermediate ki)
-                {
-                    test(ki.b.Equals("KnownIntermediate.b"));
-                    test(ki.ki.Equals("KnownIntermediate.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(ki.b.Equals("KnownIntermediate.b"));
+                test(ki.ki.Equals("KnownIntermediate.ki"));
+                test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
         }
         output.WriteLine("ok");
@@ -569,55 +350,17 @@ public class AllTests : Test.AllTests
         output.Write("slicing of known most derived as base (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_knownMostDerivedAsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownMostDerived kmd)
-                    {
-                        test(kmd.b.Equals("KnownMostDerived.b"));
-                        test(kmd.ki.Equals("KnownMostDerived.ki"));
-                        test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                        test(kmd.GetType().Name.Equals("KnownMostDerived"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.knownMostDerivedAsBaseAsync().Wait();
+                await testPrx.knownMostDerivedAsBaseAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownMostDerived kmd)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownMostDerived kmd)
-                {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(kmd.b.Equals("KnownMostDerived.b"));
+                test(kmd.ki.Equals("KnownMostDerived.ki"));
+                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                test(kmd.GetType().Name.Equals("KnownMostDerived"));
             }
         }
         output.WriteLine("ok");
@@ -646,53 +389,16 @@ public class AllTests : Test.AllTests
         output.Write("non-slicing of known intermediate as intermediate (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_knownIntermediateAsKnownIntermediate().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownIntermediate ki)
-                    {
-                        test(ki.b.Equals("KnownIntermediate.b"));
-                        test(ki.ki.Equals("KnownIntermediate.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.knownIntermediateAsKnownIntermediateAsync().Wait();
+                await testPrx.knownIntermediateAsKnownIntermediateAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownIntermediate ki)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownIntermediate ki)
-                {
-                    test(ki.b.Equals("KnownIntermediate.b"));
-                    test(ki.ki.Equals("KnownIntermediate.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(ki.b.Equals("KnownIntermediate.b"));
+                test(ki.ki.Equals("KnownIntermediate.ki"));
+                test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
         }
         output.WriteLine("ok");
@@ -722,55 +428,17 @@ public class AllTests : Test.AllTests
         output.Write("non-slicing of known most derived as intermediate (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_knownMostDerivedAsKnownIntermediate().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownMostDerived kmd)
-                    {
-                        test(kmd.b.Equals("KnownMostDerived.b"));
-                        test(kmd.ki.Equals("KnownMostDerived.ki"));
-                        test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                        test(kmd.GetType().Name.Equals("KnownMostDerived"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.knownMostDerivedAsKnownIntermediateAsync().Wait();
+                await testPrx.knownMostDerivedAsKnownIntermediateAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownMostDerived kmd)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownMostDerived kmd)
-                {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(kmd.b.Equals("KnownMostDerived.b"));
+                test(kmd.ki.Equals("KnownMostDerived.ki"));
+                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                test(kmd.GetType().Name.Equals("KnownMostDerived"));
             }
         }
         output.WriteLine("ok");
@@ -800,55 +468,17 @@ public class AllTests : Test.AllTests
         output.Write("non-slicing of known most derived as most derived (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_knownMostDerivedAsKnownMostDerived().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownMostDerived kmd)
-                    {
-                        test(kmd.b.Equals("KnownMostDerived.b"));
-                        test(kmd.ki.Equals("KnownMostDerived.ki"));
-                        test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                        test(kmd.GetType().Name.Equals("KnownMostDerived"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.knownMostDerivedAsKnownMostDerivedAsync().Wait();
+                await testPrx.knownMostDerivedAsKnownMostDerivedAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownMostDerived kmd)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownMostDerived kmd)
-                {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(kmd.b.Equals("KnownMostDerived.b"));
+                test(kmd.ki.Equals("KnownMostDerived.ki"));
+                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                test(kmd.GetType().Name.Equals("KnownMostDerived"));
             }
         }
         output.WriteLine("ok");
@@ -877,53 +507,16 @@ public class AllTests : Test.AllTests
         output.Write("slicing of unknown most derived, known intermediate as base (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_unknownMostDerived1AsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownIntermediate ki)
-                    {
-                        test(ki.b.Equals("UnknownMostDerived1.b"));
-                        test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.unknownMostDerived1AsBaseAsync().Wait();
+                await testPrx.unknownMostDerived1AsBaseAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownIntermediate ki)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownIntermediate ki)
-                {
-                    test(ki.b.Equals("UnknownMostDerived1.b"));
-                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(ki.b.Equals("UnknownMostDerived1.b"));
+                test(ki.ki.Equals("UnknownMostDerived1.ki"));
+                test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
         }
         output.WriteLine("ok");
@@ -952,53 +545,16 @@ public class AllTests : Test.AllTests
         output.Write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_unknownMostDerived1AsKnownIntermediate().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(KnownIntermediate ki)
-                    {
-                        test(ki.b.Equals("UnknownMostDerived1.b"));
-                        test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                        test(ki.GetType().Name.Equals("KnownIntermediate"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.unknownMostDerived1AsKnownIntermediateAsync().Wait();
+                await testPrx.unknownMostDerived1AsKnownIntermediateAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(KnownIntermediate ki)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(KnownIntermediate ki)
-                {
-                    test(ki.b.Equals("UnknownMostDerived1.b"));
-                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(ki.b.Equals("UnknownMostDerived1.b"));
+                test(ki.ki.Equals("UnknownMostDerived1.ki"));
+                test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
         }
         output.WriteLine("ok");
@@ -1026,51 +582,15 @@ public class AllTests : Test.AllTests
         output.Write("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
         output.Flush();
         {
-            Callback cb = new Callback();
-            testPrx.begin_unknownMostDerived2AsBase().whenCompleted(
-                () =>
-                {
-                    test(false);
-                },
-                (Ice.Exception ex) =>
-                {
-                    try
-                    {
-                        throw ex;
-                    }
-                    catch(Base b)
-                    {
-                        test(b.b.Equals("UnknownMostDerived2.b"));
-                        test(b.GetType().Name.Equals("Base"));
-                    }
-                    catch(Exception)
-                    {
-                        test(false);
-                    }
-                    cb.called();
-                });
-            cb.check();
-
             try
             {
-                testPrx.unknownMostDerived2AsBaseAsync().Wait();
+                await testPrx.unknownMostDerived2AsBaseAsync();
                 test(false);
             }
-            catch(AggregateException ae)
+            catch(Base b)
             {
-                try
-                {
-                    throw ae.InnerException;
-                }
-                catch(Base b)
-                {
-                    test(b.b.Equals("UnknownMostDerived2.b"));
-                    test(b.GetType().Name.Equals("Base"));
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                test(b.b.Equals("UnknownMostDerived2.b"));
+                test(b.GetType().Name.Equals("Base"));
             }
         }
         output.WriteLine("ok");
