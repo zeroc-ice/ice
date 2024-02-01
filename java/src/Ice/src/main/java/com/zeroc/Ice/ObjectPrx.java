@@ -4,12 +4,6 @@
 
 package com.zeroc.Ice;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.Connection;
-
-import com.zeroc.IceGridGUI.LiveDeployment.Communicator;
-
 /**
  * Base interface of all object proxies.
  **/
