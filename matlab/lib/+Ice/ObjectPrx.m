@@ -284,9 +284,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   context - Optional context map for the invocation.
             %
             % Returns (cell array of char) - The Slice type IDs of the
-            %   interfaces supported by the target object, in base-to-derived
-            %   order. The first element of the returned array is always
-            %   ::Ice::Object.
+            %   interfaces supported by the target object, in alphabetical order.
 
             is = obj.iceInvoke('ice_ids', 1, true, [], true, {}, varargin{:});
             is.startEncapsulation();
