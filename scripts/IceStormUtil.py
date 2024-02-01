@@ -31,7 +31,7 @@ class IceStorm(ProcessFromBinDir, Server):
     ):
         Server.__init__(
             self,
-            exe="icebox++11",
+            exe="icebox",
             ready="IceStorm",
             mapping=Mapping.getByName("cpp"),
             *args,
@@ -223,7 +223,7 @@ class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Cl
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Client.__init__(
             self,
-            exe="icestormadmin++11",
+            exe="icestormadmin",
             mapping=Mapping.getByName("cpp"),
             *args,
             **kargs,
