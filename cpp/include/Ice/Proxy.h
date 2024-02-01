@@ -187,7 +187,7 @@ public:
             {
                 if(this->_is.b.empty())
                 {
-                    response(R { ok, { 0, 0 }});
+                    response(R { ok, { static_cast<Ice::Byte*>(nullptr), static_cast<Ice::Byte*>(nullptr) } });
                 }
                 else
                 {
@@ -211,7 +211,7 @@ public:
         {
             if(this->_is.b.empty())
             {
-                this->_promise.set_value(R { ok, { 0, 0 }});
+                this->_promise.set_value(R { ok, { static_cast<Ice::Byte*>(nullptr), static_cast<Ice::Byte*>(nullptr) } });
             }
             else
             {
@@ -224,7 +224,7 @@ public:
     {
         if(done)
         {
-            this->_promise.set_value(R { true, { 0, 0 }});
+            this->_promise.set_value(R { true, { static_cast<Ice::Byte*>(nullptr), static_cast<Ice::Byte*>(nullptr) } });
         }
         return false;
     }
