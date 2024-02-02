@@ -14,25 +14,10 @@ runs:
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
-    - name: Test C++98
-      run: python3 allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml --config=cpp98-shared --languages=cpp --languages=cpp ${{ inputs.flags }}
-      shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && matrix.language == 'cpp'
-
-    - name: Test
-      run: python allTests.py --debug --all --continue --export-xml=test-report.xml --platform=x64 --config=Cpp11-Release --workers=4 --languages=${{ matrix.language }} ${{ inputs.flags }}
-      shell: powershell
-      if: runner.os == 'Windows' && matrix.language != 'python'
-
     - name: Test
       run: python allTests.py --debug --all --continue --export-xml=test-report.xml --platform=x64 --config=Release --workers=4 --languages=${{ matrix.language }} ${{ inputs.flags }}
       shell: powershell
-      if: runner.os == 'Windows' && matrix.language == 'python'
-
-    - name: Test C++98
-      run: python allTests.py --debug --all --continue --export-xml=test-report.xml --platform=x64 --config=Release --workers=4 --languages=cpp ${{ inputs.flags }}
-      shell: powershell
-      if: runner.os == 'Windows'&& matrix.language == 'cpp'
+      if: runner.os == 'Windows'
 
     - name: Test Summary
       uses: test-summary/action@v2
