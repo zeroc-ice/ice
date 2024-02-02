@@ -4,7 +4,6 @@
 
 #include <Ice/Properties.h>
 
-
 Ice::Properties::~Properties()
 {
 }

@@ -158,7 +158,6 @@ public:
 
     virtual std::string ice_id() const;
 
-
     /** The reason for the exception. */
     std::string reason;
 

@@ -8,7 +8,6 @@
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Incoming.h>
 
-
 namespace IceInternal
 {
 

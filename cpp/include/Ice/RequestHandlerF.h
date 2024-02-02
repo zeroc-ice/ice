@@ -16,7 +16,6 @@ class RequestHandler;
 using CancellationHandlerPtr = ::std::shared_ptr<CancellationHandler>;
 using RequestHandlerPtr = ::std::shared_ptr<RequestHandler>;
 
-
 }
 
 #endif

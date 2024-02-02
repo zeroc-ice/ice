@@ -33,7 +33,6 @@ class Communicator;
 
 }
 
-
 /// \cond INTERNAL
 namespace Ice
 {
