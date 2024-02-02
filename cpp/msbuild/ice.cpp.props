@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <IceLanguageMapping Condition="'$(IceLanguageMapping)' == ''">cpp</IceLanguageMapping>
-    <IceBuildingSrc>yes</IceBuildingSrc>
+    <IceBuildingSrc Condition="'$(IceBuildingSrc)' == ''">yes</IceBuildingSrc>
   </PropertyGroup>
   <!--
       If we are building a source distribution, set IceHome to this
@@ -70,7 +70,7 @@
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x601;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
       <DisableSpecificWarnings>4121;4250;4251;4275;4324</DisableSpecificWarnings>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>

@@ -22,8 +22,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{806A4720-1E5E-4479-A92B-07D3253E72ED}</ProjectGuid>
-    <IceBuilderImpl Condition="'$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">--impl-c++98</IceBuilderImpl>
-    <IceBuilderImpl Condition="'$(Configuration)' == 'Cpp11-Debug' or '$(Configuration)' == 'Cpp11-Release'">--impl-c++11</IceBuilderImpl>
+    <IceBuilderImpl Condition="'$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">--impl-c++11</IceBuilderImpl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup>

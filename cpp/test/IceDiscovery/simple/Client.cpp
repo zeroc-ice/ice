@@ -3,6 +3,7 @@
 //
 
 #include <Ice/Ice.h>
+#include <Ice/RegisterPlugins.h>
 #include <TestHelper.h>
 #include <Test.h>
 

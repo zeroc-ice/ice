@@ -1581,3 +1581,5 @@ checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Co
 }
 
 }
+
+#endif
