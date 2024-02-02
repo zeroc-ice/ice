@@ -1737,7 +1737,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             {
                 if(!_exception)
                 {
-                    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+                    _exception = ex.ice_clone();
                 }
 
                 if(++_i == _endpoints.size())

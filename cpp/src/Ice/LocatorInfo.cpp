@@ -452,7 +452,7 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         _locatorInfo->finishRequest(_reference, _wellKnownRefs, 0, dynamic_cast<const Ice::UserException*>(&ex));
 
-        ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+        _exception = ex.ice_clone();
         _monitor.notifyAll();
     }
     for(vector<RequestCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)

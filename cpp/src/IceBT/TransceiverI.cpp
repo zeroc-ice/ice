@@ -184,7 +184,7 @@ IceBT::TransceiverI::connectFailed(const Ice::LocalException& ex)
     //
     // Save the exception - it will be raised in initialize().
     //
-    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+    _exception = ex.ice_clone();
     //
     // Triggers a call to write() from a different thread.
     //

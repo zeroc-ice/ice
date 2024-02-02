@@ -2192,7 +2192,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
         // If we are in closed state, an exception must be set.
         //
         assert(_state != StateClosed);
-        ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+        _exception = ex.ice_clone();
         //
         // We don't warn if we are not validated.
         //
