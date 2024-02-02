@@ -205,19 +205,6 @@ To build all the supported configurations and platforms:
 make CONFIGS=all PLATFORMS=all -j8
 ```
 
-### C++11 mapping
-
-The C++ source tree supports two different language mappings (C++98 and C++11).
-The default build uses the C++98 mapping. The C++11 mapping is a new mapping
-that uses new language features.
-
-To build the C++11 mapping, use build configurations that are prefixed with
-`cpp11`, for example:
-
-```shell
-make CONFIGS=cpp11-shared -j8
-```
-
 ### Ice Xcode SDK (macOS only)
 
 The build system supports building Xcode SDKs for Ice. These SDKs allow you to
@@ -392,7 +379,7 @@ configuration and platform.
 
 To clean the binaries produced for a specific configuration or platform, you
 need to specify the `CONFIGS` or `PLATFORMS` variable. For example,
-`make CONFIGS=cpp11-shared clean` will clean the C++11 mapping build.
+`make CONFIGS=static clean` will clean the static configuration build.
 
 To clean the build for all the supported configurations and platforms, run
 `make CONFIGS=all PLATFORMS=all clean`.
@@ -415,31 +402,7 @@ pip install passlib
 After a successful source build, you can run the tests as follows:
 
 ```shell
-python allTests.py # default config (C++98) and platform
-```
-
-For the C++11 mapping, you need to specify a C++11 config:
-
-- Linux/macOS
-
-```shell
-python allTests.py --config=cpp11-shared # cpp11-shared config with the default platform
-```
-
-- Windows C++11 debug builds
-
-```shell
-python allTests.py --config Cpp11-Debug
-```
-
-- Windows C++11 release builds
-
-```shell
-python allTests.py --config Cpp11-Release
-```
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
+python allTests.py # default config and platform
 
 ### iOS
 
