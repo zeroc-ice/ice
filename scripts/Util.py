@@ -3765,7 +3765,7 @@ class CppMapping(Mapping):
             if current.config.buildPlatform == "iphonesimulator"
             else "iPhoneOS"
         )
-        return "{0}/com.zeroc.Cpp11-Test-Controller".format(category, mapping)
+        return "{0}/com.zeroc.Cpp11-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
         appName = (
