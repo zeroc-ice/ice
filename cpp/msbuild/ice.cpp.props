@@ -162,7 +162,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'DynamicLibrary|yes'">
+  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)|$(IceLanguageMapping)' == 'DynamicLibrary|yes|cpp'">
     <Link>
       <ImportLibrary>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)\$(TargetName).lib</ImportLibrary>
     </Link>

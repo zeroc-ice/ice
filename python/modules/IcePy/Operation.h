@@ -8,7 +8,6 @@
 #include <Config.h>
 #include <Ice/Current.h>
 #include <Ice/Object.h>
-#include <Ice/AsyncResultF.h>
 #include <Ice/CommunicatorF.h>
 #include <Util.h>
 
