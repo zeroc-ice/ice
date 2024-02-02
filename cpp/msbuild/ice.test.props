@@ -3,14 +3,10 @@
 
   <PropertyGroup>
     <IceSoVersion>38a0</IceSoVersion>
-  </PropertyGroup>
+    <IceBuildingSrc>no</IceBuildingSrc>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Cpp11-Debug' Or '$(Configuration)' == 'Cpp11-Release'">
+    <!-- TODO remove once we move generated headers to a common directory -->
     <IceCppMapping>cpp11</IceCppMapping>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
-    <IceCppMapping>cpp98</IceCppMapping>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props"/>

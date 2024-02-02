@@ -55,14 +55,6 @@ CertificateReadException::ice_id() const
     return "::IceSSL::CertificateReadException";
 }
 
-#ifndef ICE_CPP11_MAPPING
-CertificateReadException*
-CertificateReadException::ice_clone() const
-{
-    return new CertificateReadException(*this);
-}
-#endif
-
 CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r) :
     IceUtil::ExceptionHelper<CertificateEncodingException>(file, line),
     reason(r)
@@ -75,14 +67,6 @@ CertificateEncodingException::ice_id() const
     return "::IceSSL::CertificateEncodingException";
 }
 
-#ifndef ICE_CPP11_MAPPING
-CertificateEncodingException*
-CertificateEncodingException::ice_clone() const
-{
-    return new CertificateEncodingException(*this);
-}
-#endif
-
 ParseException::ParseException(const char* file, int line, const string& r) :
     IceUtil::ExceptionHelper<ParseException>(file, line),
     reason(r)
@@ -94,14 +78,6 @@ ParseException::ice_id() const
 {
     return "::IceSSL::ParseException";
 }
-
-#ifndef ICE_CPP11_MAPPING
-ParseException*
-ParseException::ice_clone() const
-{
-    return new ParseException(*this);
-}
-#endif
 
 DistinguishedName::DistinguishedName(const string& dn) : _rdns(RFC2253::parseStrict(dn))
 {
@@ -230,20 +206,12 @@ CertificateI::loadX509Extensions() const
 bool
 CertificateI::checkValidity() const
 {
-#  ifdef ICE_CPP11_MAPPING
     auto now = chrono::system_clock::now();
-#  else
-    IceUtil::Time now = IceUtil::Time::now();
-#  endif
     return now > getNotBefore() && now <= getNotAfter();
 }
 
 bool
-#  ifdef ICE_CPP11_MAPPING
 CertificateI::checkValidity(const chrono::system_clock::time_point& now) const
-#  else
-CertificateI::checkValidity(const IceUtil::Time& now) const
-#  endif
 {
     return now > getNotBefore() && now <= getNotAfter();
 }

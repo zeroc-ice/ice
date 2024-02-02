@@ -28,11 +28,7 @@ public:
     CompilerException(const char*, int, const std::string&);
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifdef ICE_CPP11_MAPPING
     virtual CompilerException* ice_cloneImpl() const;
-#else
-    virtual CompilerException* ice_clone() const;
-#endif
     virtual void ice_throw() const;
 
     std::string reason() const;

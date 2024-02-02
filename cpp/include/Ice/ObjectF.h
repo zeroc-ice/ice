@@ -6,20 +6,15 @@
 #define ICE_OBJECT_F_H
 
 #include <Ice/Config.h>
-#include <Ice/SharedPtr.h>
+#include <memory>
 
 namespace Ice
 {
 
 class Object;
-
-#ifdef ICE_CPP11_MAPPING
 /// \cond INTERNAL
 using ObjectPtr = ::std::shared_ptr<Object>;
 /// \endcond
-#else
-using ObjectPtr = SharedPtr<Object>;
-#endif
 
 }
 

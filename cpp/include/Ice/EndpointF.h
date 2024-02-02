@@ -13,7 +13,6 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -26,8 +25,6 @@
 #       define ICE_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
-
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 namespace Ice
 {
@@ -76,68 +73,6 @@ using EndpointPtr = ::std::shared_ptr<Endpoint>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class EndpointInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(EndpointInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< EndpointInfo> EndpointInfoPtr;
-
-class IPEndpointInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(IPEndpointInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< IPEndpointInfo> IPEndpointInfoPtr;
-
-class TCPEndpointInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(TCPEndpointInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< TCPEndpointInfo> TCPEndpointInfoPtr;
-
-class UDPEndpointInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(UDPEndpointInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< UDPEndpointInfo> UDPEndpointInfoPtr;
-
-class WSEndpointInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(WSEndpointInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< WSEndpointInfo> WSEndpointInfoPtr;
-
-class Endpoint;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(Endpoint*);
-/// \endcond
-typedef ::IceInternal::Handle< Endpoint> EndpointPtr;
-
-}
-
-namespace Ice
-{
-
-/**
- * A sequence of endpoints.
- */
-typedef ::std::vector<EndpointPtr> EndpointSeq;
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

@@ -27,12 +27,8 @@ public:
     //
     // From IceBT::Plugin.
     //
-#ifdef ICE_CPP11_MAPPING
     virtual void startDiscovery(const std::string& address,
                                 std::function<void(const std::string& addr, const PropertyMap& props)>);
-#else
-    virtual void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
-#endif
     virtual void stopDiscovery(const std::string&);
 
     virtual DeviceMap getDevices() const;

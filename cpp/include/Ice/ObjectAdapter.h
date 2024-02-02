@@ -10,9 +10,10 @@
 #include "Ice/LocatorF.h"
 #include "Endpoint.h"
 #include "FacetMap.h"
-#include "SharedPtr.h"
 #include "ServantLocator.h"
 #include "Proxy.h"
+
+#include <memory>
 
 namespace Ice
 {
@@ -132,24 +133,6 @@ public:
     virtual ObjectPrxPtr add(const ::std::shared_ptr<Object>& servant, const Identity& id) = 0;
 
     /**
-     * Add a servant to this object adapter's Active Servant Map. Note that one servant can implement several Ice
-     * objects by registering the servant with multiple identities. Adding a servant with an identity that is in the
-     * map already throws {@link AlreadyRegisteredException}.
-     * @param servant The servant to add.
-     * @param id The identity of the Ice object that is implemented by the servant.
-     * @return A proxy that matches the given identity and this object adapter.
-     * @see Identity
-     * @see #addFacet
-     * @see #addWithUUID
-     * @see #remove
-     * @see #find
-     */
-    ObjectPrxPtr add(const SharedPtr<Object>& servant, const Identity& id)
-    {
-        return add(servant.underlying(), id);
-    }
-
-    /**
      * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code> is equivalent to calling
      * {@link #addFacet} with an empty facet.
      * @param servant The servant to add.
@@ -165,24 +148,6 @@ public:
     virtual ObjectPrxPtr addFacet(const ::std::shared_ptr<Object>& servant, const Identity& id, const ::std::string& facet) = 0;
 
     /**
-     * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code> is equivalent to calling
-     * {@link #addFacet} with an empty facet.
-     * @param servant The servant to add.
-     * @param id The identity of the Ice object that is implemented by the servant.
-     * @param facet The facet. An empty facet means the default facet.
-     * @return A proxy that matches the given identity, facet, and this object adapter.
-     * @see Identity
-     * @see #add
-     * @see #addFacetWithUUID
-     * @see #removeFacet
-     * @see #findFacet
-     */
-    ObjectPrxPtr addFacet(const SharedPtr<Object>& servant, const Identity& id, const ::std::string& facet)
-    {
-        return addFacet(servant.underlying(), id, facet);
-    }
-
-    /**
      * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
      * identity. Note that the generated UUID identity can be accessed using the proxy's <code>ice_getIdentity</code>
      * operation.
@@ -195,23 +160,6 @@ public:
      * @see #find
      */
     virtual ObjectPrxPtr addWithUUID(const ::std::shared_ptr<Object>& servant) = 0;
-
-     /**
-     * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
-     * identity. Note that the generated UUID identity can be accessed using the proxy's <code>ice_getIdentity</code>
-     * operation.
-     * @param servant The servant to add.
-     * @return A proxy that matches the generated UUID identity and this object adapter.
-     * @see Identity
-     * @see #add
-     * @see #addFacetWithUUID
-     * @see #remove
-     * @see #find
-     */
-    ObjectPrxPtr addWithUUID(const SharedPtr<Object>& servant)
-    {
-        return addWithUUID(servant.underlying());
-    }
 
     /**
      * Like {@link #addWithUUID}, but with a facet. Calling <code>addWithUUID(servant)</code> is equivalent to calling
@@ -226,23 +174,6 @@ public:
      * @see #findFacet
      */
     virtual ObjectPrxPtr addFacetWithUUID(const ::std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
-
-    /**
-     * Like {@link #addWithUUID}, but with a facet. Calling <code>addWithUUID(servant)</code> is equivalent to calling
-     * {@link #addFacetWithUUID} with an empty facet.
-     * @param servant The servant to add.
-     * @param facet The facet. An empty facet means the default facet.
-     * @return A proxy that matches the generated UUID identity, facet, and this object adapter.
-     * @see Identity
-     * @see #addFacet
-     * @see #addWithUUID
-     * @see #removeFacet
-     * @see #findFacet
-     */
-    ObjectPrxPtr addFacetWithUUID(const SharedPtr<Object>& servant, const ::std::string& facet)
-    {
-        return addFacetWithUUID(servant.underlying(), facet);
-    }
 
     /**
      * Add a default servant to handle requests for a specific category. Adding a default servant for a category for
@@ -265,31 +196,6 @@ public:
      * @see #findDefaultServant
      */
     virtual void addDefaultServant(const ::std::shared_ptr<Object>& servant, const ::std::string& category) = 0;
-
-       /**
-     * Add a default servant to handle requests for a specific category. Adding a default servant for a category for
-     * which a default servant is already registered throws {@link AlreadyRegisteredException}. To dispatch operation
-     * calls on servants, the object adapter tries to find a servant for a given Ice object identity and facet in the
-     * following order:
-     * <ol>
-     * <li>The object adapter tries to find a servant for the identity and facet in the Active Servant Map.</li>
-     * <li>If no servant has been found in the Active Servant Map, the object adapter tries to find a default servant
-     * for the category component of the identity.</li>
-     * <li>If no servant has been found by any of the preceding steps, the object adapter tries to find a default
-     * servant for an empty category, regardless of the category contained in the identity.</li>
-     * <li>If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-     * receives {@link ObjectNotExistException} or {@link FacetNotExistException}.</li>
-     * </ol>
-     * @param servant The default servant.
-     * @param category The category for which the default servant is registered. An empty category means it will
-     * handle all categories.
-     * @see #removeDefaultServant
-     * @see #findDefaultServant
-     */
-    void addDefaultServant(const SharedPtr<Object>& servant, const ::std::string& category)
-    {
-        return addDefaultServant(servant.underlying(), category);
-    }
 
     /**
      * Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
@@ -409,36 +315,6 @@ public:
      * @see ServantLocator
      */
     virtual void addServantLocator(const ::std::shared_ptr<ServantLocator>& locator, const ::std::string& category) = 0;
-
-     /**
-     * Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
-     * locator is already registered throws {@link AlreadyRegisteredException}. To dispatch operation calls on
-     * servants, the object adapter tries to find a servant for a given Ice object identity and facet in the following
-     * order:
-     * <ol>
-     * <li>The object adapter tries to find a servant for the identity and facet in the Active Servant Map.</li>
-     * <li>If no servant has been found in the Active Servant Map, the object adapter tries to find a servant locator
-     * for the category component of the identity. If a locator is found, the object adapter tries to find a servant
-     * using this locator.</li>
-     * <li>If no servant has been found by any of the preceding steps, the object adapter tries to find a locator for
-     * an empty category, regardless of the category contained in the identity. If a locator is found, the object
-     * adapter tries to find a servant using this locator.</li>
-     * <li>If no servant has been found by any of the preceding steps, the object adapter gives up and the caller
-     * receives {@link ObjectNotExistException} or {@link FacetNotExistException}.</li>
-     * </ol>
-     * <p class="Note">Only one locator for the empty category can be installed.
-     * @param locator The locator to add.
-     * @param category The category for which the Servant Locator can locate servants, or an empty string if the
-     * Servant Locator does not belong to any specific category.
-     * @see Identity
-     * @see #removeServantLocator
-     * @see #findServantLocator
-     * @see ServantLocator
-     */
-    void addServantLocator(const SharedPtr<ServantLocator>& locator, const ::std::string& category)
-    {
-        return addServantLocator(locator.underlying(), category);
-    }
 
     /**
      * Remove a Servant Locator from this object adapter.

@@ -39,7 +39,6 @@ public:
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
             LocatorInfo::RequestPtr request = this;
             _locatorInfo->getLocator()->findObjectByIdAsync(
                 _reference->getIdentity(),
@@ -58,13 +57,6 @@ public:
                         request->exception(ex);
                     }
                 });
-#else
-            _locatorInfo->getLocator()->begin_findObjectById(
-                _reference->getIdentity(),
-                newCallback_Locator_findObjectById(static_cast<LocatorInfo::Request*>(this),
-                                                   &LocatorInfo::Request::response,
-                                                   &LocatorInfo::Request::exception));
-#endif
         }
         catch(const Ice::Exception& ex)
         {
@@ -86,7 +78,6 @@ public:
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
             LocatorInfo::RequestPtr request = this;
             _locatorInfo->getLocator()->findAdapterByIdAsync(_reference->getAdapterId(),
                 [request](const shared_ptr<Ice::ObjectPrx>& object)
@@ -104,13 +95,6 @@ public:
                         request->exception(ex);
                     }
                 });
-#else
-            _locatorInfo->getLocator()->begin_findAdapterById(
-                _reference->getAdapterId(),
-                newCallback_Locator_findAdapterById(static_cast<LocatorInfo::Request*>(this),
-                                                    &LocatorInfo::Request::response,
-                                                    &LocatorInfo::Request::exception));
-#endif
         }
         catch(const Ice::Exception& ex)
         {

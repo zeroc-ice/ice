@@ -131,8 +131,6 @@ ProxyGetConnection::invoke(const string& operation)
     invokeImpl(true); // userThread = true
 }
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -232,464 +230,8 @@ Ice::operator<<(ostream& os, const Ice::ObjectPrx& p)
     return os << p.ice_toString();
 }
 
-#else // C++98 mapping
-
-::Ice::ObjectPrxPtr
-IceInternal::checkedCastImpl(const ObjectPrxPtr& b, const string& f, const string& typeId, const Context& context)
-{
-    if(b != ICE_NULLPTR)
-    {
-        ObjectPrxPtr bb = b->ice_facet(f);
-        try
-        {
-            if(bb->ice_isA(typeId, context))
-            {
-                return bb;
-            }
-#ifndef NDEBUG
-            else
-            {
-                assert(typeId != "::Ice::Object");
-            }
-#endif
-        }
-        catch(const FacetNotExistException&)
-        {
-        }
-    }
-    return ICE_NULLPTR;
-}
-
-bool
-IceProxy::Ice::Object::operator==(const Object& r) const
-{
-    return _reference == r._reference;
-}
-
-bool
-IceProxy::Ice::Object::operator<(const Object& r) const
-{
-    return _reference < r._reference;
-}
-
-Ice::AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_isA(const string& typeId,
-                                           const Context& ctx,
-                                           const ::IceInternal::CallbackBasePtr& del,
-                                           const ::Ice::LocalObjectPtr& cookie,
-                                           bool sync)
-{
-    _checkTwowayOnly(ice_isA_name, sync);
-    OutgoingAsyncPtr result = new CallbackOutgoing(this, ice_isA_name, del, cookie, sync);
-    try
-    {
-        result->prepare(ice_isA_name, Nonmutating, ctx);
-        ::Ice::OutputStream* ostr = result->startWriteParams(ICE_ENUM(FormatType, DefaultFormat));
-        ostr->write(typeId, false);
-        result->endWriteParams();
-        result->invoke(ice_isA_name);
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return result;
-}
-
-bool
-IceProxy::Ice::Object::end_ice_isA(const AsyncResultPtr& result)
-{
-    AsyncResult::_check(result, this, ice_isA_name);
-    bool ok = result->_waitForResponse();
-    if(!ok)
-    {
-        try
-        {
-            result->_throwUserException();
-        }
-        catch(const UserException& ex)
-        {
-            throw UnknownUserException(__FILE__, __LINE__, ex.ice_id());
-        }
-    }
-    bool ret;
-    ::Ice::InputStream* istr = result->_startReadParams();
-    istr->read(ret);
-    result->_endReadParams();
-    return ret;
-}
-
-AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_ping(const Context& ctx,
-                                            const ::IceInternal::CallbackBasePtr& del,
-                                            const ::Ice::LocalObjectPtr& cookie,
-                                            bool sync)
-{
-    OutgoingAsyncPtr result = new CallbackOutgoing(this, ice_ping_name, del, cookie, sync);
-    try
-    {
-        result->prepare(ice_ping_name, Nonmutating, ctx);
-        result->writeEmptyParams();
-        result->invoke(ice_ping_name);
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return result;
-}
-
-void
-IceProxy::Ice::Object::end_ice_ping(const AsyncResultPtr& result)
-{
-    _end(result, ice_ping_name);
-}
-
-AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_ids(const Context& ctx,
-                                           const ::IceInternal::CallbackBasePtr& del,
-                                           const ::Ice::LocalObjectPtr& cookie,
-                                           bool sync)
-{
-    _checkTwowayOnly(ice_ids_name, sync);
-    OutgoingAsyncPtr result = new CallbackOutgoing(this, ice_ids_name, del, cookie, sync);
-    try
-    {
-        result->prepare(ice_ids_name, Nonmutating, ctx);
-        result->writeEmptyParams();
-        result->invoke(ice_ids_name);
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return result;
-}
-
-vector<string>
-IceProxy::Ice::Object::end_ice_ids(const AsyncResultPtr& result)
-{
-    AsyncResult::_check(result, this, ice_ids_name);
-    bool ok = result->_waitForResponse();
-    if(!ok)
-    {
-        try
-        {
-            result->_throwUserException();
-        }
-        catch(const UserException& ex)
-        {
-            throw UnknownUserException(__FILE__, __LINE__, ex.ice_id());
-        }
-    }
-    vector<string> ret;
-    ::Ice::InputStream* istr = result->_startReadParams();
-    istr->read(ret, false);
-    result->_endReadParams();
-    return ret;
-}
-
-AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_id(const Context& ctx,
-                                          const ::IceInternal::CallbackBasePtr& del,
-                                          const ::Ice::LocalObjectPtr& cookie,
-                                          bool sync)
-{
-    _checkTwowayOnly(ice_id_name, sync);
-    OutgoingAsyncPtr result = new CallbackOutgoing(this, ice_id_name, del, cookie, sync);
-    try
-    {
-        result->prepare(ice_id_name, Nonmutating, ctx);
-        result->writeEmptyParams();
-        result->invoke(ice_id_name);
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return result;
-}
-
-string
-IceProxy::Ice::Object::end_ice_id(const AsyncResultPtr& result)
-{
-    AsyncResult::_check(result, this, ice_id_name);
-    bool ok = result->_waitForResponse();
-    if(!ok)
-    {
-        try
-        {
-            result->_throwUserException();
-        }
-        catch(const UserException& ex)
-        {
-            throw UnknownUserException(__FILE__, __LINE__, ex.ice_id());
-        }
-    }
-    string ret;
-    ::Ice::InputStream* istr = result->_startReadParams();
-    istr->read(ret, false);
-    result->_endReadParams();
-    return ret;
-}
-
-bool
-IceProxy::Ice::Object::ice_invoke(const string& operation,
-                                  OperationMode mode,
-                                  const vector<Byte>& inEncaps,
-                                  vector<Byte>& outEncaps,
-                                  const Context& context)
-{
-    pair<const Byte*, const Byte*> inPair;
-    if(inEncaps.empty())
-    {
-        inPair.first = inPair.second = 0;
-    }
-    else
-    {
-        inPair.first = &inEncaps[0];
-        inPair.second = inPair.first + inEncaps.size();
-    }
-    return ice_invoke(operation, mode, inPair, outEncaps, context);
-}
-
-AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_invoke(const string& operation,
-                                              OperationMode mode,
-                                              const vector<Byte>& inEncaps,
-                                              const Context& ctx,
-                                              const ::IceInternal::CallbackBasePtr& del,
-                                              const ::Ice::LocalObjectPtr& cookie,
-                                              bool /*sync*/)
-{
-    pair<const Byte*, const Byte*> inPair;
-    if(inEncaps.empty())
-    {
-        inPair.first = inPair.second = 0;
-    }
-    else
-    {
-        inPair.first = &inEncaps[0];
-        inPair.second = inPair.first + inEncaps.size();
-    }
-    return _iceI_begin_ice_invoke(operation, mode, inPair, ctx, del, cookie);
-}
-
-bool
-IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outEncaps, const AsyncResultPtr& result)
-{
-    AsyncResult::_check(result, this, ice_invoke_name);
-    bool ok = result->_waitForResponse();
-    if(_reference->getMode() == Reference::ModeTwoway)
-    {
-        const Byte* v;
-        Int sz;
-        result->_readParamEncaps(v, sz);
-        vector<Byte>(v, v + sz).swap(outEncaps);
-    }
-    return ok;
-}
-
-AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_invoke(const string& operation,
-                                              OperationMode mode,
-                                              const pair<const Byte*, const Byte*>& inEncaps,
-                                              const Context& ctx,
-                                              const ::IceInternal::CallbackBasePtr& del,
-                                              const ::Ice::LocalObjectPtr& cookie,
-                                              bool sync)
-{
-    OutgoingAsyncPtr result = new CallbackOutgoing(this, ice_invoke_name, del, cookie, sync);
-    try
-    {
-        result->prepare(operation, mode, ctx);
-        result->writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
-        result->invoke(operation);
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return result;
-}
-
-bool
-IceProxy::Ice::Object::_iceI_end_ice_invoke(pair<const Byte*, const Byte*>& outEncaps, const AsyncResultPtr& result)
-{
-    AsyncResult::_check(result, this, ice_invoke_name);
-    bool ok = result->_waitForResponse();
-    if(_reference->getMode() == Reference::ModeTwoway)
-    {
-        Int sz;
-        result->_readParamEncaps(outEncaps.first, sz);
-        outEncaps.second = outEncaps.first + sz;
-    }
-    return ok;
-}
-
-::Ice::AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_flushBatchRequests(const ::IceInternal::CallbackBasePtr& del,
-                                                          const ::Ice::LocalObjectPtr& cookie)
-{
-    class ProxyFlushBatchAsyncWithCallback : public ProxyFlushBatchAsync, public CallbackCompletion
-    {
-    public:
-
-        ProxyFlushBatchAsyncWithCallback(const ::Ice::ObjectPrx& proxy,
-                                         const CallbackBasePtr& cb,
-                                         const ::Ice::LocalObjectPtr& cookie) :
-            ProxyFlushBatchAsync(proxy), CallbackCompletion(cb, cookie)
-        {
-            _cookie = cookie;
-        }
-
-        virtual const std::string&
-        getOperation() const
-        {
-            return ice_flushBatchRequests_name;
-        }
-    };
-
-    ProxyFlushBatchAsyncPtr result = new ProxyFlushBatchAsyncWithCallback(this, del, cookie);
-    try
-    {
-        result->invoke(ice_flushBatchRequests_name);
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return result;
-}
-
-void
-IceProxy::Ice::Object::end_ice_flushBatchRequests(const AsyncResultPtr& result)
-{
-    AsyncResult::_check(result, this, ice_flushBatchRequests_name);
-    result->_waitForResponse();
-}
-
-void
-IceProxy::Ice::Object::_end(const ::Ice::AsyncResultPtr& result, const std::string& operation) const
-{
-    AsyncResult::_check(result, this, operation);
-    bool ok = result->_waitForResponse();
-    if(_reference->getMode() == Reference::ModeTwoway)
-    {
-        if(!ok)
-        {
-            try
-            {
-                result->_throwUserException();
-            }
-            catch(const UserException& ex)
-            {
-                throw UnknownUserException(__FILE__, __LINE__, ex.ice_id());
-            }
-        }
-        result->_readEmptyParams();
-    }
-}
-
-namespace IceProxy
-{
-
-namespace Ice
-{
-
-ostream&
-operator<<(ostream& os, const ::IceProxy::Ice::Object& p)
-{
-    return os << p.ice_toString();
-}
-
-}
-
-}
-
-IceProxy::Ice::Object*
-IceProxy::Ice::Object::_newInstance() const
-{
-    return new Object;
-}
-
-AsyncResultPtr
-IceProxy::Ice::Object::_iceI_begin_ice_getConnection(const ::IceInternal::CallbackBasePtr& del,
-                                                     const ::Ice::LocalObjectPtr& cookie)
-{
-    class ProxyGetConnectionWithCallback :  public ProxyGetConnection, public CallbackCompletion
-    {
-    public:
-
-        ProxyGetConnectionWithCallback(const ::Ice::ObjectPrx& proxy,
-                                       const ::IceInternal::CallbackBasePtr& cb,
-                                       const ::Ice::LocalObjectPtr& cookie) :
-            ProxyGetConnection(proxy), CallbackCompletion(cb, cookie)
-        {
-            _cookie = cookie;
-        }
-
-        virtual const std::string&
-        getOperation() const
-        {
-            return ice_getConnection_name;
-        }
-    };
-
-    ProxyGetConnectionPtr result = new ProxyGetConnectionWithCallback(this, del, cookie);
-    try
-    {
-        result->invoke(ice_getConnection_name);
-    }
-    catch(const Exception& ex)
-    {
-        result->abort(ex);
-    }
-    return result;
-}
-
-ConnectionPtr
-IceProxy::Ice::Object::end_ice_getConnection(const AsyncResultPtr& result)
-{
-    AsyncResult::_check(result, this, ice_getConnection_name);
-    result->_waitForResponse();
-    return result->getConnection();
-}
-
-void
-IceProxy::Ice::Object::_checkTwowayOnly(const string& name, bool sync) const
-{
-    //
-    // No mutex lock necessary, there is nothing mutable in this operation.
-    //
-    if(!ice_isTwoway())
-    {
-        if(sync)
-        {
-            throw TwowayOnlyException(__FILE__, __LINE__, name);
-        }
-        else
-        {
-            throw IceUtil::IllegalArgumentException(__FILE__,
-                                                    __LINE__,
-                                                    "`" + name + "' can only be called with a twoway proxy");
-        }
-    }
-}
-
-#endif
-
-#ifdef ICE_CPP11_MAPPING
-#  define ICE_OBJECT_PRX Ice::ObjectPrx
-#  define CONST_POINTER_CAST_OBJECT_PRX const_pointer_cast<ObjectPrx>(shared_from_this())
-#else
-#  define ICE_OBJECT_PRX IceProxy::Ice::Object
-#  define CONST_POINTER_CAST_OBJECT_PRX ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this))
-#endif
-
-//
-// methods common for both C++11/C++98 mappings
-//
+#define ICE_OBJECT_PRX Ice::ObjectPrx
+#define CONST_POINTER_CAST_OBJECT_PRX const_pointer_cast<ObjectPrx>(shared_from_this())
 
 Identity
 ICE_OBJECT_PRX::ice_getIdentity() const
@@ -710,11 +252,7 @@ ICE_OBJECT_PRX::ice_identity(const Identity& newIdentity) const
     }
     else
     {
-#ifdef ICE_CPP11_MAPPING
         auto proxy = createProxy<ObjectPrx>();
-#else
-        ObjectPrxPtr proxy = new IceProxy::Ice::Object;
-#endif
         proxy->setup(_reference->changeIdentity(newIdentity));
         return proxy;
     }
@@ -749,11 +287,7 @@ ICE_OBJECT_PRX::ice_facet(const string& newFacet) const
     }
     else
     {
-#ifdef ICE_CPP11_MAPPING
         auto proxy = createProxy<ObjectPrx>();
-#else
-        ObjectPrx proxy = new IceProxy::Ice::Object;
-#endif
         proxy->setup(_reference->changeFacet(newFacet));
         return proxy;
     }
@@ -826,11 +360,7 @@ ICE_OBJECT_PRX::ice_locatorCacheTimeout(Int newTimeout) const
     {
         ostringstream s;
         s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument(s.str());
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
-#endif
     }
     if(newTimeout == _reference->getLocatorCacheTimeout())
     {
@@ -953,11 +483,7 @@ RouterPrxPtr
 ICE_OBJECT_PRX::ice_getRouter() const
 {
     RouterInfoPtr ri = _reference->getRouterInfo();
-#ifdef ICE_CPP11_MAPPING
     return ri ? ri->getRouter() : nullptr;
-#else
-    return ri ? ri->getRouter() : RouterPrxPtr();
-#endif
 }
 
 ObjectPrxPtr
@@ -980,11 +506,7 @@ LocatorPrxPtr
 ICE_OBJECT_PRX::ice_getLocator() const
 {
     LocatorInfoPtr ri = _reference->getLocatorInfo();
-#ifdef ICE_CPP11_MAPPING
     return ri ? ri->getLocator() : nullptr;
-#else
-    return ri ? ri->getLocator() : LocatorPrxPtr();
-#endif
 }
 
 ObjectPrxPtr
@@ -1037,11 +559,7 @@ ICE_OBJECT_PRX::ice_invocationTimeout(Int newTimeout) const
     {
         ostringstream s;
         s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument(s.str());
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
-#endif
     }
     if(newTimeout == _reference->getInvocationTimeout())
     {
@@ -1189,11 +707,7 @@ ICE_OBJECT_PRX::ice_timeout(int t) const
     {
         ostringstream s;
         s << "invalid value passed to ice_timeout: " << t;
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument(s.str());
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
-#endif
     }
     ReferencePtr ref = _reference->changeTimeout(t);
     if(ref == _reference)
@@ -1241,20 +755,12 @@ ICE_OBJECT_PRX::ice_fixed(const ::Ice::ConnectionPtr& connection) const
 {
     if(!connection)
     {
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument("invalid null connection passed to ice_fixed");
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid null connection passed to ice_fixed");
-#endif
     }
     ::Ice::ConnectionIPtr impl = ICE_DYNAMIC_CAST(::Ice::ConnectionI, connection);
     if(!impl)
     {
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument("invalid connection passed to ice_fixed");
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid connection passed to ice_fixed");
-#endif
     }
     ReferencePtr ref = _reference->changeConnection(impl);
     if(ref == _reference)

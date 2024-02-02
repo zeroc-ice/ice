@@ -165,14 +165,6 @@ class Ice(Util.Component):
                 if testId == "IceStorm/repgrid":
                     return False
 
-        # No C++98 tests for Glacier2, IceGrid, IceStorm, IceBridge
-        if (
-            isinstance(mapping, Util.CppMapping)
-            and not current.config.cpp11
-            and parent in ["Glacier2", "IceBridge", "IceGrid", "IceStorm"]
-        ):
-            return False
-
         return True
 
     def isMainThreadOnly(self, testId):

@@ -7,7 +7,6 @@
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <Ice/UniquePtr.h>
 
 #include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/RequestHandler.h>
@@ -25,10 +24,8 @@ class ConnectRequestHandler final :
     public RequestHandler,
     public Reference::GetConnectionCallback,
     public RouterInfo::AddProxyCallback,
-    public IceUtil::Monitor<IceUtil::Mutex>
-#ifdef ICE_CPP11_MAPPING
-                            , public std::enable_shared_from_this<ConnectRequestHandler>
-#endif
+    public IceUtil::Monitor<IceUtil::Mutex>,
+    public std::enable_shared_from_this<ConnectRequestHandler>
 {
 public:
 
@@ -59,7 +56,7 @@ private:
 
     Ice::ConnectionIPtr _connection;
     bool _compress;
-    IceInternal::UniquePtr<Ice::LocalException> _exception;
+    std::unique_ptr<Ice::LocalException> _exception;
     bool _initialized;
     bool _flushing;
 

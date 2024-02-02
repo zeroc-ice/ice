@@ -24,9 +24,6 @@ class GLACIER2_API RestartSessionException : public IceUtil::ExceptionHelper<Res
 public:
 
     virtual std::string ice_id() const;
-#ifndef ICE_CPP11_MAPPING
-    virtual RestartSessionException* ice_clone() const;
-#endif
 };
 
 /**
@@ -65,10 +62,8 @@ public:
      **/
     Application(Ice::SignalPolicy = Ice::ICE_ENUM(SignalPolicy,HandleSignals));
 
-#ifdef ICE_CPP11_MAPPING
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
-#endif
 
     /**
      * Creates a new Glacier2 session. A call to

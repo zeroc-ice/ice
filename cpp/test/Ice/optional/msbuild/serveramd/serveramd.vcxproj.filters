@@ -7,12 +7,6 @@
     <ClCompile Include="..\..\TestAMDI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Cpp11-Debug\TestAMD.cpp">
-      <Filter>Source Files\x64\Cpp11-Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Debug\TestAMD.cpp">
-      <Filter>Source Files\Win32\Cpp11-Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\TestAMD.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
@@ -24,12 +18,6 @@
     </ClCompile>
     <ClCompile Include="Win32\Release\TestAMD.cpp">
       <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Cpp11-Release\TestAMD.cpp">
-      <Filter>Source Files\x64\Cpp11-Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Release\TestAMD.cpp">
-      <Filter>Source Files\Win32\Cpp11-Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -46,26 +34,14 @@
     <Filter Include="Source Files\x64">
       <UniqueIdentifier>{ba0a0ea4-5c0b-453e-826c-c384d7120555}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\x64\Cpp11-Debug">
-      <UniqueIdentifier>{263a7dbd-fab9-49cb-bf37-e1a9684faeb1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\x64">
       <UniqueIdentifier>{0341735d-de1d-456c-8164-d17b47b811a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\x64\Cpp11-Debug">
-      <UniqueIdentifier>{2bc9f6b0-66af-4e8c-8577-2bbfcb62bcda}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32">
       <UniqueIdentifier>{d03f2c31-7a9a-4bdc-b3b7-3b6480c44dfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Win32\Cpp11-Debug">
-      <UniqueIdentifier>{e8a9c47a-d3ef-41b7-8654-df6e43a24a6c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Win32">
       <UniqueIdentifier>{fdedbe1a-6b7d-4114-88e2-921b5d4837b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Win32\Cpp11-Debug">
-      <UniqueIdentifier>{0e0f5150-9026-417a-8bd8-8141396412fa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
       <UniqueIdentifier>{6b6a45e3-5bf3-49ed-b70d-4dd806af717d}</UniqueIdentifier>
@@ -91,28 +67,10 @@
     <Filter Include="Header Files\Win32\Release">
       <UniqueIdentifier>{957d4f0d-982d-478f-b39c-d93277be6f23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\x64\Cpp11-Release">
-      <UniqueIdentifier>{bba3f375-601c-4811-8f38-dbfe6146e6a5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\x64\Cpp11-Release">
-      <UniqueIdentifier>{c26e2e0a-bb72-4976-8915-c8a0ebeeaa45}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Win32\Cpp11-Release">
-      <UniqueIdentifier>{09aa0113-e717-4b9f-8835-93f8a520eb3e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Win32\Cpp11-Release">
-      <UniqueIdentifier>{cde90be6-0d61-4bb0-8444-834b7d8468de}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\TestAMDI.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Debug\TestAMD.h">
-      <Filter>Header Files\x64\Cpp11-Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Debug\TestAMD.h">
-      <Filter>Header Files\Win32\Cpp11-Debug</Filter>
     </ClInclude>
     <ClInclude Include="x64\Debug\TestAMD.h">
       <Filter>Header Files\x64\Debug</Filter>
@@ -125,12 +83,6 @@
     </ClInclude>
     <ClInclude Include="Win32\Release\TestAMD.h">
       <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Release\TestAMD.h">
-      <Filter>Header Files\x64\Cpp11-Release</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Release\TestAMD.h">
-      <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

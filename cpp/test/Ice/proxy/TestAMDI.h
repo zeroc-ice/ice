@@ -13,7 +13,6 @@ public:
 
     MyDerivedClassI();
 
-#ifdef ICE_CPP11_MAPPING
     virtual void echoAsync(
         std::shared_ptr<Ice::ObjectPrx>,
         ::std::function<void(const ::std::shared_ptr<Ice::ObjectPrx>&)>,
@@ -29,13 +28,6 @@ public:
         ::std::function<void(const Ice::Context&)>,
         ::std::function<void(::std::exception_ptr)>,
         const Ice::Current&);
-#else
-    virtual void echo_async(const Test::AMD_MyDerivedClass_echoPtr&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
-                                const Ice::Current&);
-    virtual void getContext_async(const Test::AMD_MyClass_getContextPtr& cb,
-                                  const Ice::Current&);
-#endif
 
     virtual bool ice_isA(std::string, const Ice::Current&) const;
 private:

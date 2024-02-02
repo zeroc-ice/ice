@@ -13,7 +13,6 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -27,21 +26,12 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
 class Communicator;
 
 }
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
 
 /// \cond INTERNAL
 namespace Ice
@@ -51,28 +41,6 @@ using CommunicatorPtr = ::std::shared_ptr<Communicator>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class Communicator;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(Communicator*);
-/// \endcond
-typedef ::IceInternal::Handle< Communicator> CommunicatorPtr;
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

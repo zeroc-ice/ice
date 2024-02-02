@@ -23,8 +23,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 IceBox::FailureException::~FailureException()
 {
 }
@@ -39,48 +37,3 @@ IceBox::FailureException::ice_staticId()
 IceBox::Service::~Service()
 {
 }
-
-#else // C++98 mapping
-
-IceBox::FailureException::FailureException(const char* file, int line) :
-    ::Ice::LocalException(file, line)
-{
-}
-
-IceBox::FailureException::FailureException(const char* file, int line, const ::std::string& reason) :
-    ::Ice::LocalException(file, line),
-    reason(reason)
-{
-}
-
-IceBox::FailureException::~FailureException()
-{
-}
-
-::std::string
-IceBox::FailureException::ice_id() const
-{
-    return "::IceBox::FailureException";
-}
-
-IceBox::FailureException*
-IceBox::FailureException::ice_clone() const
-{
-    return new FailureException(*this);
-}
-
-void
-IceBox::FailureException::ice_throw() const
-{
-    throw *this;
-}
-
-IceBox::Service::~Service()
-{
-}
-
-/// \cond INTERNAL
-ICEBOX_API ::Ice::LocalObject* IceBox::upCast(Service* p) { return p; }
-/// \endcond
-
-#endif

@@ -16,11 +16,7 @@ class NullPermissionsVerifier : public Glacier2::PermissionsVerifier
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     bool checkPermissions(string, string, string&, const Current&) const
-#else
-    bool checkPermissions(const string&, const string&, string&, const Current&) const
-#endif
     {
         return true;
     }
@@ -30,13 +26,8 @@ class NullSSLPermissionsVerifier : public Glacier2::SSLPermissionsVerifier
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     virtual bool
     authorize(Glacier2::SSLInfo, string&, const Ice::Current&) const
-#else
-    virtual bool
-    authorize(const Glacier2::SSLInfo&, string&, const Ice::Current&) const
-#endif
     {
         return true;
     }

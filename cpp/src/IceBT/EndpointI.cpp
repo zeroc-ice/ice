@@ -21,10 +21,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceBT::upCast(EndpointI* p) { return p; }
-#endif
-
 IceBT::EndpointI::EndpointI(const InstancePtr& instance, const string& addr, const string& uuid, const string& name,
                             Int channel, Int timeout, const string& connectionId, bool compress) :
     _instance(instance),
@@ -224,11 +220,7 @@ IceBT::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceBT::EndpointI::operator==(const Ice::Endpoint& r) const
-#else
-IceBT::EndpointI::operator==(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -275,11 +267,7 @@ IceBT::EndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
-#else
-IceBT::EndpointI::operator<(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)

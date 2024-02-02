@@ -64,44 +64,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "ok" << endl;
 
-#ifndef ICE_CPP11_MAPPING
-    cout << "testing enum streaming... " << flush;
-
-    Ice::ByteSeq bytes;
-
-    const bool encoding_1_0 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
-
-    {
-        Ice::OutputStream out(communicator);
-        out.write(ICE_ENUM(ByteEnum, benum11));
-        out.finished(bytes);
-        test(bytes.size() == 1); // ByteEnum should require one byte
-    }
-
-    {
-        Ice::OutputStream out(communicator);
-        out.write(ICE_ENUM(ShortEnum, senum11));
-        out.finished(bytes);
-        test(bytes.size() == (encoding_1_0 ? size_t(2) : size_t(5)));
-    }
-
-    {
-        Ice::OutputStream out(communicator);
-        out.write(ICE_ENUM(IntEnum, ienum11));
-        out.finished(bytes);
-        test(bytes.size() == (encoding_1_0 ? size_t(4) : size_t(5)));
-    }
-
-    {
-        Ice::OutputStream out(communicator);
-        out.write(ICE_ENUM(SimpleEnum, blue));
-        out.finished(bytes);
-        test(bytes.size() == 1); // SimpleEnum should require one byte
-    }
-
-    cout << "ok" << endl;
-#endif
-
     cout << "testing enum operations... " << flush;
 
     ByteEnum byteEnum;

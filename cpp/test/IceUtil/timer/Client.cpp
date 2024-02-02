@@ -216,11 +216,7 @@ Client::run(int, char*[])
 
             test(IceUtil::Time::now(IceUtil::Time::Monotonic) > start);
 
-#ifdef ICE_CPP11_MAPPING
             sort(tasks.begin(), tasks.end(), TargetLess<shared_ptr<TestTask>>());
-#else
-            sort(tasks.begin(), tasks.end());
-#endif
             for(p = tasks.begin(); p + 1 != tasks.end(); ++p)
             {
                 if((*p)->getRunTime() > (*(p + 1))->getRunTime())

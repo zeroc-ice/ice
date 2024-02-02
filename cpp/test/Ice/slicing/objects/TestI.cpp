@@ -482,16 +482,10 @@ TestI::checkPBSUnknown(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
                                             function<void(exception_ptr)>,
                                             const Ice::Current&)
-#else
-void
-TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownAsPreservedWithGraphPtr& cb,
-                                            const Ice::Current&)
-#endif
 {
     PSUnknownPtr r = ICE_MAKE_SHARED(PSUnknown);
     r->pi = 5;
@@ -501,11 +495,7 @@ TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownA
     r->graph->next = ICE_MAKE_SHARED(PNode);
     r->graph->next->next = ICE_MAKE_SHARED(PNode);
     r->graph->next->next->next = r->graph;
-#ifdef ICE_CPP11_MAPPING
     response(r);
-#else
-    cb->ice_response(r);
-#endif
     r->graph->next->next->next = 0; // Break the cycle.
 }
 
@@ -532,26 +522,16 @@ TestI::checkPBSUnknownWithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
                                              function<void(exception_ptr)>,
                                              const Ice::Current&)
-#else
-void
-TestI::PBSUnknown2AsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknown2AsPreservedWithGraphPtr& cb,
-                                             const Ice::Current&)
-#endif
 {
     PSUnknown2Ptr r = ICE_MAKE_SHARED(PSUnknown2);
     r->pi = 5;
     r->ps = "preserved";
     r->pb = r;
-#ifdef ICE_CPP11_MAPPING
     response(r);
-#else
-    cb->ice_response(r);
-#endif
     r->pb = 0; // Break the cycle.
 }
 
@@ -649,22 +629,16 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     throw ude;
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::throwPreservedExceptionAsync(function<void()>,
                                      function<void(exception_ptr)> exception,
                                      const ::Ice::Current&)
-#else
-void
-TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionPtr& cb, const ::Ice::Current&)
-#endif
 {
     PSUnknownException ue;
     ue.p = ICE_MAKE_SHARED(PSUnknown2);
     ue.p->pi = 5;
     ue.p->ps = "preserved";
     ue.p->pb = ue.p;
-#ifdef ICE_CPP11_MAPPING
     try
     {
         throw ue;
@@ -673,9 +647,6 @@ TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionP
     {
         exception(current_exception());
     }
-#else
-    cb->ice_exception(ue);
-#endif
     ue.p->pb = 0; // Break the cycle.
 }
 

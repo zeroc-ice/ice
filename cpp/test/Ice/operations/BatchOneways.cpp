@@ -12,9 +12,6 @@ namespace
 {
 
 class BatchRequestInterceptorI final
-#ifndef ICE_CPP11_MAPPING
-    : public Ice::BatchRequestInterceptor
-#endif
 {
 public:
 
@@ -37,11 +34,7 @@ public:
 
         if(_size + request.getSize() > 25000)
         {
-#ifdef ICE_CPP11_MAPPING
             request.getProxy()->ice_flushBatchRequestsAsync();
-#else
-            request.getProxy()->begin_ice_flushBatchRequests();
-#endif
             _size = 18; // header
         }
 
@@ -154,14 +147,10 @@ batchOneways(const Test::MyClassPrxPtr& p)
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
         BatchRequestInterceptorIPtr interceptor = ICE_MAKE_SHARED(BatchRequestInterceptorI);
 
-#if defined(ICE_CPP11_MAPPING)
         initData.batchRequestInterceptor = [=](const Ice::BatchRequest& request, int countP, int size)
         {
             interceptor->enqueue(request, countP, size);
         };
-#else
-        initData.batchRequestInterceptor = interceptor;
-#endif
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
         Test::MyClassPrxPtr batch4 =

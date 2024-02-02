@@ -827,7 +827,6 @@ MyDerivedClassI::opWStringLiterals(const Ice::Current&)
     return data;
 }
 
-#ifdef ICE_CPP11_MAPPING
 MyDerivedClassI::OpMStruct1MarshaledResult
 MyDerivedClassI::opMStruct1(const Ice::Current& current)
 {
@@ -865,48 +864,3 @@ MyDerivedClassI::opMDict2(ICE_IN(Test::StringStringD) p1, const Ice::Current& cu
 {
     return OpMDict2MarshaledResult(p1, p1, current);
 }
-
-#else
-
-Test::Structure
-MyDerivedClassI::opMStruct1(const Ice::Current&)
-{
-    Test::Structure s;
-    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
-    return s;
-}
-
-Test::Structure
-MyDerivedClassI::opMStruct2(ICE_IN(Test::Structure) p1, Test::Structure& p2, const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-Test::StringS
-MyDerivedClassI::opMSeq1(const Ice::Current&)
-{
-    return Test::StringS();
-}
-
-Test::StringS
-MyDerivedClassI::opMSeq2(ICE_IN(Test::StringS) p1, Test::StringS& p2, const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-Test::StringStringD
-MyDerivedClassI::opMDict1(const Ice::Current&)
-{
-    return Test::StringStringD();
-}
-
-Test::StringStringD
-MyDerivedClassI::opMDict2(ICE_IN(Test::StringStringD) p1, Test::StringStringD& p2, const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-#endif

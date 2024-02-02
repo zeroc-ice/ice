@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0D08F6B8-39C0-413B-84CE-D73230BCC740}</ProjectGuid>
+    <ProjectGuid>{D0DC2305-37FE-4D03-BE05-AC8912678DC8}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -43,7 +43,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp98.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -60,11 +60,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICESSL_OPENSSL_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -88,7 +83,7 @@
   <ItemDefinitionGroup Label="IceBuilder">
     <SliceCompile>
       <OutputDir>generated</OutputDir>
-      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
+      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>IceSSL</BaseDirectoryForGeneratedInclude>
     </SliceCompile>
   </ItemDefinitionGroup>

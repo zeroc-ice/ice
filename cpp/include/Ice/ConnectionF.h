@@ -13,7 +13,6 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -26,8 +25,6 @@
 #       define ICE_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
-
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 namespace Ice
 {
@@ -50,47 +47,11 @@ namespace Ice
 {
 
 using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
-
 using WSConnectionInfoPtr = ::std::shared_ptr<WSConnectionInfo>;
-
 using ConnectionPtr = ::std::shared_ptr<Connection>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class ConnectionInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(ConnectionInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< ConnectionInfo> ConnectionInfoPtr;
-
-class WSConnectionInfo;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(WSConnectionInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< WSConnectionInfo> WSConnectionInfoPtr;
-
-class Connection;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(Connection*);
-/// \endcond
-typedef ::IceInternal::Handle< Connection> ConnectionPtr;
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

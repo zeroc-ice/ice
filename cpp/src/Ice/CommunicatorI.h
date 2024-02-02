@@ -10,7 +10,6 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
-#include <Ice/CommunicatorAsync.h>
 #include <Ice/OutgoingAsync.h>
 
 #include <functional>
@@ -32,12 +31,10 @@ public:
     void flushConnection(const Ice::ConnectionIPtr&, Ice::CompressBatch);
     void invoke(const std::string&, Ice::CompressBatch);
 
-#ifdef ICE_CPP11_MAPPING
     std::shared_ptr<CommunicatorFlushBatchAsync> shared_from_this()
     {
         return std::static_pointer_cast<CommunicatorFlushBatchAsync>(OutgoingAsyncBase::shared_from_this());
     }
-#endif
 
 private:
 
@@ -54,11 +51,7 @@ namespace Ice
 class CommunicatorI;
 ICE_DEFINE_PTR(CommunicatorIPtr, CommunicatorI);
 
-class CommunicatorI : public Communicator
-#ifdef ICE_CPP11_MAPPING
-                    , public std::enable_shared_from_this<CommunicatorI>
-#endif
-
+class CommunicatorI : public Communicator, public std::enable_shared_from_this<CommunicatorI>
 {
 public:
 
@@ -102,21 +95,10 @@ public:
 
     virtual void postToClientThreadPool(::std::function<void()> call);
 
-#ifdef ICE_CPP11_MAPPING
     virtual ::std::function<void()>
     flushBatchRequestsAsync(CompressBatch,
                             ::std::function<void(::std::exception_ptr)>,
                             ::std::function<void(bool)> = nullptr);
-#else
-    virtual void flushBatchRequests(CompressBatch);
-    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch);
-    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch, const CallbackPtr&, const LocalObjectPtr& = 0);
-    virtual AsyncResultPtr begin_flushBatchRequests(CompressBatch,
-                                                    const Callback_Communicator_flushBatchRequestsPtr&,
-                                                    const LocalObjectPtr& = 0);
-
-    virtual void end_flushBatchRequests(const AsyncResultPtr&);
-#endif
 
     virtual ObjectPrxPtr createAdmin(const ObjectAdapterPtr&, const Identity&);
     virtual ObjectPrxPtr getAdmin() const;
@@ -128,10 +110,6 @@ public:
     virtual ~CommunicatorI();
 
 private:
-
-#ifndef ICE_CPP11_MAPPING
-    CommunicatorI() {}
-#endif
 
     static CommunicatorIPtr create(const InitializationData&);
 
@@ -146,13 +124,6 @@ private:
     friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
     friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
-
-#ifndef ICE_CPP11_MAPPING
-    AsyncResultPtr _iceI_begin_flushBatchRequests(CompressBatch,
-                                                  const IceInternal::CallbackBasePtr&,
-                                                  const LocalObjectPtr&);
-#endif
-
     const ::IceInternal::InstancePtr _instance;
 
     //

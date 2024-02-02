@@ -74,15 +74,10 @@ public:
     virtual void setCycle(ICE_IN(Test::RecursivePtr), const Ice::Current&);
     virtual bool acceptsClassCycles(const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual GetMBMarshaledResult getMB(const Ice::Current&);
     virtual void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
-#else
-    virtual Test::BPtr getMB(const Ice::Current&);
-    virtual void getAMDMB_async(const Test::AMD_Initial_getAMDMBPtr&, const Ice::Current&);
-#endif
 
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
 

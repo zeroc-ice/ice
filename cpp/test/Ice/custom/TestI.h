@@ -27,7 +27,6 @@ public:
                                                Test::VariableList&,
                                                const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual Test::BoolSeq opBoolRange(Test::BoolSeq, Test::BoolSeq&, const Ice::Current&);
 
     virtual Test::ByteList opByteRange(Test::ByteList, Test::ByteList&, const Ice::Current&);
@@ -39,30 +38,6 @@ public:
 
     virtual Test::VariableList
     opVariableRangeType(Test::VariableList, Test::VariableList&, const Ice::Current&);
-
-#else
-    virtual Test::BoolSeq opBoolRange(const std::pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>&,
-                                      Test::BoolSeq&,
-                                      const Ice::Current&);
-
-    virtual Test::ByteList opByteRange(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
-                                      Test::ByteList&,
-                                      const Ice::Current&);
-
-    virtual Test::VariableList
-    opVariableRange(const std::pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>&,
-                    Test::VariableList&,
-                    const Ice::Current&);
-
-    virtual Test::ByteList opByteRangeType(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
-                                           Test::ByteList&,
-                                           const Ice::Current&);
-
-    virtual Test::VariableList
-    opVariableRangeType(const std::pair<std::deque<Test::Variable>::const_iterator, std::deque<Test::Variable>::const_iterator>&,
-                        Test::VariableList&,
-                        const Ice::Current&);
-#endif
 
     virtual std::deque<bool> opBoolSeq(ICE_IN(std::deque<bool>),
                                        std::deque<bool>&,
@@ -80,17 +55,8 @@ public:
                                                        ::Test::BoolDequeList&,
                                                        const ::Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual ::Test::BoolDequeList opBoolDequeListRange(::Test::BoolDequeList,
                                                        ::Test::BoolDequeList&, const ::Ice::Current&);
-
-#else
-    virtual ::Test::BoolDequeList opBoolDequeListRange(
-        const ::std::pair< ::Test::BoolDequeList::const_iterator, ::Test::BoolDequeList::const_iterator>&,
-        ::Test::BoolDequeList&,
-        const ::Ice::Current&);
-
-#endif
 
     virtual std::deque< ::Ice::Byte> opByteSeq(ICE_IN(std::deque< ::Ice::Byte>),
                                                std::deque< ::Ice::Byte>&,
@@ -164,19 +130,11 @@ public:
                                                 std::list< ::Test::CPtr>&,
                                                 const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual Test::ClassStruct opClassStruct(Test::ClassStruct,
                                             Test::ClassStructSeq,
                                             Test::ClassStruct& out,
                                             Test::ClassStructSeq& outSeq,
                                             const Ice::Current&);
-#else
-    virtual ::Test::ClassStructPtr opClassStruct(const ::Test::ClassStructPtr&,
-                                                 const ::Test::ClassStructSeq&,
-                                                 ::Test::ClassStructPtr& out,
-                                                 ::Test::ClassStructSeq& outSeq,
-                                                 const Ice::Current&);
-#endif
 
     virtual void opOutArrayByteSeq(ICE_IN(Test::ByteSeq), Test::ByteSeq&, const Ice::Current&);
 

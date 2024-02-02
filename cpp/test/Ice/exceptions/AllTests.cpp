@@ -648,11 +648,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     ThrowerPrxPtr thrower = ICE_CHECKED_CAST(ThrowerPrx, base);
     test(thrower);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(thrower, base));
-#else
-    test(thrower == base);
-#endif
     cout << "ok" << endl;
 
     cout << "catching exact types... " << flush;
@@ -1002,11 +998,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-#ifdef ICE_CPP11_MAPPING
         ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower, "no such facet");
-#else
-        ThrowerPrxPtr thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
-#endif
         try
         {
             thrower2->ice_ping();
@@ -1119,7 +1111,6 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "catching exact types with new AMI mapping... " << flush;
-#ifdef ICE_CPP11_MAPPING
     {
         auto f = thrower->throwAasAAsync(1);
         try
@@ -1323,54 +1314,9 @@ allTests(Test::TestHelper* helper)
             });
         sent.get_future().get(); // Wait for sent
     }
-#else
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAasAPtr callback =
-            newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasA);
-        thrower->begin_throwAasA(1, callback);
-        cb->check();
-    }
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAorDasAorDPtr callback =
-            newCallback_Thrower_throwAorDasAorD(cb, &Callback::response, &Callback::exception_AorDasAorD);
-        thrower->begin_throwAorDasAorD(1, callback);
-        cb->check();
-    }
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAorDasAorDPtr callback =
-            newCallback_Thrower_throwAorDasAorD(cb, &Callback::response, &Callback::exception_AorDasAorD);
-        thrower->begin_throwAorDasAorD(-1, callback);
-        cb->check();
-    }
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwBasBPtr callback =
-            newCallback_Thrower_throwBasB(cb, &Callback::response, &Callback::exception_BasB);
-        thrower->begin_throwBasB(1, 2, callback);
-        cb->check();
-    }
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasCPtr callback =
-            newCallback_Thrower_throwCasC(cb, &Callback::response, &Callback::exception_CasC);
-        thrower->begin_throwCasC(1, 2, 3, callback);
-        cb->check();
-    }
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwModAPtr callback =
-            newCallback_Thrower_throwModA(cb, &Callback::response, &Callback::exception_ModA);
-        thrower->begin_throwModA(1, 2, callback);
-        cb->check();
-    }
-#endif
     cout << "ok" << endl;
 
     cout << "catching derived types with new AMI mapping... " << flush;
-#ifdef ICE_CPP11_MAPPING
     {
         auto f = thrower->throwBasAAsync(1, 2);
         try
@@ -1423,37 +1369,11 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
     }
-#else
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwBasAPtr callback =
-            newCallback_Thrower_throwBasA(cb, &Callback::response, &Callback::exception_BasA);
-        thrower->begin_throwBasA(1, 2, callback);
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasAPtr callback =
-            newCallback_Thrower_throwCasA(cb, &Callback::response, &Callback::exception_CasA);
-        thrower->begin_throwCasA(1, 2, 3, callback);
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasBPtr callback =
-            newCallback_Thrower_throwCasB(cb, &Callback::response, &Callback::exception_CasB);
-        thrower->begin_throwCasB(1, 2, 3, callback);
-        cb->check();
-    }
-#endif
     cout << "ok" << endl;
 
     if(thrower->supportsUndeclaredExceptions())
     {
         cout << "catching unknown user exception with new AMI mapping... " << flush;
-#ifdef ICE_CPP11_MAPPING
         {
             auto f = thrower->throwUndeclaredAAsync(1);
             try
@@ -1506,38 +1426,11 @@ allTests(Test::TestHelper* helper)
                 test(false);
             }
         }
-#else
-        {
-            CallbackPtr cb = new Callback;
-            Callback_Thrower_throwUndeclaredAPtr callback =
-                newCallback_Thrower_throwUndeclaredA(cb, &Callback::response, &Callback::exception_UndeclaredA);
-            thrower->begin_throwUndeclaredA(1, callback);
-            cb->check();
-        }
-
-        {
-            CallbackPtr cb = new Callback;
-            Callback_Thrower_throwUndeclaredBPtr callback =
-                newCallback_Thrower_throwUndeclaredB(cb, &Callback::response, &Callback::exception_UndeclaredB);
-            thrower->begin_throwUndeclaredB(1, 2, callback);
-            cb->check();
-        }
-
-        {
-            CallbackPtr cb = new Callback;
-            Callback_Thrower_throwUndeclaredCPtr callback =
-                newCallback_Thrower_throwUndeclaredC(cb, &Callback::response, &Callback::exception_UndeclaredC);
-            thrower->begin_throwUndeclaredC(1, 2, 3, callback);
-            cb->check();
-        }
-#endif
         cout << "ok" << endl;
     }
 
     cout << "catching object not exist exception with new AMI mapping... " << flush;
-
     {
-#ifdef ICE_CPP11_MAPPING
         id = Ice::stringToIdentity("does not exist");
         shared_ptr<ThrowerPrx> thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
         auto f = thrower2->throwAasAAsync(1);
@@ -1553,15 +1446,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        id = Ice::stringToIdentity("does not exist");
-        ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
-        CallbackPtr cb = new Callback(communicator);
-        Callback_Thrower_throwAasAPtr callback =
-            newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasAObjectNotExist);
-        thrower2->begin_throwAasA(1, callback);
-        cb->check();
-#endif
     }
 
     cout << "ok" << endl;
@@ -1569,7 +1453,6 @@ allTests(Test::TestHelper* helper)
     cout << "catching facet not exist exception with new AMI mapping... " << flush;
 
     {
-#ifdef ICE_CPP11_MAPPING
         shared_ptr<ThrowerPrx> thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower, "no such facet");
         auto f = thrower2->throwAasAAsync(1);
         try
@@ -1580,14 +1463,6 @@ allTests(Test::TestHelper* helper)
         {
             test(ex.facet == "no such facet");
         }
-#else
-        ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAasAPtr callback =
-            newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasAFacetNotExist);
-        thrower2->begin_throwAasA(1, callback);
-        cb->check();
-#endif
     }
 
     cout << "ok" << endl;
@@ -1595,7 +1470,6 @@ allTests(Test::TestHelper* helper)
     cout << "catching operation not exist exception with new AMI mapping... " << flush;
 
     {
-#ifdef ICE_CPP11_MAPPING
         shared_ptr<WrongOperationPrx> thrower4 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
         auto f = thrower4->noSuchOperationAsync();
         try
@@ -1610,21 +1484,11 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        Callback_WrongOperation_noSuchOperationPtr callback =
-            newCallback_WrongOperation_noSuchOperation(cb, &Callback::response,
-                                                       &Callback::exception_noSuchOperation);
-        WrongOperationPrx thrower4 = WrongOperationPrx::uncheckedCast(thrower);
-        thrower4->begin_noSuchOperation(callback);
-        cb->check();
-#endif
     }
 
     cout << "ok" << endl;
 
     cout << "catching unknown local exception with new AMI mapping... " << flush;
-#ifdef ICE_CPP11_MAPPING
     {
         auto f = thrower->throwLocalExceptionAsync();
         try
@@ -1659,30 +1523,11 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
     }
-#else
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwLocalExceptionPtr callback =
-            newCallback_Thrower_throwLocalException(cb, &Callback::response, &Callback::exception_LocalException);
-        thrower->begin_throwLocalException(callback);
-        cb->check();
-    }
-
-    {
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwLocalExceptionIdempotentPtr callback =
-            newCallback_Thrower_throwLocalExceptionIdempotent(cb, &Callback::response,
-                                                              &Callback::exception_LocalException);
-        thrower->begin_throwLocalExceptionIdempotent(callback);
-        cb->check();
-    }
-#endif
     cout << "ok" << endl;
 
     cout << "catching unknown non-Ice exception with new AMI mapping... " << flush;
 
     {
-#ifdef ICE_CPP11_MAPPING
         auto f = thrower->throwNonIceExceptionAsync();
         try
         {
@@ -1696,14 +1541,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-
-#else
-        CallbackPtr cb = new Callback;
-        Callback_Thrower_throwNonIceExceptionPtr callback =
-            newCallback_Thrower_throwNonIceException(cb, &Callback::response, &Callback::exception_NonIceException);
-        thrower->begin_throwNonIceException(callback);
-        cb->check();
-#endif
     }
 
     cout << "ok" << endl;

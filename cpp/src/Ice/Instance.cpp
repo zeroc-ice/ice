@@ -904,24 +904,12 @@ IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
     _initData.logger = logger;
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 IceInternal::Instance::setThreadHook(function<void()> threadStart, function<void()> threadStop)
 {
     _initData.threadStart = std::move(threadStart);
     _initData.threadStop = std::move(threadStop);
 }
-#else
-void
-IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHook)
-{
-    //
-    // No locking, as it can only be called during plug-in loading
-    //
-    _initData.threadHook = threadHook;
-}
-#endif
-
 namespace
 {
 
@@ -1398,11 +1386,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
             propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, this);
-#ifdef ICE_CPP11_MAPPING
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
-#else
-            _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin.underlying()));
-#endif
         }
 
         //
@@ -1840,11 +1824,7 @@ IceInternal::ProcessI::shutdown(const Current&)
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 IceInternal::ProcessI::writeMessage(string message, Int fd, const Current&)
-#else
-IceInternal::ProcessI::writeMessage(const string& message, Int fd, const Current&)
-#endif
 {
     switch(fd)
     {

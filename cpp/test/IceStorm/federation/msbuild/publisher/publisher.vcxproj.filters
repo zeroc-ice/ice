@@ -14,26 +14,14 @@
     <Filter Include="Source Files\x64">
       <UniqueIdentifier>{8de10a5b-39f2-4b0c-96c6-fa6a73eb71de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\x64\Cpp11-Debug">
-      <UniqueIdentifier>{364aea09-eeeb-4861-98a7-ceba329bec0d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\x64">
       <UniqueIdentifier>{7c8fe037-7e77-47fb-8c4a-775032d5fc6f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\x64\Cpp11-Debug">
-      <UniqueIdentifier>{187f7cb7-6ad5-4533-a90a-202a44cd979d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32">
       <UniqueIdentifier>{57dce9c4-fe6d-43bc-b7cd-700b1c609713}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Win32\Cpp11-Debug">
-      <UniqueIdentifier>{1deac400-510c-4433-8d56-4d8827b286e5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Win32">
       <UniqueIdentifier>{b0f3f9a6-73e8-40eb-8a36-ee020e769274}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Win32\Cpp11-Debug">
-      <UniqueIdentifier>{ec0c1668-65c7-4ca2-b4c1-e39d100ea850}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
       <UniqueIdentifier>{a95ebd2f-43eb-456a-8a2f-e5c2ea6155bd}</UniqueIdentifier>
@@ -59,28 +47,10 @@
     <Filter Include="Header Files\Win32\Release">
       <UniqueIdentifier>{6509031e-aa9a-46e6-bb21-1f8de5b41f3b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\x64\Cpp11-Release">
-      <UniqueIdentifier>{386a63e9-71d1-4a88-b23a-6189a507572f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\x64\Cpp11-Release">
-      <UniqueIdentifier>{c8551de6-6cd1-4e81-98ae-a1e6f5963da2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Win32\Cpp11-Release">
-      <UniqueIdentifier>{86f82063-f250-4050-9913-79718629aa26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Win32\Cpp11-Release">
-      <UniqueIdentifier>{25779303-713c-4e77-a6d6-ab437173a2f8}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Publisher.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Cpp11-Debug\Event.cpp">
-      <Filter>Source Files\x64\Cpp11-Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Debug\Event.cpp">
-      <Filter>Source Files\Win32\Cpp11-Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\Event.cpp">
       <Filter>Source Files\x64\Debug</Filter>
@@ -94,20 +64,8 @@
     <ClCompile Include="Win32\Release\Event.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Cpp11-Release\Event.cpp">
-      <Filter>Source Files\x64\Cpp11-Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Release\Event.cpp">
-      <Filter>Source Files\Win32\Cpp11-Release</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="x64\Cpp11-Debug\Event.h">
-      <Filter>Header Files\x64\Cpp11-Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Debug\Event.h">
-      <Filter>Header Files\Win32\Cpp11-Debug</Filter>
-    </ClInclude>
     <ClInclude Include="x64\Debug\Event.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
@@ -119,12 +77,6 @@
     </ClInclude>
     <ClInclude Include="Win32\Release\Event.h">
       <Filter>Header Files\Win32\Release</Filter>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Release\Event.h">
-      <Filter>Header Files\x64\Cpp11-Release</Filter>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Release\Event.h">
-      <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

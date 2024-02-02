@@ -40,10 +40,6 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(OutgoingConnectionFactory* p) { return p; }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(IncomingConnectionFactory* p) { return p; }
-#endif
-
 namespace
 {
 
@@ -77,10 +73,7 @@ find(const Map& m, const typename Map::key_type& k, Predicate predicate)
     return nullptr;
 }
 
-class StartAcceptor : public IceUtil::TimerTask
-#ifdef ICE_CPP11_MAPPING
-                    , public std::enable_shared_from_this<StartAcceptor>
-#endif
+class StartAcceptor : public IceUtil::TimerTask, public std::enable_shared_from_this<StartAcceptor>
 {
 public:
 
@@ -249,11 +242,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         return;
     }
 
-#ifdef ICE_CPP11_MAPPING
     auto cb = make_shared<ConnectCallback>(_instance, this, endpoints, hasMore, callback, selType);
-#else
-    ConnectCallbackPtr cb = new ConnectCallback(_instance, this, endpoints, hasMore, callback, selType);
-#endif
     cb->getConnectors();
 }
 

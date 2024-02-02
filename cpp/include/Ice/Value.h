@@ -64,17 +64,10 @@ public:
      * Returns a shallow copy of the object.
      * @return The cloned value.
      */
-#if defined ICE_CPP11_MAPPING
     inline std::shared_ptr<Value> ice_clone() const
     {
         return _iceCloneImpl();
     }
-#else
-    inline SharedPtr<Value> ice_clone() const
-    {
-        return SharedPtr<Value>(_iceCloneImpl());
-    }
-#endif
 
     /**
      * Obtains the sliced data associated with this instance.
@@ -109,17 +102,10 @@ public:
 
     ValueHelper() = default;
 
-#if defined ICE_CPP11_MAPPING
     std::shared_ptr<T> ice_clone() const
     {
         return std::static_pointer_cast<T>(_iceCloneImpl());
     }
-#else
-    SharedPtr<T> ice_clone() const
-    {
-        return SharedPtr<T>(std::static_pointer_cast<T>(_iceCloneImpl()));
-    }
-#endif
 
     virtual std::string ice_id() const override
     {

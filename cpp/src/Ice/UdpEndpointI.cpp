@@ -18,10 +18,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(UdpEndpointI* p) { return p; }
-#endif
-
 extern "C"
 {
 
@@ -237,11 +233,7 @@ IceInternal::UdpEndpointI::options() const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::UdpEndpointI::operator==(const Endpoint& r) const
-#else
-IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
-#endif
 {
     if(!IPEndpointI::operator==(r))
     {
@@ -283,11 +275,7 @@ IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::UdpEndpointI::operator<(const Endpoint& r) const
-#else
-IceInternal::UdpEndpointI::operator<(const LocalObject& r) const
-#endif
 {
     const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
     if(!p)

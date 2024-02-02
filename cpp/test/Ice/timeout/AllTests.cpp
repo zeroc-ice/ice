@@ -226,7 +226,6 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(100));
 
-#ifdef ICE_CPP11_MAPPING
         auto f = to->sleepAsync(1000);
         try
         {
@@ -240,11 +239,6 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback();
-        to->begin_sleep(1000, newCallback_Timeout_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
-        cb->check();
-#endif
         obj->ice_ping();
     }
     {
@@ -252,7 +246,6 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         // Expect success.
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(1000));
-#ifdef ICE_CPP11_MAPPING
         auto f = to->sleepAsync(100);
         try
         {
@@ -262,11 +255,6 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback();
-        to->begin_sleep(100, newCallback_Timeout_sleep(cb, &Callback::response, &Callback::exception));
-        cb->check();
-#endif
     }
     {
         //
@@ -295,11 +283,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         try
         {
             con = connect(to);
-#ifdef ICE_CPP11_MAPPING
             to->sleepAsync(750).get();
-#else
-            to->end_sleep(to->begin_sleep(750));
-#endif
             test(false);
         }
         catch(const Ice::TimeoutException&)
@@ -490,11 +474,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
 
         try
         {
-#ifdef ICE_CPP11_MAPPING
             timeout->sleepAsync(500).get();
-#else
-            timeout->end_sleep(timeout->begin_sleep(500));
-#endif
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
@@ -504,11 +484,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         try
         {
             timeout->ice_invocationTimeout(-2)->ice_ping();
-            #ifdef ICE_CPP11_MAPPING
             timeout->ice_invocationTimeout(-2)->ice_pingAsync().get();
-            #else
-            timeout->ice_invocationTimeout(-2)->begin_ice_ping()->waitForCompleted();
-            #endif
         }
         catch(const Ice::Exception&)
         {
@@ -521,18 +497,10 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         batchTimeout->ice_ping();
 
         // Keep the server thread pool busy.
-#ifdef ICE_CPP11_MAPPING
         timeout->ice_invocationTimeout(-1)->sleepAsync(500);
-#else
-        timeout->ice_invocationTimeout(-1)->begin_sleep(500);
-#endif
         try
         {
-#ifdef ICE_CPP11_MAPPING
             batchTimeout->ice_flushBatchRequestsAsync().get();
-#else
-            batchTimeout->end_ice_flushBatchRequests(batchTimeout->begin_ice_flushBatchRequests());
-#endif
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)

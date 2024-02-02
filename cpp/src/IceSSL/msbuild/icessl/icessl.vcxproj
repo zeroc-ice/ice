@@ -20,7 +20,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{72FA68A9-49B6-4AB6-94AE-34BB03770A51}</ProjectGuid>
+    <ProjectGuid>{5923B17D-2873-4245-87A7-FB8F4BE12501}</ProjectGuid>
     <RootNamespace>IceSSL</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -45,7 +45,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp98.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -62,11 +62,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICESSL_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -101,7 +96,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
     <SliceCompile>
-      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
+      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceSSL\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>IceSSL</BaseDirectoryForGeneratedInclude>
     </SliceCompile>
   </ItemDefinitionGroup>
@@ -112,7 +107,6 @@
     <ClCompile Include="..\..\AcceptorI.cpp" />
     <ClCompile Include="..\..\CertificateI.cpp" />
     <ClCompile Include="..\..\ConnectionInfo.cpp" />
-    <ClCompile Include="..\..\ConnectionInfoF.cpp" />
     <ClCompile Include="..\..\ConnectorI.cpp" />
     <ClCompile Include="..\..\EndpointI.cpp" />
     <ClCompile Include="..\..\EndpointInfo.cpp" />
@@ -132,7 +126,6 @@
     <ClInclude Include="..\..\..\..\include\IceSSL\IceSSL.h" />
     <ClInclude Include="..\..\..\..\include\IceSSL\Plugin.h" />
     <ClInclude Include="..\..\AcceptorI.h" />
-    <ClInclude Include="..\..\CertificateI.h" />
     <ClInclude Include="..\..\ConnectorI.h" />
     <ClInclude Include="..\..\EndpointI.h" />
     <ClInclude Include="..\..\Instance.h" />
@@ -140,6 +133,7 @@
     <ClInclude Include="..\..\PluginI.h" />
     <ClInclude Include="..\..\RFC2253.h" />
     <ClInclude Include="..\..\SChannelEngine.h" />
+    <ClInclude Include="..\..\SChannelEngineF.h" />
     <ClInclude Include="..\..\SChannelTransceiverI.h" />
     <ClInclude Include="..\..\SSLEngine.h" />
     <ClInclude Include="..\..\SSLEngineF.h" />

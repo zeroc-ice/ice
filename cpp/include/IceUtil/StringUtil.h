@@ -14,12 +14,7 @@ namespace IceUtilInternal
 //
 // Must be kept in sync with Ice::ToStringMode
 //
-#ifdef ICE_CPP11_MAPPING
-enum class ToStringMode : unsigned char
-#else
-enum ToStringMode
-#endif
-{ Unicode, ASCII, Compat };
+enum class ToStringMode : unsigned char{ Unicode, ASCII, Compat };
 
 //
 // Add escape sequences (like "\n", or "\123") to the input string

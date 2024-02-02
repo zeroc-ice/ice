@@ -290,28 +290,11 @@ allTests(Test::TestHelper* helper)
         Ice::InputStream in(communicator, data);
         SmallStruct s2;
         in.read(s2);
-
-#ifdef ICE_CPP11_MAPPING
         test(targetEqualTo(s2.p, s.p));
         s2.p = s.p; // otherwise the s2 == s below will fail
-#endif
 
         test(s2 == s);
     }
-
-#ifndef ICE_CPP11_MAPPING
-    {
-        Ice::OutputStream out(communicator);
-        ClassStructPtr s = new ClassStruct();
-        s->i = 10;
-        out.write(s);
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        ClassStructPtr s2 = new ClassStruct();
-        in.read(s2);
-        test(s2->i == s->i);
-    }
-#endif
 
     {
         Ice::OutputStream out(communicator);
@@ -655,10 +638,8 @@ allTests(Test::TestHelper* helper)
 
         for(SmallStructS::size_type j = 0; j < arr2.size(); ++j)
         {
-#ifdef ICE_CPP11_MAPPING
             test(targetEqualTo(arr[j].p, arr2[j].p));
             arr2[j].p = arr[j].p;
-#endif
             test(arr[j] == arr2[j]);
         }
 
@@ -674,10 +655,6 @@ allTests(Test::TestHelper* helper)
         Ice::InputStream in2(communicator, data);
         SmallStructSS arr2S;
         in2.read(arr2S);
-#ifndef ICE_CPP11_MAPPING
-        // With C++11, we need targetEqualTo to compare proxies
-        test(arr2S == arrS);
-#endif
     }
 
     {
@@ -1044,23 +1021,6 @@ allTests(Test::TestHelper* helper)
         test(s2 == s);
     }
 
-#ifndef ICE_CPP11_MAPPING
-    //
-    // No support for struct-as-class in C++11.
-    //
-    {
-        Ice::OutputStream out(communicator);
-        NestedClassStructPtr s = new NestedClassStruct();
-        s->i = 10;
-        out.write(s);
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        NestedClassStructPtr s2 = new NestedClassStruct();
-        in.read(s2);
-        test(s2->i == s->i);
-    }
-#endif
-
     {
         Ice::OutputStream out(communicator);
         NestedException ex;
@@ -1110,23 +1070,6 @@ allTests(Test::TestHelper* helper)
         in.read(s2);
         test(s2 == s);
     }
-
-#ifndef ICE_CPP11_MAPPING
-    //
-    // No support for struct-as-class in C++11.
-    //
-    {
-        Ice::OutputStream out(communicator);
-        NestedClassStruct2Ptr s = new NestedClassStruct2();
-        s->i = 10;
-        out.write(s);
-        out.finished(data);
-        Ice::InputStream in(communicator, data);
-        NestedClassStruct2Ptr s2 = new NestedClassStruct2();
-        in.read(s2);
-        test(s2->i == s->i);
-    }
-#endif
 
     {
         Ice::OutputStream out(communicator);

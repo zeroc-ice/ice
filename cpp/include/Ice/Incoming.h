@@ -18,8 +18,6 @@
 
 #include <deque>
 
-#ifdef ICE_CPP11_MAPPING
-
 namespace Ice
 {
 
@@ -54,8 +52,6 @@ protected:
 
 }
 
-#endif
-
 namespace Ice
 {
     class ServantLocator;
@@ -72,10 +68,7 @@ public:
     void endWriteParams();
     void writeEmptyParams();
     void writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
-
-#ifdef ICE_CPP11_MAPPING
     void setMarshaledResult(const Ice::MarshaledResult&);
-#endif
 
     void response(bool);
     void exception(const std::exception&, bool);
@@ -109,13 +102,8 @@ protected:
     // stack-allocated Incoming still holds it.
     //
     ResponseHandler* _responseHandler;
-
-#ifdef ICE_CPP11_MAPPING
     using DispatchInterceptorCallbacks = std::deque<std::pair<std::function<bool()>,
                                                               std::function<bool(std::exception_ptr)>>>;
-#else
-    typedef std::deque<Ice::DispatchInterceptorAsyncCallbackPtr> DispatchInterceptorCallbacks;
-#endif
     DispatchInterceptorCallbacks _interceptorCBs;
 };
 
@@ -136,11 +124,7 @@ public:
         return _current;
     }
 
-#ifdef ICE_CPP11_MAPPING
     void push(std::function<bool()>, std::function<bool(std::exception_ptr)>);
-#else
-    void push(const Ice::DispatchInterceptorAsyncCallbackPtr&);
-#endif
     void pop();
 
     void setAsync(const IncomingAsyncPtr& in)

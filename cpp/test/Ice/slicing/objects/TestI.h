@@ -51,24 +51,14 @@ public:
     virtual ::Test::PreservedPtr PBSUnknownAsPreserved(const ::Ice::Current&);
     virtual void checkPBSUnknown(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void PBSUnknownAsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
                                                       std::function<void(std::exception_ptr)>,
                                                       const ::Ice::Current&);
-#else
-    virtual void PBSUnknownAsPreservedWithGraph_async(const ::Test::AMD_TestIntf_PBSUnknownAsPreservedWithGraphPtr&,
-                                                      const ::Ice::Current&);
-#endif
     virtual void checkPBSUnknownWithGraph(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void PBSUnknown2AsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
                                                        std::function<void(std::exception_ptr)>,
                                                        const ::Ice::Current&);
-#else
-    virtual void PBSUnknown2AsPreservedWithGraph_async(const ::Test::AMD_TestIntf_PBSUnknown2AsPreservedWithGraphPtr&,
-                                                       const ::Ice::Current&);
-#endif
     virtual void checkPBSUnknown2WithGraph(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
 
     virtual ::Test::PNodePtr exchangePNode(ICE_IN(::Test::PNodePtr), const ::Ice::Current&);
@@ -77,14 +67,9 @@ public:
     virtual void throwDerivedAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsDerived(const ::Ice::Current&);
     virtual void throwUnknownDerivedAsBase(const ::Ice::Current&);
-#ifdef ICE_CPP11_MAPPING
     virtual void throwPreservedExceptionAsync(std::function<void()>,
                                                std::function<void(std::exception_ptr)>,
                                                const ::Ice::Current&);
-#else
-    virtual void throwPreservedException_async(const ::Test::AMD_TestIntf_throwPreservedExceptionPtr&,
-                                               const ::Ice::Current&);
-#endif
 
     virtual void useForward(::Test::ForwardPtr&, const ::Ice::Current&);
 

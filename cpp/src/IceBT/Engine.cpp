@@ -225,10 +225,7 @@ ICE_DEFINE_PTR(ServerProfilePtr, ServerProfile);
 // Engine delegates to BluetoothService. It encapsulates a snapshot of the "objects" managed by the
 // DBus Bluetooth daemon. These objects include local Bluetooth adapters, paired devices, etc.
 //
-class BluetoothService : public DBus::Filter
-#ifdef ICE_CPP11_MAPPING
-                       , public std::enable_shared_from_this<BluetoothService>
-#endif
+class BluetoothService : public DBus::Filter, public std::enable_shared_from_this<BluetoothService>
 {
 public:
 
@@ -300,11 +297,7 @@ public:
         }
 
         VariantMap properties;
-#ifdef ICE_CPP11_MAPPING
         vector<function<void(const string&, const PropertyMap&)>> callbacks;
-#else
-        vector<DiscoveryCallbackPtr> callbacks;
-#endif
     };
 
     typedef map<string, RemoteDevice> RemoteDeviceMap; // Key is the object path.
@@ -581,11 +574,7 @@ public:
         t->start();
     }
 
-#ifdef ICE_CPP11_MAPPING
     void startDiscovery(const string& addr, function<void(const string&, const PropertyMap&)> cb)
-#else
-    void startDiscovery(const string& addr, const DiscoveryCallbackPtr& cb)
-#endif
     {
         string path;
 
@@ -597,11 +586,7 @@ public:
                 if(p->second.getAddress() == IceUtilInternal::toUpper(addr))
                 {
                     path = p->first;
-#ifdef ICE_CPP11_MAPPING
                     p->second.callbacks.push_back(move(cb));
-#else
-                    p->second.callbacks.push_back(cb);
-#endif
                 }
             }
         }
@@ -888,12 +873,7 @@ public:
             return; // Ignore devices that don't have an Address property.
         }
 
-#ifdef ICE_CPP11_MAPPING
         vector<function<void(const string&, const PropertyMap&)>> callbacks;
-#else
-        vector<DiscoveryCallbackPtr> callbacks;
-#endif
-
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
@@ -912,7 +892,7 @@ public:
             {
                 pm[p->first] = p->second->toString();
             }
-#ifdef ICE_CPP11_MAPPING
+
             for(const auto& discovered : callbacks)
             {
                 try
@@ -923,28 +903,12 @@ public:
                 {
                 }
             }
-#else
-            for(vector<DiscoveryCallbackPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
-            {
-                try
-                {
-                    (*p)->discovered(dev.getAddress(), pm);
-                }
-                catch(...)
-                {
-                }
-            }
-#endif
         }
     }
 
     void deviceChanged(const string& path, const VariantMap& changed, const vector<string>& removedProps)
     {
-#ifdef ICE_CPP11_MAPPING
         vector<function<void(const string&, const PropertyMap&)>> callbacks;
-#else
-        vector<DiscoveryCallbackPtr> callbacks;
-#endif
         string addr;
         string adapter;
         VariantMap props;
@@ -998,7 +962,7 @@ public:
             {
                 pm[p->first] = p->second->toString();
             }
-#ifdef ICE_CPP11_MAPPING
+
             for(const auto& discovered : callbacks)
             {
                 try
@@ -1009,18 +973,6 @@ public:
                 {
                 }
             }
-#else
-            for(vector<DiscoveryCallbackPtr>::iterator p = callbacks.begin(); p != callbacks.end(); ++p)
-            {
-                try
-                {
-                    (*p)->discovered(addr, pm);
-                }
-                catch(...)
-                {
-                }
-            }
-#endif
         }
     }
 
@@ -1313,18 +1265,10 @@ public:
     vector<IceUtil::ThreadPtr> _connectThreads;
 
     bool _discovering;
-#ifdef ICE_CPP11_MAPPING
     vector<function<void(const string&, const PropertyMap&)>> _discoveryCallbacks;
-#else
-    vector<DiscoveryCallbackPtr> _discoveryCallbacks;
-#endif
 };
 
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceBT::upCast(IceBT::BluetoothService* p) { return p; }
-#endif
 
 IceBT::Engine::Engine(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
@@ -1389,11 +1333,7 @@ IceBT::Engine::connect(const string& addr, const string& uuid, const ConnectCall
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 IceBT::Engine::startDiscovery(const string& address, function<void(const string&, const PropertyMap&)> cb)
-#else
-IceBT::Engine::startDiscovery(const string& address, const DiscoveryCallbackPtr& cb)
-#endif
 {
     _service->startDiscovery(address, cb);
 }

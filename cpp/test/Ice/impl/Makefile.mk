@@ -23,7 +23,7 @@ $$($5_objdir)/$$($2_impl)I.cpp: $1/$$($2_impl).ice $(slice2cpp_path)
 	$(E) "Compiling $$< implementation"
 	$(Q)$(MKDIR) -p $$(*D)
 	$(Q)$(RM) $$(*).h $$(*).cpp
-	$(Q)$(slice2cpp_path) $$($2_sliceflags) $$(if $$(filter cpp11-%,$4),--impl-c++11,--impl-c++98) --output-dir $$(*D) $$<
+	$(Q)$(slice2cpp_path) $$($2_sliceflags) --impl-c++11 --output-dir $$(*D) $$<
 
 # Prevents warning if multiple configurations refer to $$($5_objdir)/$$($2_impl)I.cpp
 $1_impls += $$($5_objdir)/$$($2_impl)I.cpp

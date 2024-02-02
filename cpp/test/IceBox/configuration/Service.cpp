@@ -30,11 +30,7 @@ extern "C"
 // Factory function
 //
 ICE_DECLSPEC_EXPORT ::IceBox::Service*
-#ifdef ICE_CPP11_MAPPING
 create(const shared_ptr<Communicator>&)
-#else
-create(CommunicatorPtr)
-#endif
 {
     return new ServiceI;
 }

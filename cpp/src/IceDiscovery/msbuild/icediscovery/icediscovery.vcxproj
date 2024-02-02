@@ -20,7 +20,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3850C9C9-BA92-4EE6-9E77-E5BAE2A9BC81}</ProjectGuid>
+    <ProjectGuid>{270BB666-62FB-49ED-BFA2-8F279DC9ABDD}</ProjectGuid>
     <RootNamespace>IceDiscovery</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -45,7 +45,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp98.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\msbuild\ice.cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
@@ -63,10 +63,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_DISCOVERY_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -89,10 +85,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
     <SliceCompile>
-      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\IceDiscovery\</HeaderOutputDir>
+      <HeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceDiscovery\</HeaderOutputDir>
       <BaseDirectoryForGeneratedInclude>IceDiscovery</BaseDirectoryForGeneratedInclude>
     </SliceCompile>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\IceDiscovery.rc" />
+  </ItemGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\IceDiscovery\IceDiscovery.ice" />
   </ItemGroup>
@@ -126,25 +125,25 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceDiscovery\IceDiscovery.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\IceDiscovery\IceDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\IceDiscovery.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceDiscovery\IceDiscovery.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\IceDiscovery\IceDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\IceDiscovery.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceDiscovery\IceDiscovery.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\IceDiscovery\IceDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\IceDiscovery\IceDiscovery.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceDiscovery\IceDiscovery.h">
+    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\IceDiscovery\IceDiscovery.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -153,9 +152,6 @@
     <ClInclude Include="..\..\LocatorI.h" />
     <ClInclude Include="..\..\LookupI.h" />
     <ClInclude Include="..\..\PluginI.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\..\IceDiscovery.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

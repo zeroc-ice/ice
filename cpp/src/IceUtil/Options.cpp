@@ -31,14 +31,6 @@ IceUtilInternal::APIException::ice_print(ostream& out) const
     }
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtilInternal::APIException*
-IceUtilInternal::APIException::ice_clone() const
-{
-    return new APIException(*this);
-}
-#endif
-
 ostream&
 IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& ex)
 {
@@ -66,14 +58,6 @@ IceUtilInternal::BadOptException::ice_print(ostream& out) const
         out << ": " << reason;
     }
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceUtilInternal::BadOptException*
-IceUtilInternal::BadOptException::ice_clone() const
-{
-    return new BadOptException(*this);
-}
-#endif
 
 ostream&
 IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::BadOptException& ex)

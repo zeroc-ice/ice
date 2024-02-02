@@ -15,7 +15,7 @@
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
     <PropertyGroup>
-        <CppDistTargets>c++98\slice2py;c++11\icessl++11;c++11\icediscovery++11;c++11\icelocatordiscovery++11;c++11\glacier2router++11;c++11\glacier2cryptpermissionsverifier++11</CppDistTargets>
+        <CppDistTargets>slice2py;icessl;icediscovery;icelocatordiscovery;glacier2router;glacier2cryptpermissionsverifier</CppDistTargets>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
@@ -48,8 +48,8 @@
     </ItemGroup>
 
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="$(CppDistTargets)"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />

@@ -23,12 +23,7 @@ class OutputStream;
 namespace IceInternal
 {
 
-class ResponseHandler :
-#ifdef ICE_CPP11_MAPPING
-        public EnableSharedFromThis<ResponseHandler>
-#else
-        public virtual IceUtil::Shared
-#endif
+class ResponseHandler : public EnableSharedFromThis<ResponseHandler>
 {
 public:
 

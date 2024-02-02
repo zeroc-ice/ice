@@ -29,6 +29,6 @@ TestSuite(
     ],
     libDirs=["testservice"],
     runOnMainThread=True,
-    options={"ipv6": [False], "mx": [False], "cpp11": [False]},
+    options={"ipv6": [False], "mx": [False]},
     multihost=False,
 )

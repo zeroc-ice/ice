@@ -15,12 +15,7 @@
 namespace IceInternal
 {
 
-class ICE_API EventHandler :
-#ifdef ICE_CPP11_MAPPING
-        public EnableSharedFromThis<EventHandler>
-#else
-        public virtual Ice::LocalObject
-#endif
+class ICE_API EventHandler : public EnableSharedFromThis<EventHandler>
 {
 public:
 

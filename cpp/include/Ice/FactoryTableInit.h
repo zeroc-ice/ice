@@ -42,11 +42,7 @@ public:
 
     DefaultUserExceptionFactoryInit(const char* tId) : typeId(tId)
     {
-#ifdef ICE_CPP11_MAPPING
         factoryTable->addExceptionFactory(typeId, defaultUserExceptionFactory<E>);
-#else
-        factoryTable->addExceptionFactory(typeId, new DefaultUserExceptionFactory<E>(typeId));
-#endif
     }
 
     ~DefaultUserExceptionFactoryInit()

@@ -17,10 +17,8 @@ namespace IceInternal
 {
 
 class RetryTask : public IceUtil::TimerTask,
-                  public CancellationHandler
-#ifdef ICE_CPP11_MAPPING
-                , public std::enable_shared_from_this<RetryTask>
-#endif
+                  public CancellationHandler,
+                  public std::enable_shared_from_this<RetryTask>
 {
 public:
 

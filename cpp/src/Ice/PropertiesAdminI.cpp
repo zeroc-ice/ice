@@ -33,33 +33,21 @@ PropertiesAdminI::PropertiesAdminI(const InstancePtr& instance) :
 }
 
 string
-#ifdef ICE_CPP11_MAPPING
 PropertiesAdminI::getProperty(string name, const Current&)
-#else
-PropertiesAdminI::getProperty(const string& name, const Current&)
-#endif
 {
     Lock sync(*this);
     return _properties->getProperty(name);
 }
 
 PropertyDict
-#ifdef ICE_CPP11_MAPPING
 PropertiesAdminI::getPropertiesForPrefix(string prefix, const Current&)
-#else
-PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Current&)
-#endif
 {
     Lock sync(*this);
     return _properties->getPropertiesForPrefix(prefix);
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 PropertiesAdminI::setProperties(PropertyDict props, const Current&)
-#else
-PropertiesAdminI::setProperties(const PropertyDict& props, const Current&)
-#endif
 {
     Lock sync(*this);
 
