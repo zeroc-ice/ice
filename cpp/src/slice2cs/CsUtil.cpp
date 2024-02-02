@@ -204,23 +204,6 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangl
 }
 
 string
-Slice::CsGenerator::fixId(const ContainedPtr& cont, unsigned int baseTypes, bool mangleCasts)
-{
-    ContainerPtr container = cont->container();
-    ContainedPtr contained = dynamic_pointer_cast<Contained>(container);
-    if(contained && contained->hasMetaData("cs:property") &&
-       (contained->containedType() == Contained::ContainedTypeClass ||
-        contained->containedType() == Contained::ContainedTypeStruct))
-    {
-        return "_" + cont->name();
-    }
-    else
-    {
-        return fixId(cont->name(), baseTypes, mangleCasts);
-    }
-}
-
-string
 Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
 {
     BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
